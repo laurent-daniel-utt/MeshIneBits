@@ -1,5 +1,7 @@
 package bitSlicer.Slicer;
 
-public class Slice {
+import bitSlicer.util.Shape2D;
+
+public class Slice extends Shape2D {
 
 }

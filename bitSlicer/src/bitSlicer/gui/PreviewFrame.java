@@ -50,8 +50,8 @@ public class PreviewFrame extends JFrame
 		{
 			super.paint(g);
 
-			for (Bit2D bit : layers.getPattern(showLayer)) {
-				for (Segment2D s : bit.modelSegmentList)
+			for (Bit2D bit : layers.get(showLayer).getBits()) {
+				for (Segment2D s : bit.getSegmentList())
 				{
 					drawSegment(g, s);			
 				}	
@@ -59,7 +59,7 @@ public class PreviewFrame extends JFrame
 			
 			
 			Graphics2D g2d = (Graphics2D) g;
-			for (Polygon poly : layers.getModelSlice(showLayer)) {
+			for (Polygon poly : layers.get(showLayer).getModelSlice()) {
 				drawModelPath2D(g2d, poly.toPath2D());
 			}
 		}
