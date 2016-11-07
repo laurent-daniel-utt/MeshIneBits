@@ -17,6 +17,10 @@ public class Polygon implements Iterable<Segment2D>
 	private boolean enclosed = false;
 	private Path2D path; // Polygon converted to java.awt.geom.Path2D
 
+	public Polygon() {
+		// TODO Auto-generated constructor stub
+	}
+	
 	public Polygon(Segment2D segment)
 	{
 		first = segment;
