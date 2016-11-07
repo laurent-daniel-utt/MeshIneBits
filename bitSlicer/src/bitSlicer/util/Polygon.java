@@ -8,7 +8,7 @@ import bitSlicer.util.AABBrect;
 import bitSlicer.util.Vector2;
 
 /**
- * A polygon is a set of Segment2D, enclosed or not
+ * A polygon is a enclosed set of Segment2D.
  */
 public class Polygon implements Iterable<Segment2D>
 {
@@ -208,11 +208,6 @@ public class Polygon implements Iterable<Segment2D>
 			if (next == first)
 				next = null;
 			return ret;
-		}
-
-		public void remove()
-		{
-			throw new UnsupportedOperationException();
 		}
 	}
 	
