@@ -1,5 +1,5 @@
 package bitSlicer;
 
-public class Main {
+public class BitSlicerMain {
 
 }
