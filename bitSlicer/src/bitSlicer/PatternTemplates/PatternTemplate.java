@@ -5,7 +5,7 @@ import java.util.Vector;
 import bitSlicer.Bit2D;
 import bitSlicer.util.Vector2;
 
-abstract class PatternTemplate {
+public abstract class PatternTemplate {
 	
 	protected double bitWidth, bitLength;	
 	protected Vector2 rotation, offSet, patternStart, patternEnd;
@@ -27,6 +27,6 @@ abstract class PatternTemplate {
 		//TODO
 	}
 	
-	abstract Vector<Bit2D> createPattern(double layerNumber);
+	public abstract Vector<Bit2D> createPattern(double layerNumber);
 }
 
