@@ -7,7 +7,7 @@ import bitSlicer.util.Vector2;
 
 abstract class PatternTemplate {
 	
-	protected double bitWidth, bitLength;
+	protected double bitWidth, bitLength;	
 	protected Vector2 rotation, offSet, patternStart, patternEnd;
 	
 	public PatternTemplate(double bitWidth, double bitLength, Vector2 rotation, Vector2 offSet, double skirtRadius){
@@ -18,10 +18,13 @@ abstract class PatternTemplate {
 		setBoundaries(skirtRadius);
 	}
 
+	/*
+	 * setBoundaries will set the patternStart and patternEnd points according to the rotation, offset and skirtRadius
+	 * skirtRadius is the radius of the cylinder that fully contains the part.
+	 * The points patternStart and patternEnd make the rectangle that the method createPattern() will cover.
+	 */
 	public void setBoundaries(double skirtRadius){
-		//Set patternStart et patternEnd en fonction de la rotation, de l'offset et du skirtRadius
-		//SkirtRadius est le rayon du cylindre qui contient entierement la pièce
-		//patternEnd et patternStart sont 2 points qui forment le rectangle que va recouvrir la méthode createPattern
+		//TODO
 	}
 	
 	abstract Vector<Bit2D> createPattern(double layerNumber);

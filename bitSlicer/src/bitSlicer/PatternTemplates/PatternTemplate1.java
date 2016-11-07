@@ -12,7 +12,7 @@ public class PatternTemplate1 extends PatternTemplate {
 	}
 
 	Vector<Bit2D> createPattern(double layerNumber) {
-		// TODO Auto-generated method stub
+		// TODO
 		return null;
 	}
 
