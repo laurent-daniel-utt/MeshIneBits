@@ -14,12 +14,16 @@ public class Vector3
 		this.z = z;
 	}
 	
+	public Vector3() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String toString()
 	{
 		return x + "," + y + "," + z;
 	}
 	
-	public void add(Vector3 v)
+	public void addToSelf(Vector3 v)
 	{
 		x += v.x;
 		y += v.y;
