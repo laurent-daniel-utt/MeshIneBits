@@ -28,10 +28,6 @@ public class CraftConfig
 			description = "If the cosinus of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
 			minValue = 0.95, maxValue = 1.0)
 	public static double joinMinCosAngle = 0.995;
-	
-	@Setting(title = "Minimum segment length (mm)",
-			description = "Remove segments shorter then this length.")
-	public static double minSegmentLength = 0.1;
 
 	public static String lastSlicedFile = "";
 }
