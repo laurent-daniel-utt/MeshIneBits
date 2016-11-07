@@ -11,7 +11,7 @@ public class PatternTemplate1 extends PatternTemplate {
 		super(bitWidth, bitLength, rotation, offSet, skirtRadius);
 	}
 
-	Vector<Bit2D> createPattern(double layerNumber) {
+	public Vector<Bit2D> createPattern(double layerNumber) {
 		// TODO
 		return null;
 	}
