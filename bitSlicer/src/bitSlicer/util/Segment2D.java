@@ -94,7 +94,6 @@ public class Segment2D extends AABBrect
 	
 	/**
 	 * Collision detection taken from http://stackoverflow.com/a/1968345
-	 * @param other
 	 */
 	public Vector2 getCollisionPoint(Segment2D other){
 		double p0_x = this.start.x;
@@ -126,8 +125,21 @@ public class Segment2D extends AABBrect
 	}
 	
 	/**
+	 * Return all the point of collision between this segment and a list of segments
+	 */
+	public Vector<Vector2> getCollisionPoints(Vector<Segment2D> segmentList){
+		Vector<Vector2> collisiontPoints = new Vector<Vector2>();
+		for (Segment2D s : segmentList) {
+			Vector2 collisionPoint = this.getCollisionPoint(s);
+			if (collisionPoint != null)
+				collisiontPoints.add(collisionPoint);
+		}
+		
+		return collisiontPoints;
+	}
+	
+	/**
 	 * Check if this segment contain a point. Taken from http://stackoverflow.com/a/11908158
-	 * @param point
 	 */
 	public boolean contains(Vector2 point)
 	{
@@ -192,9 +204,7 @@ public class Segment2D extends AABBrect
 	}
 		
 	/**
-	 * Return two segments.
-	 * @param point
-	 * @return
+	 * Split a segment into two segments using a point as splitting tool.
 	 */
 	public Vector<Segment2D> split(Vector2 point) {
 		Segment2D s1 = new Segment2D(this.type, this.start, point);
@@ -207,6 +217,9 @@ public class Segment2D extends AABBrect
 		return segments;
 	}
 	
+	/**
+	 * Split a segment into segments using a list of point as splitting tool.
+	 */
 	public Vector<Segment2D> split(Vector<Vector2> points) {
 		points.add(this.start);
 		points.add(this.end);
@@ -256,6 +269,23 @@ public class Segment2D extends AABBrect
 	public void resetLinks() {
 		this.next = null;
 		this.prev = null;
+	}
+	
+	/**
+	 * Remove the part of the segment outside of the shape. It will mostly return a vector with only 1 segment.
+	 */
+	public Vector<Segment2D> trim(Shape2D shape) {
+		Vector<Segment2D> trimmedSegment = new Vector<Segment2D>();
+		
+		Vector<Vector2> collisionPoints = this.getCollisionPoints(shape.getSegmentList());
+		Vector<Segment2D> splittedSegment = this.split(collisionPoints);
+		
+		for(Segment2D s : splittedSegment) {
+			if(shape.contains(s.getMidPoint()))
+				trimmedSegment.add(s);
+		}
+		
+		return trimmedSegment;
 	}
 }
 
