@@ -10,6 +10,7 @@ import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AABBTree;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Vector2;
+import daid.sliceAndDaid.Layer;
 import bitSlicer.util.AABBrect;
 
 /**
@@ -31,6 +32,10 @@ public class Shape2D implements Iterable<Polygon>
 	
 	public Shape2D(Vector<Polygon> polygons) {
 		this.polygons = new Vector<Polygon>(polygons);
+	}
+	
+	public Vector<Segment2D> getSegmentList() {
+		return this.segmentList;
 	}
 	
 	public void addModelSegment(Segment2D segment)
@@ -179,6 +184,20 @@ public class Shape2D implements Iterable<Polygon>
 		}
 		
 		return (i % 2 == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
+	}
+	
+	/**
+	 * Count of many walls of the shape a segment is colliding with
+	 */
+	public int countCollisions(Segment2D segment) {
+		int result = 0;
+		for (Segment2D s : this.getSegmentList()) {
+			Vector2 collisionPoint = s.getCollisionPoint(segment);
+			if (collisionPoint != null)
+				result++;
+		}
+		
+		return result;
 	}
 	
 	public Iterator<Polygon> iterator() {
