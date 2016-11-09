@@ -10,7 +10,6 @@ import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AABBTree;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Vector2;
-import daid.sliceAndDaid.Layer;
 import bitSlicer.util.AABBrect;
 
 /**
@@ -30,10 +29,10 @@ public class Shape2D implements Iterable<Polygon>
 		this.polygons.add(poly);
 	}
 	
-	public Shape2D(Vector<Polygon> polygons) {
-		this.polygons = new Vector<Polygon>(polygons);
+	public Shape2D(Vector<Segment2D> segmentList) {
+		this.segmentList = new Vector<Segment2D>(segmentList);
 	}
-	
+
 	public Vector<Segment2D> getSegmentList() {
 		return this.segmentList;
 	}
@@ -229,5 +228,38 @@ public class Shape2D implements Iterable<Polygon>
 			return;
 		}
 		polygons.add(poly);
+	}
+	
+	/**
+	 * Return the segment of the shape in parameter that cut this shape (ie segment inside this shape)
+	 */
+	public Vector<Segment2D> getCuttingSegmentsFrom(Shape2D shape) {
+		Vector<Segment2D> cuttingSegmentsList = new Vector<Segment2D>();
+		for (Segment2D s : shape.getSegmentList()) {
+			for(Segment2D trimmedSegment : s.trim(this))
+				cuttingSegmentsList.add(trimmedSegment);
+		}	
+		
+		return cuttingSegmentsList;
+	}
+	
+	/**
+	 * Return a shape with removed parts outside of the shape in parameter
+	 * TODO make this.optimize possible
+	 */
+	public Shape2D trim(Shape2D shape) {
+		Vector<Segment2D> newShapeSegmentList = new Vector<Segment2D>();
+		
+		// Get segments inside shape tool
+		for (Segment2D s : this.getSegmentList()) {
+			for(Segment2D trimmedSegment : s.trim(shape))
+				newShapeSegmentList.add(trimmedSegment);
+		}
+		
+		// Get segments of the shapes tools that cut through this shape
+		for (Segment2D s : this.getCuttingSegmentsFrom(shape))
+			newShapeSegmentList.add(s);
+		
+		return new Shape2D(newShapeSegmentList);
 	}
 }

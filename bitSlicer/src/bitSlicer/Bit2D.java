@@ -19,8 +19,11 @@ public class Bit2D extends Shape2D {
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
 	 */
-	public Bit2D(Vector2 originBit, Vector2 orientation, double bitWidth, double bitLength){
-		
+	public Bit2D(Vector2 origin, Vector2 orientation, double width, double length){
+		this.origin = origin;
+		this.orientation = orientation;
+		this.width = width;
+		this.length = length;
 	}
 	
 	/**
@@ -43,31 +46,11 @@ public class Bit2D extends Shape2D {
 		return slice.contains(this.origin);
 	}
 	
-	
 	/**
 	 * WIP - Return the a cut bit without the excess of material outside the slice
+	 * TODO update this
 	 */
-	public Bit2D getTruncatedBit(Slice slice) {
-		Vector<Segment2D> cuttingSegments = this.getCuttingSegments(slice);
-		
-		if (cuttingSegments != null) {
-			Vector<Segment2D> bitWalls = this.getCuttedBitSegments(slice);
-			
-			Vector<Segment2D> modelSegmentList = new Vector<Segment2D>();
-			for (Segment2D s: cuttingSegments) {
-				s.resetLinks();
-				modelSegmentList.add(s);
-			}
-			
-			for (Segment2D s: bitWalls) {
-				s.resetLinks();
-				modelSegmentList.add(s);
-			}
-			
-			return new Bit(this.origin, modelSegmentList);
-		}
-		
-		System.out.println("coucou");
-		return null;
+	public Shape2D getTruncatedBitShape(Slice slice) {
+		return this.trim(slice);
 	}
 }
