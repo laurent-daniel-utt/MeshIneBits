@@ -23,8 +23,11 @@ public class CraftConfigLoader
 	 */
 	public static void loadConfig(String filename)
 	{
-		if (filename == null)
-			filename = System.getProperty("user.home") + "/.SliceAndDaid.conf";
+		if (filename == null) {
+			filename = System.getProperty("user.home") + "/.BitSlicer.conf";
+			System.out.println("Laoding " + filename + "...");
+		}
+			
 		BufferedReader br = null;
 		try
 		{
@@ -50,7 +53,7 @@ public class CraftConfigLoader
 					continue;
 				String key = line.substring(0, line.indexOf('='));
 				String value = line.substring(line.indexOf('=') + 1);
-				if ("[SliceAndDaid config]".equals(section))
+				if ("[BitSlicer config]".equals(section))
 				{
 					setField(key, value);
 				}
@@ -121,12 +124,12 @@ public class CraftConfigLoader
 	public static void saveConfig(String filename)
 	{
 		if (filename == null)
-			filename = System.getProperty("user.home") + "/.SliceAndDaid.conf";
+			filename = System.getProperty("user.home") + "/.BitSlicer.conf";
 		try
 		{
 			BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
 			bw.write(";Saved with version: " + CraftConfig.VERSION + "\n");
-			bw.write("[SliceAndDaid config]\n");
+			bw.write("[BitSlicer config]\n");
 			Class<CraftConfig> configClass = CraftConfig.class;
 			for (final Field f : configClass.getFields())
 			{
