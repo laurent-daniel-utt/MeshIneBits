@@ -7,8 +7,8 @@ import bitSlicer.Bit2D;
 
 public class PatternTemplate1 extends PatternTemplate {
 
-	public PatternTemplate1(double bitWidth, double bitLength, Vector2 rotation, Vector2 offSet, double skirtRadius) {
-		super(bitWidth, bitLength, rotation, offSet, skirtRadius);
+	public PatternTemplate1(Vector2 rotation, Vector2 offSet, double skirtRadius) {
+		super(rotation, offSet, skirtRadius);
 	}
 
 	public Vector<Bit2D> createPattern(double layerNumber) {

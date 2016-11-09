@@ -11,19 +11,15 @@ import bitSlicer.util.Segment2D;;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D extends Shape2D {
-	private double width;
-	private double length;
 	private Vector2 origin;
 	private Vector2 orientation;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
 	 */
-	public Bit2D(Vector2 origin, Vector2 orientation, double width, double length){
+	public Bit2D(Vector2 origin, Vector2 orientation){
 		this.origin = origin;
 		this.orientation = orientation;
-		this.width = width;
-		this.length = length;
 	}
 	
 	/**

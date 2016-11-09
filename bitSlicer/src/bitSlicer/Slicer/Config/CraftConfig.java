@@ -30,4 +30,21 @@ public class CraftConfig
 	public static double joinMinCosAngle = 0.995;
 
 	public static String lastSlicedFile = "";
+	
+	@Setting(title = "Bit thickness (mm)",
+			description = "Thickness of the bits",
+			minValue = 0.0, maxValue = 100.0)
+	public static double bitThickness = 10.0;
+	
+	@Setting(title = "Bit width (mm)",
+			description = "Width of the bits",
+			minValue = 0.0, maxValue = 1000.0)
+	public static double bitWidth = 25.0;
+	
+	@Setting(title = "Bit length (mm)",
+			description = "Length of the bits",
+			minValue = 0.0, maxValue = 1000.0)
+	public static double bitLength = 120.0;
+	
+	
 }

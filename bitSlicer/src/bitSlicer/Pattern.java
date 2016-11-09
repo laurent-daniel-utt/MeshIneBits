@@ -9,9 +9,9 @@ public class Pattern {
 	
 	private Vector<Bit2D> bits;
 	
-	public Pattern(Slice slice, PatternTemplate patternTemplate, int layerNumber){
+	public Pattern(Slice slice, int layerNumber){
 		
-		bits = patternTemplate.createPattern(layerNumber);
+		bits = getPatternTemplate().createPattern(layerNumber);
 
 		computeBits(slice);
 		

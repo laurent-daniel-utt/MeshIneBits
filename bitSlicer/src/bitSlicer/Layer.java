@@ -2,20 +2,24 @@ package bitSlicer;
 
 import bitSlicer.util.Shape2D;
 import bitSlicer.Slicer.Slice;
+
+import java.util.Vector;
+
 import bitSlicer.Pattern;
-import bitSlicer.PatternTemplates.PatternTemplate;
 
 public class Layer extends Shape2D {
 	
 	private int layerNumber;
-	private Slice slice;
-	private Pattern pattern;
+	private Vector<Slice> slices;
+	private Vector<Pattern> patterns = new Vector<Pattern>();
 	
-	public Layer(Slice slice, PatternTemplate patternTemplate,  int layerNumber){
-		this.slice = slice;
+	public Layer(Vector<Slice> slices, int layerNumber){
+		this.slices = slices;
 		this.layerNumber = layerNumber;
 		
-		pattern = new Pattern(slice, patternTemplate, layerNumber);
+		for (Slice s : slices){
+			patterns.add(new Pattern(s, layerNumber));
+		}
 	}
 
 }
