@@ -29,5 +29,6 @@ public class CraftConfig
 			minValue = 0.95, maxValue = 1.0)
 	public static double joinMinCosAngle = 0.995;
 
+	@Setting()
 	public static String lastSlicedFile = "";
 }

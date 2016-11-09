@@ -9,6 +9,7 @@ import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.Slicer.Config.CraftConfigLoader;
 import bitSlicer.gui.ConfigWindow;
 import bitSlicer.util.Logger;
+import bitSlicer.gui.PreviewFrame;
 
 public class BitSlicerMain {
 	public static void main(String[] args)
@@ -36,5 +37,7 @@ public class BitSlicerMain {
 		
 		SliceTool slicer = new SliceTool(m);
 		final Vector<Slice> slices = slicer.sliceModel();
+		
+		new PreviewFrame(slices);
 	}
 }
