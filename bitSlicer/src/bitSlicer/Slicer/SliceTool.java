@@ -23,19 +23,18 @@ public class SliceTool
 		this.model = model;
 	}
 	
-	public Vector<Slice> sliceModel(int startSlice, int endSlice, double extraSliceOffset)
+	public Vector<Slice> sliceModel()
 	{
 		Vector<Slice> slices = new Vector<Slice>();
 		
 		double sliceHeight = CraftConfig.sliceHeight;
 		Vector3 modelMax = model.getMax();
-		double firstSliceHeight = ((double) CraftConfig.firstSliceHeightPercent) / 100.0 + extraSliceOffset;
+		double firstSliceHeight = ((double) CraftConfig.firstSliceHeightPercent) / 100.0;
 		int sliceCount = (int) (modelMax.z / sliceHeight + firstSliceHeight);
 		
-		int firstSlice = startSlice;
-		int lastSlice = endSlice;
-		if (lastSlice > sliceCount)
-			lastSlice = sliceCount;
+		int firstSlice = 0;
+		int lastSlice = sliceCount;
+		
 		Logger.updateStatus("Slicing slices");
 		Logger.message("Slicing " + (lastSlice - firstSlice) + " slices");
 		for (int i = firstSlice; i < lastSlice; i++)
