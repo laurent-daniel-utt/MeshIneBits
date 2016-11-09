@@ -21,12 +21,12 @@ public class PatternTemplate1 extends PatternTemplate {
 		Vector2 coo = patternStart;
 		while (coo.x <= patternEnd.x){
 			while(coo.y <= patternEnd.y){
-				bits.add(new Bit2D(coo, new Vector2(0,0))); //every bits have no rotation in that pattern
+				bits.add(new Bit2D(coo, new Vector2(0,0))); //every bits have no rotation in that template
 				coo.add(new Vector2(0,1));
 			}
 			coo.add(new Vector2(1,0));
 		}
-		return new Pattern(bits, new Vector2(1,0));
+		return new Pattern(bits, rotation.add(new Vector2(1,0))); //every pattern have no rotation in that template
 	}
 
 }

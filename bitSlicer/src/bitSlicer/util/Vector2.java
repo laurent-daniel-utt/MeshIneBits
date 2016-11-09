@@ -115,4 +115,10 @@ public class Vector2
 		}
 		return false;
 	}
+	
+	// Give the orientation vector equivalent to an angle in degrees
+	public static Vector2 getEquivalentVector(double angleDegrees){
+		double angleRadian = Math.PI*angleDegrees/180;
+		return new Vector2(Math.cos(angleRadian), Math.sin(angleRadian));
+	}
 }

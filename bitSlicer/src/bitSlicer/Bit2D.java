@@ -22,6 +22,12 @@ public class Bit2D extends Shape2D {
 		this.orientation = orientation;
 	}
 	
+	public Shape2D getBoundaries(){
+		//returns a shape2D in the coo system of the pattern which includes this bit
+		//TODO
+		return null;
+	}
+	
 	/**
 	 * Check if the bit is on the outline of the slice
 	 */
