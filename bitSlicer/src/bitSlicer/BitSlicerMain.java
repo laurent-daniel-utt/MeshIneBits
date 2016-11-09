@@ -14,6 +14,7 @@ import bitSlicer.gui.ConfigWindow;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
+import bitSlicer.gui.PreviewFrame;
 
 public class BitSlicerMain {
 	public static void main(String[] args)
@@ -42,7 +43,9 @@ public class BitSlicerMain {
 		SliceTool slicer = new SliceTool(m);
 		final Vector<Slice> slices = slicer.sliceModel();
 		
-		buildLayers(slices);
+		//buildLayers(slices);
+
+		new PreviewFrame(slices);
 	}
 	
 	/*

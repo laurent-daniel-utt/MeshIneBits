@@ -19,23 +19,22 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import bitSlicer.Bit2D;
-import bitSlicer.Layer;
+import bitSlicer.Slicer.Slice;
+import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
-import bitSlicer.util.Polygon;
 
 
 public class PreviewFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	private Vector<Layer> layers;
+	private Vector<Slice> slices;
 	
 	public class PreviewPanel extends JPanel implements MouseMotionListener
 	{
 		private static final long serialVersionUID = 1L;
 		
-		public int showLayer = 0;
+		public int showSlice = 0;
 		public double drawScale = 1.0;
 		public double viewOffsetX, viewOffsetY;
 		
@@ -50,18 +49,16 @@ public class PreviewFrame extends JFrame
 		{
 			super.paint(g);
 
-			for (Bit2D bit : layers.getPattern(showLayer)) {
-				for (Segment2D s : bit.modelSegmentList)
-				{
-					drawSegment(g, s);			
-				}	
-			}
-			
-			
 			Graphics2D g2d = (Graphics2D) g;
-			for (Polygon poly : layers.getModelSlice(showLayer)) {
-				drawModelPath2D(g2d, poly.toPath2D());
-			}
+			
+			for(Polygon p : slices.get(showSlice))
+				drawModelPath2D(g2d, p.toPath2D());
+			
+			
+			
+			
+			
+			
 		}
 		
 		private void drawSegment(Graphics g, Segment2D s)
@@ -97,7 +94,6 @@ public class PreviewFrame extends JFrame
 		
 		public void mouseDragged(MouseEvent e)
 		{
-			
 			viewOffsetX += (double) (e.getX() - oldX) / drawScale;
 			viewOffsetY += (double) (e.getY() - oldY) / drawScale;
 			repaint();
@@ -112,20 +108,20 @@ public class PreviewFrame extends JFrame
 		}
 	}
 	
-	public PreviewFrame(Vector<Layer> layers)
+	public PreviewFrame(Vector<Slice> slices)
 	{
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
 		this.setTitle("Preview");
-		this.layers = layers;
+		this.slices = slices;
 		
-		final JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showLayer, 0, layers.size() - 1, 1));
-		layerSpinner.addChangeListener(new ChangeListener()
+		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, 0, slices.size() - 1, 1));
+		sliceSpinner.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue();
+				viewPanel.showSlice = ((Integer) sliceSpinner.getValue()).intValue();
 				viewPanel.repaint();
 			}
 		});
@@ -139,8 +135,8 @@ public class PreviewFrame extends JFrame
 			}
 		});
 		
-		actionPanel.add(new JLabel("Layer:"));
-		actionPanel.add(layerSpinner);
+		actionPanel.add(new JLabel("Slice:"));
+		actionPanel.add(sliceSpinner);
 		actionPanel.add(new JLabel("Zoom:"));
 		actionPanel.add(zoomSpinner);
 		
