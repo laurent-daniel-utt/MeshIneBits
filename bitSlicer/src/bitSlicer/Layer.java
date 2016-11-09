@@ -13,7 +13,7 @@ public class Layer extends Shape2D {
 	private Vector<Slice> slices;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	
-	public Layer(Vector<Slice> slices, int layerNumber){
+	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart){
 		this.slices = slices;
 		this.layerNumber = layerNumber;
 		

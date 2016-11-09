@@ -1,7 +1,8 @@
 package bitSlicer.Slicer.Config;
 
 
-import bitSlicer.Slicer.Config.Setting;;
+import bitSlicer.Slicer.Config.Setting;
+import bitSlicer.util.Vector2;;
 
 /**
  * The CraftConfig class contains the configurable
@@ -46,6 +47,19 @@ public class CraftConfig
 			description = "Length of the bits",
 			minValue = 0.0, maxValue = 1000.0)
 	public static double bitLength = 120.0;
+	
+	@Setting(title = "Pattern number",
+			description = "Choose which pattern's template you want to apply",
+			minValue = 1, maxValue = 2)
+	public static int patternNumber = 1;
+	
+	@Setting(title = "Rotation",
+			description = "Choose which rotation you want to apply on the pattern")
+	public static Vector2 rotation = new Vector2(1,0);
+	
+	@Setting(title = "offSet",
+			description = "Choose which offset you want to apply on the pattern")
+	public static Vector2 offset = new Vector2(0,0);
 	
 	
 }
