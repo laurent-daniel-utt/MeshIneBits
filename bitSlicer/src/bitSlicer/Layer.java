@@ -18,7 +18,8 @@ public class Layer extends Shape2D {
 		this.layerNumber = layerNumber;
 		
 		for (Slice s : slices){
-			patterns.add(new Pattern(s, layerNumber));
+			patterns.add(generatedPart.getPatternTemplate().createPattern(layerNumber));
+			patterns.lastElement().computeBits(s);
 		}
 	}
 

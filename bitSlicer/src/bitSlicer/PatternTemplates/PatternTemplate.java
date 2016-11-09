@@ -1,8 +1,7 @@
 package bitSlicer.PatternTemplates;
 
-import java.util.Vector;
-
-import bitSlicer.Bit2D;
+import bitSlicer.Pattern;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Vector2;
 
 public abstract class PatternTemplate {
@@ -12,12 +11,16 @@ public abstract class PatternTemplate {
 	public PatternTemplate(Vector2 rotation, Vector2 offSet, double skirtRadius){
 		this.rotation = rotation;
 		this.offSet = offSet;
+		
 		//skirtRadius is the radius of the cylinder that fully contains the part.
 		//The points patternStart and patternEnd make the rectangle that the method createPattern() will cover.
 		patternStart = new Vector2(-skirtRadius, -skirtRadius);
 		patternEnd = new Vector2(skirtRadius, skirtRadius);
+		
+		//We apply the offset by moving the pattern's start point
+		patternStart.add(offSet);
 	}
 	
-	public abstract Vector<Bit2D> createPattern(double layerNumber);
+	public abstract Pattern createPattern(double layerNumber);
 }
 

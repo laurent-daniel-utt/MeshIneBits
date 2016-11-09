@@ -4,16 +4,17 @@ import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
 import bitSlicer.Slicer.Slice;
+import bitSlicer.util.Vector2;
 
 public class Pattern {
 	
 	private Vector<Bit2D> bits;
+	private Vector2 rotation;
 	
-	public Pattern(Slice slice, int layerNumber){
-		
-		bits = getPatternTemplate().createPattern(layerNumber);
+	public Pattern(Vector<Bit2D> bits, Vector2 rotation){
 
-		computeBits(slice);
+		this.bits = bits;
+		this.rotation = rotation;
 		
 	}
 	
@@ -21,7 +22,7 @@ public class Pattern {
 	 * Remove the bits that are outside the part
 	 * Compute the cut line for the bits on the boundaries of the part
 	 */
-	private void computeBits(Slice slice){
+	public void computeBits(Slice slice){
 		
 	}
 }

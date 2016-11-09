@@ -4,6 +4,11 @@ import java.util.Vector;
 import bitSlicer.PatternTemplates.PatternTemplate;
 import bitSlicer.util.Vector2;
 import bitSlicer.Bit2D;
+import bitSlicer.Pattern;
+
+/*
+ * Simplest pattern possible: a grid with no offset between each layers
+ */
 
 public class PatternTemplate1 extends PatternTemplate {
 
@@ -11,9 +16,17 @@ public class PatternTemplate1 extends PatternTemplate {
 		super(rotation, offSet, skirtRadius);
 	}
 
-	public Vector<Bit2D> createPattern(double layerNumber) {
-		// TODO
-		return null;
+	public Pattern createPattern(double layerNumber) {
+		Vector<Bit2D> bits = new Vector<Bit2D>();
+		Vector2 coo = patternStart;
+		while (coo.x <= patternEnd.x){
+			while(coo.y <= patternEnd.y){
+				bits.add(new Bit2D(coo, new Vector2(0,0))); //every bits have no rotation in that pattern
+				coo.add(new Vector2(0,1));
+			}
+			coo.add(new Vector2(1,0));
+		}
+		return new Pattern(bits, new Vector2(1,0));
 	}
 
 }
