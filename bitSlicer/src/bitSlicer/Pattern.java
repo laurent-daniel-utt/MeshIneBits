@@ -32,4 +32,8 @@ public class Pattern {
 		//TODO
 		return null;
 	}
+	
+	public Vector<Bit2D> getBit() {
+		return this.bits;
+	}
 }

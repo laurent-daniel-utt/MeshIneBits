@@ -19,6 +19,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bitSlicer.GeneratedPart;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
@@ -28,7 +29,7 @@ import bitSlicer.util.Vector2;
 public class PreviewFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	private Vector<Slice> slices;
+	private GeneratedPart part;
 	
 	public class PreviewPanel extends JPanel implements MouseMotionListener
 	{
@@ -51,11 +52,10 @@ public class PreviewFrame extends JFrame
 
 			Graphics2D g2d = (Graphics2D) g;
 			
-			for(Polygon p : slices.get(showSlice))
+			
+			
+			for(Polygon p : part.getLayers().get.getPatterns(0).getBits().to))
 				drawModelPath2D(g2d, p.toPath2D());
-			
-			
-			
 			
 			
 			
@@ -108,13 +108,13 @@ public class PreviewFrame extends JFrame
 		}
 	}
 	
-	public PreviewFrame(Vector<Slice> slices)
+	public PreviewFrame(GeneratedPart part)
 	{
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
 		this.setTitle("Preview");
-		this.slices = slices;
+		this.part = part;
 		
 		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, 0, slices.size() - 1, 1));
 		sliceSpinner.addChangeListener(new ChangeListener()

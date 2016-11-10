@@ -38,8 +38,8 @@ public class BitSlicerMain {
 		SliceTool slicer = new SliceTool(m);
 		final Vector<Slice> slices = slicer.sliceModel();
 		
-		new GeneratedPart(slices);
+		GeneratedPart part = new GeneratedPart(slices);
 
-		new PreviewFrame(slices);
+		new PreviewFrame(part);
 	}	
 }

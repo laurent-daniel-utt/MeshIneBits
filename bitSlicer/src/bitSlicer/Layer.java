@@ -1,5 +1,6 @@
 package bitSlicer;
 
+import bitSlicer.util.Logger;
 import bitSlicer.util.Shape2D;
 import bitSlicer.Slicer.Slice;
 
@@ -17,10 +18,21 @@ public class Layer extends Shape2D {
 		this.slices = slices;
 		this.layerNumber = layerNumber;
 		
+		Logger.updateStatus("Generating patterns");
+		Pattern pattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
+		
+		Logger.updateStatus("Adding pattern to slices");
 		for (Slice s : slices){
-			patterns.add(generatedPart.getPatternTemplate().createPattern(layerNumber));
+			patterns.add(pattern);
 			patterns.lastElement().computeBits(s);
 		}
 	}
 
+	public Vector<Slice> getSlices() {
+		return this.slices;
+	}
+	
+	public Vector<Pattern> getPatterns() {
+		return this.patterns;
+	}
 }

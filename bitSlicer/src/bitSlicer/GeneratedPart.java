@@ -7,6 +7,7 @@ import bitSlicer.PatternTemplates.PatternTemplate1;
 import bitSlicer.PatternTemplates.PatternTemplate2;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
+import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
@@ -14,7 +15,7 @@ public class GeneratedPart {
 	
 	private Vector<Slice> slices;
 	private double skirtRadius;
-	private Vector<Layer> layers;
+	private Vector<Layer> layers = new Vector<Layer>();
 	private PatternTemplate patternTemplate;
 	
 	public GeneratedPart(Vector<Slice> slices){
@@ -40,6 +41,8 @@ public class GeneratedPart {
 		}
 		
 		skirtRadius = Math.sqrt(radius);
+		
+		System.out.println(skirtRadius);
 	}
 	
 	public void build(){
@@ -63,22 +66,30 @@ public class GeneratedPart {
 	
 	public void buildLayers(){
 		
-		Vector<Slice> slicesCopy = slices;
+		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
 		double bitThickness = CraftConfig.bitThickness;
 		double sliceHeight = CraftConfig.sliceHeight;
-		double z = CraftConfig.firstSliceHeightPercent * sliceHeight;
+		double z = (CraftConfig.firstSliceHeightPercent/100) * sliceHeight;
 		int layerNumber = 1;
 		
+		Logger.updateStatus("Generating Layers");
 		while (!slicesCopy.isEmpty()){
 			Vector<Slice> includedSlices = new Vector<Slice>();
+			System.out.println(z);
+			System.out.println(bitThickness * layerNumber);
 			while ((z < bitThickness * layerNumber) && !slicesCopy.isEmpty()){
 				includedSlices.add(slicesCopy.get(0));
 				slicesCopy.remove(0);
 				z = z + bitThickness;
+				System.out.println("test");
 			}
 			layers.add(new Layer(includedSlices, layerNumber, this));
-			layerNumber++;
+			layerNumber++;	
 		}
+	}
+	
+	public Vector<Layer> getLayers() {
+		return this.layers;
 	}
 
 }
