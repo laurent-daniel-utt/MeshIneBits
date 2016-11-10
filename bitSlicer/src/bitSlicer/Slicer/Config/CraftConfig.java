@@ -30,9 +30,6 @@ public class CraftConfig
 			minValue = 0.95, maxValue = 1.0)
 	public static double joinMinCosAngle = 0.995;
 
-	@Setting()
-	public static String lastSlicedFile = "";
-	
 	@Setting(title = "Bit thickness (mm)",
 			description = "Thickness of the bits",
 			minValue = 0.0, maxValue = 100.0)
@@ -61,5 +58,6 @@ public class CraftConfig
 			description = "Choose which offset you want to apply on the pattern")
 	public static Vector2 offset = new Vector2(0,0);
 	
-	
+	@Setting()
+	public static String lastSlicedFile = "";	
 }

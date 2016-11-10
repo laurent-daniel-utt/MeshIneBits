@@ -98,7 +98,7 @@ public class CraftConfigLoader
 				f.set(null, value.toString().replace("\\n", "\n"));
 			} else
 			{
-				throw new RuntimeException("Unknown config type: " + f.getType());
+				//throw new RuntimeException("Unknown config type: " + f.getType());
 			}
 		} catch (IllegalArgumentException e)
 		{
