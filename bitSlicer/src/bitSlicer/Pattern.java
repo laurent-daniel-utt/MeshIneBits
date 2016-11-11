@@ -29,8 +29,11 @@ public class Pattern {
 	
 	public Vector<Shape2D> getBitsShape(){
 		//return a vector of the shape2D of the bits in the coo system of the layer which includes this pattern 
-		//TODO
-		return null;
+		Vector<Shape2D> result = new Vector<Shape2D>();
+		for (Bit2D bit : bits){
+			result.add(bit.getBoundaries().getInLowerCooSystem(rotation, new Vector2(0,0)));
+		}
+		return result;
 	}
 	
 	public Vector<Bit2D> getBit() {

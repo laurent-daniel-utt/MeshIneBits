@@ -23,6 +23,7 @@ import bitSlicer.GeneratedPart;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
+import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
 
 
@@ -49,15 +50,17 @@ public class PreviewFrame extends JFrame
 		public void paint(Graphics g)
 		{
 			super.paint(g);
-
+			
 			Graphics2D g2d = (Graphics2D) g;
 			
 			
+			for (Shape2D s : part.getLayers().get(showSlice).getPatterns()){
+				drawModelPath2D(g2d, s.getLargestPolygon().toPath2D());				
+			}
 			
-			for(Polygon p : part.getLayers().get.getPatterns(0).getBits().to))
-				drawModelPath2D(g2d, p.toPath2D());
 			
-			
+			Polygon p = part.getLayers().get(showSlice).getSlices().get(0).getLargestPolygon();
+			drawModelPath2D(g2d, p.toPath2D());
 			
 		}
 		
@@ -116,7 +119,7 @@ public class PreviewFrame extends JFrame
 		this.setTitle("Preview");
 		this.part = part;
 		
-		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, 0, slices.size() - 1, 1));
+		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, 0, part.getLayers().size() - 1, 1));
 		sliceSpinner.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)

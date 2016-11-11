@@ -121,4 +121,12 @@ public class Vector2
 		double angleRadian = Math.PI*angleDegrees/180;
 		return new Vector2(Math.cos(angleRadian), Math.sin(angleRadian));
 	}
+	
+	public Vector2 getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
+		Vector2 orientation = myOrientation.normal();
+		double angleRotation = Math.acos(orientation.x);
+		double computedX = x*Math.cos(angleRotation)-y*Math.sin(angleRotation)+myOrigin.x;
+		double computedY = x*Math.sin(angleRotation)+y*Math.cos(angleRotation)+myOrigin.y;
+		return new Vector2(computedX, computedY);
+	}
 }

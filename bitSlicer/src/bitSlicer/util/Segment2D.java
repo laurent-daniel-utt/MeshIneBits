@@ -287,5 +287,11 @@ public class Segment2D extends AABBrect
 		
 		return trimmedSegment;
 	}
+	
+	public Segment2D getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
+		Vector2 computedStart = start.getInLowerCooSystem(myOrientation, myOrigin);
+		Vector2 computedEnd = end.getInLowerCooSystem(myOrientation, myOrigin);
+		return new Segment2D(1, computedStart, computedEnd);
+	}
 }
 

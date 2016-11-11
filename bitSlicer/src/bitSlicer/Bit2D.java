@@ -3,6 +3,7 @@ package bitSlicer;
 import java.util.Vector;
 
 import bitSlicer.Slicer.Slice;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
 import bitSlicer.util.Segment2D;;
@@ -13,6 +14,8 @@ import bitSlicer.util.Segment2D;;
 public class Bit2D extends Shape2D {
 	private Vector2 origin;
 	private Vector2 orientation;
+	private double length;
+	private double width;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -20,12 +23,34 @@ public class Bit2D extends Shape2D {
 	public Bit2D(Vector2 origin, Vector2 orientation){
 		this.origin = origin;
 		this.orientation = orientation;
+		length = CraftConfig.bitLength;
+		width = CraftConfig.bitWidth;
+		buildBoundaries();
+	}
+	
+	private void buildBoundaries(){
+		Vector2 cornerUpLeft = new Vector2(- length/2.0,  - width/2.0);
+		Vector2 cornerUpRight = new Vector2(+ length/2.0,  - width/2.0);
+		Vector2 cornerDownLeft = new Vector2(- length/2.0,  + width/2.0);
+		Vector2 cornerDownRight = new Vector2(+ length/2.0,  + width/2.0);
+		
+		Segment2D top = new Segment2D(1, cornerUpLeft, cornerUpRight);
+		Segment2D right = new Segment2D(1, cornerUpRight, cornerDownRight);
+		Segment2D bottom = new Segment2D(1, cornerDownRight, cornerDownLeft);
+		Segment2D left = new Segment2D(1, cornerDownLeft, cornerUpLeft);
+		
+		addModelSegment(top);
+		addModelSegment(right);
+		addModelSegment(bottom);
+		addModelSegment(left);
+		
+		// Link up the segments with start/ends, so polygons are created.
+		optimize();
 	}
 	
 	public Shape2D getBoundaries(){
 		//returns a shape2D in the coo system of the pattern which includes this bit
-		//TODO
-		return null;
+		return this.getInLowerCooSystem(orientation, origin);
 	}
 	
 	/**

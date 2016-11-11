@@ -48,11 +48,11 @@ public class CraftConfig
 	@Setting(title = "Pattern number",
 			description = "Choose which pattern's template you want to apply",
 			minValue = 1, maxValue = 2)
-	public static int patternNumber = 1;
+	public static int patternNumber = 2;
 	
 	@Setting(title = "Rotation",
 			description = "Choose which rotation you want to apply on the pattern")
-	public static Vector2 rotation = new Vector2(1,0);
+	public static Vector2 rotation = new Vector2(-1,-1);
 	
 	@Setting(title = "offSet",
 			description = "Choose which offset you want to apply on the pattern")

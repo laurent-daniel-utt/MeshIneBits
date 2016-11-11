@@ -262,4 +262,13 @@ public class Shape2D implements Iterable<Polygon>
 		
 		return new Shape2D(newShapeSegmentList);
 	}
+	
+	public Shape2D getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
+		Shape2D computedShape2D = new Shape2D();
+		for(Polygon p : polygons ){
+			computedShape2D.addPolygon(p.getSListInLowerCooSystem(myOrientation, myOrigin));
+		}
+		computedShape2D.optimize();
+		return computedShape2D;
+	}
 }

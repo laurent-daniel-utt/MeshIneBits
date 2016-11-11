@@ -19,14 +19,16 @@ public class PatternTemplate1 extends PatternTemplate {
 	public Pattern createPattern(double layerNumber) {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		Vector2 coo = patternStart;
+		int column = 1;
 		while (coo.x <= patternEnd.x){
 			while(coo.y <= patternEnd.y){
-				bits.add(new Bit2D(coo, new Vector2(0,0))); //every bits have no rotation in that template
+				bits.add(new Bit2D(coo, new Vector2(1,0))); //every bits have no rotation in that template
 				coo = coo.add(new Vector2(0,25));
 			}
-			coo = coo.add(new Vector2(120,0));
+			coo = new Vector2(patternStart.x + 120*column, patternStart.y);
+			column++;
 		}
-		return new Pattern(bits, rotation.add(new Vector2(1,0))); //every pattern have no rotation in that template
+		return new Pattern(bits, new Vector2(1,0)); //every pattern have no rotation in that template
 	}
 
 }

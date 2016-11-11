@@ -42,7 +42,7 @@ public class GeneratedPart {
 		
 		skirtRadius = Math.sqrt(radius);
 		
-		System.out.println(skirtRadius);
+		System.out.println("skirt's radius = " + skirtRadius);
 	}
 	
 	public void build(){
@@ -66,22 +66,20 @@ public class GeneratedPart {
 	
 	public void buildLayers(){
 		
+		@SuppressWarnings("unchecked")
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
 		double bitThickness = CraftConfig.bitThickness;
 		double sliceHeight = CraftConfig.sliceHeight;
-		double z = (CraftConfig.firstSliceHeightPercent/100) * sliceHeight;
+		double z = CraftConfig.firstSliceHeightPercent * sliceHeight / 100;
 		int layerNumber = 1;
 		
 		Logger.updateStatus("Generating Layers");
 		while (!slicesCopy.isEmpty()){
 			Vector<Slice> includedSlices = new Vector<Slice>();
-			System.out.println(z);
-			System.out.println(bitThickness * layerNumber);
 			while ((z < bitThickness * layerNumber) && !slicesCopy.isEmpty()){
 				includedSlices.add(slicesCopy.get(0));
 				slicesCopy.remove(0);
 				z = z + bitThickness;
-				System.out.println("test");
 			}
 			layers.add(new Layer(includedSlices, layerNumber, this));
 			layerNumber++;	
