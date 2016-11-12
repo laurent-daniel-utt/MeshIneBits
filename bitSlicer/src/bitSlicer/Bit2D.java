@@ -6,6 +6,7 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
+import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;;
 
 /**
@@ -52,21 +53,27 @@ public class Bit2D extends Shape2D {
 		
 		// Link up the segments with start/ends, so polygons are created.
 		this.optimize();
-		//System.out.println(polygons.size() + " polygones");
 	}
 	
 	public void setBitInPatternCooSystem(){
 		this.setInLowerCooSystem(orientation, origin);
 	}
 	
+	public void setInThatCooSystem(Vector2 rotation, Vector2 offSet){
+		setInLowerCooSystem(rotation, offSet);
+		origin = origin.getInLowerCooSystem(rotation, offSet);
+	}
+	
 	/**
 	 * Check if the bit is on the outline of the slice
 	 */
 	public boolean isOnPath(Slice slice) {
-		for (Segment2D b : this.getSegmentList()) {
-			for (Segment2D s : slice.getSegmentList()) {
-				if (b.getCollisionPoint(s) != null)
-					return true;
+		for(Polygon p : this){
+			for (Segment2D b : p) {
+				for (Segment2D s : slice.getSegmentList()) {
+					if (b.getCollisionPoint(s) != null)
+						return true;
+				}
 			}
 		}
 		return false;	

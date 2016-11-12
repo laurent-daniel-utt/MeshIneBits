@@ -35,13 +35,17 @@ public class PatternTemplate2 extends PatternTemplate {
 				}
 				Vector2 originBit;
 				Vector2 orientationBit;
+				double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
+				if (layerNumber%2 == 0){
+					layerOffSet = jOffSet;
+				}
 				if (evenI && evenJ){				
-					originBit = new Vector2(i, j);
+					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(1, 1);
 					bits.add(new Bit2D(originBit, orientationBit));
 				}
 				if (!evenI && !evenJ){
-					originBit = new Vector2(i, j);
+					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(-1, 1);
 					bits.add(new Bit2D(originBit, orientationBit));
 				}		

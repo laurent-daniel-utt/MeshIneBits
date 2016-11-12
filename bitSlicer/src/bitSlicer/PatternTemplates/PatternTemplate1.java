@@ -7,7 +7,7 @@ import bitSlicer.Bit2D;
 import bitSlicer.Pattern;
 
 /*
- * Simplest pattern possible: a grid with no offset between each layers
+ * Simplest pattern possible: a grid with a rotation of 90° 1 layer on 2
  */
 
 public class PatternTemplate1 extends PatternTemplate {

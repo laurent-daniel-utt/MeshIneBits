@@ -25,15 +25,23 @@ public class Pattern {
 	 * Compute the cut line for the bits on the boundaries of the part
 	 */
 	public void computeBits(Slice slice){
-		//TODO
+		Vector<Bit2D> bitsToKeep = new Vector<Bit2D>();
+		for(Bit2D bit : bits){
+			if(bit.isOnPath(slice)){
+				bitsToKeep.add(bit);
+			}
+			else if (bit.isInsideShape(slice)){
+				bitsToKeep.add(bit);
+			}
+		}
+		bits = bitsToKeep;
 	}
 	
 	public void setToLayerCooSystem(){
 		for (Bit2D bit : bits){
 			bit.setBitInPatternCooSystem(); //Bits' boundaries go from a local coo system to the pattern's one
-			bit.setInLowerCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
-			bit.setInLowerCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), CraftConfig.offset); //the whole pattern template can have a rotation and an offset regarding the part
-			//System.out.println("bit(" + bit.origin.x + ";" + bit.origin.y + ")");
+			bit.setInThatCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
+			bit.setInThatCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), CraftConfig.offset); //the whole pattern template can have a rotation and an offset regarding the part
 		}
 	}
 	

@@ -17,8 +17,8 @@ import bitSlicer.util.AABBrect;
  */
 public class Shape2D implements Iterable<Polygon>
 {
-	private Vector<Segment2D> segmentList = new Vector<Segment2D>();
-	public Vector<Polygon> polygons =  new Vector<Polygon>();
+	protected Vector<Segment2D> segmentList = new Vector<Segment2D>();
+	protected Vector<Polygon> polygons =  new Vector<Polygon>();
 	private AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
 	
 	public Shape2D() {
@@ -272,8 +272,14 @@ public class Shape2D implements Iterable<Polygon>
 		Vector<Polygon> newPolygons = new Vector<Polygon>();
 		for(Polygon p : polygons ){
 			newPolygons.add(p.getInLowerCooSystem(myOrientation, myOrigin));
+			//Would be cleaner but super time consuming :
+			/*
+			for(Segment2D s : newPolygons.lastElement()){ 
+				addModelSegment(s);
+			}*/
 		}
 		polygons = newPolygons;
+		
 		optimize();
 	}
 }

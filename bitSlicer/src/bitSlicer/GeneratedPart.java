@@ -42,7 +42,7 @@ public class GeneratedPart {
 		
 		skirtRadius = Math.sqrt(radius);
 		
-		System.out.println("skirt's radius = " + skirtRadius);
+		System.out.println("Skirt's radius: " + (int) skirtRadius + " mm");
 	}
 	
 	public void build(){

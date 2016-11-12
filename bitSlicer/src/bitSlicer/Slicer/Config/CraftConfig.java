@@ -53,7 +53,7 @@ public class CraftConfig
 	@Setting(title = "Rotation (°)",
 			description = "Choose which rotation you want to apply on the pattern (in degrees)",
 			minValue = 0, maxValue = 360)
-	public static double rotation = 45;
+	public static double rotation = 135;
 	
 	@Setting(title = "offSet",
 			description = "Choose which offset you want to apply on the pattern")

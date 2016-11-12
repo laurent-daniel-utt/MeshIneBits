@@ -36,7 +36,7 @@ public class SliceTool
 		int lastSlice = sliceCount;
 		
 		Logger.updateStatus("Slicing slices");
-		Logger.message("Slicing " + (lastSlice - firstSlice) + " slices");
+		Logger.message("Slice count: " + (lastSlice - firstSlice));
 		for (int i = firstSlice; i < lastSlice; i++)
 		{
 			slices.add(new Slice());

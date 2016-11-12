@@ -24,7 +24,6 @@ public class Layer extends Shape2D {
 			patterns.add(generatedPart.getPatternTemplate().createPattern(layerNumber));
 			patterns.lastElement().setToLayerCooSystem();
 			patterns.lastElement().computeBits(s);
-			//System.out.println("Layer " + layerNumber + " : + 1 slice");
 		}
 	}
 
