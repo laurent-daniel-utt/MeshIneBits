@@ -72,6 +72,8 @@ public class GeneratedPart {
 		double sliceHeight = CraftConfig.sliceHeight;
 		double z = CraftConfig.firstSliceHeightPercent * sliceHeight / 100;
 		int layerNumber = 1;
+		int progress = 0;
+		int progressGoal = slicesCopy.size();
 		
 		Logger.updateStatus("Generating Layers");
 		while (!slicesCopy.isEmpty()){
@@ -80,10 +82,12 @@ public class GeneratedPart {
 				includedSlices.add(slicesCopy.get(0));
 				slicesCopy.remove(0);
 				z = z + sliceHeight;
+				Logger.setProgress(progress++, progressGoal);
 			}
 			layers.add(new Layer(includedSlices, layerNumber, this));
-			layerNumber++;	
+			layerNumber++;
 		}
+		System.out.println("Layer count: " + (layerNumber - 1));
 	}
 	
 	public Vector<Layer> getLayers() {
