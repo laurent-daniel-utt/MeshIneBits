@@ -18,7 +18,7 @@ public class CraftConfig
 	@Setting(title = "Slice height (mm)",
 			description = "Height of each sliced layer",
 			minValue = 0.0, maxValue = 10.0)
-	public static double sliceHeight = 7.8;
+	public static double sliceHeight = 2;
 
 	@Setting(title = "First slice height (%)",
 			description = "Starting height of the first slice in the model. 50% is the default.",

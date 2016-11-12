@@ -19,6 +19,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.util.Polygon;
@@ -37,6 +38,7 @@ public class PreviewFrame extends JFrame
 		private static final long serialVersionUID = 1L;
 		
 		public int showSlice = 0;
+		public int showLayer = 0;
 		public double drawScale = 1.0;
 		public double viewOffsetX, viewOffsetY;
 		
@@ -53,14 +55,18 @@ public class PreviewFrame extends JFrame
 			
 			Graphics2D g2d = (Graphics2D) g;
 			
-			
-			for (Shape2D s : part.getLayers().get(showSlice).getPatterns()){
-				drawModelPath2D(g2d, s.getLargestPolygon().toPath2D());				
+			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
+				for (Polygon p : bit){
+					drawModelPath2D(g2d, p.toPath2D());
+				}
 			}
 			
 			
-			Polygon p = part.getLayers().get(showSlice).getSlices().get(0).getLargestPolygon();
-			drawModelPath2D(g2d, p.toPath2D());
+			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
+			for (Polygon p : slice){
+				drawModelPath2D(g2d, p.toPath2D());
+			}
+			
 			
 		}
 		
@@ -110,6 +116,7 @@ public class PreviewFrame extends JFrame
 			oldY = e.getY();
 		}
 	}
+
 	
 	public PreviewFrame(GeneratedPart part)
 	{
@@ -119,16 +126,46 @@ public class PreviewFrame extends JFrame
 		this.setTitle("Preview");
 		this.part = part;
 		
-		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, 0, part.getLayers().size() - 1, 1));
+		final JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showLayer, 0, part.getLayers().size() - 1, 1));
+		final JSpinner sliceSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showSlice, -1, 1000, 1));
+		final JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.drawScale, 1.0, 200.0, 1.0));
+		
 		sliceSpinner.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				viewPanel.showSlice = ((Integer) sliceSpinner.getValue()).intValue();
+				int spinnerValue = ((Integer) sliceSpinner.getValue()).intValue();
+				
+				if ((spinnerValue + 1 <= part.getLayers().get(viewPanel.showLayer).getSlices().size()) && (spinnerValue >= 0)){
+					viewPanel.showSlice = spinnerValue;
+				}
+				else if (spinnerValue < 0){
+					if (viewPanel.showLayer - 1 >= 0){
+						viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue() - 1;
+						layerSpinner.setValue(((Integer) layerSpinner.getValue()).intValue() - 1);
+						viewPanel.showSlice = part.getLayers().get(viewPanel.showLayer).getSlices().size() - 1;
+						sliceSpinner.setValue(part.getLayers().get(viewPanel.showLayer).getSlices().size() - 1);
+					}
+					else{
+						sliceSpinner.setValue(0);
+					}
+				}
+				else{
+					if (viewPanel.showLayer + 1 <= part.getLayers().size() - 1){
+						viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue() + 1;
+						layerSpinner.setValue(((Integer) layerSpinner.getValue()).intValue() + 1);
+						viewPanel.showSlice = 0;
+						sliceSpinner.setValue(0);
+					}
+					else{
+						sliceSpinner.setValue(spinnerValue - 1);
+					}
+				}
+				
 				viewPanel.repaint();
 			}
 		});
-		final JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.drawScale, 1.0, 200.0, 1.0));
+		
 		zoomSpinner.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
@@ -138,6 +175,20 @@ public class PreviewFrame extends JFrame
 			}
 		});
 		
+		layerSpinner.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
+			{
+				viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue();
+				viewPanel.showSlice = 0;
+				sliceSpinner.setValue(0);
+				viewPanel.repaint();
+			}	
+			
+		});
+				
+		actionPanel.add(new JLabel("Layer :"));
+		actionPanel.add(layerSpinner);
 		actionPanel.add(new JLabel("Slice:"));
 		actionPanel.add(sliceSpinner);
 		actionPanel.add(new JLabel("Zoom:"));

@@ -243,7 +243,7 @@ public class Polygon implements Iterable<Segment2D>
 			return false;
 	}
 	
-	public Polygon getSListInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
+	public Polygon getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
 	
 		//we build a new empty vector of segment2D
 		Vector<Segment2D> computedSegments = new Vector<Segment2D>();

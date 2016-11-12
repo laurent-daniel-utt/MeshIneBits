@@ -12,7 +12,7 @@ import bitSlicer.util.Segment2D;;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D extends Shape2D {
-	private Vector2 origin;
+	public Vector2 origin;
 	private Vector2 orientation;
 	private double length;
 	private double width;
@@ -39,18 +39,24 @@ public class Bit2D extends Shape2D {
 		Segment2D bottom = new Segment2D(1, cornerDownRight, cornerDownLeft);
 		Segment2D left = new Segment2D(1, cornerDownLeft, cornerUpLeft);
 		
+		top.setNext(right);
+		right.setNext(bottom);
+		bottom.setNext(left);
+		left.setNext(top);
+		
 		addModelSegment(top);
 		addModelSegment(right);
 		addModelSegment(bottom);
 		addModelSegment(left);
 		
+		
 		// Link up the segments with start/ends, so polygons are created.
-		optimize();
+		this.optimize();
+		//System.out.println(polygons.size() + " polygones");
 	}
 	
-	public Shape2D getBoundaries(){
-		//returns a shape2D in the coo system of the pattern which includes this bit
-		return this.getInLowerCooSystem(orientation, origin);
+	public void setBitInPatternCooSystem(){
+		this.setInLowerCooSystem(orientation, origin);
 	}
 	
 	/**

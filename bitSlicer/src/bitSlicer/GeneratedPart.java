@@ -79,7 +79,7 @@ public class GeneratedPart {
 			while ((z < bitThickness * layerNumber) && !slicesCopy.isEmpty()){
 				includedSlices.add(slicesCopy.get(0));
 				slicesCopy.remove(0);
-				z = z + bitThickness;
+				z = z + sliceHeight;
 			}
 			layers.add(new Layer(includedSlices, layerNumber, this));
 			layerNumber++;	

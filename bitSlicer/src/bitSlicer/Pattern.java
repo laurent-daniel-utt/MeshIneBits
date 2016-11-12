@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
 import bitSlicer.Slicer.Slice;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
 
@@ -27,16 +28,16 @@ public class Pattern {
 		//TODO
 	}
 	
-	public Vector<Shape2D> getBitsShape(){
-		//return a vector of the shape2D of the bits in the coo system of the layer which includes this pattern 
-		Vector<Shape2D> result = new Vector<Shape2D>();
+	public void setToLayerCooSystem(){
 		for (Bit2D bit : bits){
-			result.add(bit.getBoundaries().getInLowerCooSystem(rotation, new Vector2(0,0)));
+			bit.setBitInPatternCooSystem(); //Bits' boundaries go from a local coo system to the pattern's one
+			bit.setInLowerCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
+			bit.setInLowerCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), CraftConfig.offset); //the whole pattern template can have a rotation and an offset regarding the part
+			//System.out.println("bit(" + bit.origin.x + ";" + bit.origin.y + ")");
 		}
-		return result;
 	}
 	
-	public Vector<Bit2D> getBit() {
+	public Vector<Bit2D> getBits(){
 		return this.bits;
 	}
 }

@@ -19,12 +19,12 @@ public class Layer extends Shape2D {
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart){
 		this.slices = slices;
 		this.layerNumber = layerNumber;
-
-		Pattern pattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
 		
 		for (Slice s : slices){
-			patterns.add(pattern);
-			//patterns.lastElement().computeBits(s);
+			patterns.add(generatedPart.getPatternTemplate().createPattern(layerNumber));
+			patterns.lastElement().setToLayerCooSystem();
+			patterns.lastElement().computeBits(s);
+			//System.out.println("Layer " + layerNumber + " : + 1 slice");
 		}
 	}
 
@@ -32,11 +32,7 @@ public class Layer extends Shape2D {
 		return this.slices;
 	}
 	
-	public Vector<Shape2D> getPatterns() {
-		Vector<Shape2D> result = new Vector<Shape2D>();
-		for (Shape2D s : patterns.get(0).getBitsShape()){
-			result.add(s.getInLowerCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), new Vector2(0,0)));
-		}
-		return result;
+	public Vector<Pattern> getPatterns(){
+		return this.patterns;
 	}
 }

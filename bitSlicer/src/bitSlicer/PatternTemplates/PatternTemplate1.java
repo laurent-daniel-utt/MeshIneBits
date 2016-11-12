@@ -28,7 +28,12 @@ public class PatternTemplate1 extends PatternTemplate {
 			coo = new Vector2(patternStart.x + 120*column, patternStart.y);
 			column++;
 		}
-		return new Pattern(bits, new Vector2(1,0)); //every pattern have no rotation in that template
+		// in this pattern 1 layer on 2 has a 90° rotation
+		Vector2 rotation = new Vector2(1,0);
+		if (layerNumber%2 == 0){
+			rotation = new Vector2(0,1);
+		}
+		return new Pattern(bits, rotation);
 	}
 
 }
