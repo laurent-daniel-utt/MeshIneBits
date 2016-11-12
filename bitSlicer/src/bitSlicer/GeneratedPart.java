@@ -46,17 +46,17 @@ public class GeneratedPart {
 	}
 	
 	public void build(){
-		setPatternTemplate(CraftConfig.patternNumber, CraftConfig.rotation, CraftConfig.offset);
+		setPatternTemplate(CraftConfig.patternNumber, CraftConfig.offset);
 		buildLayers();
 	}
 	
-	public void setPatternTemplate(int templateNumber, Vector2 rotation, Vector2 offSet){
+	public void setPatternTemplate(int templateNumber, Vector2 offSet){
 		switch (templateNumber){
 		case 1:
-			patternTemplate = new PatternTemplate1(rotation, offSet, skirtRadius);
+			patternTemplate = new PatternTemplate1(offSet, skirtRadius);
 			break;
 		case 2:
-			patternTemplate = new PatternTemplate2(rotation, offSet, skirtRadius);
+			patternTemplate = new PatternTemplate2(offSet, skirtRadius);
 		}
 	}
 	

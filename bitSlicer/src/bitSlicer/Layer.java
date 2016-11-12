@@ -35,7 +35,7 @@ public class Layer extends Shape2D {
 	public Vector<Shape2D> getPatterns() {
 		Vector<Shape2D> result = new Vector<Shape2D>();
 		for (Shape2D s : patterns.get(0).getBitsShape()){
-			result.add(s.getInLowerCooSystem(CraftConfig.rotation, new Vector2(0,0)));
+			result.add(s.getInLowerCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), new Vector2(0,0)));
 		}
 		return result;
 	}
