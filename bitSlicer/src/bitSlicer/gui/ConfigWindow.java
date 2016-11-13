@@ -77,7 +77,7 @@ public class ConfigWindow extends JFrame
 		c.insets = new Insets(1, 1, 1, 1);
 		c.fill = GridBagConstraints.HORIZONTAL;
 
-		JButton sliceButton = new JButton("Slice");
+		JButton sliceButton = new JButton("Select file & compute");
 		sliceButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)

@@ -123,7 +123,7 @@ public class PreviewFrame extends JFrame
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
-		this.setTitle("Preview");
+		this.setTitle("2D preview");
 		this.part = part;
 		
 		final JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showLayer, 0, part.getLayers().size() - 1, 1));
@@ -187,11 +187,11 @@ public class PreviewFrame extends JFrame
 			
 		});
 				
-		actionPanel.add(new JLabel("Layer :"));
+		actionPanel.add(new JLabel("  Layer :  "));
 		actionPanel.add(layerSpinner);
-		actionPanel.add(new JLabel("Slice:"));
+		actionPanel.add(new JLabel("   Slice:  "));
 		actionPanel.add(sliceSpinner);
-		actionPanel.add(new JLabel("Zoom:"));
+		actionPanel.add(new JLabel("   Zoom:  "));
 		actionPanel.add(zoomSpinner);
 		
 		this.setLayout(new BorderLayout());
