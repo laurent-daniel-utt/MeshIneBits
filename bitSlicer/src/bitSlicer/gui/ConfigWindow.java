@@ -138,6 +138,7 @@ public class ConfigWindow extends JFrame
 
 		createConfigFields();
 		this.setVisible(true);
+		System.out.println("Waiting for the user");
 	}
 
 	private void createConfigFields()
@@ -320,7 +321,7 @@ public class ConfigWindow extends JFrame
 			return checkbox;
 		} else
 		{
-			Logger.error("Unknown field type for config window: " + f.getType());
+			//Logger.error("Unknown field type for config window: " + f.getType());
 		}
 		return null;
 	}

@@ -41,7 +41,8 @@ public class Pattern {
 		for (Bit2D bit : bits){
 			bit.setBitInPatternCooSystem(); //Bits' boundaries go from a local coo system to the pattern's one
 			bit.setInThatCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
-			bit.setInThatCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), CraftConfig.offset); //the whole pattern template can have a rotation and an offset regarding the part
+			bit.setInThatCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), new Vector2(CraftConfig.xOffset, CraftConfig.yOffset)); //the whole pattern template can have a rotation and an offset regarding the part
+			bit.optimize();
 		}
 	}
 	

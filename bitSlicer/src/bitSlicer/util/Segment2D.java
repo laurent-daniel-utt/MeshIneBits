@@ -193,6 +193,15 @@ public class Segment2D extends AABBrect
 		}
 	}
 	
+	public void setNextForced(Segment2D newNext){
+		next = newNext;
+		next.resetPrev();
+	}
+	
+	public void resetPrev(){
+		prev = null;
+	}
+	
 	public Segment2D getNext()
 	{
 		return next;
@@ -207,14 +216,28 @@ public class Segment2D extends AABBrect
 	 * Split a segment into two segments using a point as splitting tool.
 	 */
 	public Vector<Segment2D> split(Vector2 point) {
-		Segment2D s1 = new Segment2D(this.type, this.start, point);
-		Segment2D s2 = new Segment2D(this.type, point, this.end);
-			
-		Vector<Segment2D> segments = new Vector<Segment2D>();
-		segments.add(s1);
-		segments.add(s2);
 		
-		return segments;
+		Vector<Segment2D> segments = new Vector<Segment2D>();
+		if (point.asGoodAsEqual(this.start)){ //The split point will always be kept as segments.get(0).end
+			Vector2 savedPoint = this.start;
+			this.start = this.end;
+			this.end = savedPoint;
+			segments.add(this);
+		}
+		else if(point.asGoodAsEqual(this.end)){
+			segments.add(this);
+		}
+		else{
+			Segment2D s2 = new Segment2D(this.type, point, this.end);
+			s2.setNextForced(this.next);
+			
+			this.end = point;
+			this.next = s2;
+
+			segments.add(this); // in that case we keep the original segment which is shortened to be the first of the 2 new segments
+			segments.add(s2);
+		}
+		return segments; //The split point will always be kept as segments.get(0).end
 	}
 	
 	/**

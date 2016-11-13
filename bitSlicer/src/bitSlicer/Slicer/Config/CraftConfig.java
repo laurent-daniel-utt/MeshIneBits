@@ -55,9 +55,15 @@ public class CraftConfig
 			minValue = 0, maxValue = 360)
 	public static double rotation = 135;
 	
-	@Setting(title = "offSet",
-			description = "Choose which offset you want to apply on the pattern")
-	public static Vector2 offset = new Vector2(0,0);
+	@Setting(title = "X offSet (mm)",
+			description = "Choose which offset you want to apply on the pattern in the X direction (mm)",
+			minValue = -60, maxValue = 90)
+	public static double xOffset = 0;
+	
+	@Setting(title = "Y offSet (mm)",
+			description = "Choose which offset you want to apply on the pattern in the Y direction (mm)",
+			minValue = -60, maxValue = 90)
+	public static double yOffset = 0;
 	
 	@Setting()
 	public static String lastSlicedFile = "";	

@@ -272,6 +272,9 @@ public class Shape2D implements Iterable<Polygon>
 		Vector<Polygon> newPolygons = new Vector<Polygon>();
 		for(Polygon p : polygons ){
 			newPolygons.add(p.getInLowerCooSystem(myOrientation, myOrigin));
+			for(Segment2D s : newPolygons.lastElement()){
+				this.addModelSegment(s);
+			}
 		}
 		polygons = newPolygons;
 	}

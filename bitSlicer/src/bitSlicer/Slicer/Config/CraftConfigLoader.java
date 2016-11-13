@@ -25,7 +25,7 @@ public class CraftConfigLoader
 	{
 		if (filename == null) {
 			filename = System.getProperty("user.home") + "/.BitSlicer.conf";
-			System.out.println("Laoding " + filename + "...");
+			System.out.println("Loading: " + filename);
 		}
 			
 		BufferedReader br = null;

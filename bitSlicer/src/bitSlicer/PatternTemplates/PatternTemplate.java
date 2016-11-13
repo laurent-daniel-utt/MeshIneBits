@@ -6,10 +6,9 @@ import bitSlicer.util.Vector2;
 
 public abstract class PatternTemplate {
 	
-	protected Vector2 offSet, patternStart, patternEnd;
+	protected Vector2 patternStart, patternEnd;
 	
-	public PatternTemplate(Vector2 offSet, double skirtRadius){
-		this.offSet = offSet;
+	public PatternTemplate(double skirtRadius){
 		
 		//skirtRadius is the radius of the cylinder that fully contains the part.
 		//The points patternStart and patternEnd make the rectangle that the method createPattern() will cover.

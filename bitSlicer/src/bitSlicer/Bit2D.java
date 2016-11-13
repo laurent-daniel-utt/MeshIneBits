@@ -71,8 +71,7 @@ public class Bit2D extends Shape2D {
 		for(Polygon p : this){
 			for (Segment2D b : p) {
 				for (Segment2D s : slice.getSegmentList()) {
-					if (b.getCollisionPoint(s) != null)
-						return true;
+					if (b.getCollisionPoint(s) != null) return true;	
 				}
 			}
 		}

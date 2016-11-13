@@ -12,8 +12,8 @@ import bitSlicer.Pattern;
 
 public class PatternTemplate1 extends PatternTemplate {
 
-	public PatternTemplate1(Vector2 offSet, double skirtRadius) {
-		super(offSet, skirtRadius);
+	public PatternTemplate1(double skirtRadius) {
+		super(skirtRadius);
 	}
 
 	public Pattern createPattern(double layerNumber) {
