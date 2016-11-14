@@ -51,7 +51,7 @@ public class PatternTemplate2 extends PatternTemplate {
 				}		
 			}
 		}
-		return new Pattern(bits, new Vector2(1,0)); //every pattern have no rotation in that template
+		return new Pattern(bits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
 	}
 
 }

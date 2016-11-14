@@ -7,6 +7,7 @@ import bitSlicer.util.Vector2;
 public abstract class PatternTemplate {
 	
 	protected Vector2 patternStart, patternEnd;
+	protected double skirtRadius;
 	
 	public PatternTemplate(double skirtRadius){
 		
@@ -15,9 +16,7 @@ public abstract class PatternTemplate {
 		patternStart = new Vector2(-skirtRadius - CraftConfig.bitLength, -skirtRadius - CraftConfig.bitLength);
 		patternEnd = new Vector2(skirtRadius + CraftConfig.bitLength, skirtRadius + CraftConfig.bitLength);
 		
-		//We apply the offset by moving the pattern's start point
-		//That's a shitty solution tho, it only works if it makes the point roll away from the center
-		//patternStart.add(offSet);
+		this.skirtRadius = skirtRadius;
 	}
 	
 	public abstract Pattern createPattern(double layerNumber);

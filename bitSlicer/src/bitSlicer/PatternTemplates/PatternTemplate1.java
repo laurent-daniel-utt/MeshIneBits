@@ -33,7 +33,7 @@ public class PatternTemplate1 extends PatternTemplate {
 		if (layerNumber%2 == 0){
 			rotation = new Vector2(0,1);
 		}
-		return new Pattern(bits, rotation);
+		return new Pattern(bits, rotation, skirtRadius);
 	}
 
 }

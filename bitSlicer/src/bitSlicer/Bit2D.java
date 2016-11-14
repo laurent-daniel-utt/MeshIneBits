@@ -81,8 +81,11 @@ public class Bit2D extends Shape2D {
 	/**
 	 * Check if the bit is inside boundaries of the slice
 	 */
-	public boolean isInsideShape(Slice slice) {
-		return slice.contains(this.origin);
+	public boolean isInsideShape(Slice slice, double skirtRadius) {
+		if(this.origin.vSize() > skirtRadius)//Optimize the speed of that method by avoiding a contains() if the bit is obviously outside
+			return false;
+		else 
+			return slice.contains(this.origin);
 	}
 	
 	/**

@@ -12,13 +12,14 @@ public class Pattern {
 	
 	private Vector<Bit2D> bits;
 	private Vector2 rotation;
+	private double skirtRadius;
 	
-	public Pattern(Vector<Bit2D> bits, Vector2 rotation){
+	public Pattern(Vector<Bit2D> bits, Vector2 rotation, double skirtRadius){
 
 		this.bits = bits;
 		this.rotation = rotation;
-		
-	}
+		this.skirtRadius = skirtRadius;
+		}
 	
 	/*
 	 * Remove the bits that are outside the part
@@ -30,7 +31,7 @@ public class Pattern {
 			if(bit.isOnPath(slice)){
 				bitsToKeep.add(bit);
 			}
-			else if (bit.isInsideShape(slice)){
+			else if (bit.isInsideShape(slice, skirtRadius)){
 				bitsToKeep.add(bit);
 			}
 		}
