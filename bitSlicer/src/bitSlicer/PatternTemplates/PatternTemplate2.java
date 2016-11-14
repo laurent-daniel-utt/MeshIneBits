@@ -44,7 +44,7 @@ public class PatternTemplate2 extends PatternTemplate {
 					orientationBit = new Vector2(1, 1);
 					bits.add(new Bit2D(originBit, orientationBit));
 				}
-				if (!evenI && !evenJ){
+				else if (!evenI && !evenJ){
 					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(-1, 1);
 					bits.add(new Bit2D(originBit, orientationBit));

@@ -2,6 +2,7 @@ package bitSlicer.PatternTemplates;
 
 import java.util.Vector;
 import bitSlicer.PatternTemplates.PatternTemplate;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Vector2;
 import bitSlicer.Bit2D;
 import bitSlicer.Pattern;
@@ -23,9 +24,9 @@ public class PatternTemplate1 extends PatternTemplate {
 		while (coo.x <= patternEnd.x){
 			while(coo.y <= patternEnd.y){
 				bits.add(new Bit2D(coo, new Vector2(1,0))); //every bits have no rotation in that template
-				coo = coo.add(new Vector2(0,25));
+				coo = coo.add(new Vector2(0,CraftConfig.bitWidth));
 			}
-			coo = new Vector2(patternStart.x + 120*column, patternStart.y);
+			coo = new Vector2(patternStart.x + CraftConfig.bitLength*column, patternStart.y);
 			column++;
 		}
 		// in this pattern 1 layer on 2 has a 90° rotation
