@@ -193,15 +193,6 @@ public class Segment2D extends AABBrect
 		}
 	}
 	
-	public void setNextForced(Segment2D newNext){
-		next = newNext;
-		next.resetPrev();
-	}
-	
-	public void resetPrev(){
-		prev = null;
-	}
-	
 	public Segment2D getNext()
 	{
 		return next;
@@ -222,14 +213,15 @@ public class Segment2D extends AABBrect
 			Vector2 savedPoint = this.start;
 			this.start = this.end;
 			this.end = savedPoint;
-			segments.add(this);
+			segments.add(this); //Does this change can bring issues? prev is now in the end side of the segment
 		}
 		else if(point.asGoodAsEqual(this.end)){
 			segments.add(this);
 		}
 		else{
 			Segment2D s2 = new Segment2D(this.type, point, this.end);
-			s2.setNextForced(this.next);
+			s2.next = this.next;
+			s2.prev = this;
 			
 			this.end = point;
 			this.next = s2;
