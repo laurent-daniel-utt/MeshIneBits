@@ -40,6 +40,7 @@ public class Bit2D extends Shape2D {
 		Segment2D bottom = new Segment2D(1, cornerDownRight, cornerDownLeft);
 		Segment2D left = new Segment2D(1, cornerDownLeft, cornerUpLeft);
 		
+		//We could just do a optimize() but we save a lot of time by doing it like that
 		top.setNext(right);
 		right.setNext(bottom);
 		bottom.setNext(left);
@@ -50,9 +51,7 @@ public class Bit2D extends Shape2D {
 		addModelSegment(bottom);
 		addModelSegment(left);
 		
-		
-		// Link up the segments with start/ends, so polygons are created.
-		this.optimize();
+		polygons.add(new Polygon(top));
 	}
 	
 	public void setBitInPatternCooSystem(){
