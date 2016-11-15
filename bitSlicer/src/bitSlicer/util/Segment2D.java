@@ -210,9 +210,9 @@ public class Segment2D extends AABBrect
 		
 		Vector<Segment2D> segments = new Vector<Segment2D>();
 		if (point.asGoodAsEqual(this.start)){ //The split point will always be kept as segments.get(0).end
-			Vector2 savedPoint = this.start;
+			Vector2 temp = this.start;
 			this.start = this.end;
-			this.end = savedPoint;
+			this.end = temp;
 			segments.add(this); //Does this change can bring issues? prev is now in the end side of the segment
 		}
 		else if(point.asGoodAsEqual(this.end)){
@@ -235,6 +235,7 @@ public class Segment2D extends AABBrect
 	/**
 	 * Split a segment into segments using a list of point as splitting tool.
 	 */
+	/*
 	public Vector<Segment2D> split(Vector<Vector2> points) {
 		points.add(this.start);
 		points.add(this.end);
@@ -276,7 +277,49 @@ public class Segment2D extends AABBrect
 		
 		return segments;
 	}
+	*/
 	
+	public Vector<Segment2D> split(Vector<Vector2> points){
+		Vector<Vector2> directorVector = new Vector<Vector2>();
+		
+		//Build a vector with the directors vectors of each point (We take the start point as a reference point)
+		//Check in the same time if any point is the same as start or end
+		int loopEnd = points.size() - 1;
+		for(int i = 0; i < loopEnd; i++){
+			if (points.get(i).asGoodAsEqual(this.start) || points.get(i).asGoodAsEqual(this.end)){
+				points.remove(i);
+				loopEnd--;
+			}
+			else{
+				directorVector.add(new Vector2((points.get(i).x - this.start.x), (points.get(i).y - this.start.y)));
+			}
+		}
+		
+		//Sort the points by sorting the director vectors using their size
+		for(int i = 0; i < points.size() - 1; i++){
+			for(int j = i + 1; j < points.size() - 1; j++){
+				if (directorVector.get(j).vSize2() > directorVector.get(i).vSize2()){
+					directorVector.insertElementAt(directorVector.get(j), i);
+					directorVector.remove(j+1);
+					points.insertElementAt(directorVector.get(j), i);
+					points.remove(j+1);
+				}
+			}
+		}
+		
+		//add the start and end points at the beginning and the end of the vector
+		points.insertElementAt(this.start, 0);
+		points.add(this.end);		
+		
+		// Create segments from ordered points
+		Vector<Segment2D> segments = new Vector<Segment2D>();
+
+		for (int i = 0; i < points.size()-1; i++) {
+			segments.add(new Segment2D(this.type, points.get(i), points.get(i+1)));
+		}
+		
+		return segments;
+	}
 	public Vector2 getMidPoint() {
 		return new Vector2((this.start.x + this.end.x)/2.0, (this.start.y + this.end.y)/2.0);
 	}
