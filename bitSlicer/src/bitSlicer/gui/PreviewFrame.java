@@ -59,13 +59,16 @@ public class PreviewFrame extends JFrame
 				for (Polygon p : bit){
 					drawModelPath2D(g2d, p.toPath2D());
 				}
-			}
+				
+//				for (Segment2D s : bit.getSegmentList()){
+//					drawSegment(g, s);
+//				}
+			}			
 			
-			
-			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
-			for (Polygon p : slice){
-				drawModelPath2D(g2d, p.toPath2D());
-			}
+//			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
+//			for (Polygon p : slice){
+//				drawModelPath2D(g2d, p.toPath2D());
+//			}
 			
 			
 		}
