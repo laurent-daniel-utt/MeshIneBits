@@ -6,6 +6,7 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
+import bitSlicer.util.AABBTree;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;;
 
@@ -70,11 +71,28 @@ public class Bit2D extends Shape2D {
 		for(Polygon p : this){
 			for (Segment2D b : p) {
 				for (Segment2D s : slice.getSegmentList()) {
-					if (b.getCollisionPoint(s) != null) return true;	
+					if (b.getCollisionPoint(s) != null) return true;
 				}
 			}
 		}
 		return false;	
+	}
+	
+	public void setNewBoundaries(Shape2D slice){
+		Vector<Segment2D> newBoundariesSegment = new Vector<Segment2D>();
+		for (Segment2D s : this.intersection(slice)){
+			newBoundariesSegment.add(s);
+		}
+		for (Segment2D s : slice.intersection(this)){
+			newBoundariesSegment.add(s);
+		}
+		polygons.clear();
+		segmentList.clear();
+		segmentTree = new AABBTree<Segment2D>();
+		for(Segment2D s : newBoundariesSegment){
+			this.addModelSegment(s);
+		}
+		optimize();
 	}
 	
 	/**

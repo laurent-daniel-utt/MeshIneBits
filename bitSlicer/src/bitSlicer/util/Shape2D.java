@@ -19,7 +19,7 @@ public class Shape2D implements Iterable<Polygon>
 {
 	protected Vector<Segment2D> segmentList = new Vector<Segment2D>();
 	protected Vector<Polygon> polygons =  new Vector<Polygon>();
-	private AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
+	protected AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
 	
 	public Shape2D() {
 		
@@ -261,6 +261,17 @@ public class Shape2D implements Iterable<Polygon>
 			newShapeSegmentList.add(s);
 		
 		return new Shape2D(newShapeSegmentList);
+	}
+	
+	public Vector<Segment2D> intersection(Shape2D shape){
+		Vector<Segment2D> intersectionResult = new Vector<Segment2D>();
+		
+		for(Segment2D s : this.segmentList){
+			for(Segment2D trimmedSegment : s.trim(shape))
+				intersectionResult.add(trimmedSegment);
+		}
+		
+		return intersectionResult;
 	}
 	
 	/*

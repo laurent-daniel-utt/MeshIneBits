@@ -29,6 +29,7 @@ public class Pattern {
 		Vector<Bit2D> bitsToKeep = new Vector<Bit2D>();
 		for(Bit2D bit : bits){
 			if(bit.isOnPath(slice)){
+				bit.setNewBoundaries(slice);
 				bitsToKeep.add(bit);
 			}
 			else if (bit.isInsideShape(slice, skirtRadius)){

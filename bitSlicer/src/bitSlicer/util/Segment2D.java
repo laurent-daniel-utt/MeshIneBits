@@ -221,10 +221,8 @@ public class Segment2D extends AABBrect
 		else{
 			Segment2D s2 = new Segment2D(this.type, point, this.end);
 			s2.next = this.next;
-			s2.prev = this;
 			
 			this.end = point;
-			this.next = s2;
 
 			segments.add(this); // in that case we keep the original segment which is shortened to be the first of the 2 new segments
 			segments.add(s2);
@@ -235,7 +233,7 @@ public class Segment2D extends AABBrect
 	/**
 	 * Split a segment into segments using a list of point as splitting tool.
 	 */
-	/*
+	/* old version:
 	public Vector<Segment2D> split(Vector<Vector2> points) {
 		points.add(this.start);
 		points.add(this.end);
@@ -280,6 +278,8 @@ public class Segment2D extends AABBrect
 	*/
 	
 	public Vector<Segment2D> split(Vector<Vector2> points){
+		
+		Vector<Segment2D> segments = new Vector<Segment2D>();
 		Vector<Vector2> directorVector = new Vector<Vector2>();
 		
 		//Build a vector with the directors vectors of each point (We take the start point as a reference point)
@@ -293,6 +293,11 @@ public class Segment2D extends AABBrect
 			else{
 				directorVector.add(new Vector2((points.get(i).x - this.start.x), (points.get(i).y - this.start.y)));
 			}
+		}
+		
+		if(points.isEmpty()){
+			segments.add(this);
+			return segments;
 		}
 		
 		//Sort the points by sorting the director vectors using their size
@@ -312,8 +317,7 @@ public class Segment2D extends AABBrect
 		points.add(this.end);		
 		
 		// Create segments from ordered points
-		Vector<Segment2D> segments = new Vector<Segment2D>();
-
+		
 		for (int i = 0; i < points.size()-1; i++) {
 			segments.add(new Segment2D(this.type, points.get(i), points.get(i+1)));
 		}
@@ -336,13 +340,13 @@ public class Segment2D extends AABBrect
 		Vector<Segment2D> trimmedSegment = new Vector<Segment2D>();
 		
 		Vector<Vector2> collisionPoints = this.getCollisionPoints(shape.getSegmentList());
-		Vector<Segment2D> splittedSegment = this.split(collisionPoints);
-		
-		for(Segment2D s : splittedSegment) {
-			if(shape.contains(s.getMidPoint()))
-				trimmedSegment.add(s);
+		if(!collisionPoints.isEmpty()){
+			Vector<Segment2D> splittedSegment = this.split(collisionPoints);
+			for(Segment2D s : splittedSegment) {
+				if(shape.contains(s.getMidPoint()))
+					trimmedSegment.add(s);
+			}
 		}
-		
 		return trimmedSegment;
 	}
 	
