@@ -17,8 +17,8 @@ public class PatternTemplate2 extends PatternTemplate {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		boolean evenI = false;
 		boolean evenJ = false;
-		double iOffSet = Math.sqrt(2) / 2 * CraftConfig.bitLength;
-		double jOffSet = Math.sqrt(2) / 2 * CraftConfig.bitWidth;
+		double iOffSet = Math.sqrt(2) / 2 * CraftConfig.bitLength + CraftConfig.xBitsOffset;
+		double jOffSet = Math.sqrt(2) / 2 * CraftConfig.bitWidth + CraftConfig.yBitsOffset;
 		for (double i = patternStart.x; i <= patternEnd.x; i = i + iOffSet){		
 			if (evenI){
 				evenI = false;

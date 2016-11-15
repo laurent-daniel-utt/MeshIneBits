@@ -24,9 +24,9 @@ public class PatternTemplate1 extends PatternTemplate {
 		while (coo.x <= patternEnd.x){
 			while(coo.y <= patternEnd.y){
 				bits.add(new Bit2D(coo, new Vector2(1,0))); //every bits have no rotation in that template
-				coo = coo.add(new Vector2(0,CraftConfig.bitWidth));
+				coo = coo.add(new Vector2(0, CraftConfig.bitWidth + CraftConfig.yBitsOffset));
 			}
-			coo = new Vector2(patternStart.x + CraftConfig.bitLength*column, patternStart.y);
+			coo = new Vector2(patternStart.x + (CraftConfig.bitLength + CraftConfig.xBitsOffset)*column, patternStart.y);
 			column++;
 		}
 		// in this pattern 1 layer on 2 has a 90° rotation
