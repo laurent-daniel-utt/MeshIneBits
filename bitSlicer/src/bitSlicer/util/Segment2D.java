@@ -65,6 +65,11 @@ public class Segment2D extends AABBrect
 		updateAABB(start, end, 1.0);
 	}
 	
+	public void flip()
+	{
+		this.update(end, start);
+	}
+	
 	public String toString()
 	{
 		return "Segment:" + start + " " + end;
@@ -202,7 +207,7 @@ public class Segment2D extends AABBrect
 	{
 		return prev;
 	}
-		
+	
 	/**
 	 * Split a segment into two segments using a point as splitting tool.
 	 */

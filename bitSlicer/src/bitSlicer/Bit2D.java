@@ -88,10 +88,12 @@ public class Bit2D extends Shape2D {
 		segmentList.clear();
 		segmentTree = new AABBTree<Segment2D>();
 		
-		for(Segment2D s : newBoundariesSegment){
+		Vector<Segment2D> newSegments = new Vector<Segment2D>();
+		newSegments = optimizeDirections(newBoundariesSegment);
+		
+		for(Segment2D s : newSegments){
 			this.addModelSegment(s);
-			if(s.getNext() != null || s.getPrev() != null)
-				System.out.println("Ouch");
+			System.out.println(s);
 		}
 		
 		optimize();

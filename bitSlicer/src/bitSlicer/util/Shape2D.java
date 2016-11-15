@@ -86,7 +86,7 @@ public class Shape2D implements Iterable<Polygon>
 						best = s2;
 						bestDist2 = s1.end.sub(s2.start).vSize2();
 						break;
-					}
+					}					
 				}
 				if (best != null)
 				{
@@ -157,6 +157,32 @@ public class Shape2D implements Iterable<Polygon>
 			}
 		}
 		return manifoldErrorReported;
+	}
+	
+	/**
+	 * Check segments of a supposed manifold object to be sure they are following each other before performing optimize()
+	 */
+	public Vector<Segment2D> optimizeDirections(Vector<Segment2D> segmentList) {
+		
+		Boolean changed = true;
+		Vector<Segment2D> flippedSegments = new Vector<Segment2D>();
+		
+		while (changed) {
+			changed = false;
+			for (Segment2D s1 : segmentList) {
+				for (Segment2D s2 : segmentList) {
+					if ((s1 != s2 && s1.start.asGoodAsEqual(s2.start))) {
+						if (!flippedSegments.contains(s2)) {
+							s2.flip();
+							flippedSegments.add(s2);
+							changed = true;
+						}
+					}						
+				}
+			}
+		}
+		
+		return segmentList;
 	}
 	
 	private void addModelPolygon(Polygon poly)
