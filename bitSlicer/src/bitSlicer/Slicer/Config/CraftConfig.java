@@ -65,6 +65,16 @@ public class CraftConfig
 			minValue = -60, maxValue = 90)
 	public static double yOffset = 0;
 	
+	@Setting(title = "X offSet between bits (mm)",
+			description = "Choose which offset you want to apply on the pattern in the X direction (mm)",
+			minValue = -60, maxValue = 90)
+	public static double xBitsOffset = 0;
+	
+	@Setting(title = "Y offSet between bits (mm)",
+			description = "Choose which offset you want to apply on the pattern in the Y direction (mm)",
+			minValue = -60, maxValue = 90)
+	public static double yBitsOffset = 0;
+	
 	@Setting()
 	public static String lastSlicedFile = "";	
 }
