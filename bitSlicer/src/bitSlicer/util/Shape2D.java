@@ -137,8 +137,18 @@ public class Shape2D implements Iterable<Polygon>
 				addModelPolygon(poly);
 			} else
 			{
-				if (!manifoldErrorReported)
+				if (!manifoldErrorReported){
 					Logger.warning("Object not manifold");
+					
+					for(Segment2D s: segmentList){
+						System.out.println(s);
+						
+					}
+					throw new RuntimeException();
+					
+				}
+					
+					
 				manifoldErrorReported = true;
 				for (Segment2D s = start; s != null; s = s.getNext())
 				{
@@ -157,6 +167,48 @@ public class Shape2D implements Iterable<Polygon>
 			}
 		}
 		return manifoldErrorReported;
+	}
+	
+	public void optimize2(){
+		
+		int loopEnd = segmentList.size()-1;
+		Segment2D segmentToPeer;
+		for(int j = 0; j < loopEnd - 1; j++){
+			segmentToPeer = segmentList.get(j);
+			for(int i = j + 1; i < loopEnd; i++){
+				if ((segmentToPeer.end.asGoodAsEqual(segmentList.get(i).start))){
+					segmentList.insertElementAt(segmentList.get(i), j+1);
+					segmentList.remove(i + 1);
+				}
+				else if(segmentToPeer.end.asGoodAsEqual(segmentList.get(i).end)){
+					//segmentList.get(i).flip2();
+					segmentList.insertElementAt(segmentList.get(i), j+1);
+					segmentList.remove(i + 1);
+				}
+			}
+		}
+		
+		for(int i = 0; i < segmentList.size() - 1; i++){
+			segmentList.get(i).setNext(segmentList.get(i+1));
+		}
+		//the last segment is linked up to the first one
+		segmentList.get(segmentList.size() - 1).setNext(segmentList.get(0));
+		
+		/*
+		for(Segment2D s : segmentList){
+			if(!s.getNext().start.asGoodAsEqual(s.end))
+				s.getNext().flip2();
+		}
+		*/
+		
+		
+		for(int i = 0; i < segmentList.size(); i++){
+			if(!segmentList.get(i).getNext().start.asGoodAsEqual(segmentList.get(i).end))
+				segmentList.get(i).getNext().flip2();
+		}
+		
+		
+		addModelPolygon(new Polygon(segmentList.get(0)));
 	}
 	
 	/**
@@ -183,6 +235,36 @@ public class Shape2D implements Iterable<Polygon>
 		}
 		
 		return segmentList;
+	}
+	
+	public Vector<Segment2D> removeUnwantedSegments(Vector<Segment2D> segments){	
+		
+		Vector<Segment2D> segmentsToRemove = new Vector<Segment2D>();
+		for(Segment2D s1 : segments){
+			int occurence = 0;
+			for(Segment2D s2 : segments){
+				if((s2.start.asGoodAsEqual(s1.start)) && (s1 != s2)){
+					occurence++;
+					s1.flip();
+				}	
+				else if((s2.end.asGoodAsEqual(s1.end)) && (s1 != s2)){
+					occurence++;
+					s1.flip();
+				}
+				else if((s2.end.asGoodAsEqual(s1.start)) && (s1 != s2))
+					occurence++;
+				else if((s2.start.asGoodAsEqual(s1.end)) && (s1 != s2))
+					occurence++;
+			}
+			if(occurence!=2){
+				segmentsToRemove.add(s1);
+				System.out.println("Unwanted segment detected");
+			}
+				
+		}
+		segments.removeAll(segmentsToRemove);
+		
+		return segments;
 	}
 	
 	private void addModelPolygon(Polygon poly)

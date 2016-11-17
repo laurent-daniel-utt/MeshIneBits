@@ -56,15 +56,17 @@ public class PreviewFrame extends JFrame
 			Graphics2D g2d = (Graphics2D) g;
 			
 			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
-				for (Polygon p : bit){
-					drawModelPath2D(g2d, p.toPath2D());
-				}
+
 				
 //				for (Segment2D s : bit.getSegmentList()){
 //					drawSegment(g, s);
 //				}
-			}			
-			
+				
+				for (Polygon p : bit){
+					drawModelPath2D(g2d, p.toPath2D());
+				}
+			}					
+
 //			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
 //			for (Polygon p : slice){
 //				drawModelPath2D(g2d, p.toPath2D());

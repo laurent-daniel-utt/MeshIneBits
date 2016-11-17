@@ -70,6 +70,12 @@ public class Segment2D extends AABBrect
 		this.update(end, start);
 	}
 	
+	public void flip2(){
+		Vector2 temp = start;
+		start = end;
+		end = temp;
+	}
+	
 	public String toString()
 	{
 		return "Segment:" + start + " " + end;
@@ -240,6 +246,9 @@ public class Segment2D extends AABBrect
 	 */
 	/* old version:*/
 	public Vector<Segment2D> split(Vector<Vector2> points) {
+		
+		Vector<Segment2D> segments = new Vector<Segment2D>();
+		
 		points.add(this.start);
 		points.add(this.end);
 		
@@ -270,8 +279,6 @@ public class Segment2D extends AABBrect
 		for (int i = 0; i < pointsArray.length; i++) {
 			sortedPoints.add(pointsArray[i]);
 		}
-		
-		Vector<Segment2D> segments = new Vector<Segment2D>();
 		
 		// Create segments from ordered points
 		for (int i = 0; i < sortedPoints.size()-1; i += 1) {
