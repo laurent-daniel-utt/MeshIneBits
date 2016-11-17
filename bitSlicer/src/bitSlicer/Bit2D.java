@@ -80,33 +80,36 @@ public class Bit2D extends Shape2D {
 	
 	public void setNewBoundaries(Shape2D slice){
 		Vector<Segment2D> newBoundariesSegment = new Vector<Segment2D>();
-		/*
+		
 		for (Segment2D s : this.trim(slice).getSegmentList()){
 			newBoundariesSegment.add(new Segment2D(1, s.start, s.end)); // We can't add directly "s" because we need to erase any prev/next segment previously stored
 		}
-		*/
-		for (Segment2D s : this.intersection(slice))
-			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
-		for (Segment2D s : slice.intersection(this))
-			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
+		
+//		for (Segment2D s : this.intersection(slice))
+//			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
+//		for (Segment2D s : slice.intersection(this))
+//			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
 
 		polygons.clear();
 		segmentList.clear();
 		segmentTree = new AABBTree<Segment2D>();
 		
 		Vector<Segment2D> newSegments = new Vector<Segment2D>();
-		newSegments = optimizeDirections(removeUnwantedSegments(newBoundariesSegment));
+		
+		//newSegments = optimizeDirections(removeUnwantedSegments(newBoundariesSegment));
 		//newSegments = optimizeDirections(newBoundariesSegment);
-		for(Segment2D s : newSegments){
+		for(Segment2D s : newBoundariesSegment){
 			this.addModelSegment(s);
 			//System.out.println(s);
 		}
-		if(newSegments.size() > 2){
-			optimize2();
-		}
-		else{
-			System.out.println("Not enough segments");
-		}
+//		if(newSegments.size() > 2){
+//			optimize2();
+//		}
+//		else{
+//			System.out.println("Not enough segments");
+//		}
+		
+		this.optimize();
 	}
 	
 	/**

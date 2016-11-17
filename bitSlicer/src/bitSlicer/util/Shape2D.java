@@ -144,7 +144,7 @@ public class Shape2D implements Iterable<Polygon>
 						System.out.println(s);
 						
 					}
-					throw new RuntimeException();
+					//throw new RuntimeException();
 					
 				}
 					
@@ -358,15 +358,10 @@ public class Shape2D implements Iterable<Polygon>
 	public Shape2D trim(Shape2D shape) {
 		Vector<Segment2D> newShapeSegmentList = new Vector<Segment2D>();
 		
-		// Get segments inside shape tool
-		for (Segment2D s : this.getSegmentList()) {
-			for(Segment2D trimmedSegment : s.trim(shape))
-				newShapeSegmentList.add(trimmedSegment);
-		}
-		
-		// Get segments of the shapes tools that cut through this shape
-		for (Segment2D s : this.getCuttingSegmentsFrom(shape))
-			newShapeSegmentList.add(s);
+		for (Segment2D s : this.intersection(shape))
+			newShapeSegmentList.add(new Segment2D(1, s.start, s.end));
+		for (Segment2D s : shape.intersection(this))
+			newShapeSegmentList.add(new Segment2D(1, s.start, s.end));
 		
 		return new Shape2D(newShapeSegmentList);
 	}
