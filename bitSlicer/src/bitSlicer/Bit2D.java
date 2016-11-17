@@ -85,22 +85,16 @@ public class Bit2D extends Shape2D {
 			newBoundariesSegment.add(new Segment2D(1, s.start, s.end)); // We can't add directly "s" because we need to erase any prev/next segment previously stored
 		}
 		
-//		for (Segment2D s : this.intersection(slice))
-//			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
-//		for (Segment2D s : slice.intersection(this))
-//			newBoundariesSegment.add(new Segment2D(1, s.start, s.end));
-
 		polygons.clear();
 		segmentList.clear();
 		segmentTree = new AABBTree<Segment2D>();
 		
-		Vector<Segment2D> newSegments = new Vector<Segment2D>();
+		
 		
 		//newSegments = optimizeDirections(removeUnwantedSegments(newBoundariesSegment));
 		//newSegments = optimizeDirections(newBoundariesSegment);
 		for(Segment2D s : newBoundariesSegment){
 			this.addModelSegment(s);
-			//System.out.println(s);
 		}
 //		if(newSegments.size() > 2){
 //			optimize2();
