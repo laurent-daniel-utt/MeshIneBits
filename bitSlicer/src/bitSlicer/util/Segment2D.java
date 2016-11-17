@@ -1,5 +1,6 @@
 package bitSlicer.util;
 
+import java.awt.geom.Line2D;
 import java.util.Vector;
 
 /**
@@ -126,12 +127,13 @@ public class Segment2D extends AABBrect
 	    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
 	    t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
+	    //new Line2D.Float((float) this.start.x, (float) this.start.y, (float) this.end.x, (float) this.end.y).intersectsLine(new Line2D.Float((float) other.start.x, (float) other.start.y, (float) other.end.x, (float) other.end.y))
 	    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
 	    {
 	        // Collision detected
 	        return new Vector2(p0_x + (t * s1_x), p0_y + (t * s1_y));
 	    }
-
+	    
 	    return null; // No collision
 	}
 	
@@ -289,15 +291,23 @@ public class Segment2D extends AABBrect
 		return segments;
 	}
 	
-	
 	public Vector<Segment2D> split2(Vector<Vector2> points){
-		
 		Vector<Segment2D> segments = new Vector<Segment2D>();
+		
+		if(points.isEmpty()){
+			segments.add(this);
+			return segments;
+		} else if (points.size() == 1){
+			segments.add(new Segment2D(this.type, this.start, points.get(0)));
+			segments.add(new Segment2D(this.type, points.get(0), this.end));
+			return segments;
+		}
+		
 		Vector<Double> pointDistances = new Vector<Double>();
 		
 		//Build a vector with the directors vectors of each point (We take the start point as a reference point)
 		//Check in the same time if any point is the same as start or end
-		int loopEnd = points.size() - 1;
+		int loopEnd = points.size();
 		for(int i = 0; i < loopEnd; i++){
 			if (points.get(i).asGoodAsEqual(this.start) || points.get(i).asGoodAsEqual(this.end)){
 				points.remove(i);
@@ -308,23 +318,35 @@ public class Segment2D extends AABBrect
 			}
 		}
 		
-		if(points.isEmpty()){
-			segments.add(this);
-			return segments;
+		//Sort the points by sorting the director vectors using their size
+//		for(int i = 0; i < points.size() - 1; i++){
+//			for(int j = i + 1; j < points.size() - 1; j++){
+//				System.out.println(j);
+//				System.out.println(points.size());
+//				if (pointDistances.get(j) > pointDistances.get(i)){
+//					pointDistances.insertElementAt(pointDistances.get(j), i);
+//					pointDistances.remove(j+1);
+//					points.insertElementAt(points.get(j), i);
+//					points.remove(j+1);
+//				}
+//			}
+//		}
+		
+		Vector2 sortedPoints[] = new Vector2[points.size()];
+		
+		for(int i = 0; i < points.size(); i++) {
+			int pos = 0;
+			for(int j = 0; j < points.size(); j++) {
+				if ((pointDistances.get(i) > pointDistances.get(j)) || (i < j && pointDistances.get(i) == pointDistances.get(j))) // Check if points is farther or doublon
+					pos++;
+			}
+			sortedPoints[pos] = points.get(i);
 		}
 		
-		//Sort the points by sorting the director vectors using their size
-		for(int i = 0; i < points.size() - 1; i++){
-			for(int j = i + 1; j < points.size() - 1; j++){
-				System.out.println(j);
-				System.out.println(points.size());
-				if (pointDistances.get(j) > pointDistances.get(i)){
-					pointDistances.insertElementAt(pointDistances.get(j), i);
-					pointDistances.remove(j+1);
-					points.insertElementAt(points.get(j), i);
-					points.remove(j+1);
-				}
-			}
+		points = new Vector<Vector2>();
+		
+		for(int i = 0; i<sortedPoints.length; i++) {
+			points.add(sortedPoints[i]);
 		}
 		
 		//add the start and end points at the beginning and the end of the vector
