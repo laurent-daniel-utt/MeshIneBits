@@ -1,13 +1,20 @@
 package bitSlicer.gui;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -55,25 +62,30 @@ public class PreviewFrame extends JFrame
 			
 			Graphics2D g2d = (Graphics2D) g;
 			
+			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
+			Vector<Area> bitAreas = new Vector<Area>();
+			
+			
 			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
 				
-				for (Segment2D s : bit.getSegmentList()){
-					drawSegment(g, s);
-				}
-//				
+//				for (Segment2D s : bit.getSegmentList()){
+//					drawSegment(g, s);
+//				}
+				
 //				for (Polygon p : bit){
 //					drawModelPath2D(g2d, p.toPath2D());
 //				}
 				
+				bit.createArea();
+				Area bitArea = bit.getArea();
+				bitArea.intersect(slice.getArea());
+				bitAreas.add(bitArea);
 
 			}					
-
-//			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
-//			for (Polygon p : slice){
-//				drawModelPath2D(g2d, p.toPath2D());
-//			}
 			
-			
+			for (Area a : bitAreas)
+				drawModelArea(g2d, a);
+	
 		}
 		
 		private void drawSegment(Graphics g, Segment2D s)
@@ -82,12 +94,11 @@ public class PreviewFrame extends JFrame
 			drawModelLine(g, s.start, s.end);
 			
 			// Show discontinuity
-			/*
 			if (s.getPrev() == null)
 				drawModelCircle(g, s.start, 10);
 			if (s.getNext() == null)
 				drawModelCircle(g, s.end, 10);
-			*/
+			
 		}
 		
 		private void drawModelLine(Graphics g, Vector2 start, Vector2 end)
@@ -105,6 +116,17 @@ public class PreviewFrame extends JFrame
 	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
 	        tx1.scale(drawScale, drawScale);
 			g2d.draw(path.createTransformedShape(tx1));
+		}
+		
+		private void drawModelArea(Graphics2D g2d, Area area){
+			AffineTransform tx1 = new AffineTransform();
+	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
+	        tx1.scale(drawScale, drawScale);
+	        
+	        Area tempArea = (Area) area.clone();
+	        area.transform(tx1);
+			g2d.draw(area);
+			g2d.fill(area);
 		}
 		
 		public void mouseDragged(MouseEvent e)

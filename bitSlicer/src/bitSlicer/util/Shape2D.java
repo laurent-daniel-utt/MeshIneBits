@@ -1,5 +1,7 @@
 package bitSlicer.util;
 
+import java.awt.geom.Area;
+import java.awt.geom.Line2D;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
@@ -22,12 +24,10 @@ public class Shape2D implements Iterable<Polygon>
 	protected Vector<Polygon> polygons =  new Vector<Polygon>();
 	protected AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
 	
+	protected Area area;
+	
 	public Shape2D() {
 		
-	}
-	
-	public Shape2D(Polygon poly) {
-		this.polygons.add(poly);
 	}
 	
 	public Shape2D(Vector<Segment2D> segmentList) {
@@ -52,9 +52,12 @@ public class Shape2D implements Iterable<Polygon>
 		segmentTree.remove(segment);
 	}
 	
+	/**
+	 * Link up the segments with start/ends, so polygons are created.
+	 */
 	public boolean optimize()
 	{
-		// Link up the segments with start/ends, so polygons are created.
+		
 		for (Segment2D s1 : segmentList)
 		{
 			if (s1.getPrev() == null)
@@ -167,7 +170,24 @@ public class Shape2D implements Iterable<Polygon>
 				}
 			}
 		}
+		
+		createArea();
+		
 		return manifoldErrorReported;
+	}
+	
+	public void createArea() {
+		if (this.getLargestPolygon() != null) {
+			this.area = new Area(this.getLargestPolygon().toPath2D());
+			for (Polygon poly : this) {
+				if (poly != this.getLargestPolygon())
+					this.area.subtract(new Area(poly.toPath2D()));
+			}
+		}
+	}
+	
+	public Area getArea() {
+		return (Area) this.area.clone();
 	}
 	
 	public void optimize2(){

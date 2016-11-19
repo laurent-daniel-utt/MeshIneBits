@@ -23,7 +23,7 @@ public class Layer extends Shape2D {
 		for (Slice s : slices){
 			patterns.add(generatedPart.getPatternTemplate().createPattern(layerNumber));
 			patterns.lastElement().setToLayerCooSystem();
-			patterns.lastElement().computeBits(s);
+			//patterns.lastElement().computeBits(s);
 		}
 	}
 
