@@ -64,6 +64,7 @@ public class PreviewFrame extends JFrame
 			
 			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
 			Vector<Area> bitAreas = new Vector<Area>();
+			Vector<Segment2D> cuttingSegments = new Vector<Segment2D>();
 			
 			
 			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
@@ -71,6 +72,10 @@ public class PreviewFrame extends JFrame
 //				for (Segment2D s : bit.getSegmentList()){
 //					drawSegment(g, s);
 //				}
+				
+				for (Segment2D s : bit.getCuttingSegmentsFrom(slice))
+					cuttingSegments.add(s);
+				
 				
 //				for (Polygon p : bit){
 //					drawModelPath2D(g2d, p.toPath2D());
@@ -85,19 +90,25 @@ public class PreviewFrame extends JFrame
 			
 			for (Area a : bitAreas)
 				drawModelArea(g2d, a);
+			
+			for (Segment2D s : cuttingSegments)
+				drawSegment(g, s);
+			
+			//drawModelArea(g2d, slice.getArea());
 	
 		}
 		
 		private void drawSegment(Graphics g, Segment2D s)
 		{		
-			g.setColor(Color.GREEN);
+			((Graphics2D) g).setStroke(new BasicStroke(2));
+			g.setColor(Color.RED);
 			drawModelLine(g, s.start, s.end);
 			
 			// Show discontinuity
-			if (s.getPrev() == null)
-				drawModelCircle(g, s.start, 10);
-			if (s.getNext() == null)
-				drawModelCircle(g, s.end, 10);
+//			if (s.getPrev() == null)
+//				drawModelCircle(g, s.start, 10);
+//			if (s.getNext() == null)
+//				drawModelCircle(g, s.end, 10);
 			
 		}
 		
@@ -122,9 +133,9 @@ public class PreviewFrame extends JFrame
 			AffineTransform tx1 = new AffineTransform();
 	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
 	        tx1.scale(drawScale, drawScale);
-	        
-	        Area tempArea = (Area) area.clone();
+
 	        area.transform(tx1);
+	        g2d.setColor( Color.black );
 			g2d.draw(area);
 			g2d.fill(area);
 		}
