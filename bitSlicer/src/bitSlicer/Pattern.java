@@ -10,6 +10,8 @@ import bitSlicer.util.Vector2;
 
 public class Pattern {
 	
+	public static int bitNr; // for debug
+	
 	private Vector<Bit2D> bits;
 	private Vector2 rotation;
 	private double skirtRadius;
@@ -27,14 +29,18 @@ public class Pattern {
 	 */
 	public void computeBits(Slice slice){
 		Vector<Bit2D> bitsToKeep = new Vector<Bit2D>();
+		bitNr = 0;
 		for(Bit2D bit : bits){
-			if(bit.isOnPath(slice)){
-				bit.setNewBoundaries(slice);
-				bitsToKeep.add(bit);
-			}
-			else if (bit.isInsideShape(slice, skirtRadius)){
-				bitsToKeep.add(bit);
-			}
+//			if (bitNr == 99){ // for debug, isolate the problematic bit
+				if(bit.isOnPath(slice)){
+					bit.setNewBoundaries(slice);
+					bitsToKeep.add(bit);
+				}
+				else if (bit.isInsideShape(slice, skirtRadius)){
+					bitsToKeep.add(bit);
+				}
+//			}
+			bitNr++;
 		}
 		bits = bitsToKeep;
 	}

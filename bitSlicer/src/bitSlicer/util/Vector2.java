@@ -96,23 +96,40 @@ public class Vector2
 		return x * x + y * y;
 	}
 	
+	public boolean isOnSegment(Segment2D s) {
+		double x1 = s.start.x;
+		double y1 = s.start.y;
+		double x2 = s.end.x;
+		double y2 = s.end.y;
+		
+		double AB = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+		double AP = Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
+		double PB = Math.sqrt((x2-x)*(x2-x)+(y2-y)*(y2-y));
+		
+		if(AB == AP + PB)
+		    return true;
+		else 
+			return false;
+	}
+	
 	/* 
 	 * Taken from http://stackoverflow.com/a/17590923
 	 */
 	public boolean isOnPath(Vector<Segment2D> segmentList) {
 		for (Segment2D s : segmentList) {
-			double x1 = s.start.x;
-			double y1 = s.start.y;
-			double x2 = s.end.x;
-			double y2 = s.end.y;
-			
-			double AB = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-			double AP = Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
-			double PB = Math.sqrt((x2-x)*(x2-x)+(y2-y)*(y2-y));
-			
-			if(AB == AP + PB)
+			if(this.isOnSegment(s))
 			    return true;
 		}
+		return false;
+	}
+	
+
+	public boolean isOnPath(Polygon poly) {
+		for (Segment2D s : poly) {
+			if (this.isOnSegment(s))
+					return true;
+		}
+		
 		return false;
 	}
 	
@@ -129,4 +146,5 @@ public class Vector2
 		double computedY = x*Math.sin(angleRotation)+y*Math.cos(angleRotation)+myOrigin.y;
 		return new Vector2(computedX, computedY);
 	}
+
 }

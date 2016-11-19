@@ -17,13 +17,13 @@ public class CraftConfig
 
 	@Setting(title = "Slice height (mm)",
 			description = "Height of each sliced layer",
-			minValue = 0.0, maxValue = 10.0)
+			minValue = 0.0, maxValue = 9999.0)
 	public static double sliceHeight = 2;
 
 	@Setting(title = "First slice height (%)",
 			description = "Starting height of the first slice in the model. 50% is the default.",
-			minValue = 0, maxValue = 200)
-	public static int firstSliceHeightPercent = 50;
+			minValue = 0.0, maxValue = 200.0)
+	public static double firstSliceHeightPercent = 50;
 
 	@Setting(title = "Minimal line segment cosinus value",
 			description = "If the cosinus of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",

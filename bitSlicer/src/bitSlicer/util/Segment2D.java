@@ -362,7 +362,14 @@ public class Segment2D extends AABBrect
 	}
 	
 	public Vector2 getMidPoint() {
-		return new Vector2((this.start.x + this.end.x)/2.0, (this.start.y + this.end.y)/2.0);
+		return this.getPointAtRatio(0.5);
+	}
+	
+	/**
+	 * Return the position of the point at a given ratio
+	 */
+	public Vector2 getPointAtRatio(double ratio) {
+		return new Vector2(this.start.x+(this.end.x - this.start.x)*ratio, this.start.y+(this.end.y - this.start.y)*ratio);
 	}
 	
 	public void resetLinks() {
@@ -377,11 +384,13 @@ public class Segment2D extends AABBrect
 		Vector<Segment2D> trimmedSegment = new Vector<Segment2D>();
 		
 		Vector<Vector2> collisionPoints = this.getCollisionPoints(shape.getSegmentList());
+		
 		if(!collisionPoints.isEmpty()){
 			Vector<Segment2D> splittedSegment = this.split2(collisionPoints);
 			for(Segment2D s : splittedSegment) {
-				if(shape.contains(s.getMidPoint()))
+				if(shape.contains(s)) {
 					trimmedSegment.add(s);
+				}
 			}
 		}
 		else if(shape.contains(this.getMidPoint()))

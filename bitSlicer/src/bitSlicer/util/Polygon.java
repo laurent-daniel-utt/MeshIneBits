@@ -240,6 +240,13 @@ public class Polygon implements Iterable<Segment2D>
 		if(this.path.contains(point.x, point.y))
 			return true;
 		else
+			return false;		
+	}
+	
+	public boolean contains(Segment2D s) {
+		if(this.path.contains(s.getMidPoint().x, s.getMidPoint().y))
+			return true;
+		else
 			return false;
 	}
 	

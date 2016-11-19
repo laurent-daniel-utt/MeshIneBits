@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
+import bitSlicer.Pattern;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AABBTree;
 import bitSlicer.util.Logger;
@@ -286,9 +287,48 @@ public class Shape2D implements Iterable<Polygon>
 	public boolean contains(Vector2 point) {
 		int i = 0;
 		for (Polygon poly : this) {
-			if (poly.contains(point))
+			if (poly.contains(point)) {
 				i++;
+			}
 		}
+		
+		return (i % 2 == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
+	}
+	
+	public boolean contains(Segment2D s) {
+		double size = new Vector2(s.start.x - s.end.x, s.start.y - s.start.y).vSize2();
+		
+		int i = 0;
+		
+		if (size<2) {
+			for (Polygon poly : this) {
+				if (s.start.isOnPath(poly) && s.end.isOnPath(poly))
+					i++;
+				else if ((!s.start.isOnPath(poly) && !poly.contains(s.start)) || (!s.end.isOnPath(poly) && !poly.contains(s.end)))
+					return false;
+				else if (poly.contains(s))
+					i++;
+//				boolean contains = true;
+//				for (double j = 5; j <= 95; j+=0.1) {
+//					if (!poly.contains(s.getPointAtRatio(j/100.0)))
+//						contains = false;
+//				}
+//				
+//				if (contains) {
+//					i++;
+//				}
+			}
+		}
+		else {
+			for (Polygon poly : this) {
+				if (poly.contains(s))
+					i++;
+			}		
+		}
+		
+		
+
+		
 		
 		return (i % 2 == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
 	}
@@ -368,6 +408,9 @@ public class Shape2D implements Iterable<Polygon>
 	
 	public Vector<Segment2D> intersection(Shape2D shape){
 		Vector<Segment2D> intersectionResult = new Vector<Segment2D>();
+		
+		if (Pattern.bitNr == 103)
+			System.out.println("Coucou");
 		
 		for(Segment2D s : this.segmentList){
 			for(Segment2D trimmedSegment : s.trim(shape))
