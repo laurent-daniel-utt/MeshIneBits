@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -65,7 +66,11 @@ public class PreviewFrame extends JFrame
 			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
 			Vector<Area> bitAreas = new Vector<Area>();
 			Vector<Segment2D> cuttingSegments = new Vector<Segment2D>();
+			Vector<Area> cutLinesStroke = new Vector<Area>();
+			Vector<Segment2D> cutLines = new Vector<Segment2D>();
 			
+			Shape str = new BasicStroke().createStrokedShape(slice.getArea());
+	        Area sliceLine = new Area(str);
 			
 			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
 				
@@ -81,18 +86,40 @@ public class PreviewFrame extends JFrame
 //					drawModelPath2D(g2d, p.toPath2D());
 //				}
 				
+				
+				
 				bit.createArea();
 				Area bitArea = bit.getArea();
+				
+				Area cutLineStroke = (Area) sliceLine.clone();
+				cutLineStroke.intersect(bitArea);
+				cutLinesStroke.add(cutLineStroke);
+				
 				bitArea.intersect(slice.getArea());
 				bitAreas.add(bitArea);
+				
+				for(Segment2D s : Segment2D.getSegmentsFrom(bitArea)){
+					if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y))
+						cutLines.add(s);
+				}
+				
+				
 
 			}					
+			
+					
+//			for(Area a : cutLinesStroke)
+//				drawModelArea2(g2d, a);
 			
 			for (Area a : bitAreas)
 				drawModelArea(g2d, a);
 			
-			for (Segment2D s : cuttingSegments)
+			for (Segment2D s : cutLines)
 				drawSegment(g, s);
+			
+			
+			//for (Segment2D s : cuttingSegments)
+				//drawSegment(g, s);
 			
 			//drawModelArea(g2d, slice.getArea());
 	
@@ -135,8 +162,26 @@ public class PreviewFrame extends JFrame
 	        tx1.scale(drawScale, drawScale);
 
 	        area.transform(tx1);
-	        g2d.setColor( Color.black );
-			g2d.draw(area);
+	        g2d.setColor( Color.green );
+			//g2d.draw(area);
+			g2d.fill(area);
+		}
+		
+		private void drawModelArea2(Graphics2D g2d, Area area){
+			AffineTransform tx1 = new AffineTransform();
+	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
+	        tx1.scale(drawScale, drawScale);
+
+	        area.transform(tx1);
+	        //g2d.setColor( Color.green );
+			//g2d.draw(area);
+			g2d.setColor( Color.red );
+			
+			g2d.setStroke(new BasicStroke(0.0f,                     // Line width
+                    BasicStroke.CAP_BUTT,    // End-cap style
+                    BasicStroke.JOIN_BEVEL)); // Vertex join style
+			
+			
 			g2d.fill(area);
 		}
 		

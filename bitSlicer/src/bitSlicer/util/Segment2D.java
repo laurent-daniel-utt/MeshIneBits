@@ -1,6 +1,9 @@
 package bitSlicer.util;
 
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -403,6 +406,62 @@ public class Segment2D extends AABBrect
 		Vector2 computedStart = start.getInLowerCooSystem(myOrientation, myOrigin);
 		Vector2 computedEnd = end.getInLowerCooSystem(myOrientation, myOrigin);
 		return new Segment2D(1, computedStart, computedEnd);
+	}
+	
+	/*
+	 * taken from http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area
+	 * It converts the outline of an area into a vector of segment2D
+	 */
+	public static Vector<Segment2D> getSegmentsFrom(Area area){  
+		Vector<double[]> areaPoints = new Vector<double[]>();
+		Vector<Segment2D> areaSegments = new Vector<Segment2D>();
+		double[] coords = new double[6];
+
+		for (PathIterator pi = area.getPathIterator(null); !pi.isDone(); pi.next()) {
+		    // The type will be SEG_LINETO, SEG_MOVETO, or SEG_CLOSE
+		    // Because the Area is composed of straight lines
+		    int type = pi.currentSegment(coords);
+		    // We record a double array of {segment type, x coord, y coord}
+		    double[] pathIteratorCoords = {type, coords[0], coords[1]};
+		    areaPoints.add(pathIteratorCoords);
+		}
+
+		double[] start = new double[3]; // To record where each polygon starts
+
+		for (int i = 0; i < areaPoints.size(); i++) {
+		    // If we're not on the last point, return a line from this point to the next
+		    double[] currentElement = areaPoints.get(i);
+
+		    // We need a default value in case we've reached the end of the ArrayList
+		    double[] nextElement = {-1, -1, -1};
+		    if (i < areaPoints.size() - 1) {
+		        nextElement = areaPoints.get(i + 1);
+		    }
+
+		    // Make the lines
+		    if (currentElement[0] == PathIterator.SEG_MOVETO) {
+		        start = currentElement; // Record where the polygon started to close it later
+		    } 
+
+		    if (nextElement[0] == PathIterator.SEG_LINETO) {
+		        areaSegments.add(
+		                new Segment2D(1,
+		                		new Vector2(currentElement[1], currentElement[2]),
+		                		new Vector2(nextElement[1], nextElement[2])
+		                	)
+		            );
+		    } else if (nextElement[0] == PathIterator.SEG_CLOSE) {
+		        areaSegments.add(
+		                new Segment2D(1,
+		                		new Vector2(currentElement[1], currentElement[2]),
+		                		new Vector2(start[1], start[2])
+		                	)
+		            );
+		    }
+		}
+
+		// areaSegments now contains all the line segments
+		return areaSegments;
 	}
 }
 
