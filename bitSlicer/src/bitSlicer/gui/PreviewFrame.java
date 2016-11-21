@@ -30,6 +30,7 @@ import javax.swing.event.ChangeListener;
 import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
 import bitSlicer.Slicer.Slice;
+import bitSlicer.util.AreaTool;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Shape2D;
@@ -68,61 +69,65 @@ public class PreviewFrame extends JFrame
 			Vector<Segment2D> cuttingSegments = new Vector<Segment2D>();
 			Vector<Area> cutLinesStroke = new Vector<Area>();
 			Vector<Segment2D> cutLines = new Vector<Segment2D>();
-			
-			Shape str = new BasicStroke().createStrokedShape(slice.getArea());
+		
+			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
 	        Area sliceLine = new Area(str);
+	        
+//	        drawModelArea(g2d, sliceLine);
 			
 			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
-				
-//				for (Segment2D s : bit.getSegmentList()){
-//					drawSegment(g, s);
+				drawModelArea(g2d, bit.getArea(slice));
+////				for (Segment2D s : bit.getSegmentList()){
+////					drawSegment(g, s);
+////				}
+//				
+//				for (Segment2D s : bit.getCuttingSegmentsFrom(slice))
+//					cuttingSegments.add(s);
+//				
+//				
+////				for (Polygon p : bit){
+////					drawModelPath2D(g2d, p.toPath2D());
+////				}
+//				
+//				
+//				
+//				Area bitArea = bit.getArea();
+//				
+//				Area cutLineStroke = (Area) sliceLine.clone();
+//				cutLineStroke.intersect(bitArea);
+//				cutLinesStroke.add(cutLineStroke);
+//				
+//				bitArea.intersect(slice.getArea());
+//				
+//				drawModelArea(g2d, bit.getArea(slice));
+//				
+//				for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
+//					for(Segment2D s : poly){
+//						if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y)){
+//							cutLines.add(s);
+//							drawSegment(g, s);
+//						}
+//					}
+//				}
+//				
+//				
+//				
+//				if(Segment2D.getSegmentsFrom(bitArea).size() > 1){					
+//					for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
+//						System.out.println("poly:");
+//						for(Segment2D s : poly){
+//							System.out.println(s);
+//						}
+//						System.out.println("----------------------------------");
+//					}
+//					System.out.println("----------------------------------");
+//					drawModelArea(g2d, bitArea);
+//					
 //				}
 				
-				for (Segment2D s : bit.getCuttingSegmentsFrom(slice))
-					cuttingSegments.add(s);
-				
-				
-//				for (Polygon p : bit){
-//					drawModelPath2D(g2d, p.toPath2D());
-//				}
-				
-				
-				
-				bit.createArea();
-				Area bitArea = bit.getArea();
-				
-				Area cutLineStroke = (Area) sliceLine.clone();
-				cutLineStroke.intersect(bitArea);
-				cutLinesStroke.add(cutLineStroke);
-				
-				bitArea.intersect(slice.getArea());
-				bitAreas.add(bitArea);
-				
-				for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-					for(Segment2D s : poly){
-						if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y)){
-							cutLines.add(s);
-						}
-					}
-				}
-				
-				
-				
-				if(Segment2D.getSegmentsFrom(bitArea).size() > 1){					
-					for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-						System.out.println("poly:");
-						for(Segment2D s : poly){
-							System.out.println(s);
-						}
-						System.out.println("----------------------------------");
-					}
-					System.out.println("----------------------------------");
-					drawModelArea(g2d, bitArea);
-					
-				}
-				
+			
 
-			}					
+			}			
 			
 					
 			
@@ -133,10 +138,10 @@ public class PreviewFrame extends JFrame
 //			for(Area a : cutLinesStroke)
 //				drawModelArea2(g2d, a);			
 
-			for (Segment2D s : cutLines){
-				drawSegment(g, s);
-				
-			}
+//			for (Segment2D s : cutLines){
+//				drawSegment(g, s);
+//				
+//			}
 				
 			
 			
@@ -149,7 +154,7 @@ public class PreviewFrame extends JFrame
 		
 		private void drawSegment(Graphics g, Segment2D s)
 		{		
-			((Graphics2D) g).setStroke(new BasicStroke(2));
+			((Graphics2D) g).setStroke(new BasicStroke(1));
 			g.setColor(Color.RED);
 			drawModelLine(g, s.start, s.end);
 			

@@ -29,29 +29,22 @@ public class Pattern {
 	 */
 	public void computeBits(Slice slice){
 		Vector<Bit2D> bitsToKeep = new Vector<Bit2D>();
-		bitNr = 0;
+
 		for(Bit2D bit : bits){
-//			if (bitNr == 99){ // for debug, isolate the problematic bit
-				if(bit.isOnPath(slice)){
-					bit.setNewBoundaries(slice);
-					bitsToKeep.add(bit);
-				}
-				else if (bit.isInsideShape(slice, skirtRadius)){
-					bitsToKeep.add(bit);
-				}
-//			}
-			bitNr++;
+			if(bit.isOnPath(slice) || bit.isInsideShape(slice, skirtRadius)){
+				bitsToKeep.add(bit);
+			}
 		}
 		bits = bitsToKeep;
 	}
 	
-	public void setToLayerCooSystem(){
-		for (Bit2D bit : bits){
-			bit.setBitInPatternCooSystem(); //Bits' boundaries go from a local coo system to the pattern's one
-			bit.setInThatCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
-			bit.setInThatCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), new Vector2(CraftConfig.xOffset, CraftConfig.yOffset)); //the whole pattern template can have a rotation and an offset regarding the part
-		}
-	}
+//	public void setToLayerCooSystem(){
+//		for (Bit2D bit : bits){
+//			bit.setBitInPatternCooSystem(); //Bits' boundaries go from a local coo system to the pattern's one
+//			bit.setInThatCooSystem(rotation, new Vector2(0,0)); // Each pattern can have a rotation, usually linked to the layer number
+//			bit.setInThatCooSystem(Vector2.getEquivalentVector(CraftConfig.rotation), new Vector2(CraftConfig.xOffset, CraftConfig.yOffset)); //the whole pattern template can have a rotation and an offset regarding the part
+//		}
+//	}
 	
 	public Vector<Bit2D> getBits(){
 		return this.bits;
