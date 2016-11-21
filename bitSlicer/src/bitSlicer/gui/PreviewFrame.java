@@ -98,24 +98,46 @@ public class PreviewFrame extends JFrame
 				bitArea.intersect(slice.getArea());
 				bitAreas.add(bitArea);
 				
-				for(Segment2D s : Segment2D.getSegmentsFrom(bitArea)){
-					if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y))
-						cutLines.add(s);
+				for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
+					for(Segment2D s : poly){
+						if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y)){
+							cutLines.add(s);
+						}
+					}
 				}
 				
+				
+				
+				if(Segment2D.getSegmentsFrom(bitArea).size() > 1){					
+					for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
+						System.out.println("poly:");
+						for(Segment2D s : poly){
+							System.out.println(s);
+						}
+						System.out.println("----------------------------------");
+					}
+					System.out.println("----------------------------------");
+					drawModelArea(g2d, bitArea);
+					
+				}
 				
 
 			}					
 			
 					
+			
+			
+//			for (Area a : bitAreas)
+//				drawModelArea(g2d, a);
+
 //			for(Area a : cutLinesStroke)
-//				drawModelArea2(g2d, a);
-			
-			for (Area a : bitAreas)
-				drawModelArea(g2d, a);
-			
-			for (Segment2D s : cutLines)
+//				drawModelArea2(g2d, a);			
+
+			for (Segment2D s : cutLines){
 				drawSegment(g, s);
+				
+			}
+				
 			
 			
 			//for (Segment2D s : cuttingSegments)
