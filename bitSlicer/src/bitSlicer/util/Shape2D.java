@@ -24,8 +24,6 @@ public class Shape2D implements Iterable<Polygon>
 	protected Vector<Polygon> polygons =  new Vector<Polygon>();
 	protected AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
 	
-	protected Area area;
-	
 	public Shape2D() {
 		
 	}
@@ -171,23 +169,7 @@ public class Shape2D implements Iterable<Polygon>
 			}
 		}
 		
-		createArea();
-		
 		return manifoldErrorReported;
-	}
-	
-	public void createArea() {
-		if (this.getLargestPolygon() != null) {
-			this.area = new Area(this.getLargestPolygon().toPath2D());
-			for (Polygon poly : this) {
-				if (poly != this.getLargestPolygon())
-					this.area.subtract(new Area(poly.toPath2D()));
-			}
-		}
-	}
-	
-	public Area getArea() {
-		return (Area) this.area.clone();
 	}
 	
 	public void optimize2(){
