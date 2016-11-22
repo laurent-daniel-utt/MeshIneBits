@@ -22,7 +22,9 @@ public class AreaTool {
 		return new Area(poly.toPath2D());
 	}
 	
+	/*
 	public static Path2D getIntersectionPath(Area area1, Area area2) {
 		
 	}
+	*/
 }

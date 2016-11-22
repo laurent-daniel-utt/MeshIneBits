@@ -1,5 +1,7 @@
 package bitSlicer.util;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
 /**
@@ -145,6 +147,12 @@ public class Vector2
 		double computedX = x*Math.cos(angleRotation)-y*Math.sin(angleRotation)+myOrigin.x;
 		double computedY = x*Math.sin(angleRotation)+y*Math.cos(angleRotation)+myOrigin.y;
 		return new Vector2(computedX, computedY);
+	}
+	
+	public Vector2 getTransformed(AffineTransform transfoMatrix){
+		Point2D.Double point = new Point2D.Double(this.x, this.y);
+		Point2D.Double transformedPoint = (java.awt.geom.Point2D.Double) transfoMatrix.transform(point, null);
+		return new Vector2(transformedPoint.getX(), transformedPoint.getY());				
 	}
 
 }

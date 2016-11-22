@@ -1,5 +1,6 @@
 package bitSlicer;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
@@ -21,6 +22,7 @@ public class Bit2D extends Area {
 	private Vector2 orientation;
 	private double length;
 	private double width;
+	private AffineTransform transfoMatrix = new AffineTransform();
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -30,6 +32,8 @@ public class Bit2D extends Area {
 		this.orientation = orientation;
 		length = CraftConfig.bitLength;
 		width = CraftConfig.bitWidth;
+		transfoMatrix.rotate(orientation.x, orientation.y);
+		transfoMatrix.translate(origin.x, origin.y);
 		buildBoundaries();
 	}
 	
@@ -66,13 +70,25 @@ public class Bit2D extends Area {
 			return slice.contains(this.origin);
 	}
 	
+	/*
 	public Area getArea(Slice slice) {
 		Area truncatedArea = (Area) this.clone();
 		truncatedArea.intersect(AreaTool.getAreaFrom(slice));
 		return truncatedArea;
 	}
+	*/
+	
+	public Area getArea(){
+		Area transformedArea = (Area) this.clone();
+		transformedArea.transform(transfoMatrix);
+		return transformedArea;
+	}
 	
 	public Vector2 getOrigin(){
 		return origin;
+	}
+	
+	public void updateBoundaries(Area area){
+		
 	}
 }

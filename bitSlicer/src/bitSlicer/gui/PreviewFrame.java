@@ -29,6 +29,7 @@ import javax.swing.event.ChangeListener;
 
 import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
+import bitSlicer.Pattern;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.util.AreaTool;
 import bitSlicer.util.Polygon;
@@ -70,13 +71,25 @@ public class PreviewFrame extends JFrame
 			Vector<Area> cutLinesStroke = new Vector<Area>();
 			Vector<Segment2D> cutLines = new Vector<Segment2D>();
 		
-			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
-	        Area sliceLine = new Area(str);
+//			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
+//	        Area sliceLine = new Area(str);
+	        
+	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
+	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+	        
+	        for(Vector2 b : bitKeys){
+	        	drawModelArea(g2d, pattern.getBitArea(b));
+	        }
+	        
+	        for(Segment2D s : slice.getSegmentList())
+	        	drawSegment(g, s);
 	        
 //	        drawModelArea(g2d, sliceLine);
 			
-			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
-				drawModelArea(g2d, bit.getArea(slice));
+//			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
+//				drawModelArea(g2d, bit.getArea(slice));
+				
+				
 ////				for (Segment2D s : bit.getSegmentList()){
 ////					drawSegment(g, s);
 ////				}
@@ -127,7 +140,7 @@ public class PreviewFrame extends JFrame
 				
 			
 
-			}			
+//			}			
 			
 					
 			
