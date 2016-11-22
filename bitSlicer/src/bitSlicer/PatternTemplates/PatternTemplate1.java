@@ -1,5 +1,6 @@
 package bitSlicer.PatternTemplates;
 
+import java.util.Hashtable;
 import java.util.Vector;
 import bitSlicer.PatternTemplates.PatternTemplate;
 import bitSlicer.Slicer.Config.CraftConfig;
@@ -18,12 +19,12 @@ public class PatternTemplate1 extends PatternTemplate {
 	}
 
 	public Pattern createPattern(double layerNumber) {
-		Vector<Bit2D> bits = new Vector<Bit2D>();
+		Hashtable<Vector2, Bit2D> mapBits = new Hashtable<Vector2, Bit2D>();
 		Vector2 coo = patternStart;
 		int column = 1;
 		while (coo.x <= patternEnd.x){
 			while(coo.y <= patternEnd.y){
-				bits.add(new Bit2D(coo, new Vector2(1,0))); //every bits have no rotation in that template
+				mapBits.put(coo, new Bit2D(coo, new Vector2(1,0))); //every bits have no rotation in that template
 				coo = coo.add(new Vector2(0, CraftConfig.bitWidth + CraftConfig.yBitsOffset));
 			}
 			coo = new Vector2(patternStart.x + (CraftConfig.bitLength + CraftConfig.xBitsOffset)*column, patternStart.y);
@@ -34,7 +35,7 @@ public class PatternTemplate1 extends PatternTemplate {
 		if (layerNumber%2 == 0){
 			rotation = new Vector2(0,1);
 		}
-		return new Pattern(bits, rotation, skirtRadius);
+		return new Pattern(mapBits, rotation, skirtRadius);
 	}
 
 }

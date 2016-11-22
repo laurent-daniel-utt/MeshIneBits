@@ -17,7 +17,7 @@ import bitSlicer.util.Segment2D;;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D extends Area {
-	public Vector2 origin;
+	public final Vector2 origin;
 	private Vector2 orientation;
 	private double length;
 	private double width;
@@ -70,5 +70,9 @@ public class Bit2D extends Area {
 		Area truncatedArea = (Area) this.clone();
 		truncatedArea.intersect(AreaTool.getAreaFrom(slice));
 		return truncatedArea;
+	}
+	
+	public Vector2 getOrigin(){
+		return origin;
 	}
 }

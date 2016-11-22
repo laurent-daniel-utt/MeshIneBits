@@ -1,5 +1,6 @@
 package bitSlicer.PatternTemplates;
 
+import java.util.Hashtable;
 import java.util.Vector;
 import bitSlicer.Bit2D;
 import bitSlicer.Pattern;
@@ -14,7 +15,7 @@ public class PatternTemplate2 extends PatternTemplate {
 	}
 
 	public Pattern createPattern(double layerNumber) {
-		Vector<Bit2D> bits = new Vector<Bit2D>();
+		Hashtable<Vector2, Bit2D> mapBits = new Hashtable<Vector2, Bit2D>();
 		boolean evenI = false;
 		boolean evenJ = false;
 		double iOffSet = Math.sqrt(2) / 2 * CraftConfig.bitLength + CraftConfig.xBitsOffset;
@@ -42,16 +43,16 @@ public class PatternTemplate2 extends PatternTemplate {
 				if (evenI && evenJ){				
 					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(1, 1);
-					bits.add(new Bit2D(originBit, orientationBit));
+					mapBits.put(originBit, new Bit2D(originBit, orientationBit));
 				}
 				else if (!evenI && !evenJ){
 					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(-1, 1);
-					bits.add(new Bit2D(originBit, orientationBit));
+					mapBits.put(originBit, new Bit2D(originBit, orientationBit));
 				}		
 			}
 		}
-		return new Pattern(bits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
+		return new Pattern(mapBits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
 	}
 
 }

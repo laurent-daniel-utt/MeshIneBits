@@ -1,5 +1,7 @@
 package bitSlicer;
 
+import java.awt.geom.AffineTransform;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
@@ -15,12 +17,16 @@ public class Pattern {
 	private Vector<Bit2D> bits;
 	private Vector2 rotation;
 	private double skirtRadius;
+	private Hashtable<Vector2, Bit2D> mapBits;
+	private AffineTransform transfoMatrix;
 	
-	public Pattern(Vector<Bit2D> bits, Vector2 rotation, double skirtRadius){
+	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius){
 
-		this.bits = bits;
+		//this.bits = bits;
+		this.mapBits = mapBits;
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
+		
 		}
 	
 	/*
