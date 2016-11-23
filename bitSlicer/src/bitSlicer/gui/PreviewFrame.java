@@ -71,18 +71,23 @@ public class PreviewFrame extends JFrame
 			Vector<Area> cutLinesStroke = new Vector<Area>();
 			Vector<Segment2D> cutLines = new Vector<Segment2D>();
 		
-//			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
-//	        Area sliceLine = new Area(str);
+			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
+	        Area sliceLine = new Area(str);
 	        
 	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
 	        
 	        for(Vector2 b : bitKeys){
 	        	drawModelArea(g2d, pattern.getBitArea(b));
+	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
+	        	if(cutPaths != null){
+	        		for(Path2D cut : cutPaths)
+	        			drawModelPath2D(g2d, cut);
+	        	}
 	        }
 	        
-	        for(Segment2D s : slice.getSegmentList())
-	        	drawSegment(g, s);
+//	        for(Segment2D s : slice.getSegmentList())
+//	        	drawSegment(g, s);
 	        
 //	        drawModelArea(g2d, sliceLine);
 			
@@ -193,6 +198,7 @@ public class PreviewFrame extends JFrame
 			AffineTransform tx1 = new AffineTransform();
 	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
 	        tx1.scale(drawScale, drawScale);
+	        g2d.setColor( Color.red);
 			g2d.draw(path.createTransformedShape(tx1));
 		}
 		

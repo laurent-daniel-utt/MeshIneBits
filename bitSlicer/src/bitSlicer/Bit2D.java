@@ -1,5 +1,6 @@
 package bitSlicer;
 
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
@@ -25,6 +26,7 @@ public class Bit2D extends Area {
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
+	private Vector<Path2D> cutPaths = null;;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -102,5 +104,22 @@ public class Bit2D extends Area {
 		newArea.transform(inverseTransfoMatrix);
 		this.reset();
 		this.add(newArea);
+	}
+	
+	public void setCutPath(Vector<Path2D> paths){
+		this.cutPaths = new Vector<Path2D>();
+		for(Path2D p : paths)
+			this.cutPaths.add(new Path2D.Double(p, inverseTransfoMatrix));			
+	}
+	
+	public Vector<Path2D> getCutPaths(){
+		if (this.cutPaths == null)
+			return null;
+		else{
+			Vector<Path2D> paths = new Vector<Path2D>();
+			for(Path2D p : this.cutPaths)
+				paths.add(new Path2D.Double(p, transfoMatrix));
+			return paths;
+		}
 	}
 }
