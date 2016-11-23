@@ -249,33 +249,5 @@ public class Polygon implements Iterable<Segment2D>
 		else
 			return false;
 	}
-	
-	public Polygon getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
-	
-		//we build a new empty vector of segment2D
-		Vector<Segment2D> computedSegments = new Vector<Segment2D>();
-		//The first item we add in it is a new version of the first segment of the polygon, now in the new coo system
-		computedSegments.add(first.getInLowerCooSystem(myOrientation, myOrigin));
-		//We do the same for every segments that composed this polygon
-		for (Segment2D s = first.getNext(); s != null; s = s.getNext())
-		{
-			if (s == first){
-				break;
-			}
-			computedSegments.add(s.getInLowerCooSystem(myOrientation, myOrigin));
-		}
-		//We now have a vector full of segments in the right coo system in the right order
-		//we can now set the next attribute in each one
-		
-		for(int i = 0; i < computedSegments.size() - 1; i++){
-			computedSegments.get(i).setNext(computedSegments.get(i+1));
-		}
-		//the last segment is linked up to the first one
-		computedSegments.get(computedSegments.size() - 1).setNext(computedSegments.get(0));
-		//We can now create a new polygon with these new segments we made
-		//Only the first one in necessary since it is linked to next one which is itself linked to the one after, etc.
-		Polygon computedPolygon  = new Polygon(computedSegments.get(0));
-		
-		return computedPolygon;
-	}
+
 }

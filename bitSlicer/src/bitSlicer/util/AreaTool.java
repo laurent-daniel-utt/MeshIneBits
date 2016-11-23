@@ -1,7 +1,6 @@
 package bitSlicer.util;
 
 import java.awt.geom.Area;
-import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.Iterator;
 import java.util.Vector;
@@ -24,12 +23,6 @@ public class AreaTool {
 	public static Area getAreaFrom(Polygon poly) {
 		return new Area(poly.toPath2D());
 	}
-	
-	/*
-	public static Path2D getIntersectionPath(Area area1, Area area2) {
-		
-	}
-	*/
 	
 	public static Vector<double[]> getPathPoints(Area area){
 		

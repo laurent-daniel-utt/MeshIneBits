@@ -64,15 +64,6 @@ public class PreviewFrame extends JFrame
 			super.paint(g);
 			
 			Graphics2D g2d = (Graphics2D) g;
-			
-			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
-			Vector<Area> bitAreas = new Vector<Area>();
-			Vector<Segment2D> cuttingSegments = new Vector<Segment2D>();
-			Vector<Area> cutLinesStroke = new Vector<Area>();
-			Vector<Segment2D> cutLines = new Vector<Segment2D>();
-		
-			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
-	        Area sliceLine = new Area(str);
 	        
 	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
@@ -85,88 +76,6 @@ public class PreviewFrame extends JFrame
 	        			drawModelPath2D(g2d, cut);
 	        	}
 	        }
-	        
-//	        for(Segment2D s : slice.getSegmentList())
-//	        	drawSegment(g, s);
-	        
-//	        drawModelArea(g2d, sliceLine);
-			
-//			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
-//				drawModelArea(g2d, bit.getArea(slice));
-				
-				
-////				for (Segment2D s : bit.getSegmentList()){
-////					drawSegment(g, s);
-////				}
-//				
-//				for (Segment2D s : bit.getCuttingSegmentsFrom(slice))
-//					cuttingSegments.add(s);
-//				
-//				
-////				for (Polygon p : bit){
-////					drawModelPath2D(g2d, p.toPath2D());
-////				}
-//				
-//				
-//				
-//				Area bitArea = bit.getArea();
-//				
-//				Area cutLineStroke = (Area) sliceLine.clone();
-//				cutLineStroke.intersect(bitArea);
-//				cutLinesStroke.add(cutLineStroke);
-//				
-//				bitArea.intersect(slice.getArea());
-//				
-//				drawModelArea(g2d, bit.getArea(slice));
-//				
-//				for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-//					for(Segment2D s : poly){
-//						if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y)){
-//							cutLines.add(s);
-//							drawSegment(g, s);
-//						}
-//					}
-//				}
-//				
-//				
-//				
-//				if(Segment2D.getSegmentsFrom(bitArea).size() > 1){					
-//					for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-//						System.out.println("poly:");
-//						for(Segment2D s : poly){
-//							System.out.println(s);
-//						}
-//						System.out.println("----------------------------------");
-//					}
-//					System.out.println("----------------------------------");
-//					drawModelArea(g2d, bitArea);
-//					
-//				}
-				
-			
-
-//			}			
-			
-					
-			
-			
-//			for (Area a : bitAreas)
-//				drawModelArea(g2d, a);
-
-//			for(Area a : cutLinesStroke)
-//				drawModelArea2(g2d, a);			
-
-//			for (Segment2D s : cutLines){
-//				drawSegment(g, s);
-//				
-//			}
-				
-			
-			
-			//for (Segment2D s : cuttingSegments)
-				//drawSegment(g, s);
-			
-			//drawModelArea(g2d, slice.getArea());
 	
 		}
 		

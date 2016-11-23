@@ -402,12 +402,6 @@ public class Segment2D extends AABBrect
 		return trimmedSegment;
 	}
 	
-	public Segment2D getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
-		Vector2 computedStart = start.getInLowerCooSystem(myOrientation, myOrigin);
-		Vector2 computedEnd = end.getInLowerCooSystem(myOrientation, myOrigin);
-		return new Segment2D(1, computedStart, computedEnd);
-	}
-	
 	@SuppressWarnings("unchecked")
 	public static Vector<Vector<Segment2D>> segregateSegments(Vector<Segment2D> segments){
 		Vector<Vector<Segment2D>> segregateSegments = new Vector<Vector<Segment2D>>();
@@ -440,6 +434,5 @@ public class Segment2D extends AABBrect
 		return segregateSegments;
 	}
 	
-
 }
 

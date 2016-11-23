@@ -421,20 +421,4 @@ public class Shape2D implements Iterable<Polygon>
 		
 		return intersectionResult;
 	}
-	
-	/*
-	 * Replace every polygons by new ones in the new coo system
-	 */
-	public void setInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
-		segmentList.clear();
-		segmentTree = new AABBTree<Segment2D>();
-		Vector<Polygon> newPolygons = new Vector<Polygon>();
-		for(Polygon p : polygons ){
-			newPolygons.add(p.getInLowerCooSystem(myOrientation, myOrigin));
-			for(Segment2D s : newPolygons.lastElement()){
-				this.addModelSegment(s);
-			}
-		}
-		polygons = newPolygons;
-	}
 }

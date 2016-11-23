@@ -1,7 +1,6 @@
 package bitSlicer.PatternTemplates;
 
 import java.util.Hashtable;
-import java.util.Vector;
 import bitSlicer.PatternTemplates.PatternTemplate;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Vector2;
