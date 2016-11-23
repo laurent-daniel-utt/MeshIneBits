@@ -5,6 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -81,12 +82,10 @@ public class Pattern {
 	}
 	
 	public void computeBits(Slice slice){
-		/*
-		Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
-        Area sliceLine = new Area(str);
-        */
 		Area sliceArea = AreaTool.getAreaFrom(slice);
         sliceArea.transform(inverseTransfoMatrix);
+        Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);
+        Area sliceLine = new Area(str);
         Vector<Vector2> keys = new Vector<Vector2>(mapBits.keySet());
         for(Vector2 key : keys){
         	Area bitArea = new Area();
@@ -94,6 +93,22 @@ public class Pattern {
     		bitArea.intersect(sliceArea);
     		if (bitArea.isEmpty())
     			mapBits.remove(key);
+    		else if(!bitArea.equals(mapBits.get(key).getArea())){
+    			mapBits.get(key).updateBoundaries(bitArea);
+    			setCutPath(sliceLine, key);
+    		}	
         }
 	}
+	
+	private void setCutPath(Area sliceLine, Vector2 key){
+		
+		Vector<double[]> pathPoints = AreaTool.getPathPoints(mapBits.get(key));
+		Vector<double[]> cutPathPoints = new Vector<double[]>();
+		for(double[] point : pathPoints){
+			if(sliceLine.contains(new Point2D.Double(point[1], point[2])))
+				cutPathPoints.add(point);
+		}
+		
+	}
+	
 }

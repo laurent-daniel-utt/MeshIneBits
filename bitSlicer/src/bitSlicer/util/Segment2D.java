@@ -473,6 +473,8 @@ public class Segment2D extends AABBrect
 		            ,0);
 		    }
 		}
+		
+		
 
 		// areaSegments now contains all the line segments
 		return polygons;

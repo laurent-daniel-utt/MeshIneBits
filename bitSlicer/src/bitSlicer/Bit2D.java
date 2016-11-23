@@ -2,6 +2,7 @@ package bitSlicer;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 
@@ -23,6 +24,7 @@ public class Bit2D extends Area {
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
+	private AffineTransform inverseTransfoMatrix;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -34,6 +36,13 @@ public class Bit2D extends Area {
 		width = CraftConfig.bitWidth;
 		transfoMatrix.rotate(orientation.x, orientation.y);
 		transfoMatrix.translate(origin.x, origin.y);
+		
+		try {
+			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
+		} catch (NoninvertibleTransformException e) {
+			e.printStackTrace();
+		}
+		
 		buildBoundaries();
 	}
 	
@@ -88,7 +97,10 @@ public class Bit2D extends Area {
 		return origin;
 	}
 	
-	public void updateBoundaries(Area area){
-		
+	public void updateBoundaries(Area transformedArea){
+		Area newArea = (Area) transformedArea.clone();
+		newArea.transform(inverseTransfoMatrix);
+		this.reset();
+		this.add(newArea);
 	}
 }
