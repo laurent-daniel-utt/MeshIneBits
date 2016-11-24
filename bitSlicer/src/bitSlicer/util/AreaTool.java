@@ -1,6 +1,7 @@
 package bitSlicer.util;
 
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.Iterator;
 import java.util.Vector;
@@ -209,6 +210,24 @@ public class AreaTool {
 
 		// areaSegments now contains all the line segments
 		return polygons;
+	}
+	
+	public static Vector<Area> segregateArea(Area area){
+		
+		Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(area);
+		Vector<Area> segregatedAreas = new Vector<Area>();
+		
+		for(Vector<Segment2D> pathLine : polygons){
+			Path2D path2D = new Path2D.Double();
+			path2D.moveTo(pathLine.get(0).start.x, pathLine.get(0).start.y);
+			for(int i = 1; i < pathLine.size(); i++)
+				path2D.lineTo(pathLine.get(i).start.x, pathLine.get(i).start.y);
+			//path2D.lineTo(pathLine.get(pathLine.size() - 1).end.x, pathLine.get(pathLine.size() - 1).end.y);
+			//cutPaths.add(cutPath2D);
+			path2D.closePath();
+			segregatedAreas.add(new Area(path2D));
+		}
+		return AreaTool.getLevel0AreasFrom(segregatedAreas);
 	}
 	
 }

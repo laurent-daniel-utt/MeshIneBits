@@ -57,7 +57,7 @@ public class Pattern {
 	}
 	
 	public void computeBits(Slice slice){
-		Area sliceArea = AreaTool.getAreaFrom(slice);
+		Area sliceArea = AreaTool.getAreaFrom2(slice);
         sliceArea.transform(inverseTransfoMatrix);
         Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);//0.1f is the smaller stroke possible
         Area cutLine = new Area(str);

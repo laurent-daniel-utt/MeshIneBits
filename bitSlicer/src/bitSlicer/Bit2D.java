@@ -7,6 +7,7 @@ import java.awt.geom.Path2D;
 import java.util.Vector;
 
 import bitSlicer.Slicer.Config.CraftConfig;
+import bitSlicer.util.AreaTool;
 import bitSlicer.util.Vector2;
 
 /**
@@ -20,8 +21,8 @@ public class Bit2D {
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
-	private Vector<Path2D> cutPaths = null;;
-	private Area area = new Area();
+	private Vector<Path2D> cutPaths = null;
+	private Vector<Area> areas = new Vector<Area>();
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -57,13 +58,25 @@ public class Bit2D {
 		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
 		path.closePath();
 
-		this.area.add(new Area(path));
+		this.areas.add(new Area(path));
 	}
 	
 	public Area getArea(){
-		Area transformedArea = (Area) this.area.clone();
+		Area transformedArea = new Area();
+		for(Area a : areas)
+			transformedArea.add(a);
 		transformedArea.transform(transfoMatrix);
 		return transformedArea;
+	}
+	
+	public Vector<Area> getAreas(){
+		Vector<Area> result = new Vector<Area>();
+		for(Area a : areas){
+			Area transformedArea = new Area(a);
+			transformedArea.transform(transfoMatrix);
+			result.add(transformedArea);
+		}
+		return result;
 	}
 	
 	public Vector2 getOrigin(){
@@ -71,10 +84,11 @@ public class Bit2D {
 	}
 	
 	public void updateBoundaries(Area transformedArea){
+		areas.clear();
 		Area newArea = (Area) transformedArea.clone();
 		newArea.transform(inverseTransfoMatrix);
-		this.area.reset();
-		this.area.add(newArea);
+		for(Area a : AreaTool.segregateArea(newArea))
+			areas.add(a);
 	}
 	
 	public void setCutPath(Vector<Path2D> paths){
