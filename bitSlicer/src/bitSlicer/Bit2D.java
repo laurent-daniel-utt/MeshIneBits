@@ -12,7 +12,7 @@ import bitSlicer.util.Vector2;
 /**
  * Bit2D represents a bit in 2d space.
  */
-public class Bit2D extends Area {
+public class Bit2D {
 	public final Vector2 origin;
 	@SuppressWarnings("unused")
 	private Vector2 orientation;
@@ -21,6 +21,7 @@ public class Bit2D extends Area {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;;
+	private Area area = new Area();
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -30,8 +31,9 @@ public class Bit2D extends Area {
 		this.orientation = orientation;
 		length = CraftConfig.bitLength;
 		width = CraftConfig.bitWidth;
-		transfoMatrix.rotate(orientation.x, orientation.y);
+		
 		transfoMatrix.translate(origin.x, origin.y);
+		transfoMatrix.rotate(orientation.x, orientation.y);
 		
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
@@ -55,11 +57,11 @@ public class Bit2D extends Area {
 		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
 		path.closePath();
 
-		this.add(new Area(path));
+		this.area.add(new Area(path));
 	}
 	
 	public Area getArea(){
-		Area transformedArea = (Area) this.clone();
+		Area transformedArea = (Area) this.area.clone();
 		transformedArea.transform(transfoMatrix);
 		return transformedArea;
 	}
@@ -71,8 +73,8 @@ public class Bit2D extends Area {
 	public void updateBoundaries(Area transformedArea){
 		Area newArea = (Area) transformedArea.clone();
 		newArea.transform(inverseTransfoMatrix);
-		this.reset();
-		this.add(newArea);
+		this.area.reset();
+		this.area.add(newArea);
 	}
 	
 	public void setCutPath(Vector<Path2D> paths){

@@ -191,7 +191,7 @@ public class AreaTool {
 		    }
 		}
 		
-		//Clean the result by removing segments which have the same start and end
+		//Clean the result by removing segments which have the same start and end (java.awt.geom.Area.intersect issue)
 		Iterator<Vector<Segment2D>> itrPolygons = polygons.iterator();
 		while(itrPolygons.hasNext()){
 			Vector<Segment2D> polygon = itrPolygons.next();
