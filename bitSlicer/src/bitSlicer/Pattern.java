@@ -34,9 +34,9 @@ public class Pattern {
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
 		
+		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
 		transfoMatrix.rotate(rotation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
 		transfoMatrix.rotate(CraftConfig.rotation); //Rotation of the whole patternTemplate
-		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
 		
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();

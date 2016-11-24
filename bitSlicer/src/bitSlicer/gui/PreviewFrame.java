@@ -68,12 +68,25 @@ public class PreviewFrame extends JFrame
 	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
 	        
+	        boolean blue = false;
 	        for(Vector2 b : bitKeys){
 	        	drawModelArea(g2d, pattern.getBitArea(b));
 	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 	        	if(cutPaths != null){
-	        		for(Path2D cut : cutPaths)
+	        		
+	        		
+	        		for(Path2D cut : cutPaths) {
+	        			if (blue) {
+		        			g2d.setColor( Color.blue);
+		        			blue = false;
+		        		}	
+		        		else {
+		        			blue = true;
+		        			g2d.setColor( Color.red);
+		        		}
 	        			drawModelPath2D(g2d, cut);
+	        		}
+	        			
 	        	}
 	        }
 	
@@ -107,7 +120,7 @@ public class PreviewFrame extends JFrame
 			AffineTransform tx1 = new AffineTransform();
 	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
 	        tx1.scale(drawScale, drawScale);
-	        g2d.setColor( Color.red);
+//	        g2d.setColor( Color.red);
 			g2d.draw(path.createTransformedShape(tx1));
 		}
 		
