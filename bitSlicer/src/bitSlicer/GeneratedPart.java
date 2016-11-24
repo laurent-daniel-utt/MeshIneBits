@@ -9,7 +9,6 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
-import bitSlicer.util.Vector2;
 
 public class GeneratedPart {
 	

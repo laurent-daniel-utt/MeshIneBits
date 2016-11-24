@@ -29,6 +29,7 @@ import javax.swing.event.ChangeListener;
 
 import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
+import bitSlicer.Pattern;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.util.AreaTool;
 import bitSlicer.util.Polygon;
@@ -63,92 +64,18 @@ public class PreviewFrame extends JFrame
 			super.paint(g);
 			
 			Graphics2D g2d = (Graphics2D) g;
-			
-			Slice slice = part.getLayers().get(showLayer).getSlices().get(showSlice);
-			Vector<Area> bitAreas = new Vector<Area>();
-			Vector<Segment2D> cuttingSegments = new Vector<Segment2D>();
-			Vector<Area> cutLinesStroke = new Vector<Area>();
-			Vector<Segment2D> cutLines = new Vector<Segment2D>();
-		
-			Shape str = new BasicStroke(0.1f).createStrokedShape(AreaTool.getAreaFrom(slice));
-	        Area sliceLine = new Area(str);
 	        
-//	        drawModelArea(g2d, sliceLine);
-			
-			for (Bit2D bit : part.getLayers().get(showLayer).getPatterns().get(showSlice).getBits()){
-				drawModelArea(g2d, bit.getArea(slice));
-////				for (Segment2D s : bit.getSegmentList()){
-////					drawSegment(g, s);
-////				}
-//				
-//				for (Segment2D s : bit.getCuttingSegmentsFrom(slice))
-//					cuttingSegments.add(s);
-//				
-//				
-////				for (Polygon p : bit){
-////					drawModelPath2D(g2d, p.toPath2D());
-////				}
-//				
-//				
-//				
-//				Area bitArea = bit.getArea();
-//				
-//				Area cutLineStroke = (Area) sliceLine.clone();
-//				cutLineStroke.intersect(bitArea);
-//				cutLinesStroke.add(cutLineStroke);
-//				
-//				bitArea.intersect(slice.getArea());
-//				
-//				drawModelArea(g2d, bit.getArea(slice));
-//				
-//				for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-//					for(Segment2D s : poly){
-//						if(cutLineStroke.contains(s.getMidPoint().x, s.getMidPoint().y)){
-//							cutLines.add(s);
-//							drawSegment(g, s);
-//						}
-//					}
-//				}
-//				
-//				
-//				
-//				if(Segment2D.getSegmentsFrom(bitArea).size() > 1){					
-//					for(Vector<Segment2D> poly : Segment2D.getSegmentsFrom(bitArea)){
-//						System.out.println("poly:");
-//						for(Segment2D s : poly){
-//							System.out.println(s);
-//						}
-//						System.out.println("----------------------------------");
-//					}
-//					System.out.println("----------------------------------");
-//					drawModelArea(g2d, bitArea);
-//					
-//				}
-				
-			
-
-			}			
-			
-					
-			
-			
-//			for (Area a : bitAreas)
-//				drawModelArea(g2d, a);
-
-//			for(Area a : cutLinesStroke)
-//				drawModelArea2(g2d, a);			
-
-//			for (Segment2D s : cutLines){
-//				drawSegment(g, s);
-//				
-//			}
-				
-			
-			
-			//for (Segment2D s : cuttingSegments)
-				//drawSegment(g, s);
-			
-			//drawModelArea(g2d, slice.getArea());
+	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
+	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+	        
+	        for(Vector2 b : bitKeys){
+	        	drawModelArea(g2d, pattern.getBitArea(b));
+	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
+	        	if(cutPaths != null){
+	        		for(Path2D cut : cutPaths)
+	        			drawModelPath2D(g2d, cut);
+	        	}
+	        }
 	
 		}
 		
@@ -180,6 +107,7 @@ public class PreviewFrame extends JFrame
 			AffineTransform tx1 = new AffineTransform();
 	        tx1.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
 	        tx1.scale(drawScale, drawScale);
+	        g2d.setColor( Color.red);
 			g2d.draw(path.createTransformedShape(tx1));
 		}
 		
