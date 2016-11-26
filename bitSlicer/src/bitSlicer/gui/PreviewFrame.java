@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -69,12 +72,12 @@ public class PreviewFrame extends JFrame
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
 	        
 	        boolean blue = false;
+	        int i = 0;
 	        for(Vector2 b : bitKeys){
 	        	drawModelArea(g2d, pattern.getBitArea(b));
+	        	drawString(g, String.valueOf(i), pattern.getBit(b).getOrigin().x, pattern.getBit(b).getOrigin().y);
 	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 	        	if(cutPaths != null){
-	        		
-	        		
 	        		for(Path2D cut : cutPaths) {
 	        			if (blue) {
 		        			g2d.setColor( Color.blue);
@@ -88,9 +91,14 @@ public class PreviewFrame extends JFrame
 	        		}
 	        			
 	        	}
-	        }
-	
+	        	i++;
+	        } 
 		}
+		
+		private void drawString(Graphics g, String text, double x, double y){
+			//((x + viewOffsetX) * drawScale)
+			g.setColor(Color.BLACK);
+			g.drawString(text, (int) ((x + viewOffsetX) * drawScale)  + this.getWidth() / 2, (int) ((y + viewOffsetY) * drawScale) + this.getHeight() / 2);		}
 		
 		private void drawSegment(Graphics g, Segment2D s)
 		{		
@@ -238,6 +246,21 @@ public class PreviewFrame extends JFrame
 			}	
 			
 		});
+		
+		JButton removeBitButton = new JButton("Replace a bit");
+		
+		removeBitButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+	 	        Bit2D bit = pattern.getBit(bitKeys.get(0));	 	        
+	 	        pattern.removeBit(bitKeys.get(0));
+	 	        bit = new Bit2D(bit, 50);
+	 	        pattern.addBit(bit);
+	 	        part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
+	 	        viewPanel.repaint();
+	         }          
+	      });
 				
 		actionPanel.add(new JLabel("  Layer :  "));
 		actionPanel.add(layerSpinner);
@@ -245,6 +268,7 @@ public class PreviewFrame extends JFrame
 		actionPanel.add(sliceSpinner);
 		actionPanel.add(new JLabel("   Zoom:  "));
 		actionPanel.add(zoomSpinner);
+		actionPanel.add(removeBitButton);
 		
 		this.setLayout(new BorderLayout());
 		this.add(viewPanel, BorderLayout.CENTER);

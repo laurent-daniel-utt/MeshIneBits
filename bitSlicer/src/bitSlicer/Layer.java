@@ -1,8 +1,10 @@
 package bitSlicer;
 
 import bitSlicer.util.Shape2D;
+import bitSlicer.util.Vector2;
 import bitSlicer.Slicer.Slice;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import bitSlicer.Pattern;
@@ -30,5 +32,9 @@ public class Layer extends Shape2D {
 	
 	public Vector<Pattern> getPatterns(){
 		return this.patterns;
+	}
+	
+	public void computeBitsPattern(int sliceNumber){
+		patterns.get(sliceNumber).computeBits(slices.get(sliceNumber));
 	}
 }

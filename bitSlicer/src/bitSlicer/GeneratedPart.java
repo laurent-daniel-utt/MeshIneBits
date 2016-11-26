@@ -1,5 +1,6 @@
 package bitSlicer;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
@@ -9,6 +10,8 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
+import bitSlicer.util.Vector2;
+import bitSlicer.util.Vector3;
 
 public class GeneratedPart {
 	
@@ -16,6 +19,7 @@ public class GeneratedPart {
 	private double skirtRadius;
 	private Vector<Layer> layers = new Vector<Layer>();
 	private PatternTemplate patternTemplate;
+	private Hashtable<Vector3, Bit3D> map3DBits;
 	
 	public GeneratedPart(Vector<Slice> slices){
 		this.slices = slices;

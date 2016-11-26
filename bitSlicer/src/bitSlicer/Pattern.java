@@ -131,4 +131,15 @@ public class Pattern {
 		}
 	}
 	
+	public void removeBit(Vector2 key){
+		mapBits.remove(key);
+	}
+	
+	public void addBit(Bit2D bit){
+		mapBits.put(bit.getOrigin(), bit);
+	}
+	
+	public Bit2D getBit(Vector2 key){
+		return mapBits.get(key);
+	}
 }
