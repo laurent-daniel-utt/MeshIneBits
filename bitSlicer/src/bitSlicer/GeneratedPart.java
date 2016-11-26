@@ -19,12 +19,12 @@ public class GeneratedPart {
 	private double skirtRadius;
 	private Vector<Layer> layers = new Vector<Layer>();
 	private PatternTemplate patternTemplate;
-	private Hashtable<Vector3, Bit3D> map3DBits;
+	private Hashtable<Vector3, Bit3D> mapBits3D;
 	
 	public GeneratedPart(Vector<Slice> slices){
 		this.slices = slices;
 		setSkirtRadius();
-		build();
+		buildBits2D();
 	}
 	
 	/*
@@ -48,13 +48,13 @@ public class GeneratedPart {
 		System.out.println("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
 	}
 	
-	public void build(){
-		setPatternTemplate(CraftConfig.patternNumber);
+	public void buildBits2D(){
+		setPatternTemplate();
 		buildLayers();
 	}
 	
-	public void setPatternTemplate(int templateNumber){
-		switch (templateNumber){
+	public void setPatternTemplate(){
+		switch (CraftConfig.patternNumber){
 		case 1:
 			patternTemplate = new PatternTemplate1(skirtRadius);
 			break;
@@ -67,7 +67,7 @@ public class GeneratedPart {
 		return patternTemplate;
 	}
 	
-	public void buildLayers(){
+	private void buildLayers(){
 		
 		@SuppressWarnings("unchecked")
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
@@ -95,6 +95,10 @@ public class GeneratedPart {
 	
 	public Vector<Layer> getLayers() {
 		return this.layers;
+	}
+	
+	public void buildBits3D(){
+		
 	}
 
 }

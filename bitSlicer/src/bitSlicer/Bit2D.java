@@ -14,14 +14,15 @@ import bitSlicer.util.Vector2;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D {
-	private Vector2 origin;
-	private Vector2 orientation;
+	private Vector2 origin;// in the pattern coordinate system
+	private Vector2 orientation;// in the pattern coordinate system
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
+	private Vector<SubBit2D> subBits = null;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 

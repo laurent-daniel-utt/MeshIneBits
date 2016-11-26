@@ -75,7 +75,7 @@ public class PreviewFrame extends JFrame
 	        int i = 0;
 	        for(Vector2 b : bitKeys){
 	        	drawModelArea(g2d, pattern.getBitArea(b));
-	        	drawString(g, String.valueOf(i), pattern.getBit(b).getOrigin().x, pattern.getBit(b).getOrigin().y);
+	        	drawString(g, String.valueOf(i), b.x, b.y);
 	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 	        	if(cutPaths != null){
 	        		for(Path2D cut : cutPaths) {
@@ -183,7 +183,7 @@ public class PreviewFrame extends JFrame
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
-		this.setTitle("2D preview");
+		this.setTitle("MeshIneBits - 2D preview");
 		this.part = part;
 		
 		final JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showLayer, 0, part.getLayers().size() - 1, 1));
