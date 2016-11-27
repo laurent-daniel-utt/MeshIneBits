@@ -10,7 +10,6 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
-import bitSlicer.util.Vector2;
 import bitSlicer.util.Vector3;
 
 public class GeneratedPart {
@@ -73,22 +72,29 @@ public class GeneratedPart {
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
 		double bitThickness = CraftConfig.bitThickness;
 		double sliceHeight = CraftConfig.sliceHeight;
+		double layersOffSet = CraftConfig.layersOffset;
 		double z = CraftConfig.firstSliceHeightPercent * sliceHeight / 100;
 		int layerNumber = 1;
 		int progress = 0;
 		int progressGoal = slicesCopy.size();
+		double zBitBottom = 0;
+		double zBitRoof = bitThickness;
 		
 		Logger.updateStatus("Generating Layers");
 		while (!slicesCopy.isEmpty()){
 			Vector<Slice> includedSlices = new Vector<Slice>();
-			while ((z < bitThickness * layerNumber) && !slicesCopy.isEmpty()){
-				includedSlices.add(slicesCopy.get(0));
+			while (z <= zBitRoof && !slicesCopy.isEmpty()){
+				if(z >= zBitBottom){
+					includedSlices.add(slicesCopy.get(0));
+				}
 				slicesCopy.remove(0);
 				z = z + sliceHeight;
-				Logger.setProgress(progress++, progressGoal);
+				Logger.setProgress(progress++, progressGoal);	
 			}
 			layers.add(new Layer(includedSlices, layerNumber, this));
 			layerNumber++;
+			zBitBottom = zBitRoof + layersOffSet;
+			zBitRoof = zBitBottom + bitThickness;
 		}
 		System.out.println("Layer count: " + (layerNumber - 1));
 	}

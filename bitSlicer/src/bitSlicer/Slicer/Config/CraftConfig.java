@@ -66,9 +66,14 @@ public class CraftConfig
 	public static double yOffset = 0;
 	
 	@Setting(title = "OffSet between bits (mm)",
-			description = "Choose which offset you want to apply on the pattern in the X direction (mm)",
-			minValue = -60, maxValue = 90)
+			description = "Choose the horizontal gap between each bits (mm)",
+			minValue = -10, maxValue = 10)
 	public static double bitsOffset = 0;
+	
+	@Setting(title = "OffSet between layers (mm)",
+			description = "Choose the vertical gap between each layers (mm)",
+			minValue = 0, maxValue = 3)
+	public static double layersOffset = 2;
 	
 	@Setting()
 	public static String lastSlicedFile = "";	
