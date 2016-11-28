@@ -36,6 +36,7 @@ import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
 import bitSlicer.Pattern;
 import bitSlicer.Slicer.Slice;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AreaTool;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
@@ -283,15 +284,78 @@ public class PreviewFrame extends JFrame
 			
 		});
 		
-		JButton replaceBitButton = new JButton("Replace bit");
+		JButton replaceBitButton1 = new JButton("Replace bit >");
 		
-		replaceBitButton.addActionListener(new ActionListener() {
+		replaceBitButton1.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
 	        	 if(selectedBitKey != null){
 	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
 	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
 	        		 pattern.removeBit(selectedBitKey);
-	        		 bit = new Bit2D(bit, 50);
+	        		 double newOriginX = bit.getOrigin().x + bit.getOrientation().normal().x * CraftConfig.bitLength * 0.25;
+	        		 double newOriginY = bit.getOrigin().y + bit.getOrientation().normal().y * CraftConfig.bitLength * 0.25;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation(), 50);
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton2 = new JButton("< Replace bit");
+		
+		replaceBitButton2.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x - bit.getOrientation().normal().x * CraftConfig.bitLength * 0.25;
+	        		 double newOriginY = bit.getOrigin().y - bit.getOrientation().normal().y * CraftConfig.bitLength * 0.25;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation(), 50);
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton3 = new JButton("< Replace full bit");
+		
+		replaceBitButton3.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x - bit.getOrientation().normal().x * CraftConfig.bitLength * 0.5;
+	        		 double newOriginY = bit.getOrigin().y - bit.getOrientation().normal().y * CraftConfig.bitLength * 0.5;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation());
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton4 = new JButton("Replace full bit >");
+		
+		replaceBitButton4.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x + bit.getOrientation().normal().x * CraftConfig.bitLength * 0.5;
+	        		 double newOriginY = bit.getOrigin().y + bit.getOrientation().normal().y * CraftConfig.bitLength * 0.5;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation());
 	        		 pattern.addBit(bit);
 	        		 selectedBitKey = null;
 	        		 viewPanel.repaint();
@@ -331,7 +395,10 @@ public class PreviewFrame extends JFrame
 		actionPanel.add(zoomSpinner);
 		
 		patternModifPanel.add(removeBitButton);
-		patternModifPanel.add(replaceBitButton);
+		patternModifPanel.add(replaceBitButton3);
+		patternModifPanel.add(replaceBitButton2);
+		patternModifPanel.add(replaceBitButton1);
+		patternModifPanel.add(replaceBitButton4);
 		patternModifPanel.add(computeBitPatternButton);
 		
 		this.setLayout(new BorderLayout());

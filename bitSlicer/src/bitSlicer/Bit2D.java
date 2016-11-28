@@ -37,6 +37,16 @@ public class Bit2D {
 		buildBoundaries();
 	}
 	
+	public Bit2D(Vector2 origin, Vector2 orientation, double percentageLength){
+		this.origin = origin;
+		this.orientation = orientation;
+		length = CraftConfig.bitLength * percentageLength / 100;
+		width = CraftConfig.bitWidth;
+		
+		setTransfoMatrix();
+		buildReducedBoundaries();
+	}
+	
 	public Bit2D(Bit2D cutBit){
 		this.origin = cutBit.origin;
 		this.orientation = cutBit.orientation;
@@ -153,5 +163,9 @@ public class Bit2D {
 				paths.add(new Path2D.Double(p, transfoMatrix));
 			return paths;
 		}
+	}
+	
+	public Vector2 getOrientation(){
+		return orientation;
 	}
 }
