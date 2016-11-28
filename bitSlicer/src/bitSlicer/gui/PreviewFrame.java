@@ -215,6 +215,8 @@ public class PreviewFrame extends JFrame
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
+		JPanel patternModifPanel = new JPanel();
+		patternModifPanel.setLayout(new BoxLayout(patternModifPanel, BoxLayout.X_AXIS));
 		this.setTitle("MeshIneBits - 2D preview");
 		this.part = part;
 		
@@ -281,9 +283,9 @@ public class PreviewFrame extends JFrame
 			
 		});
 		
-		JButton removeBitButton = new JButton("Replace a bit");
+		JButton replaceBitButton = new JButton("Replace bit");
 		
-		removeBitButton.addActionListener(new ActionListener() {
+		replaceBitButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
 	        	 if(selectedBitKey != null){
 	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
@@ -291,11 +293,33 @@ public class PreviewFrame extends JFrame
 	        		 pattern.removeBit(selectedBitKey);
 	        		 bit = new Bit2D(bit, 50);
 	        		 pattern.addBit(bit);
-	        		 part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
 	        		 selectedBitKey = null;
 	        		 viewPanel.repaint();
 	        	 }
 	        	
+	         }          
+	      });
+		
+		JButton removeBitButton = new JButton("Delete bit");
+		
+		removeBitButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice); 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton computeBitPatternButton = new JButton("Compute pattern");
+		
+		computeBitPatternButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
+	        	 viewPanel.repaint();
 	         }          
 	      });
 				
@@ -305,15 +329,19 @@ public class PreviewFrame extends JFrame
 		actionPanel.add(sliceSpinner);
 		actionPanel.add(new JLabel("   Zoom:  "));
 		actionPanel.add(zoomSpinner);
-		actionPanel.add(removeBitButton);
+		
+		patternModifPanel.add(removeBitButton);
+		patternModifPanel.add(replaceBitButton);
+		patternModifPanel.add(computeBitPatternButton);
 		
 		this.setLayout(new BorderLayout());
 		this.add(viewPanel, BorderLayout.CENTER);
 		this.add(actionPanel, BorderLayout.SOUTH);
+		this.add(patternModifPanel, BorderLayout.NORTH);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
-		this.setSize(600, 600);
+		this.setSize(700, 700);
 		this.setVisible(true);
 	}
 }
