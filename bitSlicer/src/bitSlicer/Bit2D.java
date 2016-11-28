@@ -100,12 +100,10 @@ public class Bit2D {
 		this.areas.add(new Area(path));
 		
 		cutPaths = new Vector<Path2D>();
-		Path2D cutPath = new Path2D.Double();
-		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
-		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
-		this.cutPaths.add(cutPath);
-		System.out.println(cutPaths.get(0));
-		
+		Path2D.Double cutPath = new Path2D.Double();
+		cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
+		cutPath.lineTo(cornerDownLeft.x, cornerDownLeft.y);
+		this.cutPaths.add(cutPath);	
 	}
 	
 	public Area getArea(){
