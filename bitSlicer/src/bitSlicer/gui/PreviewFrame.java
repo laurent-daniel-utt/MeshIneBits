@@ -292,6 +292,7 @@ public class PreviewFrame extends JFrame
 	        		 bit = new Bit2D(bit, 50);
 	        		 pattern.addBit(bit);
 	        		 part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
+	        		 selectedBitKey = null;
 	        		 viewPanel.repaint();
 	        	 }
 	        	
