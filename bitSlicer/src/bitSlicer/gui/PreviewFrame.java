@@ -9,6 +9,7 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -29,6 +30,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MouseInputListener;
 
 import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
@@ -45,8 +47,9 @@ public class PreviewFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private GeneratedPart part;
+	public Vector2 selectedBitKey = null;
 	
-	public class PreviewPanel extends JPanel implements MouseMotionListener
+	public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener
 	{
 		private static final long serialVersionUID = 1L;
 		
@@ -60,6 +63,7 @@ public class PreviewFrame extends JFrame
 		public PreviewPanel()
 		{
 			addMouseMotionListener(this);
+			addMouseListener(this);
 		}
 		
 		public void paint(Graphics g)
@@ -72,10 +76,16 @@ public class PreviewFrame extends JFrame
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
 	        
 	        boolean blue = false;
-	        int i = 0;
+	       
 	        for(Vector2 b : bitKeys){
-	        	drawModelArea(g2d, pattern.getBitArea(b));
-	        	drawString(g, String.valueOf(i), b.x, b.y);
+	        	 g2d.setColor( Color.green );
+	        	if(b == selectedBitKey){
+	        		g2d.setColor( Color.blue );
+	        		drawModelArea(g2d, pattern.getBitArea(b));
+	        	}
+	        	else
+	        		drawModelArea(g2d, pattern.getBitArea(b));
+
 	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 	        	if(cutPaths != null){
 	        		for(Path2D cut : cutPaths) {
@@ -91,7 +101,6 @@ public class PreviewFrame extends JFrame
 	        		}
 	        			
 	        	}
-	        	i++;
 	        } 
 		}
 		
@@ -138,8 +147,7 @@ public class PreviewFrame extends JFrame
 	        tx1.scale(drawScale, drawScale);
 
 	        area.transform(tx1);
-	        g2d.setColor( Color.green );
-			//g2d.draw(area);
+	        
 			g2d.fill(area);
 		}
 		
@@ -175,6 +183,27 @@ public class PreviewFrame extends JFrame
 			oldX = e.getX();
 			oldY = e.getY();
 		}
+
+		public void mouseClicked(MouseEvent e) {
+			Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
+	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+			Point2D clickSpot = new Point2D.Double((((double) e.getX()) - this.getWidth()/2) / drawScale - viewOffsetX, (((double) e.getY()) - this.getHeight()/2) / drawScale - viewOffsetY);
+			for(Vector2 bitKey : bitKeys){
+				if(pattern.getBitArea(bitKey).contains(clickSpot)){
+					selectedBitKey = bitKey;
+					break;
+				}
+			}
+			repaint();
+		}
+
+		public void mousePressed(MouseEvent e) {}
+
+		public void mouseReleased(MouseEvent e) {}
+
+		public void mouseEntered(MouseEvent e) {}
+
+		public void mouseExited(MouseEvent e) {}
 	}
 
 	
@@ -194,6 +223,7 @@ public class PreviewFrame extends JFrame
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				selectedBitKey = null;
 				int spinnerValue = ((Integer) sliceSpinner.getValue()).intValue();
 				
 				if ((spinnerValue + 1 <= part.getLayers().get(viewPanel.showLayer).getSlices().size()) && (spinnerValue >= 0)){
@@ -239,6 +269,7 @@ public class PreviewFrame extends JFrame
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				selectedBitKey = null;
 				viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue();
 				viewPanel.showSlice = 0;
 				sliceSpinner.setValue(0);
@@ -251,14 +282,16 @@ public class PreviewFrame extends JFrame
 		
 		removeBitButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
-	        	Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
-	 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
-	 	        Bit2D bit = pattern.getBit(bitKeys.get(0));	 	        
-	 	        pattern.removeBit(bitKeys.get(0));
-	 	        bit = new Bit2D(bit, 50);
-	 	        pattern.addBit(bit);
-	 	        part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
-	 	        viewPanel.repaint();
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 bit = new Bit2D(bit, 50);
+	        		 pattern.addBit(bit);
+	        		 part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
+	        		 viewPanel.repaint();
+	        	 }
+	        	
 	         }          
 	      });
 				
