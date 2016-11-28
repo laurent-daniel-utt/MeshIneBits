@@ -190,7 +190,10 @@ public class PreviewFrame extends JFrame
 			Point2D clickSpot = new Point2D.Double((((double) e.getX()) - this.getWidth()/2) / drawScale - viewOffsetX, (((double) e.getY()) - this.getHeight()/2) / drawScale - viewOffsetY);
 			for(Vector2 bitKey : bitKeys){
 				if(pattern.getBitArea(bitKey).contains(clickSpot)){
-					selectedBitKey = bitKey;
+					if(selectedBitKey == bitKey) //then it is a click to unselect this bit
+						selectedBitKey = null;
+					else
+						selectedBitKey = bitKey;
 					break;
 				}
 			}
