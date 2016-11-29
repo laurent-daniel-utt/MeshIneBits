@@ -22,7 +22,6 @@ public class Bit2D {
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
-	private Vector<SubBit2D> subBits = null;
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 

@@ -18,7 +18,6 @@ public class GeneratedPart {
 	private double skirtRadius;
 	private Vector<Layer> layers = new Vector<Layer>();
 	private PatternTemplate patternTemplate;
-	private Hashtable<Vector3, Bit3D> mapBits3D;
 	
 	public GeneratedPart(Vector<Slice> slices){
 		this.slices = slices;
