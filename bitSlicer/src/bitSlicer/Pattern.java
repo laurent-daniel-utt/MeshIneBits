@@ -54,7 +54,13 @@ public class Pattern {
 	
 	public void addBit(Bit2D bit){
 		//the key of each bit is its origin's coordinates in the general coo system
-		mapBits.put(bit.getOrigin().getTransformed(transfoMatrix), bit);
+		Vector2 bitKey = bit.getOrigin().getTransformed(transfoMatrix);
+		//We check that there is not already a bit at this place
+		for(Vector2 key : getBitsKeys()){
+			if(bitKey.asGoodAsEqual(key))
+				return;
+		}
+		mapBits.put(bitKey, bit);
 	}
 	
 	public Vector<Vector2> getBitsKeys(){

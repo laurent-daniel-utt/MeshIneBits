@@ -91,8 +91,10 @@ public class GeneratedPart {
 				z = z + sliceHeight;
 				Logger.setProgress(progress++, progressGoal);	
 			}
-			layers.add(new Layer(includedSlices, layerNumber, this));
-			layerNumber++;
+			if(!includedSlices.isEmpty()){
+				layers.add(new Layer(includedSlices, layerNumber, this));
+				layerNumber++;
+			}
 			zBitBottom = zBitRoof + layersOffSet;
 			zBitRoof = zBitBottom + bitThickness;
 		}
