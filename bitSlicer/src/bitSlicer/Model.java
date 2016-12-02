@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
+import bitSlicer.gui.ProcessingWindow;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Triangle;
 import bitSlicer.util.Vector3;
@@ -17,7 +18,7 @@ import bitSlicer.util.Vector3;
  */
 public class Model
 {
-	public Vector<Triangle> triangles;
+	public Vector<Triangle> triangles = new Vector<Triangle>();;
 	
 	public Model(String filename) throws IOException
 	{
@@ -33,13 +34,9 @@ public class Model
 			String header = new String(buf);
 			
 			if (header.equals("solid"))
-				readAsciiSTL(filename);
+				this.triangles.addAll(readAsciiSTL(filename));
 			else
-				readBinarySTL(filename);
-		}
-		else if  (filename.toLowerCase().endsWith(".obj"))
-		{
-			readObj(filename);
+				this.triangles.addAll(readBinarySTL(filename));
 		}
 		else
 		{
@@ -90,13 +87,13 @@ public class Model
 		return ret;
 	}
 	
-	private void readBinarySTL(String filename) throws IOException
+	private Vector<Triangle> readBinarySTL(String filename) throws IOException
 	{
 		RandomAccessFile raf = new RandomAccessFile(filename, "r");
 		byte[] header = new byte[80];
 		raf.read(header);
 		int triangleCount = Integer.reverseBytes(raf.readInt());
-		triangles = new Vector<Triangle>();
+		Vector<Triangle> resultTriangles = new Vector<Triangle>();
 		for (int i = 0; i < triangleCount; i++)
 		{
 			Logger.setProgress(i, triangleCount);
@@ -117,20 +114,21 @@ public class Model
 			z = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
 			t.point[2] = new Vector3(x, y, z);
 			raf.readShort();// flags
-			triangles.add(t);
+			resultTriangles.add(t);
 		}
 		System.out.println(getMin());
 		raf.close();
+		return resultTriangles;
 	}
 	
-	private void readAsciiSTL(String filename) throws IOException
+	private Vector<Triangle> readAsciiSTL(String filename) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line;
 		int i = 0;
 		Vector3 normal = null;
 		Triangle nextTri = new Triangle();
-		triangles = new Vector<Triangle>();
+		Vector<Triangle> resultTriangles = new Vector<Triangle>();
 		while ((line = br.readLine()) != null)
 		{
 			line = line.trim();
@@ -151,68 +149,76 @@ public class Model
 						// Triangle winding order and normal don't point in the same direction...
 						// Flip the triangle?
 					}
-					triangles.add(nextTri);
+					resultTriangles.add(nextTri);
 					nextTri = new Triangle();
 					i = 0;
 				}
 			}
 		}
 		br.close();
+		return resultTriangles;
 	}
 	
-	/**
-	 * Read obj files. ONLY TRIANGLES
-	 * TODO: delete or make compatible with other than triangles
-	 */
-	private void readObj(String filename) throws IOException
-	{
-		BufferedReader br = new BufferedReader(new FileReader(filename));
-		String line;
-
-		int triangleCount = 0;
-		triangles = new Vector<Triangle>();
-		Vector<Vector3> vertex = new Vector<Vector3>();
-		Vector<Vector3> faces = new Vector<Vector3>();
+//	/**
+//	 * Read obj files. ONLY TRIANGLES
+//	 * TODO: delete or make compatible with other than triangles
+//	 */
+//	private void readObj(String filename) throws IOException
+//	{
+//		BufferedReader br = new BufferedReader(new FileReader(filename));
+//		String line;
+//
+//		int triangleCount = 0;
+//		triangles = new Vector<Triangle>();
+//		Vector<Vector3> vertex = new Vector<Vector3>();
+//		Vector<Vector3> faces = new Vector<Vector3>();
+//		
+//		// Read the file
+//		while ((line = br.readLine()) != null)
+//		{
+//			line = line.trim();
+//			
+//			// Find all the vertex
+//			if (line.startsWith("v "))
+//			{
+//				String[] parts = line.split(" ");
+//				vertex.add(new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3])));
+//			}
+//			
+//			// Find all the faces
+//			else if (line.startsWith("f "))
+//			{
+//				String[] parts = line.split(" ");
+//				if (parts.length == 4) // Check if f line contains 4 parts, which means it's triangle
+//				{
+//					faces.add(new Vector3(Integer.parseInt(parts[1].split("/")[0]), Integer.parseInt(parts[2].split("/")[0]), Integer.parseInt(parts[3].split("/")[0])));
+//					triangleCount++;
+//				}
+//				else // Else faces are not triangles, can be a quad or polygon
+//				{
+//					new RuntimeException("Mesh must be a triangle mesh");
+//				}
+//			}
+//		}
+//		br.close();
+//		
+//		// Create triangle from faces
+//		for (int i = 0; i < triangleCount; i++) {
+//			Triangle t = new Triangle();
+//			t.point[0] = vertex.get((int) faces.get(i).x -1); // "-1" because index of Vector start at 0, but not the index of the vertex in OBJ format
+//			t.point[1] = vertex.get((int) faces.get(i).y -1);
+//			t.point[2] = vertex.get((int) faces.get(i).z -1);
+//			
+//			triangles.add(t);
+//		}
+//	}
+	
+	public String toObjFile (String filename) throws IOException {
 		
-		// Read the file
-		while ((line = br.readLine()) != null)
-		{
-			line = line.trim();
-			
-			// Find all the vertex
-			if (line.startsWith("v "))
-			{
-				String[] parts = line.split(" ");
-				vertex.add(new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3])));
-			}
-			
-			// Find all the faces
-			else if (line.startsWith("f "))
-			{
-				String[] parts = line.split(" ");
-				System.out.println(parts.length);
-				if (parts.length == 4) // Check if f line contains 4 parts, which means it's triangle
-				{
-					faces.add(new Vector3(Integer.parseInt(parts[1].split("/")[0]), Integer.parseInt(parts[2].split("/")[0]), Integer.parseInt(parts[3].split("/")[0])));
-					triangleCount++;
-				}
-				else // Else faces are not triangles, can be a quad or polygon
-				{
-					new RuntimeException("Mesh must be a triangle mesh");
-				}
-			}
-		}
-		br.close();
+	}
+	
+	public String toStlFile (String filename) throws IOException {
 		
-		// Create triangle from faces
-		for (int i = 0; i < triangleCount; i++) {
-			Triangle t = new Triangle();
-			t.point[0] = vertex.get((int) faces.get(i).x -1); // "-1" because index of Vector start at 0, but not the index of the vertex in OBJ format
-			t.point[1] = vertex.get((int) faces.get(i).y -1);
-			t.point[2] = vertex.get((int) faces.get(i).z -1);
-			
-			triangles.add(t);
-		}
 	}
 	
 	public void center()
