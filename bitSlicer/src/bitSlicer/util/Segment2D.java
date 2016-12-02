@@ -402,6 +402,9 @@ public class Segment2D extends AABBrect
 		return trimmedSegment;
 	}
 	
+	/*
+	 * Sort segments by paths
+	 */
 	@SuppressWarnings("unchecked")
 	public static Vector<Vector<Segment2D>> segregateSegments(Vector<Segment2D> segments){
 		Vector<Vector<Segment2D>> segregateSegments = new Vector<Vector<Segment2D>>();

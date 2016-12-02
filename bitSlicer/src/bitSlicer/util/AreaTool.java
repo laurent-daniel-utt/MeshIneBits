@@ -1,11 +1,14 @@
 package bitSlicer.util;
 
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.Iterator;
 import java.util.Vector;
 
 public class AreaTool {
+
+	/*
 	public static Area getAreaFrom(Shape2D shape) {
 		if (shape.getLargestPolygon() != null) {
 			Area area = getAreaFrom(shape.getLargestPolygon());
@@ -18,6 +21,86 @@ public class AreaTool {
 		else
 			return null;
 		
+	}
+	*/
+	
+	public static Vector<Area> getLevel0AreasFrom(Shape2D shape){
+		Vector<Area> areas = new Vector<Area>();
+		for(Polygon p : shape){
+			areas.add(getAreaFrom(p));
+		}
+		if (areas.isEmpty())
+			return null;
+		else
+			return getLevel0AreasFrom(areas);
+	}
+	
+	public static Area getAreaFrom2(Shape2D shape){
+		Area resultArea = new Area();
+		Vector<Area> areas = getLevel0AreasFrom(shape);
+		for(Area a : areas)
+			resultArea.add(a);
+		return resultArea;
+	}
+	
+	public static Vector<Area> getLevel0AreasFrom(Vector<Area> areas) {
+		
+		if (areas.isEmpty())
+			return null;
+
+		Vector<Vector<Area>> areasByLevel = new Vector<Vector<Area>>();
+		//We fill the vector with null values, it cannot have more levels than areas
+		for(Area a : areas)
+			areasByLevel.add(null);
+				
+		/*
+		Sort the areas by their "inclusion level": if no other area contains the area A, then A's level will be 0,
+		if A is contained by only one then A's level will be 1, etc...
+		*/
+		int levelMax = 0;
+		for(Area currentArea : areas){
+			int levelCurrentArea = 0; //If level is even this area is filled, if it's odd this area is a hole
+			for(Area otherArea : areas){
+				if(!currentArea.equals(otherArea)){
+					Area currentAreaClone = (Area) currentArea.clone();
+					currentAreaClone.intersect(otherArea);
+					if(currentAreaClone.equals(currentArea)){
+						//currentArea is inside otherArea
+						levelCurrentArea++;
+					}
+					/*Following code is just a help to understand the algorithm:
+
+					else if(currentAreaClone.equals(otherArea)){
+						//otherArea is inside currentArea
+					}
+					else{
+						//These two are two separate areas
+					}
+					 */
+				}
+			}
+			if(areasByLevel.get(levelCurrentArea) == null){
+				for(int i = 0; i <= levelCurrentArea; i++){
+					if(areasByLevel.get(i) == null)
+						areasByLevel.set(i, new Vector<Area>());
+				}
+			}
+			areasByLevel.get(levelCurrentArea).add(currentArea);
+			if(levelCurrentArea > levelMax)
+				levelMax = levelCurrentArea;
+		}
+		
+		for(Area level0Area : areasByLevel.get(0)){
+			for(int level = 1; level <= levelMax; level++){
+				for(Area higherLevelArea : areasByLevel.get(level)){
+					if(level % 2 != 0)
+						level0Area.subtract(higherLevelArea);
+					else
+						level0Area.add(higherLevelArea);
+				}
+			}
+		}
+		return areasByLevel.get(0);		
 	}
 	
 	public static Area getAreaFrom(Polygon poly) {
@@ -39,6 +122,7 @@ public class AreaTool {
 		}
 		return areaPoints;
 	}
+	
 	
 	/*
 	 * taken from http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area
@@ -126,6 +210,24 @@ public class AreaTool {
 
 		// areaSegments now contains all the line segments
 		return polygons;
+	}
+	
+	public static Vector<Area> segregateArea(Area area){
+		
+		Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(area);
+		Vector<Area> segregatedAreas = new Vector<Area>();
+		
+		for(Vector<Segment2D> pathLine : polygons){
+			Path2D path2D = new Path2D.Double();
+			path2D.moveTo(pathLine.get(0).start.x, pathLine.get(0).start.y);
+			for(int i = 1; i < pathLine.size(); i++)
+				path2D.lineTo(pathLine.get(i).start.x, pathLine.get(i).start.y);
+			//path2D.lineTo(pathLine.get(pathLine.size() - 1).end.x, pathLine.get(pathLine.size() - 1).end.y);
+			//cutPaths.add(cutPath2D);
+			path2D.closePath();
+			segregatedAreas.add(new Area(path2D));
+		}
+		return AreaTool.getLevel0AreasFrom(segregatedAreas);
 	}
 	
 }

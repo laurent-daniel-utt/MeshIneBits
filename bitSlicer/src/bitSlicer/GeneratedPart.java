@@ -1,5 +1,6 @@
 package bitSlicer;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
@@ -9,6 +10,7 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
+import bitSlicer.util.Vector3;
 
 public class GeneratedPart {
 	
@@ -20,7 +22,7 @@ public class GeneratedPart {
 	public GeneratedPart(Vector<Slice> slices){
 		this.slices = slices;
 		setSkirtRadius();
-		build();
+		buildBits2D();
 	}
 	
 	/*
@@ -44,13 +46,13 @@ public class GeneratedPart {
 		System.out.println("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
 	}
 	
-	public void build(){
-		setPatternTemplate(CraftConfig.patternNumber);
+	public void buildBits2D(){
+		setPatternTemplate();
 		buildLayers();
 	}
 	
-	public void setPatternTemplate(int templateNumber){
-		switch (templateNumber){
+	public void setPatternTemplate(){
+		switch (CraftConfig.patternNumber){
 		case 1:
 			patternTemplate = new PatternTemplate1(skirtRadius);
 			break;
@@ -63,34 +65,47 @@ public class GeneratedPart {
 		return patternTemplate;
 	}
 	
-	public void buildLayers(){
+	private void buildLayers(){
 		
 		@SuppressWarnings("unchecked")
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
 		double bitThickness = CraftConfig.bitThickness;
 		double sliceHeight = CraftConfig.sliceHeight;
+		double layersOffSet = CraftConfig.layersOffset;
 		double z = CraftConfig.firstSliceHeightPercent * sliceHeight / 100;
 		int layerNumber = 1;
 		int progress = 0;
 		int progressGoal = slicesCopy.size();
+		double zBitBottom = 0;
+		double zBitRoof = bitThickness;
 		
 		Logger.updateStatus("Generating Layers");
 		while (!slicesCopy.isEmpty()){
 			Vector<Slice> includedSlices = new Vector<Slice>();
-			while ((z < bitThickness * layerNumber) && !slicesCopy.isEmpty()){
-				includedSlices.add(slicesCopy.get(0));
+			while (z <= zBitRoof && !slicesCopy.isEmpty()){
+				if(z >= zBitBottom){
+					includedSlices.add(slicesCopy.get(0));
+				}
 				slicesCopy.remove(0);
 				z = z + sliceHeight;
-				Logger.setProgress(progress++, progressGoal);
+				Logger.setProgress(progress++, progressGoal);	
 			}
-			layers.add(new Layer(includedSlices, layerNumber, this));
-			layerNumber++;
+			if(!includedSlices.isEmpty()){
+				layers.add(new Layer(includedSlices, layerNumber, this));
+				layerNumber++;
+			}
+			zBitBottom = zBitRoof + layersOffSet;
+			zBitRoof = zBitBottom + bitThickness;
 		}
 		System.out.println("Layer count: " + (layerNumber - 1));
 	}
 	
 	public Vector<Layer> getLayers() {
 		return this.layers;
+	}
+	
+	public void buildBits3D(){
+		
 	}
 
 }

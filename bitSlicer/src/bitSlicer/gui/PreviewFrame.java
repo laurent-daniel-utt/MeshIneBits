@@ -6,7 +6,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,11 +30,13 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MouseInputListener;
 
 import bitSlicer.Bit2D;
 import bitSlicer.GeneratedPart;
 import bitSlicer.Pattern;
 import bitSlicer.Slicer.Slice;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AreaTool;
 import bitSlicer.util.Polygon;
 import bitSlicer.util.Segment2D;
@@ -42,8 +48,9 @@ public class PreviewFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private GeneratedPart part;
+	public Vector2 selectedBitKey = null;
 	
-	public class PreviewPanel extends JPanel implements MouseMotionListener
+	public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener
 	{
 		private static final long serialVersionUID = 1L;
 		
@@ -57,6 +64,7 @@ public class PreviewFrame extends JFrame
 		public PreviewPanel()
 		{
 			addMouseMotionListener(this);
+			addMouseListener(this);
 		}
 		
 		public void paint(Graphics g)
@@ -69,12 +77,18 @@ public class PreviewFrame extends JFrame
 	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
 	        
 	        boolean blue = false;
+	       
 	        for(Vector2 b : bitKeys){
-	        	drawModelArea(g2d, pattern.getBitArea(b));
+	        	 g2d.setColor( Color.green );
+	        	if(b == selectedBitKey){
+	        		g2d.setColor( Color.blue );
+	        		drawModelArea(g2d, pattern.getBitArea(b));
+	        	}
+	        	else
+	        		drawModelArea(g2d, pattern.getBitArea(b));
+
 	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 	        	if(cutPaths != null){
-	        		
-	        		
 	        		for(Path2D cut : cutPaths) {
 	        			if (blue) {
 		        			g2d.setColor( Color.blue);
@@ -88,9 +102,13 @@ public class PreviewFrame extends JFrame
 	        		}
 	        			
 	        	}
-	        }
-	
+	        } 
 		}
+		
+		private void drawString(Graphics g, String text, double x, double y){
+			//((x + viewOffsetX) * drawScale)
+			g.setColor(Color.BLACK);
+			g.drawString(text, (int) ((x + viewOffsetX) * drawScale)  + this.getWidth() / 2, (int) ((y + viewOffsetY) * drawScale) + this.getHeight() / 2);		}
 		
 		private void drawSegment(Graphics g, Segment2D s)
 		{		
@@ -130,8 +148,7 @@ public class PreviewFrame extends JFrame
 	        tx1.scale(drawScale, drawScale);
 
 	        area.transform(tx1);
-	        g2d.setColor( Color.green );
-			//g2d.draw(area);
+	        
 			g2d.fill(area);
 		}
 		
@@ -167,6 +184,30 @@ public class PreviewFrame extends JFrame
 			oldX = e.getX();
 			oldY = e.getY();
 		}
+
+		public void mouseClicked(MouseEvent e) {
+			Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
+	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+			Point2D clickSpot = new Point2D.Double((((double) e.getX()) - this.getWidth()/2) / drawScale - viewOffsetX, (((double) e.getY()) - this.getHeight()/2) / drawScale - viewOffsetY);
+			for(Vector2 bitKey : bitKeys){
+				if(pattern.getBitArea(bitKey).contains(clickSpot)){
+					if(selectedBitKey == bitKey) //then it is a click to unselect this bit
+						selectedBitKey = null;
+					else
+						selectedBitKey = bitKey;
+					break;
+				}
+			}
+			repaint();
+		}
+
+		public void mousePressed(MouseEvent e) {}
+
+		public void mouseReleased(MouseEvent e) {}
+
+		public void mouseEntered(MouseEvent e) {}
+
+		public void mouseExited(MouseEvent e) {}
 	}
 
 	
@@ -175,7 +216,9 @@ public class PreviewFrame extends JFrame
 		final PreviewPanel viewPanel = new PreviewPanel();
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
-		this.setTitle("2D preview");
+		JPanel patternModifPanel = new JPanel();
+		patternModifPanel.setLayout(new BoxLayout(patternModifPanel, BoxLayout.X_AXIS));
+		this.setTitle("MeshIneBits - 2D preview");
 		this.part = part;
 		
 		final JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.showLayer, 0, part.getLayers().size() - 1, 1));
@@ -186,6 +229,7 @@ public class PreviewFrame extends JFrame
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				selectedBitKey = null;
 				int spinnerValue = ((Integer) sliceSpinner.getValue()).intValue();
 				
 				if ((spinnerValue + 1 <= part.getLayers().get(viewPanel.showLayer).getSlices().size()) && (spinnerValue >= 0)){
@@ -231,6 +275,7 @@ public class PreviewFrame extends JFrame
 		{
 			public void stateChanged(ChangeEvent e)
 			{
+				selectedBitKey = null;
 				viewPanel.showLayer = ((Integer) layerSpinner.getValue()).intValue();
 				viewPanel.showSlice = 0;
 				sliceSpinner.setValue(0);
@@ -238,6 +283,109 @@ public class PreviewFrame extends JFrame
 			}	
 			
 		});
+		
+		JButton replaceBitButton1 = new JButton("Replace bit >");
+		
+		replaceBitButton1.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x + bit.getOrientation().normal().x * CraftConfig.bitLength * 0.25;
+	        		 double newOriginY = bit.getOrigin().y + bit.getOrientation().normal().y * CraftConfig.bitLength * 0.25;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation(), 50);
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton2 = new JButton("< Replace bit");
+		
+		replaceBitButton2.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x - bit.getOrientation().normal().x * CraftConfig.bitLength * 0.25;
+	        		 double newOriginY = bit.getOrigin().y - bit.getOrientation().normal().y * CraftConfig.bitLength * 0.25;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation(), 50);
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton3 = new JButton("< Replace full bit");
+		
+		replaceBitButton3.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x - bit.getOrientation().normal().x * CraftConfig.bitLength * 0.5;
+	        		 double newOriginY = bit.getOrigin().y - bit.getOrientation().normal().y * CraftConfig.bitLength * 0.5;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation());
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton replaceBitButton4 = new JButton("Replace full bit >");
+		
+		replaceBitButton4.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice);
+	        		 Bit2D bit = pattern.getBit(selectedBitKey);	 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 double newOriginX = bit.getOrigin().x + bit.getOrientation().normal().x * CraftConfig.bitLength * 0.5;
+	        		 double newOriginY = bit.getOrigin().y + bit.getOrientation().normal().y * CraftConfig.bitLength * 0.5;
+	        		 Vector2 newOrigin = new Vector2(newOriginX, newOriginY);
+	        		 bit = new Bit2D(newOrigin, bit.getOrientation());
+	        		 pattern.addBit(bit);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton removeBitButton = new JButton("Delete bit");
+		
+		removeBitButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(selectedBitKey != null){
+	        		 Pattern pattern = part.getLayers().get(viewPanel.showLayer).getPatterns().get(viewPanel.showSlice); 	        
+	        		 pattern.removeBit(selectedBitKey);
+	        		 selectedBitKey = null;
+	        		 viewPanel.repaint();
+	        	 }
+	        	
+	         }          
+	      });
+		
+		JButton computeBitPatternButton = new JButton("Compute pattern");
+		
+		computeBitPatternButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 part.getLayers().get(viewPanel.showLayer).computeBitsPattern(viewPanel.showSlice);
+	        	 viewPanel.repaint();
+	         }          
+	      });
 				
 		actionPanel.add(new JLabel("  Layer :  "));
 		actionPanel.add(layerSpinner);
@@ -246,13 +394,21 @@ public class PreviewFrame extends JFrame
 		actionPanel.add(new JLabel("   Zoom:  "));
 		actionPanel.add(zoomSpinner);
 		
+		patternModifPanel.add(removeBitButton);
+		patternModifPanel.add(replaceBitButton3);
+		patternModifPanel.add(replaceBitButton2);
+		patternModifPanel.add(replaceBitButton1);
+		patternModifPanel.add(replaceBitButton4);
+		patternModifPanel.add(computeBitPatternButton);
+		
 		this.setLayout(new BorderLayout());
 		this.add(viewPanel, BorderLayout.CENTER);
 		this.add(actionPanel, BorderLayout.SOUTH);
+		this.add(patternModifPanel, BorderLayout.NORTH);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
-		this.setSize(600, 600);
+		this.setSize(700, 700);
 		this.setVisible(true);
 	}
 }

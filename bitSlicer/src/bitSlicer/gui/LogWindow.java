@@ -21,13 +21,13 @@ public class LogWindow extends JFrame implements LoggingInterface
 	
 	public LogWindow()
 	{
-		this.setTitle("BitSlicer - " + CraftConfig.VERSION);
+		this.setTitle("MeshIneBits - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.setLayout(new BorderLayout());
 		
-		statusLabel = new JLabel("BitSlicerBitSlicerBitSlicerBitSlicerBitSlicer");
+		statusLabel = new JLabel("MeshIneBitsMeshIneBitsMeshIneBitsMeshIneBitsMeshIneBits");
 		statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
 		this.add(statusLabel, BorderLayout.NORTH);
 		

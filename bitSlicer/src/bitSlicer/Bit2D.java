@@ -7,21 +7,21 @@ import java.awt.geom.Path2D;
 import java.util.Vector;
 
 import bitSlicer.Slicer.Config.CraftConfig;
+import bitSlicer.util.AreaTool;
 import bitSlicer.util.Vector2;
 
 /**
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D {
-	public final Vector2 origin;
-	@SuppressWarnings("unused")
-	private Vector2 orientation;
+	private Vector2 origin;// in the pattern coordinate system
+	private Vector2 orientation;// in the pattern coordinate system
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
-	private Vector<Path2D> cutPaths = null;;
-	private Area area = new Area();
+	private Vector<Path2D> cutPaths = null;
+	private Vector<Area> areas = new Vector<Area>();
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -32,6 +32,41 @@ public class Bit2D {
 		length = CraftConfig.bitLength;
 		width = CraftConfig.bitWidth;
 		
+		setTransfoMatrix();
+		buildBoundaries();
+	}
+	
+	public Bit2D(Vector2 origin, Vector2 orientation, double percentageLength){
+		this.origin = origin;
+		this.orientation = orientation;
+		length = CraftConfig.bitLength * percentageLength / 100;
+		width = CraftConfig.bitWidth;
+		
+		setTransfoMatrix();
+		buildReducedBoundaries();
+	}
+	
+	public Bit2D(Bit2D cutBit){
+		this.origin = cutBit.origin;
+		this.orientation = cutBit.orientation;
+		length = CraftConfig.bitLength;
+		width = CraftConfig.bitWidth;
+		
+		setTransfoMatrix();
+		buildBoundaries();
+	}
+	
+	public Bit2D(Bit2D cutBit, double percentageLength){
+		this.origin = cutBit.origin;
+		this.orientation = cutBit.orientation;
+		length = CraftConfig.bitLength * percentageLength / 100;
+		width = CraftConfig.bitWidth;
+		
+		setTransfoMatrix();
+		buildReducedBoundaries();
+	}
+	
+	private void setTransfoMatrix(){
 		transfoMatrix.translate(origin.x, origin.y);
 		transfoMatrix.rotate(orientation.x, orientation.y);
 		
@@ -40,8 +75,6 @@ public class Bit2D {
 		} catch (NoninvertibleTransformException e) {
 			e.printStackTrace();
 		}
-		
-		buildBoundaries();
 	}
 	
 	private void buildBoundaries(){
@@ -57,13 +90,47 @@ public class Bit2D {
 		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
 		path.closePath();
 
-		this.area.add(new Area(path));
+		this.areas.add(new Area(path));
+	}
+	
+	private void buildReducedBoundaries(){
+		Vector2 cornerUpLeft = new Vector2(- length/2.0,  - width/2.0);
+		Vector2 cornerUpRight = new Vector2(+ length/2.0,  - width/2.0);
+		Vector2 cornerDownLeft = new Vector2(- length/2.0,  + width/2.0);
+		Vector2 cornerDownRight = new Vector2(+ length/2.0,  + width/2.0);       
+		
+		Path2D path = new Path2D.Double();
+		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
+		path.lineTo(cornerUpRight.x, cornerUpRight.y);
+		path.lineTo(cornerDownRight.x, cornerDownRight.y);
+		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
+		path.closePath();
+
+		this.areas.add(new Area(path));
+		
+		cutPaths = new Vector<Path2D>();
+		Path2D.Double cutPath = new Path2D.Double();
+		cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
+		cutPath.lineTo(cornerDownLeft.x, cornerDownLeft.y);
+		this.cutPaths.add(cutPath);	
 	}
 	
 	public Area getArea(){
-		Area transformedArea = (Area) this.area.clone();
+		Area transformedArea = new Area();
+		for(Area a : areas)
+			transformedArea.add(a);
 		transformedArea.transform(transfoMatrix);
 		return transformedArea;
+	}
+	
+	public Vector<Area> getAreas(){
+		Vector<Area> result = new Vector<Area>();
+		for(Area a : areas){
+			Area transformedArea = new Area(a);
+			transformedArea.transform(transfoMatrix);
+			result.add(transformedArea);
+		}
+		return result;
 	}
 	
 	public Vector2 getOrigin(){
@@ -71,14 +138,17 @@ public class Bit2D {
 	}
 	
 	public void updateBoundaries(Area transformedArea){
+		areas.clear();
 		Area newArea = (Area) transformedArea.clone();
 		newArea.transform(inverseTransfoMatrix);
-		this.area.reset();
-		this.area.add(newArea);
+		for(Area a : AreaTool.segregateArea(newArea))
+			areas.add(a);
 	}
 	
 	public void setCutPath(Vector<Path2D> paths){
-		this.cutPaths = new Vector<Path2D>();
+		if(this.cutPaths == null)
+			this.cutPaths = new Vector<Path2D>();
+		
 		for(Path2D p : paths)
 			this.cutPaths.add(new Path2D.Double(p, inverseTransfoMatrix));			
 	}
@@ -92,5 +162,9 @@ public class Bit2D {
 				paths.add(new Path2D.Double(p, transfoMatrix));
 			return paths;
 		}
+	}
+	
+	public Vector2 getOrientation(){
+		return orientation;
 	}
 }

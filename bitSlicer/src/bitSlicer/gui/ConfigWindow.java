@@ -60,7 +60,7 @@ public class ConfigWindow extends JFrame
 
 	public ConfigWindow()
 	{
-		this.setTitle("BitSlicer - " + CraftConfig.VERSION);
+		this.setTitle("MeshIneBits - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

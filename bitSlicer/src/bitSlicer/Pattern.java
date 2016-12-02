@@ -27,10 +27,8 @@ public class Pattern {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 	
-	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius){
+	public Pattern(Vector<Bit2D> bits, Vector2 rotation, double skirtRadius){
 
-		//this.bits = bits;
-		this.mapBits = mapBits;
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
 		
@@ -43,6 +41,26 @@ public class Pattern {
 		} catch (NoninvertibleTransformException e) {
 			e.printStackTrace();
 		}
+		
+		setMapBits(bits);
+	}
+	
+	public void setMapBits(Vector<Bit2D> bits){
+		mapBits = new Hashtable<Vector2, Bit2D>();
+		for(Bit2D bit : bits){
+			addBit(bit);
+		}
+	}
+	
+	public void addBit(Bit2D bit){
+		//the key of each bit is its origin's coordinates in the general coo system
+		Vector2 bitKey = bit.getOrigin().getTransformed(transfoMatrix);
+		//We check that there is not already a bit at this place
+		for(Vector2 key : getBitsKeys()){
+			if(bitKey.asGoodAsEqual(key))
+				return;
+		}
+		mapBits.put(bitKey, bit);
 	}
 	
 	public Vector<Vector2> getBitsKeys(){
@@ -57,7 +75,7 @@ public class Pattern {
 	}
 	
 	public void computeBits(Slice slice){
-		Area sliceArea = AreaTool.getAreaFrom(slice);
+		Area sliceArea = AreaTool.getAreaFrom2(slice);
         sliceArea.transform(inverseTransfoMatrix);
         Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);//0.1f is the smaller stroke possible
         Area cutLine = new Area(str);
@@ -131,4 +149,11 @@ public class Pattern {
 		}
 	}
 	
+	public void removeBit(Vector2 key){
+		mapBits.remove(key);
+	}
+	
+	public Bit2D getBit(Vector2 key){
+		return mapBits.get(key);
+	}
 }
