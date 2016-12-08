@@ -37,6 +37,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import bitSlicer.BitSlicerMain;
 import bitSlicer.Slicer.Config.CraftConfig;
@@ -85,11 +86,12 @@ public class ConfigWindow extends JFrame
 				final JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(new FileFilter()
 				{
+					private final FileNameExtensionFilter filter = new FileNameExtensionFilter("MESH file", "stl", "obj");
 					public boolean accept(File f)
 					{
 						if (f.isDirectory())
 							return true;
-						return f.getName().endsWith(".stl");
+						return filter.accept(f);
 					}
 
 					public String getDescription()
