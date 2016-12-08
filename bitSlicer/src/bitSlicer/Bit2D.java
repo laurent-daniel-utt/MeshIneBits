@@ -16,7 +16,7 @@ import bitSlicer.util.Vector2;
 /**
  * Bit2D represents a bit in 2d space.
  */
-public class Bit2D {
+public class Bit2D implements Cloneable{
 	private Vector2 origin;// in the pattern coordinate system
 	private Vector2 orientation;// in the pattern coordinate system
 	private double length;
@@ -25,6 +25,11 @@ public class Bit2D {
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
+	
+	@Override
+	public Bit2D clone(){		
+		return new Bit2D(origin, orientation);
+	}
 	
 	/*
 	 * originBit and orientation are in the coordinate system of the associated pattern 
@@ -197,5 +202,12 @@ public class Bit2D {
 			}
 			return customAreaValue;
 		}
+	}
+	
+	public Area getRawArea(){
+		Area area = new Area();
+		for(Area a : areas)
+			area.add(a);
+		return area;
 	}
 }
