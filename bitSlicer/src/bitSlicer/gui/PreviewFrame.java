@@ -193,8 +193,10 @@ public class PreviewFrame extends JFrame
 				if(pattern.getBitArea(bitKey).contains(clickSpot)){
 					if(selectedBitKey == bitKey) //then it is a click to unselect this bit
 						selectedBitKey = null;
-					else
+					else{
 						selectedBitKey = bitKey;
+						System.out.println("customArea = " + pattern.getBit(bitKey).getCustomAreaValue());
+					}
 					break;
 				}
 			}

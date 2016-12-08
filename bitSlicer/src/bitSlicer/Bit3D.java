@@ -1,69 +1,52 @@
 package bitSlicer;
 
-import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 
-import bitSlicer.util.Vector2;
 import bitSlicer.util.Vector3;
 
 public class Bit3D {
 	
-	Vector<Bit2D> bits2D = new Vector<Bit2D>();
-	Vector<SubBit3D> subBits3D = null;
-	Vector<Path2D> cutPaths = null;
+	Vector<Path2D> cutPaths = null; //In the local coordinate system
 	Vector3 origin; //In the general coordinate system
-	Vector2 orientation;
-	Area areaToExtrude = null; //In the local coordinate system
+	Bit2D bit2dToExtrude;
 	
 	public Bit3D(Bit2D bit2D, Vector3 origin){
-		this.bits2D.add(bit2D);
+		bit2dToExtrude = bit2D;
 		this.origin = origin;
-		computeBit3D();
+		cutPaths = bit2D.getCutPaths();
 	}
 	
 	public Bit3D(Vector<Bit2D> bits2D, Vector3 origin){
-		this.bits2D = bits2D;
 		this.origin = origin;
-		computeBit3D();
+		selectBit2dToExtrude(bits2D);
 	}
-	
-	/*
-	 * Generate subBits if there is some.
-	 * Otherwise set directly the area from which the extrusion will make the 3D shape of the bit3D.
-	 */
-	public void computeBit3D(){
-		if(bits2D.get(0).getAreas().size() > 1)
-			generateSubBits3D();
-		else{
-			Vector<Area> areas = new Vector<Area>();
-			for(Bit2D b : bits2D){
-				areas.add(b.getArea());
-			}
-			areaToExtrude = generateAreaToExtrude(areas);
+
+	public void selectBit2dToExtrude(Vector<Bit2D> bits2D){
+		
+		Bit2D selectedBit;
+		
+		//Compute the average area
+		double averageAreaValue = 0;
+		Vector<Integer> customAreaValue = new Vector<Integer>();
+		for(Bit2D b : bits2D){
+			customAreaValue.add(b.getCustomAreaValue());
+			averageAreaValue += customAreaValue.lastElement();
 		}
-	}
-	
-	/*
-	 * generate the subBits.
-	 */
-	private void generateSubBits3D(){
-		Vector<SubBit3D> subBits3D = new Vector<SubBit3D>();
-		int nbrSubBits = bits2D.get(0).getAreas().size();
-		for(int i = 0; i < nbrSubBits; i++){
-			Vector<Area> areas = new Vector<Area>();
-			for(Bit2D b : bits2D)
-				areas.add(b.getAreas().get(i));
-			subBits3D.add(new SubBit3D(areas, this));
+		averageAreaValue /= (bits2D.size());
+		
+		//Select the bit2D with the area the closer to the average area value
+		double deltaAreaValue = Math.abs(customAreaValue.get(0) - averageAreaValue);
+		selectedBit = bits2D.get(0);
+		for(int i = 1; i < bits2D.size(); i++){
+			double delta = Math.abs(customAreaValue.get(i) - averageAreaValue);
+			if(delta < deltaAreaValue){
+				deltaAreaValue = delta;
+				selectedBit = bits2D.get(i);
+			}
 		}
 		
-	}
-	
-	/*
-	 * So far in the project we simply use the area of the first bit2D to determine the shape of the bit3D
-	 * Later the project is to adjust the shape using several slices in the same layer
-	 */
-	public static Area generateAreaToExtrude(Vector<Area> areas){
-		return areas.get(0);
+		bit2dToExtrude = selectedBit;
+		cutPaths = selectedBit.getCutPaths();
 	}
 }
