@@ -16,7 +16,7 @@ import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
 @SuppressWarnings("unused")
-public class Pattern {
+public class Pattern implements Cloneable{
 	
 	public static int bitNr; // for debug
 	
@@ -43,6 +43,25 @@ public class Pattern {
 		}
 		
 		setMapBits(bits);
+	}
+	
+	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix){
+		this.rotation = rotation;
+		this.skirtRadius = skirtRadius;
+		this.mapBits = mapBits;
+		this.transfoMatrix = transfoMatrix;
+		this.inverseTransfoMatrix = inverseTransfoMatrix;
+	}
+	
+	@Override
+	public Pattern clone(){
+		
+		Hashtable<Vector2, Bit2D> clonedMapBits = new Hashtable<Vector2, Bit2D>();
+		for(Vector2 key : this.getBitsKeys()){
+			clonedMapBits.put(key, mapBits.get(key).clone());
+		}
+		
+		return new Pattern(clonedMapBits, rotation, skirtRadius, transfoMatrix, inverseTransfoMatrix);
 	}
 	
 	public void setMapBits(Vector<Bit2D> bits){
@@ -155,5 +174,9 @@ public class Pattern {
 	
 	public Bit2D getBit(Vector2 key){
 		return mapBits.get(key);
+	}
+	
+	public AffineTransform getAffineTransform(){
+		return transfoMatrix;
 	}
 }

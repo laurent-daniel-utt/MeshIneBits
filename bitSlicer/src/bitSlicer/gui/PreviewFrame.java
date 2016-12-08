@@ -33,7 +33,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
 
 import bitSlicer.Bit2D;
+import bitSlicer.Bit3D;
 import bitSlicer.GeneratedPart;
+import bitSlicer.Layer;
 import bitSlicer.Pattern;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
@@ -73,35 +75,43 @@ public class PreviewFrame extends JFrame
 			
 			Graphics2D g2d = (Graphics2D) g;
 	        
-	        Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
-	        Vector<Vector2> bitKeys = pattern.getBitsKeys();
+	        Layer layer = part.getLayers().get(showLayer);
+	        Vector<Vector2> bitKeys = layer.getBits3dKeys();
 	        
 	        boolean blue = false;
 	       
 	        for(Vector2 b : bitKeys){
+	        	
+	        	Bit3D bit = layer.getBit3D(b);
+	        	Area area = bit.getRawArea();
+	        	AffineTransform affTrans = new AffineTransform();	        	
+	        	affTrans.translate(b.x, b.y);
+	        	affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+	        	area.transform(affTrans);      	
+
 	        	 g2d.setColor( Color.green );
 	        	if(b == selectedBitKey){
 	        		g2d.setColor( Color.blue );
-	        		drawModelArea(g2d, pattern.getBitArea(b));
+	        		drawModelArea(g2d, area);
 	        	}
 	        	else
-	        		drawModelArea(g2d, pattern.getBitArea(b));
+	        		drawModelArea(g2d, area);
 
-	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
-	        	if(cutPaths != null){
-	        		for(Path2D cut : cutPaths) {
-	        			if (blue) {
-		        			g2d.setColor( Color.blue);
-		        			blue = false;
-		        		}	
-		        		else {
-		        			blue = true;
-		        			g2d.setColor( Color.red);
-		        		}
-	        			drawModelPath2D(g2d, cut);
-	        		}
-	        			
-	        	}
+//	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
+//	        	if(cutPaths != null){
+//	        		for(Path2D cut : cutPaths) {
+//	        			if (blue) {
+//		        			g2d.setColor( Color.blue);
+//		        			blue = false;
+//		        		}	
+//		        		else {
+//		        			blue = true;
+//		        			g2d.setColor( Color.red);
+//		        		}
+//	        			drawModelPath2D(g2d, cut);
+//	        		}
+//	        			
+//	        	}
 	        } 
 		}
 		

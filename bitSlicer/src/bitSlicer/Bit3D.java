@@ -1,24 +1,21 @@
 package bitSlicer;
 
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 
-import bitSlicer.util.Vector3;
+import bitSlicer.util.Vector2;
 
 public class Bit3D {
 	
 	Vector<Path2D> cutPaths = null; //In the local coordinate system
-	Vector3 origin; //In the general coordinate system
+	Vector2 origin; //In the general coordinate system
+	Vector2 orientation; //Rotation around its origin point
 	Bit2D bit2dToExtrude;
 	
-	public Bit3D(Bit2D bit2D, Vector3 origin){
-		bit2dToExtrude = bit2D;
+	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation){
 		this.origin = origin;
-		cutPaths = bit2D.getCutPaths();
-	}
-	
-	public Bit3D(Vector<Bit2D> bits2D, Vector3 origin){
-		this.origin = origin;
+		this.orientation = orientation;
 		selectBit2dToExtrude(bits2D);
 	}
 
@@ -48,5 +45,13 @@ public class Bit3D {
 		
 		bit2dToExtrude = selectedBit;
 		cutPaths = selectedBit.getCutPaths();
+	}
+	
+	public Area getRawArea(){
+		return bit2dToExtrude.getRawArea();
+	}
+	
+	public Vector2 getOrientation(){
+		return orientation;
 	}
 }
