@@ -10,11 +10,13 @@ import bitSlicer.Slicer.Config.CraftConfigLoader;
 import bitSlicer.gui.ConfigWindow;
 import bitSlicer.util.Logger;
 import bitSlicer.gui.PreviewFrame;
+import bitSlicer.gui.ProcessingWindow;
 
 public class BitSlicerMain {
 	public static void main(String[] args)
 	{
 		CraftConfigLoader.loadConfig(null);
+		
 		new ConfigWindow();
 	}
 	
@@ -39,7 +41,8 @@ public class BitSlicerMain {
 		final Vector<Slice> slices = slicer.sliceModel();
 		
 		GeneratedPart part = new GeneratedPart(slices);
-
+		
+		
 		new PreviewFrame(part);
 	}	
 }
