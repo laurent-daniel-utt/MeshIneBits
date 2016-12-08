@@ -2,97 +2,144 @@ package bitSlicer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 
 public class MainWindow extends JFrame {
 	public static void main(String[] args)
 	{
 		new MainWindow();
 	}
-	
+
 	public MainWindow() {
-			setTitle("MeshIneBits");
-			setSize(400, 300);
-			setResizable(true);
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
-			Ribbon ribbon = new Ribbon();
-			PreviewPanel pp = new PreviewPanel();
-			
-//			JPanel container = new JPanel();
-			setLayout(new BorderLayout());
-			add(ribbon, BorderLayout.NORTH);
-			add(pp, BorderLayout.SOUTH);	
-			
-//			add(mainPanel);
-			
-			
-			setVisible(true);
-			
-			
-	//		final JPanel panel = new JPanel();
-	//		final Ribbon ribbon = new Ribbon();
-	//		
-	//		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-	//		panel.add(ribbon);
-	//		
-	//		this.setLayout(new BorderLayout());
-	//		this.add(ribbon, BorderLayout.NORTH);
-	//		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	//		this.pack();
-	//		this.setSize(700, 700);
-	//		this.setVisible(true);
-		}
+
+		try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.put("TabbedPane.focus", new Color(0, 0, 0, 0));
+            UIManager.put("Separator.foreground", new Color(10, 10, 10, 50));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+		setTitle("MeshIneBits");
+		setSize(1000, 300);
+		setResizable(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		Ribbon ribbon = new Ribbon();
+		PreviewPanel pp = new PreviewPanel();
+
+		setLayout(new BorderLayout());
+		add(ribbon, BorderLayout.NORTH);
+		add(pp, BorderLayout.SOUTH);	
+
+		setVisible(true);
+	}
 
 	private class Ribbon extends JTabbedPane {
 		public Ribbon() {
-			setMinimumSize(new Dimension(100, 200));
+			setFont( new Font(this.getFont().toString(), Font.PLAIN, 15) );;
 			addTab("Slicer", new SlicerTab());
 			addTab("Edit", new JSpinner(new SpinnerNumberModel(5, 0, 10, 1)));
 		}
 		
-		private class SlicerTab extends JPanel {
+		private class RibbonTab extends JPanel {
+			public RibbonTab() {
+				this.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+				this.setBackground(Color.WHITE);
+				this.setFocusable(false);
+			}
+		}
+
+		private class SlicerTab extends RibbonTab {
 			public SlicerTab() {
-				this.setLayout(new FlowLayout(FlowLayout.LEFT));
+				super();
+
+				OptionsContainer fileCont = new OptionsContainer("File");
+				fileCont.add(new JButton("New"));
+				fileCont.add(new JButton("Save"));
+				fileCont.add(new JButton("Close"));
+
+				OptionsContainer slicerCont = new OptionsContainer("Slicer options");
+				slicerCont.add(new LabeledSpinner("Slice height (mm) :  ", 2, 0, 10, 1));
+				slicerCont.add(new LabeledSpinner("First slice height (%) :  ", 5, 0, 10, 1));
 				
-				JPanel fichierContainer = new JPanel();
-				fichierContainer.setLayout(new GridLayout(3, 0));
-				fichierContainer.setBorder(BorderFactory.createTitledBorder("Fichier"));
-				fichierContainer.add(new Button("New"));
-				fichierContainer.add(new Button("Save"));
-				fichierContainer.add(new Button("Close"));				
-				add(fichierContainer);
+				OptionsContainer bitsCont = new OptionsContainer("Bits options");
+				bitsCont.add(new LabeledSpinner("Bit thickness (mm) :  ", 2, 0, 10, 1));
+				bitsCont.add(new LabeledSpinner("Bit width (mm) :  ", 2, 0, 10, 1));
+				bitsCont.add(new LabeledSpinner("Bit height (mm) :  ", 2, 0, 10, 1));
 				
-				JPanel slicerContainer = new JPanel();
-				slicerContainer.setLayout(new GridLayout(3, 0));
-				slicerContainer.setBorder(BorderFactory.createTitledBorder("Slicer options"));
-				
-				JPanel spinPan = new JPanel(new BorderLayout());
-				spinPan.add(new JLabel("Slice height (mm) :  "), BorderLayout.WEST);
-				spinPan.add(new JSpinner(new SpinnerNumberModel(5, 0, 10, 1)), BorderLayout.EAST);
-				slicerContainer.add(spinPan);
-				
-				JPanel spinPan2 = new JPanel(new BorderLayout());
-				spinPan2.add(new JLabel("First slice height (%) :  "), BorderLayout.WEST);
-				spinPan2.add(new JSpinner(new SpinnerNumberModel(5, 0, 10, 1)), BorderLayout.EAST);
-				slicerContainer.add(spinPan2);
-				
-				add(slicerContainer);
+				GalleryContainer patternGallery = new GalleryContainer("Pattern");
+				patternGallery.addButton(new JToggleButton(), "p1.png");
+				patternGallery.addButton(new JToggleButton(), "p2.png");
+
+				add(fileCont);
+				add(new TabContainerSeparator());
+				add(slicerCont);
+				add(new TabContainerSeparator());
+				add(bitsCont);
+				add(new TabContainerSeparator());
+				add(patternGallery);
+			}
+		}
+
+		private class OptionsContainer extends JPanel {
+			public OptionsContainer(String title) {
+				this.setLayout(new GridLayout(3, 0, 3, 3));
+				this.setBackground(Color.WHITE);
+				TitledBorder centerBorder = BorderFactory.createTitledBorder(title);
+				centerBorder.setTitleJustification(TitledBorder.CENTER);
+				centerBorder.setTitleFont(new Font(this.getFont().toString(), Font.BOLD, 12));
+				centerBorder.setTitleColor(Color.gray);
+				centerBorder.setBorder(BorderFactory.createEmptyBorder());
+				this.setBorder(centerBorder);
+				this.setMinimumSize(new Dimension(500, 500));
+			}
+		}
+
+		private class TabContainerSeparator extends JSeparator {
+			public TabContainerSeparator() {
+				this.setOrientation(SwingConstants.VERTICAL);
+				Dimension d = this.getPreferredSize();
+				d.height = 90;
+				this.setPreferredSize(d);
 			}
 		}
 		
-		private class TabContainer extends JPanel {
+		private class LabeledSpinner extends JPanel {
+			public LabeledSpinner(String label, double defaultValue, double minValue, double maxValue, double step) {
+				this.setLayout(new BorderLayout());
+				this.setBackground(Color.WHITE);
+				this.add(new JLabel(label), BorderLayout.WEST);
+				this.add(new JSpinner(new SpinnerNumberModel(defaultValue, minValue, maxValue, step)), BorderLayout.EAST);
+			}
+		}
+		
+		private class GalleryContainer extends OptionsContainer {
+
+			public GalleryContainer(String title) {
+				super(title);
+				this.setLayout(new GridLayout(1, 2, 3, 3));
+			}
 			
+			public void addButton(JToggleButton btn, String iconName) {
+				Icon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" +  iconName));
+				btn.setIcon(icon);
+				btn.setPreferredSize(new Dimension(60, 60));
+				this.add(btn);
+			}
 		}
 	}
-	
+
 	private class PreviewPanel extends JPanel {
 		public PreviewPanel() {
-			
+
 		}
 	}
 }
