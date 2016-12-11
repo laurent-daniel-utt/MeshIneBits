@@ -103,7 +103,7 @@ public class MainWindow extends JFrame {
 			
 			bg = new JLabel("MeshIneBits", SwingConstants.CENTER);
 			bg.setFont(new Font(null, Font.BOLD|Font.ITALIC, 120));
-			bg.setForeground(new Color(0,0,0,80));
+			bg.setForeground(new Color(0,0,0,8));
 			this.add(bg);
 		}
 		
