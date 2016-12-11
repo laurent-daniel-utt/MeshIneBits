@@ -240,7 +240,7 @@ public class AreaTool {
 		return AreaTool.getLevel0AreasFrom(segregatedAreas);
 	}
 	
-	public static Point2D getLiftPoint3(Area area, double minRadius){
+	public static Point2D getLiftPoint(Area area, double minRadius){
 		
 		Rectangle2D bounds = area.getBounds2D();
 		double stepX = 1;

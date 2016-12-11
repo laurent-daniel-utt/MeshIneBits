@@ -92,8 +92,13 @@ public class PreviewFrame extends JFrame
 	        	
 	        	
 	        	
-
-	        	 g2d.setColor( Color.green );
+	        	if(layer.getBit3D(b).getLiftPoint() == null){
+	        		g2d.setColor( Color.red );
+	        	}
+	        	else{
+	        		 g2d.setColor( Color.green );
+	        	}
+	        	
 	        	if(b == selectedBitKey){
 	        		g2d.setColor( Color.blue );
 	        		drawModelArea(g2d, area);
@@ -104,7 +109,7 @@ public class PreviewFrame extends JFrame
 	        	if(layer.getBit3D(b).getLiftPoint() != null){
 	        		g.setColor(Color.RED);
 	        		Point2D liftPoint = affTrans.transform(layer.getBit3D(b).getLiftPoint(), null);
-	        		drawModelCircle(g, new Vector2(liftPoint.getX(), liftPoint.getY()), 10);
+	        		drawModelCircle(g, new Vector2(liftPoint.getX(), liftPoint.getY()), (int) CraftConfig.suckerDiameter);
 	        	}
 
 //	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);

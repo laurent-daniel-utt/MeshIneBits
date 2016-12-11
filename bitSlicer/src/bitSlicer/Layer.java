@@ -2,7 +2,6 @@ package bitSlicer;
 
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
-import bitSlicer.util.Vector3;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 

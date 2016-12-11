@@ -16,6 +16,9 @@ public class Bit3D {
 	Vector2 orientation; //Rotation around its origin point
 	Bit2D bit2dToExtrude;
 	Point2D liftPoint = null;
+	Vector<Point2D> liftPoints = new Vector<Point2D>();
+	Vector<Vector2> rotations = new Vector<Vector2>();
+	Vector<Vector2> depositPoints = new Vector<Vector2>();
 	
 	
 	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception{
@@ -58,9 +61,11 @@ public class Bit3D {
 	
 	public void computeLiftPoint(){
 		if(cutPaths != null)
-			liftPoint = AreaTool.getLiftPoint3(getRawArea(), CraftConfig.suckerDiameter);
-		else
+			liftPoint = AreaTool.getLiftPoint(getRawArea(), CraftConfig.suckerDiameter / 2);
+		else if(CraftConfig.suckerDiameter < CraftConfig.bitWidth && CraftConfig.suckerDiameter < CraftConfig.bitLength)
 			liftPoint = new Point2D.Double(0, 0);
+		else
+			liftPoint = null;
 	}
 	
 	public Point2D getLiftPoint(){
