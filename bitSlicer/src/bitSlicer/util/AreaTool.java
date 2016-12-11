@@ -241,7 +241,7 @@ public class AreaTool {
 		return AreaTool.getLevel0AreasFrom(segregatedAreas);
 	}
 	
-	public static Point2D getLiftPoint2(Area area, double minRadius){
+	public static Point2D getLiftPoint(Area area, double minRadius){
 		
 		//We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
@@ -313,70 +313,6 @@ public class AreaTool {
 			}
 		}
 		return liftPoint;
-	}
-	
-	public static Point2D getLiftPoint(Area area, double minRadius){
-		
-		Rectangle2D bounds = area.getBounds2D();
-		double stepX = 1;
-		double stepY = 1;
-		double startX = bounds.getMinX();
-		double startY = bounds.getMinY();
-		double endX = bounds.getMaxX();
-		double endY = bounds.getMaxY();
-		Vector<Point2D.Double> points = new Vector<Point2D.Double>();
-		for(double x = startX; x <= endX; x += stepX){
-			for(double y = startY; y <= endY; y += stepY){
-				Point2D.Double point = new Point2D.Double(x, y);
-				if(area.contains(point))
-					points.add(point);
-			}
-		}
-		Vector<Double> minDistances = new Vector<Double>();
-		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
-		for(Point2D.Double p : points){
-			double minDist = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
-			for(Vector<Segment2D> polygon : segments){
-				for(Segment2D segment : polygon){
-					double dist = segment.distFromPoint(new Vector2(p.getX(), p.getY()));
-					if(dist < minDist)
-						minDist = dist;
-				}
-			}
-			minDistances.add(minDist);
-		}
-		
-		//We are looking for the point with the bigger minDistance
-		int minDistanceIndex = 0;
-		for(int i = points.size() - 1; i > 0; i--){
-			//System.out.println(minDistances.get(i));
-			if(minDistances.get(i) > minDistances.get(minDistanceIndex))
-				minDistanceIndex = i;
-		}
-		
-		if(minDistances.get(minDistanceIndex) < minRadius)
-			return null;
-		
-		Vector<Point2D.Double> okPoints = new Vector<Point2D.Double>();
-		for(int i = 0; i < points.size(); i++){
-			if((minDistances.get(i) < minDistances.get(minDistanceIndex) + 0.001) && (minDistances.get(i) > minDistances.get(minDistanceIndex) - 0.001)){
-				okPoints.add(points.get(i));
-			}
-		}
-		
-		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
-		
-		Point2D.Double liftPoint = okPoints.get(0);
-		double distanceTest = (new Segment2D(1, new Vector2(okPoints.get(0).getX(), okPoints.get(0).getY()), barycenter)).getLength();
-		for(Point2D p : okPoints){
-			double distance = (new Segment2D(1, new Vector2(p.getX(), p.getY()), barycenter)).getLength();
-			if(distance < distanceTest){
-				liftPoint = (java.awt.geom.Point2D.Double) p;
-				distanceTest = distance;
-			}
-		}
-		
-		return liftPoint;		
 	}
 	
 	public static Vector2 compute2DPolygonCentroid(Area area){
