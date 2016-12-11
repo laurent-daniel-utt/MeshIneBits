@@ -1,6 +1,5 @@
 package bitSlicer;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 import bitSlicer.PatternTemplates.PatternTemplate;
@@ -10,7 +9,6 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
-import bitSlicer.util.Vector3;
 
 public class GeneratedPart {
 	

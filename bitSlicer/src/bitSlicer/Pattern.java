@@ -15,7 +15,6 @@ import bitSlicer.util.AreaTool;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
-@SuppressWarnings("unused")
 public class Pattern implements Cloneable{
 	
 	public static int bitNr; // for debug

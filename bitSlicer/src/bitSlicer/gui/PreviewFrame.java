@@ -84,18 +84,33 @@ public class PreviewFrame extends JFrame
 	        	
 	        	Bit3D bit = layer.getBit3D(b);
 	        	Area area = bit.getRawArea();
-	        	AffineTransform affTrans = new AffineTransform();	        	
+	        	AffineTransform affTrans = new AffineTransform();	  
+	        	
 	        	affTrans.translate(b.x, b.y);
 	        	affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-	        	area.transform(affTrans);      	
-
-	        	 g2d.setColor( Color.green );
+	        	area.transform(affTrans);
+	        	
+	        	
+	        	
+	        	if(layer.getBit3D(b).getLiftPoint() == null){
+	        		g2d.setColor( Color.red );
+	        	}
+	        	else{
+	        		 g2d.setColor( Color.green );
+	        	}
+	        	
 	        	if(b == selectedBitKey){
 	        		g2d.setColor( Color.blue );
 	        		drawModelArea(g2d, area);
 	        	}
 	        	else
 	        		drawModelArea(g2d, area);
+	        	
+	        	if(layer.getBit3D(b).getLiftPoint() != null){
+	        		g.setColor(Color.RED);
+	        		Point2D liftPoint = affTrans.transform(layer.getBit3D(b).getLiftPoint(), null);
+	        		drawModelCircle(g, new Vector2(liftPoint.getX(), liftPoint.getY()), (int) CraftConfig.suckerDiameter);
+	        	}
 
 //	        	Vector<Path2D> cutPaths = pattern.getCutPaths(b);
 //	        	if(cutPaths != null){
@@ -141,7 +156,7 @@ public class PreviewFrame extends JFrame
 		
 		private void drawModelCircle(Graphics g, Vector2 center, int radius)
 		{
-			g.drawOval((int) ((center.x + viewOffsetX) * drawScale) + this.getWidth() / 2 - radius / 2, (int) ((center.y + viewOffsetY) * drawScale) + this.getHeight() / 2 - radius / 2, radius, radius);
+			g.drawOval((int) ((center.x + viewOffsetX) * drawScale) + this.getWidth() / 2 - radius / 2, (int) ((center.y + viewOffsetY) * drawScale) + this.getHeight() / 2 - radius / 2, (int) (radius * drawScale), (int) (radius * drawScale));
 		}
 		
 		private void drawModelPath2D(Graphics2D g2d, Path2D path){
@@ -205,7 +220,6 @@ public class PreviewFrame extends JFrame
 						selectedBitKey = null;
 					else{
 						selectedBitKey = bitKey;
-						System.out.println("customArea = " + pattern.getBit(bitKey).getCustomAreaValue());
 					}
 					break;
 				}

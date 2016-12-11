@@ -2,7 +2,6 @@ package bitSlicer;
 
 import bitSlicer.util.Shape2D;
 import bitSlicer.util.Vector2;
-import bitSlicer.util.Vector3;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 
@@ -21,6 +20,7 @@ public class Layer extends Shape2D {
 	private Pattern modelPattern;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	private Hashtable<Vector2, Bit3D> mapBits3D;
+	private int sliceToSelect = 1; //Let the user choose that in the gui for each layer!
 	
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart){
 		this.slices = slices;
@@ -74,7 +74,15 @@ public class Layer extends Shape2D {
 						}
 					}
 				}
-				mapBits3D.put(keysPattern.get(i).get(j), new Bit3D(bitsToInclude, keysPattern.get(i).get(j), getNewOrientation(bitsToInclude.get(0))));
+				Bit3D newBit;
+				try{
+					newBit = new Bit3D(bitsToInclude, keysPattern.get(i).get(j), getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
+					mapBits3D.put(keysPattern.get(i).get(j), newBit);
+				}
+				catch(Exception e){
+					//new Bit3D() will throw an exception if there is not enough slices allowed to it or if the slice to select doesn't exist in that bit
+					//e.printStackTrace();
+				}
 			}
 		}
 	}

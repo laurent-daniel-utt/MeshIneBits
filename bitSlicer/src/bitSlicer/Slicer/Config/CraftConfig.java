@@ -75,6 +75,16 @@ public class CraftConfig
 			minValue = 0, maxValue = 3)
 	public static double layersOffset = 2;
 	
+	@Setting(title = "Min % of slices in a bit3D",
+			description = "Minimun percentage of slices in a bit3D (%)",
+			minValue = 1, maxValue = 100)
+	public static double minPercentageOfSlices = 50;
+	
+	@Setting(title = "Suction cup diameter (mm)",
+			description = "Diameter of the suction cup which lifts the bits (mm)",
+			minValue = 1, maxValue = 100)
+	public static double suckerDiameter = 10;
+	
 	@Setting()
 	public static String lastSlicedFile = "";	
 }

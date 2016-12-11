@@ -1,9 +1,5 @@
 package bitSlicer.util;
 
-import java.awt.geom.Area;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -437,5 +433,21 @@ public class Segment2D extends AABBrect
 		return segregateSegments;
 	}
 	
+	public double getLength(){
+		return Math.sqrt((end.x - start.x)*(end.x - start.x) + (end.y - start.y)*(end.y - start.y));
+	}
+	
+	public double distFromPoint(Vector2 p) {
+		Vector2 v = this.start;
+		Vector2 w = this.end;
+		double l2 = Vector2.dist2(v, w);
+		if (l2 == 0)
+			return Vector2.dist2(p, v);
+		double t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+		t = Math.max(0, Math.min(1, t));
+
+		return Math.sqrt(Vector2.dist2(p, new Vector2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y))));
+	}
+
 }
 
