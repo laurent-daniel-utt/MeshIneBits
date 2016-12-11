@@ -236,6 +236,14 @@ public class AreaTool {
 		return AreaTool.getLevel0AreasFrom(segregatedAreas);
 	}
 	
+	/**
+	 * Returns the best point to take that bit
+	 * By best we mean the point the closest to the barycenter of the bit and presenting enough material around for the sucker cup to work properly
+	 * It returns null if this bit cannot be lifted
+	 * @param area
+	 * @param minRadius
+	 * @return liftPoint
+	 */
 	public static Point2D getLiftPoint(Area area, double minRadius){
 		
 		//We check if the barycenter would be ok
@@ -313,6 +321,11 @@ public class AreaTool {
 		return liftPoint;
 	}
 	
+	/**
+	 * Returns the barycenter of an area
+	 * @param area
+	 * @return Barycenter
+	 */
 	public static Vector2 compute2DPolygonCentroid(Area area){
 		
 		Vector<Segment2D> segments = getLargestPolygon(area);
@@ -353,6 +366,11 @@ public class AreaTool {
 	    return new Vector2(centroidX, centroidY);
 	}
 	
+	/**
+	 * Returns the outside boundary of an area (an area can have more than one boundary when there is a/some hole(s) in it)
+	 * @param area
+	 * @return outside boundaries
+	 */
 	public static Vector<Segment2D> getLargestPolygon(Area area){
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
 		Vector<Double> boundLength = new Vector<Double>();
