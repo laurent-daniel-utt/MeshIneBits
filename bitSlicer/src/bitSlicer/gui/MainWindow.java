@@ -17,6 +17,8 @@ import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -87,10 +89,14 @@ public class MainWindow extends JFrame {
 		setVisible(true);
 	}
 
-	private class PreviewFrame extends JPanel {
+	private class PreviewFrame extends JPanel implements MouseWheelListener{
 		private PreviewPanel pp;
+		private JSlider zoomSlider;
+		private JSpinner zoomSpinner;
+		
 		public PreviewFrame() {
 			this.setLayout(new BorderLayout());
+			addMouseWheelListener(this);
 
 			// Layer slider
 			JSlider layerSlider = new JSlider(JSlider.VERTICAL, 0, 250, 0);
@@ -105,10 +111,9 @@ public class MainWindow extends JFrame {
 			layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 			// Zoom slider
-			JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 100, 2000, 100);
+			zoomSlider = new JSlider(JSlider.HORIZONTAL, 100, 2000, 100);
 			zoomSlider.setMaximumSize(new Dimension(500, 20));
-
-			JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0, 1.0, 250.0, 1.0));
+			zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0, 1.0, 250.0, 1.0));
 			zoomSpinner.setFocusable(false);
 			zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -130,8 +135,7 @@ public class MainWindow extends JFrame {
 			{
 				public void stateChanged(ChangeEvent e)
 				{
-					pp.drawScale = (Double) zoomSpinner.getValue();
-					pp.repaint();
+					updateZoom((Double) zoomSpinner.getValue());
 				}
 			});
 			
@@ -139,9 +143,7 @@ public class MainWindow extends JFrame {
 				
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					zoomSpinner.setValue((double) zoomSlider.getValue()/100.0);
-					pp.drawScale = (Double) zoomSpinner.getValue();
-					pp.repaint();
+					updateZoom((double) zoomSlider.getValue()/100.0);
 				}
 			});
 		}
@@ -321,6 +323,28 @@ public class MainWindow extends JFrame {
 
 		public void update() {
 			pp.repaint();			
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			int notches = e.getWheelRotation();
+			double zoom = (double) zoomSpinner.getValue();
+			if (notches > 0)
+				zoom -= Math.abs(notches/10.0);
+			else 
+				zoom += Math.abs(notches/10.0);
+			
+			updateZoom(zoom);
+		}
+		
+		private void updateZoom(double zoom) {
+			if(zoom < 0)
+				zoom =0;
+				
+			zoomSpinner.setValue(zoom);
+			zoomSlider.setValue((int) (zoom*100));
+			pp.drawScale = zoom;
+			pp.repaint();
 		}
 	}
 
