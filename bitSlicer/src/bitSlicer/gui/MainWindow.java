@@ -52,16 +52,13 @@ public class MainWindow extends JFrame {
 	private PreviewFrame pf;
 	
 	public static MainWindow getInstance(){
-		System.out.println("Zbraa");
 		if (instance == null) {
-			System.out.println("Zbra");
 			instance = new MainWindow();
 		}
 		return instance;
 	}
 
 	private MainWindow() {
-		System.out.println("Nouvelle fenetre");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			UIManager.put("TabbedPane.focus", new Color(0, 0, 0, 0));
@@ -139,8 +136,6 @@ public class MainWindow extends JFrame {
 			zoomPanel.add(zoomSpinner);
 			zoomPanel.add(zoomSlider);
 			zoomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);;
-			
-			
 			
 			this.add(layerPanel, BorderLayout.EAST);
 			this.add(zoomPanel, BorderLayout.SOUTH);
@@ -392,6 +387,9 @@ public class MainWindow extends JFrame {
 
 	public void setPart(GeneratedPart part) {
 		this.part = part;
+		this.remove(pf);
+		pf = new PreviewFrame();
+		this.add(pf);
 		pf.init();
 		pf.revalidate();
 		pf.repaint();
