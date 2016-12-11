@@ -330,16 +330,17 @@ public class MainWindow extends JFrame {
 			int notches = e.getWheelRotation();
 			double zoom = (double) zoomSpinner.getValue();
 			if (notches > 0)
-				zoom -= Math.abs(notches/10.0);
+				zoom -= Math.abs(notches/5.0);
 			else 
-				zoom += Math.abs(notches/10.0);
+				zoom += Math.abs(notches/5.0);
+			
 			
 			updateZoom(zoom);
 		}
 		
 		private void updateZoom(double zoom) {
-			if(zoom < 0)
-				zoom =0;
+			if(zoom < 1)
+				zoom = 1;
 				
 			zoomSpinner.setValue(zoom);
 			zoomSlider.setValue((int) (zoom*100));
