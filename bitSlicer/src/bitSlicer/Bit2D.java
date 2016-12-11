@@ -4,9 +4,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
 import java.util.Vector;
 
 import bitSlicer.Slicer.Config.CraftConfig;
@@ -172,36 +169,12 @@ public class Bit2D implements Cloneable{
 		}
 	}
 	
-	public Vector2 getOrientation(){
-		return orientation;
+	public Vector<Path2D> getRawCutPaths(){
+		return cutPaths;
 	}
 	
-	/*
-	 * Yep not optimized at all...
-	 */
-	public int getCustomAreaValue(){
-		if(cutPaths == null){
-			return (int) (length * width);
-		}
-		else{
-			int customAreaValue = 0;
-			double stepX = 1;
-			double stepY = 1;
-			double startX = - length/2.0;
-			double startY = - width/2.0;
-			double endX = length/2.0;
-			double endY = width/2.0;
-			Area bitArea = new Area();
-			for(Area a : areas)
-				bitArea.add(a);
-			for(double x = startX; x <= endX; x += stepX){
-				for(double y = startY; y <= endY; y += stepY){
-					if(bitArea.contains(new Point2D.Double(x, y)))
-						customAreaValue++;
-				}
-			}
-			return customAreaValue;
-		}
+	public Vector2 getOrientation(){
+		return orientation;
 	}
 	
 	public Area getRawArea(){

@@ -2,8 +2,11 @@ package bitSlicer;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import bitSlicer.Slicer.Config.CraftConfig;
+import bitSlicer.util.AreaTool;
 import bitSlicer.util.Vector2;
 
 public class Bit3D {
@@ -12,39 +15,37 @@ public class Bit3D {
 	Vector2 origin; //In the general coordinate system
 	Vector2 orientation; //Rotation around its origin point
 	Bit2D bit2dToExtrude;
+	Point2D liftPoint = null;
 	
-	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation){
-		this.origin = origin;
-		this.orientation = orientation;
-		selectBit2dToExtrude(bits2D);
-	}
-
-	public void selectBit2dToExtrude(Vector<Bit2D> bits2D){
+	
+	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception{
 		
-		Bit2D selectedBit;
+		double maxNumberOfSlices = CraftConfig.bitThickness / CraftConfig.sliceHeight;
+		double percentage = (bits2D.size() / maxNumberOfSlices) * 100;
 		
-		//Compute the average area
-		double averageAreaValue = 0;
-		Vector<Integer> customAreaValue = new Vector<Integer>();
-		for(Bit2D b : bits2D){
-			customAreaValue.add(b.getCustomAreaValue());
-			averageAreaValue += customAreaValue.lastElement();
+		if(percentage < CraftConfig.minPercentageOfSlices){	
+			throw new Exception(){
+				private static final long serialVersionUID = 1L;
+				public String getMessage(){
+					return "This bit is too thin";
+				}
+			};
 		}
-		averageAreaValue /= (bits2D.size());
-		
-		//Select the bit2D with the area the closer to the average area value
-		double deltaAreaValue = Math.abs(customAreaValue.get(0) - averageAreaValue);
-		selectedBit = bits2D.get(0);
-		for(int i = 1; i < bits2D.size(); i++){
-			double delta = Math.abs(customAreaValue.get(i) - averageAreaValue);
-			if(delta < deltaAreaValue){
-				deltaAreaValue = delta;
-				selectedBit = bits2D.get(i);
-			}
+		else if(sliceToSelect >= bits2D.size()){
+			throw new Exception(){
+				private static final long serialVersionUID = 1L;
+				public String getMessage(){
+					return "The slice to select does not exist in that bit";
+				}
+			};
 		}
-		
-		bit2dToExtrude = selectedBit;
-		cutPaths = selectedBit.getCutPaths();
+		else{
+			this.origin = origin;
+			this.orientation = orientation;
+			bit2dToExtrude = bits2D.get(sliceToSelect);
+			cutPaths = bit2dToExtrude.getRawCutPaths();
+			computeLiftPoint();
+		}	
 	}
 	
 	public Area getRawArea(){
@@ -53,5 +54,16 @@ public class Bit3D {
 	
 	public Vector2 getOrientation(){
 		return orientation;
+	}
+	
+	public void computeLiftPoint(){
+		if(cutPaths != null)
+			liftPoint = AreaTool.getLiftPoint3(getRawArea(), CraftConfig.suckerDiameter);
+		else
+			liftPoint = new Point2D.Double(0, 0);
+	}
+	
+	public Point2D getLiftPoint(){
+		return liftPoint;
 	}
 }

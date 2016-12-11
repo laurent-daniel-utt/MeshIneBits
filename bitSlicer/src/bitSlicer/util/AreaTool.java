@@ -1,13 +1,20 @@
 package bitSlicer.util;
 
+import java.awt.Shape;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
+//import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
+
+import bitSlicer.Slicer.Config.CraftConfig;
+
+import java.lang.Double;
 
 public class AreaTool {
 
@@ -231,6 +238,127 @@ public class AreaTool {
 			segregatedAreas.add(new Area(path2D));
 		}
 		return AreaTool.getLevel0AreasFrom(segregatedAreas);
+	}
+	
+	public static Point2D getLiftPoint3(Area area, double minRadius){
+		
+		Rectangle2D bounds = area.getBounds2D();
+		double stepX = 1;
+		double stepY = 1;
+		double startX = bounds.getMinX();
+		double startY = bounds.getMinY();
+		double endX = bounds.getMaxX();
+		double endY = bounds.getMaxY();
+		Vector<Point2D.Double> points = new Vector<Point2D.Double>();
+		for(double x = startX; x <= endX; x += stepX){
+			for(double y = startY; y <= endY; y += stepY){
+				Point2D.Double point = new Point2D.Double(x, y);
+				if(area.contains(point))
+					points.add(point);
+			}
+		}
+		Vector<Double> minDistances = new Vector<Double>();
+		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+		for(Point2D.Double p : points){
+			double minDist = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
+			for(Vector<Segment2D> polygon : segments){
+				for(Segment2D segment : polygon){
+					double dist = segment.distToSegment(new Vector2(p.getX(), p.getY()), segment.start, segment.end);
+					if(dist < minDist)
+						minDist = dist;
+				}
+			}
+			minDistances.add(minDist);
+		}
+		
+		//We are looking for the point with the bigger minDistance
+		int minDistanceIndex = 0;
+		for(int i = points.size() - 1; i > 0; i--){
+			//System.out.println(minDistances.get(i));
+			if(minDistances.get(i) > minDistances.get(minDistanceIndex))
+				minDistanceIndex = i;
+		}
+		
+		if(minDistances.get(minDistanceIndex) < minRadius)
+			return null;
+		
+		Vector<Point2D.Double> okPoints = new Vector<Point2D.Double>();
+		for(int i = 0; i < points.size(); i++){
+			if((minDistances.get(i) < minDistances.get(minDistanceIndex) + 0.001) && (minDistances.get(i) > minDistances.get(minDistanceIndex) - 0.001)){
+				okPoints.add(points.get(i));
+			}
+		}
+		
+		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
+		
+		Point2D.Double liftPoint = okPoints.get(0);
+		double distanceTest = (new Segment2D(1, new Vector2(okPoints.get(0).getX(), okPoints.get(0).getY()), barycenter)).getLength();
+		for(Point2D p : okPoints){
+			double distance = (new Segment2D(1, new Vector2(p.getX(), p.getY()), barycenter)).getLength();
+			if(distance < distanceTest){
+				liftPoint = (java.awt.geom.Point2D.Double) p;
+				distanceTest = distance;
+			}
+		}
+		
+		return liftPoint;		
+	}
+	
+	public static Vector2 compute2DPolygonCentroid(Area area){
+		
+		Vector<Segment2D> segments = getLargestPolygon(area);
+		
+		Vector<Vector2> vertices = new Vector<Vector2>();
+		for(Segment2D s : segments){
+			vertices.add(s.start);
+			vertices.addElement(s.end);
+		}
+		
+		double centroidX = 0;
+	    double centroidY = 0;
+	    double signedArea = 0.0;
+	    double x0 = 0.0; // Current vertex X
+	    double y0 = 0.0; // Current vertex Y
+	    double x1 = 0.0; // Next vertex X
+	    double y1 = 0.0; // Next vertex Y
+	    double a = 0.0;  // Partial signed area
+	    int vertexCount = vertices.size();
+
+	    // For all vertices
+	    for (int i = 0; i < vertexCount; ++i)
+	    {
+	        x0 = vertices.get(i).x;
+	        y0 = vertices.get(i).y;
+	        x1 = vertices.get((i+1) % vertexCount).x;
+	        y1 = vertices.get((i+1) % vertexCount).y;
+	        a = x0*y1 - x1*y0;
+	        signedArea += a;
+	        centroidX += (x0 + x1)*a;
+	        centroidY += (y0 + y1)*a;
+	    }
+
+	    signedArea *= 0.5;
+	    centroidX /= (6.0*signedArea);
+	    centroidY /= (6.0*signedArea);
+
+	    return new Vector2(centroidX, centroidY);
+	}
+	
+	public static Vector<Segment2D> getLargestPolygon(Area area){
+		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+		Vector<Double> boundLength = new Vector<Double>();
+		for(Vector<Segment2D> poly : segments){
+			double length = 0;
+			for(Segment2D s : poly)
+				length += s.getLength();
+			boundLength.add(length);
+		}
+		int largestPolygonIndex = 0;
+		for(int i = 1; i < segments.size(); i++){
+			if(boundLength.get(i) > boundLength.get(largestPolygonIndex))
+				largestPolygonIndex = i;
+		}
+		return segments.get(largestPolygonIndex);
 	}
 	
 }
