@@ -12,7 +12,7 @@ import bitSlicer.util.Vector2;
 public class Bit3D {
 	
 	Vector<Path2D> cutPaths = null; //In the local coordinate system
-	Vector2 origin; //In the general coordinate system
+	Vector2 origin; //Position of the center of the full bit in the general coordinate system
 	Vector2 orientation; //Rotation around its origin point
 	Bit2D bit2dToExtrude;
 	Point2D liftPoint = null;

@@ -1,15 +1,10 @@
 package bitSlicer.util;
 
-import java.awt.Shape;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-//import java.awt.geom.Rectangle2D.Double;
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -273,6 +268,9 @@ public class AreaTool {
 					points.add(point);
 			}
 		}
+		
+		if(points.isEmpty())
+			return null;
 		
 		//We sort the points by their distance from the barycenter, the smaller distances on top
 		Vector<Double> distances = new Vector<Double>();
