@@ -93,14 +93,30 @@ public class MainWindow extends JFrame {
 		private PreviewPanel pp;
 		private JSlider zoomSlider;
 		private JSpinner zoomSpinner;
+		private JSlider layerSlider;
+		private JSpinner layerSpinner;
+		private JLabel bg;
 		
+
 		public PreviewFrame() {
 			this.setLayout(new BorderLayout());
+			
+			bg = new JLabel("MeshIneBits", SwingConstants.CENTER);
+			bg.setFont(new Font(null, Font.BOLD|Font.ITALIC, 120));
+			bg.setForeground(new Color(0,0,0,80));
+			this.add(bg);
+		}
+		
+		public void init() {
+			this.remove(bg);
+			this.setLayout(new BorderLayout());
 			addMouseWheelListener(this);
+			pp = new PreviewPanel();
 
 			// Layer slider
-			JSlider layerSlider = new JSlider(JSlider.VERTICAL, 0, 250, 0);
-			JSpinner layerSpinner = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
+			layerSlider = new JSlider(JSlider.VERTICAL, 0, part.getLayers().size() - 1, pp.showLayer);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(pp.showLayer, 0, part.getLayers().size() - 1, 1));
+			
 			layerSpinner.setFocusable(false);
 			layerSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -124,7 +140,7 @@ public class MainWindow extends JFrame {
 			zoomPanel.add(zoomSlider);
 			zoomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);;
 			
-			pp = new PreviewPanel();
+			
 			
 			this.add(layerPanel, BorderLayout.EAST);
 			this.add(zoomPanel, BorderLayout.SOUTH);
@@ -145,6 +161,22 @@ public class MainWindow extends JFrame {
 				public void stateChanged(ChangeEvent e) {
 					updateZoom((double) zoomSlider.getValue()/100.0);
 				}
+			});
+			
+			layerSpinner.addChangeListener(new ChangeListener()
+			{
+				public void stateChanged(ChangeEvent e)
+				{
+					showLayer (((Integer) layerSpinner.getValue()).intValue());
+				}	
+			});
+			
+			layerSlider.addChangeListener(new ChangeListener()
+			{
+				public void stateChanged(ChangeEvent e)
+				{
+					showLayer (((Integer) layerSlider.getValue()).intValue());
+				}	
 			});
 		}
 
@@ -347,16 +379,29 @@ public class MainWindow extends JFrame {
 			pp.drawScale = zoom;
 			pp.repaint();
 		}
+		
+		private void showLayer(int layerNr) {
+			layerSpinner.setValue(layerNr);
+			layerSlider.setValue(layerNr);
+			selectedBitKey = null;
+			pp.showLayer = layerNr;
+			pp.showSlice = 0;
+			pp.repaint();
+		}
 	}
 
 	public void setPart(GeneratedPart part) {
 		this.part = part;
-		pf.update();
+		pf.init();
+		pf.revalidate();
+		pf.repaint();
 	}
 
 	public void closePart() {
 		this.part = null;
-		pf.update();
+		pf.add(pf.bg);
+		pf.revalidate();
+		pf.repaint();
 	}
 }
 
