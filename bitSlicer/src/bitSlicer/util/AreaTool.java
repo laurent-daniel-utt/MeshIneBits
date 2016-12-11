@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 //import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -238,6 +239,80 @@ public class AreaTool {
 			segregatedAreas.add(new Area(path2D));
 		}
 		return AreaTool.getLevel0AreasFrom(segregatedAreas);
+	}
+	
+	public static Point2D getLiftPoint2(Area area, double minRadius){
+		
+		//We check if the barycenter would be ok
+		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
+		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+		double minDist = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
+		for(Vector<Segment2D> polygon : segments){
+			for(Segment2D segment : polygon){
+				double dist = segment.distFromPoint(barycenter);
+				if(dist < minDist)
+					minDist = dist;
+			}
+		}
+		if(minDist >= minRadius)
+			return new Point2D.Double(barycenter.x, barycenter.y);
+		
+		//If not we fill the area with points
+		Rectangle2D bounds = area.getBounds2D();
+		double stepX = 1;
+		double stepY = 1;
+		double startX = bounds.getMinX();
+		double startY = bounds.getMinY();
+		double endX = bounds.getMaxX();
+		double endY = bounds.getMaxY();
+		Vector<Point2D.Double> points = new Vector<Point2D.Double>();
+		for(double x = startX; x <= endX; x += stepX){
+			for(double y = startY; y <= endY; y += stepY){
+				Point2D.Double point = new Point2D.Double(x, y);
+				if(area.contains(point))
+					points.add(point);
+			}
+		}
+		
+		//We sort the points by their distance from the barycenter, the smaller distances on top
+		Vector<Double> distances = new Vector<Double>();
+		Vector<Point2D> sortedPoints = new Vector<Point2D>();
+		distances.add(Math.sqrt(Vector2.dist2(new Vector2(points.get(0).getX(), points.get(0).getY()), barycenter)));
+		sortedPoints.add(points.get(0));
+		for(int j = 1; j < points.size(); j++){
+			double distance = Math.sqrt(Vector2.dist2(new Vector2(points.get(j).getX(), points.get(j).getY()), barycenter));
+			boolean addAtTheEnd = true;
+			for(int i = 0; i < distances.size(); i++){
+				if(distance < distances.get(i)){
+					distances.insertElementAt(distance, i);
+					sortedPoints.insertElementAt(points.get(j), i);
+					addAtTheEnd = false;
+					break;
+				}
+			}
+			if(addAtTheEnd){
+				distances.addElement(distance);
+				sortedPoints.add(points.get(j));
+			}
+		}
+		
+		//We review each points and check if it is far enough from the edges to fit the sucker cup, the first one to be ok will be the liftPoint
+		Point2D liftPoint = null;
+		for(Point2D p : sortedPoints){
+			double minDistFromBounds = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
+			for(Vector<Segment2D> polygon : segments){
+				for(Segment2D segment : polygon){
+					double dist = segment.distFromPoint(new Vector2(p.getX(), p.getY()));
+					if(dist < minDistFromBounds)
+						minDistFromBounds = dist;
+				}
+			}
+			if(minDistFromBounds >= minRadius){
+				liftPoint = p;
+				break;
+			}
+		}
+		return liftPoint;
 	}
 	
 	public static Point2D getLiftPoint(Area area, double minRadius){

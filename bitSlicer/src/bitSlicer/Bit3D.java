@@ -61,7 +61,7 @@ public class Bit3D {
 	
 	public void computeLiftPoint(){
 		if(cutPaths != null)
-			liftPoint = AreaTool.getLiftPoint(getRawArea(), CraftConfig.suckerDiameter / 2);
+			liftPoint = AreaTool.getLiftPoint2(getRawArea(), CraftConfig.suckerDiameter / 2);
 		else if(CraftConfig.suckerDiameter < CraftConfig.bitWidth && CraftConfig.suckerDiameter < CraftConfig.bitLength)
 			liftPoint = new Point2D.Double(0, 0);
 		else
