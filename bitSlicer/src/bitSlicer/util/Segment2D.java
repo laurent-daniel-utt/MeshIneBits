@@ -438,87 +438,21 @@ public class Segment2D extends AABBrect
 		return segregateSegments;
 	}
 	
-	/*
-	public double getDistanceFrom(Point2D p){
-		double minDist = (new Segment2D(1, (new Vector2(p.getX(), p.getY())), this.start)).getLength(); //distance with the start point 
-		double dist2 = (new Segment2D(1, (new Vector2(p.getX(), p.getY())), this.end)).getLength(); //distance with the end point
-		if(dist2 < minDist)
-			minDist = dist2;
-		
-		
-
-		//Shortest distance from the point to the line which contains this segment
-		double[] coef = this.getLineEquation();
-		double dist3 = Math.abs(coef[0] * p.getX() + coef[1] * p.getY() + coef[2]) / Math.sqrt(coef[0]*coef[0] + coef[1]*coef[1]);
-		
-		Vector2 directorVector = (new Vector2(-coef[0], coef[1])).normal();
-		
-		//Segment perpendicular to the line and passing by the point
-		Vector2 point1 = new Vector2((dist3 + 1) * directorVector.x + p.getX(), (dist3 + 1) * directorVector.y + p.getY());
-		Vector2 point2 = new Vector2((dist3 + 1) * -directorVector.x + p.getX(), (dist3 + 1) * -directorVector.y + p.getY());
-		Segment2D perpendicularSegment = new Segment2D(1, point1, point2);
-		
-
-		Vector2 collisionPoint = this.getCollisionPoint(perpendicularSegment);
-		if( collisionPoint != null && this.contains(collisionPoint))
-			minDist = dist3;	
-			
-		
-		
-		return minDist;		
-	}
-	
-	
-	
-	public double[] getLineEquation(){ //ax + by + c = 0;
-		double a;
-		double b;
-		double c;
-		if(end.x - start.x != 0){
-			a = (end.y - start.y) / (end.x - start.x);
-			b = -1;
-			c = start.y - a*start.x;
-		}
-		else{
-			a = -1;
-			b = 0;
-			c = start.x;
-		}
-
-		double coef[] = {a, b, c};
-		return coef;
-	}
-	
-	*/
-	
 	public double getLength(){
 		return Math.sqrt((end.x - start.x)*(end.x - start.x) + (end.y - start.y)*(end.y - start.y));
 	}
 	
-	///////////////////////////////////////////
-	
-	public double sqr(double x) {
-		return (x * x);
-	}
-	
-	public double dist2(Vector2 v, Vector2 w) {
-		return (sqr(v.x - w.x) + sqr(v.y - w.y));
-	}
-	
-	public double distToSegmentSquared(Vector2 p, Vector2 v, Vector2 w) {
-	  double l2 = dist2(v, w);
-	  if (l2 == 0)
-		  return dist2(p, v);
-	  double t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-	  t = Math.max(0, Math.min(1, t));
+	public double distFromPoint(Vector2 p) {
+		Vector2 v = this.start;
+		Vector2 w = this.end;
+		double l2 = Vector2.dist2(v, w);
+		if (l2 == 0)
+			return Vector2.dist2(p, v);
+		double t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+		t = Math.max(0, Math.min(1, t));
 
-	  return dist2(p, new Vector2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
+		return Math.sqrt(Vector2.dist2(p, new Vector2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y))));
 	}
-	
-	public double distToSegment(Vector2 p, Vector2 v, Vector2 w) {//segment vw & point p
-		return Math.sqrt(distToSegmentSquared(p, v, w));
-	}
-	
-	///////////////////////////////////////////////////////
+
 }
 

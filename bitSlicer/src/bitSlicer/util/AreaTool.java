@@ -263,7 +263,7 @@ public class AreaTool {
 			double minDist = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
 			for(Vector<Segment2D> polygon : segments){
 				for(Segment2D segment : polygon){
-					double dist = segment.distToSegment(new Vector2(p.getX(), p.getY()), segment.start, segment.end);
+					double dist = segment.distFromPoint(new Vector2(p.getX(), p.getY()));
 					if(dist < minDist)
 						minDist = dist;
 				}

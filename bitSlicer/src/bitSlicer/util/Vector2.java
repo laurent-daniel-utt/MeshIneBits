@@ -154,5 +154,9 @@ public class Vector2
 		Point2D.Double transformedPoint = (java.awt.geom.Point2D.Double) transfoMatrix.transform(point, null);
 		return new Vector2(transformedPoint.getX(), transformedPoint.getY());				
 	}
+	
+	public static double dist2(Vector2 v, Vector2 w) {
+		return ((v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y));
+	}
 
 }
