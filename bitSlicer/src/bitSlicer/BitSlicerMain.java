@@ -8,6 +8,7 @@ import bitSlicer.Slicer.SliceTool;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.Slicer.Config.CraftConfigLoader;
 import bitSlicer.gui.ConfigWindow;
+import bitSlicer.gui.MainWindow;
 import bitSlicer.util.Logger;
 import bitSlicer.gui.PreviewFrame;
 import bitSlicer.gui.ProcessingWindow;
@@ -17,7 +18,8 @@ public class BitSlicerMain {
 	{
 		CraftConfigLoader.loadConfig(null);
 		
-		new ConfigWindow();
+		MainWindow.getInstance();
+//		new ConfigWindow();
 	}
 	
 	public static void sliceModel(String filename)
@@ -42,7 +44,8 @@ public class BitSlicerMain {
 		
 		GeneratedPart part = new GeneratedPart(slices);
 		
-		
-		new PreviewFrame(part);
+		MainWindow.getInstance().setPart(part);
+//		new PreviewFrame(part);
+//		new MainWindow(part);
 	}	
 }
