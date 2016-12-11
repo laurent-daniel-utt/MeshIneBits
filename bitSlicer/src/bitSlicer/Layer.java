@@ -93,4 +93,8 @@ public class Layer extends Shape2D {
 		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
 		return bit.getOrientation().getTransformed(patternAffTrans);
 	}
+	
+	public void removeBit(Vector2 key){
+		
+	}
 }
