@@ -81,7 +81,8 @@ public class Layer extends Shape2D {
 				}
 				catch(Exception e){
 					//new Bit3D() will throw an exception if there is not enough slices allowed to it or if the slice to select doesn't exist in that bit
-					//e.printStackTrace();
+					if(e.getMessage() != "This bit is too thin" && e.getMessage() != "The slice to select does not exist in that bit")
+						e.printStackTrace();
 				}
 			}
 		}

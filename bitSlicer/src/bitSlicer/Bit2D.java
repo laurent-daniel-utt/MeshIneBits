@@ -183,4 +183,8 @@ public class Bit2D implements Cloneable{
 			area.add(a);
 		return area;
 	}
+	
+	public Vector<Area> getRawAreas(){
+		return areas;
+	}
 }
