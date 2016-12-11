@@ -18,8 +18,8 @@ public class PatternTemplate2 extends PatternTemplate {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		boolean evenI = false;
 		boolean evenJ = false;
-		double iOffSet = Math.sqrt(2) / 2 * CraftConfig.bitLength + CraftConfig.bitsOffset;
-		double jOffSet = Math.sqrt(2) / 2 * CraftConfig.bitWidth + CraftConfig.bitsOffset;
+		double iOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLength + CraftConfig.bitsOffset;
+		double jOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitWidth + CraftConfig.bitsOffset;
 		for (double i = patternStart.x; i <= patternEnd.x; i = i + iOffSet){		
 			if (evenI){
 				evenI = false;
@@ -40,7 +40,7 @@ public class PatternTemplate2 extends PatternTemplate {
 				if (layerNumber%2 == 0){
 					layerOffSet = jOffSet;
 				}
-				if (evenI && evenJ){				
+				if (evenI && evenJ){
 					originBit = new Vector2(i, j + layerOffSet);
 					orientationBit = new Vector2(1, 1);
 					bits.add(new Bit2D(originBit, orientationBit));
