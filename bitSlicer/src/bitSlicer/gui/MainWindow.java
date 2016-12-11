@@ -21,8 +21,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -37,20 +39,21 @@ import bitSlicer.Bit3D;
 import bitSlicer.GeneratedPart;
 import bitSlicer.Layer;
 import bitSlicer.Pattern;
+import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
 public class MainWindow extends JFrame {
-//	public static void main(String[] args)
-//	{
-//		new MainWindow();
-//	}
+	//	public static void main(String[] args)
+	//	{
+	//		new MainWindow();
+	//	}
 
 	private GeneratedPart part;
 	public Vector2 selectedBitKey = null;
 	private static MainWindow instance = null;
 	private PreviewFrame pf;
-	
+
 	public static MainWindow getInstance(){
 		if (instance == null) {
 			instance = new MainWindow();
@@ -93,17 +96,17 @@ public class MainWindow extends JFrame {
 		private JSlider layerSlider;
 		private JSpinner layerSpinner;
 		private JLabel bg;
-		
+
 
 		public PreviewFrame() {
 			this.setLayout(new BorderLayout());
-			
+
 			bg = new JLabel("MeshIneBits", SwingConstants.CENTER);
 			bg.setFont(new Font(null, Font.BOLD|Font.ITALIC, 120));
 			bg.setForeground(new Color(0,0,0,8));
 			this.add(bg);
 		}
-		
+
 		public void init() {
 			this.remove(bg);
 			this.setLayout(new BorderLayout());
@@ -113,7 +116,7 @@ public class MainWindow extends JFrame {
 			// Layer slider
 			layerSlider = new JSlider(JSlider.VERTICAL, 0, part.getLayers().size() - 1, pp.showLayer);
 			layerSpinner = new JSpinner(new SpinnerNumberModel(pp.showLayer, 0, part.getLayers().size() - 1, 1));
-			
+
 			layerSpinner.setFocusable(false);
 			layerSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -136,12 +139,12 @@ public class MainWindow extends JFrame {
 			zoomPanel.add(zoomSpinner);
 			zoomPanel.add(zoomSlider);
 			zoomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);;
-			
+
 			this.add(layerPanel, BorderLayout.EAST);
 			this.add(zoomPanel, BorderLayout.SOUTH);
 			this.add(pp, BorderLayout.CENTER);
-			
-			
+
+
 			zoomSpinner.addChangeListener(new ChangeListener()
 			{
 				public void stateChanged(ChangeEvent e)
@@ -149,15 +152,15 @@ public class MainWindow extends JFrame {
 					updateZoom((Double) zoomSpinner.getValue());
 				}
 			});
-			
+
 			zoomSlider.addChangeListener(new ChangeListener() {
-				
+
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					updateZoom((double) zoomSlider.getValue()/100.0);
 				}
 			});
-			
+
 			layerSpinner.addChangeListener(new ChangeListener()
 			{
 				public void stateChanged(ChangeEvent e)
@@ -165,7 +168,7 @@ public class MainWindow extends JFrame {
 					showLayer (((Integer) layerSpinner.getValue()).intValue());
 				}	
 			});
-			
+
 			layerSlider.addChangeListener(new ChangeListener()
 			{
 				public void stateChanged(ChangeEvent e)
@@ -213,14 +216,18 @@ public class MainWindow extends JFrame {
 						affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 						area.transform(affTrans);      	
 
-						g2d.setColor( Color.green );
+						//new Color(109, 138, 192)
+						g2d.setColor(new Color(164, 180, 200));
 						if(b == selectedBitKey){
-							g2d.setColor( Color.blue );
+							g2d.setColor(new Color(94, 125, 215));
 							drawModelArea(g2d, area);
 						}
 						else
 							drawModelArea(g2d, area);
 					}
+					
+					if (selectedBitKey != null && layer.getBit3D(selectedBitKey) != null)
+						drawBitControls(g2d, selectedBitKey, layer.getBit3D(selectedBitKey));
 				}
 			}
 
@@ -289,6 +296,82 @@ public class MainWindow extends JFrame {
 				g2d.fill(area);
 			}
 
+			public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
+				TriangleShape triangleShape = new TriangleShape(
+						new Point2D.Double(0, 0),
+						new Point2D.Double(-7, 10),
+						new Point2D.Double(7, 10)
+						);
+				
+				Vector<Area> areas = new Vector<Area>();
+				int padding = 15;
+				
+				Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength/2, -CraftConfig.bitWidth/2, CraftConfig.bitLength, CraftConfig.bitWidth));
+				areas.add(overlapBit);
+				
+				Area topArrow = new Area(triangleShape);
+				AffineTransform affTrans = new AffineTransform();	        	
+				affTrans.translate(0, - padding - CraftConfig.bitWidth/2);
+				affTrans.rotate(0, 0);
+				topArrow.transform(affTrans);
+				areas.add(topArrow);
+				
+				Area leftArrow = new Area(triangleShape);
+				affTrans = new AffineTransform();	        	
+				affTrans.translate( padding + CraftConfig.bitLength/2, 0);
+				affTrans.rotate(0, 1);
+				leftArrow.transform(affTrans);
+				areas.add(leftArrow);
+				
+				Area bottomArrow = new Area(triangleShape);
+				affTrans = new AffineTransform();	        	
+				affTrans.translate(0, padding + CraftConfig.bitWidth/2);
+				affTrans.rotate(-1, 0);
+				bottomArrow.transform(affTrans);
+				areas.add(bottomArrow);
+				
+				Area rightArrow = new Area(triangleShape);
+				affTrans = new AffineTransform();	        	
+				affTrans.translate(- padding - CraftConfig.bitLength/2, 0);
+				affTrans.rotate(0, -1);
+				rightArrow.transform(affTrans);
+				areas.add(rightArrow);
+
+				for (Area area : areas) {
+					affTrans = new AffineTransform();	        	
+					affTrans.translate(bitKey.x, bitKey.y);
+					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+					area.transform(affTrans);	
+					
+					affTrans = new AffineTransform();	
+					affTrans.translate(viewOffsetX * drawScale + this.getWidth()/2, viewOffsetY * drawScale + this.getHeight()/2);
+					affTrans.scale(drawScale, drawScale);
+					area.transform(affTrans);	
+					
+					g2d.setColor(new Color(94, 125, 215));
+					if (!area.equals(overlapBit)) {
+						g2d.draw(area);
+						g2d.fill(area);
+					}
+				}
+				
+				g2d.setColor(new Color(94, 125, 215));
+				g2d.draw(overlapBit);
+				
+				g2d.setColor(new Color(0,114,255,50));
+				g2d.fill(overlapBit);
+				
+			}
+
+			public class TriangleShape extends Path2D.Double {
+				public TriangleShape(Point2D... points) {
+					moveTo(points[0].getX(), points[0].getY());
+					lineTo(points[1].getX(), points[1].getY());
+					lineTo(points[2].getX(), points[2].getY());
+					closePath();
+				}
+			}
+
 			public void mouseDragged(MouseEvent e)
 			{
 				viewOffsetX += (double) (e.getX() - oldX) / drawScale;
@@ -326,25 +409,25 @@ public class MainWindow extends JFrame {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		}
 
@@ -360,21 +443,21 @@ public class MainWindow extends JFrame {
 				zoom -= Math.abs(notches/5.0);
 			else 
 				zoom += Math.abs(notches/5.0);
-			
-			
+
+
 			updateZoom(zoom);
 		}
-		
+
 		private void updateZoom(double zoom) {
 			if(zoom < 1)
 				zoom = 1;
-				
+
 			zoomSpinner.setValue(zoom);
 			zoomSlider.setValue((int) (zoom*100));
 			pp.drawScale = zoom;
 			pp.repaint();
 		}
-		
+
 		private void showLayer(int layerNr) {
 			layerSpinner.setValue(layerNr);
 			layerSlider.setValue(layerNr);
