@@ -64,7 +64,7 @@ public class Ribbon extends JTabbedPane {
 			super();
 
 			OptionsContainer fileCont = new OptionsContainer("File");
-			JButton newBtn = new ButtonIcon("New", "file-o.png");
+			JButton newBtn = new ButtonIcon("Open", "file-o.png");
 			JButton saveBtn = new ButtonIcon("Save", "save.png");
 			JButton closeBtn = new ButtonIcon("Close", "times.png");
 			

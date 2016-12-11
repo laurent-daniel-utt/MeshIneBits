@@ -27,6 +27,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ColorUIResource;
 
 import bitSlicer.Bit3D;
@@ -103,10 +105,10 @@ public class MainWindow extends JFrame {
 			layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 			// Zoom slider
-			JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
+			JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 100, 2000, 100);
 			zoomSlider.setMaximumSize(new Dimension(500, 20));
 
-			JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
+			JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0, 1.0, 250.0, 1.0));
 			zoomSpinner.setFocusable(false);
 			zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -122,6 +124,26 @@ public class MainWindow extends JFrame {
 			this.add(layerPanel, BorderLayout.EAST);
 			this.add(zoomPanel, BorderLayout.SOUTH);
 			this.add(pp, BorderLayout.CENTER);
+			
+			
+			zoomSpinner.addChangeListener(new ChangeListener()
+			{
+				public void stateChanged(ChangeEvent e)
+				{
+					pp.drawScale = (Double) zoomSpinner.getValue();
+					pp.repaint();
+				}
+			});
+			
+			zoomSlider.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					zoomSpinner.setValue((double) zoomSlider.getValue()/100.0);
+					pp.drawScale = (Double) zoomSpinner.getValue();
+					pp.repaint();
+				}
+			});
 		}
 
 		public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener
@@ -264,7 +286,6 @@ public class MainWindow extends JFrame {
 								selectedBitKey = null;
 							else{
 								selectedBitKey = bitKey;
-								System.out.println("customArea = " + pattern.getBit(bitKey).getCustomAreaValue());
 							}
 							break;
 						}
@@ -273,13 +294,29 @@ public class MainWindow extends JFrame {
 				}
 			}
 
-			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 		}
 
 		public void update() {
