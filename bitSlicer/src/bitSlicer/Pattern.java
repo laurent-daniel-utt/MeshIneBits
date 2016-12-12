@@ -32,7 +32,7 @@ public class Pattern implements Cloneable{
 		this.skirtRadius = skirtRadius;
 		
 		transfoMatrix.rotate(rotation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
-		transfoMatrix.rotate(CraftConfig.rotation); //Rotation of the whole patternTemplate
+		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x, Vector2.getEquivalentVector(CraftConfig.rotation).y); //Rotation of the whole patternTemplate
 		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
 
 		try {
