@@ -211,9 +211,10 @@ public class MainWindow extends JFrame {
 
 						Bit3D bit = layer.getBit3D(b);
 						Area area = bit.getRawArea();
-						AffineTransform affTrans = new AffineTransform();	        	
+						AffineTransform affTrans = new AffineTransform();
 						affTrans.translate(b.x, b.y);
 						affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+						
 						area.transform(affTrans);      	
 
 						//new Color(109, 138, 192)

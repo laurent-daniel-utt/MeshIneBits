@@ -20,7 +20,7 @@ public class Pattern implements Cloneable{
 	public static int bitNr; // for debug
 	
 	//private Vector<Bit2D> bits;
-	private Vector2 rotation;
+	public Vector2 rotation;
 	private double skirtRadius;
 	private Hashtable<Vector2, Bit2D> mapBits;
 	private AffineTransform transfoMatrix = new AffineTransform();
@@ -31,10 +31,10 @@ public class Pattern implements Cloneable{
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
 		
-		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
 		transfoMatrix.rotate(rotation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
 		transfoMatrix.rotate(CraftConfig.rotation); //Rotation of the whole patternTemplate
-		
+		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
+
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
 		} catch (NoninvertibleTransformException e) {
@@ -75,8 +75,11 @@ public class Pattern implements Cloneable{
 		Vector2 bitKey = bit.getOrigin().getTransformed(transfoMatrix);
 		//We check that there is not already a bit at this place
 		for(Vector2 key : getBitsKeys()){
-			if(bitKey.asGoodAsEqual(key))
+			if(bitKey.asGoodAsEqual(key)){
+				System.err.println("A bit already exists at these coordinates");
 				return;
+			}
+				
 		}
 		mapBits.put(bitKey, bit);
 	}

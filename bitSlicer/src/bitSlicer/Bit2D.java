@@ -15,7 +15,7 @@ import bitSlicer.util.Vector2;
  */
 public class Bit2D implements Cloneable{
 	private Vector2 origin;// in the pattern coordinate system
-	private Vector2 orientation;// in the pattern coordinate system
+	private Vector2 orientation;// around the bit origin
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
@@ -72,6 +72,7 @@ public class Bit2D implements Cloneable{
 	}
 	
 	private void setTransfoMatrix(){
+		
 		transfoMatrix.translate(origin.x, origin.y);
 		transfoMatrix.rotate(orientation.x, orientation.y);
 		
