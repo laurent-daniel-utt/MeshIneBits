@@ -62,6 +62,10 @@ public class MainWindow extends JFrame {
 	}
 
 	private MainWindow() {
+		this.setIconImage(
+				new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage()
+				);
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			UIManager.put("TabbedPane.focus", new Color(0, 0, 0, 0));
@@ -101,14 +105,16 @@ public class MainWindow extends JFrame {
 		public PreviewFrame() {
 			this.setLayout(new BorderLayout());
 
-			bg = new JLabel("MeshIneBits", SwingConstants.CENTER);
+			bg = new JLabel("", SwingConstants.CENTER);
+			ImageIcon icon = new ImageIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBitsAlpha.png")).getImage().getScaledInstance(645, 110, Image.SCALE_SMOOTH));
+			bg.setIcon(icon);
 			bg.setFont(new Font(null, Font.BOLD|Font.ITALIC, 120));
 			bg.setForeground(new Color(0,0,0,8));
 			this.add(bg);
 		}
 
 		public void init() {
-			this.remove(bg);
+			bg.setVisible(false);
 			this.setLayout(new BorderLayout());
 			addMouseWheelListener(this);
 			pp = new PreviewPanel();
@@ -480,9 +486,9 @@ public class MainWindow extends JFrame {
 
 	public void closePart() {
 		this.part = null;
-		pf.add(pf.bg);
 		pf.revalidate();
 		pf.repaint();
+		pf.bg.setVisible(true);
 	}
 }
 
