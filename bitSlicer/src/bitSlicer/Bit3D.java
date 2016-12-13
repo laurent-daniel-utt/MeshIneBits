@@ -13,7 +13,7 @@ public class Bit3D {
 	
 	Vector<Path2D> cutPaths = null; //In the local coordinate system
 	Vector2 origin; //Position of the center of the full bit in the general coordinate system
-	Vector2 orientation; //Rotation around its origin point
+	Vector2 orientation; //Rotation around its local origin point
 	Bit2D bit2dToExtrude;
 	Point2D liftPoint = null;
 	Vector<Point2D> liftPoints = new Vector<Point2D>();
@@ -47,7 +47,6 @@ public class Bit3D {
 			this.orientation = orientation;
 			bit2dToExtrude = bits2D.get(sliceToSelect);
 			cutPaths = bit2dToExtrude.getRawCutPaths();
-			computeLiftPoint();
 		}	
 	}
 	

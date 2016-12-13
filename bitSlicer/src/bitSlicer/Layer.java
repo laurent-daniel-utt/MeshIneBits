@@ -33,6 +33,7 @@ public class Layer extends Shape2D {
 		}
 		
 		generateBits3D();
+		computeLiftPoints();
 	}
 
 	public Vector<Slice> getSlices() {
@@ -95,6 +96,17 @@ public class Layer extends Shape2D {
 	}
 	
 	public void removeBit(Vector2 key){
-		
+		modelPattern.removeBit(key);
+		generateBits3D();
+	}
+	
+	public void addBit(Bit2D bit){
+		modelPattern.addBit(bit);
+		generateBits3D();
+	}
+	
+	public void computeLiftPoints(){
+		for(Vector2 key : getBits3dKeys())
+			mapBits3D.get(key).computeLiftPoint();
 	}
 }
