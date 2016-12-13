@@ -16,10 +16,10 @@ public class PatternTemplate2 extends PatternTemplate {
 
 	public Pattern createPattern(double layerNumber) {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
-		boolean evenI = false;
-		boolean evenJ = false;
 		double iOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLength + CraftConfig.bitsOffset;
 		double jOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitWidth + CraftConfig.bitsOffset;
+		boolean evenI = (CraftConfig.bitLength % CraftConfig.bitsOffset == 0);
+		boolean evenJ = !(CraftConfig.bitWidth % CraftConfig.bitsOffset == 0);
 		for (double i = patternStart.x; i <= patternEnd.x; i = i + iOffSet){		
 			if (evenI){
 				evenI = false;

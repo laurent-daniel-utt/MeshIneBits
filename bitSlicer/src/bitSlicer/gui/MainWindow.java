@@ -276,7 +276,8 @@ public class MainWindow extends JFrame {
 
 				area.transform(tx1);
 
-				g2d.fill(area);
+				//g2d.fill(area);
+				g2d.draw(area);
 			}
 
 			private void drawModelArea2(Graphics2D g2d, Area area){

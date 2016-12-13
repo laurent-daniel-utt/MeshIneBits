@@ -107,6 +107,11 @@ public class Layer extends Shape2D {
 	
 	public void computeLiftPoints(){
 		for(Vector2 key : getBits3dKeys())
-			mapBits3D.get(key).computeLiftPoint();
+			mapBits3D.get(key).computeLiftPoints();
 	}
+	
+	public int getLayerNumber(){
+		return layerNumber;
+	}
+	
 }
