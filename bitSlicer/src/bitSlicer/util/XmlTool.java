@@ -134,18 +134,18 @@ public class XmlTool {
 	private void writeSubBits(Bit3D bit){
 		for(int id = 0; id < bit.getLiftPoints().size(); id++){
 			if(bit.getLiftPoints().get(id) != null){
-				writer.println("				<subBit>");
-				writer.println("					<id>" + id + "</id>");
-				writer.println("					<liftPoint>");
-				writer.println("						<x>" + bit.getLiftPoints().get(id).getX() + "</x>");
-				writer.println("						<y>" + bit.getLiftPoints().get(id).getY() + "</y>");
-				writer.println("					</liftPoint>");
-				writer.println("					<rotation>" + bit.getOrientation().getEquivalentAngle() + "</rotation>");
-				writer.println("					<position>");
-				writer.println("						<x>" + bit.getDepositPoints().get(id).x + "</x>");
-				writer.println("						<y>" + bit.getDepositPoints().get(id).y + "</y>");
-				writer.println("					</position>");
-				writer.println("				</subBit>");
+				writer.println("			<subBit>");
+				writer.println("				<id>" + id + "</id>");
+				writer.println("				<liftPoint>");
+				writer.println("					<x>" + bit.getLiftPoints().get(id).getX() + "</x>");
+				writer.println("					<y>" + bit.getLiftPoints().get(id).getY() + "</y>");
+				writer.println("				</liftPoint>");
+				writer.println("				<rotation>" + bit.getOrientation().getEquivalentAngle() + "</rotation>");
+				writer.println("				<position>");
+				writer.println("					<x>" + bit.getDepositPoints().get(id).x + "</x>");
+				writer.println("					<y>" + bit.getDepositPoints().get(id).y + "</y>");
+				writer.println("				</position>");
+				writer.println("			</subBit>");
 			}
 		}
 	}
