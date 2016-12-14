@@ -45,6 +45,7 @@ public class Ribbon extends JTabbedPane {
 		setFont( new Font(this.getFont().toString(), Font.PLAIN, 15) );
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
+		addTab("Advanced", new JScrollPane(new AdvancedTab()));
 	}
 
 	private class RibbonTab extends JPanel {
@@ -243,6 +244,19 @@ public class Ribbon extends JTabbedPane {
 			layerCont.add(new JButton("Show prev issue"));
 			
 			add(layerCont);
+			add(new TabContainerSeparator());
+		}
+	}
+	
+	private class AdvancedTab extends RibbonTab {
+		public AdvancedTab() {
+			super();
+			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
+			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+			
+			add(optionsCont);
 			add(new TabContainerSeparator());
 		}
 	}
