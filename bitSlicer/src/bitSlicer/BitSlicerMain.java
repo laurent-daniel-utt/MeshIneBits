@@ -10,6 +10,7 @@ import bitSlicer.Slicer.Config.CraftConfigLoader;
 import bitSlicer.gui.ConfigWindow;
 import bitSlicer.gui.MainWindow;
 import bitSlicer.util.Logger;
+import bitSlicer.util.XmlTool;
 import bitSlicer.gui.PreviewFrame;
 import bitSlicer.gui.ProcessingWindow;
 
@@ -47,5 +48,15 @@ public class BitSlicerMain {
 		MainWindow.getInstance().setPart(part);
 //		new PreviewFrame(part);
 //		new MainWindow(part);
+		
+		/*
+		XmlTool xt = new XmlTool(part,"C:\\Users\\Nicolas\\Desktop\\xml.txt");
+		try {
+			xt.writeXmlCode();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 	}	
 }
