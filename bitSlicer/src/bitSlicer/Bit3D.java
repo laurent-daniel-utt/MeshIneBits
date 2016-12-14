@@ -85,4 +85,12 @@ public class Bit3D {
 	public Vector<Path2D> getCutPaths(){
 		return cutPaths;
 	}
+	
+	public Vector<Vector2> getDepositPoints(){
+		return depositPoints;
+	}
+	
+	public Vector2 getRotation(){
+		return orientation;
+	}
 }

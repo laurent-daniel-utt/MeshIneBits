@@ -1,9 +1,11 @@
 package bitSlicer.util;
 
 import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.Vector;
 
 import bitSlicer.Bit3D;
 import bitSlicer.GeneratedPart;
@@ -67,14 +69,64 @@ public class XmlTool {
 		for(Path2D p : bit.getCutPaths())
 			writeCutPaths(p);
 		writer.println("</cut>");
-		
+		writeSubBits(bit);
 		writer.println("</bit>");
 	}
 	
 	private void writeCutPaths(Path2D p){
+
+		Vector<double[]> points = new Vector<double[]>();
+		for (PathIterator pi = p.getPathIterator(null); !pi.isDone(); pi.next()) {
+			double[] coords = new double[6];
+			int type = pi.currentSegment(coords);
+			double[] point = {type, coords[0], coords[1]};
+		    points.add(point);	
+		}
 		
+		boolean waitingForMoveTo = true;
+		Vector<double[]> pointsToAdd = new Vector<double[]>();
+		for(double[] point : points){
+			if(point[0] == PathIterator.SEG_LINETO && waitingForMoveTo)
+				pointsToAdd.add(point);
+			else if(point[0] == PathIterator.SEG_LINETO && !waitingForMoveTo){
+				writer.println("<lineTo>");
+				writer.println("<x>" + point[1] + "</x>");
+				writer.println("<y>" + point[2] + "</y>");
+				writer.println("</lineTo>");
+			}
+			else{
+				writer.println("<moveTo>");
+				writer.println("<x>" + point[1] + "</x>");
+				writer.println("<y>" + point[2] + "</y>");
+				writer.println("</moveTo>");
+				waitingForMoveTo = false;
+			}
+		}
+		
+		for(double[] point : pointsToAdd){
+			writer.println("<lineTo>");
+			writer.println("<x>" + point[1] + "</x>");
+			writer.println("<y>" + point[2] + "</y>");
+			writer.println("</lineTo>");
+		}
 		
 	}
 	
+	private void writeSubBits(Bit3D bit){
+		for(int id = 0; id < bit.getLiftPoints().size(); id++){
+			writer.println("<subBit>");
+			writer.println("<id>" + id + "</id>");
+			writer.println("<liftPoint>");
+			writer.println("<x>" + bit.getLiftPoints().get(id).getX() + "</x>");
+			writer.println("<y>" + bit.getLiftPoints().get(id).getY() + "</y>");
+			writer.println("</liftPoint>");
+			writer.println("<rotation>" + bit.getOrientation().getEquivalentAngle() + "</rotation>");
+			writer.println("<position>");
+			writer.println("<x>" + bit.getDepositPoints().get(id).x + "</x>");
+			writer.println("<y>" + bit.getDepositPoints().get(id).y + "</y>");
+			writer.println("</position>");
+			writer.println("</subBit>");
+		}
+	}
 	
 }
