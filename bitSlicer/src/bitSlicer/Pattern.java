@@ -12,6 +12,7 @@ import java.util.Vector;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AreaTool;
+import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
@@ -76,7 +77,7 @@ public class Pattern implements Cloneable{
 		//We check that there is not already a bit at this place
 		for(Vector2 key : getBitsKeys()){
 			if(bitKey.asGoodAsEqual(key)){
-				System.err.println("A bit already exists at these coordinates");
+				Logger.warning("A bit already exists at these coordinates");
 				return;
 			}
 				

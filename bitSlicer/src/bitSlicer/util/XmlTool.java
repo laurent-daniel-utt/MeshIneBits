@@ -42,7 +42,7 @@ public class XmlTool {
 	}
 	
 	private void startFile(){
-		writer.println("	<name>" + getNameFromFileLocation() + "</name");
+		writer.println("	<name>" + getNameFromFileLocation() + "</name>");
 		writer.println("	<date>" + (new Date()).toString() + "</date>");
 		writer.println("	<bitDimension>");
 		writer.println("		<height>" + CraftConfig.bitThickness + "</height>");
