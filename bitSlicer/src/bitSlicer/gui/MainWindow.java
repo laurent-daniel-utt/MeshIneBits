@@ -78,7 +78,7 @@ public class MainWindow extends JFrame {
 		}
 
 		setTitle("MeshIneBits");
-		setSize(1200, 800);
+		setSize(1200, 700);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -133,9 +133,10 @@ public class MainWindow extends JFrame {
 			layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 			// Zoom slider
-			zoomSlider = new JSlider(JSlider.HORIZONTAL, 100, 2000, 100);
+			System.out.println((int) (pp.drawScale*100.0));
+			zoomSlider = new JSlider(JSlider.HORIZONTAL, 20, 2000, (int) (pp.drawScale*100.0));
 			zoomSlider.setMaximumSize(new Dimension(500, 20));
-			zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0, 1.0, 250.0, 1.0));
+			zoomSpinner = new JSpinner(new SpinnerNumberModel(pp.drawScale, 0, 250.0, 1));
 			zoomSpinner.setFocusable(false);
 			zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -448,17 +449,17 @@ public class MainWindow extends JFrame {
 			int notches = e.getWheelRotation();
 			double zoom = (double) zoomSpinner.getValue();
 			if (notches > 0)
-				zoom -= Math.abs(notches/5.0);
+				zoom -= Math.abs(notches/10.0);
 			else 
-				zoom += Math.abs(notches/5.0);
+				zoom += Math.abs(notches/10.0);
 
 
 			updateZoom(zoom);
 		}
 
 		private void updateZoom(double zoom) {
-			if(zoom < 1)
-				zoom = 1;
+			if(zoom < 0.2)
+				zoom = 0.2;
 
 			zoomSpinner.setValue(zoom);
 			zoomSlider.setValue((int) (zoom*100));
