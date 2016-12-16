@@ -188,6 +188,6 @@ public class Pattern implements Cloneable{
 		removeBit(key);
 		direction = direction.normal();
 		Vector2 newCoordinates = new Vector2(key.x + (direction.x * offSetValue), key.y + (direction.y * offSetValue));
-		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation()));
+		mapBits.put(newCoordinates, new Bit2D(newCoordinates, bitToMove.getOrientation()));
 	}
 }

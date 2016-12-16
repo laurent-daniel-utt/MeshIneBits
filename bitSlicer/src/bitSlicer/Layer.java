@@ -27,13 +27,16 @@ public class Layer extends Shape2D {
 		this.layerNumber = layerNumber;
 		this.modelPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
 		
+		buildPatterns();
+		generateBits3D();
+		computeLiftPoints();
+	}
+	
+	public void buildPatterns(){
 		for (Slice s : slices){
 			patterns.add(modelPattern.clone());
 			patterns.lastElement().computeBits(s);
 		}
-		
-		generateBits3D();
-		computeLiftPoints();
 	}
 
 	public Vector<Slice> getSlices() {
@@ -97,16 +100,19 @@ public class Layer extends Shape2D {
 	
 	public void removeBit(Vector2 key){
 		modelPattern.removeBit(key);
+		buildPatterns();
 		generateBits3D();
 	}
 	
 	public void addBit(Bit2D bit){
 		modelPattern.addBit(bit);
+		buildPatterns();
 		generateBits3D();
 	}
 	
 	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
 		modelPattern.moveBit(key, direction, offSetValue);
+		buildPatterns();
 		generateBits3D();
 	}
 	
