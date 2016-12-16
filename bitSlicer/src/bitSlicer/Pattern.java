@@ -182,4 +182,12 @@ public class Pattern implements Cloneable{
 	public AffineTransform getAffineTransform(){
 		return transfoMatrix;
 	}
+	
+	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
+		Bit2D bitToMove = mapBits.get(key);
+		removeBit(key);
+		direction = direction.normal();
+		Vector2 newCoordinates = new Vector2(key.x + (direction.x * offSetValue), key.y + (direction.y * offSetValue));
+		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation()));
+	}
 }

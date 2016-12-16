@@ -105,6 +105,11 @@ public class Layer extends Shape2D {
 		generateBits3D();
 	}
 	
+	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
+		modelPattern.moveBit(key, direction, offSetValue);
+		generateBits3D();
+	}
+	
 	public void computeLiftPoints(){
 		for(Vector2 key : getBits3dKeys())
 			mapBits3D.get(key).computeLiftPoints();
