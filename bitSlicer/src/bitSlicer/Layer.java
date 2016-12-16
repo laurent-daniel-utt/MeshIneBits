@@ -6,6 +6,7 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
@@ -33,6 +34,7 @@ public class Layer extends Shape2D {
 	}
 	
 	public void buildPatterns(){
+		patterns.clear();
 		for (Slice s : slices){
 			patterns.add(modelPattern.clone());
 			patterns.lastElement().computeBits(s);

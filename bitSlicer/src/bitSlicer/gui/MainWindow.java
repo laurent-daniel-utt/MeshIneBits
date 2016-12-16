@@ -448,7 +448,7 @@ public class MainWindow extends JFrame {
 					offSetValue = CraftConfig.bitWidth/ 2;
 					break;
 				case 1: //Left direction
-					direction = new Vector2(-1, 0);
+					direction = new Vector2(1, 0);
 					offSetValue = CraftConfig.bitLength/ 2;
 					break;
 				case 2: //Bottom direction
@@ -456,7 +456,7 @@ public class MainWindow extends JFrame {
 					offSetValue = CraftConfig.bitWidth/ 2;
 					break;
 				case 3: //Right direction
-					direction = new Vector2(1, 0);
+					direction = new Vector2(-1, 0);
 					offSetValue = CraftConfig.bitLength/ 2;
 					break;
 				}
