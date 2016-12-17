@@ -186,8 +186,18 @@ public class Pattern implements Cloneable{
 	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
 		Bit2D bitToMove = mapBits.get(key);
 		removeBit(key);
+//		AffineTransform rotateMatrix = new AffineTransform();
+//		rotateMatrix.rotate(r      otation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
+//		rotateMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x, Vector2.getEquivalentVector(CraftConfig.rotation).y); //Rotation of the whole patternTemplate
+//		direction.getTransformed(rotateMatrix);
+		
+		AffineTransform rotateMatrix = new AffineTransform();
+		rotateMatrix.rotate(bitToMove.getOrientation().x, bitToMove.getOrientation().y);
+		rotateMatrix.rotate(direction.x, direction.y);
+		direction.getTransformed(rotateMatrix);
 		direction = direction.normal();
-		Vector2 newCoordinates = new Vector2(key.x + (direction.x * offSetValue), key.y + (direction.y * offSetValue));
-		mapBits.put(newCoordinates, new Bit2D(newCoordinates, bitToMove.getOrientation()));
+		Vector2 newCoordinates = new Vector2(bitToMove.getOrigin().x + (direction.x * offSetValue), bitToMove.getOrigin().y + (direction.y * offSetValue));
+		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation()));
+		//mapBits.put(newCoordinates, new Bit2D(newCoordinates, bitToMove.getOrientation()));
 	}
 }
