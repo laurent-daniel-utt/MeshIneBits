@@ -437,7 +437,6 @@ public class MainWindow extends JFrame {
 			}
 			
 			public void clickOnBitControl(int id){
-				System.out.println("click on " + id);
 				Layer layer = part.getLayers().get(showLayer);
 				Vector2 direction = null;
 				double offSetValue = 0;
