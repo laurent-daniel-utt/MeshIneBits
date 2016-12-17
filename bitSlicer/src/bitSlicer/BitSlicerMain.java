@@ -49,14 +49,5 @@ public class BitSlicerMain {
 //		new PreviewFrame(part);
 //		new MainWindow(part);
 		
-		/*
-		XmlTool xt = new XmlTool(part,"C:\\Users\\Nicolas\\Desktop\\xml.txt");
-		try {
-			xt.writeXmlCode();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 	}	
 }

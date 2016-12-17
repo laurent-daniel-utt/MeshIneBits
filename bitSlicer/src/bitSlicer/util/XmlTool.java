@@ -3,8 +3,12 @@ package bitSlicer.util;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Vector;
 
@@ -26,19 +30,25 @@ public class XmlTool {
 	}
 	
 	public String getNameFromFileLocation(){
-		return fileLocation;
+		Path p = Paths.get(fileLocation);
+	    String fileName = p.getFileName().toString();
+	    return fileName.split("[.]")[0];
 	}
 	
-	public void writeXmlCode() throws IOException{
-		writer = new PrintWriter(fileLocation, "UTF-8");
-		
-		writer.println("<part>");
-		startFile();
-		for(Layer l : part.getLayers())
-			writeLayer(l);
-		writer.println("</part>");
-		
-		writer.close();
+	public void writeXmlCode(){
+		try {
+			writer = new PrintWriter(fileLocation, "UTF-8");
+			writer.println("<part>");
+			startFile();
+			for(Layer l : part.getLayers())
+				writeLayer(l);
+			writer.println("</part>");
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		finally{
+			writer.close();
+		}
 	}
 	
 	private void startFile(){

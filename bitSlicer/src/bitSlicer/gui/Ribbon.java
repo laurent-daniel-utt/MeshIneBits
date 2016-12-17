@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 import javax.swing.BorderFactory;
@@ -39,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import bitSlicer.BitSlicerMain;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.Slicer.Config.CraftConfigLoader;
+import bitSlicer.util.XmlTool;
 
 public class Ribbon extends JTabbedPane {
 	public Ribbon() {
@@ -68,10 +70,12 @@ public class Ribbon extends JTabbedPane {
 			JButton newBtn = new ButtonIcon("Open", "file-o.png");
 			JButton saveBtn = new ButtonIcon("Save", "save.png");
 			JButton closeBtn = new ButtonIcon("Close", "times.png");
+			JButton exportBtn = new ButtonIcon("Export", "iconXML.png");
 			
 			fileCont.add(newBtn);
 			fileCont.add(saveBtn);
 			fileCont.add(closeBtn);
+			fileCont.add(exportBtn);
 
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
@@ -168,6 +172,21 @@ public class Ribbon extends JTabbedPane {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					MainWindow.getInstance().closePart();
+				}
+			});
+			
+			exportBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final JFileChooser fc = new JFileChooser();
+					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+					int returnVal = fc.showSaveDialog(null);
+					
+					if (returnVal == JFileChooser.APPROVE_OPTION)
+					{
+//						XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+//						xt.writeXmlCode();
+					}
 				}
 			});
 			
