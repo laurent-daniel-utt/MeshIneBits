@@ -82,9 +82,9 @@ public class MainWindow extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		Ribbon ribbon = new Ribbon();
 		pf = new PreviewFrame();
-
+		Ribbon ribbon = new Ribbon();
+		
 		Container content = getContentPane();
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
 		content.add(ribbon);

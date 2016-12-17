@@ -245,6 +245,25 @@ public class Ribbon extends JTabbedPane {
 			
 			add(layerCont);
 			add(new TabContainerSeparator());
+			
+			OptionsContainer modifCont = new OptionsContainer("Pattern modifications");
+			JButton removeBitBtn = new JButton("Remove bit");
+			JButton replaceBitBtn1 = new JButton("Replace bit 1");
+			JButton replaceBitBtn2 = new JButton("Replace bit 2");
+			modifCont.add(removeBitBtn);
+			modifCont.add(replaceBitBtn1);
+			modifCont.add(replaceBitBtn2);
+			
+			add(modifCont);
+			add(new TabContainerSeparator());
+			
+			removeBitBtn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
 		}
 	}
 	
