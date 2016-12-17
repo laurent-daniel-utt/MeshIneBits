@@ -99,21 +99,24 @@ public class Bit2D implements Cloneable{
 
 		this.areas.add(new Area(path));
 		
-		if(length != CraftConfig.bitLength){
+		//Set a cut path if necessary		
+		if(length != CraftConfig.bitLength || width != CraftConfig.bitWidth){
 			cutPaths = new Vector<Path2D>();
 			Path2D.Double cutPath = new Path2D.Double();
-			cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
-			cutPath.lineTo(cornerDownLeft.x, cornerDownLeft.y);
-			this.cutPaths.add(cutPath);	
-		}
-		
-		if(width != CraftConfig.bitWidth){
-			if(cutPaths == null)
-				cutPaths = new Vector<Path2D>();
-			Path2D.Double cutPath = new Path2D.Double();
-			cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
-			cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
-			this.cutPaths.add(cutPath);	
+			if(length != CraftConfig.bitLength && width != CraftConfig.bitWidth){
+				cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
+				cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);			
+				cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
+			}
+			else if(length != CraftConfig.bitLength){
+				cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
+				cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);	
+			}
+			else if(width != CraftConfig.bitWidth){
+				cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
+				cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
+			}
+			this.cutPaths.add(cutPath);
 		}
 	}
 	
