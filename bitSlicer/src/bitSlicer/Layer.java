@@ -14,7 +14,7 @@ public class Layer extends Shape2D {
 
 	private int layerNumber;
 	private Vector<Slice> slices;
-	private Pattern modelPattern;
+	private Pattern referentialPattern;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	private Hashtable<Vector2, Bit3D> mapBits3D;
 	private int sliceToSelect = 1; //Let the user choose that in the gui for each layer!
@@ -22,7 +22,7 @@ public class Layer extends Shape2D {
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart) {
 		this.slices = slices;
 		this.layerNumber = layerNumber;
-		this.modelPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
+		this.referentialPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
 
 		buildPatterns();
 		generateBits3D();
@@ -30,7 +30,7 @@ public class Layer extends Shape2D {
 	}
 
 	public void addBit(Bit2D bit) {
-		modelPattern.addBit(bit);
+		referentialPattern.addBit(bit);
 		buildPatterns();
 		generateBits3D();
 	}
@@ -38,7 +38,7 @@ public class Layer extends Shape2D {
 	private void buildPatterns() {
 		patterns.clear();
 		for (Slice s : slices) {
-			patterns.add(modelPattern.clone());
+			patterns.add(referentialPattern.clone());
 			patterns.lastElement().computeBits(s);
 		}
 	}
@@ -100,7 +100,7 @@ public class Layer extends Shape2D {
 	}
 
 	public Vector2 getNewOrientation(Bit2D bit) {
-		AffineTransform patternAffTrans = (AffineTransform) modelPattern.getAffineTransform().clone();
+		AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
 		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
 		return bit.getOrientation().getTransformed(patternAffTrans);
 	}
@@ -114,13 +114,13 @@ public class Layer extends Shape2D {
 	}
 
 	public void moveBit(Vector2 key, Vector2 direction, double offsetValue) {
-		modelPattern.moveBit(key, direction, offsetValue);
+		referentialPattern.moveBit(key, direction, offsetValue);
 		buildPatterns();
 		generateBits3D();
 	}
 
 	public void removeBit(Vector2 key) {
-		modelPattern.removeBit(key);
+		referentialPattern.removeBit(key);
 		buildPatterns();
 		generateBits3D();
 	}
