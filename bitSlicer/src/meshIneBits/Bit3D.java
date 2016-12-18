@@ -51,7 +51,7 @@ public class Bit3D {
 	private Vector2 computeLiftPoint(Area subBit) {
 		if (cutPaths != null) {
 			return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
-		} else if ((CraftConfig.suckerDiameter < CraftConfig.bitWidth) && (CraftConfig.suckerDiameter < CraftConfig.bitLength)) {
+		} else if ((CraftConfig.suckerDiameter <= CraftConfig.bitWidth) && (CraftConfig.suckerDiameter <= CraftConfig.bitLength)) {
 			return new Vector2(0, 0);
 		} else {
 			return null;

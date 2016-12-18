@@ -203,8 +203,8 @@ public class MainWindow extends JFrame {
 			}
 
 			private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-				g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (radius / 2),
-						((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (radius / 2), radius, radius);
+				g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) (radius * drawScale / 2),
+						((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) (radius * drawScale / 2), (int) (radius * drawScale), (int) (radius * drawScale));
 			}
 
 			private void drawModelLine(Graphics g, Vector2 start, Vector2 end) {
