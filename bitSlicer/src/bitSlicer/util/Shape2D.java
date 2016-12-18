@@ -157,14 +157,12 @@ public class Shape2D implements Iterable<Polygon> {
 				manifoldErrorReported = true;
 				for (Segment2D s = start; s != null; s = s.getNext()) {
 					tmpSet.remove(s);
-					s.setType(Segment2D.TYPE_ERROR);
 					if (s.getNext() == start) {
 						break;
 					}
 				}
 				for (Segment2D s = start; s != null; s = s.getPrev()) {
 					tmpSet.remove(s);
-					s.setType(Segment2D.TYPE_ERROR);
 					if (s.getPrev() == start) {
 						break;
 					}

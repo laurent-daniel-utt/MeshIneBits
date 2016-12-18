@@ -181,16 +181,14 @@ public class AreaTool {
 
 		    if (nextElement[0] == PathIterator.SEG_LINETO) {
 		        polygons.get(currentPolygonIndex).insertElementAt(
-		                new Segment2D(1,
-		                		new Vector2(nextElement[1], nextElement[2]),
+		                new Segment2D(new Vector2(nextElement[1], nextElement[2]),
 		                		new Vector2(currentElement[1], currentElement[2])
 		                		
 		                	)
 		           ,0);
 		    } else if (nextElement[0] == PathIterator.SEG_CLOSE) {
 		    	polygons.get(currentPolygonIndex).insertElementAt(
-		                new Segment2D(1,
-		                		new Vector2(start[1], start[2]),
+		                new Segment2D(new Vector2(start[1], start[2]),
 		                		new Vector2(currentElement[1], currentElement[2])
 		                		
 		                	)

@@ -50,7 +50,7 @@ public class Triangle
 		double a2 = (layerZ - v0.z) / (v2.z - v0.z);
 		Vector2 start = new Vector2(v0.x + (v1.x - v0.x) * a1, v0.y + (v1.y - v0.y) * a1);
 		Vector2 end = new Vector2(v0.x + (v2.x - v0.x) * a2, v0.y + (v2.y - v0.y) * a2);
-		return new Segment2D(Segment2D.TYPE_MODEL_SLICE, start, end);
+		return new Segment2D(start, end);
 	}
 	
 	public Vector3 getNormal()
