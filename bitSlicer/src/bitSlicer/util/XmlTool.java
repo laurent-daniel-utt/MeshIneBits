@@ -92,7 +92,7 @@ public class XmlTool {
 	
 	private boolean liftableBit(Bit3D bit){
 		int liftableSubBit = 0;
-		for(Point2D p : bit.getLiftPoints()){
+		for(Vector2 p : bit.getLiftPoints()){
 			if(p != null)
 				liftableSubBit++;
 		}
@@ -147,8 +147,8 @@ public class XmlTool {
 				writer.println("			<subBit>");
 				writer.println("				<id>" + id + "</id>");
 				writer.println("				<liftPoint>");
-				writer.println("					<x>" + bit.getLiftPoints().get(id).getX() + "</x>");
-				writer.println("					<y>" + bit.getLiftPoints().get(id).getY() + "</y>");
+				writer.println("					<x>" + bit.getLiftPoints().get(id).x + "</x>");
+				writer.println("					<y>" + bit.getLiftPoints().get(id).y + "</y>");
 				writer.println("				</liftPoint>");
 				writer.println("				<rotation>" + bit.getOrientation().getEquivalentAngle() + "</rotation>");
 				writer.println("				<position>");
