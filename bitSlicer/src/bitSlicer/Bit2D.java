@@ -41,19 +41,19 @@ public class Bit2D implements Cloneable{
 		buildBoundaries();
 	}
 	
-	public Bit2D(Vector2 origin, Vector2 orientation, double percentageLength){
+	public Bit2D(Vector2 origin, Vector2 orientation, double percentageLength, double percentageWidth){
 		this.origin = origin;
 		this.orientation = orientation;
 		length = CraftConfig.bitLength * percentageLength / 100;
-		width = CraftConfig.bitWidth;
+		width = CraftConfig.bitWidth * percentageWidth / 100;
 		
 		setTransfoMatrix();
-		buildReducedBoundaries();
+		buildBoundaries();
 	}
 	
-	public Bit2D(Bit2D cutBit){
-		this.origin = cutBit.origin;
-		this.orientation = cutBit.orientation;
+	public Bit2D(Bit2D modelBit){
+		this.origin = modelBit.origin;
+		this.orientation = modelBit.orientation;
 		length = CraftConfig.bitLength;
 		width = CraftConfig.bitWidth;
 		
@@ -61,14 +61,14 @@ public class Bit2D implements Cloneable{
 		buildBoundaries();
 	}
 	
-	public Bit2D(Bit2D cutBit, double percentageLength){
-		this.origin = cutBit.origin;
-		this.orientation = cutBit.orientation;
+	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth){
+		this.origin = modelBit.origin;
+		this.orientation = modelBit.orientation;
 		length = CraftConfig.bitLength * percentageLength / 100;
-		width = CraftConfig.bitWidth;
+		width = CraftConfig.bitWidth * percentageWidth / 100;
 		
 		setTransfoMatrix();
-		buildReducedBoundaries();
+		buildBoundaries();
 	}
 	
 	private void setTransfoMatrix(){
@@ -83,27 +83,12 @@ public class Bit2D implements Cloneable{
 		}
 	}
 	
-	private void buildBoundaries(){
-		Vector2 cornerUpLeft = new Vector2(- length/2.0,  - width/2.0);
-		Vector2 cornerUpRight = new Vector2(+ length/2.0,  - width/2.0);
-		Vector2 cornerDownLeft = new Vector2(- length/2.0,  + width/2.0);
-		Vector2 cornerDownRight = new Vector2(+ length/2.0,  + width/2.0);       
-		
-		Path2D path = new Path2D.Double();
-		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
-		path.lineTo(cornerUpRight.x, cornerUpRight.y);
-		path.lineTo(cornerDownRight.x, cornerDownRight.y);
-		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
-		path.closePath();
-
-		this.areas.add(new Area(path));
-	}
-	
-	private void buildReducedBoundaries(){
-		Vector2 cornerUpLeft = new Vector2(- length/2.0,  - width/2.0);
-		Vector2 cornerUpRight = new Vector2(+ length/2.0,  - width/2.0);
-		Vector2 cornerDownLeft = new Vector2(- length/2.0,  + width/2.0);
-		Vector2 cornerDownRight = new Vector2(+ length/2.0,  + width/2.0);       
+	private void buildBoundaries(){		
+		Vector2 cornerUpRight = new Vector2(+ CraftConfig.bitLength/2.0,  - CraftConfig.bitWidth/2.0);
+		Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
+		Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
+		Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
+		       
 		
 		Path2D path = new Path2D.Double();
 		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
@@ -114,11 +99,25 @@ public class Bit2D implements Cloneable{
 
 		this.areas.add(new Area(path));
 		
-		cutPaths = new Vector<Path2D>();
-		Path2D.Double cutPath = new Path2D.Double();
-		cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
-		cutPath.lineTo(cornerDownLeft.x, cornerDownLeft.y);
-		this.cutPaths.add(cutPath);	
+		//Set a cut path if necessary		
+		if(length != CraftConfig.bitLength || width != CraftConfig.bitWidth){
+			cutPaths = new Vector<Path2D>();
+			Path2D.Double cutPath = new Path2D.Double();
+			if(length != CraftConfig.bitLength && width != CraftConfig.bitWidth){
+				cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
+				cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);			
+				cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
+			}
+			else if(length != CraftConfig.bitLength){
+				cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
+				cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);	
+			}
+			else if(width != CraftConfig.bitWidth){
+				cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);			
+				cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
+			}
+			this.cutPaths.add(cutPath);
+		}
 	}
 	
 	public Area getArea(){

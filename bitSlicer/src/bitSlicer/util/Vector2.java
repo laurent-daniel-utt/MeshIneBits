@@ -141,6 +141,10 @@ public class Vector2
 		return new Vector2(Math.cos(angleRadian), Math.sin(angleRadian));
 	}
 	
+	public double getEquivalentAngle(){
+		return Math.atan(y / x) * 180 / Math.PI;
+	}
+	
 	public Vector2 getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin){
 		Vector2 orientation = myOrientation.normal();
 		double angleRotation = Math.acos(orientation.x);

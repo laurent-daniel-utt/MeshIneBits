@@ -78,13 +78,13 @@ public class MainWindow extends JFrame {
 		}
 
 		setTitle("MeshIneBits");
-		setSize(1200, 800);
+		setSize(1200, 700);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		Ribbon ribbon = new Ribbon();
 		pf = new PreviewFrame();
-
+		Ribbon ribbon = new Ribbon();
+		
 		Container content = getContentPane();
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
 		content.add(ribbon);
@@ -133,9 +133,10 @@ public class MainWindow extends JFrame {
 			layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 			// Zoom slider
-			zoomSlider = new JSlider(JSlider.HORIZONTAL, 100, 2000, 100);
+			System.out.println((int) (pp.drawScale*100.0));
+			zoomSlider = new JSlider(JSlider.HORIZONTAL, 20, 2000, (int) (pp.drawScale*100.0));
 			zoomSlider.setMaximumSize(new Dimension(500, 20));
-			zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0, 1.0, 250.0, 1.0));
+			zoomSpinner = new JSpinner(new SpinnerNumberModel(pp.drawScale, 0, 250.0, 1));
 			zoomSpinner.setFocusable(false);
 			zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -192,6 +193,7 @@ public class MainWindow extends JFrame {
 			public int showLayer = 0;
 			public double drawScale = 1.0;
 			public double viewOffsetX, viewOffsetY;
+			private Vector<Area> bitControls = new Vector<Area>();
 
 			private int oldX, oldY;
 
@@ -283,6 +285,7 @@ public class MainWindow extends JFrame {
 				area.transform(tx1);
 
 				g2d.fill(area);
+				g2d.draw(area);
 			}
 
 			private void drawModelArea2(Graphics2D g2d, Area area){
@@ -304,6 +307,7 @@ public class MainWindow extends JFrame {
 			}
 
 			public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
+				bitControls.clear();
 				TriangleShape triangleShape = new TriangleShape(
 						new Point2D.Double(0, 0),
 						new Point2D.Double(-7, 10),
@@ -322,6 +326,7 @@ public class MainWindow extends JFrame {
 				affTrans.rotate(0, 0);
 				topArrow.transform(affTrans);
 				areas.add(topArrow);
+				bitControls.add(topArrow);
 				
 				Area leftArrow = new Area(triangleShape);
 				affTrans = new AffineTransform();	        	
@@ -329,6 +334,7 @@ public class MainWindow extends JFrame {
 				affTrans.rotate(0, 1);
 				leftArrow.transform(affTrans);
 				areas.add(leftArrow);
+				bitControls.add(leftArrow);
 				
 				Area bottomArrow = new Area(triangleShape);
 				affTrans = new AffineTransform();	        	
@@ -336,6 +342,7 @@ public class MainWindow extends JFrame {
 				affTrans.rotate(-1, 0);
 				bottomArrow.transform(affTrans);
 				areas.add(bottomArrow);
+				bitControls.add(bottomArrow);
 				
 				Area rightArrow = new Area(triangleShape);
 				affTrans = new AffineTransform();	        	
@@ -343,6 +350,7 @@ public class MainWindow extends JFrame {
 				affTrans.rotate(0, -1);
 				rightArrow.transform(affTrans);
 				areas.add(rightArrow);
+				bitControls.add(rightArrow);
 
 				for (Area area : areas) {
 					affTrans = new AffineTransform();	        	
@@ -396,14 +404,29 @@ public class MainWindow extends JFrame {
 
 			public void mouseClicked(MouseEvent e) {
 				if (part != null) {
-					Pattern pattern = part.getLayers().get(showLayer).getPatterns().get(showSlice);
-					Vector<Vector2> bitKeys = pattern.getBitsKeys();
 					Point2D clickSpot = new Point2D.Double((((double) e.getX()) - this.getWidth()/2) / drawScale - viewOffsetX, (((double) e.getY()) - this.getHeight()/2) / drawScale - viewOffsetY);
+					for(int i = 0; i < bitControls.size(); i++){
+						if(bitControls.get(i).contains(oldX, oldY)){
+							clickOnBitControl(i);
+							bitControls.clear();
+							return;
+						}
+					}
+					Layer layer = part.getLayers().get(showLayer);
+					Vector<Vector2> bitKeys = layer.getBits3dKeys();
 					for(Vector2 bitKey : bitKeys){
-						if(pattern.getBitArea(bitKey).contains(clickSpot)){
-							if(selectedBitKey == bitKey) //then it is a click to unselect this bit
+						Bit3D bit = layer.getBit3D(bitKey);
+						Area area = bit.getRawArea();
+						AffineTransform affTrans = new AffineTransform();
+						affTrans.translate(bitKey.x, bitKey.y);
+						affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+						area.transform(affTrans); 
+						if(area.contains(clickSpot)){
+							if(selectedBitKey == bitKey){ //then it is a click to unselect this bit
 								selectedBitKey = null;
-							else{
+								bitControls.clear();
+							}
+							else if(selectedBitKey == null){ //you need to unselect the bit before being able to select a new one
 								selectedBitKey = bitKey;
 							}
 							break;
@@ -411,6 +434,34 @@ public class MainWindow extends JFrame {
 					}
 					repaint();
 				}
+			}
+			
+			public void clickOnBitControl(int id){
+				Layer layer = part.getLayers().get(showLayer);
+				Vector2 direction = null;
+				double offSetValue = 0;
+				//Every directions are in the bit's local coordinate system
+				switch(id){
+				case 0: //Top direction
+					direction = new Vector2(0, -1);
+					offSetValue = CraftConfig.bitWidth/ 2;
+					break;
+				case 1: //Left direction
+					direction = new Vector2(1, 0);
+					offSetValue = CraftConfig.bitLength/ 2;
+					break;
+				case 2: //Bottom direction
+					direction = new Vector2(0, 1);
+					offSetValue = CraftConfig.bitWidth/ 2;
+					break;
+				case 3: //Right direction
+					direction = new Vector2(-1, 0);
+					offSetValue = CraftConfig.bitLength/ 2;
+					break;
+				}
+				layer.moveBit(selectedBitKey, direction, offSetValue);
+				selectedBitKey = null;
+				repaint();
 			}
 
 			@Override
@@ -447,17 +498,17 @@ public class MainWindow extends JFrame {
 			int notches = e.getWheelRotation();
 			double zoom = (double) zoomSpinner.getValue();
 			if (notches > 0)
-				zoom -= Math.abs(notches/5.0);
+				zoom -= Math.abs(notches/10.0);
 			else 
-				zoom += Math.abs(notches/5.0);
+				zoom += Math.abs(notches/10.0);
 
 
 			updateZoom(zoom);
 		}
 
 		private void updateZoom(double zoom) {
-			if(zoom < 1)
-				zoom = 1;
+			if(zoom < 0.2)
+				zoom = 0.2;
 
 			zoomSpinner.setValue(zoom);
 			zoomSlider.setValue((int) (zoom*100));

@@ -6,6 +6,7 @@ import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
@@ -27,13 +28,17 @@ public class Layer extends Shape2D {
 		this.layerNumber = layerNumber;
 		this.modelPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
 		
+		buildPatterns();
+		generateBits3D();
+		computeLiftPoints();
+	}
+	
+	public void buildPatterns(){
+		patterns.clear();
 		for (Slice s : slices){
 			patterns.add(modelPattern.clone());
 			patterns.lastElement().computeBits(s);
 		}
-		
-		generateBits3D();
-		computeLiftPoints();
 	}
 
 	public Vector<Slice> getSlices() {
@@ -97,16 +102,29 @@ public class Layer extends Shape2D {
 	
 	public void removeBit(Vector2 key){
 		modelPattern.removeBit(key);
+		buildPatterns();
 		generateBits3D();
 	}
 	
 	public void addBit(Bit2D bit){
 		modelPattern.addBit(bit);
+		buildPatterns();
+		generateBits3D();
+	}
+	
+	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
+		modelPattern.moveBit(key, direction, offSetValue);
+		buildPatterns();
 		generateBits3D();
 	}
 	
 	public void computeLiftPoints(){
 		for(Vector2 key : getBits3dKeys())
-			mapBits3D.get(key).computeLiftPoint();
+			mapBits3D.get(key).computeLiftPoints();
 	}
+	
+	public int getLayerNumber(){
+		return layerNumber;
+	}
+	
 }

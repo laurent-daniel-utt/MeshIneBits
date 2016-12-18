@@ -12,6 +12,7 @@ import java.util.Vector;
 import bitSlicer.Slicer.Slice;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.AreaTool;
+import bitSlicer.util.Logger;
 import bitSlicer.util.Segment2D;
 import bitSlicer.util.Vector2;
 
@@ -76,8 +77,8 @@ public class Pattern implements Cloneable{
 		//We check that there is not already a bit at this place
 		for(Vector2 key : getBitsKeys()){
 			if(bitKey.asGoodAsEqual(key)){
-				System.err.println("A bit already exists at these coordinates");
-				return;
+				Logger.warning("A bit already exists at these coordinates, it has been replaced by the new one.");
+				removeBit(key);
 			}
 				
 		}
@@ -180,5 +181,17 @@ public class Pattern implements Cloneable{
 	
 	public AffineTransform getAffineTransform(){
 		return transfoMatrix;
+	}
+	
+	public void moveBit(Vector2 key, Vector2 direction, double offSetValue){
+		Bit2D bitToMove = mapBits.get(key);
+		removeBit(key);
+		Vector2 localDirection = bitToMove.getOrientation();
+		AffineTransform rotateMatrix = new AffineTransform();
+		rotateMatrix.rotate(direction.x, direction.y);
+		localDirection = localDirection.getTransformed(rotateMatrix);
+		localDirection = localDirection.normal();
+		Vector2 newCoordinates = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offSetValue), bitToMove.getOrigin().y + (localDirection.y * offSetValue));
+		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation()));
 	}
 }

@@ -15,9 +15,7 @@ public class Bit3D {
 	Vector2 origin; //Position of the center of the full bit in the general coordinate system
 	Vector2 orientation; //Rotation around its local origin point
 	Bit2D bit2dToExtrude;
-	Point2D liftPoint = null;
 	Vector<Point2D> liftPoints = new Vector<Point2D>();
-	Vector<Vector2> rotations = new Vector<Vector2>();
 	Vector<Vector2> depositPoints = new Vector<Vector2>();
 	
 	
@@ -58,16 +56,41 @@ public class Bit3D {
 		return orientation;
 	}
 	
-	public void computeLiftPoint(){
-		if(cutPaths != null)
-			liftPoint = AreaTool.getLiftPoint(getRawArea(), CraftConfig.suckerDiameter / 2);
-		else if(CraftConfig.suckerDiameter < CraftConfig.bitWidth && CraftConfig.suckerDiameter < CraftConfig.bitLength)
-			liftPoint = new Point2D.Double(0, 0);
-		else
-			liftPoint = null;
+	public void computeLiftPoints(){
+		for(Area subBit : bit2dToExtrude.getRawAreas()){
+			Point2D liftPoint = computeLiftPoint(subBit);
+			liftPoints.add(liftPoint);
+			if(liftPoint != null){
+				//A new lift point means a new deposit point which is the addition of the origin point of the bit and the lift point (which is in the local coordinate system of the bit)
+				depositPoints.add(origin.add(new Vector2(liftPoints.lastElement().getX(), liftPoints.lastElement().getY())));
+			}
+			else
+				depositPoints.addElement(null);
+		}
 	}
 	
-	public Point2D getLiftPoint(){
-		return liftPoint;
+	public Point2D computeLiftPoint(Area subBit){
+		if(cutPaths != null)
+			return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
+		else if(CraftConfig.suckerDiameter < CraftConfig.bitWidth && CraftConfig.suckerDiameter < CraftConfig.bitLength)
+			return new Point2D.Double(0, 0);
+		else
+			return null;
+	}
+	
+	public Vector<Point2D> getLiftPoints(){
+		return liftPoints;
+	}
+	
+	public Vector<Path2D> getCutPaths(){
+		return cutPaths;
+	}
+	
+	public Vector<Vector2> getDepositPoints(){
+		return depositPoints;
+	}
+	
+	public Vector2 getRotation(){
+		return orientation;
 	}
 }

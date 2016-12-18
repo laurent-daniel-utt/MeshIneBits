@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 import javax.swing.BorderFactory;
@@ -39,12 +40,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import bitSlicer.BitSlicerMain;
 import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.Slicer.Config.CraftConfigLoader;
+import bitSlicer.util.XmlTool;
 
 public class Ribbon extends JTabbedPane {
 	public Ribbon() {
 		setFont( new Font(this.getFont().toString(), Font.PLAIN, 15) );
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
+		addTab("Advanced", new JScrollPane(new AdvancedTab()));
 	}
 
 	private class RibbonTab extends JPanel {
@@ -67,10 +70,12 @@ public class Ribbon extends JTabbedPane {
 			JButton newBtn = new ButtonIcon("Open", "file-o.png");
 			JButton saveBtn = new ButtonIcon("Save", "save.png");
 			JButton closeBtn = new ButtonIcon("Close", "times.png");
+			JButton exportBtn = new ButtonIcon("Export", "iconXML.png");
 			
 			fileCont.add(newBtn);
 			fileCont.add(saveBtn);
 			fileCont.add(closeBtn);
+			fileCont.add(exportBtn);
 
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
@@ -173,6 +178,21 @@ public class Ribbon extends JTabbedPane {
 				}
 			});
 			
+			exportBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final JFileChooser fc = new JFileChooser();
+					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+					int returnVal = fc.showSaveDialog(null);
+					
+					if (returnVal == JFileChooser.APPROVE_OPTION)
+					{
+//						XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+//						xt.writeXmlCode();
+					}
+				}
+			});
+			
 			computeBtn.addActionListener(new ActionListener() {
 				
 				@Override
@@ -246,6 +266,38 @@ public class Ribbon extends JTabbedPane {
 			layerCont.add(new JButton("Show prev issue"));
 			
 			add(layerCont);
+			add(new TabContainerSeparator());
+			
+			OptionsContainer modifCont = new OptionsContainer("Pattern modifications");
+			JButton removeBitBtn = new JButton("Remove bit");
+			JButton replaceBitBtn1 = new JButton("Replace bit 1");
+			JButton replaceBitBtn2 = new JButton("Replace bit 2");
+			modifCont.add(removeBitBtn);
+			modifCont.add(replaceBitBtn1);
+			modifCont.add(replaceBitBtn2);
+			
+			add(modifCont);
+			add(new TabContainerSeparator());
+			
+			removeBitBtn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
+		}
+	}
+	
+	private class AdvancedTab extends RibbonTab {
+		public AdvancedTab() {
+			super();
+			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
+			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+			
+			add(optionsCont);
 			add(new TabContainerSeparator());
 		}
 	}

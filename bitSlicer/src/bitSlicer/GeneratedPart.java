@@ -105,5 +105,9 @@ public class GeneratedPart {
 	public void buildBits3D(){
 		
 	}
+	
+	public double getSkirtRadius(){
+		return skirtRadius;
+	}
 
 }
