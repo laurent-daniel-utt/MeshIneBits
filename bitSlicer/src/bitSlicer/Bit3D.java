@@ -2,7 +2,6 @@ package bitSlicer;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import bitSlicer.Slicer.Config.CraftConfig;

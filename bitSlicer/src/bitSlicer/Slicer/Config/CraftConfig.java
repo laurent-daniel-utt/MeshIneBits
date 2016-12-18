@@ -1,8 +1,6 @@
 package bitSlicer.Slicer.Config;
 
-
 import bitSlicer.Slicer.Config.Setting;
-import bitSlicer.util.Vector2;;
 
 /**
  * The CraftConfig class contains the configurable

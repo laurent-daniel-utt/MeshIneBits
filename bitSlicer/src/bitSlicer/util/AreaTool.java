@@ -14,7 +14,7 @@ public class AreaTool {
 
 	/**
 	 * Returns the barycenter of an area
-	 * 
+	 *
 	 * @param area
 	 * @return Barycenter
 	 */
@@ -73,7 +73,7 @@ public class AreaTool {
 	/**
 	 * Returns the outside boundary of an area (an area can have more than one
 	 * boundary when there is a/some hole(s) in it)
-	 * 
+	 *
 	 * @param area
 	 * @return outside boundaries
 	 */
@@ -116,7 +116,7 @@ public class AreaTool {
 
 		Vector<Vector<Area>> areasByLevel = new Vector<Vector<Area>>();
 		//We fill the vector with null values, it cannot have more levels than areas
-		for (Area a : areas) {
+		for (@SuppressWarnings("unused") Area a : areas) {
 			areasByLevel.add(null);
 		}
 
@@ -139,7 +139,7 @@ public class AreaTool {
 					/*
 					 * Following code is just a help to understand the
 					 * algorithm:
-					 * 
+					 *
 					 * else if(currentAreaClone.equals(otherArea)){ //otherArea
 					 * is inside currentArea } else{ //These two are two
 					 * separate areas }
@@ -178,7 +178,7 @@ public class AreaTool {
 	 * closest to the barycenter of the bit and presenting enough material
 	 * around for the sucker cup to work properly It returns null if this bit
 	 * cannot be lifted
-	 * 
+	 *
 	 * @param area
 	 * @param minRadius
 	 * @return liftPoint
