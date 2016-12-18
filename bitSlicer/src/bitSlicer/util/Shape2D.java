@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
-import bitSlicer.Pattern;
 import bitSlicer.Slicer.Config.CraftConfig;
 
 /**
@@ -18,10 +17,6 @@ public class Shape2D implements Iterable<Polygon> {
 
 	public Shape2D() {
 
-	}
-
-	public Shape2D(Vector<Segment2D> segmentList) {
-		this.segmentList = new Vector<Segment2D>(segmentList);
 	}
 
 	private void addModelPolygon(Polygon poly) {
@@ -45,38 +40,12 @@ public class Shape2D implements Iterable<Polygon> {
 		segmentList.add(segment);
 	}
 
-	public void addPolygon(Polygon poly) {
+	private void addPolygon(Polygon poly) {
 		poly.check();
 		if (poly.empty()) {
 			return;
 		}
 		polygons.add(poly);
-	}
-
-	public boolean contains(Segment2D s) {
-		double size = new Vector2(s.start.x - s.end.x, s.start.y - s.start.y).vSize2();
-
-		int i = 0;
-
-		if (size < 2) {
-			for (Polygon poly : this) {
-				if (s.start.isOnPath(poly) && s.end.isOnPath(poly)) {
-					i++;
-				} else if ((!s.start.isOnPath(poly) && !poly.contains(s.start)) || (!s.end.isOnPath(poly) && !poly.contains(s.end))) {
-					return false;
-				} else if (poly.contains(s)) {
-					i++;
-				}
-			}
-		} else {
-			for (Polygon poly : this) {
-				if (poly.contains(s)) {
-					i++;
-				}
-			}
-		}
-
-		return ((i % 2) == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
 	}
 
 	public boolean contains(Vector2 point) {
@@ -90,68 +59,8 @@ public class Shape2D implements Iterable<Polygon> {
 		return ((i % 2) == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
 	}
 
-	/**
-	 * Count of many walls of the shape a segment is colliding with
-	 */
-	public int countCollisions(Segment2D segment) {
-		int result = 0;
-		for (Segment2D s : this.getSegmentList()) {
-			Vector2 collisionPoint = s.getCollisionPoint(segment);
-			if (collisionPoint != null) {
-				result++;
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Return the segment of the shape in parameter that cut this shape (ie
-	 * segment inside this shape)
-	 */
-	public Vector<Segment2D> getCuttingSegmentsFrom(Shape2D shape) {
-		Vector<Segment2D> cuttingSegmentsList = new Vector<Segment2D>();
-		for (Segment2D s : shape.getSegmentList()) {
-			for (Segment2D trimmedSegment : s.trim(this)) {
-				cuttingSegmentsList.add(trimmedSegment);
-			}
-		}
-
-		return cuttingSegmentsList;
-	}
-
-	public Polygon getLargestPolygon() {
-		Polygon largestPoly = null;
-		double largestPolySize = 0;
-		for (Polygon poly : polygons) {
-			AABBrect polygonRect = poly.getAABB();
-
-			if (polygonRect.getPerimeter() > largestPolySize) {
-				largestPolySize = polygonRect.getPerimeter();
-				largestPoly = poly;
-			}
-		}
-		return largestPoly;
-	}
-
 	public Vector<Segment2D> getSegmentList() {
 		return this.segmentList;
-	}
-
-	public Vector<Segment2D> intersection(Shape2D shape) {
-		Vector<Segment2D> intersectionResult = new Vector<Segment2D>();
-
-		if (Pattern.bitNr == 103) {
-			System.out.println("Coucou");
-		}
-
-		for (Segment2D s : this.segmentList) {
-			for (Segment2D trimmedSegment : s.trim(shape)) {
-				intersectionResult.add(trimmedSegment);
-			}
-		}
-
-		return intersectionResult;
 	}
 
 	@Override
@@ -266,119 +175,8 @@ public class Shape2D implements Iterable<Polygon> {
 		return manifoldErrorReported;
 	}
 
-	public void optimize2() {
-
-		int loopEnd = segmentList.size() - 1;
-		Segment2D segmentToPeer;
-		for (int j = 0; j < (loopEnd - 1); j++) {
-			segmentToPeer = segmentList.get(j);
-			for (int i = j + 1; i < loopEnd; i++) {
-				if ((segmentToPeer.end.asGoodAsEqual(segmentList.get(i).start))) {
-					segmentList.insertElementAt(segmentList.get(i), j + 1);
-					segmentList.remove(i + 1);
-				} else if (segmentToPeer.end.asGoodAsEqual(segmentList.get(i).end)) {
-					//segmentList.get(i).flip2();
-					segmentList.insertElementAt(segmentList.get(i), j + 1);
-					segmentList.remove(i + 1);
-				}
-			}
-		}
-
-		for (int i = 0; i < (segmentList.size() - 1); i++) {
-			segmentList.get(i).setNext(segmentList.get(i + 1));
-		}
-		//the last segment is linked up to the first one
-		segmentList.get(segmentList.size() - 1).setNext(segmentList.get(0));
-
-		/*
-		 * for(Segment2D s : segmentList){
-		 * if(!s.getNext().start.asGoodAsEqual(s.end)) s.getNext().flip2(); }
-		 */
-
-		for (int i = 0; i < segmentList.size(); i++) {
-			if (!segmentList.get(i).getNext().start.asGoodAsEqual(segmentList.get(i).end)) {
-				segmentList.get(i).getNext().flip2();
-			}
-		}
-
-		addModelPolygon(new Polygon(segmentList.get(0)));
-	}
-
-	/**
-	 * Check segments of a supposed manifold object to be sure they are
-	 * following each other before performing optimize()
-	 */
-	public Vector<Segment2D> optimizeDirections(Vector<Segment2D> segmentList) {
-
-		Boolean changed = true;
-		Vector<Segment2D> flippedSegments = new Vector<Segment2D>();
-
-		while (changed) {
-			changed = false;
-			for (Segment2D s1 : segmentList) {
-				for (Segment2D s2 : segmentList) {
-					if (((s1 != s2) && s1.start.asGoodAsEqual(s2.start))) {
-						if (!flippedSegments.contains(s2)) {
-							s2.flip();
-							flippedSegments.add(s2);
-							changed = true;
-						}
-					}
-				}
-			}
-		}
-
-		return segmentList;
-	}
-
 	private void removeModelSegment(Segment2D segment) {
 		segmentList.remove(segment);
 		segmentTree.remove(segment);
-	}
-
-	public Vector<Segment2D> removeUnwantedSegments(Vector<Segment2D> segments) {
-
-		Vector<Segment2D> segmentsToRemove = new Vector<Segment2D>();
-		for (Segment2D s1 : segments) {
-			int occurence = 0;
-			for (Segment2D s2 : segments) {
-				if ((s2.start.asGoodAsEqual(s1.start)) && (s1 != s2)) {
-					occurence++;
-					s1.flip();
-				} else if ((s2.end.asGoodAsEqual(s1.end)) && (s1 != s2)) {
-					occurence++;
-					s1.flip();
-				} else if ((s2.end.asGoodAsEqual(s1.start)) && (s1 != s2)) {
-					occurence++;
-				} else if ((s2.start.asGoodAsEqual(s1.end)) && (s1 != s2)) {
-					occurence++;
-				}
-			}
-			if (occurence != 2) {
-				segmentsToRemove.add(s1);
-				System.out.println("Unwanted segment detected");
-			}
-
-		}
-		segments.removeAll(segmentsToRemove);
-
-		return segments;
-	}
-
-	/**
-	 * Return a shape with removed parts outside of the shape in parameter TODO
-	 * make this.optimize possible
-	 */
-	public Shape2D trim(Shape2D shape) {
-		Vector<Segment2D> newShapeSegmentList = new Vector<Segment2D>();
-
-		for (Segment2D s : this.intersection(shape)) {
-			newShapeSegmentList.add(new Segment2D(1, s.start, s.end));
-		}
-		for (Segment2D s : shape.intersection(this)) {
-			newShapeSegmentList.add(new Segment2D(1, s.start, s.end));
-		}
-
-		return new Shape2D(newShapeSegmentList);
 	}
 }
