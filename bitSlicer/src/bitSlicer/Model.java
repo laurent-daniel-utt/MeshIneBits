@@ -220,11 +220,11 @@ public class Model {
 		return resultTriangles;
 	}
 
-	public String toObjFile(String filename) throws IOException {
-
-	}
-
-	public String toStlFile(String filename) throws IOException {
-
-	}
+//	public String toObjFile(String filename) throws IOException {
+//
+//	}
+//
+//	public String toStlFile(String filename) throws IOException {
+//
+//	}
 }

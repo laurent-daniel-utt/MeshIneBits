@@ -12,51 +12,69 @@ import bitSlicer.Slicer.Config.CraftConfig;
 import bitSlicer.util.Logger;
 import bitSlicer.util.LoggingInterface;
 
-public class LogWindow extends JFrame implements LoggingInterface
-{
+public class LogWindow extends JFrame implements LoggingInterface {
 	private static final long serialVersionUID = 1L;
-	
+
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
-	
-	public LogWindow()
-	{
+
+	public LogWindow() {
 		this.setTitle("MeshIneBits - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		this.setLayout(new BorderLayout());
-		
+
 		statusLabel = new JLabel("MeshIneBitsMeshIneBitsMeshIneBitsMeshIneBitsMeshIneBits");
 		statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
 		this.add(statusLabel, BorderLayout.NORTH);
-		
+
 		progressBar = new JProgressBar(0, 2);
 		progressBar.setIndeterminate(true);
 		progressBar.setStringPainted(false);
 		this.add(progressBar, BorderLayout.CENTER);
-		
+
 		this.pack();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
-		
+
 		Logger.register(this);
 	}
 
-	public void error(String error)
-	{
+	@Override
+	public void dispose() {
+		Logger.unRegister(this);
+		super.dispose();
 	}
 
-	public void message(String message)
-	{
+	@Override
+	public void error(String error) {
 	}
 
-	public void updateStatus(final String status)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
+	@Override
+	public void message(String message) {
+	}
+
+	@Override
+	public void setProgress(final int value, final int max) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				progressBar.setIndeterminate(false);
+				progressBar.setStringPainted(true);
+				progressBar.setValue(value);
+				progressBar.setMaximum(max);
+				LogWindow.this.repaint();
+			}
+		});
+
+	}
+
+	@Override
+	public void updateStatus(final String status) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
 				statusLabel.setText(status);
 				progressBar.setIndeterminate(true);
 				progressBar.setStringPainted(false);
@@ -65,29 +83,7 @@ public class LogWindow extends JFrame implements LoggingInterface
 		});
 	}
 
-	public void warning(String warning)
-	{
-	}
-	
-	public void dispose()
-	{
-		Logger.unRegister(this);
-		super.dispose();
-	}
-
-	public void setProgress(final int value, final int max)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				progressBar.setIndeterminate(false);
-				progressBar.setStringPainted(true);
-				progressBar.setValue(value);
-				progressBar.setMaximum(max);
-				LogWindow.this.repaint();
-			}
-		});
-		
+	@Override
+	public void warning(String warning) {
 	}
 }
