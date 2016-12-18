@@ -242,7 +242,7 @@ public class AreaTool {
 	 * @param minRadius
 	 * @return liftPoint
 	 */
-	public static Point2D getLiftPoint(Area area, double minRadius){
+	public static Vector2 getLiftPoint(Area area, double minRadius){
 		
 		//We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
@@ -256,7 +256,7 @@ public class AreaTool {
 			}
 		}
 		if(minDist >= minRadius)
-			return new Point2D.Double(barycenter.x, barycenter.y);
+			return new Vector2(barycenter.x, barycenter.y);
 		
 		//If not we fill the area with points
 		Rectangle2D bounds = area.getBounds2D();
@@ -266,11 +266,11 @@ public class AreaTool {
 		double startY = bounds.getMinY();
 		double endX = bounds.getMaxX();
 		double endY = bounds.getMaxY();
-		Vector<Point2D.Double> points = new Vector<Point2D.Double>();
+		Vector<Vector2> points = new Vector<Vector2>();
 		for(double x = startX; x <= endX; x += stepX){
 			for(double y = startY; y <= endY; y += stepY){
-				Point2D.Double point = new Point2D.Double(x, y);
-				if(area.contains(point))
+				Vector2 point = new Vector2(x, y);
+				if(area.contains(new Point2D.Double(point.x, point.y)))
 					points.add(point);
 			}
 		}
@@ -280,11 +280,11 @@ public class AreaTool {
 		
 		//We sort the points by their distance from the barycenter, the smaller distances on top
 		Vector<Double> distances = new Vector<Double>();
-		Vector<Point2D> sortedPoints = new Vector<Point2D>();
-		distances.add(Math.sqrt(Vector2.dist2(new Vector2(points.get(0).getX(), points.get(0).getY()), barycenter)));
+		Vector<Vector2> sortedPoints = new Vector<Vector2>();
+		distances.add(Math.sqrt(Vector2.dist2(new Vector2(points.get(0).x, points.get(0).y), barycenter)));
 		sortedPoints.add(points.get(0));
 		for(int j = 1; j < points.size(); j++){
-			double distance = Math.sqrt(Vector2.dist2(new Vector2(points.get(j).getX(), points.get(j).getY()), barycenter));
+			double distance = Math.sqrt(Vector2.dist2(new Vector2(points.get(j).x, points.get(j).y), barycenter));
 			boolean addAtTheEnd = true;
 			for(int i = 0; i < distances.size(); i++){
 				if(distance < distances.get(i)){
@@ -301,12 +301,12 @@ public class AreaTool {
 		}
 		
 		//We review each points and check if it is far enough from the edges to fit the sucker cup, the first one to be ok will be the liftPoint
-		Point2D liftPoint = null;
-		for(Point2D p : sortedPoints){
+		Vector2 liftPoint = null;
+		for(Vector2 p : sortedPoints){
 			double minDistFromBounds = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
 			for(Vector<Segment2D> polygon : segments){
 				for(Segment2D segment : polygon){
-					double dist = segment.distFromPoint(new Vector2(p.getX(), p.getY()));
+					double dist = segment.distFromPoint(new Vector2(p.x, p.y));
 					if(dist < minDistFromBounds)
 						minDistFromBounds = dist;
 				}
