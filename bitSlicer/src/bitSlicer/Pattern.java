@@ -75,7 +75,7 @@ public class Pattern implements Cloneable {
 	}
 
 	public void computeBits(Slice slice) {
-		Area sliceArea = AreaTool.getAreaFrom2(slice);
+		Area sliceArea = AreaTool.getAreaFrom(slice);
 		sliceArea.transform(inverseTransfoMatrix);
 		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);//0.1f is the smaller stroke possible
 		Area cutLine = new Area(str);
