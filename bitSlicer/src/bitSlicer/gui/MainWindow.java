@@ -78,7 +78,7 @@ public class MainWindow extends JFrame {
 		}
 
 		setTitle("MeshIneBits");
-		setSize(1200, 700);
+		setSize(1280, 700);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -233,6 +233,18 @@ public class MainWindow extends JFrame {
 						}
 						else
 							drawModelArea(g2d, area);
+						
+						
+							for(Vector2 liftPoint : bit.getLiftPoints()) {
+								if (liftPoint != null) {
+									g.setColor(Color.red);
+									Point2D point = new Point2D.Double();
+									affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
+									drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
+								}
+									
+							}
+						
 					}
 					
 					if (selectedBitKey != null && layer.getBit3D(selectedBitKey) != null)
