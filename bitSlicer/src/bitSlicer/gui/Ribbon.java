@@ -75,8 +75,10 @@ public class Ribbon extends JTabbedPane {
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
 			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("First slice height (%) :  ", CraftConfig.firstSliceHeightPercent, 0, 999, 10);
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
+			slicerCont.add(minPercentageOfSlicesSpinner);
 
 
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
@@ -137,6 +139,7 @@ public class Ribbon extends JTabbedPane {
 			addConfigSpinnerChangeListener(bitsOffsetSpinner, "bitsOffset");
 			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
+			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			
 			newBtn.addActionListener(new ActionListener() {
 				@Override
