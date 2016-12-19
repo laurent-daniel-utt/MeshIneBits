@@ -13,10 +13,10 @@ import meshIneBits.util.Vector3;
 /**
  * Handle mesh files
  *
- * TODO Converter stl-obj (only triangles)
+ * TODO Converter stl
  */
 public class Model {
-	public Vector<Triangle> triangles = new Vector<Triangle>();;
+	private Vector<Triangle> triangles = new Vector<Triangle>();
 
 	public Model(String filename) throws IOException {
 		Logger.updateStatus("Loading: " + filename);
@@ -93,6 +93,10 @@ public class Model {
 		return ret;
 	}
 
+	public Vector<Triangle> getTriangles() {
+		return triangles;
+	}
+
 	private void move(Vector3 translate) {
 		for (Triangle t : triangles) {
 			for (int i = 0; i < 3; i++) {
@@ -114,19 +118,19 @@ public class Model {
 	//		triangles = new Vector<Triangle>();
 	//		Vector<Vector3> vertex = new Vector<Vector3>();
 	//		Vector<Vector3> faces = new Vector<Vector3>();
-	//		
+	//
 	//		// Read the file
 	//		while ((line = br.readLine()) != null)
 	//		{
 	//			line = line.trim();
-	//			
+	//
 	//			// Find all the vertex
 	//			if (line.startsWith("v "))
 	//			{
 	//				String[] parts = line.split(" ");
 	//				vertex.add(new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3])));
 	//			}
-	//			
+	//
 	//			// Find all the faces
 	//			else if (line.startsWith("f "))
 	//			{
@@ -143,14 +147,14 @@ public class Model {
 	//			}
 	//		}
 	//		br.close();
-	//		
+	//
 	//		// Create triangle from faces
 	//		for (int i = 0; i < triangleCount; i++) {
 	//			Triangle t = new Triangle();
 	//			t.point[0] = vertex.get((int) faces.get(i).x -1); // "-1" because index of Vector start at 0, but not the index of the vertex in OBJ format
 	//			t.point[1] = vertex.get((int) faces.get(i).y -1);
 	//			t.point[2] = vertex.get((int) faces.get(i).z -1);
-	//			
+	//
 	//			triangles.add(t);
 	//		}
 	//	}
@@ -220,11 +224,11 @@ public class Model {
 		return resultTriangles;
 	}
 
-//	public String toObjFile(String filename) throws IOException {
-//
-//	}
-//
-//	public String toStlFile(String filename) throws IOException {
-//
-//	}
+	//	public String toObjFile(String filename) throws IOException {
+	//
+	//	}
+	//
+	//	public String toStlFile(String filename) throws IOException {
+	//
+	//	}
 }

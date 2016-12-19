@@ -42,9 +42,9 @@ public class SliceTool
 			slices.add(new Slice());
 		}
 		int n = 0;
-		for (Triangle t : model.triangles)
+		for (Triangle t : model.getTriangles())
 		{
-			Logger.setProgress(n++, model.triangles.size());
+			Logger.setProgress(n++, model.getTriangles().size());
 			
 			double zMin = t.point[0].z;
 			double zMax = t.point[0].z;
