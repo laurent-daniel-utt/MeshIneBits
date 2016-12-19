@@ -38,7 +38,7 @@ public class Bit3D {
 					return "This bit does not contain enough bit 2D in it";
 				}
 			};
-		} else if (sliceToSelect >= bits2D.size()) {
+		} else if (bits2D.get(sliceToSelect) == null) {
 			throw new Exception() {
 				private static final long serialVersionUID = 1L;
 
