@@ -26,17 +26,20 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 
 import meshIneBits.Bit3D;
@@ -526,6 +529,25 @@ public class MainWindow extends JFrame {
 
 		pf = new PreviewFrame();
 		Ribbon ribbon = new Ribbon();
+		
+		ChangeListener changeListener = new ChangeListener() {
+		    public void stateChanged(ChangeEvent changeEvent) {
+		    		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+		      		int index = sourceTabbedPane.getSelectedIndex();
+		      		if(sourceTabbedPane.getTitleAt(index) == "Export"){
+		      			ribbon.setSelectedIndex(2);
+		      			final JFileChooser fc = new JFileChooser();
+						fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+						int returnVal = fc.showSaveDialog(null);
+
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+							//xt.writeXmlCode();
+						}
+		      		}
+		    	}
+			};
+		ribbon.addChangeListener(changeListener);
 
 		Container content = getContentPane();
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));

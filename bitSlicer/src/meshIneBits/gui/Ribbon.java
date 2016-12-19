@@ -52,6 +52,25 @@ public class Ribbon extends JTabbedPane {
 			add(new TabContainerSeparator());
 		}
 	}
+	
+	private class TemplateTab extends RibbonTab {
+		public TemplateTab() {
+			super();
+			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
+			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
+			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+
+			add(optionsCont);
+			add(new TabContainerSeparator());
+		}
+	}
+	
+	private class ExportTab extends RibbonTab {
+		public ExportTab() {
+			super();
+		}
+	}
 
 	private class ButtonIcon extends JButton {
 		public ButtonIcon(String label, String iconName) {
@@ -185,7 +204,7 @@ public class Ribbon extends JTabbedPane {
 			fileCont.add(newBtn);
 			fileCont.add(saveBtn);
 			fileCont.add(closeBtn);
-			fileCont.add(exportBtn);
+			//fileCont.add(exportBtn);
 
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
@@ -373,8 +392,10 @@ public class Ribbon extends JTabbedPane {
 	public Ribbon() {
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
+		addTab("Template", new JScrollPane(new TemplateTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
-		addTab("Advanced", new JScrollPane(new AdvancedTab()));
+		addTab("Export", new JScrollPane(new ExportTab()));
+		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
 	}
 
 	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {
