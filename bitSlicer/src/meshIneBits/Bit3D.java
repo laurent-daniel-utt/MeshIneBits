@@ -19,8 +19,15 @@ public class Bit3D {
 
 	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
 
-		double maxNumberOfSlices = CraftConfig.bitThickness / CraftConfig.sliceHeight;
-		double percentage = (bits2D.size() / maxNumberOfSlices) * 100;
+		double maxNumberOfbit2D = bits2D.size();
+		double nbrActualBit2D = 0;
+		for(Bit2D b : bits2D){
+			if(b != null)
+				nbrActualBit2D++;
+		}
+		
+		double percentage = nbrActualBit2D / maxNumberOfbit2D * 100;
+			
 
 		if (percentage < CraftConfig.minPercentageOfSlices) {
 			throw new Exception() {
@@ -28,7 +35,7 @@ public class Bit3D {
 
 				@Override
 				public String getMessage() {
-					return "This bit is too thin";
+					return "This bit does not contain enough bit 2D in it";
 				}
 			};
 		} else if (sliceToSelect >= bits2D.size()) {
