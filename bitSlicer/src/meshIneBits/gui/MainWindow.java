@@ -29,6 +29,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -544,6 +545,10 @@ public class MainWindow extends JFrame {
 							//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
 							//xt.writeXmlCode();
 						}
+		      		}
+		      		else if(sourceTabbedPane.getTitleAt(index) == "Help"){
+		      			ribbon.setSelectedIndex(2);
+		      			JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
 		      		}
 		    	}
 			};

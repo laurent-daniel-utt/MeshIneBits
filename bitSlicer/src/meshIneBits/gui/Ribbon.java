@@ -71,6 +71,12 @@ public class Ribbon extends JTabbedPane {
 			super();
 		}
 	}
+	
+	private class HelpTab extends RibbonTab {
+		public HelpTab() {
+			super();
+		}
+	}
 
 	private class ButtonIcon extends JButton {
 		public ButtonIcon(String label, String iconName) {
@@ -395,6 +401,7 @@ public class Ribbon extends JTabbedPane {
 		addTab("Template", new JScrollPane(new TemplateTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
 		addTab("Export", new JScrollPane(new ExportTab()));
+		addTab("Help", new JScrollPane(new HelpTab()));
 		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
 	}
 
