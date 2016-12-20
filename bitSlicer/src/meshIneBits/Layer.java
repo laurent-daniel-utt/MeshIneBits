@@ -101,9 +101,9 @@ public class Layer extends Shape2D {
 		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
 			Vector2 lastValue = bitKey;
 			
-			for (int i = 0; i < patterns.size(); i++) {	
-				if (patterns.get(i).getBitsKeys().contains(bitKey) && lastValue != null) {
-					bitsToInclude.add(patterns.get(i).getBit(bitKey));
+			for (Pattern pattern : patterns) {	
+				if (pattern.getBitsKeys().contains(bitKey) && lastValue != null) {
+					bitsToInclude.add(pattern.getBit(bitKey));
 				} else {
 					bitsToInclude.add(null);
 					lastValue = null;
