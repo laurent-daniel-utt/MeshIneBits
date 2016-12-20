@@ -27,9 +27,6 @@ public class Bit3D {
 		}
 		
 		double percentage = nbrActualBit2D / maxNumberOfbit2D * 100;
-		
-		System.out.println(bits2D.size());
-		System.out.println(sliceToSelect);
 
 		if (percentage <= CraftConfig.minPercentageOfSlices) {
 			throw new Exception() {

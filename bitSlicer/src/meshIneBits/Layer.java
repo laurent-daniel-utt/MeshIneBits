@@ -17,7 +17,7 @@ public class Layer extends Shape2D {
 	private Pattern referentialPattern;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	private Hashtable<Vector2, Bit3D> mapBits3D;
-	private int sliceToSelect = 1; //Let the user choose that in the gui for each layer!
+	private int sliceToSelect = 0; //Let the user choose that in the gui for each layer!
 
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart) {
 		this.slices = slices;
@@ -102,8 +102,7 @@ public class Layer extends Shape2D {
 			bitsToInclude.add(patterns.get(0).getBit(bitKey));
 			Vector2 lastValue = bitKey;
 			
-			for (int i = 1; i < patterns.size(); i++) {
-				
+			for (int i = 1; i < patterns.size(); i++) {	
 				if (patterns.get(i).getBitsKeys().contains(bitKey) && lastValue != null) {
 					bitsToInclude.add(patterns.get(i).getBit(bitKey));
 				} else {
@@ -111,8 +110,6 @@ public class Layer extends Shape2D {
 					lastValue = null;
 				}
 			}
-			
-			System.out.println("bitsToInclude " + bitsToInclude.size());
 			
 			Bit3D newBit;
 			try {
@@ -122,7 +119,7 @@ public class Layer extends Shape2D {
 				e.printStackTrace();
 			}
 			
-			bitsToInclude = new Vector<Bit2D>();
+			bitsToInclude.clear();
 		}
 	}
 
