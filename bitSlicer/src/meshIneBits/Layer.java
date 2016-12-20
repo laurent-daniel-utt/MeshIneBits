@@ -104,6 +104,7 @@ public class Layer extends Shape2D {
 			for (Pattern pattern : patterns) {	
 				if (pattern.getBitsKeys().contains(bitKey) && lastValue != null) {
 					bitsToInclude.add(pattern.getBit(bitKey));
+					lastValue = bitKey;
 				} else {
 					bitsToInclude.add(null);
 					lastValue = null;
