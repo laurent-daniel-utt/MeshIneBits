@@ -66,27 +66,28 @@ public class Layer extends Shape2D {
 				for (int k = i + 1; k < (keysPattern.size() - 1); k++) { //pour chaque Vector<Keys> d'index superieur
 					Iterator<Vector2> itr = keysPattern.get(k).iterator(); //On passe en revue chaque key
 					boolean found = false;
-					while (itr.hasNext()) {
+					while (itr.hasNext() && !found) {
 						Vector2 myKey = itr.next();
 						if (myKey.asGoodAsEqual(keysPattern.get(i).get(j))) { //Si c'est la même alors on inclut ce bit2D et on le supprimme de la liste
 							bitsToInclude.add(patterns.get(k).getBit(myKey));
 							itr.remove();
 							found = true;
-							break;
 						}
 					}
 					if(!found)
 						bitsToInclude.add(null);
 				}
+				
 				Bit3D newBit;
 				try {
 					newBit = new Bit3D(bitsToInclude, keysPattern.get(i).get(j), getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
 					mapBits3D.put(keysPattern.get(i).get(j), newBit);
 				} catch (Exception e) {
 					//new Bit3D() will throw an exception if there is not enough slices allowed to it or if the slice to select doesn't exist in that bit
-					if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
-						e.printStackTrace();
-					}
+//					if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
+//						e.printStackTrace();
+//					}
+					e.printStackTrace();
 				}
 			}
 		}

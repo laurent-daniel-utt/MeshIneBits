@@ -27,7 +27,9 @@ public class Bit3D {
 		}
 		
 		double percentage = nbrActualBit2D / maxNumberOfbit2D * 100;
-			
+		
+		System.out.println(bits2D.size());
+		System.out.println(sliceToSelect);
 
 		if (percentage <= CraftConfig.minPercentageOfSlices) {
 			throw new Exception() {
@@ -38,7 +40,7 @@ public class Bit3D {
 					return "This bit does not contain enough bit 2D in it";
 				}
 			};
-		} else if (bits2D.get(sliceToSelect) == null) {
+		} else if (sliceToSelect >= bits2D.size() || (sliceToSelect < bits2D.size() && bits2D.get(sliceToSelect) == null)) {
 			throw new Exception() {
 				private static final long serialVersionUID = 1L;
 
