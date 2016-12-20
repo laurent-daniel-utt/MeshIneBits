@@ -53,9 +53,10 @@ public class Layer extends Shape2D {
 		}
 	}
 
-	private void generateBits3D() {
+	private void generateBits3D2() {
 		mapBits3D = new Hashtable<Vector2, Bit3D>();
 		Vector<Vector<Vector2>> keysPattern = new Vector<Vector<Vector2>>();
+
 		for (int i = 0; i < patterns.size(); i++) {
 			keysPattern.add(patterns.get(i).getBitsKeys());
 		}
@@ -77,19 +78,51 @@ public class Layer extends Shape2D {
 					if(!found)
 						bitsToInclude.add(null);
 				}
-				
+
 				Bit3D newBit;
 				try {
 					newBit = new Bit3D(bitsToInclude, keysPattern.get(i).get(j), getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
 					mapBits3D.put(keysPattern.get(i).get(j), newBit);
 				} catch (Exception e) {
 					//new Bit3D() will throw an exception if there is not enough slices allowed to it or if the slice to select doesn't exist in that bit
-//					if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
-//						e.printStackTrace();
-//					}
+					//					if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
+					//						e.printStackTrace();
+					//					}
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+
+	private void generateBits3D() {
+		mapBits3D = new Hashtable<Vector2, Bit3D>();
+		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
+
+		for (Vector2 bitKey : patterns.get(0).getBitsKeys()) {
+			bitsToInclude.add(patterns.get(0).getBit(bitKey));
+			Vector2 lastValue = bitKey;
+			
+			for (int i = 1; i < patterns.size(); i++) {
+				
+				if (patterns.get(i).getBitsKeys().contains(bitKey) && lastValue != null) {
+					bitsToInclude.add(patterns.get(i).getBit(bitKey));
+				} else {
+					bitsToInclude.add(null);
+					lastValue = null;
+				}
+			}
+			
+			System.out.println("bitsToInclude " + bitsToInclude.size());
+			
+			Bit3D newBit;
+			try {
+				newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
+				mapBits3D.put(bitKey, newBit);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			bitsToInclude = new Vector<Bit2D>();
 		}
 	}
 
