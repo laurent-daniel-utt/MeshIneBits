@@ -58,7 +58,7 @@ public class XmlTool {
 		writer.println("	<partSkirt>");
 		writer.println("		<height>" + (((part.getLayers().size() + CraftConfig.layersOffset) * CraftConfig.bitThickness) - CraftConfig.layersOffset) + "</height>");
 		writer.println("		<radius>" + part.getSkirtRadius() + "</radius>");
-		writer.println("	<partSkirt>");
+		writer.println("	</partSkirt>");
 	}
 
 	private void writeBit(Bit3D bit, int id) {
@@ -120,7 +120,7 @@ public class XmlTool {
 
 	private void writeLayer(Layer layer) {
 		writer.println("	<layer>");
-		writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "<z>");
+		writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
 		for (int i = 0; i < layer.getBits3dKeys().size(); i++) {
 			writeBit(layer.getBit3D(layer.getBits3dKeys().get(i)), i);
 		}

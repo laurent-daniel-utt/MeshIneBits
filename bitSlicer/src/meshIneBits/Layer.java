@@ -32,7 +32,7 @@ public class Layer extends Shape2D {
 	}
 	
 	public void setSliceToSelect(double percentageOfHeight){
-		sliceToSelect = (int) (percentageOfHeight / 100 * slices.size());
+		sliceToSelect = (int) Math.round(percentageOfHeight / 100 * slices.size());
 	}
 
 	public void addBit(Bit2D bit) {
