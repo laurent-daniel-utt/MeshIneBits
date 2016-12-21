@@ -78,10 +78,10 @@ public class CraftConfig
 			minValue = 1, maxValue = 100)
 	public static double minPercentageOfSlices = 50;
 	
-	@Setting(title = "Default slice to select",
-			description = "Default slice to select in a bit 3D to become the bit2D to extrude",
+	@Setting(title = "Default slice to select (in % of bit height)",
+			description = "Default slice to select in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
 			minValue = 0, maxValue = 100)
-	public static int defaultSliceToSelect = 0;
+	public static double defaultSliceToSelect = 50;
 	
 	@Setting(title = "Suction cup diameter (mm)",
 			description = "Diameter of the suction cup which lifts the bits (mm)",

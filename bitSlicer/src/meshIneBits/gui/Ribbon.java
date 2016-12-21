@@ -91,7 +91,7 @@ public class Ribbon extends JTabbedPane {
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			JButton computeBtn = new ButtonIcon("Compute bits", "cog.png");
 			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
-			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select (%) :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeBtn);
