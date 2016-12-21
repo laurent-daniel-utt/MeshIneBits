@@ -76,7 +76,7 @@ public class Ribbon extends JTabbedPane {
 			patternGallery.addButton(pattern1Btn, "p1.png");
 			patternGallery.addButton(pattern2Btn, "p2.png");
 
-			OptionsContainer patternCont = new OptionsContainer("Pattern options");
+			OptionsContainer patternCont = new OptionsContainer("Template options");
 			LabeledSpinner rotationSpinner = new LabeledSpinner("Rotation (°) :  ", CraftConfig.rotation, 0, 360, 22.5);
 			LabeledSpinner xOffsetSpinner = new LabeledSpinner("X Offset (mm) :  ", CraftConfig.xOffset, -999, 999, 1);
 			LabeledSpinner bitsOffsetSpinner = new LabeledSpinner("Offset btwn bits (mm) :  ", CraftConfig.bitsOffset, 0, 999, 1);
@@ -89,7 +89,7 @@ public class Ribbon extends JTabbedPane {
 			patternCont.add(layersOffsetSpinner);
 			
 			OptionsContainer computeCont = new OptionsContainer("Compute");
-			JButton computeBtn = new ButtonIcon("Compute bits", "cog.png");
+			JButton computeBtn = new ButtonIcon("Generate layers", "cog.png");
 			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
 			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select (%) :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
 			computeCont.add(minPercentageOfSlicesSpinner);
