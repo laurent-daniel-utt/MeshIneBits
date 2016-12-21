@@ -6,11 +6,16 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.lang.reflect.Field;
 
@@ -20,8 +25,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -29,17 +38,87 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.PanelUI;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.Slicer.Config.CraftConfigLoader;
 
 public class Ribbon extends JTabbedPane {
+	public Ribbon() {
+		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
+		addTab("File", new JPanel());
+		addTab("Slicer", new JScrollPane(new SlicerTab()));
+		addTab("Template", new JScrollPane(new TemplateTab()));
+		addTab("Review", new JScrollPane(new ReviewTab()));
+		addTab("Export", new JScrollPane(new ExportTab()));
+		addTab("Help", new JScrollPane(new HelpTab()));
+		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
+		
+		Ribbon.this.setSelectedIndex(1);
+		
+		JButton fileMenuBtn = new FileMenuButton();
+		this.setTabComponentAt(0, fileMenuBtn);
+		this.setEnabledAt(0, false);		
+				
+		addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+				int index = sourceTabbedPane.getSelectedIndex();
+				if(sourceTabbedPane.getTitleAt(index) == "Export"){
+					Ribbon.this.setSelectedIndex(1);
+					final JFileChooser fc = new JFileChooser();
+					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+					int returnVal = fc.showSaveDialog(null);
+
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+						//xt.writeXmlCode();
+					}
+				}
+				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
+					Ribbon.this.setSelectedIndex(1);
+					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+	}
+	
+	private class FileMenuButton extends JButton {
+		public FileMenuButton() {
+			ImageIcon icon = new ImageIcon(
+			new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
+			this.setIcon(icon);
+			
+			this.setContentAreaFilled (false);
+//			fileMenuBtn.setOpaque (false);
+			this.setBorder (null);	
+//			fileMenuBtn.setFocusPainted (false);
+			
+			JPopupMenu filePopup = new JPopupMenu();
+			filePopup.add(new JMenuItem("Open"));
+			filePopup.add(new JMenuItem("Save"));
+			filePopup.add(new JMenuItem("Export"));
+			filePopup.add(new JMenuItem("Help"));
+			
+			this.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
+				}
+			});
+		}
+	}
+
 	private class AdvancedTab extends RibbonTab {
 		public AdvancedTab() {
 			super();
@@ -52,11 +131,11 @@ public class Ribbon extends JTabbedPane {
 			add(new TabContainerSeparator());
 		}
 	}
-	
+
 	private class TemplateTab extends RibbonTab {
 		public TemplateTab() {
 			super();
-			
+
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
 			LabeledSpinner bitThicknessSpinner = new LabeledSpinner("Bit thickness (mm) :  ", CraftConfig.bitThickness, 0, 999, 1);
 			LabeledSpinner bitWidthSpinner = new LabeledSpinner("Bit width (mm) :  ", CraftConfig.bitWidth, 0, 999, 1);
@@ -64,7 +143,7 @@ public class Ribbon extends JTabbedPane {
 			bitsCont.add(bitThicknessSpinner);
 			bitsCont.add(bitWidthSpinner);
 			bitsCont.add(bitLengthSpinner);
-			
+
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
 			JToggleButton pattern1Btn = new JToggleButton();
 			JToggleButton pattern2Btn = new JToggleButton();
@@ -87,7 +166,7 @@ public class Ribbon extends JTabbedPane {
 			patternCont.add(bitsOffsetSpinner);
 			patternCont.add(yOffsetSpinner);
 			patternCont.add(layersOffsetSpinner);
-			
+
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			JButton computeBtn = new ButtonIcon("Generate layers", "cog.png");
 			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
@@ -95,7 +174,7 @@ public class Ribbon extends JTabbedPane {
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeBtn);
-			
+
 			add(bitsCont);
 			add(new TabContainerSeparator());
 			add(patternGallery);
@@ -103,7 +182,7 @@ public class Ribbon extends JTabbedPane {
 			add(patternCont);
 			add(new TabContainerSeparator());
 			add(computeCont);
-			
+
 			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
 			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
 			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
@@ -114,7 +193,7 @@ public class Ribbon extends JTabbedPane {
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
-			
+
 			pattern1Btn.addActionListener(new ActionListener() {
 
 				@Override
@@ -143,16 +222,16 @@ public class Ribbon extends JTabbedPane {
 				}
 			});
 
-		
+
 		}
 	}
-	
+
 	private class ExportTab extends RibbonTab {
 		public ExportTab() {
 			super();
 		}
 	}
-	
+
 	private class HelpTab extends RibbonTab {
 		public HelpTab() {
 			super();
@@ -317,9 +396,9 @@ public class Ribbon extends JTabbedPane {
 
 			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
 			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
-			
-			
-			
+
+
+
 
 			newBtn.addActionListener(new ActionListener() {
 				@Override
@@ -391,16 +470,6 @@ public class Ribbon extends JTabbedPane {
 			d.height = 105;
 			this.setPreferredSize(d);
 		}
-	}
-
-	public Ribbon() {
-		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
-		addTab("Slicer", new JScrollPane(new SlicerTab()));
-		addTab("Template", new JScrollPane(new TemplateTab()));
-		addTab("Review", new JScrollPane(new ReviewTab()));
-		addTab("Export", new JScrollPane(new ExportTab()));
-		addTab("Help", new JScrollPane(new HelpTab()));
-		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
 	}
 
 	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {

@@ -530,29 +530,6 @@ public class MainWindow extends JFrame {
 
 		pf = new PreviewFrame();
 		Ribbon ribbon = new Ribbon();
-		
-		ChangeListener changeListener = new ChangeListener() {
-		    public void stateChanged(ChangeEvent changeEvent) {
-		    		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-		      		int index = sourceTabbedPane.getSelectedIndex();
-		      		if(sourceTabbedPane.getTitleAt(index) == "Export"){
-		      			ribbon.setSelectedIndex(2);
-		      			final JFileChooser fc = new JFileChooser();
-						fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-						int returnVal = fc.showSaveDialog(null);
-
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
-							//xt.writeXmlCode();
-						}
-		      		}
-		      		else if(sourceTabbedPane.getTitleAt(index) == "Help"){
-		      			ribbon.setSelectedIndex(2);
-		      			JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
-		      		}
-		    	}
-			};
-		ribbon.addChangeListener(changeListener);
 
 		Container content = getContentPane();
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
