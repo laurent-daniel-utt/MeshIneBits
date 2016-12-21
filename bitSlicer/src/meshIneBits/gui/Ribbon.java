@@ -56,13 +56,94 @@ public class Ribbon extends JTabbedPane {
 	private class TemplateTab extends RibbonTab {
 		public TemplateTab() {
 			super();
-			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
-			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
-			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
-			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+			
+			OptionsContainer bitsCont = new OptionsContainer("Bits options");
+			LabeledSpinner bitThicknessSpinner = new LabeledSpinner("Bit thickness (mm) :  ", CraftConfig.bitThickness, 0, 999, 1);
+			LabeledSpinner bitWidthSpinner = new LabeledSpinner("Bit width (mm) :  ", CraftConfig.bitWidth, 0, 999, 1);
+			LabeledSpinner bitLengthSpinner = new LabeledSpinner("Bit length (mm) :  ", CraftConfig.bitLength, 0, 999, 1);
+			bitsCont.add(bitThicknessSpinner);
+			bitsCont.add(bitWidthSpinner);
+			bitsCont.add(bitLengthSpinner);
+			
+			GalleryContainer patternGallery = new GalleryContainer("Pattern");
+			JToggleButton pattern1Btn = new JToggleButton();
+			JToggleButton pattern2Btn = new JToggleButton();
+			if (CraftConfig.patternNumber == 1) {
+				pattern1Btn.setSelected(true);
+			} else {
+				pattern2Btn.setSelected(true);
+			}
+			patternGallery.addButton(pattern1Btn, "p1.png");
+			patternGallery.addButton(pattern2Btn, "p2.png");
 
-			add(optionsCont);
+			OptionsContainer patternCont = new OptionsContainer("Pattern options");
+			LabeledSpinner rotationSpinner = new LabeledSpinner("Rotation (°) :  ", CraftConfig.rotation, 0, 360, 22.5);
+			LabeledSpinner xOffsetSpinner = new LabeledSpinner("X Offset (mm) :  ", CraftConfig.xOffset, -999, 999, 1);
+			LabeledSpinner bitsOffsetSpinner = new LabeledSpinner("Offset btwn bits (mm) :  ", CraftConfig.bitsOffset, 0, 999, 1);
+			LabeledSpinner yOffsetSpinner = new LabeledSpinner("Y Offset (mm) :  ", CraftConfig.yOffset, -999, 999, 1);
+			LabeledSpinner layersOffsetSpinner = new LabeledSpinner("Offset btwn layers (mm) :  ", CraftConfig.layersOffset, 0, 999, 1);
+			patternCont.add(rotationSpinner);
+			patternCont.add(xOffsetSpinner);
+			patternCont.add(bitsOffsetSpinner);
+			patternCont.add(yOffsetSpinner);
+			patternCont.add(layersOffsetSpinner);
+			
+			OptionsContainer computeCont = new OptionsContainer("Compute");
+			JButton computeBtn = new ButtonIcon("Compute bits", "cog.png");
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
+			computeCont.add(minPercentageOfSlicesSpinner);
+			computeCont.add(defaultSliceToSelectSpinner);
+			computeCont.add(computeBtn);
+			
+			add(bitsCont);
 			add(new TabContainerSeparator());
+			add(patternGallery);
+			add(new TabContainerSeparator());
+			add(patternCont);
+			add(new TabContainerSeparator());
+			add(computeCont);
+			
+			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
+			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
+			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
+			addConfigSpinnerChangeListener(rotationSpinner, "rotation");
+			addConfigSpinnerChangeListener(xOffsetSpinner, "xOffset");
+			addConfigSpinnerChangeListener(bitsOffsetSpinner, "bitsOffset");
+			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
+			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
+			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
+			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
+			
+			pattern1Btn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (pattern1Btn.isSelected()) {
+						pattern2Btn.setSelected(false);
+						CraftConfig.patternNumber = 1;
+					} else {
+						pattern2Btn.setSelected(true);
+						CraftConfig.patternNumber = 2;
+					}
+				}
+			});
+
+			pattern2Btn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (pattern2Btn.isSelected()) {
+						pattern1Btn.setSelected(false);
+						CraftConfig.patternNumber = 2;
+					} else {
+						pattern1Btn.setSelected(true);
+						CraftConfig.patternNumber = 1;
+					}
+				}
+			});
+
+		
 		}
 	}
 	
@@ -205,55 +286,24 @@ public class Ribbon extends JTabbedPane {
 			JButton newBtn = new ButtonIcon("Open", "file-o.png");
 			JButton saveBtn = new ButtonIcon("Save", "save.png");
 			JButton closeBtn = new ButtonIcon("Close", "times.png");
-			JButton exportBtn = new ButtonIcon("Export", "iconXML.png");
 
 			fileCont.add(newBtn);
 			fileCont.add(saveBtn);
 			fileCont.add(closeBtn);
-			//fileCont.add(exportBtn);
 
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
 			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("First slice height (%) :  ", CraftConfig.firstSliceHeightPercent, 0, 999, 10);
-			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
-			slicerCont.add(minPercentageOfSlicesSpinner);
 
-			OptionsContainer bitsCont = new OptionsContainer("Bits options");
-			LabeledSpinner bitThicknessSpinner = new LabeledSpinner("Bit thickness (mm) :  ", CraftConfig.bitThickness, 0, 999, 1);
-			LabeledSpinner bitWidthSpinner = new LabeledSpinner("Bit width (mm) :  ", CraftConfig.bitWidth, 0, 999, 1);
-			LabeledSpinner bitLengthSpinner = new LabeledSpinner("Bit length (mm) :  ", CraftConfig.bitLength, 0, 999, 1);
-			bitsCont.add(bitThicknessSpinner);
-			bitsCont.add(bitWidthSpinner);
-			bitsCont.add(bitLengthSpinner);
-
-			GalleryContainer patternGallery = new GalleryContainer("Pattern");
-			JToggleButton pattern1Btn = new JToggleButton();
-			JToggleButton pattern2Btn = new JToggleButton();
-			if (CraftConfig.patternNumber == 1) {
-				pattern1Btn.setSelected(true);
-			} else {
-				pattern2Btn.setSelected(true);
-			}
-			patternGallery.addButton(pattern1Btn, "p1.png");
-			patternGallery.addButton(pattern2Btn, "p2.png");
-
-			OptionsContainer patternCont = new OptionsContainer("Pattern options");
-			LabeledSpinner rotationSpinner = new LabeledSpinner("Rotation (°) :  ", CraftConfig.rotation, 0, 360, 22.5);
-			LabeledSpinner xOffsetSpinner = new LabeledSpinner("X Offset (mm) :  ", CraftConfig.xOffset, -999, 999, 1);
-			LabeledSpinner bitsOffsetSpinner = new LabeledSpinner("Offset btwn bits (mm) :  ", CraftConfig.bitsOffset, 0, 999, 1);
-			LabeledSpinner yOffsetSpinner = new LabeledSpinner("Y Offset (mm) :  ", CraftConfig.yOffset, -999, 999, 1);
-			LabeledSpinner layersOffsetSpinner = new LabeledSpinner("Offset btwn layers (mm) :  ", CraftConfig.layersOffset, 0, 999, 1);
-			patternCont.add(rotationSpinner);
-			patternCont.add(xOffsetSpinner);
-			patternCont.add(bitsOffsetSpinner);
-			patternCont.add(yOffsetSpinner);
-			patternCont.add(layersOffsetSpinner);
+			OptionsContainer modelOrientationCont = new OptionsContainer("model Orientation");
+			JButton editOrientationBtn = new ButtonIcon("  Edit orientation  ", "rotate-left.png");
+			modelOrientationCont.add(editOrientationBtn);
 
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			JLabel fileSelectedLabel = new JLabel("No file selected");
-			JButton computeBtn = new ButtonIcon("Compute model", "cog.png");
+			JButton computeBtn = new ButtonIcon("Slice model", "align-center.png");
 			computeCont.add(fileSelectedLabel);
 			computeCont.add(computeBtn);
 
@@ -261,25 +311,15 @@ public class Ribbon extends JTabbedPane {
 			add(new TabContainerSeparator());
 			add(slicerCont);
 			add(new TabContainerSeparator());
-			add(bitsCont);
-			add(new TabContainerSeparator());
-			add(patternGallery);
-			add(new TabContainerSeparator());
-			add(patternCont);
-			add(new TabContainerSeparator());
+			add(modelOrientationCont);
+			add(new TabContainerSeparator());			
 			add(computeCont);
 
 			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
 			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
-			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
-			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
-			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
-			addConfigSpinnerChangeListener(rotationSpinner, "rotation");
-			addConfigSpinnerChangeListener(xOffsetSpinner, "xOffset");
-			addConfigSpinnerChangeListener(bitsOffsetSpinner, "bitsOffset");
-			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
-			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
-			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
+			
+			
+			
 
 			newBtn.addActionListener(new ActionListener() {
 				@Override
@@ -312,20 +352,6 @@ public class Ribbon extends JTabbedPane {
 				}
 			});
 
-			exportBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					final JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-					int returnVal = fc.showSaveDialog(null);
-
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						//						XmlTool xt = new XmlTool(part, fc.getSelectedFile());
-						//						xt.writeXmlCode();
-					}
-				}
-			});
-
 			computeBtn.addActionListener(new ActionListener() {
 
 				@Override
@@ -351,35 +377,7 @@ public class Ribbon extends JTabbedPane {
 				}
 			});
 
-			pattern1Btn.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (pattern1Btn.isSelected()) {
-						pattern2Btn.setSelected(false);
-						CraftConfig.patternNumber = 1;
-					} else {
-						pattern2Btn.setSelected(true);
-						CraftConfig.patternNumber = 2;
-					}
-				}
-			});
-
-			pattern2Btn.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (pattern2Btn.isSelected()) {
-						pattern1Btn.setSelected(false);
-						CraftConfig.patternNumber = 2;
-					} else {
-						pattern1Btn.setSelected(true);
-						CraftConfig.patternNumber = 1;
-					}
-				}
-			});
-
-		}
+		}	
 
 		private void setFile(File file) {
 			this.file = file;

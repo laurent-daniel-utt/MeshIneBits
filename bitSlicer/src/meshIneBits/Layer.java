@@ -17,7 +17,7 @@ public class Layer extends Shape2D {
 	private Pattern referentialPattern;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	private Hashtable<Vector2, Bit3D> mapBits3D;
-	private int sliceToSelect = 1; //Let the user choose that in the gui for each layer!
+	private int sliceToSelect = CraftConfig.defaultSliceToSelect; //Let the user choose that in the gui for each layer!
 
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart) {
 		this.slices = slices;
@@ -27,6 +27,10 @@ public class Layer extends Shape2D {
 		buildPatterns();
 		generateBits3D();
 		computeLiftPoints();
+	}
+	
+	public void setSliceToSelect(int sliceToSelect){
+		this.sliceToSelect = sliceToSelect;
 	}
 
 	public void addBit(Bit2D bit) {
