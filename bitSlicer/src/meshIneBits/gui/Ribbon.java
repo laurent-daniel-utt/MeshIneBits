@@ -58,8 +58,8 @@ public class Ribbon extends JTabbedPane {
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
 		addTab("Template", new JScrollPane(new TemplateTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
-		addTab("Export", new JScrollPane(new ExportTab()));
-		addTab("Help", new JScrollPane(new HelpTab()));
+		//addTab("Export", new JScrollPane(new ExportTab()));
+		//addTab("Help", new JScrollPane(new HelpTab()));
 		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
 		
 		Ribbon.this.setSelectedIndex(1);
@@ -68,28 +68,28 @@ public class Ribbon extends JTabbedPane {
 		this.setTabComponentAt(0, fileMenuBtn);
 		this.setEnabledAt(0, false);		
 				
-		addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-				int index = sourceTabbedPane.getSelectedIndex();
-				if(sourceTabbedPane.getTitleAt(index) == "Export"){
-					Ribbon.this.setSelectedIndex(1);
-					final JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-					int returnVal = fc.showSaveDialog(null);
-
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
-						//xt.writeXmlCode();
-					}
-				}
-				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
-					Ribbon.this.setSelectedIndex(1);
-					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
-				}
-			}
-		});
+//		addChangeListener(new ChangeListener() {
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+//				int index = sourceTabbedPane.getSelectedIndex();
+//				if(sourceTabbedPane.getTitleAt(index) == "Export"){
+//					Ribbon.this.setSelectedIndex(1);
+//					final JFileChooser fc = new JFileChooser();
+//					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+//					int returnVal = fc.showSaveDialog(null);
+//
+//					if (returnVal == JFileChooser.APPROVE_OPTION) {
+//						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+//						//xt.writeXmlCode();
+//					}
+//				}
+//				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
+//					Ribbon.this.setSelectedIndex(1);
+//					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
+//				}
+//			}
+//		});
 	}
 	
 	private class FileMenuButton extends JButton {
@@ -119,18 +119,18 @@ public class Ribbon extends JTabbedPane {
 		}
 	}
 
-	private class AdvancedTab extends RibbonTab {
-		public AdvancedTab() {
-			super();
-			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
-			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
-			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
-			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
-
-			add(optionsCont);
-			add(new TabContainerSeparator());
-		}
-	}
+//	private class AdvancedTab extends RibbonTab {
+//		public AdvancedTab() {
+//			super();
+//			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
+//			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
+//			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
+//			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+//
+//			add(optionsCont);
+//			add(new TabContainerSeparator());
+//		}
+//	}
 
 	private class TemplateTab extends RibbonTab {
 		public TemplateTab() {
@@ -226,17 +226,17 @@ public class Ribbon extends JTabbedPane {
 		}
 	}
 
-	private class ExportTab extends RibbonTab {
-		public ExportTab() {
-			super();
-		}
-	}
-
-	private class HelpTab extends RibbonTab {
-		public HelpTab() {
-			super();
-		}
-	}
+//	private class ExportTab extends RibbonTab {
+//		public ExportTab() {
+//			super();
+//		}
+//	}
+//
+//	private class HelpTab extends RibbonTab {
+//		public HelpTab() {
+//			super();
+//		}
+//	}
 
 	private class ButtonIcon extends JButton {
 		public ButtonIcon(String label, String iconName) {
