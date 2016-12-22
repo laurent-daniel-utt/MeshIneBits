@@ -62,6 +62,7 @@ public class MainWindow extends JFrame {
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
 		content.add(ribbon);
 		content.add(pf);
+		content.add(new LogPanel());
 
 		setVisible(true);
 	}
