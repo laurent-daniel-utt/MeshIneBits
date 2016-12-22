@@ -28,9 +28,6 @@ import meshIneBits.util.Vector2;
 public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener, Observer {
 	
 	private static final long serialVersionUID = 1L;
-//	public int showSlice = 0;
-//	public int showLayer = 0;
-//	public double drawScale = 1.0;
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
@@ -66,7 +63,7 @@ public class PreviewPanel extends JPanel implements MouseMotionListener, MouseLi
 	}
 	
 	public void clickOnBitControl(int id) {
-		Layer layer = sv.getCurrentLayer();
+		Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
 		Vector2 direction = null;
 		double offSetValue = 0;
 		//Every directions are in the bit's local coordinate system
@@ -248,7 +245,7 @@ public class PreviewPanel extends JPanel implements MouseMotionListener, MouseLi
 					return;
 				}
 			}
-			Layer layer = sv.getCurrentLayer();
+			Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
 			for (Vector2 bitKey : bitKeys) {
 				Bit3D bit = layer.getBit3D(bitKey);
@@ -318,7 +315,7 @@ public class PreviewPanel extends JPanel implements MouseMotionListener, MouseLi
 
 			Graphics2D g2d = (Graphics2D) g;
 
-			Layer layer = sv.getCurrentLayer();
+			Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
 			boolean blue = false;

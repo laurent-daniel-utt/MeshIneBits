@@ -427,7 +427,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					MainWindow.getInstance().closePart();
+					sv.setPart(null);
 				}
 			});
 

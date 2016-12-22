@@ -3,13 +3,12 @@ package meshIneBits.gui;
 import java.util.Observable;
 
 import meshIneBits.GeneratedPart;
-import meshIneBits.Layer;
 import meshIneBits.util.Vector2;
 
 public class ShowedView extends Observable {
 	
 	private GeneratedPart part = null;
-	private Layer layer = null;
+	private int layerNumber = 0;
 	private Vector2 selectedBitKey = null;
 	private double zoom = 1;
 	
@@ -28,27 +27,35 @@ public class ShowedView extends Observable {
 	
 	public void setPart(GeneratedPart part){
 		this.part = part;
-		layer = part.getLayers().get(0);
+		layerNumber = 0;
 		selectedBitKey = null;
 		setChanged();
 		notifyObservers(Component.PART);
 	}
 	
 	public void setLayer(int nbrLayer){
-		layer = part.getLayers().get(nbrLayer);
+		if(part == null)
+			return;
+		layerNumber = nbrLayer;
 		selectedBitKey = null;
 		setChanged();
 		notifyObservers(Component.LAYER);
 	}
 	
 	public void setSelectedBitKey(Vector2 bitKey){
+		if(part == null)
+			return;
 		selectedBitKey = bitKey;
 		setChanged();
 		notifyObservers(Component.SELECTED_BIT);
 	}
 	
 	public void setZoom(double zoomValue){
+		if(part == null)
+			return;
 		zoom = zoomValue;
+		if (zoom < 0.2)
+			zoom = 0.2;
 		setChanged();
 		notifyObservers(Component.ZOOM);
 	}
@@ -57,8 +64,8 @@ public class ShowedView extends Observable {
 		return part;
 	}
 	
-	public Layer getCurrentLayer(){
-		return layer;
+	public int getCurrentLayerNumber(){
+		return layerNumber;
 	}
 	
 	public Vector2 getSelectedBitKey(){

@@ -66,13 +66,6 @@ public class MainWindow extends JFrame {
 		setVisible(true);
 	}
 
-	public void closePart() {
-		sv.setPart(null);
-//		pf.revalidate();
-//		pf.repaint();
-//		pf.bg.setVisible(true);
-	}
-
 	public void setPart(GeneratedPart part) {
 		
 		sv.setPart(part);

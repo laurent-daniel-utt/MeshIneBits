@@ -32,6 +32,8 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
+	JPanel layerPanel;
+	JPanel zoomPanel;
 	public JLabel bg;
 	ShowedView sv;
 	
@@ -53,15 +55,25 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		this.sv = (ShowedView) sv;
 		switch((ShowedView.Component) arg){
 		case PART:
-			init();
+			if(this.sv.getCurrentPart() != null)
+				init();
+			else
+				noPart();
 			break;
 		case LAYER:
-			updateLayerChoice(this.sv.getCurrentLayer().getLayerNumber());
+			updateLayerChoice(this.sv.getCurrentLayerNumber());
 			break;
 		case ZOOM:
 			updateZoom(this.sv.getZoom());
 			break;
 		}
+	}
+	
+	public void noPart(){
+		remove(pp);
+		remove(layerPanel);
+		remove(zoomPanel);
+		bg.setVisible(true);
 	}
 	
 	public void init() {
@@ -70,13 +82,13 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		addMouseWheelListener(this);
 
 		// Layer slider
-		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, sv.getCurrentPart().getLayers().size() - 1, sv.getCurrentLayer().getLayerNumber());
-		layerSpinner = new JSpinner(new SpinnerNumberModel(sv.getCurrentLayer().getLayerNumber(), 0, sv.getCurrentPart().getLayers().size() - 1, 1));
+		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, sv.getCurrentPart().getLayers().size() - 1, 0);
+		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, sv.getCurrentPart().getLayers().size() - 1, 1));
 
 		layerSpinner.setFocusable(false);
 		layerSpinner.setMaximumSize(new Dimension(40, 40));
 
-		JPanel layerPanel = new JPanel();
+		layerPanel = new JPanel();
 		layerPanel.setLayout(new BoxLayout(layerPanel, BoxLayout.PAGE_AXIS));
 		layerPanel.add(layerSlider);
 		layerPanel.add(layerSpinner);
@@ -90,7 +102,7 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		zoomSpinner.setFocusable(false);
 		zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
-		JPanel zoomPanel = new JPanel();
+		zoomPanel = new JPanel();
 		zoomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		zoomPanel.add(new JLabel("Zoom :  "));
 		zoomPanel.add(zoomSpinner);
@@ -105,7 +117,6 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		zoomSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				updateZoom((Double) zoomSpinner.getValue());
 				sv.setZoom((Double) zoomSpinner.getValue());
 			}
 		});
@@ -114,7 +125,6 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				updateZoom(zoomSlider.getValue() / 100.0);
 				sv.setZoom(zoomSlider.getValue() / 100.0);
 			}
 		});
@@ -122,7 +132,6 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		layerSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				updateLayerChoice(((Integer) layerSpinner.getValue()).intValue());
 				sv.setLayer(((Integer) layerSpinner.getValue()).intValue());
 			}
 		});
@@ -130,7 +139,6 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		layerSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				updateLayerChoice(((Integer) layerSlider.getValue()).intValue());
 				sv.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
@@ -145,8 +153,6 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		} else {
 			zoom += Math.abs(notches / 10.0);
 		}
-
-		updateZoom(zoom);
 		sv.setZoom(zoom);
 	}
 
@@ -155,15 +161,7 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 		layerSlider.setValue(layerNr);
 	}
 
-	public void update() {
-		pp.repaint();
-	}
-
 	private void updateZoom(double zoom) {
-		if (zoom < 0.2) {
-			zoom = 0.2;
-		}
-
 		zoomSpinner.setValue(zoom);
 		zoomSlider.setValue((int) (zoom * 100));
 	}
