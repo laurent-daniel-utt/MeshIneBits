@@ -1,26 +1,16 @@
 package meshIneBits.gui;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.Vector;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -34,340 +24,20 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
-import meshIneBits.Layer;
-import meshIneBits.Slicer.Config.CraftConfig;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
+public class PreviewFrame extends JPanel implements MouseWheelListener, Observer {
 
-public class PreviewFrame extends JPanel implements MouseWheelListener {
-	
-	public Vector2 selectedBitKey = null;
-	
-	public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener {
-		public class TriangleShape extends Path2D.Double {
-			public TriangleShape(Point2D... points) {
-				moveTo(points[0].getX(), points[0].getY());
-				lineTo(points[1].getX(), points[1].getY());
-				lineTo(points[2].getX(), points[2].getY());
-				closePath();
-			}
-		}
-
-		private static final long serialVersionUID = 1L;
-		public int showSlice = 0;
-		public int showLayer = 0;
-		public double drawScale = 1.0;
-		public double viewOffsetX, viewOffsetY;
-
-		private Vector<Area> bitControls = new Vector<Area>();
-
-		private int oldX, oldY;
-
-		public PreviewPanel() {
-			addMouseMotionListener(this);
-			addMouseListener(this);
-		}
-
-		public void clickOnBitControl(int id) {
-			Layer layer = part.getLayers().get(showLayer);
-			Vector2 direction = null;
-			double offSetValue = 0;
-			//Every directions are in the bit's local coordinate system
-			switch (id) {
-			case 0: //Top direction
-				direction = new Vector2(0, -1);
-				offSetValue = CraftConfig.bitWidth / 2;
-				break;
-			case 1: //Left direction
-				direction = new Vector2(1, 0);
-				offSetValue = CraftConfig.bitLength / 2;
-				break;
-			case 2: //Bottom direction
-				direction = new Vector2(0, 1);
-				offSetValue = CraftConfig.bitWidth / 2;
-				break;
-			case 3: //Right direction
-				direction = new Vector2(-1, 0);
-				offSetValue = CraftConfig.bitLength / 2;
-				break;
-			}
-			layer.moveBit(selectedBitKey, direction, offSetValue);
-			selectedBitKey = null;
-			repaint();
-		}
-
-		public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
-			bitControls.clear();
-			TriangleShape triangleShape = new TriangleShape(new Point2D.Double(0, 0), new Point2D.Double(-7, 10), new Point2D.Double(7, 10));
-
-			Vector<Area> areas = new Vector<Area>();
-			int padding = 15;
-
-			Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2, CraftConfig.bitLength, CraftConfig.bitWidth));
-			areas.add(overlapBit);
-
-			Area topArrow = new Area(triangleShape);
-			AffineTransform affTrans = new AffineTransform();
-			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
-			affTrans.rotate(0, 0);
-			topArrow.transform(affTrans);
-			areas.add(topArrow);
-			bitControls.add(topArrow);
-
-			Area leftArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
-			affTrans.rotate(0, 1);
-			leftArrow.transform(affTrans);
-			areas.add(leftArrow);
-			bitControls.add(leftArrow);
-
-			Area bottomArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
-			affTrans.rotate(-1, 0);
-			bottomArrow.transform(affTrans);
-			areas.add(bottomArrow);
-			bitControls.add(bottomArrow);
-
-			Area rightArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
-			affTrans.rotate(0, -1);
-			rightArrow.transform(affTrans);
-			areas.add(rightArrow);
-			bitControls.add(rightArrow);
-
-			for (Area area : areas) {
-				affTrans = new AffineTransform();
-				affTrans.translate(bitKey.x, bitKey.y);
-				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-				area.transform(affTrans);
-
-				affTrans = new AffineTransform();
-				affTrans.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-				affTrans.scale(drawScale, drawScale);
-				area.transform(affTrans);
-
-				g2d.setColor(new Color(94, 125, 215));
-				if (!area.equals(overlapBit)) {
-					g2d.draw(area);
-					g2d.fill(area);
-				}
-			}
-
-			g2d.setColor(new Color(94, 125, 215));
-			g2d.draw(overlapBit);
-
-			g2d.setColor(new Color(0, 114, 255, 50));
-			g2d.fill(overlapBit);
-
-		}
-
-		private void drawModelArea(Graphics2D g2d, Area area) {
-			AffineTransform tx1 = new AffineTransform();
-			tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-			tx1.scale(drawScale, drawScale);
-
-			area.transform(tx1);
-
-			g2d.fill(area);
-			g2d.draw(area);
-		}
-
-		private void drawModelArea2(Graphics2D g2d, Area area) {
-			AffineTransform tx1 = new AffineTransform();
-			tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-			tx1.scale(drawScale, drawScale);
-
-			area.transform(tx1);
-			//g2d.setColor( Color.green );
-			//g2d.draw(area);
-			g2d.setColor(Color.red);
-
-			g2d.setStroke(new BasicStroke(0.0f, // Line width
-					BasicStroke.CAP_BUTT, // End-cap style
-					BasicStroke.JOIN_BEVEL)); // Vertex join style
-
-			g2d.fill(area);
-		}
-
-		private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-			g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) (radius * drawScale / 2),
-					((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) (radius * drawScale / 2), (int) (radius * drawScale), (int) (radius * drawScale));
-		}
-
-		private void drawModelLine(Graphics g, Vector2 start, Vector2 end) {
-			g.drawLine((int) ((start.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((start.y + viewOffsetY) * drawScale) + (this.getHeight() / 2),
-					(int) ((end.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((end.y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
-		}
-
-		private void drawModelPath2D(Graphics2D g2d, Path2D path) {
-			AffineTransform tx1 = new AffineTransform();
-			tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-			tx1.scale(drawScale, drawScale);
-			//			        g2d.setColor( Color.red);
-			g2d.draw(path.createTransformedShape(tx1));
-		}
-
-		private void drawSegment(Graphics g, Segment2D s) {
-			((Graphics2D) g).setStroke(new BasicStroke(1));
-			g.setColor(Color.RED);
-			drawModelLine(g, s.start, s.end);
-
-			// Show discontinuity
-			//					if (s.getPrev() == null)
-			//						drawModelCircle(g, s.start, 10);
-			//					if (s.getNext() == null)
-			//						drawModelCircle(g, s.end, 10);
-
-		}
-
-		private void drawString(Graphics g, String text, double x, double y) {
-			//((x + viewOffsetX) * drawScale)
-			g.setColor(Color.BLACK);
-			g.drawString(text, (int) ((x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (part != null) {
-				Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
-						((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
-				for (int i = 0; i < bitControls.size(); i++) {
-					if (bitControls.get(i).contains(oldX, oldY)) {
-						clickOnBitControl(i);
-						bitControls.clear();
-						return;
-					}
-				}
-				Layer layer = part.getLayers().get(showLayer);
-				Vector<Vector2> bitKeys = layer.getBits3dKeys();
-				for (Vector2 bitKey : bitKeys) {
-					Bit3D bit = layer.getBit3D(bitKey);
-					Area area = bit.getRawArea();
-					AffineTransform affTrans = new AffineTransform();
-					affTrans.translate(bitKey.x, bitKey.y);
-					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-					area.transform(affTrans);
-					if (area.contains(clickSpot)) {
-						if (selectedBitKey == bitKey) { //then it is a click to unselect this bit
-							selectedBitKey = null;
-							bitControls.clear();
-						} else if (selectedBitKey == null) { //you need to unselect the bit before being able to select a new one
-							selectedBitKey = bitKey;
-						}
-						break;
-					}
-				}
-				repaint();
-			}
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			viewOffsetX += (e.getX() - oldX) / drawScale;
-			viewOffsetY += (e.getY() - oldY) / drawScale;
-			repaint();
-			oldX = e.getX();
-			oldY = e.getY();
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			oldX = e.getX();
-			oldY = e.getY();
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			super.paint(g);
-			if (part != null) {
-
-				Graphics2D g2d = (Graphics2D) g;
-
-				Layer layer = part.getLayers().get(showLayer);
-				Vector<Vector2> bitKeys = layer.getBits3dKeys();
-
-				boolean blue = false;
-
-				for (Vector2 b : bitKeys) {
-
-					Bit3D bit = layer.getBit3D(b);
-					Area area = bit.getRawArea();
-					AffineTransform affTrans = new AffineTransform();
-					affTrans.translate(b.x, b.y);
-					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-
-					area.transform(affTrans);
-
-					//new Color(109, 138, 192)
-					g2d.setColor(new Color(164, 180, 200));
-					if (b == selectedBitKey) {
-						g2d.setColor(new Color(94, 125, 215));
-						drawModelArea(g2d, area);
-					} else {
-						drawModelArea(g2d, area);
-					}
-
-					for (Vector2 liftPoint : bit.getLiftPoints()) {
-						if (liftPoint != null) {
-							g.setColor(Color.red);
-							Point2D point = new Point2D.Double();
-							affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
-							drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
-						}
-
-					}
-
-				}
-
-				if ((selectedBitKey != null) && (layer.getBit3D(selectedBitKey) != null)) {
-					drawBitControls(g2d, selectedBitKey, layer.getBit3D(selectedBitKey));
-				}
-			}
-		}
-	}
-
+	private static final long serialVersionUID = 1L;
 	private PreviewPanel pp;
 	private JSlider zoomSlider;
 	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
-
 	public JLabel bg;
+	ShowedView sv;
 	
-	private GeneratedPart part;
-
-	public PreviewFrame(GeneratedPart part) {
+	public PreviewFrame(PreviewPanel pp) {
 		this.setLayout(new BorderLayout());
-		this.part = part;
+		this.pp = pp;
 
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
@@ -377,16 +47,31 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 		bg.setForeground(new Color(0, 0, 0, 8));
 		this.add(bg);
 	}
-
+	
+	@SuppressWarnings("incomplete-switch")
+	public void update(Observable sv, Object arg) {
+		this.sv = (ShowedView) sv;
+		switch((ShowedView.Component) arg){
+		case PART:
+			init();
+			break;
+		case LAYER:
+			updateLayerChoice(this.sv.getCurrentLayer().getLayerNumber());
+			break;
+		case ZOOM:
+			updateZoom(this.sv.getZoom());
+			break;
+		}
+	}
+	
 	public void init() {
 		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
-		pp = new PreviewPanel();
 
 		// Layer slider
-		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, pp.showLayer);
-		layerSpinner = new JSpinner(new SpinnerNumberModel(pp.showLayer, 0, part.getLayers().size() - 1, 1));
+		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, sv.getCurrentPart().getLayers().size() - 1, sv.getCurrentLayer().getLayerNumber());
+		layerSpinner = new JSpinner(new SpinnerNumberModel(sv.getCurrentLayer().getLayerNumber(), 0, sv.getCurrentPart().getLayers().size() - 1, 1));
 
 		layerSpinner.setFocusable(false);
 		layerSpinner.setMaximumSize(new Dimension(40, 40));
@@ -398,10 +83,10 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 		layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 		// Zoom slider
-		System.out.println((int) (pp.drawScale * 100.0));
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (pp.drawScale * 100.0));
+		System.out.println((int) (sv.getZoom() * 100.0));
+		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (sv.getZoom() * 100.0));
 		zoomSlider.setMaximumSize(new Dimension(500, 20));
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(pp.drawScale, 0, 250.0, 1));
+		zoomSpinner = new JSpinner(new SpinnerNumberModel(sv.getZoom(), 0, 250.0, 1));
 		zoomSpinner.setFocusable(false);
 		zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -421,6 +106,7 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				updateZoom((Double) zoomSpinner.getValue());
+				sv.setZoom((Double) zoomSpinner.getValue());
 			}
 		});
 
@@ -429,20 +115,23 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				updateZoom(zoomSlider.getValue() / 100.0);
+				sv.setZoom(zoomSlider.getValue() / 100.0);
 			}
 		});
 
 		layerSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				showLayer(((Integer) layerSpinner.getValue()).intValue());
+				updateLayerChoice(((Integer) layerSpinner.getValue()).intValue());
+				sv.setLayer(((Integer) layerSpinner.getValue()).intValue());
 			}
 		});
 
 		layerSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				showLayer(((Integer) layerSlider.getValue()).intValue());
+				updateLayerChoice(((Integer) layerSlider.getValue()).intValue());
+				sv.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
 	}
@@ -458,15 +147,12 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 		}
 
 		updateZoom(zoom);
+		sv.setZoom(zoom);
 	}
 
-	private void showLayer(int layerNr) {
+	private void updateLayerChoice(int layerNr) {
 		layerSpinner.setValue(layerNr);
 		layerSlider.setValue(layerNr);
-		selectedBitKey = null;
-		pp.showLayer = layerNr;
-		pp.showSlice = 0;
-		pp.repaint();
 	}
 
 	public void update() {
@@ -480,7 +166,5 @@ public class PreviewFrame extends JPanel implements MouseWheelListener {
 
 		zoomSpinner.setValue(zoom);
 		zoomSlider.setValue((int) (zoom * 100));
-		pp.drawScale = zoom;
-		pp.repaint();
 	}
 }
