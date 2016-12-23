@@ -284,14 +284,26 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			}
 		}
 	}
+	
+	private int mouseDraggedValue = 0;
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(SwingUtilities.isMiddleMouseButton(e)){
+			
 			if(e.getY() >= viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) > 0)
-				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
+				mouseDraggedValue++;	
 			else if(e.getY() < viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) < 0)
+				mouseDraggedValue--;		
+			
+			if(mouseDraggedValue > 10){
+				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
+				mouseDraggedValue = 0;
+			}
+			else if (mouseDraggedValue < -10){
 				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
+				mouseDraggedValue = 0;
+			}
 		}
 		else{
 			double drawScale = viewObservable.getZoom();
