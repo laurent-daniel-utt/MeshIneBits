@@ -1,6 +1,6 @@
-package meshIneBits.Slicer.Config;
+package meshIneBits.Config;
 
-import meshIneBits.Slicer.Config.Setting;
+import meshIneBits.Config.Setting;
 
 /**
  * The CraftConfig class contains the configurable

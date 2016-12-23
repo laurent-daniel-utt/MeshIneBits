@@ -2,11 +2,11 @@ package meshIneBits;
 
 import java.util.Vector;
 
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.PatternTemplates.PatternTemplate;
 import meshIneBits.PatternTemplates.PatternTemplate1;
 import meshIneBits.PatternTemplates.PatternTemplate2;
 import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 
@@ -18,13 +18,21 @@ public class GeneratedPart {
 
 	public GeneratedPart(Vector<Slice> slices) {
 		this.slices = slices;
-		setSkirtRadius();
-		buildBits2D();
+//		setSkirtRadius();
+//		buildBits2D();
 	}
 
-	private void buildBits2D() {
+	public void buildBits2D() {
+		setSkirtRadius();
 		setPatternTemplate();
 		buildLayers();
+	}
+	
+	public boolean isGenerated() {
+		if (!layers.isEmpty())
+			return true;
+		else
+			return false;
 	}
 
 	private void buildLayers() {
@@ -66,6 +74,10 @@ public class GeneratedPart {
 	public Vector<Layer> getLayers() {
 		return this.layers;
 	}
+	
+	public Vector<Slice> getSlices(){
+		return slices;
+	}
 
 	public PatternTemplate getPatternTemplate() {
 		return patternTemplate;
@@ -75,7 +87,7 @@ public class GeneratedPart {
 		return skirtRadius;
 	}
 
-	public void setPatternTemplate() {
+	private void setPatternTemplate() {
 		switch (CraftConfig.patternNumber) {
 		case 1:
 			patternTemplate = new PatternTemplate1(skirtRadius);

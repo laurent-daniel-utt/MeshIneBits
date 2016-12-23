@@ -21,7 +21,9 @@ import javax.swing.JPanel;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.Slicer.Config.CraftConfig;
+import meshIneBits.Config.CraftConfig;
+import meshIneBits.Slicer.Slice;
+import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
@@ -31,7 +33,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
-	ViewObservable sv;
+	ViewObservable viewObservable;
 	
 	public View() {
 		addMouseMotionListener(this);
@@ -40,7 +42,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	
 	@Override
 	public void update(Observable sv, Object arg) {
-		this.sv = (ViewObservable) sv;
+		this.viewObservable = (ViewObservable) sv;
 		switch((ViewObservable.Component) arg){
 		case PART:
 			revalidate();
@@ -66,7 +68,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 	
 	public void clickOnBitControl(int id) {
-		Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
+		Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 		Vector2 direction = null;
 		double offSetValue = 0;
 		//Every directions are in the bit's local coordinate system
@@ -88,8 +90,8 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			offSetValue = CraftConfig.bitLength / 2;
 			break;
 		}
-		layer.moveBit(sv.getSelectedBitKey(), direction, offSetValue);
-		sv.setSelectedBitKey(null);
+		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
+		viewObservable.setSelectedBitKey(null);
 		repaint();
 	}
 
@@ -135,7 +137,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		areas.add(rightArrow);
 		bitControls.add(rightArrow);
 
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		
 		for (Area area : areas) {
 			affTrans = new AffineTransform();
@@ -165,7 +167,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	private void drawModelArea(Graphics2D g2d, Area area) {
 		AffineTransform tx1 = new AffineTransform();
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 
@@ -177,7 +179,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	private void drawModelArea2(Graphics2D g2d, Area area) {
 		AffineTransform tx1 = new AffineTransform();
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 
@@ -194,20 +196,20 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) (radius * drawScale / 2),
 				((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) (radius * drawScale / 2), (int) (radius * drawScale), (int) (radius * drawScale));
 	}
 
 	private void drawModelLine(Graphics g, Vector2 start, Vector2 end) {
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		g.drawLine((int) ((start.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((start.y + viewOffsetY) * drawScale) + (this.getHeight() / 2),
 				(int) ((end.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((end.y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
 	}
 
 	private void drawModelPath2D(Graphics2D g2d, Path2D path) {
 		AffineTransform tx1 = new AffineTransform();
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 		//			        g2d.setColor( Color.red);
@@ -230,14 +232,14 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	private void drawString(Graphics g, String text, double x, double y) {
 		//((x + viewOffsetX) * drawScale)
 		g.setColor(Color.BLACK);
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		g.drawString(text, (int) ((x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		GeneratedPart part = sv.getCurrentPart();
-		double drawScale = sv.getZoom();
+		GeneratedPart part = viewObservable.getCurrentPart();
+		double drawScale = viewObservable.getZoom();
 		if (part != null) {
 			Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
 					((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
@@ -248,7 +250,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					return;
 				}
 			}
-			Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
+			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
 			for (Vector2 bitKey : bitKeys) {
 				Bit3D bit = layer.getBit3D(bitKey);
@@ -258,11 +260,11 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 				area.transform(affTrans);
 				if (area.contains(clickSpot)) {
-					if (sv.getSelectedBitKey() == bitKey) { //then it is a click to unselect this bit
-						sv.setSelectedBitKey(null);
+					if (viewObservable.getSelectedBitKey() == bitKey) { //then it is a click to unselect this bit
+						viewObservable.setSelectedBitKey(null);
 						bitControls.clear();
-					} else if (sv.getSelectedBitKey() == null) { //you need to unselect the bit before being able to select a new one
-						sv.setSelectedBitKey(bitKey);
+					} else if (viewObservable.getSelectedBitKey() == null) { //you need to unselect the bit before being able to select a new one
+						viewObservable.setSelectedBitKey(bitKey);
 					}
 					break;
 				}
@@ -273,7 +275,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		double drawScale = sv.getZoom();
+		double drawScale = viewObservable.getZoom();
 		viewOffsetX += (e.getX() - oldX) / drawScale;
 		viewOffsetY += (e.getY() - oldY) / drawScale;
 		repaint();
@@ -314,11 +316,15 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		if (sv.getCurrentPart() != null) {
-
-			Graphics2D g2d = (Graphics2D) g;
-
-			Layer layer = sv.getCurrentPart().getLayers().get(sv.getCurrentLayerNumber());
+		Graphics2D g2d = (Graphics2D) g;
+		
+		if (viewObservable.getCurrentPart() != null && !viewObservable.getCurrentPart().isGenerated()) {
+			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentLayerNumber());
+			for (Polygon p : slice) {
+				drawModelPath2D(g2d, p.toPath2D());
+			}
+		} else if (viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()) {
+			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
 			boolean blue = false;
@@ -335,7 +341,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 				//new Color(109, 138, 192)
 				g2d.setColor(new Color(164, 180, 200));
-				if (b == sv.getSelectedBitKey()) {
+				if (b == viewObservable.getSelectedBitKey()) {
 					g2d.setColor(new Color(94, 125, 215));
 					drawModelArea(g2d, area);
 				} else {
@@ -351,11 +357,20 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					}
 
 				}
-
 			}
 
-			if ((sv.getSelectedBitKey() != null) && (layer.getBit3D(sv.getSelectedBitKey()) != null)) {
-				drawBitControls(g2d, sv.getSelectedBitKey(), layer.getBit3D(sv.getSelectedBitKey()));
+			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
+				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
+			}
+			
+			if (true) {
+				for (int i = 0; i < layer.getSlices().size(); i++) {
+					g2d.setColor(new Color(100 + i*(155/layer.getSlices().size()),50,0));
+					for (Polygon p : layer.getSlices().get(i)) {
+						drawModelPath2D(g2d, p.toPath2D());
+					}
+				}
+				
 			}
 		}
 	}

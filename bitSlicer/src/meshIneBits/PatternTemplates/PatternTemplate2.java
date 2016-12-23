@@ -4,8 +4,8 @@ import java.util.Vector;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Pattern;
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.PatternTemplates.PatternTemplate;
-import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Vector2;
 
 public class PatternTemplate2 extends PatternTemplate {

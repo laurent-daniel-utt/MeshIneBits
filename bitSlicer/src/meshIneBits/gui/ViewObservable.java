@@ -10,7 +10,7 @@ public class ViewObservable extends Observable {
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
 	private Vector2 selectedBitKey = null;
-	private double zoom = 1;
+	private double zoom = 0.8;
 	
 	public enum Component {
 		PART, LAYER, SELECTED_BIT, ZOOM, ME

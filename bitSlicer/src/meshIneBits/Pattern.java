@@ -9,8 +9,8 @@ import java.awt.geom.Path2D;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;

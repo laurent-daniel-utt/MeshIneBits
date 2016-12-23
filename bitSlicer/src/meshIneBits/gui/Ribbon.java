@@ -39,13 +39,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import meshIneBits.GeneratedPart;
 import meshIneBits.MeshIneBitsMain;
-import meshIneBits.Slicer.Config.CraftConfig;
-import meshIneBits.Slicer.Config.CraftConfigLoader;
+import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.CraftConfigLoader;
 
 public class Ribbon extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
-	ViewObservable sv;
+	private ViewObservable viewObservable;
 
 	public Ribbon() {
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
@@ -89,7 +90,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	@Override
 	public void update(Observable sv, Object arg) {
-		this.sv = (ViewObservable) sv;	
+		this.viewObservable = (ViewObservable) sv;	
 		revalidate();
 		repaint();
 	}
@@ -234,7 +235,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 
-
+			computeBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					GeneratedPart temp = Ribbon.this.viewObservable.getCurrentPart();
+					Ribbon.this.viewObservable.setPart(null);
+					temp.buildBits2D();
+					Ribbon.this.viewObservable.setPart(temp);
+				}
+			});
 		}
 	}
 
@@ -469,16 +478,18 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 
 			closeBtn.addActionListener(new ActionListener() {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					sv.setPart(null);
+					Ribbon.this.viewObservable.setPart(null);
 				}
 			});
 
 			computeBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					if (Ribbon.this.viewObservable.getCurrentPart() != null)
+						Ribbon.this.viewObservable.setPart(null);
+					
 					if (file != null) {
 						try {
 							MeshIneBitsMain.sliceModel(file.toString());

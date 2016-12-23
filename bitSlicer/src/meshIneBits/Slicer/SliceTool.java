@@ -3,8 +3,8 @@ package meshIneBits.Slicer;
 import java.util.Vector;
 
 import meshIneBits.Model;
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Triangle;

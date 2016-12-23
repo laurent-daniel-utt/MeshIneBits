@@ -1,7 +1,7 @@
 package meshIneBits.PatternTemplates;
 
 import meshIneBits.Pattern;
-import meshIneBits.Slicer.Config.CraftConfig;
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.Vector2;
 
 public abstract class PatternTemplate {

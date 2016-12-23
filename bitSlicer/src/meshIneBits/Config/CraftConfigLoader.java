@@ -1,4 +1,4 @@
-package meshIneBits.Slicer.Config;
+package meshIneBits.Config;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

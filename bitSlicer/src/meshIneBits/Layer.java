@@ -5,8 +5,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Shape2D;
 import meshIneBits.util.Vector2;
 

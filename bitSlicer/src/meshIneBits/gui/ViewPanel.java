@@ -35,7 +35,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	JPanel layerPanel;
 	JPanel zoomPanel;
 	public JLabel bg;
-	ViewObservable sv;
+	ViewObservable viewObservable;
 	
 	public ViewPanel(View pp) {
 		this.setLayout(new BorderLayout());
@@ -52,19 +52,19 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	
 	@SuppressWarnings("incomplete-switch")
 	public void update(Observable sv, Object arg) {
-		this.sv = (ViewObservable) sv;
+		this.viewObservable = (ViewObservable) sv;
 		switch((ViewObservable.Component) arg){
 		case PART:
-			if(this.sv.getCurrentPart() != null)
+			if(this.viewObservable.getCurrentPart() != null)
 				init();
 			else
 				noPart();
 			break;
 		case LAYER:
-			updateLayerChoice(this.sv.getCurrentLayerNumber());
+			updateLayerChoice(this.viewObservable.getCurrentLayerNumber());
 			break;
 		case ZOOM:
-			updateZoom(this.sv.getZoom());
+			updateZoom(this.viewObservable.getZoom());
 			break;
 		}
 	}
@@ -82,8 +82,13 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		addMouseWheelListener(this);
 
 		// Layer slider
-		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, sv.getCurrentPart().getLayers().size() - 1, 0);
-		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, sv.getCurrentPart().getLayers().size() - 1, 1));
+		if (viewObservable.getCurrentPart().isGenerated()) {
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 1));
+		} else {
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 1));
+		}
 
 		layerSpinner.setFocusable(false);
 		layerSpinner.setMaximumSize(new Dimension(40, 40));
@@ -95,10 +100,10 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 		// Zoom slider
-		System.out.println((int) (sv.getZoom() * 100.0));
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (sv.getZoom() * 100.0));
+		System.out.println((int) (viewObservable.getZoom() * 100.0));
+		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
 		zoomSlider.setMaximumSize(new Dimension(500, 20));
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(sv.getZoom(), 0, 250.0, 1));
+		zoomSpinner = new JSpinner(new SpinnerNumberModel(viewObservable.getZoom(), 0, 250.0, 1));
 		zoomSpinner.setFocusable(false);
 		zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
@@ -117,7 +122,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		zoomSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				sv.setZoom((Double) zoomSpinner.getValue());
+				viewObservable.setZoom((Double) zoomSpinner.getValue());
 			}
 		});
 
@@ -125,21 +130,21 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				sv.setZoom(zoomSlider.getValue() / 100.0);
+				viewObservable.setZoom(zoomSlider.getValue() / 100.0);
 			}
 		});
 
 		layerSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				sv.setLayer(((Integer) layerSpinner.getValue()).intValue());
+				viewObservable.setLayer(((Integer) layerSpinner.getValue()).intValue());
 			}
 		});
 
 		layerSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				sv.setLayer(((Integer) layerSlider.getValue()).intValue());
+				viewObservable.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
 	}
@@ -153,7 +158,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		} else {
 			zoom += Math.abs(notches / 10.0);
 		}
-		sv.setZoom(zoom);
+		viewObservable.setZoom(zoom);
 	}
 
 	private void updateLayerChoice(int layerNr) {

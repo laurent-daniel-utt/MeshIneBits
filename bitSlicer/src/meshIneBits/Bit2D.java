@@ -6,7 +6,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 
-import meshIneBits.Slicer.Config.CraftConfig;
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 

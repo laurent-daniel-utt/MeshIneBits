@@ -3,10 +3,10 @@ package meshIneBits;
 import java.io.IOException;
 import java.util.Vector;
 
+import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.CraftConfigLoader;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.Slicer.SliceTool;
-import meshIneBits.Slicer.Config.CraftConfig;
-import meshIneBits.Slicer.Config.CraftConfigLoader;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.util.Logger;
 

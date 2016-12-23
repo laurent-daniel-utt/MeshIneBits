@@ -32,9 +32,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import meshIneBits.MeshIneBitsMain;
-import meshIneBits.Slicer.Config.CraftConfig;
-import meshIneBits.Slicer.Config.CraftConfigLoader;
-import meshIneBits.Slicer.Config.Setting;
+import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.Config.Setting;
 
 /**
  * The ConfigWindow class generates a JFrame window with the configurable

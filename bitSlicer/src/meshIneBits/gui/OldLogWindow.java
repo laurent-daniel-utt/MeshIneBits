@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
-import meshIneBits.Slicer.Config.CraftConfig;
+import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 

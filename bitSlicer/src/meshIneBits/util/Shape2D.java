@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
-import meshIneBits.Slicer.Config.CraftConfig;
+import meshIneBits.Config.CraftConfig;
 
 /**
  * Define a shape. Contain one or more polygons. Polygons are created from the
