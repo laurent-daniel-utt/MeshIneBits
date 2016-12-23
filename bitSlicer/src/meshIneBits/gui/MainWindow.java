@@ -68,10 +68,8 @@ public class MainWindow extends JFrame {
 	}
 
 	public void setPart(GeneratedPart part) {
-		
 		sv.setPart(part);
-//		pf.init(pp);
-//		pf.revalidate();
-//		pf.repaint();
+		revalidate();
+		repaint();
 	}
 }

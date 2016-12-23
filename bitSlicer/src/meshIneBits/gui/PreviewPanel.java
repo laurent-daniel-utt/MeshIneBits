@@ -43,7 +43,8 @@ public class PreviewPanel extends JPanel implements MouseMotionListener, MouseLi
 		this.sv = (ShowedView) sv;
 		switch((ShowedView.Component) arg){
 		case PART:
-			//init();
+			revalidate();
+			repaint();
 			break;
 		case ME:
 			break;

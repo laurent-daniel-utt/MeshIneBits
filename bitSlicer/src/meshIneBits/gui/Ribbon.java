@@ -44,9 +44,9 @@ import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.Slicer.Config.CraftConfigLoader;
 
 public class Ribbon extends JTabbedPane implements Observer {
-	
+
 	ShowedView sv;
-	
+
 	public Ribbon() {
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
 		addTab("File", new JPanel());
@@ -56,61 +56,63 @@ public class Ribbon extends JTabbedPane implements Observer {
 		//addTab("Export", new JScrollPane(new ExportTab()));
 		//addTab("Help", new JScrollPane(new HelpTab()));
 		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
-		
+
 		Ribbon.this.setSelectedIndex(1);
-		
+
 		JButton fileMenuBtn = new FileMenuButton();
 		this.setTabComponentAt(0, fileMenuBtn);
 		this.setEnabledAt(0, false);		
-				
-//		addChangeListener(new ChangeListener() {
-//			@Override
-//			public void stateChanged(ChangeEvent e) {
-//				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-//				int index = sourceTabbedPane.getSelectedIndex();
-//				if(sourceTabbedPane.getTitleAt(index) == "Export"){
-//					Ribbon.this.setSelectedIndex(1);
-//					final JFileChooser fc = new JFileChooser();
-//					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-//					int returnVal = fc.showSaveDialog(null);
-//
-//					if (returnVal == JFileChooser.APPROVE_OPTION) {
-//						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
-//						//xt.writeXmlCode();
-//					}
-//				}
-//				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
-//					Ribbon.this.setSelectedIndex(1);
-//					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
-//				}
-//			}
-//		});
+
+		//		addChangeListener(new ChangeListener() {
+		//			@Override
+		//			public void stateChanged(ChangeEvent e) {
+		//				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+		//				int index = sourceTabbedPane.getSelectedIndex();
+		//				if(sourceTabbedPane.getTitleAt(index) == "Export"){
+		//					Ribbon.this.setSelectedIndex(1);
+		//					final JFileChooser fc = new JFileChooser();
+		//					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+		//					int returnVal = fc.showSaveDialog(null);
+		//
+		//					if (returnVal == JFileChooser.APPROVE_OPTION) {
+		//						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
+		//						//xt.writeXmlCode();
+		//					}
+		//				}
+		//				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
+		//					Ribbon.this.setSelectedIndex(1);
+		//					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
+		//				}
+		//			}
+		//		});
 	}
-	
+
 	@Override
 	public void update(Observable sv, Object arg) {
 		this.sv = (ShowedView) sv;	
+		revalidate();
+		repaint();
 	}
-	
+
 	private class FileMenuButton extends JButton {
 		public FileMenuButton() {
 			ImageIcon icon = new ImageIcon(
-			new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 			this.setIcon(icon);
-			
+
 			this.setContentAreaFilled (false);
-//			fileMenuBtn.setOpaque (false);
+			//			fileMenuBtn.setOpaque (false);
 			this.setBorder (null);	
-//			fileMenuBtn.setFocusPainted (false);
-			
+			//			fileMenuBtn.setFocusPainted (false);
+
 			JPopupMenu filePopup = new JPopupMenu();
 			filePopup.add(new JMenuItem("Open"));
 			filePopup.add(new JMenuItem("Save"));
 			filePopup.add(new JMenuItem("Export"));
 			filePopup.add(new JMenuItem("Help"));
-			
+
 			this.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
@@ -119,18 +121,18 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
-//	private class AdvancedTab extends RibbonTab {
-//		public AdvancedTab() {
-//			super();
-//			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
-//			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
-//			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
-//			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
-//
-//			add(optionsCont);
-//			add(new TabContainerSeparator());
-//		}
-//	}
+	//	private class AdvancedTab extends RibbonTab {
+	//		public AdvancedTab() {
+	//			super();
+	//			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
+	//			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
+	//			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
+	//			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
+	//
+	//			add(optionsCont);
+	//			add(new TabContainerSeparator());
+	//		}
+	//	}
 
 	private class TemplateTab extends RibbonTab {
 		public TemplateTab() {
@@ -226,17 +228,17 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
-//	private class ExportTab extends RibbonTab {
-//		public ExportTab() {
-//			super();
-//		}
-//	}
-//
-//	private class HelpTab extends RibbonTab {
-//		public HelpTab() {
-//			super();
-//		}
-//	}
+	//	private class ExportTab extends RibbonTab {
+	//		public ExportTab() {
+	//			super();
+	//		}
+	//	}
+	//
+	//	private class HelpTab extends RibbonTab {
+	//		public HelpTab() {
+	//			super();
+	//		}
+	//	}
 
 	private class ButtonIcon extends JButton {
 		public ButtonIcon(String label, String iconName) {
@@ -432,17 +434,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 
 			computeBtn.addActionListener(new ActionListener() {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (file != null) {
-						final LogWindow logWindow = new LogWindow();
 						try {
 							MeshIneBitsMain.sliceModel(file.toString());
-							logWindow.dispose();
+							System.out.println("oui");
 						} catch (Exception e1) {
 							e1.printStackTrace();
-							logWindow.dispose();
 							StringBuilder sb = new StringBuilder();
 							sb.append(e1.toString());
 							sb.append("\n");

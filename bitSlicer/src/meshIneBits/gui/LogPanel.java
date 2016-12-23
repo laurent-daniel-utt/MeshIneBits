@@ -45,20 +45,15 @@ public class LogPanel extends JPanel implements LoggingInterface{
 
 	@Override
 	public void setProgress(int value, int max) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if(value >= max){
-					progressBar.setVisible(false);
-				}
-				else{
-					progressBar.setVisible(true);
-					progressBar.setValue(value);
-					progressBar.setMaximum(max);
-				}
-				LogPanel.this.repaint();
-			}
-		});	
+		if(value >= max){
+			progressBar.setVisible(false);
+		}
+		else{
+			progressBar.setVisible(true);
+			progressBar.setValue(value);
+			progressBar.setMaximum(max);
+		}
+		LogPanel.this.repaint();
 	}
 
 	@Override
