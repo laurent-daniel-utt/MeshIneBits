@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Observable;
@@ -23,13 +25,14 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import meshIneBits.GeneratedPart;
 
-public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
+public class ViewPanel extends JPanel implements Observer {
 
 	private static final long serialVersionUID = 1L;
 	private View view;
@@ -108,7 +111,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 	public void init() {
 		this.setLayout(new BorderLayout());
-		addMouseWheelListener(this);
+		
 
 		this.view = new View();
 		viewObservable.addObserver(view);
@@ -247,19 +250,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 					}
 				});
 	}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		int notches = e.getWheelRotation();
-		double zoom = (double) zoomSpinner.getValue();
-		if (notches > 0) {
-			zoom -= Math.abs(notches / 10.0);
-		} else {
-			zoom += Math.abs(notches / 10.0);
-		}
-		viewObservable.setZoom(zoom);
-	}
-
+	
 	private void updateLayerChoice(int layerNr) {
 		try{
 			layerSpinner.setValue(layerNr);

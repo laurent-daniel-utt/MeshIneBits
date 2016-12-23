@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -28,17 +30,19 @@ import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-public class View extends JPanel implements MouseMotionListener, MouseListener, Observer {
+public class View extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
 	
 	private static final long serialVersionUID = 1L;
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
 	private ViewObservable viewObservable;
+	private boolean rightClickPressed = false;
 	
 	public View() {
 		addMouseMotionListener(this);
 		addMouseListener(this);
+		addMouseWheelListener(this);
 		
 		viewObservable = ViewObservable.getInstance();
 	}
@@ -240,15 +244,8 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		
-		if(SwingUtilities.isMiddleMouseButton(e)){
-			if(e.getY() >= viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2))
-				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
-			else
-				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
-		}
-		else{
+	public void mouseClicked(MouseEvent e) {		
+		if(SwingUtilities.isLeftMouseButton(e)){
 			GeneratedPart part = viewObservable.getCurrentPart();
 			double drawScale = viewObservable.getZoom();
 			if (part != null && part.isGenerated()) {
@@ -283,28 +280,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			}
 		}
 	}
-	
-	private int mouseDraggedValue = 0;
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if(SwingUtilities.isMiddleMouseButton(e)){
-			
-			if(e.getY() >= viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) > 0)
-				mouseDraggedValue++;	
-			else if(e.getY() < viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) < 0)
-				mouseDraggedValue--;		
-			
-			if(mouseDraggedValue > this.getHeight() / 120){
-				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
-				mouseDraggedValue = 0;
-			}
-			else if (mouseDraggedValue < -this.getHeight() / 120){
-				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
-				mouseDraggedValue = 0;
-			}
-		}
-		else{
+		if(SwingUtilities.isMiddleMouseButton(e)){			
 			double drawScale = viewObservable.getZoom();
 			viewOffsetX += (e.getX() - oldX) / drawScale;
 			viewOffsetY += (e.getY() - oldY) / drawScale;
@@ -331,17 +310,41 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		oldX = e.getX();
 		oldY = e.getY();
 	}
-
+	
 	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(!rightClickPressed){
+			int notches = e.getWheelRotation();
+			double zoom = viewObservable.getZoom();;
+			if (notches > 0) {
+				zoom -= Math.abs(notches / 10.0);
+			} else {
+				zoom += Math.abs(notches / 10.0);
+			}
+			viewObservable.setZoom(zoom);
+		}
+		else{
+			int notches = e.getWheelRotation();
+			int layer = viewObservable.getCurrentLayerNumber();
+			if (notches > 0) {
+				layer -= Math.abs(notches);
+			} else {
+				layer += Math.abs(notches);
+			}
+			viewObservable.setLayer(layer);
+		}	
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mousePressed(MouseEvent e) {
+		if(SwingUtilities.isRightMouseButton(e))
+			rightClickPressed = true;
+	}
 
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if(SwingUtilities.isRightMouseButton(e))
+			rightClickPressed = false;
 	}
 
 	@Override
