@@ -45,19 +45,19 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		if (arg != null) {
-			switch((ViewObservable.Component) arg){
-			case PART:
-				revalidate();
-				repaint();
-				break;
-			case ME:
-				break;
-			default:
-				
-				break;
-			}
-		}	
+		revalidate();
+		repaint();
+//		if (arg != null) {
+//			switch((ViewObservable.Component) arg){
+//			case PART:
+//				revalidate();
+//				repaint();
+//				break;
+//			default:
+//				
+//				break;
+//			}
+//		}	
 	}
 	
 	public class TriangleShape extends Path2D.Double {
@@ -96,7 +96,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		}
 		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
 		viewObservable.setSelectedBitKey(null);
-		repaint();
 	}
 
 	public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
@@ -296,11 +295,11 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			else if(e.getY() < viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) < 0)
 				mouseDraggedValue--;		
 			
-			if(mouseDraggedValue > 10){
+			if(mouseDraggedValue > this.getHeight() / 120){
 				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
 				mouseDraggedValue = 0;
 			}
-			else if (mouseDraggedValue < -10){
+			else if (mouseDraggedValue < -this.getHeight() / 120){
 				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
 				mouseDraggedValue = 0;
 			}
@@ -351,7 +350,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		Graphics2D g2d = (Graphics2D) g;
 		
 		if (viewObservable.getCurrentPart() != null && !viewObservable.getCurrentPart().isGenerated()) {
-			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentLayerNumber());
+			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentSliceNumber());
 			for (Polygon p : slice) {
 				drawModelPath2D(g2d, p.toPath2D());
 			}

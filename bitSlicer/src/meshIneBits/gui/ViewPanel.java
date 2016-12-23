@@ -37,7 +37,10 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
+	private JSlider sliceSlider;
+	private JSpinner sliceSpinner;
 	private JPanel layerPanel;
+	private JPanel slicePanel;
 	private JPanel displayOptionsPanel;
 	private JCheckBox showSlicesBox;
 	private JCheckBox showLiftPointsBox;
@@ -85,10 +88,11 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 			case ZOOM:
 				updateZoom(this.viewObservable.getZoom());
 				break;
+			case SLICE:
+				updateSliceChoice(this.viewObservable.getCurrentSliceNumber());
+				break;
 			}
 		}
-
-
 		repaint();
 		revalidate();
 	}
@@ -97,85 +101,49 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		for (Component c : this.getComponents())
 			remove(c);
 
-		bg.setVisible(true);
+		this.add(bg);
 		repaint();
 		revalidate();
 	}
 
 	public void init() {
-		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
-
-		GeneratedPart part = viewObservable.getCurrentPart();
 
 		this.view = new View();
 		viewObservable.addObserver(view);
 
-		// remove old controls if exists
-		if (layerPanel != null) {
-			for(Component c : this.getComponents())
-				this.remove(c);
-		}
+		// remove old components
+		for(Component c : this.getComponents())
+			this.remove(c);
 
-		// Layer slider
-		if (part.isGenerated()) {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
-		} else {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
-		}
-
+		if (viewObservable.getCurrentPart().isGenerated())
+			buildLayerPanel();
+		else
+			buildSlicePanel();
+		
+		buildDisplayOptionsPanel();
+		
+		this.add(view, BorderLayout.CENTER);
+	}
+	
+	private void buildLayerPanel(){
+		GeneratedPart part = viewObservable.getCurrentPart();
+		
+		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
+		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
+		
 		layerSpinner.setFocusable(false);
 		layerSpinner.setMaximumSize(new Dimension(40, 40));
-
+		
 		layerPanel = new JPanel();
 		layerPanel.setLayout(new BoxLayout(layerPanel, BoxLayout.PAGE_AXIS));
 		layerPanel.add(layerSlider);
 		layerPanel.add(layerSpinner);
 		layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
-
-		// Zoom slider
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
-		zoomSlider.setMaximumSize(new Dimension(500, 20));
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(viewObservable.getZoom(), 0, 250.0, 1));
-		zoomSpinner.setFocusable(false);
-		zoomSpinner.setMaximumSize(new Dimension(40, 40));
-
-		showSlicesBox = new JCheckBox("Show slices", viewObservable.showSlices());
-		showLiftPointsBox = new JCheckBox("Show lift points", viewObservable.showLiftPoints());
-
-		displayOptionsPanel = new JPanel();
-		displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		displayOptionsPanel.add(new JLabel("Zoom :  "));
-		displayOptionsPanel.add(zoomSpinner);
-		displayOptionsPanel.add(zoomSlider);
-		displayOptionsPanel.add(showSlicesBox);
-		displayOptionsPanel.add(showLiftPointsBox);
-		displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-
-
+		
 		this.add(layerPanel, BorderLayout.EAST);
-		this.add(displayOptionsPanel, BorderLayout.SOUTH);
-		this.add(view, BorderLayout.CENTER);
-
-		zoomSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				viewObservable.setZoom((Double) zoomSpinner.getValue());
-			}
-		});
-
-		zoomSlider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				viewObservable.setZoom(zoomSlider.getValue() / 100.0);
-			}
-		});
-
+		
 		layerSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -189,22 +157,95 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 				viewObservable.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
-
-		showSlicesBox.addActionListener(new ActionListener() {
-
+	}
+	
+	private void buildSlicePanel(){
+		GeneratedPart part = viewObservable.getCurrentPart();
+		
+		sliceSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
+		sliceSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
+		
+		sliceSpinner.setFocusable(false);
+		sliceSpinner.setMaximumSize(new Dimension(40, 40));
+		
+		slicePanel = new JPanel();
+		slicePanel.setLayout(new BoxLayout(slicePanel, BoxLayout.PAGE_AXIS));
+		slicePanel.add(sliceSlider);
+		slicePanel.add(sliceSpinner);
+		slicePanel.setBorder(new EmptyBorder(0, 5, 5, 0));
+		
+		this.add(slicePanel, BorderLayout.WEST);
+		
+		sliceSpinner.addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				viewObservable.toggleShowSlice(showSlicesBox.isSelected());
+			public void stateChanged(ChangeEvent e) {
+				viewObservable.setSlice(((Integer) sliceSpinner.getValue()).intValue());
 			}
 		});
 
-		showLiftPointsBox.addActionListener(new ActionListener() {
-
+		sliceSlider.addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				viewObservable.toggleShowLiftPoints(showLiftPointsBox.isSelected());
+			public void stateChanged(ChangeEvent e) {
+				viewObservable.setSlice(((Integer) sliceSlider.getValue()).intValue());
 			}
 		});
+	}
+	
+	private void buildDisplayOptionsPanel(){
+		// Zoom slider
+				zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
+				zoomSlider.setMaximumSize(new Dimension(500, 20));
+				zoomSpinner = new JSpinner(new SpinnerNumberModel(viewObservable.getZoom(), 0, 250.0, 1));
+				zoomSpinner.setFocusable(false);
+				zoomSpinner.setMaximumSize(new Dimension(40, 40));
+
+				showSlicesBox = new JCheckBox("Show slices", viewObservable.showSlices());
+				showSlicesBox.setFocusable(false);
+				showLiftPointsBox = new JCheckBox("Show lift points", viewObservable.showLiftPoints());
+				showLiftPointsBox.setFocusable(false);
+
+				displayOptionsPanel = new JPanel();
+				displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+				displayOptionsPanel.add(new JLabel("Zoom :  "));
+				displayOptionsPanel.add(zoomSpinner);
+				displayOptionsPanel.add(zoomSlider);
+				displayOptionsPanel.add(showSlicesBox);
+				displayOptionsPanel.add(showLiftPointsBox);
+				displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+				
+				this.add(displayOptionsPanel, BorderLayout.SOUTH);
+				
+				zoomSpinner.addChangeListener(new ChangeListener() {
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						viewObservable.setZoom((Double) zoomSpinner.getValue());
+					}
+				});
+
+				zoomSlider.addChangeListener(new ChangeListener() {
+
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						viewObservable.setZoom(zoomSlider.getValue() / 100.0);
+					}
+				});		
+
+				showSlicesBox.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						viewObservable.toggleShowSlice(showSlicesBox.isSelected());
+					}
+				});
+
+				showLiftPointsBox.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						viewObservable.toggleShowLiftPoints(showLiftPointsBox.isSelected());
+					}
+				});
 	}
 
 	@Override
@@ -220,12 +261,32 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	}
 
 	private void updateLayerChoice(int layerNr) {
-		layerSpinner.setValue(layerNr);
-		layerSlider.setValue(layerNr);
+		try{
+			layerSpinner.setValue(layerNr);
+			layerSlider.setValue(layerNr);
+		}
+		catch(Exception e){
+			//If layer spinner and slider don't exist
+		}
 	}
 
 	private void updateZoom(double zoom) {
-		zoomSpinner.setValue(zoom);
-		zoomSlider.setValue((int) (zoom * 100));
+		try{
+			zoomSpinner.setValue(zoom);
+			zoomSlider.setValue((int) (zoom * 100));
+		}
+		catch(Exception e){
+			//If zoom spinner and slider don't exist
+		}
+	}
+	
+	private void updateSliceChoice(int sliceNr){
+		try{
+			sliceSpinner.setValue(sliceNr);
+			sliceSlider.setValue(sliceNr);
+		}
+		catch(Exception e){
+			//If slice spinner and slider don't exist
+		}
 	}
 }
