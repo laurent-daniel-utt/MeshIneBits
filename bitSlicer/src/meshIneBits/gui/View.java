@@ -33,29 +33,30 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
-	ViewObservable viewObservable;
+	private ViewObservable viewObservable;
 	
 	public View() {
 		addMouseMotionListener(this);
 		addMouseListener(this);
+		
+		viewObservable = ViewObservable.getInstance();
 	}
 	
 	@Override
-	public void update(Observable sv, Object arg) {
-		this.viewObservable = (ViewObservable) sv;
-		switch((ViewObservable.Component) arg){
-		case PART:
-			
-			break;
-		case ME:
-			break;
-		default:
-			
-			break;
-		}
-		
-		revalidate();
-		repaint();
+	public void update(Observable o, Object arg) {
+		if (arg != null) {
+			switch((ViewObservable.Component) arg){
+			case PART:
+				revalidate();
+				repaint();
+				break;
+			case ME:
+				break;
+			default:
+				
+				break;
+			}
+		}	
 	}
 	
 	public class TriangleShape extends Path2D.Double {
@@ -242,7 +243,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public void mouseClicked(MouseEvent e) {
 		GeneratedPart part = viewObservable.getCurrentPart();
 		double drawScale = viewObservable.getZoom();
-		if (part != null) {
+		if (part != null && part.isGenerated()) {
 			Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
 					((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
 			for (int i = 0; i < bitControls.size(); i++) {
@@ -365,14 +366,13 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
 			
-			if (true) {
+			if (viewObservable.showSlices()) {
 				for (int i = 0; i < layer.getSlices().size(); i++) {
 					g2d.setColor(new Color(100 + i*(155/layer.getSlices().size()),50,0));
 					for (Polygon p : layer.getSlices().get(i)) {
 						drawModelPath2D(g2d, p.toPath2D());
 					}
 				}
-				
 			}
 		}
 	}

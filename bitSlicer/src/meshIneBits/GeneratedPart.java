@@ -34,6 +34,8 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	public void buildBits2D() {
 		setSkirtRadius();
 		setPatternTemplate();
+		
+		this.layers.clear();
 
 		t = new Thread(this);
 		t.start();	
@@ -79,6 +81,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			zBitRoof = zBitBottom + bitThickness;
 		}
 		System.out.println("Layer count: " + (layerNumber - 1));
+		Logger.updateStatus("Layer count: " + (layerNumber - 1));
 	}
 
 	public Vector<Layer> getLayers() {

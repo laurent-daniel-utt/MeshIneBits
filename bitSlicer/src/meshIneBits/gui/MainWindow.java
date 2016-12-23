@@ -47,17 +47,16 @@ public class MainWindow extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		viewObservable = new ViewObservable();
+		viewObservable = ViewObservable.getInstance();
 		
-		view = new View();
-		viewPanel = new ViewPanel(view);
+		viewPanel = new ViewPanel();
 		ribbon = new Ribbon();
 		
 		viewObservable.addObserver(viewPanel);
 		viewObservable.addObserver(ribbon);
-		viewObservable.addObserver(view);
+//		viewObservable.addObserver(view);
 		
-		viewObservable.letObserversKnowMe();
+//		viewObservable.letObserversKnowMe();
 
 		content = getContentPane();
 		content.setLayout(new BorderLayout());

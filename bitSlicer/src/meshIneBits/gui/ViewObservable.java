@@ -12,23 +12,36 @@ public class ViewObservable extends Observable implements Observer{
 	private int layerNumber = 0;
 	private Vector2 selectedBitKey = null;
 	private double zoom = 0.8;
+	private boolean showSlices = true;
+	static private ViewObservable instance;
 	
 	public enum Component {
 		PART, LAYER, SELECTED_BIT, ZOOM, ME
 	}
 	
-	public ViewObservable(){
+	private ViewObservable(){
 		
 	}
 	
-	public void letObserversKnowMe(){
-		setChanged();
-		notifyObservers(Component.ME);
+	public static ViewObservable getInstance(){
+		if(instance == null)
+			instance = new ViewObservable();
+		
+		return instance;
 	}
 	
+//	public void letObserversKnowMe(){
+//		setChanged();
+//		notifyObservers(Component.ME);
+//	}
+	
 	public void setPart(GeneratedPart part){
+		if (this.part == null) {
+			part.addObserver(this);
+		}
+		
 		this.part = part;
-		this.part.addObserver(this);
+		
 		layerNumber = 0;
 		selectedBitKey = null;
 		
@@ -86,5 +99,15 @@ public class ViewObservable extends Observable implements Observer{
 	public void update(Observable o, Object arg) {
 		if (o == this.part)
 			this.setPart(part);
+	}
+
+	public void toggleShowSlice(boolean selected) {
+		this.showSlices = selected;
+		setChanged();
+		notifyObservers();
+	}
+	
+	public boolean showSlices() {
+		return showSlices;
 	}
 }

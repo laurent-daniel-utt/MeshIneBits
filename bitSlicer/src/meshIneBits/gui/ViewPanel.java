@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Observable;
@@ -14,6 +16,7 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -33,13 +36,15 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
 	private JPanel layerPanel;
-	private JPanel zoomPanel;
+	private JPanel displayOptionsPanel;
+	private JCheckBox showSlicesBox;
 	public JLabel bg;
 	private ViewObservable viewObservable;
 	
-	public ViewPanel(View view) {
+	public ViewPanel() {
 		this.setLayout(new BorderLayout());
-		this.view = view;
+		
+		viewObservable = ViewObservable.getInstance();
 
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
@@ -51,23 +56,28 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	public void update(Observable sv, Object arg) {
-		this.viewObservable = (ViewObservable) sv;
-		switch((ViewObservable.Component) arg){
-		case PART:
-			if(this.viewObservable.getCurrentPart() != null) 
-			{
-				init();
+	public void update(Observable o, Object arg) {		
+		if (arg != null) {
+			switch((ViewObservable.Component) arg){
+			case PART:
+				if(this.viewObservable.getCurrentPart() != null) 
+				{
+					init();
+					if (this.viewObservable.getCurrentPart().isSliced() && !this.viewObservable.getCurrentPart().isGenerated())
+						showSlicesBox.setEnabled(false);
+					else if (this.viewObservable.getCurrentPart().isGenerated())
+						showSlicesBox.setEnabled(true);
+				}
+				else
+					noPart();
+				break;
+			case LAYER:
+				updateLayerChoice(this.viewObservable.getCurrentLayerNumber());
+				break;
+			case ZOOM:
+				updateZoom(this.viewObservable.getZoom());
+				break;
 			}
-			else
-				noPart();
-			break;
-		case LAYER:
-			updateLayerChoice(this.viewObservable.getCurrentLayerNumber());
-			break;
-		case ZOOM:
-			updateZoom(this.viewObservable.getZoom());
-			break;
 		}
 		
 		
@@ -78,7 +88,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	public void noPart(){
 		remove(view);
 		remove(layerPanel);
-		remove(zoomPanel);
+		remove(displayOptionsPanel);
 		bg.setVisible(true);
 	}
 	
@@ -87,11 +97,13 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
 		
+		this.view = new View();
+		viewObservable.addObserver(view);
+		
 		// remove old controls if exists
 		if (layerPanel != null) {
-			this.remove(layerPanel);
-			this.remove(zoomPanel);
-			this.remove(view);
+			for(Component c : this.getComponents())
+				this.remove(c);
 		}
 		
 		// Layer slider
@@ -119,16 +131,20 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		zoomSpinner.setFocusable(false);
 		zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
-		zoomPanel = new JPanel();
-		zoomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		zoomPanel.add(new JLabel("Zoom :  "));
-		zoomPanel.add(zoomSpinner);
-		zoomPanel.add(zoomSlider);
-		zoomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		;
+		showSlicesBox = new JCheckBox("Show slices", viewObservable.showSlices());
+		
+		displayOptionsPanel = new JPanel();
+		displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		displayOptionsPanel.add(new JLabel("Zoom :  "));
+		displayOptionsPanel.add(zoomSpinner);
+		displayOptionsPanel.add(zoomSlider);
+		displayOptionsPanel.add(showSlicesBox);
+		displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		
 
 		this.add(layerPanel, BorderLayout.EAST);
-		this.add(zoomPanel, BorderLayout.SOUTH);
+		this.add(displayOptionsPanel, BorderLayout.SOUTH);
 		this.add(view, BorderLayout.CENTER);
 
 		zoomSpinner.addChangeListener(new ChangeListener() {
@@ -157,6 +173,14 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				viewObservable.setLayer(((Integer) layerSlider.getValue()).intValue());
+			}
+		});
+		
+		showSlicesBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				viewObservable.toggleShowSlice(showSlicesBox.isSelected());
 			}
 		});
 	}
