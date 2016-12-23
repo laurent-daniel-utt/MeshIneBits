@@ -27,6 +27,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import meshIneBits.GeneratedPart;
+
 public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
@@ -38,12 +40,13 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	private JPanel layerPanel;
 	private JPanel displayOptionsPanel;
 	private JCheckBox showSlicesBox;
+	private JCheckBox showLiftPointsBox;
 	public JLabel bg;
 	private ViewObservable viewObservable;
-	
+
 	public ViewPanel() {
 		this.setLayout(new BorderLayout());
-		
+
 		viewObservable = ViewObservable.getInstance();
 
 		bg = new JLabel("", SwingConstants.CENTER);
@@ -54,21 +57,26 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		bg.setForeground(new Color(0, 0, 0, 8));
 		this.add(bg);
 	}
-	
+
 	@SuppressWarnings("incomplete-switch")
 	public void update(Observable o, Object arg) {		
 		if (arg != null) {
 			switch((ViewObservable.Component) arg){
 			case PART:
-				if(this.viewObservable.getCurrentPart() != null) 
+				GeneratedPart part = this.viewObservable.getCurrentPart();
+				if(part != null && (part.isGenerated() || part.isSliced())) 
 				{
 					init();
-					if (this.viewObservable.getCurrentPart().isSliced() && !this.viewObservable.getCurrentPart().isGenerated())
+					if (part.isSliced() && !part.isGenerated()) {
 						showSlicesBox.setEnabled(false);
-					else if (this.viewObservable.getCurrentPart().isGenerated())
+						showLiftPointsBox.setEnabled(false);
+					}
+					else if (part.isGenerated()) {
 						showSlicesBox.setEnabled(true);
-				}
-				else
+						showLiftPointsBox.setEnabled(true);
+					}
+						
+				}else
 					noPart();
 				break;
 			case LAYER:
@@ -79,40 +87,44 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 				break;
 			}
 		}
-		
-		
+
+
 		repaint();
 		revalidate();
 	}
-	
+
 	public void noPart(){
-		remove(view);
-		remove(layerPanel);
-		remove(displayOptionsPanel);
+		for (Component c : this.getComponents())
+			remove(c);
+
 		bg.setVisible(true);
+		repaint();
+		revalidate();
 	}
-	
+
 	public void init() {
 		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
-		
+
+		GeneratedPart part = viewObservable.getCurrentPart();
+
 		this.view = new View();
 		viewObservable.addObserver(view);
-		
+
 		// remove old controls if exists
 		if (layerPanel != null) {
 			for(Component c : this.getComponents())
 				this.remove(c);
 		}
-		
+
 		// Layer slider
-		if (viewObservable.getCurrentPart().isGenerated()) {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 1));
+		if (part.isGenerated()) {
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
 		} else {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 1));
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
 		}
 
 		layerSpinner.setFocusable(false);
@@ -132,16 +144,18 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		zoomSpinner.setMaximumSize(new Dimension(40, 40));
 
 		showSlicesBox = new JCheckBox("Show slices", viewObservable.showSlices());
-		
+		showLiftPointsBox = new JCheckBox("Show lift points", viewObservable.showLiftPoints());
+
 		displayOptionsPanel = new JPanel();
 		displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		displayOptionsPanel.add(new JLabel("Zoom :  "));
 		displayOptionsPanel.add(zoomSpinner);
 		displayOptionsPanel.add(zoomSlider);
 		displayOptionsPanel.add(showSlicesBox);
+		displayOptionsPanel.add(showLiftPointsBox);
 		displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		
+
+
 
 		this.add(layerPanel, BorderLayout.EAST);
 		this.add(displayOptionsPanel, BorderLayout.SOUTH);
@@ -175,12 +189,20 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 				viewObservable.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
-		
+
 		showSlicesBox.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewObservable.toggleShowSlice(showSlicesBox.isSelected());
+			}
+		});
+
+		showLiftPointsBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				viewObservable.toggleShowLiftPoints(showLiftPointsBox.isSelected());
 			}
 		});
 	}
