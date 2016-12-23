@@ -64,6 +64,10 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 				if(this.viewObservable.getCurrentPart() != null) 
 				{
 					init();
+					if (this.viewObservable.getCurrentPart().isSliced() && !this.viewObservable.getCurrentPart().isGenerated())
+						showSlicesBox.setEnabled(false);
+					else if (this.viewObservable.getCurrentPart().isGenerated())
+						showSlicesBox.setEnabled(true);
 				}
 				else
 					noPart();
