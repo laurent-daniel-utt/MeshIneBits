@@ -28,8 +28,12 @@ public class ViewObservable extends Observable implements Observer{
 	}
 	
 	public void setPart(GeneratedPart part){
+		if (this.part == null) {
+			part.addObserver(this);
+		}
+		
 		this.part = part;
-		this.part.addObserver(this);
+		
 		layerNumber = 0;
 		selectedBitKey = null;
 		
