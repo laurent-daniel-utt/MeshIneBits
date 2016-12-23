@@ -32,7 +32,7 @@ public class ViewObservable extends Observable implements Observer{
 		layerNumber = 0;
 		selectedBitKey = null;
 		
-		if(part != null && !part.getSlices().isEmpty()) {
+		if(part != null && part.isSliced()) {
 			setChanged();
 			notifyObservers(Component.PART);
 		}

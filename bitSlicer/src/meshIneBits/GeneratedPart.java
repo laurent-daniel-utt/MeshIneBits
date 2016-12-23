@@ -19,11 +19,16 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	private PatternTemplate patternTemplate;
 	private double skirtRadius;
 	private Thread t;
-	SliceTool slicer;
+	private SliceTool slicer;
+	private boolean sliced = false;
 
 	public GeneratedPart(Model model) {
 		slicer = new SliceTool(this, model);
 		slicer.sliceModel();
+	}
+	
+	public boolean isSliced(){
+		return sliced;
 	}
 
 	public void buildBits2D() {
@@ -31,7 +36,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		setPatternTemplate();
 
 		t = new Thread(this);
-		t.start();
+		t.start();	
 	}
 
 	public boolean isGenerated() {
@@ -81,6 +86,14 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	public Vector<Slice> getSlices(){
+		if (!sliced)
+			try {
+				throw new Exception("Part not sliced!");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
 		return slices;
 	}
 
@@ -136,6 +149,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	public void update(Observable o, Object arg) {
 		if (o == slicer && arg == this) {
 			this.slices = slicer.getSlices();
+			sliced = true;
 			setChanged();
 			notifyObservers();
 		}
