@@ -58,6 +58,8 @@ public class ViewObservable extends Observable implements Observer{
 	public void setLayer(int nbrLayer){
 		if(part == null)
 			return;
+		if(nbrLayer >= part.getLayers().size() || nbrLayer < 0)
+			return;
 		layerNumber = nbrLayer;
 		selectedBitKey = null;
 		setChanged();
