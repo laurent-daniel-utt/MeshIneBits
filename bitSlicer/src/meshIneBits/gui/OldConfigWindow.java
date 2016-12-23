@@ -45,13 +45,13 @@ import meshIneBits.Slicer.Config.Setting;
  *
  * NOTE: I suck at UI coding.
  */
-public class ConfigWindow extends JFrame {
+public class OldConfigWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private JPanel configSettingsPanel;
 	private JPanel actionPanel;
 
-	public ConfigWindow() {
+	public OldConfigWindow() {
 		this.setTitle("MeshIneBits - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -94,16 +94,16 @@ public class ConfigWindow extends JFrame {
 				fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
 				int returnVal = fc.showOpenDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					final LogWindow logWindow = new LogWindow();
+					final OldLogWindow oldLogWindow = new OldLogWindow();
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
 							try {
 								MeshIneBitsMain.sliceModel(fc.getSelectedFile().toString());
-								logWindow.dispose();
+								oldLogWindow.dispose();
 							} catch (Exception e) {
 								e.printStackTrace();
-								logWindow.dispose();
+								oldLogWindow.dispose();
 								StringBuilder sb = new StringBuilder();
 								sb.append(e.toString());
 								sb.append("\n");
@@ -115,7 +115,7 @@ public class ConfigWindow extends JFrame {
 							}
 						}
 					}).start();
-					ConfigWindow.this.dispose();
+					OldConfigWindow.this.dispose();
 				}
 			}
 		});

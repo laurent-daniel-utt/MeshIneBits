@@ -55,6 +55,8 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 	
 	public class TriangleShape extends Path2D.Double {
+		private static final long serialVersionUID = -147647250831261196L;
+
 		public TriangleShape(Point2D... points) {
 			moveTo(points[0].getX(), points[0].getY());
 			lineTo(points[1].getX(), points[1].getY());

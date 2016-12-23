@@ -3,15 +3,11 @@ package meshIneBits.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Insets;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 

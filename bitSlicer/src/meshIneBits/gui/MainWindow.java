@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Container;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -14,7 +13,7 @@ import javax.swing.plaf.ColorUIResource;
 import meshIneBits.GeneratedPart;
 
 public class MainWindow extends JFrame {
-	
+	private static final long serialVersionUID = -74349571204769732L;
 	private static MainWindow instance = null;
 	private ViewObservable viewObservable;
 	private ViewPanel viewPanel;

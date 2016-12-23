@@ -12,13 +12,13 @@ import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 
-public class LogWindow extends JFrame implements LoggingInterface {
+public class OldLogWindow extends JFrame implements LoggingInterface {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 
-	public LogWindow() {
+	public OldLogWindow() {
 		this.setTitle("MeshIneBits - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,7 +64,7 @@ public class LogWindow extends JFrame implements LoggingInterface {
 				progressBar.setStringPainted(true);
 				progressBar.setValue(value);
 				progressBar.setMaximum(max);
-				LogWindow.this.repaint();
+				OldLogWindow.this.repaint();
 			}
 		});
 
@@ -78,7 +78,7 @@ public class LogWindow extends JFrame implements LoggingInterface {
 				statusLabel.setText(status);
 				progressBar.setIndeterminate(true);
 				progressBar.setStringPainted(false);
-				LogWindow.this.repaint();
+				OldLogWindow.this.repaint();
 			}
 		});
 	}

@@ -44,7 +44,7 @@ import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.Slicer.Config.CraftConfigLoader;
 
 public class Ribbon extends JTabbedPane implements Observer {
-
+	private static final long serialVersionUID = -1759701286071368808L;
 	ViewObservable sv;
 
 	public Ribbon() {
@@ -95,6 +95,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class FileMenuButton extends JButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5613899244422633632L;
+
 		public FileMenuButton() {
 			ImageIcon icon = new ImageIcon(
 					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
@@ -135,6 +140,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	//	}
 
 	private class TemplateTab extends RibbonTab {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2963705108403089250L;
+
 		public TemplateTab() {
 			super();
 
@@ -241,6 +251,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	//	}
 
 	private class ButtonIcon extends JButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4439705350058229259L;
+
 		public ButtonIcon(String label, String iconName) {
 			super(label);
 			try {
@@ -258,6 +273,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	private class GalleryContainer extends OptionsContainer {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5081506030712556983L;
+
 		public GalleryContainer(String title) {
 			super(title);
 			this.setLayout(new GridLayout(1, 2, 3, 3));
@@ -272,6 +292,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class LabeledSpinner extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 6726754934854914029L;
 		private JSpinner spinner;
 
 		public LabeledSpinner(String label, double defaultValue, double minValue, double maxValue, double step) {
@@ -293,6 +317,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class OptionsContainer extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 136154266552080732L;
+
 		public OptionsContainer(String title) {
 			this.setLayout(new GridLayout(3, 0, 3, 3));
 			this.setBackground(Color.WHITE);
@@ -317,6 +346,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class ReviewTab extends RibbonTab {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6062849183461607573L;
+
 		public ReviewTab() {
 			super();
 			OptionsContainer layerCont = new OptionsContainer("Review layers");
@@ -348,6 +382,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class RibbonTab extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5540398663631111329L;
+
 		public RibbonTab() {
 			FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
 			layout.setAlignOnBaseline(true);
@@ -358,6 +397,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class SlicerTab extends RibbonTab {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2435250564072409684L;
 		private File file = null;
 
 		public SlicerTab() {
@@ -463,6 +506,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class TabContainerSeparator extends JSeparator {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7739612020735334296L;
+
 		public TabContainerSeparator() {
 			this.setOrientation(SwingConstants.VERTICAL);
 			Dimension d = this.getPreferredSize();
