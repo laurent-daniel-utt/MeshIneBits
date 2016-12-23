@@ -350,16 +350,19 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				} else {
 					drawModelArea(g2d, area);
 				}
+				
+				if (viewObservable.showLiftPoints()) {
+					for (Vector2 liftPoint : bit.getLiftPoints()) {
+						if (liftPoint != null) {
+							g.setColor(Color.red);
+							Point2D point = new Point2D.Double();
+							affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
+							drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
+						}
 
-				for (Vector2 liftPoint : bit.getLiftPoints()) {
-					if (liftPoint != null) {
-						g.setColor(Color.red);
-						Point2D point = new Point2D.Double();
-						affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
-						drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
 					}
-
 				}
+				
 			}
 
 			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {

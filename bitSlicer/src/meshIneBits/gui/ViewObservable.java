@@ -3,6 +3,8 @@ package meshIneBits.gui;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.Icon;
+
 import meshIneBits.GeneratedPart;
 import meshIneBits.util.Vector2;
 
@@ -13,6 +15,7 @@ public class ViewObservable extends Observable implements Observer{
 	private Vector2 selectedBitKey = null;
 	private double zoom = 0.8;
 	private boolean showSlices = true;
+	private boolean showLiftPoints = false;
 	static private ViewObservable instance;
 	
 	public enum Component {
@@ -109,5 +112,15 @@ public class ViewObservable extends Observable implements Observer{
 	
 	public boolean showSlices() {
 		return showSlices;
+	}
+	
+	public void toggleShowLiftPoints(boolean selected) {
+		this.showLiftPoints = selected;
+		setChanged();
+		notifyObservers();
+	}
+
+	public boolean showLiftPoints() {
+		return showLiftPoints ;
 	}
 }
