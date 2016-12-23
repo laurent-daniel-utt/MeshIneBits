@@ -27,6 +27,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import meshIneBits.GeneratedPart;
+
 public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
@@ -60,15 +62,15 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		if (arg != null) {
 			switch((ViewObservable.Component) arg){
 			case PART:
-				if(this.viewObservable.getCurrentPart() != null) 
+				GeneratedPart part = this.viewObservable.getCurrentPart();
+				if(part != null && (part.isGenerated() || part.isSliced())) 
 				{
 					init();
-					if (this.viewObservable.getCurrentPart().isSliced() && !this.viewObservable.getCurrentPart().isGenerated())
+					if (part.isSliced() && !part.isGenerated())
 						showSlicesBox.setEnabled(false);
-					else if (this.viewObservable.getCurrentPart().isGenerated())
+					else if (part.isGenerated())
 						showSlicesBox.setEnabled(true);
-				}
-				else
+				}else
 					noPart();
 				break;
 			case LAYER:
@@ -86,16 +88,20 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	}
 	
 	public void noPart(){
-		remove(view);
-		remove(layerPanel);
-		remove(displayOptionsPanel);
+		for (Component c : this.getComponents())
+			remove(c);
+
 		bg.setVisible(true);
+		repaint();
+		revalidate();
 	}
 	
 	public void init() {
 		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
+		
+		GeneratedPart part = viewObservable.getCurrentPart();
 		
 		this.view = new View();
 		viewObservable.addObserver(view);
@@ -107,12 +113,12 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		}
 		
 		// Layer slider
-		if (viewObservable.getCurrentPart().isGenerated()) {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 1));
+		if (part.isGenerated()) {
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
 		} else {
-			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 0);
-			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, viewObservable.getCurrentPart().getSlices().size() - 1, 1));
+			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
+			layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
 		}
 
 		layerSpinner.setFocusable(false);

@@ -36,7 +36,7 @@ public class ViewObservable extends Observable implements Observer{
 //	}
 	
 	public void setPart(GeneratedPart part){
-		if (this.part == null) {
+		if (this.part == null && part != null) {
 			part.addObserver(this);
 		}
 		
@@ -45,11 +45,11 @@ public class ViewObservable extends Observable implements Observer{
 		layerNumber = 0;
 		selectedBitKey = null;
 		
-		if(part != null && part.isSliced()) {
+//		if(part != null && part.isSliced()) {
 			MainWindow.getInstance().refresh();
 			setChanged();
 			notifyObservers(Component.PART);
-		}
+//		}
 	}
 	
 	public void setLayer(int nbrLayer){
