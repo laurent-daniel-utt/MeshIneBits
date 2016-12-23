@@ -238,10 +238,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					GeneratedPart temp = Ribbon.this.viewObservable.getCurrentPart();
-					Ribbon.this.viewObservable.setPart(null);
-					temp.buildBits2D();
-					Ribbon.this.viewObservable.setPart(temp);
+					Ribbon.this.viewObservable.getCurrentPart().buildBits2D();
 				}
 			});
 		}
@@ -489,11 +486,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					if (Ribbon.this.viewObservable.getCurrentPart() != null)
 						Ribbon.this.viewObservable.setPart(null);
-					
+
 					if (file != null) {
 						try {
 							MeshIneBitsMain.sliceModel(file.toString());
-							System.out.println("oui");
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							StringBuilder sb = new StringBuilder();

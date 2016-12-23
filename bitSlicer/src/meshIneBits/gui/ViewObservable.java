@@ -1,11 +1,12 @@
 package meshIneBits.gui;
 
 import java.util.Observable;
+import java.util.Observer;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.util.Vector2;
 
-public class ViewObservable extends Observable {
+public class ViewObservable extends Observable implements Observer{
 	
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
@@ -17,7 +18,7 @@ public class ViewObservable extends Observable {
 	}
 	
 	public ViewObservable(){
-
+		
 	}
 	
 	public void letObserversKnowMe(){
@@ -27,10 +28,14 @@ public class ViewObservable extends Observable {
 	
 	public void setPart(GeneratedPart part){
 		this.part = part;
+		this.part.addObserver(this);
 		layerNumber = 0;
 		selectedBitKey = null;
-		setChanged();
-		notifyObservers(Component.PART);
+		
+		if(part != null && !part.getSlices().isEmpty()) {
+			setChanged();
+			notifyObservers(Component.PART);
+		}
 	}
 	
 	public void setLayer(int nbrLayer){
@@ -74,5 +79,11 @@ public class ViewObservable extends Observable {
 	
 	public double getZoom(){
 		return zoom;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (o == this.part)
+			this.setPart(part);
 	}
 }

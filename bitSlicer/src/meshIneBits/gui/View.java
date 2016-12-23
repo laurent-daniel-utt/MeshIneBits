@@ -45,15 +45,17 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		this.viewObservable = (ViewObservable) sv;
 		switch((ViewObservable.Component) arg){
 		case PART:
-			revalidate();
-			repaint();
+			
 			break;
 		case ME:
 			break;
 		default:
-			repaint();
+			
 			break;
 		}
+		
+		revalidate();
+		repaint();
 	}
 	
 	public class TriangleShape extends Path2D.Double {

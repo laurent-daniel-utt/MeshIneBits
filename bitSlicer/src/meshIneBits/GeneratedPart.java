@@ -1,5 +1,7 @@
 package meshIneBits;
 
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
 
 import meshIneBits.Config.CraftConfig;
@@ -7,27 +9,31 @@ import meshIneBits.PatternTemplates.PatternTemplate;
 import meshIneBits.PatternTemplates.PatternTemplate1;
 import meshIneBits.PatternTemplates.PatternTemplate2;
 import meshIneBits.Slicer.Slice;
+import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 
-public class GeneratedPart {
+public class GeneratedPart extends Observable implements Runnable, Observer {
 	private Vector<Layer> layers = new Vector<Layer>();
-	private Vector<Slice> slices;
+	private Vector<Slice> slices = new Vector<Slice>();
 	private PatternTemplate patternTemplate;
 	private double skirtRadius;
+	private Thread t;
+	SliceTool slicer;
 
-	public GeneratedPart(Vector<Slice> slices) {
-		this.slices = slices;
-//		setSkirtRadius();
-//		buildBits2D();
+	public GeneratedPart(Model model) {
+		slicer = new SliceTool(this, model);
+		slicer.sliceModel();
 	}
 
 	public void buildBits2D() {
 		setSkirtRadius();
 		setPatternTemplate();
-		buildLayers();
+
+		t = new Thread(this);
+		t.start();
 	}
-	
+
 	public boolean isGenerated() {
 		if (!layers.isEmpty())
 			return true;
@@ -36,7 +42,6 @@ public class GeneratedPart {
 	}
 
 	private void buildLayers() {
-
 		@SuppressWarnings("unchecked")
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
 		double bitThickness = CraftConfig.bitThickness;
@@ -62,7 +67,7 @@ public class GeneratedPart {
 				Logger.setProgress(progress, progressGoal);
 			}
 			if (!includedSlices.isEmpty()) {
-				layers.add(new Layer(includedSlices, layerNumber, this));
+				layers.add(new Layer(includedSlices, layerNumber, GeneratedPart.this));
 				layerNumber++;
 			}
 			zBitBottom = zBitRoof + layersOffSet;
@@ -74,7 +79,7 @@ public class GeneratedPart {
 	public Vector<Layer> getLayers() {
 		return this.layers;
 	}
-	
+
 	public Vector<Slice> getSlices(){
 		return slices;
 	}
@@ -118,6 +123,22 @@ public class GeneratedPart {
 		skirtRadius = Math.sqrt(radius);
 
 		System.out.println("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
+	}
+
+	@Override
+	public void run() {
+		buildLayers();
+		setChanged();
+		notifyObservers();
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (o == slicer && arg == this) {
+			this.slices = slicer.getSlices();
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 }

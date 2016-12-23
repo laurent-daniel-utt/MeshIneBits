@@ -55,8 +55,10 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		this.viewObservable = (ViewObservable) sv;
 		switch((ViewObservable.Component) arg){
 		case PART:
-			if(this.viewObservable.getCurrentPart() != null)
+			if(this.viewObservable.getCurrentPart() != null) 
+			{
 				init();
+			}
 			else
 				noPart();
 			break;
@@ -67,6 +69,9 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 			updateZoom(this.viewObservable.getZoom());
 			break;
 		}
+		
+		repaint();
+		revalidate();
 	}
 	
 	public void noPart(){
@@ -100,7 +105,6 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		layerPanel.setBorder(new EmptyBorder(0, 0, 5, 5));
 
 		// Zoom slider
-		System.out.println((int) (viewObservable.getZoom() * 100.0));
 		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
 		zoomSlider.setMaximumSize(new Dimension(500, 20));
 		zoomSpinner = new JSpinner(new SpinnerNumberModel(viewObservable.getZoom(), 0, 250.0, 1));

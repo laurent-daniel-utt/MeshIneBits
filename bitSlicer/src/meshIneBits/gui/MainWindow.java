@@ -19,6 +19,7 @@ public class MainWindow extends JFrame {
 	private ViewPanel viewPanel;
 	private Ribbon ribbon;
 	private View view;
+	private Container content;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -58,7 +59,7 @@ public class MainWindow extends JFrame {
 		
 		viewObservable.letObserversKnowMe();
 
-		Container content = getContentPane();
+		content = getContentPane();
 		content.setLayout(new BorderLayout());
 		content.add(ribbon, BorderLayout.NORTH);
 		content.add(viewPanel, BorderLayout.CENTER);
@@ -69,7 +70,13 @@ public class MainWindow extends JFrame {
 
 	public void setPart(GeneratedPart part) {
 		viewObservable.setPart(part);
-		revalidate();
-		repaint();
+	}
+	
+	public void refresh() {
+//		content.remove(viewPanel);
+//		viewPanel = new ViewPanel(view);
+//		content.add(viewPanel, BorderLayout.CENTER);
+//		repaint();
+//		revalidate();
 	}
 }

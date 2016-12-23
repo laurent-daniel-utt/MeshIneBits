@@ -1,7 +1,9 @@
 package meshIneBits.Slicer;
 
+import java.util.Observable;
 import java.util.Vector;
 
+import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
@@ -14,19 +16,31 @@ import meshIneBits.util.Vector3;
  * The slice tool slices the model into slices, it does so by going trough all model triangles and
  * slice those into 2D lines.
  */
-public class SliceTool
+public class SliceTool extends Observable implements Runnable
 {
 	private Model model;
+	private Thread t;
+	private GeneratedPart o;
+	private Vector<Slice> slices = new Vector<Slice>();
 	
-	public SliceTool(Model model)
+	public SliceTool(GeneratedPart o, Model model)
 	{
+		this.o = o;
+		addObserver(o);
 		this.model = model;
 	}
 	
-	public Vector<Slice> sliceModel()
+	public Vector<Slice> getSlices() {
+		return slices;
+	}
+	
+	public void sliceModel() {
+		t = new Thread(this);
+		t.start();
+	}
+	
+	public void run()
 	{
-		Vector<Slice> slices = new Vector<Slice>();
-		
 		double sliceHeight = CraftConfig.sliceHeight;
 		Vector3 modelMax = model.getMax();
 		double firstSliceHeight = ((double) CraftConfig.firstSliceHeightPercent) / 100.0;
@@ -71,11 +85,12 @@ public class SliceTool
 		Logger.updateStatus("Optimizing slices");
 		for (int i = 0; i < slices.size(); i++)
 		{
-			Logger.setProgress(i, slices.size());
+			Logger.setProgress(i, slices.size()-1);
 			slices.get(i).optimize();
 		}
 		
-		
-		return slices;
+		Logger.updateStatus("Slice count: " + slices.size());
+		setChanged();
+		notifyObservers(o);
 	}
 }

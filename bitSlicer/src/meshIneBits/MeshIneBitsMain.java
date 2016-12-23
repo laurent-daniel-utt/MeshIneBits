@@ -19,33 +19,21 @@ public class MeshIneBitsMain {
 	}
 
 	public static void sliceModel(String filename) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				CraftConfig.lastSlicedFile = filename;
-				CraftConfigLoader.saveConfig(null);
+		CraftConfig.lastSlicedFile = filename;
+		CraftConfigLoader.saveConfig(null);
 
-				Model m;
-				try {
-					m = new Model(filename);
-				} catch (IOException e) {
-					e.printStackTrace();
-					Logger.error("Failed to load model");
-					return;
-				}
-				m.center();
+		Model m;
+		try {
+			m = new Model(filename);
+		} catch (IOException e) {
+			e.printStackTrace();
+			Logger.error("Failed to load model");
+			return;
+		}
+		m.center();
 
-				SliceTool slicer = new SliceTool(m);
-				final Vector<Slice> slices = slicer.sliceModel();
-				Logger.updateStatus("Slice count: " + slices.size());
-				
-				GeneratedPart part = new GeneratedPart(slices);
-				
-				MainWindow.getInstance().setPart(part);
-				
-				//		new PreviewFrame(part);
-				//		new MainWindow(part);
-			}
-		}).start();
+		GeneratedPart part = new GeneratedPart(m);
+
+		MainWindow.getInstance().setPart(part);
 	}
 }
