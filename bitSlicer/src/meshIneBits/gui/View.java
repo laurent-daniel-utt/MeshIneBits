@@ -38,11 +38,12 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public View() {
 		addMouseMotionListener(this);
 		addMouseListener(this);
+		
+		viewObservable = ViewObservable.getInstance();
 	}
 	
 	@Override
-	public void update(Observable viewObservable, Object arg) {
-		this.viewObservable = (ViewObservable) viewObservable;
+	public void update(Observable o, Object arg) {
 		if (arg != null) {
 			switch((ViewObservable.Component) arg){
 			case PART:

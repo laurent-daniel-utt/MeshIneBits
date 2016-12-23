@@ -13,19 +13,27 @@ public class ViewObservable extends Observable implements Observer{
 	private Vector2 selectedBitKey = null;
 	private double zoom = 0.8;
 	private boolean showSlices = true;
+	static private ViewObservable instance;
 	
 	public enum Component {
 		PART, LAYER, SELECTED_BIT, ZOOM, ME
 	}
 	
-	public ViewObservable(){
+	private ViewObservable(){
 		
 	}
 	
-	public void letObserversKnowMe(){
-		setChanged();
-		notifyObservers(Component.ME);
+	public static ViewObservable getInstance(){
+		if(instance == null)
+			instance = new ViewObservable();
+		
+		return instance;
 	}
+	
+//	public void letObserversKnowMe(){
+//		setChanged();
+//		notifyObservers(Component.ME);
+//	}
 	
 	public void setPart(GeneratedPart part){
 		if (this.part == null) {

@@ -41,9 +41,10 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	public JLabel bg;
 	private ViewObservable viewObservable;
 	
-	public ViewPanel(View view) {
+	public ViewPanel() {
 		this.setLayout(new BorderLayout());
-		this.view = view;
+		
+		viewObservable = ViewObservable.getInstance();
 
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
@@ -55,9 +56,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	public void update(Observable viewObservable, Object arg) {
-		this.viewObservable = (ViewObservable) viewObservable;
-		
+	public void update(Observable o, Object arg) {		
 		if (arg != null) {
 			switch((ViewObservable.Component) arg){
 			case PART:
@@ -97,6 +96,9 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
+		
+		this.view = new View();
+		viewObservable.addObserver(view);
 		
 		// remove old controls if exists
 		if (layerPanel != null) {

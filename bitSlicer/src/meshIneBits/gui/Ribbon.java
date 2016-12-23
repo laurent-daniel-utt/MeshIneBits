@@ -49,6 +49,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private ViewObservable viewObservable;
 
 	public Ribbon() {
+		viewObservable = ViewObservable.getInstance();
+		
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
 		addTab("File", new JPanel());
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
@@ -89,8 +91,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	@Override
-	public void update(Observable sv, Object arg) {
-		this.viewObservable = (ViewObservable) sv;	
+	public void update(Observable o, Object arg) {
 		revalidate();
 		repaint();
 	}
