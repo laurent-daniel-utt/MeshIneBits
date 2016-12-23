@@ -24,10 +24,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class PreviewFrame extends JPanel implements MouseWheelListener, Observer {
+public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
-	private PreviewPanel pp;
+	private View pp;
 	private JSlider zoomSlider;
 	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
@@ -35,9 +35,9 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 	JPanel layerPanel;
 	JPanel zoomPanel;
 	public JLabel bg;
-	ShowedView sv;
+	ViewObservable sv;
 	
-	public PreviewFrame(PreviewPanel pp) {
+	public ViewPanel(View pp) {
 		this.setLayout(new BorderLayout());
 		this.pp = pp;
 
@@ -52,8 +52,8 @@ public class PreviewFrame extends JPanel implements MouseWheelListener, Observer
 	
 	@SuppressWarnings("incomplete-switch")
 	public void update(Observable sv, Object arg) {
-		this.sv = (ShowedView) sv;
-		switch((ShowedView.Component) arg){
+		this.sv = (ViewObservable) sv;
+		switch((ViewObservable.Component) arg){
 		case PART:
 			if(this.sv.getCurrentPart() != null)
 				init();

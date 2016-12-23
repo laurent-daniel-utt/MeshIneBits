@@ -25,23 +25,23 @@ import meshIneBits.Slicer.Config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-public class PreviewPanel extends JPanel implements MouseMotionListener, MouseListener, Observer {
+public class View extends JPanel implements MouseMotionListener, MouseListener, Observer {
 	
 	private static final long serialVersionUID = 1L;
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
-	ShowedView sv;
+	ViewObservable sv;
 	
-	public PreviewPanel() {
+	public View() {
 		addMouseMotionListener(this);
 		addMouseListener(this);
 	}
 	
 	@Override
 	public void update(Observable sv, Object arg) {
-		this.sv = (ShowedView) sv;
-		switch((ShowedView.Component) arg){
+		this.sv = (ViewObservable) sv;
+		switch((ViewObservable.Component) arg){
 		case PART:
 			revalidate();
 			repaint();

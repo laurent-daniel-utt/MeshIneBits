@@ -16,10 +16,10 @@ import meshIneBits.GeneratedPart;
 public class MainWindow extends JFrame {
 	
 	private static MainWindow instance = null;
-	ShowedView sv;
-	private PreviewFrame pf;
-	Ribbon ribbon;
-	PreviewPanel pp;
+	private ViewObservable viewObservable;
+	private ViewPanel viewPanel;
+	private Ribbon ribbon;
+	private View view;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -47,29 +47,29 @@ public class MainWindow extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		sv = new ShowedView();
+		viewObservable = new ViewObservable();
 		
-		pp = new PreviewPanel();
-		pf = new PreviewFrame(pp);
+		view = new View();
+		viewPanel = new ViewPanel(view);
 		ribbon = new Ribbon();
 		
-		sv.addObserver(pf);
-		sv.addObserver(ribbon);
-		sv.addObserver(pp);
+		viewObservable.addObserver(viewPanel);
+		viewObservable.addObserver(ribbon);
+		viewObservable.addObserver(view);
 		
-		sv.letObserversKnowMe();
+		viewObservable.letObserversKnowMe();
 
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		content.add(ribbon, BorderLayout.NORTH);
-		content.add(pf, BorderLayout.CENTER);
-		content.add(new LogPanel(), BorderLayout.SOUTH);
+		content.add(viewPanel, BorderLayout.CENTER);
+		content.add(new StatusBar(), BorderLayout.SOUTH);
 
 		setVisible(true);
 	}
 
 	public void setPart(GeneratedPart part) {
-		sv.setPart(part);
+		viewObservable.setPart(part);
 		revalidate();
 		repaint();
 	}

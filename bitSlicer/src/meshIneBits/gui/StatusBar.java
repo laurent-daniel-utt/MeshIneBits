@@ -15,12 +15,12 @@ import javax.swing.border.EtchedBorder;
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 
-public class LogPanel extends JPanel implements LoggingInterface{
+public class StatusBar extends JPanel implements LoggingInterface{
 	private static final long serialVersionUID = 1L;
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 	
-	public LogPanel(){
+	public StatusBar(){
 
 		Logger.register(this);
 		
@@ -59,7 +59,7 @@ public class LogPanel extends JPanel implements LoggingInterface{
 			progressBar.setValue(value);
 			progressBar.setMaximum(max);
 		}
-		LogPanel.this.repaint();
+		StatusBar.this.repaint();
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.Observable;
 import meshIneBits.GeneratedPart;
 import meshIneBits.util.Vector2;
 
-public class ShowedView extends Observable {
+public class ViewObservable extends Observable {
 	
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
@@ -16,8 +16,8 @@ public class ShowedView extends Observable {
 		PART, LAYER, SELECTED_BIT, ZOOM, ME
 	}
 	
-	public ShowedView(){
-	
+	public ViewObservable(){
+
 	}
 	
 	public void letObserversKnowMe(){

@@ -45,7 +45,7 @@ import meshIneBits.Slicer.Config.CraftConfigLoader;
 
 public class Ribbon extends JTabbedPane implements Observer {
 
-	ShowedView sv;
+	ViewObservable sv;
 
 	public Ribbon() {
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
@@ -89,7 +89,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	@Override
 	public void update(Observable sv, Object arg) {
-		this.sv = (ShowedView) sv;	
+		this.sv = (ViewObservable) sv;	
 		revalidate();
 		repaint();
 	}
