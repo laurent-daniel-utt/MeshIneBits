@@ -27,19 +27,19 @@ import javax.swing.event.ChangeListener;
 public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
-	private View pp;
+	private View view;
 	private JSlider zoomSlider;
 	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
-	JPanel layerPanel;
-	JPanel zoomPanel;
+	private JPanel layerPanel;
+	private JPanel zoomPanel;
 	public JLabel bg;
-	ViewObservable viewObservable;
+	private ViewObservable viewObservable;
 	
-	public ViewPanel(View pp) {
+	public ViewPanel(View view) {
 		this.setLayout(new BorderLayout());
-		this.pp = pp;
+		this.view = view;
 
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
@@ -70,12 +70,13 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 			break;
 		}
 		
+		
 		repaint();
 		revalidate();
 	}
 	
 	public void noPart(){
-		remove(pp);
+		remove(view);
 		remove(layerPanel);
 		remove(zoomPanel);
 		bg.setVisible(true);
@@ -85,7 +86,14 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 		bg.setVisible(false);
 		this.setLayout(new BorderLayout());
 		addMouseWheelListener(this);
-
+		
+		// remove old controls if exists
+		if (layerPanel != null) {
+			this.remove(layerPanel);
+			this.remove(zoomPanel);
+			this.remove(view);
+		}
+		
 		// Layer slider
 		if (viewObservable.getCurrentPart().isGenerated()) {
 			layerSlider = new JSlider(SwingConstants.VERTICAL, 0, viewObservable.getCurrentPart().getLayers().size() - 1, 0);
@@ -121,7 +129,7 @@ public class ViewPanel extends JPanel implements MouseWheelListener, Observer {
 
 		this.add(layerPanel, BorderLayout.EAST);
 		this.add(zoomPanel, BorderLayout.SOUTH);
-		this.add(pp, BorderLayout.CENTER);
+		this.add(view, BorderLayout.CENTER);
 
 		zoomSpinner.addChangeListener(new ChangeListener() {
 			@Override

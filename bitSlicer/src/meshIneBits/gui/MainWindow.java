@@ -73,10 +73,7 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void refresh() {
-//		content.remove(viewPanel);
-//		viewPanel = new ViewPanel(view);
-//		content.add(viewPanel, BorderLayout.CENTER);
-//		repaint();
-//		revalidate();
+		repaint();
+		revalidate();
 	}
 }

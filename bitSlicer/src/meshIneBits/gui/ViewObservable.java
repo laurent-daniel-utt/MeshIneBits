@@ -33,6 +33,7 @@ public class ViewObservable extends Observable implements Observer{
 		selectedBitKey = null;
 		
 		if(part != null && part.isSliced()) {
+			MainWindow.getInstance().refresh();
 			setChanged();
 			notifyObservers(Component.PART);
 		}
