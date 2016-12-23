@@ -1,11 +1,16 @@
 package meshIneBits.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
@@ -16,19 +21,21 @@ public class LogPanel extends JPanel implements LoggingInterface{
 	private JProgressBar progressBar;
 	
 	public LogPanel(){
-		
+
 		Logger.register(this);
 		
 		progressBar = new JProgressBar(0, 2);
-		this.add(progressBar);
 		progressBar.setVisible(false);
-		
 		
 		statusLabel = new JLabel("Ready");
 		statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
-		this.add(statusLabel);
-
 		
+		this.setBackground(Color.white);
+		this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
+		
+		this.setLayout(new BorderLayout());
+		this.add(statusLabel, BorderLayout.WEST);
+		this.add(progressBar, BorderLayout.EAST);
 	}
 
 	@Override
@@ -40,7 +47,6 @@ public class LogPanel extends JPanel implements LoggingInterface{
 	@Override
 	public void message(String message) {
 		statusLabel.setText(message);
-		
 	}
 
 	@Override
@@ -58,8 +64,7 @@ public class LogPanel extends JPanel implements LoggingInterface{
 
 	@Override
 	public void updateStatus(String status) {
-		// TODO Auto-generated method stub
-		
+		statusLabel.setText(status);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package meshIneBits.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 
@@ -59,10 +60,10 @@ public class MainWindow extends JFrame {
 		sv.letObserversKnowMe();
 
 		Container content = getContentPane();
-		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
-		content.add(ribbon);
-		content.add(pf);
-		content.add(new LogPanel());
+		content.setLayout(new BorderLayout());
+		content.add(ribbon, BorderLayout.NORTH);
+		content.add(pf, BorderLayout.CENTER);
+		content.add(new LogPanel(), BorderLayout.SOUTH);
 
 		setVisible(true);
 	}

@@ -37,7 +37,8 @@ public class MeshIneBitsMain {
 
 				SliceTool slicer = new SliceTool(m);
 				final Vector<Slice> slices = slicer.sliceModel();
-
+				Logger.updateStatus("Slice count: " + slices.size());
+				
 				GeneratedPart part = new GeneratedPart(slices);
 				
 				MainWindow.getInstance().setPart(part);

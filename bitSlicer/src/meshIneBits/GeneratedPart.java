@@ -50,7 +50,8 @@ public class GeneratedPart {
 				}
 				slicesCopy.remove(0);
 				z = z + sliceHeight;
-				Logger.setProgress(progress++, progressGoal);
+				progress++;
+				Logger.setProgress(progress, progressGoal);
 			}
 			if (!includedSlices.isEmpty()) {
 				layers.add(new Layer(includedSlices, layerNumber, this));
