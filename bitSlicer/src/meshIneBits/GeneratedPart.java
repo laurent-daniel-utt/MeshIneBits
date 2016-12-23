@@ -82,18 +82,27 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	public Vector<Layer> getLayers() {
+		if(!isGenerated()){
+			try {
+				throw new Exception("Part not generated!");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return this.layers;
 	}
 
 	public Vector<Slice> getSlices(){
-		if (!sliced)
+		if (!sliced) {
 			try {
 				throw new Exception("Part not sliced!");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
+		}
+			
 		return slices;
 	}
 
