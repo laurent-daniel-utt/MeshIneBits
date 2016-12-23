@@ -17,6 +17,7 @@ import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
@@ -241,47 +242,63 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		GeneratedPart part = viewObservable.getCurrentPart();
-		double drawScale = viewObservable.getZoom();
-		if (part != null && part.isGenerated()) {
-			Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
-					((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
-			for (int i = 0; i < bitControls.size(); i++) {
-				if (bitControls.get(i).contains(oldX, oldY)) {
-					clickOnBitControl(i);
-					bitControls.clear();
-					return;
-				}
-			}
-			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
-			Vector<Vector2> bitKeys = layer.getBits3dKeys();
-			for (Vector2 bitKey : bitKeys) {
-				Bit3D bit = layer.getBit3D(bitKey);
-				Area area = bit.getRawArea();
-				AffineTransform affTrans = new AffineTransform();
-				affTrans.translate(bitKey.x, bitKey.y);
-				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-				area.transform(affTrans);
-				if (area.contains(clickSpot)) {
-					if (viewObservable.getSelectedBitKey() == bitKey) { //then it is a click to unselect this bit
-						viewObservable.setSelectedBitKey(null);
+		
+		if(SwingUtilities.isMiddleMouseButton(e)){
+			if(e.getY() >= viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2))
+				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
+			else
+				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
+		}
+		else{
+			GeneratedPart part = viewObservable.getCurrentPart();
+			double drawScale = viewObservable.getZoom();
+			if (part != null && part.isGenerated()) {
+				Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
+						((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
+				for (int i = 0; i < bitControls.size(); i++) {
+					if (bitControls.get(i).contains(oldX, oldY)) {
+						clickOnBitControl(i);
 						bitControls.clear();
-					} else if (viewObservable.getSelectedBitKey() == null) { //you need to unselect the bit before being able to select a new one
-						viewObservable.setSelectedBitKey(bitKey);
+						return;
 					}
-					break;
+				}
+				Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+				Vector<Vector2> bitKeys = layer.getBits3dKeys();
+				for (Vector2 bitKey : bitKeys) {
+					Bit3D bit = layer.getBit3D(bitKey);
+					Area area = bit.getRawArea();
+					AffineTransform affTrans = new AffineTransform();
+					affTrans.translate(bitKey.x, bitKey.y);
+					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+					area.transform(affTrans);
+					if (area.contains(clickSpot)) {
+						if (viewObservable.getSelectedBitKey() == bitKey) { //then it is a click to unselect this bit
+							viewObservable.setSelectedBitKey(null);
+							bitControls.clear();
+						} else if (viewObservable.getSelectedBitKey() == null) { //you need to unselect the bit before being able to select a new one
+							viewObservable.setSelectedBitKey(bitKey);
+						}
+						break;
+					}
 				}
 			}
-			repaint();
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		double drawScale = viewObservable.getZoom();
-		viewOffsetX += (e.getX() - oldX) / drawScale;
-		viewOffsetY += (e.getY() - oldY) / drawScale;
-		repaint();
+		if(SwingUtilities.isMiddleMouseButton(e)){
+			if(e.getY() >= viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) > 0)
+				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() - 1);
+			else if(e.getY() < viewOffsetY * viewObservable.getZoom() + (this.getHeight() / 2) && (e.getY() - oldY) < 0)
+				viewObservable.setLayer(viewObservable.getCurrentLayerNumber() + 1);
+		}
+		else{
+			double drawScale = viewObservable.getZoom();
+			viewOffsetX += (e.getX() - oldX) / drawScale;
+			viewOffsetY += (e.getY() - oldY) / drawScale;
+			repaint();
+		}
 		oldX = e.getX();
 		oldY = e.getY();
 	}
