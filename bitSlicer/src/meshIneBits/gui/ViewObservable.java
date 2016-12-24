@@ -3,8 +3,6 @@ package meshIneBits.gui;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.Icon;
-
 import meshIneBits.GeneratedPart;
 import meshIneBits.util.Vector2;
 
@@ -34,11 +32,6 @@ public class ViewObservable extends Observable implements Observer{
 		return instance;
 	}
 	
-//	public void letObserversKnowMe(){
-//		setChanged();
-//		notifyObservers(Component.ME);
-//	}
-	
 	public void setPart(GeneratedPart part){
 		if (this.part == null && part != null) {
 			part.addObserver(this);
@@ -46,14 +39,12 @@ public class ViewObservable extends Observable implements Observer{
 		
 		this.part = part;
 		
-		layerNumber = 0;
-		selectedBitKey = null;
+		setLayer(0);
+		setSelectedBitKey(null);
 		
-//		if(part != null && part.isSliced()) {
-			MainWindow.getInstance().refresh();
-			setChanged();
-			notifyObservers(Component.PART);
-//		}
+		MainWindow.getInstance().refresh();
+		setChanged();
+		notifyObservers(Component.PART);
 	}
 	
 	public void setLayer(int nbrLayer){
@@ -64,7 +55,8 @@ public class ViewObservable extends Observable implements Observer{
 		if(nbrLayer >= part.getLayers().size() || nbrLayer < 0)
 			return;
 		layerNumber = nbrLayer;
-		selectedBitKey = null;
+		part.getLayers().get(layerNumber).addObserver(this);
+		setSelectedBitKey(null);
 		setChanged();
 		notifyObservers(Component.LAYER);
 	}
@@ -121,6 +113,11 @@ public class ViewObservable extends Observable implements Observer{
 	public void update(Observable o, Object arg) {
 		if (o == this.part)
 			this.setPart(part);
+		else if(o == this.part.getLayers().get(layerNumber)){
+			setSelectedBitKey(null);
+			setChanged();
+			notifyObservers(Component.LAYER);
+		}
 	}
 
 	public void toggleShowSlice(boolean selected) {

@@ -14,7 +14,7 @@ import meshIneBits.util.Vector2;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D implements Cloneable {
-	private Vector2 origin;// in the pattern coordinate system
+	private final Vector2 origin;// in the pattern coordinate system
 	private Vector2 orientation;// around the bit origin
 	private double length;
 	private double width;
@@ -22,15 +22,27 @@ public class Bit2D implements Cloneable {
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
-
-	public Bit2D(Bit2D modelBit) {
-		this.origin = modelBit.origin;
-		this.orientation = modelBit.orientation;
-		length = CraftConfig.bitLength;
-		width = CraftConfig.bitWidth;
-
-		setTransfoMatrix();
-		buildBoundaries();
+	
+	/**
+	 * Constructor for cloning
+	 * @param origin
+	 * @param orientation
+	 * @param length
+	 * @param width
+	 * @param transfoMatrix
+	 * @param inverseTransfoMatrix
+	 * @param cutPaths
+	 * @param areas
+	 */
+	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas){
+		this.origin = origin;
+		this.orientation = orientation;
+		this.length = length;
+		this.width = width;
+		this.transfoMatrix = transfoMatrix;
+		this.inverseTransfoMatrix = inverseTransfoMatrix;
+		this.cutPaths = cutPaths;
+		this.areas = areas;
 	}
 
 	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
@@ -42,7 +54,16 @@ public class Bit2D implements Cloneable {
 		setTransfoMatrix();
 		buildBoundaries();
 	}
-
+	
+	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width){
+		this.origin = origin;
+		this.orientation = orientation;
+		this.length = length;
+		this.width = width;
+		
+		setTransfoMatrix();
+		buildBoundaries();
+	}
 	/*
 	 * originBit and orientation are in the coordinate system of the associated
 	 * pattern
@@ -52,16 +73,6 @@ public class Bit2D implements Cloneable {
 		this.orientation = orientation;
 		length = CraftConfig.bitLength;
 		width = CraftConfig.bitWidth;
-
-		setTransfoMatrix();
-		buildBoundaries();
-	}
-
-	public Bit2D(Vector2 origin, Vector2 orientation, double percentageLength, double percentageWidth) {
-		this.origin = origin;
-		this.orientation = orientation;
-		length = (CraftConfig.bitLength * percentageLength) / 100;
-		width = (CraftConfig.bitWidth * percentageWidth) / 100;
 
 		setTransfoMatrix();
 		buildBoundaries();
@@ -103,7 +114,7 @@ public class Bit2D implements Cloneable {
 
 	@Override
 	public Bit2D clone() {
-		return new Bit2D(origin, orientation);
+		return new Bit2D(origin, orientation, length, width, transfoMatrix, inverseTransfoMatrix, cutPaths, areas);
 	}
 
 	public Area getArea() {
@@ -190,5 +201,13 @@ public class Bit2D implements Cloneable {
 		for (Area a : AreaTool.segregateArea(newArea)) {
 			areas.add(a);
 		}
+	}
+	
+	public double getLength(){
+		return length;
+	}
+	
+	public double getWidth(){
+		return width;
 	}
 }

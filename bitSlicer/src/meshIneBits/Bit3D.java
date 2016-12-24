@@ -55,13 +55,7 @@ public class Bit3D {
 	}
 
 	private Vector2 computeLiftPoint(Area subBit) {
-		if (cutPaths != null) {
-			return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
-		} else if ((CraftConfig.suckerDiameter <= CraftConfig.bitWidth) && (CraftConfig.suckerDiameter <= CraftConfig.bitLength)) {
-			return new Vector2(0, 0);
-		} else {
-			return null;
-		}
+		return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
 	}
 
 	public void computeLiftPoints() {
@@ -99,5 +93,13 @@ public class Bit3D {
 
 	public Vector2 getRotation() {
 		return orientation;
+	}
+	
+	public Bit2D getBit2dToExtrude(){
+		return bit2dToExtrude;
+	}
+	
+	public Vector2 getOrigin(){
+		return origin;
 	}
 }

@@ -50,18 +50,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void update(Observable o, Object arg) {
 		revalidate();
-		repaint();
-//		if (arg != null) {
-//			switch((ViewObservable.Component) arg){
-//			case PART:
-//				revalidate();
-//				repaint();
-//				break;
-//			default:
-//				
-//				break;
-//			}
-//		}	
+		repaint();	
 	}
 	
 	public class TriangleShape extends Path2D.Double {
@@ -99,7 +88,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			break;
 		}
 		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
-		viewObservable.setSelectedBitKey(null);
 	}
 
 	public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {

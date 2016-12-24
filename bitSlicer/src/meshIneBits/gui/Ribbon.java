@@ -11,6 +11,9 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Observable;
@@ -37,16 +40,25 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import meshIneBits.Bit2D;
+import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
+import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.util.Logger;
+import meshIneBits.util.XmlTool;
 
 public class Ribbon extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
 	private ViewObservable viewObservable;
+	private File file = null;
+	JLabel fileSelectedLabel;
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
@@ -56,38 +68,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
 		addTab("Template", new JScrollPane(new TemplateTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
-		//addTab("Export", new JScrollPane(new ExportTab()));
-		//addTab("Help", new JScrollPane(new HelpTab()));
-		//addTab("Advanced", new JScrollPane(new AdvancedTab()));
 
 		Ribbon.this.setSelectedIndex(1);
 
 		JButton fileMenuBtn = new FileMenuButton();
 		this.setTabComponentAt(0, fileMenuBtn);
 		this.setEnabledAt(0, false);		
-
-		//		addChangeListener(new ChangeListener() {
-		//			@Override
-		//			public void stateChanged(ChangeEvent e) {
-		//				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-		//				int index = sourceTabbedPane.getSelectedIndex();
-		//				if(sourceTabbedPane.getTitleAt(index) == "Export"){
-		//					Ribbon.this.setSelectedIndex(1);
-		//					final JFileChooser fc = new JFileChooser();
-		//					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-		//					int returnVal = fc.showSaveDialog(null);
-		//
-		//					if (returnVal == JFileChooser.APPROVE_OPTION) {
-		//						//XmlTool xt = new XmlTool(part, fc.getSelectedFile());
-		//						//xt.writeXmlCode();
-		//					}
-		//				}
-		//				else if(sourceTabbedPane.getTitleAt(index) == "Help"){
-		//					Ribbon.this.setSelectedIndex(1);
-		//					JOptionPane.showMessageDialog(null, "For any help call your mother. \nMeshineBits has been made in 2016 by Thibault Cassard & Nicolas Gouju.", "Help", JOptionPane.PLAIN_MESSAGE);
-		//				}
-		//			}
-		//		});
 	}
 
 	@Override
@@ -97,9 +83,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class FileMenuButton extends JButton {
-		/**
-		 * 
-		 */
+		public boolean open = false;
 		private static final long serialVersionUID = 5613899244422633632L;
 
 		public FileMenuButton() {
@@ -112,39 +96,124 @@ public class Ribbon extends JTabbedPane implements Observer {
 			this.setBorder (null);	
 			//			fileMenuBtn.setFocusPainted (false);
 
-			JPopupMenu filePopup = new JPopupMenu();
-			filePopup.add(new JMenuItem("Open"));
-			filePopup.add(new JMenuItem("Save"));
-			filePopup.add(new JMenuItem("Export"));
-			filePopup.add(new JMenuItem("Help"));
+			FileMenuPopUp filePopup = new FileMenuPopUp();			
 
 			this.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
+					if(!open){
+						filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
+					}
+					else{
+						filePopup.setVisible(false);
+					}
 				}
+			});
+			
+			filePopup.addPopupMenuListener(new PopupMenuListener(){
+
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+					open = true;
+					
+				}
+
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+					open = false;
+					
+				}
+
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e) {
+					open = false;
+					
+				}
+				
 			});
 		}
 	}
+	
+	private class FileMenuPopUp extends JPopupMenu{
+		private static final long serialVersionUID = 3631645660924751860L;
+		
+		JMenuItem openMenu;
+		JMenuItem closeMenu;
+		JMenuItem exportMenu;
+		JMenuItem helpMenu;
 
-	//	private class AdvancedTab extends RibbonTab {
-	//		public AdvancedTab() {
-	//			super();
-	//			OptionsContainer optionsCont = new OptionsContainer("Advanced Options");
-	//			optionsCont.add(new LabeledSpinner("Min % machin :  ", 0, 0, 360, 22.5));
-	//			optionsCont.add(new LabeledSpinner("suckerDiameter :  ", 0, 0, 360, 22.5));
-	//			optionsCont.add(new LabeledSpinner("Layer to selected truc :  ", 0, 0, 360, 22.5));
-	//
-	//			add(optionsCont);
-	//			add(new TabContainerSeparator());
-	//		}
-	//	}
+		public FileMenuPopUp(){
+			openMenu = new JMenuItem("Open");
+			closeMenu = new JMenuItem("Close part");
+			exportMenu = new JMenuItem("Export");
+			helpMenu = new JMenuItem("Help");
+			
+			add(openMenu);
+			add(closeMenu);
+			add(exportMenu);
+			add(helpMenu);
+			
+			openMenu.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					final JFileChooser fc = new JFileChooser();
+					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
+					int returnVal = fc.showOpenDialog(null);
+
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						file = fc.getSelectedFile();
+						fileSelectedLabel.setText(file.getName());					
+					}
+				}
+			});
+			
+			
+			
+			closeMenu.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					Ribbon.this.viewObservable.setPart(null);
+				}
+			});
+			
+			exportMenu.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					Ribbon.this.setSelectedIndex(1);
+										final JFileChooser fc = new JFileChooser();
+										fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+										int returnVal = fc.showSaveDialog(null);
+					
+										GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
+										if (returnVal == JFileChooser.APPROVE_OPTION && part != null && part.isGenerated()) {
+											XmlTool xt = new XmlTool(part, fc.getSelectedFile().getPath());
+											xt.writeXmlCode();
+										}
+										else{
+											Logger.error("The XML file cannot be generated");
+										}
+				}
+			});
+			
+			helpMenu.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					JOptionPane.showMessageDialog(null, "For any help call your mom. If she's busy, ask Thibault Cassard & Nicolas Gouju.\n"
+							+ "They made MeshIneBits in 2016 with Laurent Daniel as a supervisor.\n"
+							+ "You'll have to call them dad though.", "Help", JOptionPane.PLAIN_MESSAGE);
+				}
+			});
+		}
+		
+	}
 
 	private class TemplateTab extends RibbonTab {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -2963705108403089250L;
 
 		public TemplateTab() {
@@ -244,18 +313,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 		}
 	}
-
-	//	private class ExportTab extends RibbonTab {
-	//		public ExportTab() {
-	//			super();
-	//		}
-	//	}
-	//
-	//	private class HelpTab extends RibbonTab {
-	//		public HelpTab() {
-	//			super();
-	//		}
-	//	}
 
 	private class ButtonIcon extends JButton {
 		/**
@@ -357,6 +414,19 @@ public class Ribbon extends JTabbedPane implements Observer {
 		 * 
 		 */
 		private static final long serialVersionUID = -6062849183461607573L;
+		
+		
+		private void replaceSelectedBit(double percentageLength, double percentageWidth){
+			ViewObservable vo = ViewObservable.getInstance();
+			GeneratedPart part = vo.getCurrentPart();
+			Layer layer = part.getLayers().get(vo.getCurrentLayerNumber());
+			if(vo.getSelectedBitKey() == null){
+				Logger.warning("There is no bit selected");
+				return;
+			}	
+			Bit3D bit = layer.getBit3D(vo.getSelectedBitKey());
+			layer.replaceBit(bit, percentageLength, percentageWidth);
+		}
 
 		public ReviewTab() {
 			super();
@@ -368,21 +438,25 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 
 			OptionsContainer modifCont = new OptionsContainer("Pattern modifications");
-			JButton removeBitBtn = new JButton("Remove bit");
 			JButton replaceBitBtn1 = new JButton("Replace bit 1");
 			JButton replaceBitBtn2 = new JButton("Replace bit 2");
-			modifCont.add(removeBitBtn);
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
 
 			add(modifCont);
-			add(new TabContainerSeparator());
-
-			removeBitBtn.addActionListener(new ActionListener() {
-
+			add(new TabContainerSeparator());		
+			
+			replaceBitBtn1.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-
+					replaceSelectedBit(100, 50);
+				}
+			});
+			
+			replaceBitBtn2.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					replaceSelectedBit(50, 100);
 				}
 			});
 		}
@@ -403,12 +477,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
-	private class SlicerTab extends RibbonTab {
+	private class SlicerTab extends RibbonTab{
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = -2435250564072409684L;
-		private File file = null;
+		
 
 		public SlicerTab() {
 			super();
@@ -433,13 +507,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 			modelOrientationCont.add(editOrientationBtn);
 
 			OptionsContainer computeCont = new OptionsContainer("Compute");
-			JLabel fileSelectedLabel = new JLabel("No file selected");
 			JButton computeBtn = new ButtonIcon("Slice model", "align-center.png");
+			fileSelectedLabel = new JLabel("No file selected");
 			computeCont.add(fileSelectedLabel);
 			computeCont.add(computeBtn);
 
-			add(fileCont);
-			add(new TabContainerSeparator());
+//			add(fileCont);
+//			add(new TabContainerSeparator());
 			add(slicerCont);
 			add(new TabContainerSeparator());
 			add(modelOrientationCont);
@@ -449,36 +523,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
 			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
-
-
-
-			newBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					final JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
-					int returnVal = fc.showOpenDialog(null);
-
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						fileSelectedLabel.setText(fc.getSelectedFile().getName());
-						setFile(fc.getSelectedFile());
-					}
-				}
-			});
-
 			saveBtn.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					CraftConfigLoader.saveConfig(null);
-				}
-			});
-
-			closeBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Ribbon.this.viewObservable.setPart(null);
 				}
 			});
 
@@ -507,10 +556,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 
 		}	
-
-		private void setFile(File file) {
-			this.file = file;
-		}
 	}
 
 	private class TabContainerSeparator extends JSeparator {

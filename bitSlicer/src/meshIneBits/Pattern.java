@@ -137,7 +137,7 @@ public class Pattern implements Cloneable {
 		localDirection = localDirection.getTransformed(rotateMatrix);
 		localDirection = localDirection.normal();
 		Vector2 newCoordinates = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offsetValue), bitToMove.getOrigin().y + (localDirection.y * offsetValue));
-		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation()));
+		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
 	}
 
 	public void removeBit(Vector2 key) {
