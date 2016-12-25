@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Observable;
@@ -23,6 +22,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -40,17 +40,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.CraftConfigLoader;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -59,6 +55,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private ViewObservable viewObservable;
 	private File file = null;
 	JLabel fileSelectedLabel;
+	JButton computeSlicesBtn;
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
@@ -70,23 +67,36 @@ public class Ribbon extends JTabbedPane implements Observer {
 		addTab("Review", new JScrollPane(new ReviewTab()));
 
 		Ribbon.this.setSelectedIndex(1);
+		setEnabledAt(3, false);
 
-		JButton fileMenuBtn = new FileMenuButton();
+		FileMenuButton fileMenuBtn = new FileMenuButton();
 		this.setTabComponentAt(0, fileMenuBtn);
 		this.setEnabledAt(0, false);		
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
+		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()){
+			this.setEnabledAt(3, true);
+			//Ribbon.this.setSelectedIndex(3);
+		}
+		else if(viewObservable.getCurrentPart() == null || !viewObservable.getCurrentPart().isGenerated()){
+			this.setEnabledAt(3, false);
+			Ribbon.this.setSelectedIndex(1);
+		}
+		
+		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isSliced())
+			computeSlicesBtn.setEnabled(true);
+		
 		revalidate();
 		repaint();
 	}
 
-	private class FileMenuButton extends JButton {
-		public boolean open = false;
+	private class FileMenuButton extends JToggleButton {
 		private static final long serialVersionUID = 5613899244422633632L;
 
 		public FileMenuButton() {
+			this.setFocusable(false);
 			ImageIcon icon = new ImageIcon(
 					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 			this.setIcon(icon);
@@ -96,42 +106,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 			this.setBorder (null);	
 			//			fileMenuBtn.setFocusPainted (false);
 
-			FileMenuPopUp filePopup = new FileMenuPopUp();			
+			FileMenuPopUp filePopup = new FileMenuPopUp();	
 
 			this.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(!open){
-						filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
-					}
-					else{
-						filePopup.setVisible(false);
-					}
-				}
+				
+				@Override 
+				public void actionPerformed(ActionEvent ev) {
+	                    JToggleButton b = FileMenuButton.this;
+	                    if (b.isSelected()) {
+	                    	filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
+	                    } else {
+	                        filePopup.setVisible(false);
+	                    }
+	                }
 			});
 			
-			filePopup.addPopupMenuListener(new PopupMenuListener(){
-
-				@Override
-				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-					open = true;
-					
-				}
-
-				@Override
-				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					open = false;
-					
-				}
-
-				@Override
-				public void popupMenuCanceled(PopupMenuEvent e) {
-					open = false;
-					
-				}
-				
-			});
+			
 		}
 	}
 	
@@ -144,16 +134,18 @@ public class Ribbon extends JTabbedPane implements Observer {
 		JMenuItem helpMenu;
 
 		public FileMenuPopUp(){
-			openMenu = new JMenuItem("Open");
-			closeMenu = new JMenuItem("Close part");
-			exportMenu = new JMenuItem("Export");
-			helpMenu = new JMenuItem("Help");
+			openMenu = new FileMenuItem("Open", "file-o.png");
+			closeMenu = new FileMenuItem("Close part", "times.png");
+			exportMenu = new FileMenuItem("Export", "file-code-o.png");
+			helpMenu = new FileMenuItem("Help", "info-circle.png");
 			
 			add(openMenu);
 			add(closeMenu);
 			add(exportMenu);
 			add(helpMenu);
 			
+			openMenu.setRolloverEnabled(true);
+
 			openMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -177,6 +169,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
 					Ribbon.this.viewObservable.setPart(null);
+					Logger.updateStatus("Ready");
 				}
 			});
 			
@@ -211,6 +204,57 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 		}
 		
+	}
+	
+	private class FileMenuItem extends JMenuItem{
+
+		private static final long serialVersionUID = 3576752233844578812L;
+
+		public FileMenuItem(String label, String iconName){
+			super(label);
+			setRolloverEnabled(true);
+			
+			try {
+				ImageIcon icon = new ImageIcon(
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+				this.setIcon(icon);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			this.setHorizontalAlignment(LEFT);
+			this.setMargin(new Insets(0, 0, 0, 2));
+
+			addMouseListener(new MouseListener() {
+			    @Override
+			    public void mouseEntered(MouseEvent e) {
+			        setArmed(true);
+			    };
+
+			    @Override
+			    public void mouseExited(MouseEvent e) {
+			        setArmed(false);
+			    }
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// TODO Auto-generated method stub
+					
+				};
+			});
+		}
 	}
 
 	private class TemplateTab extends RibbonTab {
@@ -315,9 +359,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class ButtonIcon extends JButton {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 4439705350058229259L;
 
 		public ButtonIcon(String label, String iconName) {
@@ -408,13 +449,30 @@ public class Ribbon extends JTabbedPane implements Observer {
 			return Component.BaselineResizeBehavior.CONSTANT_ASCENT;
 		}
 	}
-
-	private class ReviewTab extends RibbonTab {
+	
+	private class ribbonCheckBox extends JCheckBox implements Observer{
+		
 		/**
 		 * 
 		 */
-		private static final long serialVersionUID = -6062849183461607573L;
+		private static final long serialVersionUID = 9143671052675167109L;
+
+		public ribbonCheckBox(String label){
+			super(label);
+			viewObservable.addObserver(this);
+			this.setFocusable(false);
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			
+		}
 		
+	}
+
+	private class ReviewTab extends RibbonTab {
+
+		private static final long serialVersionUID = -6062849183461607573L;
 		
 		private void replaceSelectedBit(double percentageLength, double percentageWidth){
 			ViewObservable vo = ViewObservable.getInstance();
@@ -430,21 +488,60 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		public ReviewTab() {
 			super();
-			OptionsContainer layerCont = new OptionsContainer("Review layers");
-			layerCont.add(new JButton("Show next issue"));
-			layerCont.add(new JButton("Show prev issue"));
+			
+			JCheckBox slicesCheckBox = new ribbonCheckBox("Show slices"){
+				private static final long serialVersionUID = 7090657482323001875L;
 
-			add(layerCont);
+				@Override
+				public void update(Observable o, Object arg) {
+					setSelected(viewObservable.showSlices());
+				}
+			};
+			
+			JCheckBox liftPointsCheckBox = new ribbonCheckBox("Show liftPoints"){
+				private static final long serialVersionUID = 7090657482323001875L;
+
+				@Override
+				public void update(Observable o, Object arg) {
+					setSelected(viewObservable.showLiftPoints());
+				}
+			};
+			JCheckBox previousLayerCheckBox = new JCheckBox("Show Previous layer");
+			JCheckBox cutPathsCheckBox = new JCheckBox("Show cut paths");
+			
+			OptionsContainer displayCont = new OptionsContainer("Display options");
+			displayCont.add(slicesCheckBox);
+			displayCont.add(liftPointsCheckBox);
+			displayCont.add(previousLayerCheckBox);
+			displayCont.add(cutPathsCheckBox);
+
+			add(displayCont);
+			add(new TabContainerSeparator());
+			
+			OptionsContainer sliceSelectionCont = new OptionsContainer("Slice selection");
+			add(sliceSelectionCont);
 			add(new TabContainerSeparator());
 
-			OptionsContainer modifCont = new OptionsContainer("Pattern modifications");
+			OptionsContainer modifCont = new OptionsContainer("Replace bit");
 			JButton replaceBitBtn1 = new JButton("Replace bit 1");
 			JButton replaceBitBtn2 = new JButton("Replace bit 2");
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
 
 			add(modifCont);
-			add(new TabContainerSeparator());		
+			add(new TabContainerSeparator());
+			
+			slicesCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					viewObservable.toggleShowSlice(slicesCheckBox.isSelected());
+				}
+			});
+			
+			liftPointsCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					viewObservable.toggleShowLiftPoints(liftPointsCheckBox.isSelected());
+				}
+			});
 			
 			replaceBitBtn1.addActionListener(new ActionListener() {
 				@Override
@@ -463,9 +560,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class RibbonTab extends JPanel {
-		/**
-		 * 
-		 */
+
 		private static final long serialVersionUID = 5540398663631111329L;
 
 		public RibbonTab() {
@@ -487,15 +582,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 		public SlicerTab() {
 			super();
 
-			OptionsContainer fileCont = new OptionsContainer("File");
-			JButton newBtn = new ButtonIcon("Open", "file-o.png");
-			JButton saveBtn = new ButtonIcon("Save", "save.png");
-			JButton closeBtn = new ButtonIcon("Close", "times.png");
-
-			fileCont.add(newBtn);
-			fileCont.add(saveBtn);
-			fileCont.add(closeBtn);
-
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
 			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("First slice height (%) :  ", CraftConfig.firstSliceHeightPercent, 0, 999, 10);
@@ -507,13 +593,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 			modelOrientationCont.add(editOrientationBtn);
 
 			OptionsContainer computeCont = new OptionsContainer("Compute");
-			JButton computeBtn = new ButtonIcon("Slice model", "align-center.png");
+			computeSlicesBtn = new ButtonIcon("Slice model", "align-center.png");
 			fileSelectedLabel = new JLabel("No file selected");
 			computeCont.add(fileSelectedLabel);
-			computeCont.add(computeBtn);
+			computeCont.add(computeSlicesBtn);
 
-//			add(fileCont);
-//			add(new TabContainerSeparator());
 			add(slicerCont);
 			add(new TabContainerSeparator());
 			add(modelOrientationCont);
@@ -523,17 +607,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
 			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
-			saveBtn.addActionListener(new ActionListener() {
-
+			computeSlicesBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					CraftConfigLoader.saveConfig(null);
-				}
-			});
-
-			computeBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
+					computeSlicesBtn.setEnabled(false);
 					if (Ribbon.this.viewObservable.getCurrentPart() != null)
 						Ribbon.this.viewObservable.setPart(null);
 
@@ -559,9 +636,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class TabContainerSeparator extends JSeparator {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 7739612020735334296L;
 
 		public TabContainerSeparator() {
@@ -592,7 +666,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 			}
 		});
 	}

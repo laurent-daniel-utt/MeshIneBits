@@ -18,14 +18,16 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,7 +39,6 @@ public class ViewPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 1L;
 	private View view;
 	private JSlider zoomSlider;
-	private JSpinner zoomSpinner;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
 	private JSlider sliceSlider;
@@ -45,8 +46,6 @@ public class ViewPanel extends JPanel implements Observer {
 	private JPanel layerPanel;
 	private JPanel slicePanel;
 	private JPanel displayOptionsPanel;
-	private JCheckBox showSlicesBox;
-	private JCheckBox showLiftPointsBox;
 	public JLabel bg;
 	private ViewObservable viewObservable;
 
@@ -72,16 +71,7 @@ public class ViewPanel extends JPanel implements Observer {
 				GeneratedPart part = this.viewObservable.getCurrentPart();
 				if(part != null && (part.isGenerated() || part.isSliced())) 
 				{
-					init();
-					if (part.isSliced() && !part.isGenerated()) {
-						showSlicesBox.setEnabled(false);
-						showLiftPointsBox.setEnabled(false);
-					}
-					else if (part.isGenerated()) {
-						showSlicesBox.setEnabled(true);
-						showLiftPointsBox.setEnabled(true);
-					}
-						
+					init();						
 				}else
 					noPart();
 				break;
@@ -198,33 +188,18 @@ public class ViewPanel extends JPanel implements Observer {
 		// Zoom slider
 				zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
 				zoomSlider.setMaximumSize(new Dimension(500, 20));
-				zoomSpinner = new JSpinner(new SpinnerNumberModel(viewObservable.getZoom(), 0, 250.0, 1));
-				zoomSpinner.setFocusable(false);
-				zoomSpinner.setMaximumSize(new Dimension(40, 40));
-
-				showSlicesBox = new JCheckBox("Show slices", viewObservable.showSlices());
-				showSlicesBox.setFocusable(false);
-				showLiftPointsBox = new JCheckBox("Show lift points", viewObservable.showLiftPoints());
-				showLiftPointsBox.setFocusable(false);
 
 				displayOptionsPanel = new JPanel();
 				displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-				displayOptionsPanel.add(new JLabel("Zoom :  "));
-				displayOptionsPanel.add(zoomSpinner);
+				displayOptionsPanel.add(new JLabel(new ImageIcon(
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "search-minus.png")).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT))));
 				displayOptionsPanel.add(zoomSlider);
-				displayOptionsPanel.add(showSlicesBox);
-				displayOptionsPanel.add(showLiftPointsBox);
+				displayOptionsPanel.add(new JLabel(new ImageIcon(
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "search-plus.png")).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT))));
 				displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 				
 				this.add(displayOptionsPanel, BorderLayout.SOUTH);
-				
-				zoomSpinner.addChangeListener(new ChangeListener() {
-					@Override
-					public void stateChanged(ChangeEvent e) {
-						viewObservable.setZoom((Double) zoomSpinner.getValue());
-					}
-				});
 
 				zoomSlider.addChangeListener(new ChangeListener() {
 
@@ -233,22 +208,6 @@ public class ViewPanel extends JPanel implements Observer {
 						viewObservable.setZoom(zoomSlider.getValue() / 100.0);
 					}
 				});		
-
-				showSlicesBox.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						viewObservable.toggleShowSlice(showSlicesBox.isSelected());
-					}
-				});
-
-				showLiftPointsBox.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						viewObservable.toggleShowLiftPoints(showLiftPointsBox.isSelected());
-					}
-				});
 	}
 	
 	private void updateLayerChoice(int layerNr) {
@@ -263,11 +222,10 @@ public class ViewPanel extends JPanel implements Observer {
 
 	private void updateZoom(double zoom) {
 		try{
-			zoomSpinner.setValue(zoom);
 			zoomSlider.setValue((int) (zoom * 100));
 		}
 		catch(Exception e){
-			//If zoom spinner and slider don't exist
+			//If the slider doesn't exist
 		}
 	}
 	

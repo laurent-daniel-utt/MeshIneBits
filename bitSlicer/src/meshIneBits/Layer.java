@@ -36,8 +36,25 @@ public class Layer extends Observable {
 		notifyObservers();
 	}
 	
-	public void setSliceToSelect(double percentageOfHeight){
+	/**
+	 * Only for default slice to select
+	 * @param percentageOfHeight
+	 */
+	private void setSliceToSelect(double percentageOfHeight){
 		sliceToSelect = (int) Math.round(percentageOfHeight / 100 * (slices.size() - 1));
+	}
+	
+	public void setSliceToSelect(int sliceNbr){
+		if(sliceNbr >= 0 && sliceNbr < slices.size()){
+			sliceToSelect = sliceNbr;
+			rebuild();
+		}
+		else
+			System.err.println("Slice number out of boundaries");
+	}
+	
+	public int getSliceToSelect(){
+		return sliceToSelect;
 	}
 
 	public void addBit(Bit2D bit) {
@@ -57,10 +74,6 @@ public class Layer extends Observable {
 			patterns.add(referentialPattern.clone());
 			patterns.lastElement().computeBits(s);
 		}
-	}
-
-	public void computeBitsPattern(int sliceNumber) {
-		patterns.get(sliceNumber).computeBits(slices.get(sliceNumber));
 	}
 
 	public void computeLiftPoints() {
@@ -114,30 +127,69 @@ public class Layer extends Observable {
 		mapBits3D = new Hashtable<Vector2, Bit3D>();
 		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
 
-		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
-			Vector2 lastValue = bitKey;
-			
+		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {			
 			for (Pattern pattern : patterns) {	
-				if (pattern.getBitsKeys().contains(bitKey) && lastValue != null) {
+				if (pattern.getBitsKeys().contains(bitKey)) {
 					bitsToInclude.add(pattern.getBit(bitKey));
-					lastValue = bitKey;
 				} else {
 					bitsToInclude.add(null);
-					lastValue = null;
 				}
 			}
 			
-			Bit3D newBit;
-			try {
-				newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
-				mapBits3D.put(bitKey, newBit);
-			} catch (Exception e) {
-				//e.printStackTrace();
-			}
+			for(int i = 0; i < bitsToInclude.size(); i++){
+				if(bitsToInclude.get(i) != null){
+					Bit3D newBit;
+					try {
+						newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)), sliceToSelect);
+						mapBits3D.put(bitKey, newBit);
+					} catch (Exception e) {
+						if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
+							e.printStackTrace();
+						}
+					}
+					break;
+				}
+			}		
 			
 			bitsToInclude.clear();
 		}
 	}
+	
+//	private void generateBits3D() {
+//		mapBits3D = new Hashtable<Vector2, Bit3D>();
+//		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
+//
+//		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
+//			Vector2 lastValue = bitKey;
+//			
+//			for (Pattern pattern : patterns) {	
+//				if (pattern.getBitsKeys().contains(bitKey) && lastValue != null) {
+//					bitsToInclude.add(pattern.getBit(bitKey));
+//					lastValue = bitKey;
+//				} else {
+//					bitsToInclude.add(null);
+//					lastValue = null;
+//				}
+//			}
+//			
+//			for(int i = 0; i < bitsToInclude.size(); i++){
+//				if(bitsToInclude.get(i) != null){
+//					Bit3D newBit;
+//					try {
+//						newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)), sliceToSelect);
+//						mapBits3D.put(bitKey, newBit);
+//					} catch (Exception e) {
+//						if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
+//							e.printStackTrace();
+//						}
+//					}
+//					break;
+//				}
+//			}		
+//			
+//			bitsToInclude.clear();
+//		}
+//	}
 
 	public Bit3D getBit3D(Vector2 key) {
 		return mapBits3D.get(key);

@@ -114,7 +114,25 @@ public class Bit2D implements Cloneable {
 
 	@Override
 	public Bit2D clone() {
-		return new Bit2D(origin, orientation, length, width, transfoMatrix, inverseTransfoMatrix, cutPaths, areas);
+		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(), (AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(), getClonedAreas());
+	}
+	
+	public Vector<Area> getClonedAreas(){
+		Vector<Area> clonedAreas = new Vector<Area>();
+		for (Area a : areas)
+			clonedAreas.add((Area) a.clone());
+		return clonedAreas;
+	}
+	
+	public Vector<Path2D> getClonedCutPaths(){
+		if(cutPaths != null){
+			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
+			for(Path2D p : cutPaths)
+				clonedCutPaths.add((Path2D) p.clone());
+			return clonedCutPaths;
+		}
+		else
+			return null;
 	}
 
 	public Area getArea() {

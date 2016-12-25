@@ -18,7 +18,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	private Vector<Slice> slices = new Vector<Slice>();
 	private PatternTemplate patternTemplate;
 	private double skirtRadius;
-	private Thread t;
+	private Thread t = null;
 	private SliceTool slicer;
 	private boolean sliced = false;
 
@@ -32,13 +32,16 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	public void buildBits2D() {
-		setSkirtRadius();
-		setPatternTemplate();
 		
-		this.layers.clear();
+		if(t == null || (t != null && !t.isAlive())){
+			setSkirtRadius();
+			setPatternTemplate();
+		
+			this.layers.clear();
 
-		t = new Thread(this);
-		t.start();	
+			t = new Thread(this);
+			t.start();
+		}
 	}
 
 	public boolean isGenerated() {
