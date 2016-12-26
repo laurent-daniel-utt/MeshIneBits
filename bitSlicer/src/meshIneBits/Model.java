@@ -18,7 +18,7 @@ import meshIneBits.util.Vector3;
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
 
-	public Model(String filename) throws IOException {
+	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
 
 		if (filename.toLowerCase().endsWith(".stl")) {
@@ -35,7 +35,8 @@ public class Model {
 				this.triangles.addAll(readBinarySTL(filename));
 			}
 		} else {
-			new RuntimeException("Unknown model format: " + filename);
+			Logger.error("Unknown model format: " + filename);
+			throw new Exception();
 		}
 		Logger.message("Triangle count: " + triangles.size());
 	}

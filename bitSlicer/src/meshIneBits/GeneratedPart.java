@@ -83,7 +83,6 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			zBitBottom = zBitRoof + layersOffSet;
 			zBitRoof = zBitBottom + bitThickness;
 		}
-		System.out.println("Layer count: " + (layerNumber - 1));
 		Logger.updateStatus("Layer count: " + (layerNumber - 1));
 	}
 

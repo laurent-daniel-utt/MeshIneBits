@@ -25,7 +25,7 @@ public class MeshIneBitsMain {
 		Model m;
 		try {
 			m = new Model(filename);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			Logger.error("Failed to load model");
 			return;

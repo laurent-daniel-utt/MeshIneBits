@@ -19,18 +19,25 @@ public class XmlTool {
 
 	GeneratedPart part;
 	PrintWriter writer;
-	String fileLocation;
+	Path filePath;
 	StringBuffer xmlCode;
 
-	public XmlTool(GeneratedPart part, String fileLocation) {
+	public XmlTool(GeneratedPart part, Path fileLocation) {
 		this.part = part;
-		this.fileLocation = fileLocation;
+		this.filePath = fileLocation;
+		setFileToXml();
+	}
+	
+	private void setFileToXml(){
+		String fileName = filePath.getFileName().toString();
+		if(fileName.split("[.]").length >= 2)
+			fileName = fileName.split("[.]")[0];
+		fileName = fileName + "." + "xml";
+		filePath = Paths.get(filePath.getParent().toString() + "\\" + fileName);
 	}
 
 	public String getNameFromFileLocation() {
-		Path p = Paths.get(fileLocation);
-		String fileName = p.getFileName().toString();
-		return fileName.split("[.]")[0];
+		return filePath.getFileName().toString().split("[.]")[0];
 	}
 
 	private boolean liftableBit(Bit3D bit) {
@@ -148,14 +155,18 @@ public class XmlTool {
 
 	public void writeXmlCode() {
 		try {
-			writer = new PrintWriter(fileLocation, "UTF-8");
+			writer = new PrintWriter(filePath.toString(), "UTF-8");
 			writer.println("<part>");
 			startFile();
-			for (Layer l : part.getLayers()) {
-				writeLayer(l);
+			Logger.updateStatus("Generating XML file");
+			for (int i = 0; i < part.getLayers().size(); i++) {
+				writeLayer(part.getLayers().get(i));
+				Logger.setProgress(i, part.getLayers().size() - 1);
 			}
 			writer.println("</part>");
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			Logger.message("The XML file has been generated and saved in " + filePath);
+		} catch (Exception e) {
+			Logger.error("The XML file has not been generated");
 			e.printStackTrace();
 		} finally {
 			writer.close();

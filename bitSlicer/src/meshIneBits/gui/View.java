@@ -349,8 +349,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
-			boolean blue = false;
-
 			for (Vector2 b : bitKeys) {
 
 				Bit3D bit = layer.getBit3D(b);
@@ -370,15 +368,25 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					drawModelArea(g2d, area);
 				}
 				
+				if(viewObservable.showCutPaths() && bit.getCutPaths() != null){
+					g2d.setColor(Color.blue.darker());
+					g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+					for(Path2D p : bit.getCutPaths()){
+						Path2D path = (Path2D) p.clone();
+						path.transform(affTrans);
+						drawModelPath2D(g2d, path);
+					}	
+				}
+				
 				if (viewObservable.showLiftPoints()) {
+					g2d.setColor(Color.red);
+					g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 					for (Vector2 liftPoint : bit.getLiftPoints()) {
-						if (liftPoint != null) {
-							g.setColor(Color.red);
+						if (liftPoint != null) {		
 							Point2D point = new Point2D.Double();
 							affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
 							drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
 						}
-
 					}
 				}
 				
@@ -389,11 +397,41 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			}
 			
 			if (viewObservable.showSlices()) {
+				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+				g2d.setColor(new Color(100 + (155/layer.getSlices().size()),50,0));
 				for (int i = 0; i < layer.getSlices().size(); i++) {
-					g2d.setColor(new Color(100 + i*(155/layer.getSlices().size()),50,0));
+					g2d.setColor(new Color(100 + (i+1)*(155/layer.getSlices().size()),50,0));
 					for (Polygon p : layer.getSlices().get(i)) {
 						drawModelPath2D(g2d, p.toPath2D());
 					}
+				}
+			}
+	
+			if(viewObservable.showPreviousLayer() && viewObservable.getCurrentLayerNumber() > 0){
+				Layer previousLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber() - 1);
+				Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
+				
+				g2d.setColor(new Color(0, 0, 0, 0.25f));
+				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+				
+				for (Vector2 b : previousBitKeys) {
+
+					Bit3D bit = previousLayer.getBit3D(b);
+					Area area = bit.getRawArea();
+					AffineTransform affTrans = new AffineTransform();
+					affTrans.translate(b.x, b.y);
+					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+
+					area.transform(affTrans);
+
+					AffineTransform tx1 = new AffineTransform();
+					double drawScale = viewObservable.getZoom();
+					tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
+					tx1.scale(drawScale, drawScale);
+
+					area.transform(tx1);
+					
+					g2d.draw(area);	
 				}
 			}
 		}

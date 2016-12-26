@@ -65,7 +65,7 @@ public class Layer extends Observable {
 	public void replaceBit(Bit3D bit, double percentageLength, double percentageWidth){
 		Bit2D modelBit = bit.getBit2dToExtrude();
 		removeBit(bit.getOrigin());
-		addBit(new Bit2D(modelBit, 50, 100));
+		addBit(new Bit2D(modelBit, percentageLength, percentageWidth));
 	}
 
 	private void buildPatterns() {

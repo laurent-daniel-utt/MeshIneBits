@@ -15,6 +15,8 @@ public class ViewObservable extends Observable implements Observer{
 	private double zoom = 0.8;
 	private boolean showSlices = true;
 	private boolean showLiftPoints = false;
+	private boolean showPreviousLayer = false;
+	private boolean showCutPaths = false;
 	static private ViewObservable instance;
 	
 	public enum Component {
@@ -138,5 +140,25 @@ public class ViewObservable extends Observable implements Observer{
 
 	public boolean showLiftPoints() {
 		return showLiftPoints ;
+	}
+	
+	public void toggleShowPreviousLayer(boolean selected) {
+		this.showPreviousLayer = selected;
+		setChanged();
+		notifyObservers();
+	}
+
+	public boolean showPreviousLayer() {
+		return showPreviousLayer;
+	}
+	
+	public void toggleShowCutPaths(boolean selected) {
+		this.showCutPaths = selected;
+		setChanged();
+		notifyObservers();
+	}
+
+	public boolean showCutPaths() {
+		return showCutPaths;
 	}
 }
