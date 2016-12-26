@@ -49,8 +49,6 @@ public class Layer extends Observable {
 			sliceToSelect = sliceNbr;
 			rebuild();
 		}
-		else
-			System.err.println("Slice number out of boundaries");
 	}
 	
 	public int getSliceToSelect(){

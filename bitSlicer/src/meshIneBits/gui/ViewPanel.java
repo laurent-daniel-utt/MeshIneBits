@@ -186,7 +186,7 @@ public class ViewPanel extends JPanel implements Observer {
 	
 	private void buildDisplayOptionsPanel(){
 		// Zoom slider
-				zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 2000, (int) (viewObservable.getZoom() * 100.0));
+				zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 500, (int) (viewObservable.getZoom() * 100.0));
 				zoomSlider.setMaximumSize(new Dimension(500, 20));
 
 				displayOptionsPanel = new JPanel();

@@ -3,6 +3,8 @@ package meshIneBits.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -14,18 +16,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -42,6 +48,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import meshIneBits.Bit3D;
@@ -58,6 +66,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private File file = null;
 	JLabel fileSelectedLabel;
 	JButton computeSlicesBtn;
+	JLabel selectedSlice;
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
@@ -81,6 +90,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()){
 			this.setEnabledAt(3, true);
 			//Ribbon.this.setSelectedIndex(3);
+			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));			
 		}
 		else if(viewObservable.getCurrentPart() == null || !viewObservable.getCurrentPart().isGenerated()){
 			this.setEnabledAt(3, false);
@@ -123,6 +133,24 @@ public class Ribbon extends JTabbedPane implements Observer {
 	                }
 			});
 			
+			filePopup.addPopupMenuListener(new PopupMenuListener(){
+
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+					FileMenuButton.this.setSelected(true);				
+				}
+
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+					FileMenuButton.this.setSelected(false);					
+				}
+
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e) {
+					FileMenuButton.this.setSelected(false);
+				}
+				
+			});			
 			
 		}
 	}
@@ -133,19 +161,19 @@ public class Ribbon extends JTabbedPane implements Observer {
 		JMenuItem openMenu;
 		JMenuItem closeMenu;
 		JMenuItem exportMenu;
-		JMenuItem helpMenu;
+		JMenuItem aboutMenu;
 
 		public FileMenuPopUp(){
 			openMenu = new FileMenuItem("Open", "file-o.png");
 //			saveMenu = new FileMenuItem("Save", "save.png");
 			closeMenu = new FileMenuItem("Close part", "times.png");
 			exportMenu = new FileMenuItem("Export", "file-code-o.png");
-			helpMenu = new FileMenuItem("Help", "info-circle.png");
+			aboutMenu = new FileMenuItem("About", "info-circle.png");
 			
 			add(openMenu);
 			add(closeMenu);
 			add(exportMenu);
-			add(helpMenu);
+			add(aboutMenu);
 			
 			openMenu.setRolloverEnabled(true);
 
@@ -180,7 +208,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
 					Ribbon.this.viewObservable.setPart(null);
-					Logger.updateStatus("Ready to slice " + file.getName());
+					if(file != null)
+						Logger.updateStatus("Ready to slice " + file.getName());
 				}
 			});
 			
@@ -203,17 +232,72 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 			
-			helpMenu.addActionListener(new ActionListener() {
+			aboutMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
-					JOptionPane.showMessageDialog(null, "For any help, call your mom. If she's busy, ask Thibault Cassard & Nicolas Gouju.\n"
-							+ "They made MeshIneBits in 2016 with Laurent Daniel as a supervisor.\n"
-							+ "You'll have to call them dad though.", "Help", JOptionPane.PLAIN_MESSAGE);
+					new AboutDialogWindow(null, "About MeshIneBits", true);
 				}
 			});
-		}
-		
+		}		
+	}
+	
+	private class AboutDialogWindow extends JDialog{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3389839563563221684L;
+
+		public AboutDialogWindow(JFrame parent, String title, boolean modal){
+		    super(parent, title, modal);
+		    Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage();
+		    this.setIconImage(windowIcon);
+		    this.setSize(270, 140);
+		    this.setLocationRelativeTo(null);
+		    this.setResizable(false);
+		    
+		    JPanel jp = new JPanel();
+		    jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
+		    
+		    jp.add(new JLabel(" "));
+		    
+		    JLabel bg = new JLabel("");
+			ImageIcon icon = new ImageIcon(
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage().getScaledInstance(215, 37, Image.SCALE_SMOOTH));
+			bg.setIcon(icon);
+			bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
+			bg.setForeground(new Color(0, 0, 0, 8));
+			bg.setAlignmentX(Component.CENTER_ALIGNMENT);
+			jp.add(bg);
+			
+			JLabel copyrightLabel = new JLabel("Copyright© 2016 Thibault Cassard & Nicolas Gouju.");
+			copyrightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+			jp.add(copyrightLabel);
+			
+			jp.add(new JLabel(" "));
+			
+			JButton helpFileBtn = new JButton("Open help file (PDF format)");
+			helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+			jp.add(helpFileBtn);
+			
+			AboutDialogWindow.this.getContentPane().add(jp, BorderLayout.CENTER);
+			
+			helpFileBtn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					AboutDialogWindow.this.dispose();
+					Desktop dt = Desktop.getDesktop();
+					try {
+						dt.open(new File(this.getClass().getClassLoader().getResource("resources/help.pdf").getPath()));
+					} catch (IOException e1) {
+						Logger.error("Failed to load help file");
+					}
+				}
+			});
+		    
+		    this.setVisible(true);
+		  }
 	}
 	
 	private class FileMenuItem extends JMenuItem{
@@ -447,7 +531,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			centerBorder.setTitleColor(Color.gray);
 			centerBorder.setBorder(BorderFactory.createEmptyBorder());
 			this.setBorder(centerBorder);
-			this.setMinimumSize(new Dimension(500, 500));
+			OptionsContainer.this.setMinimumSize(new Dimension(title.length(), 500)); //Why it doesn't work !!??
 		}
 
 		@Override
@@ -470,6 +554,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		public ribbonCheckBox(String label){
 			super(label);
+			this.setBackground(Color.WHITE);
 			viewObservable.addObserver(this);
 			this.setFocusable(false);
 		}
@@ -543,19 +628,30 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(displayCont);
 			add(new TabContainerSeparator());
 			
-			OptionsContainer sliceSelectionCont = new OptionsContainer("Slice selection");
+			OptionsContainer sliceSelectionCont = new OptionsContainer("Selected slice");
+			sliceSelectionCont.setLayout(new BoxLayout(sliceSelectionCont, BoxLayout.Y_AXIS));			
+			ButtonIcon upArrow = new ButtonIcon("", "angle-up.png");
+			upArrow.setHorizontalAlignment(SwingConstants.CENTER);
+			sliceSelectionCont.add(upArrow);
+			selectedSlice = new JLabel();
+			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 30));
+			sliceSelectionCont.add(selectedSlice);
+			ButtonIcon downArrow = new ButtonIcon("", "angle-down.png");
+			downArrow.setHorizontalAlignment(SwingConstants.CENTER);
+			sliceSelectionCont.add(downArrow);
+			
 			add(sliceSelectionCont);
-			sliceSelectionCont.add(new JButton());
 			add(new TabContainerSeparator());
 
 			OptionsContainer modifCont = new OptionsContainer("Replace bit");
-			JButton replaceBitBtn1 = new JButton("Replace bit 1");
-			JButton replaceBitBtn2 = new JButton("Replace bit 2");
+			JButton replaceBitBtn1 = new JButton("Replace by a half width's bit");
+			JButton replaceBitBtn2 = new JButton("Replace by a half length's bit");
+			JButton replaceByFullBitBtn = new JButton("Replace by a full bit");
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
+			modifCont.add(replaceByFullBitBtn);
 
 			add(modifCont);
-			add(new TabContainerSeparator());
 			
 			slicesCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -581,6 +677,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 			
+			upArrow.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Layer currentLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() + 1);
+				}
+			});
+			
+			downArrow.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Layer currentLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() - 1);
+				}
+			});
+			
 			replaceBitBtn1.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -592,6 +704,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					replaceSelectedBit(50, 100);
+				}
+			});
+			
+			replaceByFullBitBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					replaceSelectedBit(100, 100);
 				}
 			});
 		}

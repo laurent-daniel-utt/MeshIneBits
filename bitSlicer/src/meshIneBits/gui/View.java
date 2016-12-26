@@ -99,39 +99,46 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 		Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2, CraftConfig.bitLength, CraftConfig.bitWidth));
 		areas.add(overlapBit);
-
-		Area topArrow = new Area(triangleShape);
+		
 		AffineTransform affTrans = new AffineTransform();
-		affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
-		affTrans.rotate(0, 0);
-		topArrow.transform(affTrans);
-		areas.add(topArrow);
-		bitControls.add(topArrow);
+		
+		//Draw the arrows only if the selected bit has a cutPath, there is no reason to move a full bit
+		if(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getBit3D(bitKey).getCutPaths() != null){
+			
+			Area topArrow = new Area(triangleShape);			
+			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
+			affTrans.rotate(0, 0);
+			topArrow.transform(affTrans);
+			areas.add(topArrow);
+			bitControls.add(topArrow);
 
-		Area leftArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
-		affTrans.rotate(0, 1);
-		leftArrow.transform(affTrans);
-		areas.add(leftArrow);
-		bitControls.add(leftArrow);
+			Area leftArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
+			affTrans.rotate(0, 1);
+			leftArrow.transform(affTrans);
+			areas.add(leftArrow);
+			bitControls.add(leftArrow);
 
-		Area bottomArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
-		affTrans.rotate(-1, 0);
-		bottomArrow.transform(affTrans);
-		areas.add(bottomArrow);
-		bitControls.add(bottomArrow);
+			Area bottomArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
+			affTrans.rotate(-1, 0);
+			bottomArrow.transform(affTrans);
+			areas.add(bottomArrow);
+			bitControls.add(bottomArrow);
 
-		Area rightArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
-		affTrans.rotate(0, -1);
-		rightArrow.transform(affTrans);
-		areas.add(rightArrow);
-		bitControls.add(rightArrow);
+			Area rightArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
+			affTrans.rotate(0, -1);
+			rightArrow.transform(affTrans);
+			areas.add(rightArrow);
+			bitControls.add(rightArrow);
 
+		}
+
+		
 		double drawScale = viewObservable.getZoom();
 		
 		for (Area area : areas) {
