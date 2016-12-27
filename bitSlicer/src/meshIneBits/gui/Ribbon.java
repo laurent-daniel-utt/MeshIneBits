@@ -86,7 +86,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 		
-		setEnabledAt(indexOfTab("Review"), false);
+//		setEnabledAt(indexOfTab("Review"), false);
 		setEnabledAt(indexOfTab("File"), false);		
 	}
 
@@ -472,16 +472,27 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	private class ButtonIcon extends JButton {
 		private static final long serialVersionUID = 4439705350058229259L;
-
+		
 		public ButtonIcon(String label, String iconName) {
+			this(label, iconName, false);
+		}
+		
+		public ButtonIcon(String label, String iconName, boolean onlyIcon) {
+			this(label, iconName, onlyIcon, 22, 22);
+		}
+
+		public ButtonIcon(String label, String iconName, boolean onlyIcon, int width, int height) {
 			super((label.isEmpty() ? "" : " ") + label);
 			try {
 				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
 				this.setIcon(icon);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			if (onlyIcon)
+				setContentAreaFilled (false);
 
 			this.setHorizontalAlignment(LEFT);
 			this.setMargin(new Insets(0, 0, 0, 2));
@@ -652,7 +663,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			upArrow.setHorizontalAlignment(SwingConstants.CENTER);
 			selectedSlice = new JLabel();
 			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 20));
-			selectedSlice.setText("1");
 			selectedSlice.setHorizontalAlignment(SwingConstants.CENTER);
 			selectedSlice.setPreferredSize(new Dimension(90, 25));
 			selectedSlice.setAlignmentX(CENTER_ALIGNMENT);
@@ -665,12 +675,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 			sliceSelectionCont.add(downArrow);
 			
 			add(sliceSelectionCont);
-			add(new TabContainerSeparator());
+			add(new TabContainerSeparator());	
+			
 
 			OptionsContainer modifCont = new OptionsContainer("Replace bit");
-			JButton replaceBitBtn1 = new ButtonIcon("Replace by a half width's bit", "cut-length.png");
-			JButton replaceBitBtn2 = new ButtonIcon("Replace by a half length's bit", "cut-width.png");
-			JButton replaceByFullBitBtn = new ButtonIcon("Replace by a full bit", "full-bit.png");
+			JButton replaceBitBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
+			JButton replaceBitBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
+			JButton replaceByFullBitBtn = new ButtonIcon("", "full-bit.png", true, 80, 25);
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
 			modifCont.add(replaceByFullBitBtn);
