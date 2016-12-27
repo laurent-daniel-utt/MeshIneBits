@@ -64,10 +64,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
 	private ViewObservable viewObservable;
 	private File file = null;
-	JLabel fileSelectedLabel;
-	JButton computeSlicesBtn;
-	JButton computeTemplateBtn;
-	JLabel selectedSlice;
+	private JLabel fileSelectedLabel;
+	private JButton computeSlicesBtn;
+	private JButton computeTemplateBtn;
+	private JLabel selectedSlice;
+	private JPopupMenu filePopup;
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
@@ -127,7 +128,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			this.setBorder (null);	
 			//			fileMenuBtn.setFocusPainted (false);
 
-			FileMenuPopUp filePopup = new FileMenuPopUp();	
+			filePopup = new FileMenuPopUp();	
 
 			this.addActionListener(new ActionListener() {
 				
@@ -182,6 +183,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(openMenu);
 			add(closeMenu);
 			add(exportMenu);
+			addSeparator();
 			add(aboutMenu);
 			
 			openMenu.setRolloverEnabled(true);
