@@ -151,17 +151,20 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-					FileMenuButton.this.setSelected(true);				
+					FileMenuButton.this.setSelected(true);	
+					setIcon(icon);
 				}
 
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					FileMenuButton.this.setSelected(false);					
+					FileMenuButton.this.setSelected(false);	
+					setIcon(icon);
 				}
 
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
 					FileMenuButton.this.setSelected(false);
+					setIcon(icon);
 				}
 				
 			});			
