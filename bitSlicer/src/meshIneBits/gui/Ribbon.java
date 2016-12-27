@@ -66,39 +66,48 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private File file = null;
 	JLabel fileSelectedLabel;
 	JButton computeSlicesBtn;
+	JButton computeTemplateBtn;
 	JLabel selectedSlice;
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
-		
+	
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
+		
 		addTab("File", new JPanel());
 		addTab("Slicer", new JScrollPane(new SlicerTab()));
 		addTab("Template", new JScrollPane(new TemplateTab()));
 		addTab("Review", new JScrollPane(new ReviewTab()));
-
-		Ribbon.this.setSelectedIndex(1);
-//		setEnabledAt(3, false);
-
+		
 		FileMenuButton fileMenuBtn = new FileMenuButton();
 		this.setTabComponentAt(0, fileMenuBtn);
-		this.setEnabledAt(0, false);		
+
+		Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
+		
+		setEnabledAt(indexOfTab("Review"), false);
+		setEnabledAt(indexOfTab("File"), false);		
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()){
-			this.setEnabledAt(3, true);
-			//Ribbon.this.setSelectedIndex(3);
-			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));			
-		}
-		else if(viewObservable.getCurrentPart() == null || !viewObservable.getCurrentPart().isGenerated()){
-			this.setEnabledAt(3, false);
-			Ribbon.this.setSelectedIndex(1);
+		if(viewObservable.getCurrentPart() == null){
+			setEnabledAt(indexOfTab("Review"), false);
+			computeSlicesBtn.setEnabled(false);
+			computeTemplateBtn.setEnabled(false);
 		}
 		
-		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isSliced())
+		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()){
+			setEnabledAt(indexOfTab("Review"), true);
+			//Ribbon.this.setSelectedIndex(3);
+			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));			
+			computeTemplateBtn.setEnabled(true);
+		}
+		
+		if(viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isSliced()) {
 			computeSlicesBtn.setEnabled(true);
+			computeTemplateBtn.setEnabled(true);
+		}
+			
 		
 		revalidate();
 		repaint();
@@ -206,10 +215,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			closeMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
 					Ribbon.this.viewObservable.setPart(null);
-					if(file != null)
-						Logger.updateStatus("Ready to slice " + file.getName());
 				}
 			});
 			
@@ -389,13 +395,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 			patternCont.add(layersOffsetSpinner);
 
 			OptionsContainer computeCont = new OptionsContainer("Compute");
-			JButton computeBtn = new ButtonIcon("Generate layers", "cog.png");
-			computeBtn.setHorizontalAlignment(SwingConstants.CENTER);
+			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
+			computeTemplateBtn.setEnabled(false);
+			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
 			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
 			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select (%) :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
-			computeCont.add(computeBtn);
+			computeCont.add(computeTemplateBtn);
 
 			add(bitsCont);
 			add(new TabContainerSeparator());
@@ -444,7 +451,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 
-			computeBtn.addActionListener(new ActionListener() {
+			computeTemplateBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					Ribbon.this.viewObservable.getCurrentPart().buildBits2D();
@@ -759,6 +766,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
 			computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
+			computeSlicesBtn.setEnabled(false);
 			fileSelectedLabel = new JLabel("No file selected");
 			computeCont.add(fileSelectedLabel);
 			computeCont.add(computeSlicesBtn);
@@ -780,7 +788,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 						Ribbon.this.viewObservable.setPart(null);
 
 					if (file != null) {
-						computeSlicesBtn.setEnabled(false);
 						try {
 							MeshIneBitsMain.sliceModel(file.toString());
 						} catch (Exception e1) {
