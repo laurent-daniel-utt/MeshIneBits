@@ -634,10 +634,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 			upArrow.setAlignmentX(CENTER_ALIGNMENT);
 			upArrow.setHorizontalAlignment(SwingConstants.CENTER);
 			selectedSlice = new JLabel();
-			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 25));
-			selectedSlice.setText("20");
+			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 20));
+			selectedSlice.setText("1");
 			selectedSlice.setHorizontalAlignment(SwingConstants.CENTER);
-			selectedSlice.setBorder(new EmptyBorder(3, 30, 3, 30));
+			selectedSlice.setPreferredSize(new Dimension(90, 25));
 			selectedSlice.setAlignmentX(CENTER_ALIGNMENT);
 			ButtonIcon downArrow = new ButtonIcon("", "angle-down.png");
 			downArrow.setHorizontalAlignment(SwingConstants.CENTER);
