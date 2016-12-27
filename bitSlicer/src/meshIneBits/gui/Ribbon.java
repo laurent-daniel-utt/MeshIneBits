@@ -86,7 +86,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 		
-//		setEnabledAt(indexOfTab("Review"), false);
+		setEnabledAt(indexOfTab("Review"), false);
 		setEnabledAt(indexOfTab("File"), false);		
 	}
 
