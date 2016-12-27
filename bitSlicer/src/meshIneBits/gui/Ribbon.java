@@ -552,14 +552,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 	
-	private class ribbonCheckBox extends JCheckBox implements Observer{
+	private class RibbonCheckBox extends JCheckBox implements Observer{
 		
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 9143671052675167109L;
 
-		public ribbonCheckBox(String label){
+		public RibbonCheckBox(String label){
 			super(label);
 			this.setBackground(Color.WHITE);
 			viewObservable.addObserver(this);
@@ -592,7 +592,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		public ReviewTab() {
 			super();
 			
-			JCheckBox slicesCheckBox = new ribbonCheckBox("Show slices"){
+			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices"){
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
@@ -601,7 +601,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			};
 			
-			JCheckBox liftPointsCheckBox = new ribbonCheckBox("Show liftPoints"){
+			JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show liftPoints"){
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
@@ -609,7 +609,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setSelected(viewObservable.showLiftPoints());
 				}
 			};
-			JCheckBox previousLayerCheckBox = new ribbonCheckBox("Show Previous layer"){
+			JCheckBox previousLayerCheckBox = new RibbonCheckBox("Show Previous layer"){
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
@@ -617,7 +617,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setSelected(viewObservable.showPreviousLayer());
 				}
 			};
-			JCheckBox cutPathsCheckBox = new ribbonCheckBox("Show cut paths"){
+			JCheckBox cutPathsCheckBox = new RibbonCheckBox("Show cut paths"){
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
