@@ -78,7 +78,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		addTab("Review", new JScrollPane(new ReviewTab()));
 
 		Ribbon.this.setSelectedIndex(1);
-		setEnabledAt(3, false);
+//		setEnabledAt(3, false);
 
 		FileMenuButton fileMenuBtn = new FileMenuButton();
 		this.setTabComponentAt(0, fileMenuBtn);
@@ -457,7 +457,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		private static final long serialVersionUID = 4439705350058229259L;
 
 		public ButtonIcon(String label, String iconName) {
-			super(" " + label);
+			super((label.isEmpty() ? "" : " ") + label);
 			try {
 				ImageIcon icon = new ImageIcon(
 						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
@@ -523,7 +523,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		private static final long serialVersionUID = 136154266552080732L;
 
 		public OptionsContainer(String title) {
-			this.setLayout(new GridLayout(3, 0, 3, 3));
+			this.setLayout(new GridLayout(3, 0, 10, 0));
 			this.setBackground(Color.WHITE);
 			TitledBorder centerBorder = BorderFactory.createTitledBorder(title);
 			centerBorder.setTitleJustification(TitledBorder.CENTER);
@@ -629,15 +629,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 			
 			OptionsContainer sliceSelectionCont = new OptionsContainer("Selected slice");
-			sliceSelectionCont.setLayout(new BoxLayout(sliceSelectionCont, BoxLayout.Y_AXIS));			
+			sliceSelectionCont.setLayout(new BoxLayout(sliceSelectionCont, BoxLayout.PAGE_AXIS));
 			ButtonIcon upArrow = new ButtonIcon("", "angle-up.png");
+			upArrow.setAlignmentX(CENTER_ALIGNMENT);
 			upArrow.setHorizontalAlignment(SwingConstants.CENTER);
-			sliceSelectionCont.add(upArrow);
 			selectedSlice = new JLabel();
-			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 30));
-			sliceSelectionCont.add(selectedSlice);
+			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 25));
+			selectedSlice.setText("20");
+			selectedSlice.setHorizontalAlignment(SwingConstants.CENTER);
+			selectedSlice.setBorder(new EmptyBorder(3, 30, 3, 30));
+			selectedSlice.setAlignmentX(CENTER_ALIGNMENT);
 			ButtonIcon downArrow = new ButtonIcon("", "angle-down.png");
 			downArrow.setHorizontalAlignment(SwingConstants.CENTER);
+			downArrow.setAlignmentX(CENTER_ALIGNMENT);
+			
+			sliceSelectionCont.add(upArrow);
+			sliceSelectionCont.add(selectedSlice);
 			sliceSelectionCont.add(downArrow);
 			
 			add(sliceSelectionCont);
