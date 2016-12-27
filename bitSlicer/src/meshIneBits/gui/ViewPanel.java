@@ -167,7 +167,7 @@ public class ViewPanel extends JPanel implements Observer {
 		slicePanel.add(sliceSpinner);
 		slicePanel.setBorder(new EmptyBorder(0, 5, 5, 0));
 		
-		this.add(slicePanel, BorderLayout.WEST);
+		this.add(slicePanel, BorderLayout.EAST);
 		
 		sliceSpinner.addChangeListener(new ChangeListener() {
 			@Override
