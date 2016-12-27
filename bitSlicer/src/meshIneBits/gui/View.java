@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -31,28 +32,28 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 public class View extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
-	
+
 	private static final long serialVersionUID = 1L;
 	public double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
 	private ViewObservable viewObservable;
 	private boolean rightClickPressed = false;
-	
+
 	public View() {
 		addMouseMotionListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
-		
+
 		viewObservable = ViewObservable.getInstance();
 	}
-	
+
 	@Override
 	public void update(Observable o, Object arg) {
 		revalidate();
 		repaint();	
 	}
-	
+
 	public class TriangleShape extends Path2D.Double {
 		private static final long serialVersionUID = -147647250831261196L;
 
@@ -63,7 +64,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			closePath();
 		}
 	}
-	
+
 	public void clickOnBitControl(int id) {
 		Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 		Vector2 direction = null;
@@ -99,12 +100,12 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 		Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2, CraftConfig.bitLength, CraftConfig.bitWidth));
 		areas.add(overlapBit);
-		
+
 		AffineTransform affTrans = new AffineTransform();
-		
+
 		//Draw the arrows only if the selected bit has a cutPath, there is no reason to move a full bit
 		if(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getBit3D(bitKey).getCutPaths() != null){
-			
+
 			Area topArrow = new Area(triangleShape);			
 			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
 			affTrans.rotate(0, 0);
@@ -138,9 +139,9 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 		}
 
-		
+
 		double drawScale = viewObservable.getZoom();
-		
+
 		for (Area area : areas) {
 			affTrans = new AffineTransform();
 			affTrans.translate(bitKey.x, bitKey.y);
@@ -305,7 +306,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		oldX = e.getX();
 		oldY = e.getY();
 	}
-	
+
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if(!rightClickPressed){
@@ -346,7 +347,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public void paint(Graphics g) {
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
-		
+
 		if (viewObservable.getCurrentPart() != null && !viewObservable.getCurrentPart().isGenerated()) {
 			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentSliceNumber());
 			for (Polygon p : slice) {
@@ -374,7 +375,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				} else {
 					drawModelArea(g2d, area);
 				}
-				
+
 				if(viewObservable.showCutPaths() && bit.getCutPaths() != null){
 					g2d.setColor(Color.blue.darker());
 					g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
@@ -384,7 +385,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 						drawModelPath2D(g2d, path);
 					}	
 				}
-				
+
 				if (viewObservable.showLiftPoints()) {
 					g2d.setColor(Color.red);
 					g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
@@ -396,31 +397,39 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 						}
 					}
 				}
-				
+
 			}
 
 			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
 				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
-			
+
 			if (viewObservable.showSlices()) {
 				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 				g2d.setColor(new Color(100 + (155/layer.getSlices().size()),50,0));
 				for (int i = 0; i < layer.getSlices().size(); i++) {
-					g2d.setColor(new Color(100 + (i+1)*(155/layer.getSlices().size()),50,0));
+					if (i == layer.getSliceToSelect()) {
+						Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{2}, 0);
+						g2d.setStroke(dashed);
+						g2d.setColor(Color.blue);
+					} else {
+						g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+						g2d.setColor(new Color(100 + (i+1)*(155/layer.getSlices().size()),50,0));
+					}
+
 					for (Polygon p : layer.getSlices().get(i)) {
 						drawModelPath2D(g2d, p.toPath2D());
 					}
 				}
 			}
-	
+
 			if(viewObservable.showPreviousLayer() && viewObservable.getCurrentLayerNumber() > 0){
 				Layer previousLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber() - 1);
 				Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
-				
+
 				g2d.setColor(new Color(0, 0, 0, 0.25f));
 				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-				
+
 				for (Vector2 b : previousBitKeys) {
 
 					Bit3D bit = previousLayer.getBit3D(b);
@@ -437,7 +446,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					tx1.scale(drawScale, drawScale);
 
 					area.transform(tx1);
-					
+
 					g2d.draw(area);	
 				}
 			}
