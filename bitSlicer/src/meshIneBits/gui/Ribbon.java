@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.metal.MetalToggleButtonUI;
 
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
@@ -119,14 +120,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		public FileMenuButton() {
 			this.setFocusable(false);
+			this.setBorder (null);
+			this.setContentAreaFilled (false);
+			
 			ImageIcon icon = new ImageIcon(
 					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 			this.setIcon(icon);
-
-			this.setContentAreaFilled (false);
-			//			fileMenuBtn.setOpaque (false);
-			this.setBorder (null);	
-			//			fileMenuBtn.setFocusPainted (false);
+			
+			ImageIcon selectedIcon = new ImageIcon(
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 
 			filePopup = new FileMenuPopUp();	
 
@@ -137,8 +139,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 	                    JToggleButton b = FileMenuButton.this;
 	                    if (b.isSelected()) {
 	                    	filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x -5, FileMenuButton.this.getLocationOnScreen().y + 25);
+	                    	setIcon(selectedIcon);
 	                    } else {
 	                        filePopup.setVisible(false);
+	                        setIcon(icon);
 	                    }
 	                }
 			});
