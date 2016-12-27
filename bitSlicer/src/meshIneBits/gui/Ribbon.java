@@ -267,7 +267,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		    super(parent, title, modal);
 		    Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage();
 		    this.setIconImage(windowIcon);
-		    this.setSize(270, 140);
+		    this.setSize(270, 145);
 		    this.setLocationRelativeTo(null);
 		    this.setResizable(false);
 		    
@@ -278,7 +278,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		    
 		    JLabel bg = new JLabel("");
 			ImageIcon icon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage().getScaledInstance(215, 37, Image.SCALE_SMOOTH));
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage().getScaledInstance(248, 42, Image.SCALE_SMOOTH));
 			bg.setIcon(icon);
 			bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
 			bg.setForeground(new Color(0, 0, 0, 8));
@@ -559,7 +559,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			centerBorder.setTitleColor(Color.gray);
 			centerBorder.setBorder(BorderFactory.createEmptyBorder());
 			this.setBorder(centerBorder);
-			OptionsContainer.this.setMinimumSize(new Dimension(title.length(), 500)); //Why it doesn't work !!??
+			OptionsContainer.this.setMinimumSize(new Dimension(500, 500));
 		}
 
 		@Override
