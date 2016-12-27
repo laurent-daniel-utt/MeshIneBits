@@ -780,10 +780,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
 
-			OptionsContainer modelOrientationCont = new OptionsContainer("Model orientation");
-			JButton editOrientationBtn = new ButtonIcon("Edit orientation  ", "compass.png");
-			modelOrientationCont.add(editOrientationBtn);
-
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
 			computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -793,8 +789,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeCont.add(computeSlicesBtn);
 
 			add(slicerCont);
-			add(new TabContainerSeparator());
-			add(modelOrientationCont);
 			add(new TabContainerSeparator());			
 			add(computeCont);
 
