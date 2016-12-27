@@ -644,9 +644,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 
 			OptionsContainer modifCont = new OptionsContainer("Replace bit");
-			JButton replaceBitBtn1 = new JButton("Replace by a half width's bit");
-			JButton replaceBitBtn2 = new JButton("Replace by a half length's bit");
-			JButton replaceByFullBitBtn = new JButton("Replace by a full bit");
+			JButton replaceBitBtn1 = new ButtonIcon("Replace by a half width's bit", "cut-length.png");
+			JButton replaceBitBtn2 = new ButtonIcon("Replace by a half length's bit", "cut-width.png");
+			JButton replaceByFullBitBtn = new ButtonIcon("Replace by a full bit", "full-bit.png");
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
 			modifCont.add(replaceByFullBitBtn);
