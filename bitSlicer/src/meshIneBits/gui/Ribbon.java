@@ -44,6 +44,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -491,12 +492,26 @@ public class Ribbon extends JTabbedPane implements Observer {
 				e.printStackTrace();
 			}
 			
-			if (onlyIcon)
+			if (onlyIcon) {
 				setContentAreaFilled (false);
+				setBorder(new EmptyBorder(3, 3, 3, 3));
+				
+				addMouseListener(new java.awt.event.MouseAdapter() {
+				    public void mouseEntered(java.awt.event.MouseEvent evt) {
+				    	setContentAreaFilled (true);
+				    }
+	
+				    public void mouseExited(java.awt.event.MouseEvent evt) {
+				    	setContentAreaFilled (false);
+				    }
+				});
+			}
+				
 
 			this.setHorizontalAlignment(LEFT);
 			this.setMargin(new Insets(0, 0, 0, 2));
 		}
+		
 	}
 
 	private class GalleryContainer extends OptionsContainer {
@@ -748,6 +763,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 					replaceSelectedBit(100, 100);
 				}
 			});
+			
+//			replaceBitBtn1.addMouseListener(new java.awt.event.MouseAdapter() {
+//			    public void mouseEntered(java.awt.event.MouseEvent evt) {
+//			    	replaceBitBtn1.setOpacity(0.5);
+//			    }
+//
+//			    public void mouseExited(java.awt.event.MouseEvent evt) {
+//			    	replaceBitBtn1.setBackground(UIManager.getColor("control"));
+//			    }
+//			});
 		}
 	}
 
