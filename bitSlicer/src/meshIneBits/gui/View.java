@@ -103,9 +103,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 		AffineTransform affTrans = new AffineTransform();
 
-		//Draw the arrows only if the selected bit has a cutPath, there is no reason to move a full bit
-		if(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getBit3D(bitKey).getCutPaths() != null){
-
 			Area topArrow = new Area(triangleShape);			
 			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
 			affTrans.rotate(0, 0);
@@ -136,9 +133,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			rightArrow.transform(affTrans);
 			areas.add(rightArrow);
 			bitControls.add(rightArrow);
-
-		}
-
 
 		double drawScale = viewObservable.getZoom();
 
