@@ -13,7 +13,7 @@ public class ViewObservable extends Observable implements Observer{
 	private int sliceNumber = 0;
 	private Vector2 selectedBitKey = null;
 	private double zoom = 0.8;
-	private boolean showSlices = true;
+	private boolean showSlices = false;
 	private boolean showLiftPoints = false;
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;

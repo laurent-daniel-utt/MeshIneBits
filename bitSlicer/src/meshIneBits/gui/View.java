@@ -217,13 +217,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		((Graphics2D) g).setStroke(new BasicStroke(1));
 		g.setColor(Color.RED);
 		drawModelLine(g, s.start, s.end);
-
-		// Show discontinuity
-		//					if (s.getPrev() == null)
-		//						drawModelCircle(g, s.start, 10);
-		//					if (s.getNext() == null)
-		//						drawModelCircle(g, s.end, 10);
-
 	}
 
 	private void drawString(Graphics g, String text, double x, double y) {
@@ -360,15 +353,9 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 
 				area.transform(affTrans);
-
-				//new Color(109, 138, 192)
+				
 				g2d.setColor(new Color(164, 180, 200));
-				if (b == viewObservable.getSelectedBitKey()) {
-					g2d.setColor(new Color(94, 125, 215));
-					drawModelArea(g2d, area);
-				} else {
-					drawModelArea(g2d, area);
-				}
+				drawModelArea(g2d, area);
 
 				if(viewObservable.showCutPaths() && bit.getCutPaths() != null){
 					g2d.setColor(Color.blue.darker());
@@ -394,10 +381,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 			}
 
-			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
-				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
-			}
-
 			if (viewObservable.showSlices()) {
 				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 				g2d.setColor(new Color(100 + (155/layer.getSlices().size()),50,0));
@@ -415,6 +398,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 						drawModelPath2D(g2d, p.toPath2D());
 					}
 				}
+			}
+			
+			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
+				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
 
 			if(viewObservable.showPreviousLayer() && viewObservable.getCurrentLayerNumber() > 0){

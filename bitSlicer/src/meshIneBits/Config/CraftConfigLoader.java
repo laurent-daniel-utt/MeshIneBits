@@ -24,7 +24,7 @@ public class CraftConfigLoader
 	public static void loadConfig(String filename)
 	{
 		if (filename == null) {
-			filename = System.getProperty("user.home") + "/.BitSlicer.conf";
+			filename = System.getProperty("user.home") + "/.MeshIneBits.conf";
 			System.out.println("Loading: " + filename);
 		}
 			
@@ -53,7 +53,7 @@ public class CraftConfigLoader
 					continue;
 				String key = line.substring(0, line.indexOf('='));
 				String value = line.substring(line.indexOf('=') + 1);
-				if ("[BitSlicer config]".equals(section))
+				if ("[MeshIneBits config]".equals(section))
 				{
 					setField(key, value);
 				}
@@ -124,12 +124,12 @@ public class CraftConfigLoader
 	public static void saveConfig(String filename)
 	{
 		if (filename == null)
-			filename = System.getProperty("user.home") + "/.BitSlicer.conf";
+			filename = System.getProperty("user.home") + "/.MeshIneBits.conf";
 		try
 		{
 			BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
 			bw.write(";Saved with version: " + CraftConfig.VERSION + "\n");
-			bw.write("[BitSlicer config]\n");
+			bw.write("[MeshIneBits config]\n");
 			Class<CraftConfig> configClass = CraftConfig.class;
 			for (final Field f : configClass.getFields())
 			{

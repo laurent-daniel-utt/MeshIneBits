@@ -31,12 +31,12 @@ public class CraftConfig
 	@Setting(title = "Bit thickness (mm)",
 			description = "Thickness of the bits",
 			minValue = 0.0, maxValue = 100.0)
-	public static double bitThickness = 10.0;
+	public static double bitThickness = 8.0;
 	
 	@Setting(title = "Bit width (mm)",
 			description = "Width of the bits",
 			minValue = 0.0, maxValue = 1000.0)
-	public static double bitWidth = 25.0;
+	public static double bitWidth = 24.0;
 	
 	@Setting(title = "Bit length (mm)",
 			description = "Length of the bits",
@@ -50,43 +50,43 @@ public class CraftConfig
 	
 	@Setting(title = "Rotation (°)",
 			description = "Choose which rotation you want to apply on the pattern (in degrees)",
-			minValue = 0, maxValue = 360)
-	public static double rotation = 135;
+			minValue = 0.0, maxValue = 360.0)
+	public static double rotation = 45.0;
 	
 	@Setting(title = "X offSet (mm)",
 			description = "Choose which offset you want to apply on the pattern in the X direction (mm)",
-			minValue = -60, maxValue = 90)
-	public static double xOffset = 0;
+			minValue = -60.0, maxValue = 90.0)
+	public static double xOffset = 0.0;
 	
 	@Setting(title = "Y offSet (mm)",
 			description = "Choose which offset you want to apply on the pattern in the Y direction (mm)",
-			minValue = -60, maxValue = 90)
-	public static double yOffset = 0;
+			minValue = -60.0, maxValue = 90.0)
+	public static double yOffset = 0.0;
 	
 	@Setting(title = "OffSet between bits (mm)",
 			description = "Choose the horizontal gap between each bits (mm)",
-			minValue = -10, maxValue = 10)
-	public static double bitsOffset = 0;
+			minValue = 0.0, maxValue = 100.0)
+	public static double bitsOffset = 3.0;
 	
 	@Setting(title = "OffSet between layers (mm)",
 			description = "Choose the vertical gap between each layers (mm)",
-			minValue = 0, maxValue = 3)
-	public static double layersOffset = 2;
+			minValue = 0.0, maxValue = 3.0)
+	public static double layersOffset = 0.5;
 	
 	@Setting(title = "Min % of slices in a bit3D",
 			description = "Minimun percentage of slices in a bit3D (%)",
-			minValue = 1, maxValue = 100)
-	public static double minPercentageOfSlices = 50;
+			minValue = 1.0, maxValue = 100.0)
+	public static double minPercentageOfSlices = 50.0;
 	
 	@Setting(title = "Default slice to select (in % of bit height)",
 			description = "Default slice to select in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
-			minValue = 0, maxValue = 100)
-	public static double defaultSliceToSelect = 50;
+			minValue = 0.0, maxValue = 100.0)
+	public static double defaultSliceToSelect = 50.0;
 	
 	@Setting(title = "Suction cup diameter (mm)",
 			description = "Diameter of the suction cup which lifts the bits (mm)",
-			minValue = 1, maxValue = 100)
-	public static double suckerDiameter = 10;
+			minValue = 1.0, maxValue = 100.0)
+	public static double suckerDiameter = 10.0;
 	
 	@Setting()
 	public static String lastSlicedFile = "";	
