@@ -59,6 +59,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.CraftConfigLoader;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -459,6 +460,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					computeTemplateBtn.setEnabled(false);
 					Ribbon.this.viewObservable.getCurrentPart().buildBits2D();
+					CraftConfigLoader.saveConfig(null);
 				}
 			});
 		}
