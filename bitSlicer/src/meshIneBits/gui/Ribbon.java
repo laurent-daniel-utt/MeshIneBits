@@ -183,7 +183,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		public FileMenuPopUp(){
 			openMenu = new FileMenuItem("Open", "file-o.png");
-//			saveMenu = new FileMenuItem("Save", "save.png");
 			closeMenu = new FileMenuItem("Close part", "times.png");
 			exportMenu = new FileMenuItem("Export", "file-code-o.png");
 			aboutMenu = new FileMenuItem("About", "info-circle.png");
@@ -199,7 +198,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			openMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
+					setVisible(false);//Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
 					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
@@ -213,18 +212,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 					}
 				}
 			});
-			
-//			saveMenu.addActionListener(new ActionListener() {
-//				 
-// 				@Override
-// 				public void actionPerformed(ActionEvent e) {
-// 					CraftConfigLoader.saveConfig(null);
-// 				}
-// 			});
 		
 			closeMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					setVisible(false);//Close the popUpMenu
+					Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 					Ribbon.this.viewObservable.setPart(null);
 				}
 			});
@@ -232,7 +225,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			exportMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
+					setVisible(false);//Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
 					int returnVal = fc.showSaveDialog(null);
