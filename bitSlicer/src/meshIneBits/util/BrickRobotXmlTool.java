@@ -31,16 +31,12 @@ public class BrickRobotXmlTool {
 		filePath = Paths.get(filePath.getParent().toString() + "\\" + fileName);
 	}
 	
-	public String getNameFromFileLocation() {
-		return filePath.getFileName().toString().split("[.]")[0];
-	}
-	
 	public void writeXmlCode() {
 		try {
 			writer = new PrintWriter(filePath.toString(), "UTF-8");
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			writer.println("<ASM_ORI>");
-			writer.println("<SPEED s=\"4000.0\"/>");
+			writer.println("	<SPEED s=\"4000.0\"/>");
 			Logger.updateStatus("Generating XML file");
 			for (int i = 0; i < part.getLayers().size(); i++) {
 				writeLayer(part.getLayers().get(i));
@@ -66,15 +62,15 @@ public class BrickRobotXmlTool {
 	
 	private void writeBit(Bit3D bit, double zPlateau) {
 		writer.println("	<PIECE p=\"0.0\"/>");
-		writer.println("	<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
 				+ " x=\"" + bit.getDepositPoints().get(0).x + "\""
 				+ " y=\"" + bit.getDepositPoints().get(0).y + "\""
 				+ " z=\"" + (zPlateau + CraftConfig.bitThickness + SAFETY_MARGIN) + "\"/>");
-		writer.println("	<POSI config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<POSI config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
 				+ " x=\"" + bit.getDepositPoints().get(0).x + "\""
 				+ " y=\"" + bit.getDepositPoints().get(0).y + "\""
 				+ " z=\"" + zPlateau + "\"/>");
-		writer.println("	<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
 				+ " x=\"" + bit.getDepositPoints().get(0).x + "\""
 				+ " y=\"" + bit.getDepositPoints().get(0).y + "\""
 				+ " z=\"" + (zPlateau + CraftConfig.bitThickness + SAFETY_MARGIN) + "\"/>");
