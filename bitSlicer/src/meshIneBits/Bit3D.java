@@ -28,7 +28,7 @@ public class Bit3D {
 		
 		double percentage = nbrActualBit2D / maxNumberOfbit2D * 100;
 
-		if (percentage <= CraftConfig.minPercentageOfSlices) {
+		if (percentage < CraftConfig.minPercentageOfSlices) {
 			throw new Exception() {
 				private static final long serialVersionUID = 1L;
 
