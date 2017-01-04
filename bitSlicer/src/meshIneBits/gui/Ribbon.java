@@ -60,6 +60,7 @@ import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.util.BrickRobotXmlTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -233,7 +234,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					
 					GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
 					if (returnVal == JFileChooser.APPROVE_OPTION && part != null && part.isGenerated()) {
-						XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
+						BrickRobotXmlTool xt = new BrickRobotXmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
 						xt.writeXmlCode();
 					}
 					else{
