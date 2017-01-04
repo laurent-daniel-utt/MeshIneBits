@@ -88,6 +88,11 @@ public class CraftConfig
 			minValue = 1.0, maxValue = 100.0)
 	public static double suckerDiameter = 10.0;
 	
+	@Setting(title = "XML export type",
+			description = "1 = new XML type, 2 = BrickRobot XML type",
+			minValue = 1.0, maxValue = 2.0)
+	public static double xmlExportType = 1.0;
+	
 	@Setting()
 	public static String lastSlicedFile = "";	
 }

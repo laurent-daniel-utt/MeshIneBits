@@ -234,8 +234,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 					
 					GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
 					if (returnVal == JFileChooser.APPROVE_OPTION && part != null && part.isGenerated()) {
-						BrickRobotXmlTool xt = new BrickRobotXmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
-						xt.writeXmlCode();
+						
+						if(CraftConfig.xmlExportType == 2){
+							BrickRobotXmlTool xt = new BrickRobotXmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
+							xt.writeXmlCode();
+						}
+						else{
+							XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
+							xt.writeXmlCode();
+						}
+						
 					}
 					else{
 						Logger.error("The XML file has not been generated");
