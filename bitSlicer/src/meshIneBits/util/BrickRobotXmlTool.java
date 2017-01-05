@@ -62,15 +62,15 @@ public class BrickRobotXmlTool {
 	
 	private void writeBit(Bit3D bit, double zPlateau) {
 		writer.println("	<PIECE p=\"0.0\"/>");
-		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + (bit.getOrientation().getEquivalentAngle() + 90) + "\" w=\"0.0\""
 				+ " x=\"" + bit.getOrigin().x + "\""
 				+ " y=\"" + bit.getOrigin().y + "\""
 				+ " z=\"" + (zPlateau + CraftConfig.bitThickness + SAFETY_MARGIN) + "\"/>");
-		writer.println("		<POSI config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<POSI config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + (bit.getOrientation().getEquivalentAngle() + 90) + "\" w=\"0.0\""
 				+ " x=\"" + bit.getOrigin().x + "\""
 				+ " y=\"" + bit.getOrigin().y + "\""
 				+ " z=\"" + zPlateau + "\"/>");
-		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + bit.getOrientation().getEquivalentAngle() + "\" w=\"0.0\""
+		writer.println("		<PATH config_data=\"N, ,0,0\" p=\"0.0\" r=\"" + (bit.getOrientation().getEquivalentAngle() + 90) + "\" w=\"0.0\""
 				+ " x=\"" + bit.getOrigin().x + "\""
 				+ " y=\"" + bit.getOrigin().y + "\""
 				+ " z=\"" + (zPlateau + CraftConfig.bitThickness + SAFETY_MARGIN) + "\"/>");
