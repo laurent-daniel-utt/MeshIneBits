@@ -48,17 +48,6 @@ public class Shape2D implements Iterable<Polygon> {
 		polygons.add(poly);
 	}
 
-	public boolean contains(Vector2 point) {
-		int i = 0;
-		for (Polygon poly : this) {
-			if (poly.contains(point)) {
-				i++;
-			}
-		}
-
-		return ((i % 2) == 0) ? false : true; // If Bit in inside 2n poly, then it's outside. If inside 2n+1 poly it's inside.
-	}
-
 	public Vector<Segment2D> getSegmentList() {
 		return this.segmentList;
 	}

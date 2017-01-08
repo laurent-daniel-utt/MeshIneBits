@@ -15,10 +15,9 @@ import meshIneBits.Config.CraftConfig;
 
 public class XmlTool {
 
-	GeneratedPart part;
-	PrintWriter writer;
-	Path filePath;
-	StringBuffer xmlCode;
+	private GeneratedPart part;
+	private PrintWriter writer;
+	private Path filePath;
 
 	public XmlTool(GeneratedPart part, Path fileLocation) {
 		this.part = part;

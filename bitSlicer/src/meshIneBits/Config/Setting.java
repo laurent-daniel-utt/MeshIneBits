@@ -16,8 +16,4 @@ public @interface Setting
 	public double minValue() default Double.MIN_VALUE;
 	
 	public double maxValue() default Double.MAX_VALUE;
-	
-	public String enumName() default "";
-	
-	public String group() default "";
 }

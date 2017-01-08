@@ -49,7 +49,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		addMouseWheelListener(this);
 	}
 
-	public void clickOnBitControl(int id) {
+	private void clickOnBitControl(int id) {
 		Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 		Vector2 direction = null;
 		double offSetValue = 0;
@@ -76,7 +76,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
 	}
 
-	public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
+	private void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
 		bitControls.clear();
 
 		// Defining the shape of the arrows
@@ -404,10 +404,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		repaint();
 	}
 
-	public class TriangleShape extends Path2D.Double {
+	private class TriangleShape extends Path2D.Double {
 		private static final long serialVersionUID = -147647250831261196L;
 
-		public TriangleShape(Point2D... points) {
+		private TriangleShape(Point2D... points) {
 			moveTo(points[0].getX(), points[0].getY());
 			lineTo(points[1].getX(), points[1].getY());
 			lineTo(points[2].getX(), points[2].getY());

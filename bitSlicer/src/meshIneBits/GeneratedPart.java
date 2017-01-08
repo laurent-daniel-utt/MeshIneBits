@@ -138,7 +138,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	/*
 	 * skirtRadius is the radius of the cylinder that fully contains the part.
 	 */
-	public void setSkirtRadius() {
+	private void setSkirtRadius() {
 
 		double radius = 0;
 

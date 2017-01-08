@@ -40,7 +40,7 @@ public class ViewPanel extends JPanel implements Observer {
 	private JPanel layerPanel;
 	private JPanel slicePanel;
 	private JPanel displayOptionsPanel;
-	public JLabel bg;
+	private JLabel bg;
 	private ViewObservable viewObservable;
 
 	public ViewPanel() {
@@ -85,7 +85,6 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				viewObservable.setZoom(viewObservable.getZoom() - 0.5);
 			}
 		});
@@ -94,7 +93,6 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				viewObservable.setZoom(viewObservable.getZoom() + 0.5);
 			}
 		});
@@ -164,7 +162,7 @@ public class ViewPanel extends JPanel implements Observer {
 		});
 	}
 
-	public void init() {
+	private void init() {
 		this.setLayout(new BorderLayout());
 
 		this.view = new View();
@@ -186,7 +184,7 @@ public class ViewPanel extends JPanel implements Observer {
 		this.add(view, BorderLayout.CENTER);
 	}
 
-	public void noPart() {
+	private void noPart() {
 		for (Component c : this.getComponents()) {
 			remove(c);
 		}

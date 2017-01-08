@@ -41,7 +41,7 @@ public class Layer extends Observable {
 		}
 	}
 
-	public void computeLiftPoints() {
+	private void computeLiftPoints() {
 		for (Vector2 key : getBits3dKeys()) {
 			mapBits3D.get(key).computeLiftPoints();
 		}

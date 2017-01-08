@@ -104,28 +104,8 @@ public class Pattern implements Cloneable {
 		return mapBits.get(key);
 	}
 
-	public Area getBitArea(Vector2 key) {
-		Area area = new Area();
-		area.add(mapBits.get(key).getArea());
-		area.transform(transfoMatrix);
-		return area;
-	}
-
 	public Vector<Vector2> getBitsKeys() {
 		return new Vector<Vector2>(mapBits.keySet());
-	}
-
-	public Vector<Path2D> getCutPaths(Vector2 key) {
-		Vector<Path2D> cutPaths = mapBits.get(key).getCutPaths();
-		if (cutPaths == null) {
-			return null;
-		} else {
-			Vector<Path2D> paths = new Vector<Path2D>();
-			for (Path2D p : cutPaths) {
-				paths.add(new Path2D.Double(p, transfoMatrix));
-			}
-			return paths;
-		}
 	}
 
 	public void moveBit(Vector2 key, Vector2 direction, double offsetValue) {
