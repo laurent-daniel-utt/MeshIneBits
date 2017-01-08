@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -184,18 +185,53 @@ public class ViewPanel extends JPanel implements Observer {
 		});
 	}
 	
+	private class ButtonIcon extends JButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7001268017690625534L;
+
+		public ButtonIcon(String iconName) {
+			super("");
+			try {
+				ImageIcon icon = new ImageIcon(
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+				this.setIcon(icon);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+				setContentAreaFilled (false);
+				setBorder(new EmptyBorder(3, 3, 3, 3));
+				
+				addMouseListener(new java.awt.event.MouseAdapter() {
+				    public void mouseEntered(java.awt.event.MouseEvent evt) {
+				    	setContentAreaFilled (true);
+				    }
+	
+				    public void mouseExited(java.awt.event.MouseEvent evt) {
+				    	setContentAreaFilled (false);
+				    }
+				});
+				
+
+			this.setHorizontalAlignment(LEFT);
+			this.setMargin(new Insets(0, 0, 0, 0));
+		}
+	}
+	
 	private void buildDisplayOptionsPanel(){
-		// Zoom slider
 				zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 500, (int) (viewObservable.getZoom() * 100.0));
 				zoomSlider.setMaximumSize(new Dimension(500, 20));
+				
+				ButtonIcon zoomMinusBtn = new ButtonIcon("search-minus.png");
+				ButtonIcon zoomPlusBtn = new ButtonIcon("search-plus.png");
 
 				displayOptionsPanel = new JPanel();
 				displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-				displayOptionsPanel.add(new JLabel(new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "search-minus.png")).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT))));
+				displayOptionsPanel.add(zoomMinusBtn);
 				displayOptionsPanel.add(zoomSlider);
-				displayOptionsPanel.add(new JLabel(new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "search-plus.png")).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT))));
+				displayOptionsPanel.add(zoomPlusBtn);
 				displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 				
@@ -207,7 +243,25 @@ public class ViewPanel extends JPanel implements Observer {
 					public void stateChanged(ChangeEvent e) {
 						viewObservable.setZoom(zoomSlider.getValue() / 100.0);
 					}
-				});		
+				});
+				
+				zoomMinusBtn.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						viewObservable.setZoom(viewObservable.getZoom() - 0.5);
+					}
+				});
+				
+				zoomPlusBtn.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						viewObservable.setZoom(viewObservable.getZoom() + 0.5);
+					}
+				});
 	}
 	
 	private void updateLayerChoice(int layerNr) {

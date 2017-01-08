@@ -9,6 +9,11 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Config.CraftConfig;
 
+/**
+ * 
+ * A try to generate an XML file compatible with the BrickRobot machine, but it doesn't work because we can't handle complex path to position the bits
+ *
+ */
 public class BrickRobotXmlTool {
 	
 	GeneratedPart part;
