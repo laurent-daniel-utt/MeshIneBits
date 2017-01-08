@@ -28,47 +28,32 @@ import meshIneBits.Layer;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.util.Polygon;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 public class View extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
-	public double viewOffsetX, viewOffsetY;
+	private double viewOffsetX, viewOffsetY;
 	private Vector<Area> bitControls = new Vector<Area>();
 	private int oldX, oldY;
 	private ViewObservable viewObservable;
 	private boolean rightClickPressed = false;
 
 	public View() {
+		// Setting up
+		viewObservable = ViewObservable.getInstance();
+
+		// Actions listener
 		addMouseMotionListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
-
-		viewObservable = ViewObservable.getInstance();
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		revalidate();
-		repaint();	
-	}
-
-	public class TriangleShape extends Path2D.Double {
-		private static final long serialVersionUID = -147647250831261196L;
-
-		public TriangleShape(Point2D... points) {
-			moveTo(points[0].getX(), points[0].getY());
-			lineTo(points[1].getX(), points[1].getY());
-			lineTo(points[2].getX(), points[2].getY());
-			closePath();
-		}
 	}
 
 	public void clickOnBitControl(int id) {
 		Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 		Vector2 direction = null;
 		double offSetValue = 0;
+
 		//Every directions are in the bit's local coordinate system
 		switch (id) {
 		case 0: //Top direction
@@ -93,46 +78,48 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	public void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
 		bitControls.clear();
+
+		// Defining the shape of the arrows
 		TriangleShape triangleShape = new TriangleShape(new Point2D.Double(0, 0), new Point2D.Double(-7, 10), new Point2D.Double(7, 10));
 
-		Vector<Area> areas = new Vector<Area>();
-		int padding = 15;
+		int padding = 15; // Space between bit and arrows
 
 		Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2, CraftConfig.bitLength, CraftConfig.bitWidth));
+		Vector<Area> areas = new Vector<Area>();
 		areas.add(overlapBit);
 
 		AffineTransform affTrans = new AffineTransform();
 
-			Area topArrow = new Area(triangleShape);			
-			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
-			affTrans.rotate(0, 0);
-			topArrow.transform(affTrans);
-			areas.add(topArrow);
-			bitControls.add(topArrow);
+		Area topArrow = new Area(triangleShape);
+		affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
+		affTrans.rotate(0, 0);
+		topArrow.transform(affTrans);
+		areas.add(topArrow);
+		bitControls.add(topArrow);
 
-			Area leftArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
-			affTrans.rotate(0, 1);
-			leftArrow.transform(affTrans);
-			areas.add(leftArrow);
-			bitControls.add(leftArrow);
+		Area leftArrow = new Area(triangleShape);
+		affTrans = new AffineTransform();
+		affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
+		affTrans.rotate(0, 1);
+		leftArrow.transform(affTrans);
+		areas.add(leftArrow);
+		bitControls.add(leftArrow);
 
-			Area bottomArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
-			affTrans.rotate(-1, 0);
-			bottomArrow.transform(affTrans);
-			areas.add(bottomArrow);
-			bitControls.add(bottomArrow);
+		Area bottomArrow = new Area(triangleShape);
+		affTrans = new AffineTransform();
+		affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
+		affTrans.rotate(-1, 0);
+		bottomArrow.transform(affTrans);
+		areas.add(bottomArrow);
+		bitControls.add(bottomArrow);
 
-			Area rightArrow = new Area(triangleShape);
-			affTrans = new AffineTransform();
-			affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
-			affTrans.rotate(0, -1);
-			rightArrow.transform(affTrans);
-			areas.add(rightArrow);
-			bitControls.add(rightArrow);
+		Area rightArrow = new Area(triangleShape);
+		affTrans = new AffineTransform();
+		affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
+		affTrans.rotate(0, -1);
+		rightArrow.transform(affTrans);
+		areas.add(rightArrow);
+		bitControls.add(rightArrow);
 
 		double drawScale = viewObservable.getZoom();
 
@@ -174,34 +161,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		g2d.draw(area);
 	}
 
-	private void drawModelArea2(Graphics2D g2d, Area area) {
-		AffineTransform tx1 = new AffineTransform();
-		double drawScale = viewObservable.getZoom();
-		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-		tx1.scale(drawScale, drawScale);
-
-		area.transform(tx1);
-		//g2d.setColor( Color.green );
-		//g2d.draw(area);
-		g2d.setColor(Color.red);
-
-		g2d.setStroke(new BasicStroke(0.0f, // Line width
-				BasicStroke.CAP_BUTT, // End-cap style
-				BasicStroke.JOIN_BEVEL)); // Vertex join style
-
-		g2d.fill(area);
-	}
-
 	private void drawModelCircle(Graphics g, Vector2 center, int radius) {
 		double drawScale = viewObservable.getZoom();
-		g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) (radius * drawScale / 2),
-				((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) (radius * drawScale / 2), (int) (radius * drawScale), (int) (radius * drawScale));
-	}
-
-	private void drawModelLine(Graphics g, Vector2 start, Vector2 end) {
-		double drawScale = viewObservable.getZoom();
-		g.drawLine((int) ((start.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((start.y + viewOffsetY) * drawScale) + (this.getHeight() / 2),
-				(int) ((end.x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((end.y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
+		g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) ((radius * drawScale) / 2),
+				((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) ((radius * drawScale) / 2), (int) (radius * drawScale), (int) (radius * drawScale));
 	}
 
 	private void drawModelPath2D(Graphics2D g2d, Path2D path) {
@@ -209,40 +172,24 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		double drawScale = viewObservable.getZoom();
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
-		//			        g2d.setColor( Color.red);
 		g2d.draw(path.createTransformedShape(tx1));
 	}
 
-	private void drawSegment(Graphics g, Segment2D s) {
-		((Graphics2D) g).setStroke(new BasicStroke(1));
-		g.setColor(Color.RED);
-		drawModelLine(g, s.start, s.end);
-	}
-
-	private void drawString(Graphics g, String text, double x, double y) {
-		//((x + viewOffsetX) * drawScale)
-		g.setColor(Color.BLACK);
-		double drawScale = viewObservable.getZoom();
-		g.drawString(text, (int) ((x + viewOffsetX) * drawScale) + (this.getWidth() / 2), (int) ((y + viewOffsetY) * drawScale) + (this.getHeight() / 2));
-	}
-
 	@Override
-	public void mouseClicked(MouseEvent e) {		
-		if(SwingUtilities.isLeftMouseButton(e)){
+	public void mouseClicked(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			GeneratedPart part = viewObservable.getCurrentPart();
 			double drawScale = viewObservable.getZoom();
-			if (part != null && part.isGenerated()) {
+
+			if ((part != null) && part.isGenerated()) {
+				// Get the clicked point in the right coordinate system
 				Point2D clickSpot = new Point2D.Double(((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
 						((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
-				for (int i = 0; i < bitControls.size(); i++) {
-					if (bitControls.get(i).contains(oldX, oldY)) {
-						clickOnBitControl(i);
-						bitControls.clear();
-						return;
-					}
-				}
+
 				Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
+
+				// Look for a bit which contains the clicked spot
 				for (Vector2 bitKey : bitKeys) {
 					Bit3D bit = layer.getBit3D(bitKey);
 					Area area = bit.getRawArea();
@@ -260,13 +207,22 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 						break;
 					}
 				}
+
+				// Look if we hit a bit control (arrows)
+				for (int i = 0; i < bitControls.size(); i++) {
+					if (bitControls.get(i).contains(oldX, oldY)) {
+						clickOnBitControl(i);
+						bitControls.clear();
+						return;
+					}
+				}
 			}
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if(SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isLeftMouseButton(e)){			
+		if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isLeftMouseButton(e)) {
 			double drawScale = viewObservable.getZoom();
 			viewOffsetX += (e.getX() - oldX) / drawScale;
 			viewOffsetY += (e.getY() - oldY) / drawScale;
@@ -278,14 +234,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -295,18 +247,33 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	@Override
+	public void mousePressed(MouseEvent e) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			rightClickPressed = true;
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			rightClickPressed = false;
+		}
+	}
+
+	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if(!rightClickPressed){
+		if (!rightClickPressed) {
+			// Zoom on the view
 			int notches = e.getWheelRotation();
-			double zoom = viewObservable.getZoom();;
+			double zoom = viewObservable.getZoom();
 			if (notches > 0) {
 				zoom -= Math.abs(notches / 10.0);
 			} else {
 				zoom += Math.abs(notches / 10.0);
 			}
 			viewObservable.setZoom(zoom);
-		}
-		else{
+		} else {
+			// Navigate through layers when right click pressed
 			int notches = e.getWheelRotation();
 			int layer = viewObservable.getCurrentLayerNumber();
 			if (notches > 0) {
@@ -315,19 +282,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				layer += Math.abs(notches);
 			}
 			viewObservable.setLayer(layer);
-		}	
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if(SwingUtilities.isRightMouseButton(e))
-			rightClickPressed = true;
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if(SwingUtilities.isRightMouseButton(e))
-			rightClickPressed = false;
+		}
 	}
 
 	@Override
@@ -335,43 +290,47 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
 
-		if (viewObservable.getCurrentPart() != null && !viewObservable.getCurrentPart().isGenerated()) {
+		// If part is only sliced (layers not generated yet), draw the slices
+		if ((viewObservable.getCurrentPart() != null) && !viewObservable.getCurrentPart().isGenerated()) {
 			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentSliceNumber());
 			for (Polygon p : slice) {
 				drawModelPath2D(g2d, p.toPath2D());
 			}
-		} else if (viewObservable.getCurrentPart() != null && viewObservable.getCurrentPart().isGenerated()) {
+		}
+		// If layers are generated, draw the patterns
+		else if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
 			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
-
-			for (Vector2 b : bitKeys) {
-
+			for (Vector2 b : bitKeys) { // Draw each bits
 				Bit3D bit = layer.getBit3D(b);
-				Area area = bit.getRawArea();
+				Area area = bit.getRawArea(); // Get the area of the bit
 				AffineTransform affTrans = new AffineTransform();
 				affTrans.translate(b.x, b.y);
 				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 
-				area.transform(affTrans);
-				
-				g2d.setColor(new Color(164, 180, 200));
-				drawModelArea(g2d, area);
+				area.transform(affTrans); // Put the bit's area at the right place
 
-				if(viewObservable.showCutPaths() && bit.getCutPaths() != null){
+				g2d.setColor(new Color(164, 180, 200));
+				drawModelArea(g2d, area); // Draw the bit's area
+
+				// Draw the cut path if checkbox is checked
+				if (viewObservable.showCutPaths() && (bit.getCutPaths() != null)) {
 					g2d.setColor(Color.blue.darker());
 					g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-					for(Path2D p : bit.getCutPaths()){
+					for (Path2D p : bit.getCutPaths()) {
 						Path2D path = (Path2D) p.clone();
 						path.transform(affTrans);
 						drawModelPath2D(g2d, path);
-					}	
+					}
 				}
 
+				// Draw the lift points path if checkbox is checked
 				if (viewObservable.showLiftPoints()) {
 					g2d.setColor(Color.red);
 					g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 					for (Vector2 liftPoint : bit.getLiftPoints()) {
-						if (liftPoint != null) {		
+						if (liftPoint != null) {
 							Point2D point = new Point2D.Double();
 							affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
 							drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
@@ -381,17 +340,20 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 			}
 
+			// Draw the slices contained in the layer if checkbox checked
 			if (viewObservable.showSlices()) {
 				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-				g2d.setColor(new Color(100 + (155/layer.getSlices().size()),50,0));
+				g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
 				for (int i = 0; i < layer.getSlices().size(); i++) {
 					if (i == layer.getSliceToSelect()) {
-						Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{2}, 0);
+						// Set the selected slice of the layer in blue
+						Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 2 }, 0);
 						g2d.setStroke(dashed);
 						g2d.setColor(Color.blue);
 					} else {
+						// Set the other slices in different red to differentiate them from each other
 						g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-						g2d.setColor(new Color(100 + (i+1)*(155/layer.getSlices().size()),50,0));
+						g2d.setColor(new Color(100 + ((i + 1) * (155 / layer.getSlices().size())), 50, 0));
 					}
 
 					for (Polygon p : layer.getSlices().get(i)) {
@@ -399,12 +361,14 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					}
 				}
 			}
-			
+
+			// Draw the controls of the selected bit if exists
 			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
 				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
 
-			if(viewObservable.showPreviousLayer() && viewObservable.getCurrentLayerNumber() > 0){
+			// Draw the outline of the layer below the current showing one
+			if (viewObservable.showPreviousLayer() && (viewObservable.getCurrentLayerNumber() > 0)) {
 				Layer previousLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber() - 1);
 				Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
 
@@ -428,9 +392,26 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 					area.transform(tx1);
 
-					g2d.draw(area);	
+					g2d.draw(area);
 				}
 			}
+		}
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		revalidate();
+		repaint();
+	}
+
+	public class TriangleShape extends Path2D.Double {
+		private static final long serialVersionUID = -147647250831261196L;
+
+		public TriangleShape(Point2D... points) {
+			moveTo(points[0].getX(), points[0].getY());
+			lineTo(points[1].getX(), points[1].getY());
+			lineTo(points[2].getX(), points[2].getY());
+			closePath();
 		}
 	}
 

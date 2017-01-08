@@ -24,7 +24,6 @@ public class ViewObservable extends Observable implements Observer{
 	}
 	
 	private ViewObservable(){
-		
 	}
 	
 	public static ViewObservable getInstance(){
@@ -59,6 +58,7 @@ public class ViewObservable extends Observable implements Observer{
 		layerNumber = nbrLayer;
 		part.getLayers().get(layerNumber).addObserver(this);
 		setSelectedBitKey(null);
+		
 		setChanged();
 		notifyObservers(Component.LAYER);
 	}
@@ -69,6 +69,7 @@ public class ViewObservable extends Observable implements Observer{
 		if(nbrSlice >= part.getSlices().size() || nbrSlice < 0)
 			return;
 		sliceNumber = nbrSlice;
+		
 		setChanged();
 		notifyObservers(Component.SLICE);
 	}
@@ -77,6 +78,7 @@ public class ViewObservable extends Observable implements Observer{
 		if(part == null)
 			return;
 		selectedBitKey = bitKey;
+		
 		setChanged();
 		notifyObservers(Component.SELECTED_BIT);
 	}
@@ -87,6 +89,7 @@ public class ViewObservable extends Observable implements Observer{
 		zoom = zoomValue;
 		if (zoom < 0.2)
 			zoom = 0.2;
+		
 		setChanged();
 		notifyObservers(Component.ZOOM);
 	}
@@ -117,6 +120,7 @@ public class ViewObservable extends Observable implements Observer{
 			this.setPart(part);
 		else if(o == this.part.getLayers().get(layerNumber)){
 			setSelectedBitKey(null);
+			
 			setChanged();
 			notifyObservers(Component.LAYER);
 		}
@@ -124,6 +128,7 @@ public class ViewObservable extends Observable implements Observer{
 
 	public void toggleShowSlice(boolean selected) {
 		this.showSlices = selected;
+		
 		setChanged();
 		notifyObservers();
 	}
@@ -134,6 +139,7 @@ public class ViewObservable extends Observable implements Observer{
 	
 	public void toggleShowLiftPoints(boolean selected) {
 		this.showLiftPoints = selected;
+		
 		setChanged();
 		notifyObservers();
 	}
@@ -144,6 +150,7 @@ public class ViewObservable extends Observable implements Observer{
 	
 	public void toggleShowPreviousLayer(boolean selected) {
 		this.showPreviousLayer = selected;
+		
 		setChanged();
 		notifyObservers();
 	}
@@ -154,6 +161,7 @@ public class ViewObservable extends Observable implements Observer{
 	
 	public void toggleShowCutPaths(boolean selected) {
 		this.showCutPaths = selected;
+		
 		setChanged();
 		notifyObservers();
 	}
