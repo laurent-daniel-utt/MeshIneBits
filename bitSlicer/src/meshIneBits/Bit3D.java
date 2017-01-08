@@ -21,12 +21,13 @@ public class Bit3D {
 
 		double maxNumberOfbit2D = bits2D.size();
 		double nbrActualBit2D = 0;
-		for(Bit2D b : bits2D){
-			if(b != null)
+		for (Bit2D b : bits2D) {
+			if (b != null) {
 				nbrActualBit2D++;
+			}
 		}
-		
-		double percentage = nbrActualBit2D / maxNumberOfbit2D * 100;
+
+		double percentage = (nbrActualBit2D / maxNumberOfbit2D) * 100;
 
 		if (percentage < CraftConfig.minPercentageOfSlices) {
 			throw new Exception() {
@@ -37,7 +38,7 @@ public class Bit3D {
 					return "This bit does not contain enough bit 2D in it";
 				}
 			};
-		} else if (sliceToSelect >= bits2D.size() || (sliceToSelect < bits2D.size() && bits2D.get(sliceToSelect) == null)) {
+		} else if ((sliceToSelect >= bits2D.size()) || ((sliceToSelect < bits2D.size()) && (bits2D.get(sliceToSelect) == null))) {
 			throw new Exception() {
 				private static final long serialVersionUID = 1L;
 
@@ -71,6 +72,10 @@ public class Bit3D {
 		}
 	}
 
+	public Bit2D getBit2dToExtrude() {
+		return bit2dToExtrude;
+	}
+
 	public Vector<Path2D> getCutPaths() {
 		return cutPaths;
 	}
@@ -87,19 +92,15 @@ public class Bit3D {
 		return orientation;
 	}
 
+	public Vector2 getOrigin() {
+		return origin;
+	}
+
 	public Area getRawArea() {
 		return bit2dToExtrude.getRawArea();
 	}
 
 	public Vector2 getRotation() {
 		return orientation;
-	}
-	
-	public Bit2D getBit2dToExtrude(){
-		return bit2dToExtrude;
-	}
-	
-	public Vector2 getOrigin(){
-		return origin;
 	}
 }

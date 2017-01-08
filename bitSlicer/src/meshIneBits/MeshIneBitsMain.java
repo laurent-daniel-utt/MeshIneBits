@@ -1,12 +1,7 @@
 package meshIneBits;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
-import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.SliceTool;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.util.Logger;
 
@@ -15,7 +10,6 @@ public class MeshIneBitsMain {
 		CraftConfigLoader.loadConfig(null);
 
 		MainWindow.getInstance();
-		//		new ConfigWindow();
 	}
 
 	public static void sliceModel(String filename) {

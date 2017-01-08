@@ -8,6 +8,8 @@ import java.util.Vector;
  * Vector2 represent a point in a 2D space
  */
 public class Vector2 {
+	public final double x, y;
+
 	public static double dist2(Vector2 v, Vector2 w) {
 		return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
 	}
@@ -17,8 +19,6 @@ public class Vector2 {
 		double angleRadian = (Math.PI * angleDegrees) / 180;
 		return new Vector2(Math.cos(angleRadian), Math.sin(angleRadian));
 	}
-
-	public final double x, y;
 
 	public Vector2(double x, double y) {
 		this.x = x;
