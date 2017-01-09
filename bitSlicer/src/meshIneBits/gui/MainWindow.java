@@ -13,13 +13,12 @@ import javax.swing.plaf.ColorUIResource;
 import meshIneBits.GeneratedPart;
 
 public class MainWindow extends JFrame {
-	private static final long serialVersionUID = -74349571204769732L;
 	private static MainWindow instance = null;
+	private static final long serialVersionUID = -74349571204769732L;
+	private Container content;
+	private Ribbon ribbon;
 	private ViewObservable viewObservable;
 	private ViewPanel viewPanel;
-	private Ribbon ribbon;
-	private View view;
-	private Container content;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -31,6 +30,7 @@ public class MainWindow extends JFrame {
 	private MainWindow() {
 		this.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage());
 
+		// Visual options
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			UIManager.put("TabbedPane.focus", new Color(0, 0, 0, 0));
@@ -42,21 +42,22 @@ public class MainWindow extends JFrame {
 			e.printStackTrace();
 		}
 
+		// Window options
 		setTitle("MeshIneBits");
 		setSize(1280, 700);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		viewObservable = ViewObservable.getInstance();
-		
-		viewPanel = new ViewPanel();
+		// Menu with the tabs
 		ribbon = new Ribbon();
 		
+		// Preview of the generated part & controls
+		viewPanel = new ViewPanel();
+		
+		// ViewObservable make connection between generated part and the view
+		viewObservable = ViewObservable.getInstance();
 		viewObservable.addObserver(viewPanel);
 		viewObservable.addObserver(ribbon);
-//		viewObservable.addObserver(view);
-		
-//		viewObservable.letObserversKnowMe();
 
 		content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -67,12 +68,12 @@ public class MainWindow extends JFrame {
 		setVisible(true);
 	}
 
-	public void setPart(GeneratedPart part) {
-		viewObservable.setPart(part);
-	}
-	
 	public void refresh() {
 		repaint();
 		revalidate();
+	}
+
+	public void setPart(GeneratedPart part) {
+		viewObservable.setPart(part);
 	}
 }

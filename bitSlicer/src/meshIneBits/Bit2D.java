@@ -14,36 +14,14 @@ import meshIneBits.util.Vector2;
  * Bit2D represents a bit in 2d space.
  */
 public class Bit2D implements Cloneable {
-	private final Vector2 origin;// in the pattern coordinate system
-	private Vector2 orientation;// around the bit origin
+	private final Vector2 origin; // In the pattern coordinate system
+	private Vector2 orientation; // Around the bit origin
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
-	
-	/**
-	 * Constructor for cloning
-	 * @param origin
-	 * @param orientation
-	 * @param length
-	 * @param width
-	 * @param transfoMatrix
-	 * @param inverseTransfoMatrix
-	 * @param cutPaths
-	 * @param areas
-	 */
-	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas){
-		this.origin = origin;
-		this.orientation = orientation;
-		this.length = length;
-		this.width = width;
-		this.transfoMatrix = transfoMatrix;
-		this.inverseTransfoMatrix = inverseTransfoMatrix;
-		this.cutPaths = cutPaths;
-		this.areas = areas;
-	}
 
 	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
 		this.origin = modelBit.origin;
@@ -54,16 +32,7 @@ public class Bit2D implements Cloneable {
 		setTransfoMatrix();
 		buildBoundaries();
 	}
-	
-	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width){
-		this.origin = origin;
-		this.orientation = orientation;
-		this.length = length;
-		this.width = width;
-		
-		setTransfoMatrix();
-		buildBoundaries();
-	}
+
 	/*
 	 * originBit and orientation are in the coordinate system of the associated
 	 * pattern
@@ -76,6 +45,40 @@ public class Bit2D implements Cloneable {
 
 		setTransfoMatrix();
 		buildBoundaries();
+	}
+
+	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width) {
+		this.origin = origin;
+		this.orientation = orientation;
+		this.length = length;
+		this.width = width;
+
+		setTransfoMatrix();
+		buildBoundaries();
+	}
+
+	/**
+	 * Constructor for cloning
+	 * 
+	 * @param origin
+	 * @param orientation
+	 * @param length
+	 * @param width
+	 * @param transfoMatrix
+	 * @param inverseTransfoMatrix
+	 * @param cutPaths
+	 * @param areas
+	 */
+	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths,
+			Vector<Area> areas) {
+		this.origin = origin;
+		this.orientation = orientation;
+		this.length = length;
+		this.width = width;
+		this.transfoMatrix = transfoMatrix;
+		this.inverseTransfoMatrix = inverseTransfoMatrix;
+		this.cutPaths = cutPaths;
+		this.areas = areas;
 	}
 
 	private void buildBoundaries() {
@@ -114,25 +117,8 @@ public class Bit2D implements Cloneable {
 
 	@Override
 	public Bit2D clone() {
-		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(), (AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(), getClonedAreas());
-	}
-	
-	public Vector<Area> getClonedAreas(){
-		Vector<Area> clonedAreas = new Vector<Area>();
-		for (Area a : areas)
-			clonedAreas.add((Area) a.clone());
-		return clonedAreas;
-	}
-	
-	public Vector<Path2D> getClonedCutPaths(){
-		if(cutPaths != null){
-			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
-			for(Path2D p : cutPaths)
-				clonedCutPaths.add((Path2D) p.clone());
-			return clonedCutPaths;
-		}
-		else
-			return null;
+		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(), (AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(),
+				getClonedAreas());
 	}
 
 	public Area getArea() {
@@ -154,6 +140,26 @@ public class Bit2D implements Cloneable {
 		return result;
 	}
 
+	public Vector<Area> getClonedAreas() {
+		Vector<Area> clonedAreas = new Vector<Area>();
+		for (Area a : areas) {
+			clonedAreas.add((Area) a.clone());
+		}
+		return clonedAreas;
+	}
+
+	public Vector<Path2D> getClonedCutPaths() {
+		if (cutPaths != null) {
+			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
+			for (Path2D p : cutPaths) {
+				clonedCutPaths.add((Path2D) p.clone());
+			}
+			return clonedCutPaths;
+		} else {
+			return null;
+		}
+	}
+
 	public Vector<Path2D> getCutPaths() {
 		if (this.cutPaths == null) {
 			return null;
@@ -164,6 +170,10 @@ public class Bit2D implements Cloneable {
 			}
 			return paths;
 		}
+	}
+
+	public double getLength() {
+		return length;
 	}
 
 	public Vector2 getOrientation() {
@@ -188,6 +198,10 @@ public class Bit2D implements Cloneable {
 
 	public Vector<Path2D> getRawCutPaths() {
 		return cutPaths;
+	}
+
+	public double getWidth() {
+		return width;
 	}
 
 	public void setCutPath(Vector<Path2D> paths) {
@@ -219,13 +233,5 @@ public class Bit2D implements Cloneable {
 		for (Area a : AreaTool.segregateArea(newArea)) {
 			areas.add(a);
 		}
-	}
-	
-	public double getLength(){
-		return length;
-	}
-	
-	public double getWidth(){
-		return width;
 	}
 }

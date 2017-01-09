@@ -6,6 +6,12 @@ import java.util.Vector;
  * Segment2D represents a line in 2D space.
  */
 public class Segment2D extends AABBrect {
+	public Vector2 start;
+
+	public Vector2 end;
+	private Vector2 normal;
+	private Segment2D next, prev;
+
 	/*
 	 * Sort segments by paths
 	 */
@@ -40,32 +46,6 @@ public class Segment2D extends AABBrect {
 			}
 		}
 		return segregateSegments;
-	}
-
-	public Vector2 start;
-	public Vector2 end;
-	private Vector2 normal;
-
-	private Segment2D next, prev;
-
-	public Segment2D(Segment2D prev, Segment2D next) {
-		super(prev.end, next.start, 1.0);
-		this.start = prev.end;
-		this.end = next.start;
-
-		if (prev.next != null) {
-			prev.next.prev = null;
-		}
-		prev.next = this;
-		if (next.prev != null) {
-			next.prev.next = null;
-		}
-		next.prev = this;
-
-		this.prev = prev;
-		this.next = next;
-
-		update(this.start, this.end);
 	}
 
 	public Segment2D(Vector2 start, Vector2 end) {
@@ -114,11 +94,6 @@ public class Segment2D extends AABBrect {
 
 	public Segment2D getPrev() {
 		return prev;
-	}
-
-	public void resetLinks() {
-		this.next = null;
-		this.prev = null;
 	}
 
 	public void setNext(Segment2D newNext) {

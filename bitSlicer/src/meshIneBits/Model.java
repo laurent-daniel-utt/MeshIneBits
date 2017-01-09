@@ -13,7 +13,6 @@ import meshIneBits.util.Vector3;
 /**
  * Handle mesh files
  *
- * TODO Converter stl
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
@@ -224,12 +223,4 @@ public class Model {
 		raf.close();
 		return resultTriangles;
 	}
-
-	//	public String toObjFile(String filename) throws IOException {
-	//
-	//	}
-	//
-	//	public String toStlFile(String filename) throws IOException {
-	//
-	//	}
 }

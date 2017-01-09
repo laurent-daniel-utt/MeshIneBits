@@ -8,35 +8,12 @@ import java.util.Vector;
  * A polygon is an enclosed set of Segment2D.
  */
 public class Polygon implements Iterable<Segment2D> {
-	private class Segment2DIterator implements Iterator<Segment2D> {
-		private Segment2D next;
-
-		public Segment2DIterator() {
-			this.next = first;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return next != null;
-		}
-
-		@Override
-		public Segment2D next() {
-			Segment2D ret = next;
-			next = next.getNext();
-			if (next == first) {
-				next = null;
-			}
-			return ret;
-		}
-	}
-
 	private Segment2D first = null;
+
 	private Segment2D last = null;
 	private boolean enclosed = false;
 
 	public Polygon() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Polygon(Segment2D segment) {
@@ -228,6 +205,29 @@ public class Polygon implements Iterable<Segment2D> {
 		path.closePath();
 
 		return path;
+	}
+
+	private class Segment2DIterator implements Iterator<Segment2D> {
+		private Segment2D next;
+
+		public Segment2DIterator() {
+			this.next = first;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return next != null;
+		}
+
+		@Override
+		public Segment2D next() {
+			Segment2D ret = next;
+			next = next.getNext();
+			if (next == first) {
+				next = null;
+			}
+			return ret;
+		}
 	}
 
 }

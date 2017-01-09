@@ -6,8 +6,9 @@ import java.util.Observer;
 import meshIneBits.GeneratedPart;
 import meshIneBits.util.Vector2;
 
-public class ViewObservable extends Observable implements Observer{
-	
+public class ViewObservable extends Observable implements Observer {
+
+	static private ViewObservable instance;
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
 	private int sliceNumber = 0;
@@ -17,148 +18,164 @@ public class ViewObservable extends Observable implements Observer{
 	private boolean showLiftPoints = false;
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;
-	static private ViewObservable instance;
-	
-	public enum Component {
-		PART, LAYER, SELECTED_BIT, ZOOM, SLICE
-	}
-	
-	private ViewObservable(){
-		
-	}
-	
-	public static ViewObservable getInstance(){
-		if(instance == null)
+
+	public static ViewObservable getInstance() {
+		if (instance == null) {
 			instance = new ViewObservable();
-		
+		}
+
 		return instance;
 	}
-	
-	public void setPart(GeneratedPart part){
-		if (this.part == null && part != null) {
+
+	private ViewObservable() {
+	}
+
+	public int getCurrentLayerNumber() {
+		return layerNumber;
+	}
+
+	public GeneratedPart getCurrentPart() {
+		return part;
+	}
+
+	public int getCurrentSliceNumber() {
+		return sliceNumber;
+	}
+
+	public Vector2 getSelectedBitKey() {
+		return selectedBitKey;
+	}
+
+	public double getZoom() {
+		return zoom;
+	}
+
+	public void setLayer(int nbrLayer) {
+		if (part == null) {
+			return;
+		}
+		if (!part.isGenerated()) {
+			return;
+		}
+		if ((nbrLayer >= part.getLayers().size()) || (nbrLayer < 0)) {
+			return;
+		}
+		layerNumber = nbrLayer;
+		part.getLayers().get(layerNumber).addObserver(this);
+		setSelectedBitKey(null);
+
+		setChanged();
+		notifyObservers(Component.LAYER);
+	}
+
+	public void setPart(GeneratedPart part) {
+		if ((this.part == null) && (part != null)) {
 			part.addObserver(this);
 		}
-		
+
 		this.part = part;
-		
+
 		setLayer(0);
 		setSelectedBitKey(null);
-		
+
 		MainWindow.getInstance().refresh();
 		setChanged();
 		notifyObservers(Component.PART);
 	}
-	
-	public void setLayer(int nbrLayer){
-		if(part == null)
+
+	public void setSelectedBitKey(Vector2 bitKey) {
+		if (part == null) {
 			return;
-		if(!part.isGenerated())
-			return;
-		if(nbrLayer >= part.getLayers().size() || nbrLayer < 0)
-			return;
-		layerNumber = nbrLayer;
-		part.getLayers().get(layerNumber).addObserver(this);
-		setSelectedBitKey(null);
-		setChanged();
-		notifyObservers(Component.LAYER);
-	}
-	
-	public void setSlice(int nbrSlice){
-		if(part == null)
-			return;
-		if(nbrSlice >= part.getSlices().size() || nbrSlice < 0)
-			return;
-		sliceNumber = nbrSlice;
-		setChanged();
-		notifyObservers(Component.SLICE);
-	}
-	
-	public void setSelectedBitKey(Vector2 bitKey){
-		if(part == null)
-			return;
+		}
 		selectedBitKey = bitKey;
+
 		setChanged();
 		notifyObservers(Component.SELECTED_BIT);
 	}
-	
-	public void setZoom(double zoomValue){
-		if(part == null)
+
+	public void setSlice(int nbrSlice) {
+		if (part == null) {
 			return;
+		}
+		if ((nbrSlice >= part.getSlices().size()) || (nbrSlice < 0)) {
+			return;
+		}
+		sliceNumber = nbrSlice;
+
+		setChanged();
+		notifyObservers(Component.SLICE);
+	}
+
+	public void setZoom(double zoomValue) {
+		if (part == null) {
+			return;
+		}
 		zoom = zoomValue;
-		if (zoom < 0.2)
+		if (zoom < 0.2) {
 			zoom = 0.2;
+		}
+
 		setChanged();
 		notifyObservers(Component.ZOOM);
 	}
-	
-	public GeneratedPart getCurrentPart(){
-		return part;
-	}
-	
-	public int getCurrentLayerNumber(){
-		return layerNumber;
-	}
-	
-	public int getCurrentSliceNumber(){
-		return sliceNumber;
-	}
-	
-	public Vector2 getSelectedBitKey(){
-		return selectedBitKey;
-	}
-	
-	public double getZoom(){
-		return zoom;
-	}
 
-	@Override
-	public void update(Observable o, Object arg) {
-		if (o == this.part)
-			this.setPart(part);
-		else if(o == this.part.getLayers().get(layerNumber)){
-			setSelectedBitKey(null);
-			setChanged();
-			notifyObservers(Component.LAYER);
-		}
-	}
-
-	public void toggleShowSlice(boolean selected) {
-		this.showSlices = selected;
-		setChanged();
-		notifyObservers();
-	}
-	
-	public boolean showSlices() {
-		return showSlices;
-	}
-	
-	public void toggleShowLiftPoints(boolean selected) {
-		this.showLiftPoints = selected;
-		setChanged();
-		notifyObservers();
+	public boolean showCutPaths() {
+		return showCutPaths;
 	}
 
 	public boolean showLiftPoints() {
-		return showLiftPoints ;
-	}
-	
-	public void toggleShowPreviousLayer(boolean selected) {
-		this.showPreviousLayer = selected;
-		setChanged();
-		notifyObservers();
+		return showLiftPoints;
 	}
 
 	public boolean showPreviousLayer() {
 		return showPreviousLayer;
 	}
-	
+
+	public boolean showSlices() {
+		return showSlices;
+	}
+
 	public void toggleShowCutPaths(boolean selected) {
 		this.showCutPaths = selected;
+
 		setChanged();
 		notifyObservers();
 	}
 
-	public boolean showCutPaths() {
-		return showCutPaths;
+	public void toggleShowLiftPoints(boolean selected) {
+		this.showLiftPoints = selected;
+
+		setChanged();
+		notifyObservers();
+	}
+
+	public void toggleShowPreviousLayer(boolean selected) {
+		this.showPreviousLayer = selected;
+
+		setChanged();
+		notifyObservers();
+	}
+
+	public void toggleShowSlice(boolean selected) {
+		this.showSlices = selected;
+
+		setChanged();
+		notifyObservers();
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (o == this.part) {
+			this.setPart(part);
+		} else if (o == this.part.getLayers().get(layerNumber)) {
+			setSelectedBitKey(null);
+
+			setChanged();
+			notifyObservers(Component.LAYER);
+		}
+	}
+
+	public enum Component {
+		PART, LAYER, SELECTED_BIT, ZOOM, SLICE
 	}
 }

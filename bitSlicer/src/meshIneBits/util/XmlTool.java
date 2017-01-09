@@ -2,9 +2,7 @@ package meshIneBits.util;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -17,23 +15,14 @@ import meshIneBits.Config.CraftConfig;
 
 public class XmlTool {
 
-	GeneratedPart part;
-	PrintWriter writer;
-	Path filePath;
-	StringBuffer xmlCode;
+	private GeneratedPart part;
+	private PrintWriter writer;
+	private Path filePath;
 
 	public XmlTool(GeneratedPart part, Path fileLocation) {
 		this.part = part;
 		this.filePath = fileLocation;
 		setFileToXml();
-	}
-	
-	private void setFileToXml(){
-		String fileName = filePath.getFileName().toString();
-		if(fileName.split("[.]").length >= 2)
-			fileName = fileName.split("[.]")[0];
-		fileName = fileName + "." + "xml";
-		filePath = Paths.get(filePath.getParent().toString() + "\\" + fileName);
 	}
 
 	public String getNameFromFileLocation() {
@@ -52,6 +41,15 @@ public class XmlTool {
 		} else {
 			return false;
 		}
+	}
+
+	private void setFileToXml() {
+		String fileName = filePath.getFileName().toString();
+		if (fileName.split("[.]").length >= 2) {
+			fileName = fileName.split("[.]")[0];
+		}
+		fileName = fileName + "." + "xml";
+		filePath = Paths.get(filePath.getParent().toString() + "\\" + fileName);
 	}
 
 	private void startFile() {

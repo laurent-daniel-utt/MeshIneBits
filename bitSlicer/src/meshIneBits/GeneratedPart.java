@@ -26,29 +26,18 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		slicer = new SliceTool(this, model);
 		slicer.sliceModel();
 	}
-	
-	public boolean isSliced(){
-		return sliced;
-	}
 
 	public void buildBits2D() {
-		
-		if(t == null || (t != null && !t.isAlive())){
+
+		if ((t == null) || ((t != null) && !t.isAlive())) {
 			setSkirtRadius();
 			setPatternTemplate();
-		
+
 			this.layers.clear();
 
 			t = new Thread(this);
 			t.start();
 		}
-	}
-
-	public boolean isGenerated() {
-		if (!layers.isEmpty())
-			return true;
-		else
-			return false;
 	}
 
 	private void buildLayers() {
@@ -87,28 +76,14 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	public Vector<Layer> getLayers() {
-		if(!isGenerated()){
+		if (!isGenerated()) {
 			try {
 				throw new Exception("Part not generated!");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return this.layers;
-	}
-
-	public Vector<Slice> getSlices(){
-		if (!sliced) {
-			try {
-				throw new Exception("Part not sliced!");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-			
-		return slices;
 	}
 
 	public PatternTemplate getPatternTemplate() {
@@ -117,6 +92,37 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 
 	public double getSkirtRadius() {
 		return skirtRadius;
+	}
+
+	public Vector<Slice> getSlices() {
+		if (!sliced) {
+			try {
+				throw new Exception("Part not sliced!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return slices;
+	}
+
+	public boolean isGenerated() {
+		if (!layers.isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isSliced() {
+		return sliced;
+	}
+
+	@Override
+	public void run() {
+		buildLayers();
+		setChanged();
+		notifyObservers();
 	}
 
 	private void setPatternTemplate() {
@@ -132,7 +138,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	/*
 	 * skirtRadius is the radius of the cylinder that fully contains the part.
 	 */
-	public void setSkirtRadius() {
+	private void setSkirtRadius() {
 
 		double radius = 0;
 
@@ -153,15 +159,8 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	@Override
-	public void run() {
-		buildLayers();
-		setChanged();
-		notifyObservers();
-	}
-
-	@Override
 	public void update(Observable o, Object arg) {
-		if (o == slicer && arg == this) {
+		if ((o == slicer) && (arg == this)) {
 			this.slices = slicer.getSlices();
 			sliced = true;
 			setChanged();

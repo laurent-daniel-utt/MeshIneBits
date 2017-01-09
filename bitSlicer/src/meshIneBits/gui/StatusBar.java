@@ -3,41 +3,43 @@ package meshIneBits.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
+
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 
-public class StatusBar extends JPanel implements LoggingInterface{
+public class StatusBar extends JPanel implements LoggingInterface {
 	private static final long serialVersionUID = 1L;
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
-	
-	public StatusBar(){
 
+	public StatusBar() {
+		// Visual options
+		setBackground(Color.white);
+		setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
+		setLayout(new BorderLayout());
+
+		// Setting up
 		Logger.register(this);
-		
+
 		progressBar = new JProgressBar(0, 2);
 		progressBar.setVisible(false);
-		
+
 		statusLabel = new JLabel("Ready");
 		statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
-		
-		this.setBackground(Color.white);
-		this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
-		
-		this.setLayout(new BorderLayout());
-		this.add(statusLabel, BorderLayout.WEST);
-		this.add(progressBar, BorderLayout.EAST);
+
+		add(statusLabel, BorderLayout.WEST);
+		add(progressBar, BorderLayout.EAST);
 	}
 
 	@Override
 	public void error(String error) {
 		statusLabel.setText("ERROR :" + error);
-		
 	}
 
 	@Override
@@ -47,10 +49,9 @@ public class StatusBar extends JPanel implements LoggingInterface{
 
 	@Override
 	public void setProgress(int value, int max) {
-		if(value >= max){
+		if (value >= max) {
 			progressBar.setVisible(false);
-		}
-		else{
+		} else {
 			progressBar.setVisible(true);
 			progressBar.setValue(value);
 			progressBar.setMaximum(max);
@@ -65,7 +66,5 @@ public class StatusBar extends JPanel implements LoggingInterface{
 
 	@Override
 	public void warning(String warning) {
-		// TODO Auto-generated method stub
-		
 	}
 }

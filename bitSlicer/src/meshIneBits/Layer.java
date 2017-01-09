@@ -16,54 +16,21 @@ public class Layer extends Observable {
 	private Pattern referentialPattern;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
 	private Hashtable<Vector2, Bit3D> mapBits3D;
-	private int sliceToSelect; //Let the user choose that in the gui for each layer!
+	private int sliceToSelect;
 
 	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart) {
 		this.slices = slices;
 		this.layerNumber = layerNumber;
 		this.referentialPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
-		
+
 		setSliceToSelect(CraftConfig.defaultSliceToSelect);
-		
-		rebuild();		
-	}
-	
-	public void rebuild(){
-		buildPatterns();
-		generateBits3D();
-		computeLiftPoints();
-		setChanged();
-		notifyObservers();
-	}
-	
-	/**
-	 * Only for default slice to select
-	 * @param percentageOfHeight
-	 */
-	private void setSliceToSelect(double percentageOfHeight){
-		sliceToSelect = (int) Math.round(percentageOfHeight / 100 * (slices.size() - 1));
-	}
-	
-	public void setSliceToSelect(int sliceNbr){
-		if(sliceNbr >= 0 && sliceNbr < slices.size()){
-			sliceToSelect = sliceNbr;
-			rebuild();
-		}
-	}
-	
-	public int getSliceToSelect(){
-		return sliceToSelect;
+
+		rebuild();
 	}
 
 	public void addBit(Bit2D bit) {
 		referentialPattern.addBit(bit);
-		rebuild();		
-	}
-	
-	public void replaceBit(Bit3D bit, double percentageLength, double percentageWidth){
-		Bit2D modelBit = bit.getBit2dToExtrude();
-		removeBit(bit.getOrigin());
-		addBit(new Bit2D(modelBit, percentageLength, percentageWidth));
+		rebuild();
 	}
 
 	private void buildPatterns() {
@@ -74,68 +41,27 @@ public class Layer extends Observable {
 		}
 	}
 
-	public void computeLiftPoints() {
+	private void computeLiftPoints() {
 		for (Vector2 key : getBits3dKeys()) {
 			mapBits3D.get(key).computeLiftPoints();
 		}
 	}
 
-//	private void generateBits3D2() {
-//		mapBits3D = new Hashtable<Vector2, Bit3D>();
-//		Vector<Vector<Vector2>> keysPattern = new Vector<Vector<Vector2>>();
-//
-//		for (int i = 0; i < patterns.size(); i++) {
-//			keysPattern.add(patterns.get(i).getBitsKeys());
-//		}
-//		for (int i = 0; i < keysPattern.size(); i++) { //dans chaque Vector<Keys>
-//			for (int j = 0; j < keysPattern.get(i).size(); j++) { //Pour chaque key
-//				Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
-//				bitsToInclude.add(patterns.get(i).getBit(keysPattern.get(i).get(j)));
-//				for (int k = i + 1; k < (keysPattern.size() - 1); k++) { //pour chaque Vector<Keys> d'index superieur
-//					Iterator<Vector2> itr = keysPattern.get(k).iterator(); //On passe en revue chaque key
-//					boolean found = false;
-//					while (itr.hasNext() && !found) {
-//						Vector2 myKey = itr.next();
-//						if (myKey.asGoodAsEqual(keysPattern.get(i).get(j))) { //Si c'est la même alors on inclut ce bit2D et on le supprimme de la liste
-//							bitsToInclude.add(patterns.get(k).getBit(myKey));
-//							itr.remove();
-//							found = true;
-//						}
-//					}
-//					if(!found)
-//						bitsToInclude.add(null);
-//				}
-//
-//				Bit3D newBit;
-//				try {
-//					newBit = new Bit3D(bitsToInclude, keysPattern.get(i).get(j), getNewOrientation(bitsToInclude.get(0)), sliceToSelect);
-//					mapBits3D.put(keysPattern.get(i).get(j), newBit);
-//				} catch (Exception e) {
-//					//new Bit3D() will throw an exception if there is not enough slices allowed to it or if the slice to select doesn't exist in that bit
-//					//					if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
-//					//						e.printStackTrace();
-//					//					}
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//	}
-
 	private void generateBits3D() {
 		mapBits3D = new Hashtable<Vector2, Bit3D>();
 		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
 
-		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {			
-			for (Pattern pattern : patterns) {	
+		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
+			for (Pattern pattern : patterns) {
 				if (pattern.getBitsKeys().contains(bitKey)) {
 					bitsToInclude.add(pattern.getBit(bitKey));
 				} else {
 					bitsToInclude.add(null);
 				}
 			}
-			
-			for(int i = 0; i < bitsToInclude.size(); i++){
-				if(bitsToInclude.get(i) != null){
+
+			for (int i = 0; i < bitsToInclude.size(); i++) {
+				if (bitsToInclude.get(i) != null) {
 					Bit3D newBit;
 					try {
 						newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)), sliceToSelect);
@@ -147,47 +73,11 @@ public class Layer extends Observable {
 					}
 					break;
 				}
-			}		
-			
+			}
+
 			bitsToInclude.clear();
 		}
 	}
-	
-//	private void generateBits3D() {
-//		mapBits3D = new Hashtable<Vector2, Bit3D>();
-//		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
-//
-//		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
-//			Vector2 lastValue = bitKey;
-//			
-//			for (Pattern pattern : patterns) {	
-//				if (pattern.getBitsKeys().contains(bitKey) && lastValue != null) {
-//					bitsToInclude.add(pattern.getBit(bitKey));
-//					lastValue = bitKey;
-//				} else {
-//					bitsToInclude.add(null);
-//					lastValue = null;
-//				}
-//			}
-//			
-//			for(int i = 0; i < bitsToInclude.size(); i++){
-//				if(bitsToInclude.get(i) != null){
-//					Bit3D newBit;
-//					try {
-//						newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)), sliceToSelect);
-//						mapBits3D.put(bitKey, newBit);
-//					} catch (Exception e) {
-//						if ((e.getMessage() != "This bit does not contain enough bit 2D in it") && (e.getMessage() != "The slice to select does not exist in that bit")) {
-//							e.printStackTrace();
-//						}
-//					}
-//					break;
-//				}
-//			}		
-//			
-//			bitsToInclude.clear();
-//		}
-//	}
 
 	public Bit3D getBit3D(Vector2 key) {
 		return mapBits3D.get(key);
@@ -215,14 +105,48 @@ public class Layer extends Observable {
 		return this.slices;
 	}
 
+	public int getSliceToSelect() {
+		return sliceToSelect;
+	}
+
 	public void moveBit(Vector2 key, Vector2 direction, double offsetValue) {
 		referentialPattern.moveBit(key, direction, offsetValue);
 		rebuild();
 	}
 
+	public void rebuild() {
+		buildPatterns();
+		generateBits3D();
+		computeLiftPoints();
+		setChanged();
+		notifyObservers();
+	}
+
 	public void removeBit(Vector2 key) {
 		referentialPattern.removeBit(key);
 		rebuild();
+	}
+
+	public void replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
+		Bit2D modelBit = bit.getBit2dToExtrude();
+		removeBit(bit.getOrigin());
+		addBit(new Bit2D(modelBit, percentageLength, percentageWidth));
+	}
+
+	/**
+	 * Only for default slice to select
+	 * 
+	 * @param percentageOfHeight
+	 */
+	private void setSliceToSelect(double percentageOfHeight) {
+		sliceToSelect = (int) Math.round((percentageOfHeight / 100) * (slices.size() - 1));
+	}
+
+	public void setSliceToSelect(int sliceNbr) {
+		if ((sliceNbr >= 0) && (sliceNbr < slices.size())) {
+			sliceToSelect = sliceNbr;
+			rebuild();
+		}
 	}
 
 }
