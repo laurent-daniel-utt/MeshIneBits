@@ -11,8 +11,8 @@ import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
 
 /**
- * Handle mesh files
- *
+ * A model is the full set of triangle of the existing 3D mesh to pattern.
+ * Model is created from a <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL file</a>.
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();

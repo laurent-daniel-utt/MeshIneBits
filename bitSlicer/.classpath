@@ -5,6 +5,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OBJExport"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Processing"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Proscene-3"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jgoodies"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
