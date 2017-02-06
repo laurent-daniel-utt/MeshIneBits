@@ -1,6 +1,6 @@
-bitSlicer
-bitSlicer.PatternTemplates
-bitSlicer.Slicer
-bitSlicer.Slicer.Config
-bitSlicer.gui
-bitSlicer.util
+meshIneBits
+meshIneBits.Config
+meshIneBits.PatternTemplates
+meshIneBits.Slicer
+meshIneBits.gui
+meshIneBits.util

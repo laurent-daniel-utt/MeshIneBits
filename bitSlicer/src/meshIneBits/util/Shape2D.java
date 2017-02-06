@@ -7,8 +7,14 @@ import java.util.Vector;
 import meshIneBits.Config.CraftConfig;
 
 /**
- * Define a shape. Contain one or more polygons. Polygons are created from the
- * segmentList
+ * Shape2D is composed of {@link Segment2D} and {@link Polygon}. The segments represent all the
+ * "lines" that make up the outline but do not make it possible to know, for
+ * example, whether a point is inside or outside the matter. This is where the
+ * polygons are useful: a polygon is a closed set of segments, so there is an
+ * inside and an outside. The Polygon class contains references to the Segment2D
+ * contained in a Shape2D. There can be several polygons per Shape2D, if for
+ * example a piece is hollow, pierced, with a hanse ...
+ * <br><img src="./doc-files/polygone.png">
  */
 public class Shape2D implements Iterable<Polygon> {
 	protected Vector<Segment2D> segmentList = new Vector<Segment2D>();

@@ -1,6 +1,7 @@
 package meshIneBits;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,12 +12,22 @@ import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
 
 /**
- * A model is the full set of triangle of the existing 3D mesh to pattern.
- * Model is created from a <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL file</a>.
+ * A model is the full set of triangle of the existing 3D mesh to pattern. Model
+ * is created from a
+ * <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL file</a>.
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
 
+	/**
+	 * Read all the triangles of the STL file, whether it's an Ascii or a Binary
+	 * STL.
+	 * 
+	 * @param filename
+	 *            The STL file path ({@link File#toString()}).
+	 * @throws Exception
+	 *             If the file is not a STL.
+	 */
 	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
 
@@ -40,6 +51,13 @@ public class Model {
 		Logger.message("Triangle count: " + triangles.size());
 	}
 
+	/**
+	 * Find the centre of the mesh and translate triangle so the centre is the
+	 * origin of the basis. To find the centre, it search the distance between
+	 * maximum and minimum of X and Y and divide it by two. The centre is always
+	 * placed at the lower Z.
+	 * <br><img src="./doc-files/center.png">
+	 */
 	public void center() {
 		Vector3 min = getMin();
 		Vector3 max = getMax();
@@ -51,6 +69,10 @@ public class Model {
 		move(translate);
 	}
 
+	/**
+	 * Get the max of X, Y and Z.
+	 * @return {@link Vector3}
+	 */
 	public Vector3 getMax() {
 		Vector3 ret = new Vector3();
 		ret.x = Double.MIN_VALUE;
@@ -72,6 +94,10 @@ public class Model {
 		return ret;
 	}
 
+	/**
+	 * Get the min of X, Y and Z.
+	 * @return {@link Vector3}
+	 */
 	public Vector3 getMin() {
 		Vector3 ret = new Vector3();
 		ret.x = Double.MAX_VALUE;
@@ -97,6 +123,10 @@ public class Model {
 		return triangles;
 	}
 
+	/**
+	 * Translate all the triangle adding value of a {@link Vector3}
+	 * @param translate {@link Vector3}
+	 */
 	private void move(Vector3 translate) {
 		for (Triangle t : triangles) {
 			for (int i = 0; i < 3; i++) {
@@ -159,6 +189,12 @@ public class Model {
 	//		}
 	//	}
 
+	/**
+	 * Convert ascii STL file to a {@link Vector} of {@link Triangle}.
+	 * @param filename
+	 * @return {@link Vector} of {@link Triangle}
+	 * @throws IOException
+	 */
 	private Vector<Triangle> readAsciiSTL(String filename) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line;
@@ -191,6 +227,12 @@ public class Model {
 		return resultTriangles;
 	}
 
+	/**
+	 * Convert binary STL file to a {@link Vector} of {@link Triangle}.
+	 * @param filename
+	 * @return {@link Vector} of {@link Triangle}
+	 * @throws IOException
+	 */
 	private Vector<Triangle> readBinarySTL(String filename) throws IOException {
 		RandomAccessFile raf = new RandomAccessFile(filename, "r");
 		byte[] header = new byte[80];

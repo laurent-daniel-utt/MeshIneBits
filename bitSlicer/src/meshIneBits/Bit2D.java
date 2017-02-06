@@ -11,7 +11,9 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 /**
- * Bit2D represents a bit in 2d space.
+ * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is build with multiple Bit2D
+ * <br><img src="./doc-files/bit2d.png">
+ * @see Bit3D
  */
 public class Bit2D implements Cloneable {
 	private final Vector2 origin; // In the pattern coordinate system
