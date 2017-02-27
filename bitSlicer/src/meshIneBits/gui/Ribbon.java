@@ -374,9 +374,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setVisible(false);//Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-					fc.setCurrentDirectory(new File(CraftConfig.lastSlicedFile).getParentFile());
-					System.out.println(new File(CraftConfig.lastSlicedFile));
-					//fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
+					//fc.setCurrentDirectory(new File(CraftConfig.lastSlicedFile).getParentFile());
+					//System.out.println(new File(CraftConfig.lastSlicedFile));
+					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
 					int returnVal = fc.showOpenDialog(null);
 
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
