@@ -374,7 +374,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setVisible(false);//Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
+					fc.setCurrentDirectory(new File(CraftConfig.lastSlicedFile).getParentFile());
+					System.out.println(new File(CraftConfig.lastSlicedFile));
+					//fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
 					int returnVal = fc.showOpenDialog(null);
 
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -793,7 +795,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
 			JToggleButton pattern1Btn = new JToggleButton();
 			JToggleButton pattern2Btn = new JToggleButton();
-			if (CraftConfig.patternNumber == 1) {
+			if (CraftConfig.patternNumber == 3) {
 				pattern1Btn.setSelected(true);
 			} else {
 				pattern2Btn.setSelected(true);
@@ -848,7 +850,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					if (pattern1Btn.isSelected()) {
 						pattern2Btn.setSelected(false);
-						CraftConfig.patternNumber = 1;
+						CraftConfig.patternNumber = 3;
 					} else {
 						pattern2Btn.setSelected(true);
 						CraftConfig.patternNumber = 2;

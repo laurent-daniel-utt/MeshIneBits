@@ -45,7 +45,7 @@ public class CraftConfig
 	
 	@Setting(title = "Pattern number",
 			description = "Choose which pattern's template you want to apply",
-			minValue = 1, maxValue = 2)
+			minValue = 1, maxValue = 3)
 	public static int patternNumber = 2;
 	
 	@Setting(title = "Rotation (°)",

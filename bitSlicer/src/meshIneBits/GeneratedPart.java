@@ -8,6 +8,7 @@ import meshIneBits.Config.CraftConfig;
 import meshIneBits.PatternTemplates.PatternTemplate;
 import meshIneBits.PatternTemplates.PatternTemplate1;
 import meshIneBits.PatternTemplates.PatternTemplate2;
+import meshIneBits.PatternTemplates.PatternTemplate3;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
@@ -132,6 +133,10 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			break;
 		case 2:
 			patternTemplate = new PatternTemplate2(skirtRadius);
+			break;
+		case 3:
+			patternTemplate = new PatternTemplate3(skirtRadius);
+			break;
 		}
 	}
 
