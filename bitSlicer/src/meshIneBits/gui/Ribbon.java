@@ -146,7 +146,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Visual options
 			Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage();
 			this.setIconImage(windowIcon);
-			this.setSize(270, 145);
+			this.setSize(350, 160);
 			this.setLocationRelativeTo(null);
 			this.setResizable(false);
 
