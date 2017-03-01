@@ -14,6 +14,10 @@ import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 
+/**
+ * This object is the equivalent of the part which will be printed
+ *
+ */
 public class GeneratedPart extends Observable implements Runnable, Observer {
 	private Vector<Layer> layers = new Vector<Layer>();
 	private Vector<Slice> slices = new Vector<Slice>();
@@ -140,7 +144,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		}
 	}
 
-	/*
+	/**
 	 * skirtRadius is the radius of the cylinder that fully contains the part.
 	 */
 	private void setSkirtRadius() {

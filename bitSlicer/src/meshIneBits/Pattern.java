@@ -16,6 +16,11 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+/**
+ * Build by a {@link PatternTemplate}.
+ * Contains a set of {@link Bit2D}.
+ *
+ */
 public class Pattern implements Cloneable {
 	private Vector2 rotation;
 	private double skirtRadius;
@@ -74,6 +79,10 @@ public class Pattern implements Cloneable {
 		return new Pattern(clonedMapBits, rotation, skirtRadius, transfoMatrix, inverseTransfoMatrix);
 	}
 
+	/**
+	 * Removes the {@link Bit2D} that are outside the boundaries of the {@link Slice} and cut at right shape the ones that are on the boundaries.
+	 * @param slice
+	 */
 	public void computeBits(Slice slice) {
 		Area sliceArea = AreaTool.getAreaFrom(slice);
 		sliceArea.transform(inverseTransfoMatrix);

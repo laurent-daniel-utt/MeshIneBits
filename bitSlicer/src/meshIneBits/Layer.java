@@ -9,6 +9,12 @@ import meshIneBits.Config.CraftConfig;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.util.Vector2;
 
+/**
+ * A layer contains all the bit 3D for a given Z.
+ * These bits are organized following a {@link PatternTemplate}.
+ * In order to build the 3D bits, it has to start by building a {@link Pattern} for each slice.
+ * The {@link referentialPattern} determines the position and orientation of the bits. It is then cloned and shaped to fit the linked {@link Slice}.
+ */
 public class Layer extends Observable {
 
 	private int layerNumber;
@@ -28,6 +34,10 @@ public class Layer extends Observable {
 		rebuild();
 	}
 
+	/**
+	 * Add a bit to the {@link referentialPattern} and call {@link rebuild} which will rebuild all the {@link Pattern} taking in account this new bit.
+	 * @param bit
+	 */
 	public void addBit(Bit2D bit) {
 		referentialPattern.addBit(bit);
 		rebuild();
@@ -47,6 +57,9 @@ public class Layer extends Observable {
 		}
 	}
 
+	/**
+	 * Build the {@link Bit3D} from all the {@link Bit2D} contained in the {@link Pattern}.
+	 */
 	private void generateBits3D() {
 		mapBits3D = new Hashtable<Vector2, Bit3D>();
 		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();

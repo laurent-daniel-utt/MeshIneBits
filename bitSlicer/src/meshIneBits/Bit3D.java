@@ -8,6 +8,11 @@ import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
+/**
+ * A bit 3D is the equivalent of a real wood bit.
+ * The 3D shape is determined by extrusion of a {@link Bit2D} : the {@link bit2dToExtrude}
+ *
+ */
 public class Bit3D {
 
 	private Vector<Path2D> cutPaths = null; //In the local coordinate system
@@ -17,6 +22,18 @@ public class Bit3D {
 	private Vector<Vector2> liftPoints = new Vector<Vector2>();
 	private Vector<Vector2> depositPoints = new Vector<Vector2>();
 
+	/**
+	 * 2 reasons to have all the included bit2D in parameter :
+	 *  - It is the Bit3D itself which determines if it can be build or not, therefore it needs all the informations to do so.
+	 *  - The next improvement will be a 3D laser cut of the bits, in that scenario every bit2D are necessary to determine the 3D shape of the bit
+	 *  
+	 *  Refer to the report for an explanation on the parameter sliceToSelect.
+	 * @param bits2D
+	 * @param origin
+	 * @param orientation
+	 * @param sliceToSelect
+	 * @throws Exception
+	 */
 	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
 
 		double maxNumberOfbit2D = bits2D.size();

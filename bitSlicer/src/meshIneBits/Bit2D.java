@@ -25,6 +25,13 @@ public class Bit2D implements Cloneable {
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
 
+	/**
+	 * Constructor to clone an existing bit into a smaller one.
+	 * All the other parameters remain unchanged.
+	 * @param modelBit
+	 * @param percentageLength
+	 * @param percentageWidth
+	 */
 	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
 		this.origin = modelBit.origin;
 		this.orientation = modelBit.orientation;
@@ -35,7 +42,7 @@ public class Bit2D implements Cloneable {
 		buildBoundaries();
 	}
 
-	/*
+	/**
 	 * originBit and orientation are in the coordinate system of the associated
 	 * pattern
 	 */
@@ -49,6 +56,13 @@ public class Bit2D implements Cloneable {
 		buildBoundaries();
 	}
 
+	/**
+	 * Constructor for custom length & width.
+	 * @param origin
+	 * @param orientation
+	 * @param length
+	 * @param width
+	 */
 	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width) {
 		this.origin = origin;
 		this.orientation = orientation;
@@ -83,6 +97,10 @@ public class Bit2D implements Cloneable {
 		this.areas = areas;
 	}
 
+	/**
+	 * Create the area of the bit and set an initial cut path if necessary.
+	 * This is necessary when the bit has been reduced manually.
+	 */
 	private void buildBoundaries() {
 		Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
 		Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
@@ -186,6 +204,11 @@ public class Bit2D implements Cloneable {
 		return origin;
 	}
 
+	/**
+	 * A raw area is an area that has not been transformed to another coordinate system.
+	 * 
+	 * @return
+	 */
 	public Area getRawArea() {
 		Area area = new Area();
 		for (Area a : areas) {
