@@ -299,9 +299,14 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		}
 		// If layers are generated, draw the patterns
 		else if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
+			
+			if (viewObservable.showPreviousLayer() && (viewObservable.getCurrentLayerNumber() > 0)) {
+				paintPreviousLayer(g2d);
+			}			
+			
 			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
-
 			Vector<Vector2> bitKeys = layer.getBits3dKeys();
+
 			for (Vector2 b : bitKeys) { // Draw each bits
 				Bit3D bit = layer.getBit3D(b);
 				Area area = bit.getRawArea(); // Get the area of the bit
@@ -311,7 +316,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 				area.transform(affTrans); // Put the bit's area at the right place
 
-				g2d.setColor(new Color(164, 180, 200));
+				g2d.setColor(new Color(164, 180, 200, 200));
 				drawModelArea(g2d, area); // Draw the bit's area
 
 				// Draw the cut path if checkbox is checked
@@ -367,35 +372,41 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
 
-			// Draw the outline of the layer below the current showing one
-			if (viewObservable.showPreviousLayer() && (viewObservable.getCurrentLayerNumber() > 0)) {
-				Layer previousLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber() - 1);
-				Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
-
-				g2d.setColor(new Color(0, 0, 0, 0.25f));
-				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-
-				for (Vector2 b : previousBitKeys) {
-
-					Bit3D bit = previousLayer.getBit3D(b);
-					Area area = bit.getRawArea();
-					AffineTransform affTrans = new AffineTransform();
-					affTrans.translate(b.x, b.y);
-					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-
-					area.transform(affTrans);
-
-					AffineTransform tx1 = new AffineTransform();
-					double drawScale = viewObservable.getZoom();
-					tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
-					tx1.scale(drawScale, drawScale);
-
-					area.transform(tx1);
-
-					g2d.draw(area);
-				}
-			}
+			
 		}
+	}
+	
+	/**
+	 * Draw the outline of the layer below the current showing one
+	 * @param g2d
+	 */
+	private void paintPreviousLayer(Graphics2D g2d){
+		
+			Layer previousLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber() - 1);
+			Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
+
+			g2d.setColor(Color.DARK_GRAY);
+			g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+
+			for (Vector2 b : previousBitKeys) {
+
+				Bit3D bit = previousLayer.getBit3D(b);
+				Area area = bit.getRawArea();
+				AffineTransform affTrans = new AffineTransform();
+				affTrans.translate(b.x, b.y);
+				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+
+				area.transform(affTrans);
+
+				AffineTransform tx1 = new AffineTransform();
+				double drawScale = viewObservable.getZoom();
+				tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
+				tx1.scale(drawScale, drawScale);
+
+				area.transform(tx1);
+
+				g2d.draw(area);
+			}
 	}
 
 	@Override
