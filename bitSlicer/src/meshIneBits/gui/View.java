@@ -38,6 +38,8 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	private int oldX, oldY;
 	private ViewObservable viewObservable;
 	private boolean rightClickPressed = false;
+	private double defaultZoom = 1; 
+	private double drawScale = 1;
 
 	public View() {
 		// Setting up
@@ -47,6 +49,19 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		addMouseMotionListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
+	}	
+	
+	private void setDefaultZoom(){
+		int width = this.getWidth();
+		int height = this.getHeight();
+		if(width > height)
+			defaultZoom = height / (viewObservable.getCurrentPart().getSkirtRadius() * 2);
+		else
+			defaultZoom = width / (viewObservable.getCurrentPart().getSkirtRadius() * 2);
+	}
+	
+	private void updateDrawScale(){
+		drawScale = viewObservable.getZoom() * defaultZoom;
 	}
 
 	private void clickOnBitControl(int id) {
@@ -121,7 +136,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		areas.add(rightArrow);
 		bitControls.add(rightArrow);
 
-		double drawScale = viewObservable.getZoom();
+		
 
 		for (Area area : areas) {
 			affTrans = new AffineTransform();
@@ -151,7 +166,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 	private void drawModelArea(Graphics2D g2d, Area area) {
 		AffineTransform tx1 = new AffineTransform();
-		double drawScale = viewObservable.getZoom();
+		
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 
@@ -162,14 +177,14 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-		double drawScale = viewObservable.getZoom();
+		
 		g.drawOval(((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2)) - (int) ((radius * drawScale) / 2),
 				((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)) - (int) ((radius * drawScale) / 2), (int) (radius * drawScale), (int) (radius * drawScale));
 	}
 
 	private void drawModelPath2D(Graphics2D g2d, Path2D path) {
 		AffineTransform tx1 = new AffineTransform();
-		double drawScale = viewObservable.getZoom();
+		
 		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 		g2d.draw(path.createTransformedShape(tx1));
@@ -179,7 +194,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			GeneratedPart part = viewObservable.getCurrentPart();
-			double drawScale = viewObservable.getZoom();
+			
 
 			if ((part != null) && part.isGenerated()) {
 				// Get the clicked point in the right coordinate system
@@ -223,7 +238,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isLeftMouseButton(e)) {
-			double drawScale = viewObservable.getZoom();
+			
 			viewOffsetX += (e.getX() - oldX) / drawScale;
 			viewOffsetY += (e.getY() - oldY) / drawScale;
 			repaint();
@@ -288,6 +303,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
+		
+		setDefaultZoom();
+		updateDrawScale();
+		
 		Graphics2D g2d = (Graphics2D) g;
 
 		// If part is only sliced (layers not generated yet), draw the slices
@@ -399,7 +418,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				area.transform(affTrans);
 
 				AffineTransform tx1 = new AffineTransform();
-				double drawScale = viewObservable.getZoom();
+				
 				tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2), (viewOffsetY * drawScale) + (this.getHeight() / 2));
 				tx1.scale(drawScale, drawScale);
 

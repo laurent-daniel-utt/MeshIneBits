@@ -35,7 +35,6 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	public void buildBits2D() {
 
 		if ((t == null) || ((t != null) && !t.isAlive())) {
-			setSkirtRadius();
 			setPatternTemplate();
 
 			this.layers.clear();
@@ -172,6 +171,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		if ((o == slicer) && (arg == this)) {
 			this.slices = slicer.getSlices();
 			sliced = true;
+			setSkirtRadius();
 			setChanged();
 			notifyObservers();
 		}
