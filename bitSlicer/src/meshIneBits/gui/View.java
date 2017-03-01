@@ -267,9 +267,9 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			int notches = e.getWheelRotation();
 			double zoom = viewObservable.getZoom();
 			if (notches > 0) {
-				zoom -= Math.abs(notches / 10.0);
+				zoom = zoom / 1.25;
 			} else {
-				zoom += Math.abs(notches / 10.0);
+				zoom = zoom * 1.25;
 			}
 			viewObservable.setZoom(zoom);
 		} else {

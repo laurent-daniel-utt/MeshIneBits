@@ -111,8 +111,8 @@ public class ViewObservable extends Observable implements Observer {
 			return;
 		}
 		zoom = zoomValue;
-		if (zoom < 0.2) {
-			zoom = 0.2;
+		if (zoom < 0.1) {
+			zoom = 0.1;
 		}
 
 		setChanged();

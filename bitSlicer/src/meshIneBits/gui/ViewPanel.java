@@ -42,6 +42,15 @@ public class ViewPanel extends JPanel implements Observer {
 	private JPanel displayOptionsPanel;
 	private JLabel bg;
 	private ViewObservable viewObservable;
+	
+	private final double minZoomValue = 0.1;
+	private final double maxZoomValue = 10;
+	private final int minZoomSliderValue = 1;
+	private final int maxZoomSliderValue = 500;
+	
+	//Following attributes are the coefficients from the formula Y = a * EXP(b * x) used for the zoom's log scale
+	private final double aCoef;
+	private final double bCoef;
 
 	public ViewPanel() {
 		this.setLayout(new BorderLayout());
@@ -55,11 +64,22 @@ public class ViewPanel extends JPanel implements Observer {
 		bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
 		bg.setForeground(new Color(0, 0, 0, 8));
 		this.add(bg);
+		
+		bCoef = Math.log(minZoomValue / maxZoomValue) / (minZoomSliderValue - maxZoomSliderValue);
+		aCoef = minZoomValue / Math.exp(bCoef * minZoomSliderValue);
+	}
+	
+	private int getZoomSliderValue(double zoomValue){
+		return (int) (Math.log(zoomValue / aCoef) / bCoef); 
+	}
+	
+	private double getZoomValue(int zoomSliderValue){
+		return aCoef * Math.exp(bCoef * zoomSliderValue);
 	}
 
 	private void buildDisplayOptionsPanel() {
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, 20, 500, (int) (viewObservable.getZoom() * 100.0));
-		zoomSlider.setMaximumSize(new Dimension(500, 20));
+		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, minZoomSliderValue, maxZoomSliderValue, getZoomSliderValue(viewObservable.getZoom()));
+		zoomSlider.setMaximumSize(new Dimension(maxZoomSliderValue, 20));
 
 		ButtonIcon zoomMinusBtn = new ButtonIcon("search-minus.png");
 		ButtonIcon zoomPlusBtn = new ButtonIcon("search-plus.png");
@@ -77,7 +97,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setZoom(zoomSlider.getValue() / 100.0);
+				viewObservable.setZoom(getZoomValue(zoomSlider.getValue()));
 			}
 		});
 
@@ -85,7 +105,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				viewObservable.setZoom(viewObservable.getZoom() - 0.5);
+				viewObservable.setZoom(viewObservable.getZoom() / 2);
 			}
 		});
 
@@ -93,7 +113,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				viewObservable.setZoom(viewObservable.getZoom() + 0.5);
+				viewObservable.setZoom(viewObservable.getZoom() * 2);
 			}
 		});
 	}
@@ -242,7 +262,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 	private void updateZoom(double zoom) {
 		try {
-			zoomSlider.setValue((int) (zoom * 100));
+			zoomSlider.setValue(getZoomSliderValue(zoom));
 		} catch (Exception e) {
 			//If the slider doesn't exist
 		}
