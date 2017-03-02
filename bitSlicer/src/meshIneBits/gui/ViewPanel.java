@@ -43,7 +43,7 @@ public class ViewPanel extends JPanel implements Observer {
 	private JLabel bg;
 	private ViewObservable viewObservable;
 	
-	private final double minZoomValue = 0.1;
+	private final double minZoomValue = 0.5;
 	private final double maxZoomValue = 10;
 	private final int minZoomSliderValue = 1;
 	private final int maxZoomSliderValue = 500;
