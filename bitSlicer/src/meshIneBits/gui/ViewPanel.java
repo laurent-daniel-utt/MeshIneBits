@@ -262,7 +262,12 @@ public class ViewPanel extends JPanel implements Observer {
 
 	private void updateZoom(double zoom) {
 		try {
-			zoomSlider.setValue(getZoomSliderValue(zoom));
+			if(getZoomSliderValue(zoom) <= maxZoomSliderValue)
+				zoomSlider.setValue(getZoomSliderValue(zoom));
+			else if (getZoomSliderValue(zoom) > maxZoomSliderValue && zoomSlider.getValue() < maxZoomSliderValue - 1){
+				zoomSlider.setValue(maxZoomSliderValue - 1);
+			}
+				
 		} catch (Exception e) {
 			//If the slider doesn't exist
 		}
