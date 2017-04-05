@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -56,6 +57,7 @@ import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.Config.Setting;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -68,6 +70,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private JButton computeTemplateBtn;
 	private JLabel selectedSlice;
 	private JPopupMenu filePopup;
+	private HashMap<String, Setting> setupAnnotations = loadAnnotations();
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
@@ -162,7 +165,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			bg.setForeground(new Color(0, 0, 0, 8));
 			bg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-			JLabel copyrightLabel = new JLabel("Copyright© 2016 Thibault Cassard & Nicolas Gouju.");
+			JLabel copyrightLabel = new JLabel("Copyrightï¿½ 2016 Thibault Cassard & Nicolas Gouju.");
 			copyrightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 			JButton helpFileBtn = new JButton("Open help file (PDF format)");
@@ -446,16 +449,20 @@ public class Ribbon extends JTabbedPane implements Observer {
 		private static final long serialVersionUID = 6726754934854914029L;
 		
 		private JSpinner spinner;
+		
+		private JLabel name;
 
-		public LabeledSpinner(String label, double defaultValue, double minValue, double maxValue, double step) {
+		public LabeledSpinner(Setting parameters){
 			// Visual options
 			this.setLayout(new BorderLayout());
 			this.setBackground(Color.WHITE);
 			this.setBorder(new EmptyBorder(4, 0, 0, 0));
 			
 			// Setting up
-			this.add(new JLabel(label), BorderLayout.WEST);
-			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, minValue, maxValue, step));
+			name = new JLabel(parameters.title());
+			name.setToolTipText(parameters.description());
+			this.add(name, BorderLayout.WEST);
+			spinner = new JSpinner(new SpinnerNumberModel(parameters.defaultValue(), parameters.minValue(), parameters.maxValue(), parameters.step()));
 			this.add(spinner, BorderLayout.EAST);
 			
 		}
@@ -710,8 +717,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Setting up
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
-			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("Slice height (mm) :  ", CraftConfig.sliceHeight, 0, 999, 0.1);
-			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("First slice height (%) :  ", CraftConfig.firstSliceHeightPercent, 0, 999, 10);
+			LabeledSpinner sliceHeightSpinner = new LabeledSpinner(setupAnnotations.get("sliceHeight"));
+			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
 
@@ -782,12 +789,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		public TemplateTab() {
 			super();
-
+			
 			// Setting up
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
-			LabeledSpinner bitThicknessSpinner = new LabeledSpinner("Bit thickness (mm) :  ", CraftConfig.bitThickness, 0, 999, 1);
-			LabeledSpinner bitWidthSpinner = new LabeledSpinner("Bit width (mm) :  ", CraftConfig.bitWidth, 0, 999, 1);
-			LabeledSpinner bitLengthSpinner = new LabeledSpinner("Bit length (mm) :  ", CraftConfig.bitLength, 0, 999, 1);
+			LabeledSpinner bitThicknessSpinner = new LabeledSpinner(setupAnnotations.get("bitThickness"));
+			LabeledSpinner bitWidthSpinner = new LabeledSpinner(setupAnnotations.get("bitWidth"));
+			LabeledSpinner bitLengthSpinner = new LabeledSpinner(setupAnnotations.get("bitLength"));
 			bitsCont.add(bitThicknessSpinner);
 			bitsCont.add(bitWidthSpinner);
 			bitsCont.add(bitLengthSpinner);
@@ -804,23 +811,25 @@ public class Ribbon extends JTabbedPane implements Observer {
 			patternGallery.addButton(pattern2Btn, "p2.png");
 
 			OptionsContainer patternCont = new OptionsContainer("Template options");
-			LabeledSpinner rotationSpinner = new LabeledSpinner("Rotation (°) :  ", CraftConfig.rotation, 0, 360, 22.5);
-			LabeledSpinner xOffsetSpinner = new LabeledSpinner("X Offset (mm) :  ", CraftConfig.xOffset, -999, 999, 1);
-			LabeledSpinner bitsOffsetSpinner = new LabeledSpinner("Offset btwn bits (mm) :  ", CraftConfig.bitsOffset, 0, 999, 1);
-			LabeledSpinner yOffsetSpinner = new LabeledSpinner("Y Offset (mm) :  ", CraftConfig.yOffset, -999, 999, 1);
-			LabeledSpinner layersOffsetSpinner = new LabeledSpinner("Offset btwn layers (mm) :  ", CraftConfig.layersOffset, 0, 999, 1);
+			LabeledSpinner rotationSpinner = new LabeledSpinner(setupAnnotations.get("rotation"));
+			LabeledSpinner xOffsetSpinner = new LabeledSpinner(setupAnnotations.get("xOffset"));
+			LabeledSpinner yOffsetSpinner = new LabeledSpinner(setupAnnotations.get("yOffset"));
+			LabeledSpinner layersOffsetSpinner = new LabeledSpinner(setupAnnotations.get("layersOffset"));
+			LabeledSpinner bitsLengthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsLengthSpace"));
+			LabeledSpinner bitsWidthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsWidthSpace"));
 			patternCont.add(rotationSpinner);
 			patternCont.add(xOffsetSpinner);
-			patternCont.add(bitsOffsetSpinner);
 			patternCont.add(yOffsetSpinner);
 			patternCont.add(layersOffsetSpinner);
+			patternCont.add(bitsWidthSpaceSpinner);
+			patternCont.add(bitsLengthSpaceSpinner);
 
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("Min % of slices in a bit3D :  ", CraftConfig.minPercentageOfSlices, 0, 100, 1);
-			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("Default slice to select (%) :  ", CraftConfig.defaultSliceToSelect, 0, 100, 1);
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(setupAnnotations.get("minPercentageOfSlices"));
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(setupAnnotations.get("defaultSliceToSelect"));
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeTemplateBtn);
@@ -839,12 +848,17 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
 			addConfigSpinnerChangeListener(rotationSpinner, "rotation");
 			addConfigSpinnerChangeListener(xOffsetSpinner, "xOffset");
-			addConfigSpinnerChangeListener(bitsOffsetSpinner, "bitsOffset");
+			addConfigSpinnerChangeListener(bitsLengthSpaceSpinner, "bitsLengthSpace");
+			addConfigSpinnerChangeListener(bitsWidthSpaceSpinner, "bitsWidthSpace");
 			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
+			/**
+			 * TODO
+			 * A gÃ©nÃ©raliser pour plusieurs patterns. 
+			 */
 			pattern1Btn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -866,7 +880,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 						CraftConfig.patternNumber = 2;
 					} else {
 						pattern1Btn.setSelected(true);
-						CraftConfig.patternNumber = 1;
+						CraftConfig.patternNumber = 3;
 					}
 				}
 			});
@@ -880,5 +894,28 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 		}
+		
+	}
+	
+	/**
+	 * 
+	 * @return names of attributes associated by their annotations
+	 */
+	public HashMap<String, Setting> loadAnnotations() {
+		// TODO Auto-generated method stub
+		HashMap<String, Setting> result = new HashMap<>();
+		try {
+			Field[] fieldList = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredFields();// get all declared attributes
+			for (Field field : fieldList) {
+				result.put(field.getName(), field.getAnnotation(Setting.class));
+			}
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 }

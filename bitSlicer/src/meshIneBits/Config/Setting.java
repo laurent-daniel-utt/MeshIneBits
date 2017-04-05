@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Setting
 {
+	public double step() default 1;
+
 	public String title() default "";
 	
 	public String description() default "";
@@ -16,4 +18,6 @@ public @interface Setting
 	public double minValue() default Double.MIN_VALUE;
 	
 	public double maxValue() default Double.MAX_VALUE;
+
+	public double defaultValue() default 0;
 }
