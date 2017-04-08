@@ -24,6 +24,7 @@ public class Bit2D implements Cloneable {
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
+	private boolean needsToBeOptimized = false; // necessary to the automatic optimization
 
 	/**
 	 * Constructor to clone an existing bit into a smaller one.
@@ -258,5 +259,19 @@ public class Bit2D implements Cloneable {
 		for (Area a : AreaTool.segregateArea(newArea)) {
 			areas.add(a);
 		}
+	}
+
+	/**
+	 * @return the needsToBeOptimized
+	 */
+	public boolean needsToBeOptimized() {
+		return needsToBeOptimized;
+	}
+
+	/**
+	 * @param needsToBeOptimized the needsToBeOptimized to set
+	 */
+	public void setNeedsToBeOptimized(boolean needsToBeOptimized) {
+		this.needsToBeOptimized = needsToBeOptimized;
 	}
 }

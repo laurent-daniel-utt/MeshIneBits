@@ -4,6 +4,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import meshIneBits.Config.CraftConfig;
+
 /**
  * Vector2 represent a point in a 2D space
  */
@@ -14,10 +16,15 @@ public class Vector2 {
 		return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
 	}
 
-	// Give the orientation vector equivalent to an angle in degrees
+	// 
+	/**
+	 * @param angleDegrees in degrees
+	 * @return The orientation vector equivalent to the given angle
+	 */
 	public static Vector2 getEquivalentVector(double angleDegrees) {
-		double angleRadian = (Math.PI * angleDegrees) / 180;
-		return new Vector2(Math.cos(angleRadian), Math.sin(angleRadian));
+		double angleRadian = Math.toRadians(angleDegrees);
+		return new Vector2(Rounder.round(Math.cos(angleRadian), CraftConfig.errorAccepted),
+				Rounder.round(Math.sin(angleRadian), CraftConfig.errorAccepted));
 	}
 
 	public Vector2(double x, double y) {
@@ -33,7 +40,7 @@ public class Vector2 {
 	}
 
 	public boolean asGoodAsEqual(Vector2 v) {
-		return (Math.abs(x - v.x) + Math.abs(y - v.y)) < 0.00001;
+		return (Math.abs(x - v.x) + Math.abs(y - v.y)) < Math.pow(10, -CraftConfig.errorAccepted);
 	}
 
 	/**
@@ -57,6 +64,9 @@ public class Vector2 {
 		return (x * v.x) + (y * v.y);
 	}
 
+	/**
+	 * @return The angle between Ox and vector.
+	 */
 	public double getEquivalentAngle() {
 		return (Math.atan(y / x) * 180) / Math.PI;
 	}

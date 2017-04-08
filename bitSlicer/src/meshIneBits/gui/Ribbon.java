@@ -451,6 +451,28 @@ public class Ribbon extends JTabbedPane implements Observer {
 		private JSpinner spinner;
 		
 		private JLabel name;
+		
+		private String getNameFromAnnotation(HashMap<String, Setting> hm, Setting annotation) {
+			for (String str : hm.keySet()) {
+				if (annotation.equals(hm.get(str))) {
+					return str;
+				}
+			}
+			return "";
+		}
+		
+		public JSpinner getSpinner(){
+			return spinner;
+		}
+		
+		public JLabel getTitle(){
+			return name;
+		}
+		
+		public void setEnabled(boolean enabled){
+			getSpinner().setEnabled(enabled);
+			getTitle().setEnabled(enabled);
+		}
 
 		public LabeledSpinner(Setting parameters){
 			// Visual options
@@ -462,9 +484,19 @@ public class Ribbon extends JTabbedPane implements Observer {
 			name = new JLabel(parameters.title());
 			name.setToolTipText(parameters.description());
 			this.add(name, BorderLayout.WEST);
-			spinner = new JSpinner(new SpinnerNumberModel(parameters.defaultValue(), parameters.minValue(), parameters.maxValue(), parameters.step()));
+			String attributeName = getNameFromAnnotation(setupAnnotations, parameters);
+			Field attribute;
+			double defaultValue = 0;
+			try {
+				attribute = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredField(attributeName);
+				attribute.setAccessible(true);
+				defaultValue = attribute.getDouble(attribute);
+			} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(), parameters.step()));
 			this.add(spinner, BorderLayout.EAST);
-			
 		}
 
 		public void addChangeListener(ChangeListener listener) {
@@ -791,6 +823,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			super();
 			
 			// Setting up
+			// Bits options
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
 			LabeledSpinner bitThicknessSpinner = new LabeledSpinner(setupAnnotations.get("bitThickness"));
 			LabeledSpinner bitWidthSpinner = new LabeledSpinner(setupAnnotations.get("bitWidth"));
@@ -799,6 +832,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			bitsCont.add(bitWidthSpinner);
 			bitsCont.add(bitLengthSpinner);
 
+			// Pattern choice
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
 			JToggleButton pattern1Btn = new JToggleButton();
 			JToggleButton pattern2Btn = new JToggleButton();
@@ -810,6 +844,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			patternGallery.addButton(pattern1Btn, "p1.png");
 			patternGallery.addButton(pattern2Btn, "p2.png");
 
+			// Template options
 			OptionsContainer patternCont = new OptionsContainer("Template options");
 			LabeledSpinner rotationSpinner = new LabeledSpinner(setupAnnotations.get("rotation"));
 			LabeledSpinner xOffsetSpinner = new LabeledSpinner(setupAnnotations.get("xOffset"));
@@ -817,13 +852,21 @@ public class Ribbon extends JTabbedPane implements Observer {
 			LabeledSpinner layersOffsetSpinner = new LabeledSpinner(setupAnnotations.get("layersOffset"));
 			LabeledSpinner bitsLengthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsLengthSpace"));
 			LabeledSpinner bitsWidthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsWidthSpace"));
+			LabeledSpinner diffRotationSpinner = new LabeledSpinner(setupAnnotations.get("diffRotation"));
+			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffxOffset"));
+			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffyOffset"));
+			
 			patternCont.add(rotationSpinner);
+			patternCont.add(diffRotationSpinner);
 			patternCont.add(xOffsetSpinner);
 			patternCont.add(yOffsetSpinner);
+			patternCont.add(diffxOffsetSpinner);
+			patternCont.add(diffyOffsetSpinner);
 			patternCont.add(layersOffsetSpinner);
 			patternCont.add(bitsWidthSpaceSpinner);
 			patternCont.add(bitsLengthSpaceSpinner);
 
+			// Computing options
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
@@ -834,6 +877,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeTemplateBtn);
 
+			// Overall
 			add(bitsCont);
 			add(new TabContainerSeparator());
 			add(patternGallery);
@@ -847,10 +891,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
 			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
 			addConfigSpinnerChangeListener(rotationSpinner, "rotation");
+			addConfigSpinnerChangeListener(diffRotationSpinner, "diffRotation");
 			addConfigSpinnerChangeListener(xOffsetSpinner, "xOffset");
+			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
+			addConfigSpinnerChangeListener(diffxOffsetSpinner, "diffxOffset");
+			addConfigSpinnerChangeListener(diffyOffsetSpinner, "diffyOffset");
 			addConfigSpinnerChangeListener(bitsLengthSpaceSpinner, "bitsLengthSpace");
 			addConfigSpinnerChangeListener(bitsWidthSpaceSpinner, "bitsWidthSpace");
-			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");

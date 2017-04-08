@@ -174,10 +174,10 @@ public class AreaTool {
 	}
 
 	/**
-	 * Returns the best point to take that bit By best we mean the point the
+	 * Returns the best point to take that bit. By best we mean the point the
 	 * closest to the barycenter of the bit and presenting enough material
-	 * around for the sucker cup to work properly It returns null if this bit
-	 * cannot be lifted
+	 * around for the sucker cup to work properly. It returns null if this bit
+	 * cannot be lifted.
 	 *
 	 * @param area
 	 * @param minRadius

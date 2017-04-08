@@ -17,7 +17,7 @@ public class PatternTemplate3 extends PatternTemplate {
 		super(skirtRadius);
 	}
 
-	public Pattern createPattern(double layerNumber) {
+	public Pattern createPattern(int layerNumber) {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 //		double cooX = patternStart.x;
 //		double cooY = patternStart.y;
@@ -38,56 +38,58 @@ public class PatternTemplate3 extends PatternTemplate {
 		double e = CraftConfig.bitsLengthSpace; // space between 2 consecutive bits' length's side
 		double L = CraftConfig.bitLength;
 		double H = CraftConfig.bitWidth;
-		// First bit of an odd layer will be placed so that its center is right at l'origin
-		Vector2 _1stBit = new Vector2(-L/2, -H/2);
+		// The first bit is displaced by diffxOffset and diffyOffset
+		Vector2 _1stBit = new Vector2(CraftConfig.diffxOffset, CraftConfig.diffyOffset);  
 		// Fill out the square
 		int lineNum = 0;// Initialize
 		// Vertically downward
-		while (_1stBit.y + lineNum * (H + e) <= patternEnd.y ){// Check the left-high corner of bit
+		while (_1stBit.y - H/2 + lineNum * (H + e) <= patternEnd.y ){// Check the left-high corner of bit
 			// Horizontally
 			if (lineNum % 2 == 0){
 				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y + lineNum * (H + e)) , bits);
 			} else {
-				fillHorizontally(new Vector2(f/2, _1stBit.y + lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x + L/2 + f/2, _1stBit.y + lineNum * (H + e)), bits);
 			}
 			lineNum++;
 		}
 		// Vertically upward
 		lineNum = 1; // Reinitialize
-		while (_1stBit.y - lineNum * (H + e) + H >= patternStart.y ){// Check the left-low corner of bit
+		while (_1stBit.y + H/2 - lineNum * (H + e) >= patternStart.y ){// Check the left-low corner of bit
 			// Horizontally
 			if (lineNum % 2 == 0){
 				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y - lineNum * (H + e)) , bits);
 			} else {
-				fillHorizontally(new Vector2(f/2, _1stBit.y - lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x + L/2 + f/2, _1stBit.y - lineNum * (H + e)), bits);
 			}
 			lineNum++;
 		}
 				
 		// in this pattern 1 layer on 2 has a 90° rotation
-		Vector2 rotation = new Vector2(1,0);
-		if (layerNumber%2 == 0){
-			rotation = new Vector2(0,1);
-		}
-		return new Pattern(bits, rotation, skirtRadius);
+//		Vector2 rotation = new Vector2(1,0);
+//		if (layerNumber%2 == 0){
+//			rotation = new Vector2(0,1);
+//		}
+		double alpha = CraftConfig.diffRotation;
+		Vector2 customizedRotation = Vector2.getEquivalentVector((alpha * (layerNumber - 1)) % 360);
+		return new Pattern(bits, customizedRotation, skirtRadius);
 	}
 	/**
 	 * Fill a line of bits into set of bits, given the origin of the first bit. 
-	 * @param _1stBitOrigin
-	 * @param bits
+	 * @param _1stBitOrigin origin of departure
+	 * @param bits set of bits of this layer
 	 */
 	private void fillHorizontally(Vector2 _1stBitOrigin, Vector<Bit2D> bits){
 		double L = CraftConfig.bitLength;
 		double f = CraftConfig.bitsWidthSpace;
 		// To the right
 		int colNum = 0; // Initialize
-		while (_1stBitOrigin.x + colNum * (L + f) <= patternEnd.x){// check the left-high corner of bit
+		while (_1stBitOrigin.x - L/2 + colNum * (L + f) <= patternEnd.x){// check the left-high corner of bit
 			bits.add(new Bit2D(new Vector2(_1stBitOrigin.x + colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
 			colNum++;
 		}
 		// To the left
 		colNum = 1; // Reinitialize
-		while (_1stBitOrigin.x - colNum * (L + f) + L >= patternStart.x){// check the right-high corner of bit
+		while (_1stBitOrigin.x + L/2 - colNum * (L + f) >= patternStart.x){// check the right-high corner of bit
 			bits.add(new Bit2D(new Vector2(_1stBitOrigin.x - colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
 			colNum++;
 		}

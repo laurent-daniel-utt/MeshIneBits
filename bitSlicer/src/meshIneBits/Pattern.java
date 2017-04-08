@@ -35,14 +35,10 @@ public class Pattern implements Cloneable {
 		this.transfoMatrix = transfoMatrix;
 		this.inverseTransfoMatrix = inverseTransfoMatrix;
 	}
-	
+		
 	/**
 	 * TODO
-	 * A constructor with individual rotation and translation.
-	 */
-	
-	/**
-	 * 
+	 * A constructor with personnal rotation and translation.
 	 * @param bits
 	 * @param rotation
 	 * @param translation
