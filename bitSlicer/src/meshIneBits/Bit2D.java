@@ -142,6 +142,9 @@ public class Bit2D implements Cloneable {
 				getClonedAreas());
 	}
 
+	/**
+	 * @return the total area
+	 */
 	public Area getArea() {
 		Area transformedArea = new Area();
 		for (Area a : areas) {
@@ -151,6 +154,9 @@ public class Bit2D implements Cloneable {
 		return transformedArea;
 	}
 
+	/**
+	 * @return a set of areas 
+	 */
 	public Vector<Area> getAreas() {
 		Vector<Area> result = new Vector<Area>();
 		for (Area a : areas) {
@@ -273,5 +279,12 @@ public class Bit2D implements Cloneable {
 	 */
 	public void setNeedsToBeOptimized(boolean needsToBeOptimized) {
 		this.needsToBeOptimized = needsToBeOptimized;
+	}
+	
+	/**
+	 * @return the lift point on this bit
+	 */
+	public Vector2 computeLiftPoint() {
+		return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
 	}
 }

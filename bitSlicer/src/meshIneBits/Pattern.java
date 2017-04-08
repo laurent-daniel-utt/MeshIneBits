@@ -37,33 +37,6 @@ public class Pattern implements Cloneable {
 	}
 		
 	/**
-	 * TODO
-	 * A constructor with personnal rotation and translation.
-	 * @param bits
-	 * @param rotation
-	 * @param translation
-	 * @param skirtRadius
-	 */
-
-	public Pattern(Vector<Bit2D> bits, Vector2 rotation, Vector2 translation, double skirtRadius) {
-
-		this.rotation = rotation;
-		this.skirtRadius = skirtRadius;
-
-		transfoMatrix.rotate(rotation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
-		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x, Vector2.getEquivalentVector(CraftConfig.rotation).y); //Rotation of the whole patternTemplate
-		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
-
-		try {
-			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
-		} catch (NoninvertibleTransformException e) {
-			e.printStackTrace();
-		}
-
-		setMapBits(bits);
-	}
-	
-	/**
 	 * 
 	 * @param bits
 	 * @param rotation

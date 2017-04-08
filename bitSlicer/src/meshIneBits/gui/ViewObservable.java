@@ -178,4 +178,9 @@ public class ViewObservable extends Observable implements Observer {
 	public enum Component {
 		PART, LAYER, SELECTED_BIT, ZOOM, SLICE
 	}
+
+	public boolean showIrregularBits() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 }

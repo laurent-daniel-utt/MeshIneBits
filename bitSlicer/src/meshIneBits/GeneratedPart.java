@@ -12,6 +12,7 @@ import meshIneBits.PatternTemplates.PatternTemplate3;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
+import meshIneBits.util.Optimizer;
 import meshIneBits.util.Segment2D;
 
 /**
@@ -26,6 +27,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	private Thread t = null;
 	private SliceTool slicer;
 	private boolean sliced = false;
+	private Optimizer optimizer;
 
 	public GeneratedPart(Model model) {
 		slicer = new SliceTool(this, model);
@@ -51,7 +53,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		double sliceHeight = CraftConfig.sliceHeight;
 		double layersOffSet = CraftConfig.layersOffset;
 		double z = (CraftConfig.firstSliceHeightPercent * sliceHeight) / 100;
-		int layerNumber = 1;
+		int layerNumber = 0;
 		int progress = 0;
 		int progressGoal = slicesCopy.size();
 		double zBitBottom = 0;
@@ -70,13 +72,13 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 				Logger.setProgress(progress, progressGoal);
 			}
 			if (!includedSlices.isEmpty()) {
-				layers.add(new Layer(includedSlices, layerNumber, GeneratedPart.this));
+				layers.add(new Layer(includedSlices, layerNumber, this));
 				layerNumber++;
 			}
 			zBitBottom = zBitRoof + layersOffSet;
 			zBitRoof = zBitBottom + bitThickness;
 		}
-		Logger.updateStatus("Layer count: " + (layerNumber - 1));
+		Logger.updateStatus("Layer count: " + layerNumber);
 	}
 
 	public Vector<Layer> getLayers() {
@@ -125,8 +127,14 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	@Override
 	public void run() {
 		buildLayers();
+		detectIrregularBits();
 		setChanged();
 		notifyObservers();
+	}
+
+	private void detectIrregularBits() {
+		optimizer = new Optimizer(layers);
+		optimizer.detectIrregularBits();
 	}
 
 	private void setPatternTemplate() {
@@ -175,6 +183,20 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			setChanged();
 			notifyObservers();
 		}
+	}
+
+	/**
+	 * @return the optimizer
+	 */
+	public Optimizer getOptimizer() {
+		return optimizer;
+	}
+
+	/**
+	 * @param optimizer the optimizer to set
+	 */
+	public void setOptimizer(Optimizer optimizer) {
+		this.optimizer = optimizer;
 	}
 
 }

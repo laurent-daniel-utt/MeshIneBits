@@ -91,7 +91,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
 	}
 
-	private void drawBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
+	private void paintBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
 		bitControls.clear();
 
 		// Defining the shape of the arrows
@@ -308,93 +308,117 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 		updateDrawScale();
 		
 		Graphics2D g2d = (Graphics2D) g;
+		GeneratedPart currentPart = viewObservable.getCurrentPart();
 
 		// If part is only sliced (layers not generated yet), draw the slices
-		if ((viewObservable.getCurrentPart() != null) && !viewObservable.getCurrentPart().isGenerated()) {
-			Slice slice = viewObservable.getCurrentPart().getSlices().get(viewObservable.getCurrentSliceNumber());
-			for (Polygon p : slice) {
-				drawModelPath2D(g2d, p.toPath2D());
-			}
+		if ((currentPart != null) && !currentPart.isGenerated()) {
+			paintSlices(currentPart, g2d);
+
 		}
 		// If layers are generated, draw the patterns
-		else if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
+		else if ((currentPart != null) && currentPart.isGenerated()) {
 			
+			// Draw previous layer
 			if (viewObservable.showPreviousLayer() && (viewObservable.getCurrentLayerNumber() > 0)) {
 				paintPreviousLayer(g2d);
 			}			
 			
-			Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
-			Vector<Vector2> bitKeys = layer.getBits3dKeys();
+			// Draw bits
+			Layer currentLayer = currentPart.getLayers().get(viewObservable.getCurrentLayerNumber());
+			paintBits(currentPart, currentLayer, g2d);
 
-			for (Vector2 b : bitKeys) { // Draw each bits
-				Bit3D bit = layer.getBit3D(b);
-				Area area = bit.getRawArea(); // Get the area of the bit
-				AffineTransform affTrans = new AffineTransform();
-				affTrans.translate(b.x, b.y);
-				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-
-				area.transform(affTrans); // Put the bit's area at the right place
-
-				g2d.setColor(new Color(164, 180, 200, 200));
-				drawModelArea(g2d, area); // Draw the bit's area
-
-				// Draw the cut path if checkbox is checked
-				if (viewObservable.showCutPaths() && (bit.getCutPaths() != null)) {
-					g2d.setColor(Color.blue.darker());
-					g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-					for (Path2D p : bit.getCutPaths()) {
-						Path2D path = (Path2D) p.clone();
-						path.transform(affTrans);
-						drawModelPath2D(g2d, path);
-					}
-				}
-
-				// Draw the lift points path if checkbox is checked
-				if (viewObservable.showLiftPoints()) {
-					g2d.setColor(Color.red);
-					g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-					for (Vector2 liftPoint : bit.getLiftPoints()) {
-						if (liftPoint != null) {
-							Point2D point = new Point2D.Double();
-							affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
-							drawModelCircle(g, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
-						}
-					}
-				}
-
-			}
-
-			// Draw the slices contained in the layer if checkbox checked
+			// Draw the slices contained in the layer
 			if (viewObservable.showSlices()) {
-				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-				g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
-				for (int i = 0; i < layer.getSlices().size(); i++) {
-					if (i == layer.getSliceToSelect()) {
-						// Set the selected slice of the layer in blue
-						Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 2 }, 0);
-						g2d.setStroke(dashed);
-						g2d.setColor(Color.blue);
-					} else {
-						// Set the other slices in different red to differentiate them from each other
-						g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-						g2d.setColor(new Color(100 + ((i + 1) * (155 / layer.getSlices().size())), 50, 0));
-					}
-
-					for (Polygon p : layer.getSlices().get(i)) {
-						drawModelPath2D(g2d, p.toPath2D());
-					}
-				}
+				paintSlicesInTheSameLayer(currentPart, currentLayer, g2d);
 			}
 
-			// Draw the controls of the selected bit if exists
-			if ((viewObservable.getSelectedBitKey() != null) && (layer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
-				drawBitControls(g2d, viewObservable.getSelectedBitKey(), layer.getBit3D(viewObservable.getSelectedBitKey()));
+			// Draw the controls of the selected bit
+			if ((viewObservable.getSelectedBitKey() != null) && (currentLayer.getBit3D(viewObservable.getSelectedBitKey()) != null)) {
+				paintBitControls(g2d, viewObservable.getSelectedBitKey(), currentLayer.getBit3D(viewObservable.getSelectedBitKey()));
 			}
 
 			
 		}
 	}
 	
+	private void paintSlices(GeneratedPart currentPart, Graphics2D g2d) {
+		Slice slice = currentPart.getSlices().get(viewObservable.getCurrentSliceNumber());
+		for (Polygon p : slice) {
+			drawModelPath2D(g2d, p.toPath2D());
+		}
+	}
+
+	private void paintSlicesInTheSameLayer(GeneratedPart currentPart, Layer layer, Graphics2D g2d) {
+		g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
+		for (int i = 0; i < layer.getSlices().size(); i++) {
+			if (i == layer.getSliceToSelect()) {
+				// Set the selected slice of the layer in blue
+				Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 2 }, 0);
+				g2d.setStroke(dashed);
+				g2d.setColor(Color.blue);
+			} else {
+				// Set the other slices in different red to differentiate them from each other
+				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+				g2d.setColor(new Color(100 + ((i + 1) * (155 / layer.getSlices().size())), 50, 0));
+			}
+
+			for (Polygon p : layer.getSlices().get(i)) {
+				drawModelPath2D(g2d, p.toPath2D());
+			}
+		}
+	}
+
+	private void paintBits(GeneratedPart currentPart, Layer layer, Graphics2D g2d) {
+		Vector<Vector2> bitKeys = layer.getBits3dKeys();
+		// Get all the irregular bits (bitKey in fact) in this layer
+		Vector<Vector2> irregularBitsOfThisLayer = currentPart.getOptimizer().
+				getIrregularBitKeysAtLayer(viewObservable.getCurrentLayerNumber());
+
+		
+		for (Vector2 b : bitKeys) { // Draw each bits
+			Bit3D bit = layer.getBit3D(b);
+			Area area = bit.getRawArea(); // Get the area of the bit
+			AffineTransform affTrans = new AffineTransform();
+			affTrans.translate(b.x, b.y);
+			affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+			area.transform(affTrans); // Put the bit's area at the right place
+
+			// Color irregular bits
+			g2d.setColor(new Color(164, 180, 200, 200));
+			if (viewObservable.showIrregularBits() && irregularBitsOfThisLayer.contains(b)){
+				g2d.setColor(new Color(255,0,0,100));
+			}
+			drawModelArea(g2d, area); // Draw the bit's area
+
+			// Draw the cut path
+			if (viewObservable.showCutPaths() && (bit.getCutPaths() != null)) {
+				g2d.setColor(Color.blue.darker());
+				g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+				for (Path2D p : bit.getCutPaths()) {
+					Path2D path = (Path2D) p.clone();
+					path.transform(affTrans);
+					drawModelPath2D(g2d, path);
+				}
+			}
+
+			// Draw the lift points path if checkbox is checked
+			if (viewObservable.showLiftPoints()) {
+				g2d.setColor(Color.red);
+				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+				for (Vector2 liftPoint : bit.getLiftPoints()) {
+					if (liftPoint != null) {
+						Point2D point = new Point2D.Double();
+						affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
+						drawModelCircle(g2d, new Vector2(point.getX(), point.getY()), (int) CraftConfig.suckerDiameter);
+					}
+				}
+			}
+			
+
+		}
+	}
+
 	/**
 	 * Draw the outline of the layer below the current showing one
 	 * @param g2d
@@ -427,7 +451,7 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 				g2d.draw(area);
 			}
 	}
-
+	
 	@Override
 	public void update(Observable o, Object arg) {
 		revalidate();

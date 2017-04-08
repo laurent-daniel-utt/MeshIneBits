@@ -70,7 +70,7 @@ public class PatternTemplate3 extends PatternTemplate {
 //			rotation = new Vector2(0,1);
 //		}
 		double alpha = CraftConfig.diffRotation;
-		Vector2 customizedRotation = Vector2.getEquivalentVector((alpha * (layerNumber - 1)) % 360);
+		Vector2 customizedRotation = Vector2.getEquivalentVector((alpha * layerNumber) % 360);
 		return new Pattern(bits, customizedRotation, skirtRadius);
 	}
 	/**
