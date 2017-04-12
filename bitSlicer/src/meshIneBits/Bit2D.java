@@ -4,15 +4,19 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
+import java.util.HashMap;
 import java.util.Vector;
 
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.AreaTool;
+import meshIneBits.util.Direction;
 import meshIneBits.util.Vector2;
 
 /**
- * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is build with multiple Bit2D
- * <br><img src="./doc-files/bit2d.png">
+ * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
+ * build with multiple Bit2D <br>
+ * <img src="./doc-files/bit2d.png">
+ * 
  * @see Bit3D
  */
 public class Bit2D implements Cloneable {
@@ -24,11 +28,11 @@ public class Bit2D implements Cloneable {
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
 	private Vector<Area> areas = new Vector<Area>();
-	private boolean needsToBeOptimized = false; // necessary to the automatic optimization
 
 	/**
-	 * Constructor to clone an existing bit into a smaller one.
-	 * All the other parameters remain unchanged.
+	 * Constructor to clone an existing bit into a smaller one. All the other
+	 * parameters remain unchanged.
+	 * 
 	 * @param modelBit
 	 * @param percentageLength
 	 * @param percentageWidth
@@ -59,6 +63,7 @@ public class Bit2D implements Cloneable {
 
 	/**
 	 * Constructor for custom length & width.
+	 * 
 	 * @param origin
 	 * @param orientation
 	 * @param length
@@ -86,8 +91,8 @@ public class Bit2D implements Cloneable {
 	 * @param cutPaths
 	 * @param areas
 	 */
-	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths,
-			Vector<Area> areas) {
+	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix,
+			AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
 		this.origin = origin;
 		this.orientation = orientation;
 		this.length = length;
@@ -99,14 +104,55 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * Create the area of the bit and set an initial cut path if necessary.
-	 * This is necessary when the bit has been reduced manually.
+	 * Create the four corners as in a normal bit. Note: Oy axe points downward
+	 * and Ox points to the right. We always take the up right corner as the
+	 * point of "depart". The bit' boundary is a rectangle.
+	 * 
+	 * @return list consisting of UpRight, DownRight, UpLeft, DownLeft in the
+	 *         own coordinate system of this bit
 	 */
-	private void buildBoundaries() {
+	public HashMap<Direction, Vector2> getRawNormalCorners() {
+		HashMap<Direction, Vector2> corners = new HashMap<>();
 		Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
 		Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
 		Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
 		Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
+		corners.put(Direction.UPRIGHT, cornerUpRight);
+		corners.put(Direction.DOWNRIGHT, cornerDownRight);
+		corners.put(Direction.UPLEFT, cornerUpLeft);
+		corners.put(Direction.DOWNLEFT, cornerDownLeft);
+		return corners;
+	}
+
+	/**
+	 * Create the four corners as in a normal bit. Note: Oy axe points downward
+	 * and Ox points to the right. We always take the up right corner as the
+	 * point of "depart". The bit' boundary is a rectangle.
+	 * 
+	 * @return list consisting of UpRight, DownRight, UpLeft, DownLeft in the
+	 *         coordinate system of the layer containing this bit
+	 */
+	public HashMap<Direction, Vector2> getTransfoNormalCorners() {
+		HashMap<Direction, Vector2> rawCorners = getRawNormalCorners();
+		HashMap<Direction, Vector2> transfoCorners = new HashMap<>();
+		for (Direction key : rawCorners.keySet()) {
+			transfoCorners.put(key, rawCorners.get(key).getTransformed(transfoMatrix));
+		}
+		return transfoCorners;
+	}
+
+	/**
+	 * Create the area of the bit and set an initial cut path if necessary. This
+	 * is necessary when the bit has been reduced manually. Note: Oy axe points
+	 * downward and Ox points to the right. We always take the up right corner
+	 * as the point of "depart". The bit' boundary is a rectangle.
+	 */
+	private void buildBoundaries() {
+		HashMap<Direction, Vector2> corners = getRawNormalCorners();
+		Vector2 cornerUpRight = corners.get(Direction.UPRIGHT);
+		Vector2 cornerDownRight = corners.get(Direction.DOWNRIGHT);
+		Vector2 cornerUpLeft = corners.get(Direction.UPLEFT);
+		Vector2 cornerDownLeft = corners.get(Direction.DOWNLEFT);
 
 		Path2D path = new Path2D.Double();
 		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);
@@ -117,7 +163,7 @@ public class Bit2D implements Cloneable {
 
 		this.areas.add(new Area(path));
 
-		//Set a cut path if necessary
+		// Set a cut path if necessary
 		if ((length != CraftConfig.bitLength) || (width != CraftConfig.bitWidth)) {
 			cutPaths = new Vector<Path2D>();
 			Path2D.Double cutPath = new Path2D.Double();
@@ -138,12 +184,12 @@ public class Bit2D implements Cloneable {
 
 	@Override
 	public Bit2D clone() {
-		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(), (AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(),
-				getClonedAreas());
+		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(),
+				(AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(), getClonedAreas());
 	}
 
 	/**
-	 * @return the total area
+	 * @return the union of all surfaces making this bit
 	 */
 	public Area getArea() {
 		Area transformedArea = new Area();
@@ -155,7 +201,7 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * @return a set of areas 
+	 * @return all surfaces making this bit
 	 */
 	public Vector<Area> getAreas() {
 		Vector<Area> result = new Vector<Area>();
@@ -207,12 +253,16 @@ public class Bit2D implements Cloneable {
 		return orientation;
 	}
 
+	/**
+	 * @return the origin in the pattern coordinate system
+	 */
 	public Vector2 getOrigin() {
 		return origin;
 	}
 
 	/**
-	 * A raw area is an area that has not been transformed to another coordinate system.
+	 * A raw area is an area that has not been transformed to another coordinate
+	 * system.
 	 * 
 	 * @return
 	 */
@@ -267,20 +317,6 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
-	/**
-	 * @return the needsToBeOptimized
-	 */
-	public boolean needsToBeOptimized() {
-		return needsToBeOptimized;
-	}
-
-	/**
-	 * @param needsToBeOptimized the needsToBeOptimized to set
-	 */
-	public void setNeedsToBeOptimized(boolean needsToBeOptimized) {
-		this.needsToBeOptimized = needsToBeOptimized;
-	}
-	
 	/**
 	 * @return the lift point on this bit
 	 */

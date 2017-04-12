@@ -67,28 +67,23 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 	private void clickOnBitControl(int id) {
 		Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 		Vector2 direction = null;
-		double offSetValue = 0;
 
 		//Every directions are in the bit's local coordinate system
 		switch (id) {
 		case 0: //Top direction
 			direction = new Vector2(0, -1);
-			offSetValue = CraftConfig.bitWidth / 2;
 			break;
 		case 1: //Left direction
 			direction = new Vector2(1, 0);
-			offSetValue = CraftConfig.bitLength / 2;
 			break;
 		case 2: //Bottom direction
 			direction = new Vector2(0, 1);
-			offSetValue = CraftConfig.bitWidth / 2;
 			break;
 		case 3: //Right direction
 			direction = new Vector2(-1, 0);
-			offSetValue = CraftConfig.bitLength / 2;
 			break;
 		}
-		layer.moveBit(viewObservable.getSelectedBitKey(), direction, offSetValue);
+		layer.moveBit(viewObservable.getSelectedBitKey(), direction);
 	}
 
 	private void paintBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {

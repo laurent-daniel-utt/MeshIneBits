@@ -12,7 +12,7 @@ public class Segment2D extends AABBrect {
 	private Vector2 normal;
 	private Segment2D next, prev;
 
-	/*
+	/**
 	 * Sort segments by paths
 	 */
 	@SuppressWarnings("unchecked")
@@ -129,6 +129,38 @@ public class Segment2D extends AABBrect {
 		this.end = end;
 		this.normal = end.sub(start).crossZ().normal();
 		updateAABB(start, end, 1.0);
+	}
+	
+	/**
+	 * Check if this segment contains a point (x,y).
+	 * @see {@link Vector2#isOnSegment()}
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean contains(double x, double y){
+		return (new Vector2(x,y)).isOnSegment(this);
+	}
+	
+	/**
+	 * Check if this segment contains a point (x,y)
+	 * @see {@link Vector2#isOnSegment()}
+	 * @param point
+	 * @return
+	 */
+	public boolean contains(Vector2 point){
+		return point.isOnSegment(this);
+	}
+	
+	/**
+	 * Check if this segment is perpendicular the other one.
+	 * @param that
+	 * @return
+	 */
+	public boolean isPerpendicularTo(Segment2D that){
+		Vector2 v1 = this.end.sub(this.start);
+		Vector2 v2 = that.end.sub(that.start);
+		return (v1.dot(v2) == 0);
 	}
 
 }

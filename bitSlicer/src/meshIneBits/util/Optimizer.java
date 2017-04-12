@@ -4,17 +4,20 @@
 package meshIneBits.util;
 
 import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
 
-import meshIneBits.Bit2D;
-import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 
 /**
- * @author NHATHAN For automatic optimization
+ * For automatic optimization. It will observe the changes in layers
+ * 
+ * @author NHATHAN
+ * 
  */
-public class Optimizer {
+public class Optimizer implements Observer {
 
 	/**
 	 * All the constructed layers
@@ -29,51 +32,47 @@ public class Optimizer {
 	private HashMap<Integer, Vector<Vector2>> irregularBits = new HashMap<Integer, Vector<Vector2>>();
 
 	/**
-	 * Basic constructor, used in the running of {@link GeneratedPart}
+	 * Basic constructor, used in the running of
+	 * {@link meshIneBits.GeneratedPart GeneratedPart}
 	 * 
 	 * @param layers
 	 */
 	public Optimizer(Vector<Layer> layers) {
 		this.setLayers(layers);
+		for (Layer layer : layers) {
+			layer.addObserver(this);
+		}
 	}
 
 	/**
-	 * Automatically optimize all the irregular bits by replacing or displacing,
-	 * depending on the pattern
+	 * Automatically optimize all whole generated part
 	 * 
-	 * @param slice
-	 * @param pattern
 	 */
-	public void automaticallyOptimize(Vector<Bit2D> slice, Pattern pattern) {
-
+	public void automaticallyOptimize() {
+		for (Integer layerNum : irregularBits.keySet()) {
+			automaticallyOptimizeLayer(layers.get(layerNum.intValue()));
+		}
 	}
 
 	/**
-	 * Construct {@link irregularBits}. Considerate only the selected slices
+	 * Automatically optimize the given layer
+	 * 
+	 * @param layer
+	 */
+	public void automaticallyOptimizeLayer(Layer layer) {
+		layer.getPatternTemplate().optimize(layer);
+	}
+
+	/**
+	 * Construct the set of all irregular bits. Considerate only ones of the
+	 * selected slices.
 	 */
 	public void detectIrregularBits() {
 		for (Layer layer : layers) {
-			Pattern pattern = layer.getPatterns().get(layer.getSliceToSelect());
-			Vector<Vector2> irregularBitsInThisPattern = detectIrregularBits(pattern);
+			Pattern pattern = layer.getSelectedPattern();
+			Vector<Vector2> irregularBitsInThisPattern = DetectorTool.detectIrregularBits(pattern);
 			irregularBits.put(layer.getLayerNumber(), irregularBitsInThisPattern);
 		}
-	}
-
-	/**
-	 * @param pattern
-	 *            container of all bits in a slice
-	 * @return all irregular bits in the given slice
-	 */
-	public Vector<Vector2> detectIrregularBits(Pattern pattern) {
-		Vector<Vector2> result = new Vector<Vector2>();
-		for (Vector2 bitKey : pattern.getBitsKeys()) {
-			Bit2D bit = pattern.getBit(bitKey);
-			if (bit.computeLiftPoint() == null) {
-				bit.setNeedsToBeOptimized(true);
-				result.add(bitKey);
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -116,4 +115,20 @@ public class Optimizer {
 		this.layers = layers;
 	}
 
+	/**
+	 * Re-determine all irregular bits
+	 * 
+	 * @param o
+	 *            the layer which has been changed
+	 * @param arg
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		if (o instanceof Layer) {
+			Layer layer = (Layer) o;
+			this.irregularBits.remove(layer.getLayerNumber());
+			this.irregularBits.put(layer.getLayerNumber(),
+					DetectorTool.detectIrregularBits(layer.getSelectedPattern()));
+		}
+	}
 }

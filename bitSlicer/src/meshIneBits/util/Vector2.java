@@ -16,9 +16,10 @@ public class Vector2 {
 		return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
 	}
 
-	// 
+	//
 	/**
-	 * @param angleDegrees in degrees
+	 * @param angleDegrees
+	 *            in degrees
 	 * @return The orientation vector equivalent to the given angle
 	 */
 	public static Vector2 getEquivalentVector(double angleDegrees) {
@@ -133,11 +134,13 @@ public class Vector2 {
 
 	/**
 	 * Returns a normalized vector with a length of 1, having the same direction
-	 * as the origonal vector.
+	 * as the origonal vector. Note: if the length is smaller than
+	 * 10^({@link meshIneBits.Config.CraftConfig#errorAccepted -errorAccepted})
+	 * then the returned result will 0.
 	 */
 	public Vector2 normal() {
 		double d = vSize();
-		if (d < 0.0000001) {
+		if (d < Math.pow(10, -CraftConfig.errorAccepted)) {
 			return new Vector2(0, 0);
 		}
 		return new Vector2(x / d, y / d);

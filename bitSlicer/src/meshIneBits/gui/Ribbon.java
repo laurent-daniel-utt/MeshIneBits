@@ -555,7 +555,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			};
 
-			JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show liftPoints") {
+			JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show lift points") {
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
@@ -563,7 +563,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setSelected(viewObservable.showLiftPoints());
 				}
 			};
-			JCheckBox previousLayerCheckBox = new RibbonCheckBox("Show Previous layer") {
+			JCheckBox previousLayerCheckBox = new RibbonCheckBox("Show previous layer") {
 				private static final long serialVersionUID = 7090657482323001875L;
 
 				@Override
@@ -579,12 +579,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setSelected(viewObservable.showCutPaths());
 				}
 			};
+			
+			JCheckBox irregularBitsCheckBox = new RibbonCheckBox("Show irregular bits") {
+				private static final long serialVersionUID = 7090657482323001875L;
+				
+				@Override
+				public void update(Observable o, Object arg) {
+					setSelected(viewObservable.showIrregularBits());
+				}
+			};
 
 			OptionsContainer displayCont = new OptionsContainer("Display options");
 			displayCont.add(slicesCheckBox);
 			displayCont.add(liftPointsCheckBox);
 			displayCont.add(previousLayerCheckBox);
 			displayCont.add(cutPathsCheckBox);
+			displayCont.add(irregularBitsCheckBox);
 
 			add(displayCont);
 			add(new TabContainerSeparator());
@@ -648,6 +658,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					viewObservable.toggleShowCutPaths(cutPathsCheckBox.isSelected());
+				}
+			});
+			
+			irregularBitsCheckBox.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					viewObservable.toggleShowIrregularBits(irregularBitsCheckBox.isSelected());
 				}
 			});
 
@@ -912,9 +930,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 					if (pattern1Btn.isSelected()) {
 						pattern2Btn.setSelected(false);
 						CraftConfig.patternNumber = 3;
-					} else {
-						pattern2Btn.setSelected(true);
-						CraftConfig.patternNumber = 2;
 					}
 				}
 			});
@@ -925,9 +940,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 					if (pattern2Btn.isSelected()) {
 						pattern1Btn.setSelected(false);
 						CraftConfig.patternNumber = 2;
-					} else {
-						pattern1Btn.setSelected(true);
-						CraftConfig.patternNumber = 3;
 					}
 				}
 			});

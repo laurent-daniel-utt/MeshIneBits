@@ -3,9 +3,11 @@ package meshIneBits.PatternTemplates;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
+import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.PatternTemplates.PatternTemplate;
+import meshIneBits.util.Optimizer;
 import meshIneBits.util.Vector2;
 
 public class PatternTemplate2 extends PatternTemplate {
@@ -48,6 +50,15 @@ public class PatternTemplate2 extends PatternTemplate {
 			}
 		}
 		return new Pattern(bits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
+	}
+	@Override
+	public void optimize(Layer realState) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction) {
+		// TODO Auto-generated method stub
 	}
 
 }

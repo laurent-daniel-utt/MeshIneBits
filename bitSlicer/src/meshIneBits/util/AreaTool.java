@@ -57,10 +57,18 @@ public class AreaTool {
 		return new Vector2(centroidX, centroidY);
 	}
 
+	/**
+	 * @param poly
+	 * @return the surface constraint in the given polygon
+	 */
 	public static Area getAreaFrom(Polygon poly) {
 		return new Area(poly.toPath2D());
 	}
 
+	/**
+	 * @param shape
+	 * @return the surface defined by the shape
+	 */
 	public static Area getAreaFrom(Shape2D shape) {
 		Area resultArea = new Area();
 		Vector<Area> areas = getLevel0AreasFrom(shape);
@@ -96,6 +104,10 @@ public class AreaTool {
 		return segments.get(largestPolygonIndex);
 	}
 
+	/**
+	 * @param shape
+	 * @return All the constraint areas that do not contain any others
+	 */
 	public static Vector<Area> getLevel0AreasFrom(Shape2D shape) {
 		Vector<Area> areas = new Vector<Area>();
 		for (Polygon p : shape) {
@@ -108,6 +120,10 @@ public class AreaTool {
 		}
 	}
 
+	/**
+	 * @param areas
+	 * @return All the constraint areas that do not contain any others
+	 */
 	public static Vector<Area> getLevel0AreasFrom(Vector<Area> areas) {
 
 		if (areas.isEmpty()) {
@@ -115,8 +131,10 @@ public class AreaTool {
 		}
 
 		Vector<Vector<Area>> areasByLevel = new Vector<Vector<Area>>();
-		//We fill the vector with null values, it cannot have more levels than areas
-		for (@SuppressWarnings("unused") Area a : areas) {
+		// We fill the vector with null values, it cannot have more levels than
+		// areas
+		for (@SuppressWarnings("unused")
+		Area a : areas) {
 			areasByLevel.add(null);
 		}
 
@@ -127,13 +145,14 @@ public class AreaTool {
 		 */
 		int levelMax = 0;
 		for (Area currentArea : areas) {
-			int levelCurrentArea = 0; //If level is even this area is filled, if it's odd this area is a hole
+			int levelCurrentArea = 0; // If level is even this area is filled,
+										// if it's odd this area is a hole
 			for (Area otherArea : areas) {
 				if (!currentArea.equals(otherArea)) {
 					Area currentAreaClone = (Area) currentArea.clone();
 					currentAreaClone.intersect(otherArea);
 					if (currentAreaClone.equals(currentArea)) {
-						//currentArea is inside otherArea
+						// currentArea is inside otherArea
 						levelCurrentArea++;
 					}
 					/*
@@ -185,10 +204,11 @@ public class AreaTool {
 	 */
 	public static Vector2 getLiftPoint(Area area, double minRadius) {
 
-		//We check if the barycenter would be ok
+		// We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
-		double minDist = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
+		double minDist = CraftConfig.bitLength * 2; // To be sure every other
+													// distances will be smaller
 		for (Vector<Segment2D> polygon : segments) {
 			for (Segment2D segment : polygon) {
 				double dist = segment.distFromPoint(barycenter);
@@ -201,7 +221,7 @@ public class AreaTool {
 			return new Vector2(barycenter.x, barycenter.y);
 		}
 
-		//If not we fill the area with points
+		// If not we fill the area with points
 		Rectangle2D bounds = area.getBounds2D();
 		double stepX = 1;
 		double stepY = 1;
@@ -223,7 +243,8 @@ public class AreaTool {
 			return null;
 		}
 
-		//We sort the points by their distance from the barycenter, the smaller distances on top
+		// We sort the points by their distance from the barycenter, the smaller
+		// distances on top
 		Vector<Double> distances = new Vector<Double>();
 		Vector<Vector2> sortedPoints = new Vector<Vector2>();
 		distances.add(Math.sqrt(Vector2.dist2(new Vector2(points.get(0).x, points.get(0).y), barycenter)));
@@ -245,10 +266,16 @@ public class AreaTool {
 			}
 		}
 
-		//We review each points and check if it is far enough from the edges to fit the sucker cup, the first one to be ok will be the liftPoint
+		// We review each points and check if it is far enough from the edges to
+		// fit the sucker cup, the first one to be ok will be the liftPoint
 		Vector2 liftPoint = null;
 		for (Vector2 p : sortedPoints) {
-			double minDistFromBounds = CraftConfig.bitLength * 2; //To be sure every other distances will be smaller
+			double minDistFromBounds = CraftConfig.bitLength * 2; // To be sure
+																	// every
+																	// other
+																	// distances
+																	// will be
+																	// smaller
 			for (Vector<Segment2D> polygon : segments) {
 				for (Segment2D segment : polygon) {
 					double dist = segment.distFromPoint(new Vector2(p.x, p.y));
@@ -265,11 +292,11 @@ public class AreaTool {
 		return liftPoint;
 	}
 
-	/*
-	 * taken from
-	 * http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-
-	 * all-line-segments-that-constrain-an-area It converts the outline of an
-	 * area into a vector of segment2D
+	/**
+	 * It converts the outline of an area into a vector of segment2D. Taken from
+	 * <a href=
+	 * "http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area">this
+	 * link</a>.
 	 */
 	public static Vector<Vector<Segment2D>> getSegmentsFrom(Area area) {
 		Vector<double[]> areaPoints = new Vector<double[]>();
@@ -299,10 +326,12 @@ public class AreaTool {
 		int currentPolygonIndex = 0;
 
 		for (int i = 0; i < areaPoints.size(); i++) {
-			// If we're not on the last point, return a line from this point to the next
+			// If we're not on the last point, return a line from this point to
+			// the next
 			double[] currentElement = areaPoints.get(i);
 
-			// We need a default value in case we've reached the end of the ArrayList
+			// We need a default value in case we've reached the end of the
+			// ArrayList
 			double[] nextElement = { -1, -1, -1 };
 			if (i < (areaPoints.size() - 1)) {
 				nextElement = areaPoints.get(i + 1);
@@ -310,7 +339,8 @@ public class AreaTool {
 
 			// Make the lines
 			if (currentElement[0] == PathIterator.SEG_MOVETO) {
-				start = currentElement; // Record where the polygon started to close it later
+				start = currentElement; // Record where the polygon started to
+										// close it later
 				if (!polygons.get(currentPolygonIndex).isEmpty()) {
 					currentPolygonIndex++;
 					if (currentPolygonIndex >= polygonCount) {
@@ -320,17 +350,20 @@ public class AreaTool {
 			}
 
 			if (nextElement[0] == PathIterator.SEG_LINETO) {
-				polygons.get(currentPolygonIndex).insertElementAt(new Segment2D(new Vector2(nextElement[1], nextElement[2]), new Vector2(currentElement[1], currentElement[2])
+				polygons.get(currentPolygonIndex).insertElementAt(new Segment2D(
+						new Vector2(nextElement[1], nextElement[2]), new Vector2(currentElement[1], currentElement[2])
 
 				), 0);
 			} else if (nextElement[0] == PathIterator.SEG_CLOSE) {
-				polygons.get(currentPolygonIndex).insertElementAt(new Segment2D(new Vector2(start[1], start[2]), new Vector2(currentElement[1], currentElement[2])
+				polygons.get(currentPolygonIndex).insertElementAt(
+						new Segment2D(new Vector2(start[1], start[2]), new Vector2(currentElement[1], currentElement[2])
 
-				), 0);
+						), 0);
 			}
 		}
 
-		//Clean the result by removing segments which have the same start and end (java.awt.geom.Area.intersect issue)
+		// Clean the result by removing segments which have the same start and
+		// end (java.awt.geom.Area.intersect issue)
 		Iterator<Vector<Segment2D>> itrPolygons = polygons.iterator();
 		while (itrPolygons.hasNext()) {
 			Vector<Segment2D> polygon = itrPolygons.next();
@@ -350,6 +383,10 @@ public class AreaTool {
 		return polygons;
 	}
 
+	/**
+	 * @param area
+	 * @return the separated surfaces
+	 */
 	public static Vector<Area> segregateArea(Area area) {
 
 		Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(area);
@@ -361,8 +398,9 @@ public class AreaTool {
 			for (int i = 1; i < pathLine.size(); i++) {
 				path2D.lineTo(pathLine.get(i).start.x, pathLine.get(i).start.y);
 			}
-			//path2D.lineTo(pathLine.get(pathLine.size() - 1).end.x, pathLine.get(pathLine.size() - 1).end.y);
-			//cutPaths.add(cutPath2D);
+			// path2D.lineTo(pathLine.get(pathLine.size() - 1).end.x,
+			// pathLine.get(pathLine.size() - 1).end.y);
+			// cutPaths.add(cutPath2D);
 			path2D.closePath();
 			segregatedAreas.add(new Area(path2D));
 		}

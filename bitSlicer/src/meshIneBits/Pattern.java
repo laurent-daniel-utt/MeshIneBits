@@ -24,6 +24,9 @@ import meshIneBits.util.Vector2;
 public class Pattern implements Cloneable {
 	private Vector2 rotation;
 	private double skirtRadius;
+	/**
+	 * The key is the origin of bit in coor-sys of pattern
+	 */
 	private Hashtable<Vector2, Bit2D> mapBits;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
@@ -87,7 +90,8 @@ public class Pattern implements Cloneable {
 	}
 
 	/**
-	 * Removes the {@link Bit2D} that are outside the boundaries of the {@link Slice} and cut at right shape the ones that are on the boundaries.
+	 * Removes the {@link Bit2D} that are outside the boundaries of the {@link Slice} 
+	 * and cut at right shape the ones that are on the boundaries.
 	 * @param slice
 	 */
 	public void computeBits(Slice slice) {
@@ -124,6 +128,13 @@ public class Pattern implements Cloneable {
 		return new Vector<Vector2>(mapBits.keySet());
 	}
 
+	/**
+	 * Move the chosen bit in the wanted direction.
+	 * Note: not exactly "moving", but rather "removing" then "adding" new one
+	 * @param key the key of the bit we want to move
+	 * @param direction in the local coordinate system of the bit
+	 * @param offsetValue the distance of displacement
+	 */
 	public void moveBit(Vector2 key, Vector2 direction, double offsetValue) {
 		Bit2D bitToMove = mapBits.get(key);
 		removeBit(key);
@@ -189,4 +200,5 @@ public class Pattern implements Cloneable {
 			addBit(bit);
 		}
 	}
+
 }

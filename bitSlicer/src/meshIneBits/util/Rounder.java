@@ -7,9 +7,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * @author NHATHAN
  * An utility to rounds a double to specified number of decimal places.
- * @see {@link http://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places}
+ * @see <a href="http://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places">This link</a>.
  */
 public class Rounder {
 	public static double round(double value, int places) {

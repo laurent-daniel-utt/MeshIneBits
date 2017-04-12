@@ -18,6 +18,7 @@ public class ViewObservable extends Observable implements Observer {
 	private boolean showLiftPoints = false;
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;
+	private boolean showIrregularBits = false;
 
 	public static ViewObservable getInstance() {
 		if (instance == null) {
@@ -180,7 +181,13 @@ public class ViewObservable extends Observable implements Observer {
 	}
 
 	public boolean showIrregularBits() {
-		// TODO Auto-generated method stub
-		return true;
+		return showIrregularBits;
+	}
+	
+	public void toggleShowIrregularBits(boolean selected){
+		this.showIrregularBits = selected;
+		
+		setChanged();
+		notifyObservers();
 	}
 }
