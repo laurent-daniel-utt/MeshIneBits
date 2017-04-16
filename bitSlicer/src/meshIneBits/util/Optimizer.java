@@ -48,7 +48,7 @@ public class Optimizer implements Observer {
 	 * Automatically optimize all whole generated part
 	 * 
 	 */
-	public void automaticallyOptimize() {
+	public void automaticallyOptimizeGeneratedPart() {
 		for (Integer layerNum : irregularBits.keySet()) {
 			automaticallyOptimizeLayer(layers.get(layerNum.intValue()));
 		}

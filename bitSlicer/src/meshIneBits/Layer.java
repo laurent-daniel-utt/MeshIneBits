@@ -134,8 +134,18 @@ public class Layer extends Observable {
 		return sliceToSelect;
 	}
 
+	/**
+	 * @return the selected pattern
+	 */
 	public Pattern getSelectedPattern() {
 		return this.patterns.get(sliceToSelect);
+	}
+	
+	/**
+	 * @return the slice corresponding to the selected pattern
+	 */
+	public Slice getSelectedSlice(){
+		return this.slices.elementAt(sliceToSelect);
 	}
 
 	/**

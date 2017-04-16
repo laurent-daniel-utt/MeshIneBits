@@ -64,7 +64,11 @@ public class Pattern implements Cloneable {
 		setMapBits(bits);
 	}
 
-	public void addBit(Bit2D bit) {
+	/**
+	 * @param bit
+	 * @return the key of inserted bit in this pattern
+	 */
+	public Vector2 addBit(Bit2D bit) {
 		//the key of each bit is its origin's coordinates in the general coo system
 		Vector2 bitKey = bit.getOrigin().getTransformed(transfoMatrix);
 		//We check that there is not already a bit at this place
@@ -76,6 +80,7 @@ public class Pattern implements Cloneable {
 
 		}
 		mapBits.put(bitKey, bit);
+		return bitKey;
 	}
 
 	@Override
@@ -134,8 +139,9 @@ public class Pattern implements Cloneable {
 	 * @param key the key of the bit we want to move
 	 * @param direction in the local coordinate system of the bit
 	 * @param offsetValue the distance of displacement
+	 * @return the key of the newly added bit
 	 */
-	public void moveBit(Vector2 key, Vector2 direction, double offsetValue) {
+	public Vector2 moveBit(Vector2 key, Vector2 direction, double offsetValue) {
 		Bit2D bitToMove = mapBits.get(key);
 		removeBit(key);
 		Vector2 localDirection = bitToMove.getOrientation();
@@ -144,7 +150,7 @@ public class Pattern implements Cloneable {
 		localDirection = localDirection.getTransformed(rotateMatrix);
 		localDirection = localDirection.normal();
 		Vector2 newCoordinates = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offsetValue), bitToMove.getOrigin().y + (localDirection.y * offsetValue));
-		addBit(new Bit2D(newCoordinates, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
+		return addBit(new Bit2D(newCoordinates, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
 	}
 
 	public void removeBit(Vector2 key) {

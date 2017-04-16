@@ -11,7 +11,7 @@ package meshIneBits.util;
  */
 public enum Direction {
 	RIGHT, LEFT, UP, DOWN, UPRIGHT, DOWNRIGHT, UPLEFT, DOWNLEFT;
-
+	
 	/**
 	 * Convert into vector. Only available for {@link #RIGHT}, {@link #LEFT},
 	 * {@link #UP}, {@link #DOWN}.
@@ -29,6 +29,28 @@ public enum Direction {
 			return new Vector2(0, -1);
 		case DOWN:
 			return new Vector2(0, 1);
+		default:
+			return null;
+		}
+	}
+	public Direction getOppositeDirection(){
+		switch (this) {
+		case RIGHT:
+			return LEFT;
+		case LEFT:
+			return RIGHT;
+		case UP:
+			return DOWN;
+		case DOWN:
+			return UP;
+		case UPRIGHT:
+			return DOWNLEFT;
+		case DOWNLEFT:
+			return UPRIGHT;
+		case UPLEFT:
+			return DOWNRIGHT;
+		case DOWNRIGHT:
+			return UPLEFT;
 		default:
 			return null;
 		}

@@ -61,9 +61,10 @@ public abstract class PatternTemplate {
 	}
 
 	/**
-	 * Calculate automatically the distance if moving a bit in the given
-	 * direction. The distance depends on the chosen pattern and it will be the
-	 * minimum step. Realize the move on the input pattern
+	 * Move the bit by the minimum distance automatically calculated.
+	 * 
+	 * The distance depends on the chosen pattern. Realize the move on the input
+	 * pattern.
 	 * 
 	 * @param actualState
 	 *            the actual state of layer which is paved by this pattern
@@ -73,4 +74,17 @@ public abstract class PatternTemplate {
 	 *            the direction in the coordinate system of bit
 	 */
 	public abstract void moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction);
+
+	/**
+	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the
+	 * distance is free to decide.
+	 * 
+	 * @return the new key of the moved bit
+	 * @see {@link #moveBit(Pattern, Vector2, Vector2)}
+	 * @param actualState
+	 * @param keyOfBitToMove
+	 * @param direction
+	 * @param distance
+	 */
+	public abstract Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance);
 }

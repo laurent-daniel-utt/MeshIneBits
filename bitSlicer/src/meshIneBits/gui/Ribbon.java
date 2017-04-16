@@ -124,14 +124,17 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeTemplateBtn.setEnabled(false);
 		}
 
-		// If a STL is loaded & sliced but layers not generated, enable the generate layers button
+		// If a STL is loaded & sliced but layers not generated, enable the
+		// generate layers button
 		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
 			setEnabledAt(indexOfTab("Review"), true);
-			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));
+			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers()
+					.get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));
 			computeTemplateBtn.setEnabled(true);
 		}
 
-		// If a STL is loaded & sliced & layers generated, enable both button (to allow redo computation)
+		// If a STL is loaded & sliced & layers generated, enable both button
+		// (to allow redo computation)
 		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isSliced()) {
 			computeSlicesBtn.setEnabled(true);
 			computeTemplateBtn.setEnabled(true);
@@ -147,7 +150,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			super(parent, title, modal);
 
 			// Visual options
-			Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png")).getImage();
+			Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png"))
+					.getImage();
 			this.setIconImage(windowIcon);
 			this.setSize(350, 160);
 			this.setLocationRelativeTo(null);
@@ -159,7 +163,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			JLabel bg = new JLabel("");
 			ImageIcon icon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage().getScaledInstance(248, 42, Image.SCALE_SMOOTH));
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage()
+							.getScaledInstance(248, 42, Image.SCALE_SMOOTH));
 			bg.setIcon(icon);
 			bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
 			bg.setForeground(new Color(0, 0, 0, 8));
@@ -214,7 +219,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			try {
 				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
+								.getScaledInstance(width, height, Image.SCALE_DEFAULT));
 				this.setIcon(icon);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -251,11 +257,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Setting up
 			ImageIcon icon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage()
+							.getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 			this.setIcon(icon);
 
 			ImageIcon selectedIcon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png")).getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
+					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png"))
+							.getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 
 			filePopup = new FileMenuPopUp();
 
@@ -265,7 +273,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent ev) {
 					JToggleButton b = FileMenuButton.this;
 					if (b.isSelected()) {
-						filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x - 5, FileMenuButton.this.getLocationOnScreen().y + 25);
+						filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x - 5,
+								FileMenuButton.this.getLocationOnScreen().y + 25);
 						setIcon(selectedIcon);
 					} else {
 						filePopup.setVisible(false);
@@ -314,7 +323,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Setting up
 			try {
 				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
+								.getScaledInstance(22, 22, Image.SCALE_DEFAULT));
 				this.setIcon(icon);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -374,11 +384,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 			openMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);//Close the popUpMenu
+					setVisible(false);// Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-					//fc.setCurrentDirectory(new File(CraftConfig.lastSlicedFile).getParentFile());
-					//System.out.println(new File(CraftConfig.lastSlicedFile));
+					// fc.setCurrentDirectory(new
+					// File(CraftConfig.lastSlicedFile).getParentFile());
+					// System.out.println(new File(CraftConfig.lastSlicedFile));
 					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
 					int returnVal = fc.showOpenDialog(null);
 
@@ -394,7 +405,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			closeMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);//Close the popUpMenu
+					setVisible(false);// Close the popUpMenu
 					Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 					Ribbon.this.viewObservable.setPart(null);
 				}
@@ -403,7 +414,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			exportMenu.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					setVisible(false);//Close the popUpMenu
+					setVisible(false);// Close the popUpMenu
 					final JFileChooser fc = new JFileChooser();
 					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
 					int returnVal = fc.showSaveDialog(null);
@@ -447,11 +458,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	private class LabeledSpinner extends JPanel {
 		private static final long serialVersionUID = 6726754934854914029L;
-		
+
 		private JSpinner spinner;
-		
+
 		private JLabel name;
-		
+
 		private String getNameFromAnnotation(HashMap<String, Setting> hm, Setting annotation) {
 			for (String str : hm.keySet()) {
 				if (annotation.equals(hm.get(str))) {
@@ -460,26 +471,26 @@ public class Ribbon extends JTabbedPane implements Observer {
 			}
 			return "";
 		}
-		
-		public JSpinner getSpinner(){
+
+		public JSpinner getSpinner() {
 			return spinner;
 		}
-		
-		public JLabel getTitle(){
+
+		public JLabel getTitle() {
 			return name;
 		}
-		
-		public void setEnabled(boolean enabled){
+
+		public void setEnabled(boolean enabled) {
 			getSpinner().setEnabled(enabled);
 			getTitle().setEnabled(enabled);
 		}
 
-		public LabeledSpinner(Setting parameters){
+		public LabeledSpinner(Setting parameters) {
 			// Visual options
 			this.setLayout(new BorderLayout());
 			this.setBackground(Color.WHITE);
 			this.setBorder(new EmptyBorder(4, 0, 0, 0));
-			
+
 			// Setting up
 			name = new JLabel(parameters.title());
 			name.setToolTipText(parameters.description());
@@ -491,11 +502,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 				attribute = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredField(attributeName);
 				attribute.setAccessible(true);
 				defaultValue = attribute.getDouble(attribute);
-			} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
-				// TODO Auto-generated catch block
+			} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
+					| IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(), parameters.step()));
+			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
+					parameters.step()));
 			this.add(spinner, BorderLayout.EAST);
 		}
 
@@ -509,7 +521,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class OptionsContainer extends JPanel {
-		
+
 		private static final long serialVersionUID = 136154266552080732L;
 
 		public OptionsContainer(String title) {
@@ -517,14 +529,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 			this.setMinimumSize(new Dimension(500, 500));
 			this.setLayout(new GridLayout(3, 0, 10, 0));
 			this.setBackground(Color.WHITE);
-			
+
 			TitledBorder centerBorder = BorderFactory.createTitledBorder(title);
 			centerBorder.setTitleJustification(TitledBorder.CENTER);
 			centerBorder.setTitleFont(new Font(this.getFont().toString(), Font.BOLD, 12));
 			centerBorder.setTitleColor(Color.gray);
 			centerBorder.setBorder(BorderFactory.createEmptyBorder());
 			this.setBorder(centerBorder);
-			
+
 		}
 
 		@Override
@@ -546,6 +558,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			super();
 
 			// Setting up
+
+			// Options of display
 			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices") {
 				private static final long serialVersionUID = 7090657482323001875L;
 
@@ -579,10 +593,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setSelected(viewObservable.showCutPaths());
 				}
 			};
-			
+
 			JCheckBox irregularBitsCheckBox = new RibbonCheckBox("Show irregular bits") {
 				private static final long serialVersionUID = 7090657482323001875L;
-				
+
 				@Override
 				public void update(Observable o, Object arg) {
 					setSelected(viewObservable.showIrregularBits());
@@ -597,21 +611,23 @@ public class Ribbon extends JTabbedPane implements Observer {
 			displayCont.add(irregularBitsCheckBox);
 
 			add(displayCont);
+
+			// For manipulating selected slices
 			add(new TabContainerSeparator());
 
 			OptionsContainer sliceSelectionCont = new OptionsContainer("Selected slice");
 			sliceSelectionCont.setLayout(new BoxLayout(sliceSelectionCont, BoxLayout.PAGE_AXIS));
-			
+
 			ButtonIcon upArrow = new ButtonIcon("", "angle-up.png");
 			upArrow.setAlignmentX(CENTER_ALIGNMENT);
 			upArrow.setHorizontalAlignment(SwingConstants.CENTER);
-			
+
 			selectedSlice = new JLabel();
 			selectedSlice.setFont(new Font("Helvetica", Font.PLAIN, 20));
 			selectedSlice.setHorizontalAlignment(SwingConstants.CENTER);
 			selectedSlice.setPreferredSize(new Dimension(90, 25));
 			selectedSlice.setAlignmentX(CENTER_ALIGNMENT);
-			
+
 			ButtonIcon downArrow = new ButtonIcon("", "angle-down.png");
 			downArrow.setHorizontalAlignment(SwingConstants.CENTER);
 			downArrow.setAlignmentX(CENTER_ALIGNMENT);
@@ -620,6 +636,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 			sliceSelectionCont.add(selectedSlice);
 			sliceSelectionCont.add(downArrow);
 
+			add(sliceSelectionCont);
+
+			// For modifying the chosen bit
+			add(new TabContainerSeparator());
 			OptionsContainer modifCont = new OptionsContainer("Replace bit");
 			JButton replaceBitBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
 			JButton replaceBitBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
@@ -628,11 +648,27 @@ public class Ribbon extends JTabbedPane implements Observer {
 			modifCont.add(replaceBitBtn2);
 			modifCont.add(replaceByFullBitBtn);
 
-			add(sliceSelectionCont);
-			add(new TabContainerSeparator());
 			add(modifCont);
 
+			// For auto-optimizing
+			add(new TabContainerSeparator());
+			OptionsContainer autoOptimizeCont = new OptionsContainer("Auto-optimizing bits' distribution");
+			// TODO
+			JButton autoOptimizeLayerBtn = new ButtonIcon("Auto-optimize this layer", "cog.png");
+			JButton autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
+			autoOptimizeLayerBtn.setToolTipText(
+					"Trying to moving the irregular bits in this layer in order to have irregularities as least as possible");
+			autoOptimizeGPartBtn.setToolTipText(
+					"Trying to moving the irregular bits in this generated part in order to have irregularities as least as possible");
+			autoOptimizeCont.add(autoOptimizeLayerBtn);
+			autoOptimizeCont.add(autoOptimizeGPartBtn);
+
+			add(autoOptimizeCont);
+
+			/////////////////////////////////////////////
 			// Actions listener
+
+			// For display options
 			slicesCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -660,19 +696,21 @@ public class Ribbon extends JTabbedPane implements Observer {
 					viewObservable.toggleShowCutPaths(cutPathsCheckBox.isSelected());
 				}
 			});
-			
+
 			irregularBitsCheckBox.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					viewObservable.toggleShowIrregularBits(irregularBitsCheckBox.isSelected());
 				}
 			});
 
+			// For selecting slices
 			upArrow.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Layer currentLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+					Layer currentLayer = viewObservable.getCurrentPart().getLayers()
+							.get(viewObservable.getCurrentLayerNumber());
 					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() + 1);
 				}
 			});
@@ -680,11 +718,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 			downArrow.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Layer currentLayer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
+					Layer currentLayer = viewObservable.getCurrentPart().getLayers()
+							.get(viewObservable.getCurrentLayerNumber());
 					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() - 1);
 				}
 			});
 
+			// For replacing bits
 			replaceBitBtn1.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -705,20 +745,39 @@ public class Ribbon extends JTabbedPane implements Observer {
 					replaceSelectedBit(100, 100);
 				}
 			});
+
+			// For auto-optimizing
+			autoOptimizeLayerBtn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					GeneratedPart currentPart = viewObservable.getCurrentPart();
+					Layer currentLayer = currentPart.getLayers().get(viewObservable.getCurrentLayerNumber());
+					currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
+				}
+			});
+
+			autoOptimizeGPartBtn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					viewObservable.getCurrentPart().getOptimizer().automaticallyOptimizeGeneratedPart();
+				}
+			});
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
 			ViewObservable vo = ViewObservable.getInstance();
 			GeneratedPart part = vo.getCurrentPart();
 			Layer layer = part.getLayers().get(vo.getCurrentLayerNumber());
-			
+
 			if (vo.getSelectedBitKey() == null) {
 				Logger.warning("There is no bit selected");
 				return;
 			}
-			
+
 			Bit3D bit = layer.getBit3D(vo.getSelectedBitKey());
-			
+
 			layer.replaceBit(bit, percentageLength, percentageWidth);
 		}
 	}
@@ -732,7 +791,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Visual options
 			this.setBackground(Color.WHITE);
 			this.setFocusable(false);
-			
+
 			// Setting up
 			viewObservable.addObserver(this);
 		}
@@ -768,7 +827,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Setting up
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner(setupAnnotations.get("sliceHeight"));
-			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(setupAnnotations.get("firstSliceHeightPercent"));
+			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(
+					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
 
@@ -784,10 +844,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 			add(computeCont);
 
-			
 			// Actions listener
 			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
-			
+
 			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
 			computeSlicesBtn.addActionListener(new ActionListener() {
@@ -834,12 +893,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	private class TemplateTab extends RibbonTab {
-		
+
 		private static final long serialVersionUID = -2963705108403089250L;
 
 		public TemplateTab() {
 			super();
-			
+
 			// Setting up
 			// Bits options
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
@@ -873,7 +932,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			LabeledSpinner diffRotationSpinner = new LabeledSpinner(setupAnnotations.get("diffRotation"));
 			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffxOffset"));
 			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffyOffset"));
-			
+
 			patternCont.add(rotationSpinner);
 			patternCont.add(diffRotationSpinner);
 			patternCont.add(xOffsetSpinner);
@@ -889,8 +948,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(setupAnnotations.get("minPercentageOfSlices"));
-			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(setupAnnotations.get("defaultSliceToSelect"));
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(
+					setupAnnotations.get("minPercentageOfSlices"));
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(
+					setupAnnotations.get("defaultSliceToSelect"));
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeTemplateBtn);
@@ -921,8 +982,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
 			/**
-			 * TODO
-			 * A généraliser pour plusieurs patterns. 
+			 * TODO Should generalize for multiple options
 			 */
 			pattern1Btn.addActionListener(new ActionListener() {
 				@Override
@@ -953,26 +1013,24 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 			});
 		}
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * @return names of attributes associated by their annotations
 	 */
 	public HashMap<String, Setting> loadAnnotations() {
-		// TODO Auto-generated method stub
 		HashMap<String, Setting> result = new HashMap<>();
 		try {
-			Field[] fieldList = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredFields();// get all declared attributes
+			// Get all declared attributes
+			Field[] fieldList = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredFields();
 			for (Field field : fieldList) {
 				result.put(field.getName(), field.getAnnotation(Setting.class));
 			}
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return result;

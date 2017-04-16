@@ -58,4 +58,11 @@ public class PatternTemplate1 extends PatternTemplate {
 		// TODO Auto-generated method stub
 	}
 
+
+	@Override
+	public Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

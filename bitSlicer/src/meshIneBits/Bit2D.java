@@ -30,18 +30,21 @@ public class Bit2D implements Cloneable {
 	private Vector<Area> areas = new Vector<Area>();
 
 	/**
-	 * Constructor to clone an existing bit into a smaller one. All the other
-	 * parameters remain unchanged.
+	 * Constructor to clone an existing bit into a smaller one.
+	 * 
+	 * All the other parameters remain unchanged in comparison to model bit.
 	 * 
 	 * @param modelBit
 	 * @param percentageLength
+	 *            from 0 to 100
 	 * @param percentageWidth
+	 *            from 0 to 100
 	 */
 	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
 		this.origin = modelBit.origin;
 		this.orientation = modelBit.orientation;
-		length = (CraftConfig.bitLength * percentageLength) / 100;
-		width = (CraftConfig.bitWidth * percentageWidth) / 100;
+		 length = (CraftConfig.bitLength * percentageLength) / 100;
+		 width = (CraftConfig.bitWidth * percentageWidth) / 100;
 
 		setTransfoMatrix();
 		buildBoundaries();
@@ -322,5 +325,17 @@ public class Bit2D implements Cloneable {
 	 */
 	public Vector2 computeLiftPoint() {
 		return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
+	}
+	
+	/**
+	 * Used to resized a bit
+	 * @param percentageLength 100 means 100%
+	 * @param percentageWidth 100 means 100%
+	 */
+	public void resize(double percentageLength, double percentageWidth){
+		length = length * percentageLength / 100;
+		width = length * percentageWidth /100;
+		// Rebuild the boundary
+		buildBoundaries();
 	}
 }
