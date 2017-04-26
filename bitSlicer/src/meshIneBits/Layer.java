@@ -155,11 +155,12 @@ public class Layer extends Observable {
 	 * @param bitKey
 	 * @param direction
 	 *            the direction in local coordinate system of the bit
+	 * @return the new origin of the moved bit
 	 */
-	public void moveBit(Vector2 bitKey, Vector2 direction) {
-		patternTemplate.moveBit(referentialPattern, bitKey, direction);
-//		referentialPattern.moveBit(bitKey, direction, 50);
+	public Vector2 moveBit(Vector2 bitKey, Vector2 direction) {
+		Vector2 newCoor = patternTemplate.moveBit(referentialPattern, bitKey, direction);
 		rebuild();
+		return newCoor;
 	}
 
 	/**

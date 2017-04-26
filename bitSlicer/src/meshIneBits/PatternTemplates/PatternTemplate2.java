@@ -57,8 +57,9 @@ public class PatternTemplate2 extends PatternTemplate {
 		
 	}
 	@Override
-	public void moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction) {
+	public Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction) {
 		// TODO Auto-generated method stub
+		return null;
 	}
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance) {

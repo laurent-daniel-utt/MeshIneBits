@@ -911,14 +911,14 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Pattern choice
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
-			JToggleButton pattern1Btn = new JToggleButton();
+			JToggleButton pattern3Btn = new JToggleButton();
 			JToggleButton pattern2Btn = new JToggleButton();
-			if (CraftConfig.patternNumber == 3) {
-				pattern1Btn.setSelected(true);
-			} else {
-				pattern2Btn.setSelected(true);
-			}
-			patternGallery.addButton(pattern1Btn, "p1.png");
+//			if (CraftConfig.patternNumber == 3) {
+//				pattern3Btn.setSelected(true);
+//			} else {
+//				pattern2Btn.setSelected(true);
+//			}
+			patternGallery.addButton(pattern3Btn, "p1.png");
 			patternGallery.addButton(pattern2Btn, "p2.png");
 
 			// Template options
@@ -984,23 +984,17 @@ public class Ribbon extends JTabbedPane implements Observer {
 			/**
 			 * TODO Should generalize for multiple options
 			 */
-			pattern1Btn.addActionListener(new ActionListener() {
+			pattern3Btn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (pattern1Btn.isSelected()) {
-						pattern2Btn.setSelected(false);
-						CraftConfig.patternNumber = 3;
-					}
+					CraftConfig.patternNumber = 3;
 				}
 			});
 
 			pattern2Btn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (pattern2Btn.isSelected()) {
-						pattern1Btn.setSelected(false);
-						CraftConfig.patternNumber = 2;
-					}
+					CraftConfig.patternNumber = 2;
 				}
 			});
 

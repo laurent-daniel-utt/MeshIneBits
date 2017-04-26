@@ -74,7 +74,7 @@ public class Pattern implements Cloneable {
 		//We check that there is not already a bit at this place
 		for (Vector2 key : getBitsKeys()) {
 			if (bitKey.asGoodAsEqual(key)) {
-				Logger.warning("A bit already exists at these coordinates, it has been replaced by the new one.");
+				Logger.warning("A bit already exists at these coordinates: " + key + ", it has been replaced by the new one.");
 				removeBit(key);
 			}
 

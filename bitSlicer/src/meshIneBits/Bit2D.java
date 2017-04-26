@@ -329,8 +329,8 @@ public class Bit2D implements Cloneable {
 	
 	/**
 	 * Used to resized a bit
-	 * @param percentageLength 100 means 100%
-	 * @param percentageWidth 100 means 100%
+	 * @param percentageLength 100 means retain 100% of old bit's length
+	 * @param percentageWidth 100 means retain 100% of old bit's width
 	 */
 	public void resize(double percentageLength, double percentageWidth){
 		length = length * percentageLength / 100;

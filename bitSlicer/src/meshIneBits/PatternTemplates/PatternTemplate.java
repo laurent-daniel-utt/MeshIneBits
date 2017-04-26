@@ -72,8 +72,9 @@ public abstract class PatternTemplate {
 	 * @param keyOfBitToMove
 	 * @param direction
 	 *            the direction in the coordinate system of bit
+	 * @return the new origin of the moved bit
 	 */
-	public abstract void moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction);
+	public abstract Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction);
 
 	/**
 	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the
@@ -85,6 +86,7 @@ public abstract class PatternTemplate {
 	 * @param keyOfBitToMove
 	 * @param direction
 	 * @param distance
+	 * @return the new origin of the moved bit
 	 */
 	public abstract Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance);
 }

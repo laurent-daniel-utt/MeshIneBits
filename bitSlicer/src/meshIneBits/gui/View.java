@@ -83,7 +83,10 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			direction = new Vector2(-1, 0);
 			break;
 		}
-		layer.moveBit(viewObservable.getSelectedBitKey(), direction);
+		Vector2 newCoor = layer.moveBit(viewObservable.getSelectedBitKey(), direction);
+		if (newCoor != null) {
+			viewObservable.setSelectedBitKey(newCoor);
+		}
 	}
 
 	private void paintBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
