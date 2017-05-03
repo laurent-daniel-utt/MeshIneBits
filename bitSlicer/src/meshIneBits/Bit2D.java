@@ -4,12 +4,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
-import java.util.HashMap;
 import java.util.Vector;
 
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.util.AreaTool;
-import meshIneBits.util.Direction;
 import meshIneBits.util.Vector2;
 
 /**
@@ -20,8 +18,12 @@ import meshIneBits.util.Vector2;
  * @see Bit3D
  */
 public class Bit2D implements Cloneable {
-	private final Vector2 origin; // In the pattern coordinate system
-	private Vector2 orientation; // Around the bit origin
+	/**
+	 * In the pattern coordinate system without rotation or translation of whole
+	 * object.
+	 */
+	private final Vector2 origin;
+	private Vector2 orientation;
 	private double length;
 	private double width;
 	private AffineTransform transfoMatrix = new AffineTransform();
@@ -43,16 +45,16 @@ public class Bit2D implements Cloneable {
 	public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
 		this.origin = modelBit.origin;
 		this.orientation = modelBit.orientation;
-		 length = (CraftConfig.bitLength * percentageLength) / 100;
-		 width = (CraftConfig.bitWidth * percentageWidth) / 100;
+		length = (CraftConfig.bitLength * percentageLength) / 100;
+		width = (CraftConfig.bitWidth * percentageWidth) / 100;
 
 		setTransfoMatrix();
 		buildBoundaries();
 	}
 
 	/**
-	 * originBit and orientation are in the coordinate system of the associated
-	 * pattern
+	 * a new full bit with originBit and orientation in the coordinate system of
+	 * the associated pattern
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation) {
 		this.origin = origin;
@@ -107,61 +109,24 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * Create the four corners as in a normal bit. Note: Oy axe points downward
-	 * and Ox points to the right. We always take the up right corner as the
-	 * point of "depart". The bit' boundary is a rectangle.
-	 * 
-	 * @return list consisting of UpRight, DownRight, UpLeft, DownLeft in the
-	 *         own coordinate system of this bit
+	 * Create the area of the bit and set an initial cut path if necessary. This
+	 * is necessary when the bit has been reduced manually. Note: Oy axe points
+	 * downward and Ox points to the right. We always take the up right corner
+	 * as ({@link CraftConfig#bitLength bitLength} / 2, -
+	 * {@link CraftConfig#bitWidth bitWidth} / 2 ). The bit' boundary is a
+	 * rectangle.
 	 */
-	public HashMap<Direction, Vector2> getRawNormalCorners() {
-		HashMap<Direction, Vector2> corners = new HashMap<>();
+	private void buildBoundaries() {
 		Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
 		Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
 		Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
 		Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
-		corners.put(Direction.UPRIGHT, cornerUpRight);
-		corners.put(Direction.DOWNRIGHT, cornerDownRight);
-		corners.put(Direction.UPLEFT, cornerUpLeft);
-		corners.put(Direction.DOWNLEFT, cornerDownLeft);
-		return corners;
-	}
-
-	/**
-	 * Create the four corners as in a normal bit. Note: Oy axe points downward
-	 * and Ox points to the right. We always take the up right corner as the
-	 * point of "depart". The bit' boundary is a rectangle.
-	 * 
-	 * @return list consisting of UpRight, DownRight, UpLeft, DownLeft in the
-	 *         coordinate system of the layer containing this bit
-	 */
-	public HashMap<Direction, Vector2> getTransfoNormalCorners() {
-		HashMap<Direction, Vector2> rawCorners = getRawNormalCorners();
-		HashMap<Direction, Vector2> transfoCorners = new HashMap<>();
-		for (Direction key : rawCorners.keySet()) {
-			transfoCorners.put(key, rawCorners.get(key).getTransformed(transfoMatrix));
-		}
-		return transfoCorners;
-	}
-
-	/**
-	 * Create the area of the bit and set an initial cut path if necessary. This
-	 * is necessary when the bit has been reduced manually. Note: Oy axe points
-	 * downward and Ox points to the right. We always take the up right corner
-	 * as the point of "depart". The bit' boundary is a rectangle.
-	 */
-	private void buildBoundaries() {
-		HashMap<Direction, Vector2> corners = getRawNormalCorners();
-		Vector2 cornerUpRight = corners.get(Direction.UPRIGHT);
-		Vector2 cornerDownRight = corners.get(Direction.DOWNRIGHT);
-		Vector2 cornerUpLeft = corners.get(Direction.UPLEFT);
-		Vector2 cornerDownLeft = corners.get(Direction.DOWNLEFT);
 
 		Path2D path = new Path2D.Double();
-		path.moveTo(cornerUpLeft.x, cornerUpLeft.y);
-		path.lineTo(cornerUpRight.x, cornerUpRight.y);
+		path.moveTo(cornerUpRight.x, cornerUpRight.y);
 		path.lineTo(cornerDownRight.x, cornerDownRight.y);
 		path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
+		path.lineTo(cornerUpLeft.x, cornerUpLeft.y);
 		path.closePath();
 
 		this.areas.add(new Area(path));
@@ -264,6 +229,16 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
+	 * @return the center of the rectangle of this bit, not necessarily the
+	 *         {@link #origin origin}
+	 */
+	public Vector2 getCenter() {
+		double verticalDistance = -(CraftConfig.bitWidth - width) / 2,
+				horizontalDistance = (CraftConfig.bitLength - length) / 2;
+		return origin.add(new Vector2(horizontalDistance, verticalDistance));
+	}
+
+	/**
 	 * A raw area is an area that has not been transformed to another coordinate
 	 * system.
 	 * 
@@ -326,16 +301,26 @@ public class Bit2D implements Cloneable {
 	public Vector2 computeLiftPoint() {
 		return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
 	}
-	
+
 	/**
-	 * Used to resized a bit
-	 * @param percentageLength 100 means retain 100% of old bit's length
-	 * @param percentageWidth 100 means retain 100% of old bit's width
+	 * To resize a bit, keeping up-right corner as reference.
+	 * 
+	 * @param newPercentageLength
+	 *            100 means retain 100% of old bit's length
+	 * @param newPercentageWidth
+	 *            100 means retain 100% of old bit's width
 	 */
-	public void resize(double percentageLength, double percentageWidth){
-		length = length * percentageLength / 100;
-		width = length * percentageWidth /100;
+	public void resize(double newPercentageLength, double newPercentageWidth) {
+		length = length * newPercentageLength / 100;
+		width = width * newPercentageWidth / 100;
 		// Rebuild the boundary
 		buildBoundaries();
 	}
+
+	@Override
+	public String toString() {
+		return "Bit2D [origin=" + origin + ", length=" + length + ", width=" + width + ", orientation=" + orientation
+				+ "]";
+	}
+
 }

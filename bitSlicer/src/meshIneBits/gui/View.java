@@ -211,10 +211,16 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 					area.transform(affTrans);
 					if (area.contains(clickSpot)) {
-						if (viewObservable.getSelectedBitKey() == bitKey) { //then it is a click to unselect this bit
+						if (viewObservable.getSelectedBitKey() == bitKey) { 
+							//then it is a click to unselect this bit
 							viewObservable.setSelectedBitKey(null);
 							bitControls.clear();
-						} else if (viewObservable.getSelectedBitKey() == null) { //you need to unselect the bit before being able to select a new one
+//						} else if (viewObservable.getSelectedBitKey() == null) { 
+							//you need to unselect the bit before being able to select a new one
+						} else { 
+							// Remove the highlight of currently selected bit
+							bitControls.clear();
+							// Choose the new one
 							viewObservable.setSelectedBitKey(bitKey);
 						}
 						break;
@@ -387,7 +393,8 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 			if (viewObservable.showIrregularBits() && irregularBitsOfThisLayer.contains(b)){
 				g2d.setColor(new Color(255,0,0,100));
 			}
-			drawModelArea(g2d, area); // Draw the bit's area
+			// Draw the bit's area
+			drawModelArea(g2d, area);
 
 			// Draw the cut path
 			if (viewObservable.showCutPaths() && (bit.getCutPaths() != null)) {

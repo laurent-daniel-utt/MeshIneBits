@@ -35,8 +35,10 @@ public class PatternTemplate3 extends PatternTemplate {
 		double e = CraftConfig.bitsLengthSpace;
 		double L = CraftConfig.bitLength;
 		double H = CraftConfig.bitWidth;
-		// The first bit is displaced by diffxOffset and diffyOffset
-		Vector2 _1stBit = new Vector2(CraftConfig.diffxOffset, CraftConfig.diffyOffset);
+		// The first bit is displaced by multiples of diffxOffset and
+		// diffyOffset
+		Vector2 _1stBit = new Vector2(CraftConfig.diffxOffset * layerNumber % CraftConfig.bitLength,
+				CraftConfig.diffyOffset * layerNumber % CraftConfig.bitWidth);
 		// Fill out the square
 		int lineNum = 0;// Initialize
 		// Vertically downward
@@ -99,8 +101,7 @@ public class PatternTemplate3 extends PatternTemplate {
 		while (!allFail) {
 			Pattern selectedPattern = actualState.getSelectedPattern();
 			Slice selectedBoundary = actualState.getSelectedSlice();
-			Vector2 directionToMove = null, irBitKeyToMove = null;
-			Bit2D initialStateOfBitToMove = null;
+			Vector2 localDirectionToMove = null, irBitKeyToMove = null;
 			Vector<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(selectedPattern);
 			// We will find the first irregular bit that we can resolve
 			for (Iterator<Vector2> irBitKeyIterator = irregularBitKeys.iterator(); irBitKeyIterator.hasNext();) {
@@ -110,45 +111,47 @@ public class PatternTemplate3 extends PatternTemplate {
 				// If there is at least one way to reduce the number of
 				// irregular bits in the pattern,
 				// we choose that direction and apply on the pattern
-				directionToMove = attemptToSolve(selectedPattern, selectedBoundary, irBitKey);
-				if (directionToMove != null) {
+				localDirectionToMove = attemptToSolve(selectedPattern, selectedBoundary, irBitKey);
+				if (localDirectionToMove != null) {
 					irBitKeyToMove = irBitKey;
-					initialStateOfBitToMove = selectedPattern.getBit(irBitKey);
 					break;
 				}
 			}
 			// If we have at least one chance to move
-			if (directionToMove != null & irBitKeyToMove != null) {
-				actualState.moveBit(irBitKeyToMove, directionToMove);
-//				this.pushBit(selectedPattern, irBitKeyToMove, directionToMove);
-				Logger.message("Moved bit of origin " + irBitKeyToMove + " in (local) direction " + directionToMove);
+			if (localDirectionToMove != null && irBitKeyToMove != null) {
+				Bit2D initialStateOfBitToMove = selectedPattern.getBit(irBitKeyToMove);
+				Vector2 newPos = this.pushBit(selectedPattern, irBitKeyToMove, localDirectionToMove);
+				Logger.updateStatus("Moved bit at " + irBitKeyToMove + " in direction "
+						+ localDirectionToMove.getTransformed(selectedPattern.getAffineTransform()) + " to " + newPos);
+				// Re-validate
+				selectedPattern.computeBits(selectedBoundary);
 				// Try to recover the gap left behind
-				if (shouldCover(selectedPattern, selectedBoundary, initialStateOfBitToMove, directionToMove)) {
-					cover(selectedPattern, initialStateOfBitToMove, directionToMove);
-					Logger.message("Covered");
-				}
+				this.cover(selectedPattern, initialStateOfBitToMove, localDirectionToMove);
+				Logger.updateStatus("Covered");
+				// Re-validate
+				selectedPattern.computeBits(selectedBoundary);
 				// Apply the changes on whole layer
-//				actualState.rebuild();
+				actualState.setReferentialPattern(selectedPattern);
+				actualState.rebuild();
 			} else {
 				// Else if we don't have anyway to solve
 				// We stop the process of resolution
 				allFail = true;
 			}
 		}
-		Logger.message("Layer " + actualState.getLayerNumber() + " optimized.");
+		Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized.");
 	}
 
 	/**
 	 * Attempt to resolve by moving the bit in 4 directions.
 	 * 
 	 * Prioritizing the height's sides. If the obtained state has less irregular
-	 * bits, we will follow that way.
-	 * 
-	 * Note: Once we move the bit, we will leave behind a space that we'll try
-	 * to cover by an other bit (to eliminate the chance that we have a spacing
-	 * hole in the pattern).
+	 * bits, we will follow that way. Note: we also try to cover what we left
+	 * behind by a full bit.
 	 * 
 	 * @param pattern
+	 *            the selected pattern in the layer. This method will work on
+	 *            its clone
 	 * @param boundary
 	 *            used to re-validate the attempt
 	 * @param irBitKey
@@ -160,53 +163,34 @@ public class PatternTemplate3 extends PatternTemplate {
 	private Vector2 attemptToSolve(Pattern pattern, Slice boundary, Vector2 irBitKey) {
 		// Initial number of irregularities
 		int initialIrregularities = DetectorTool.detectIrregularBits(pattern).size();
-		Vector2[] directionsForTrying = { new Vector2(1, 0), // right
+		Vector2[] localDirectionsForTrying = { new Vector2(1, 0), // right
 				new Vector2(-1, 0), // left
 				new Vector2(0, 1), // up
 				new Vector2(0, -1) // down
 		};
-		for (int i = 0; i < directionsForTrying.length; i++) {
-			Vector2 directionToTry = directionsForTrying[i];
+		for (int i = 0; i < localDirectionsForTrying.length; i++) {
+			Vector2 localDirectionToTry = localDirectionsForTrying[i];
 			// We need to conserve pattern
 			// So we work on a clone
 			Pattern clonedPattern = pattern.clone();
-			Vector2 newOrigin = this.pushBit(clonedPattern, irBitKey, directionToTry);
+			Bit2D initialBit = clonedPattern.getBit(irBitKey);
+			Vector2 newOrigin = this.pushBit(clonedPattern, irBitKey, localDirectionToTry);
+			// Rebuild the boundary
 			clonedPattern.computeBits(boundary);
 			// Check that we did not push the bit into the air
 			if (clonedPattern.getBit(newOrigin) == null) {
 				continue;
 			}
+			// We cover what we left behind
+			this.cover(clonedPattern, initialBit, localDirectionToTry);
+			// Rebuild the boundary
+			clonedPattern.computeBits(boundary);
+			// Re-validate
 			if (initialIrregularities > DetectorTool.detectIrregularBits(clonedPattern).size()) {
-				return directionToTry;
+				return localDirectionToTry;
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Attempt to cover the gap left behind after moving a bit forward.
-	 * 
-	 * @param actualState
-	 * @param boundary
-	 *            to validate the cover
-	 * @param movedBit
-	 *            the moved bit (in the initial location)
-	 * @param localDirectionOfMove
-	 *            in which we move the bit. Calculated in the local coordinate
-	 *            system of bit.
-	 * @return false if the move will increase the number or irregularities
-	 */
-	private boolean shouldCover(Pattern actualState, Slice boundary, Bit2D movedBit, Vector2 localDirectionOfMove) {
-		int actualIrregularities = DetectorTool.detectIrregularBits(actualState).size();
-		Pattern clonedPattern = actualState.clone();
-		this.cover(clonedPattern, movedBit, localDirectionOfMove);
-		// Validate
-		clonedPattern.computeBits(boundary);
-		// Check
-		if (DetectorTool.detectIrregularBits(clonedPattern).size() <= actualIrregularities) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -230,7 +214,7 @@ public class PatternTemplate3 extends PatternTemplate {
 		Vector2 coveringBitKey = actualState.addBit(movedBit);
 		coveringBitKey = this.pushBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite());
 		// Maintaining a gap between covering bit and the newly moved bit
-		this.moveBit(actualState, coveringBitKey, localDirectionOfMove, paddle);
+		this.moveBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite(), paddle);
 	}
 
 	/**
@@ -243,55 +227,60 @@ public class PatternTemplate3 extends PatternTemplate {
 	 * @param actualState
 	 * @param keyOfBitToMove
 	 *            key of the bitToMove
-	 * @param localDirection
-	 *            in the coordinate system of the bitToMove
+	 * @param localDirectionToPush
+	 *            in the coordinate system of the bitToMove. Either (1, 0), (-1,
+	 *            0), (0, 1), (0, -1).
 	 * @return new origin of bit after being pushed into the given direction
 	 */
-	public Vector2 pushBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 localDirection) {
+	private Vector2 pushBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 localDirectionToPush) {
 		// Detect the side of bit staying in that direction
-		Bit2D bitToMove = actualState.getBit(keyOfBitToMove);
-
-		// Recalculate the direction in according to the coordinate system of
-		// actualState
-		Vector2 direction = localDirection.getTransformed(actualState.getAffineTransform());
+		Bit2D bitToPush = actualState.getBit(keyOfBitToMove);
 
 		// Find all the bits in front of bitToMove.
 		// And classify them into 2 groups:
 		// One consisting of bits whose centers are in front of bitToMove,
 		// Other consisting of bits whose centers are not.
 		// The way we treat these 2 groups are different
-		Vector<Vector2> bitEntirelyInFrontOfBitToMove = new Vector<>();
-		Vector<Vector2> bitPartiallyInFrontOfBitToMove = new Vector<>();
+		Vector<Vector2> bitEntirelyInFrontOfBitToMove = new Vector<Vector2>();
+		Vector<Vector2> bitPartiallyInFrontOfBitToMove = new Vector<Vector2>();
 		for (Vector2 bitKey : actualState.getBitsKeys()) {
 			Bit2D bitToCompare = actualState.getBit(bitKey);
-			if (checkAdjacence(bitToMove, bitToCompare)) {
-				if (checkInFront(bitToMove, bitToCompare, direction)) {
-					if (checkPartiallyInFront(bitToMove, bitToCompare, direction)) {
-						bitPartiallyInFrontOfBitToMove.add(bitKey);
-					} else {
+			if (checkAdjacence(bitToPush, bitToCompare)) {
+				if (checkInFront(bitToPush, bitToCompare, localDirectionToPush)) {
+					if (checkEntirelyInFront(bitToPush, bitToCompare, localDirectionToPush)) {
 						bitEntirelyInFrontOfBitToMove.add(bitKey);
+					} else {
+						bitPartiallyInFrontOfBitToMove.add(bitKey);
 					}
 				}
 			}
 		}
 		// Calculating the distance to push
-		double lengthToReduce = 0,
+		double verticalDisplacement = 0,
 				// these 2 are for calculating origins of covering bits
-				horizontalPaddle = 0, verticalPaddle = 0;
-		if (localDirection.x == 0) {
-			lengthToReduce = CraftConfig.bitWidth / 2;
-			horizontalPaddle = CraftConfig.bitLength / 4;
-			verticalPaddle = CraftConfig.bitWidth / 4 + CraftConfig.bitsLengthSpace / 2;
+				horizontalDisplacement = 0,
+				// to move the bits in front a little more
+				// in order to have space between bits
+				additionalVerticalDisplacement = 0;
+		if (localDirectionToPush.x == 0) {
+			// If we push up and down
+			verticalDisplacement = CraftConfig.bitWidth / 2;
+			horizontalDisplacement = CraftConfig.bitLength / 2;
+			additionalVerticalDisplacement = CraftConfig.bitsLengthSpace / 2;
 		} else {
-			lengthToReduce = CraftConfig.bitLength / 2;
-			horizontalPaddle = CraftConfig.bitWidth / 4;
-			verticalPaddle = CraftConfig.bitLength / 4 + CraftConfig.bitsWidthSpace / 2;
+			// If we push right or left
+			verticalDisplacement = CraftConfig.bitLength / 2;
+			horizontalDisplacement = CraftConfig.bitWidth / 2;
+			additionalVerticalDisplacement = CraftConfig.bitsWidthSpace / 2;
 		}
 
 		// Treating the group bitEntirelyInFrontOfBitToMove.
 		// We just reducing them back.
+		// We also add a little space between
+		// the bit we are going to move
+		// and the ones in front of its
 		for (Vector2 bitKey : bitEntirelyInFrontOfBitToMove) {
-			this.reduceBit(bitKey, actualState, localDirection, lengthToReduce);
+			this.reduceBit(bitKey, actualState, localDirectionToPush, verticalDisplacement);
 		}
 
 		// Treating the group bitPartiallyInFrontOfBitToMove
@@ -299,64 +288,126 @@ public class PatternTemplate3 extends PatternTemplate {
 		// after reducing them back.
 		// We try the simplest way of covering.
 		for (Vector2 bitKey : bitPartiallyInFrontOfBitToMove) {
-			Bit2D actualBit = actualState.getBit(bitKey);
-			this.reduceBit(bitKey, actualState, localDirection, lengthToReduce);
+			// Save the initial state of the actual bit
+			Bit2D bit = actualState.getBit(bitKey).clone();
+			// Reduce the actual bit
+			this.reduceBit(bitKey, actualState, localDirectionToPush, verticalDisplacement);
 			// The covering bit will always be a quart of a full one.
 			// We have to define its origin
-			Vector2 coveringBitOrigin = null, coveringBitOrientation = actualBit.getOrientation();
-			double coveringBitWidth = CraftConfig.bitWidth / 2, coveringBitLength = CraftConfig.bitLength / 2;
-			Vector2 centrifugalVector = Vector2.Tools.getCentrifugalVector(keyOfBitToMove, direction, bitKey);
-			if (actualBit.getLength() == CraftConfig.bitLength && actualBit.getWidth() == CraftConfig.bitWidth) {
+			Vector2 coveringBitOrigin = null;
+			Vector2 centrifugalVector = Vector2.Tools.getCentrifugalVector(bitToPush.getOrigin(), localDirectionToPush,
+					bit.getOrigin());
+			if (bit.getLength() == CraftConfig.bitLength && bit.getWidth() == CraftConfig.bitWidth) {
 				// If the actually considered bit is full
-				coveringBitOrigin = bitKey
+				coveringBitOrigin = bit.getOrigin()
 						// horizontally move
-						.add(centrifugalVector.mul(horizontalPaddle))
+						.add(centrifugalVector.mul(horizontalDisplacement))
 						// vertically move backward
-						.sub(direction.mul(verticalPaddle));
+						.add(localDirectionToPush.getOpposite().mul(additionalVerticalDisplacement));
+				// Add the "petit" covering bit
+				// First, we add it as a full bit
+				Vector2 coveringBitKey = actualState.addBit(new Bit2D(coveringBitOrigin, bit.getOrientation()));
+				// Then reform
+				coveringBitKey = this.reduceBit(coveringBitKey, actualState, localDirectionToPush.getOpposite(),
+						verticalDisplacement);
+				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector.getOpposite(),
+						horizontalDisplacement);
 			} else {
 				// The actually considered bit has been modified
 				// (not in full form)
-				coveringBitOrigin = bitKey.add(centrifugalVector.mul(horizontalPaddle));
+				// Add the "petit" covering bit
+				// First, we add the clone of the actual bit,
+				// which has just been reduced to none
+				Vector2 coveringBitKey = actualState.addBit(bit);
+				// Then reform
+				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector,
+						horizontalDisplacement);
 			}
-			// Add the "petit" covering bit
-			actualState
-					.addBit(new Bit2D(coveringBitOrigin, coveringBitOrientation, coveringBitLength, coveringBitWidth));
 		}
 
 		// Finally, push the given bit forward
 		// Note that, we move by a distance
 		// equal to what we reduce the bits in front of us
-		return actualState.moveBit(keyOfBitToMove, localDirection, lengthToReduce);
+		return actualState.moveBit(keyOfBitToMove, localDirectionToPush, verticalDisplacement);
 	}
 
 	/**
-	 * Cut a bit and push it back.
+	 * Cut a bit and push it into the given local direction.
 	 * 
 	 * @param bitKey
+	 *            origin of the bit in coordinate system of this layer
 	 * @param actualState
-	 * @param localDirection
-	 *            in the coordinate system of bit
+	 *            the selected pattern
+	 * @param localDirectionToReduce
+	 *            in the coordinate system of bit. Should be either (0, 1), (0,
+	 *            -1), (1, 0), (-1, 0).
 	 * @param lengthToReduce
 	 *            in millimeter. If greater than sides, the bit will be removed.
-	 * @return new origin of reduced bit. Null if bit is removed.
+	 * @return origin of reduced bit. Null if bit is removed.
 	 */
-	private Vector2 reduceBit(Vector2 bitKey, Pattern actualState, Vector2 localDirection, double lengthToReduce) {
-		Bit2D bit = actualState.getBit(bitKey);
-		double actualLength = 0, percentageWidth = 100, percentageLength = 100;
-		if (localDirection.x == 0) {
-			actualLength = bit.getWidth();
-			percentageWidth = (1 - lengthToReduce / actualLength) * 100;
+	private Vector2 reduceBit(Vector2 bitKey, Pattern actualState, Vector2 localDirectionToReduce,
+			double lengthToReduce) {
+		Bit2D initialBit = actualState.getBit(bitKey);
+		double actualLength = 0, newPercentageWidth = 100, newPercentageLength = 100;
+		if (localDirectionToReduce.x == 0) {
+			actualLength = initialBit.getWidth();
+			newPercentageWidth = (1 - lengthToReduce / actualLength) * 100;
 		} else {
-			actualLength = bit.getLength();
-			percentageLength = (1 - lengthToReduce / actualLength) * 100;
+			actualLength = initialBit.getLength();
+			newPercentageLength = (1 - lengthToReduce / actualLength) * 100;
 		}
 		if (lengthToReduce >= actualLength) {
 			actualState.removeBit(bitKey);
 			return null;
 		} else {
-			bit.resize(percentageLength, percentageWidth);
-			return this.moveBit(actualState, bitKey, localDirection, lengthToReduce / 2);
+			initialBit.resize(newPercentageLength, newPercentageWidth);
+			// Check that if we should move the bit
+			if (localDirectionToReduce.x == 1 || localDirectionToReduce.y == -1) {
+				// If we push up or to the right
+				// we do not need to move further
+				// because the resize already did
+				return this.moveBit(actualState, bitKey, localDirectionToReduce, 0);
+			} else {
+				return this.moveBit(actualState, bitKey, localDirectionToReduce, lengthToReduce);
+			}
 		}
+	}
+
+	/**
+	 * Check if these 2 bits are adjacent in the reality
+	 * 
+	 * @param bit1
+	 * @param bit2
+	 *            the actual situation (to get the matrix of transformation)
+	 * @return
+	 */
+	private boolean checkAdjacence(Bit2D bit1, Bit2D bit2) {
+		// The orientation of 2 bits is always (1, 0).
+		Vector2 x = bit1.getOrientation().normal(), y = x.getCWAngularRotated(),
+				dist = bit2.getCenter().sub(bit1.getCenter());
+
+		double length1 = bit1.getLength(), width1 = bit1.getWidth(),
+				length2 = bit2.getLength(), width2 = bit2.getWidth();
+
+		// Firstly, we check if they do not overlap.
+		// Even if they have only one common point,
+		// (not on the border)
+		// we will consider it as overlapped.
+		// Horizontally && vertically
+		if (Math.abs(dist.dot(x)) < (length1 + length2) / 2 && Math.abs(dist.dot(y)) < (width1 + width2) / 2) {
+			return false;
+		}
+
+		// Secondly, we check if they are not too far
+		if (Math.abs(dist.dot(x)) < (length1 + length2) / 2 + CraftConfig.bitLength / 2
+				&& Math.abs(dist.dot(y)) < (width1 + width2) / 2) {
+			return true;
+		}
+		if (Math.abs(dist.dot(y)) < (width1 + width2) / 2 + CraftConfig.bitWidth / 2
+				&& Math.abs(dist.dot(x)) < (length1 + length2) / 2) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -369,33 +420,34 @@ public class PatternTemplate3 extends PatternTemplate {
 	 *            the first input bit (reference bit)
 	 * @param bit2
 	 *            the second input bit (bit to check)
-	 * @param direction
-	 *            in the coordinate system of layer
-	 * @return
+	 * @param localDirection
+	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0),
+	 *            (0, -1), (-1, 0)
+	 * @return true if 2 bits' sides have common length.
 	 */
-	private boolean checkInFront(Bit2D bit1, Bit2D bit2, Vector2 direction) {
+	private boolean checkInFront(Bit2D bit1, Bit2D bit2, Vector2 localDirection) {
+		// By default, these 2 bits have the same orientation
 		Vector2 orientation = bit1.getOrientation().normal();
-		direction = direction.normal(); // Normalize the vector of direction
+		// Normalize the vector of direction
+		localDirection = localDirection.normal();
 		// If the direction is not perpendicular
 		// or parallel to orientation of 2 bits
-		if (direction.dot(orientation) != 0 && direction.getCWAngularRotated().dot(orientation) != 0) {
+		if (localDirection.dot(orientation) != 0 && localDirection.dot(orientation.getCWAngularRotated()) != 0) {
 			return false;
 		}
-		Vector2 dist = bit2.getOrigin().sub(bit1.getOrigin());
-		double v1 = 0, v2 = 0;// Vertical measures
-		if (direction.dot(orientation) == 0) {
+		Vector2 dist = bit2.getCenter().sub(bit1.getCenter());
+		double h1 = 0, h2 = 0;// Horizontal measures
+		if (localDirection.dot(orientation) == 0) {
 			// If we check with length sides
-			v1 = bit1.getWidth();
-			v2 = bit2.getWidth();
+			h1 = bit1.getLength();
+			h2 = bit2.getLength();
 		} else {
 			// If we check with width sides
-			v1 = bit1.getLength();
-			v2 = bit2.getLength();
+			h1 = bit1.getWidth();
+			h2 = bit2.getWidth();
 		}
-		if (dist.dot(direction) > (v1 + v2) / 2) {
-			return true;
-		}
-		return false;
+		return (Math.abs(dist.dot(localDirection.getCWAngularRotated())) < (h1 + h2) / 2
+				&& dist.dot(localDirection) > 0);
 	}
 
 	/**
@@ -406,55 +458,32 @@ public class PatternTemplate3 extends PatternTemplate {
 	 * before this.
 	 * 
 	 * @param bit1
+	 *            the first input bit (reference bit)
 	 * @param bit2
-	 * @param direction
-	 * @return
+	 *            the second input bit (bit to check)
+	 * @param localDirection
+	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0),
+	 *            (0, -1), (-1, 0)
+	 * @return <tt>true</tt> if the second bit's center is in front of the first
+	 *         one's side
 	 */
-	private boolean checkPartiallyInFront(Bit2D bit1, Bit2D bit2, Vector2 direction) {
-		Vector2 orientation = bit1.getOrientation();
-		direction = direction.normal(); // Normalize the vector of direction
-		double h1 = 0;// Horizontal measures
-		Vector2 y = direction.getCWAngularRotated(), dist = bit2.getOrigin().sub(bit1.getOrigin());
+	private boolean checkEntirelyInFront(Bit2D bit1, Bit2D bit2, Vector2 localDirection) {
+		// By default, the orientation is (1, 0)
+		Vector2 orientation = bit1.getOrientation().normal();
+		// Normalize the vector of direction
+		localDirection = localDirection.normal();
+		// Horizontal measures
+		double h1 = 0;
+		Vector2 dist = bit2.getCenter().sub(bit1.getCenter());
 		// Direction must be orthogonal or parallel to orientation of bits.
-		if (direction.dot(orientation) == 0) {
+		if (localDirection.dot(orientation) == 0) {
 			// If we check with length sides
 			h1 = bit1.getLength();
 		} else {
 			// If we check with width sides
 			h1 = bit1.getWidth();
 		}
-		return (h1 / 2 < Math.abs(dist.dot(y)));
-	}
-
-	/**
-	 * Check if these 2 bits are adjacent in the reality
-	 * 
-	 * @param bit1
-	 * @param bit2
-	 *            the actual situation (to get the matrix of transformation)
-	 * @return
-	 */
-	private boolean checkAdjacence(Bit2D bit1, Bit2D bit2) {
-		Vector2 x = bit1.getOrientation().normal(), y = x.getCWAngularRotated(),
-				dist = bit2.getOrigin().sub(bit1.getOrigin());
-
-		double length1 = bit1.getLength(), length2 = bit1.getLength(), width1 = bit1.getWidth(),
-				width2 = bit2.getWidth();
-
-		// Firstly, we check if they do not overlap.
-		// Even if they have only one common point,
-		// we will consider it as overlapped.
-		// Horizontally && vertically
-		if (Math.abs(dist.dot(x)) <= (length1 + length2) / 2 && Math.abs(dist.dot(y)) <= (width1 + width2) / 2) {
-			return false;
-		}
-
-		// Secondly, we check if they are not too far
-		if (Math.abs(dist.dot(x)) > (length1 + length2) / 2 + CraftConfig.bitsWidthSpace
-				|| Math.abs(dist.dot(y)) > (width1 + width2) / 2 + CraftConfig.bitsLengthSpace) {
-			return false;
-		}
-		return true;
+		return (Math.abs(dist.dot(localDirection.getCWAngularRotated())) <= h1 / 2);
 	}
 
 	@Override

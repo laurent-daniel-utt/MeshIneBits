@@ -38,7 +38,7 @@ public class Optimizer implements Observer {
 	 * @param layers
 	 */
 	public Optimizer(Vector<Layer> layers) {
-		this.setLayers(layers);
+		this.layers = layers;
 		for (Layer layer : layers) {
 			layer.addObserver(this);
 		}
@@ -49,8 +49,14 @@ public class Optimizer implements Observer {
 	 * 
 	 */
 	public void automaticallyOptimizeGeneratedPart() {
-		for (Integer layerNum : irregularBits.keySet()) {
-			automaticallyOptimizeLayer(layers.get(layerNum.intValue()));
+		int[] layersHavingIrregularities = new int[irregularBits.keySet().size()];
+		int i = 0;
+		for (Integer integer : irregularBits.keySet()) {
+			layersHavingIrregularities[i] = integer.intValue();
+			i++;
+		}
+		for (int j = 0; j < layersHavingIrregularities.length; j++) {
+			automaticallyOptimizeLayer(layers.get(j));
 		}
 	}
 
@@ -90,29 +96,6 @@ public class Optimizer implements Observer {
 	 */
 	public HashMap<Integer, Vector<Vector2>> getIrregularBits() {
 		return irregularBits;
-	}
-
-	/**
-	 * @param irregularBits
-	 *            the irregularBits to set
-	 */
-	public void setIrregularBits(HashMap<Integer, Vector<Vector2>> irregularBits) {
-		this.irregularBits = irregularBits;
-	}
-
-	/**
-	 * @return the layers
-	 */
-	public Vector<Layer> getLayers() {
-		return layers;
-	}
-
-	/**
-	 * @param layers
-	 *            the layers to set
-	 */
-	public void setLayers(Vector<Layer> layers) {
-		this.layers = layers;
 	}
 
 	/**

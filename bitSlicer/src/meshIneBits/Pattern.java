@@ -17,28 +17,28 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 /**
- * Build by a {@link PatternTemplate}.
- * Contains a set of {@link Bit2D}.
+ * Build by a {@link PatternTemplate}. Contains a set of {@link Bit2D}.
  *
  */
 public class Pattern implements Cloneable {
 	private Vector2 rotation;
 	private double skirtRadius;
 	/**
-	 * The key is the origin of bit in coor-sys of pattern
+	 * The key is the origin of bit in coordinate system of global object.
 	 */
 	private Hashtable<Vector2, Bit2D> mapBits;
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 
-	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius, AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix) {
+	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius,
+			AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix) {
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
 		this.mapBits = mapBits;
 		this.transfoMatrix = transfoMatrix;
 		this.inverseTransfoMatrix = inverseTransfoMatrix;
 	}
-		
+
 	/**
 	 * 
 	 * @param bits
@@ -51,9 +51,13 @@ public class Pattern implements Cloneable {
 		this.rotation = rotation;
 		this.skirtRadius = skirtRadius;
 
-		transfoMatrix.rotate(rotation.x, rotation.y); // Each pattern can have a rotation, usually linked to the layer number
-		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x, Vector2.getEquivalentVector(CraftConfig.rotation).y); //Rotation of the whole patternTemplate
-		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset); //Translation of the whole patternTemplate
+		// Each pattern can have a rotation, usually linked to the layer number
+		transfoMatrix.rotate(rotation.x, rotation.y);
+		// Rotation of the whole patternTemplate
+		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x,
+				Vector2.getEquivalentVector(CraftConfig.rotation).y);
+		// Translation of the whole patternTemplate
+		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset);
 
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
@@ -69,12 +73,14 @@ public class Pattern implements Cloneable {
 	 * @return the key of inserted bit in this pattern
 	 */
 	public Vector2 addBit(Bit2D bit) {
-		//the key of each bit is its origin's coordinates in the general coo system
+		// the key of each bit is its origin's coordinates in the general coo
+		// system
 		Vector2 bitKey = bit.getOrigin().getTransformed(transfoMatrix);
-		//We check that there is not already a bit at this place
+		// We check that there is not already a bit at this place
 		for (Vector2 key : getBitsKeys()) {
 			if (bitKey.asGoodAsEqual(key)) {
-				Logger.warning("A bit already exists at these coordinates: " + key + ", it has been replaced by the new one.");
+				Logger.warning(
+						"A bit already exists at these coordinates: " + key + ", it has been replaced by the new one.");
 				removeBit(key);
 			}
 
@@ -95,14 +101,20 @@ public class Pattern implements Cloneable {
 	}
 
 	/**
-	 * Removes the {@link Bit2D} that are outside the boundaries of the {@link Slice} 
-	 * and cut at right shape the ones that are on the boundaries.
+	 * Removes the {@link Bit2D} that are outside the boundaries of the
+	 * {@link Slice} and cut at right shape the ones that are on the boundaries.
+	 * 
 	 * @param slice
 	 */
 	public void computeBits(Slice slice) {
 		Area sliceArea = AreaTool.getAreaFrom(slice);
 		sliceArea.transform(inverseTransfoMatrix);
-		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);//0.1f is the smaller stroke possible
+		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);// 0.1f
+																		// is
+																		// the
+																		// smaller
+																		// stroke
+																		// possible
 		Area cutLine = new Area(str);
 		Area cutLineClone;
 		Vector<Vector2> keys = new Vector<Vector2>(mapBits.keySet());
@@ -134,11 +146,15 @@ public class Pattern implements Cloneable {
 	}
 
 	/**
-	 * Move the chosen bit in the wanted direction.
-	 * Note: not exactly "moving", but rather "removing" then "adding" new one
-	 * @param key the key of the bit we want to move
-	 * @param direction in the local coordinate system of the bit
-	 * @param offsetValue the distance of displacement
+	 * Move the chosen bit in the wanted direction. Note: not exactly "moving",
+	 * but rather "removing" then "adding" new one
+	 * 
+	 * @param key
+	 *            the key of the bit we want to move
+	 * @param direction
+	 *            in the local coordinate system of the bit
+	 * @param offsetValue
+	 *            the distance of displacement
 	 * @return the key of the newly added bit
 	 */
 	public Vector2 moveBit(Vector2 key, Vector2 direction, double offsetValue) {
@@ -149,8 +165,9 @@ public class Pattern implements Cloneable {
 		rotateMatrix.rotate(direction.x, direction.y);
 		localDirection = localDirection.getTransformed(rotateMatrix);
 		localDirection = localDirection.normal();
-		Vector2 newCoordinates = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offsetValue), bitToMove.getOrigin().y + (localDirection.y * offsetValue));
-		return addBit(new Bit2D(newCoordinates, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
+		Vector2 newCenter = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offsetValue),
+				bitToMove.getOrigin().y + (localDirection.y * offsetValue));
+		return addBit(new Bit2D(newCenter, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
 	}
 
 	public void removeBit(Vector2 key) {
@@ -164,7 +181,7 @@ public class Pattern implements Cloneable {
 
 		for (Vector<Segment2D> polygon : edges) {
 			for (Segment2D edge : polygon) {
-				//System.out.println(edge);
+				// System.out.println(edge);
 				if (cutLineStroke.contains(edge.getMidPoint().x, edge.getMidPoint().y)) {
 					cutLine.add(edge);
 				}

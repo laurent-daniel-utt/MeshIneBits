@@ -190,4 +190,5 @@ public class ViewObservable extends Observable implements Observer {
 		setChanged();
 		notifyObservers();
 	}
+	
 }

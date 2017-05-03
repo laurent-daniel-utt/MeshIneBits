@@ -43,10 +43,16 @@ public class Layer extends Observable {
 	 * bit.
 	 * 
 	 * @param bit
+	 * @return the key of the newly inserted bit
 	 */
-	public void addBit(Bit2D bit) {
-		referentialPattern.addBit(bit);
+	public Vector2 addBit(Bit2D bit) {
+		Vector2 newKey = referentialPattern.addBit(bit);
 		rebuild();
+		if (this.getBit3D(newKey) == null){
+			return null;
+		} else {
+			return newKey;
+		}
 	}
 
 	private void buildPatterns() {
@@ -191,12 +197,13 @@ public class Layer extends Observable {
 	 * @param bit
 	 * @param percentageLength
 	 * @param percentageWidth
+	 * @return the key of the replaced bit
 	 */
-	public void replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
+	public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
 		Bit2D modelBit = bit.getBit2dToExtrude();
 		removeBit(bit.getOrigin());
 		Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
-		addBit(newBit);
+		return addBit(newBit);
 	}
 
 	/**
@@ -228,6 +235,10 @@ public class Layer extends Observable {
 	 */
 	public void setPatternTemplate(PatternTemplate patternTemplate) {
 		this.patternTemplate = patternTemplate;
+	}
+
+	public void setReferentialPattern(Pattern referentialPattern) {
+		this.referentialPattern = referentialPattern;
 	}
 
 }

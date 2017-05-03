@@ -657,9 +657,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 			JButton autoOptimizeLayerBtn = new ButtonIcon("Auto-optimize this layer", "cog.png");
 			JButton autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
 			autoOptimizeLayerBtn.setToolTipText(
-					"Trying to moving the irregular bits in this layer in order to have irregularities as least as possible");
+					"Trying to minimize the irregular bits in this layer. This does not guarantee all irregularities deleted.");
 			autoOptimizeGPartBtn.setToolTipText(
-					"Trying to moving the irregular bits in this generated part in order to have irregularities as least as possible");
+					"Trying to minimize the irregular bits in this generated part. This does not guarantee all irregularities deleted.");
 			autoOptimizeCont.add(autoOptimizeLayerBtn);
 			autoOptimizeCont.add(autoOptimizeGPartBtn);
 
@@ -764,6 +764,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					viewObservable.getCurrentPart().getOptimizer().automaticallyOptimizeGeneratedPart();
 				}
 			});
+			
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
@@ -778,7 +779,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			Bit3D bit = layer.getBit3D(vo.getSelectedBitKey());
 
-			layer.replaceBit(bit, percentageLength, percentageWidth);
+			vo.setSelectedBitKey(layer.replaceBit(bit, percentageLength, percentageWidth));
 		}
 	}
 
