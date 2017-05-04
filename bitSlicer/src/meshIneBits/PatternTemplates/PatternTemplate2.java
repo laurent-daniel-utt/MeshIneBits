@@ -52,17 +52,17 @@ public class PatternTemplate2 extends PatternTemplate {
 		return new Pattern(bits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
 	}
 	@Override
-	public void optimize(Layer realState) {
+	public int optimize(Layer realState) {
 		// TODO Auto-generated method stub
-		
+		return 0;
 	}
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction) {
+	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance) {
+	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -64,8 +64,7 @@ public class PatternTemplate3 extends PatternTemplate {
 		}
 
 		// Rotation for this layer
-		double alpha = CraftConfig.diffRotation;
-		Vector2 customizedRotation = Vector2.getEquivalentVector((alpha * layerNumber) % 360);
+		Vector2 customizedRotation = Vector2.getEquivalentVector((CraftConfig.diffRotation * layerNumber) % 360);
 		return new Pattern(bits, customizedRotation, skirtRadius);
 	}
 
@@ -95,7 +94,8 @@ public class PatternTemplate3 extends PatternTemplate {
 	}
 
 	@Override
-	public void optimize(Layer actualState) {
+	public int optimize(Layer actualState) {
+		Logger.updateStatus("Optimizing layer " + actualState.getLayerNumber());
 		// this boolean to check that if we'd tried all possibilities
 		boolean allFail = false;
 		while (!allFail) {
@@ -139,7 +139,9 @@ public class PatternTemplate3 extends PatternTemplate {
 				allFail = true;
 			}
 		}
-		Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized.");
+		int irregularitiesRest = DetectorTool.detectIrregularBits(actualState.getSelectedPattern()).size();
+		Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized. Still has " + irregularitiesRest + " irregularities not solved yet." );
+		return irregularitiesRest;
 	}
 
 	/**

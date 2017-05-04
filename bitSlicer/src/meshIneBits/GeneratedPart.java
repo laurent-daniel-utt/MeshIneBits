@@ -9,6 +9,7 @@ import meshIneBits.PatternTemplates.PatternTemplate;
 import meshIneBits.PatternTemplates.PatternTemplate1;
 import meshIneBits.PatternTemplates.PatternTemplate2;
 import meshIneBits.PatternTemplates.PatternTemplate3;
+import meshIneBits.PatternTemplates.PatternTemplate4;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
@@ -148,6 +149,8 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		case 3:
 			patternTemplate = new PatternTemplate3(skirtRadius);
 			break;
+		case 4:
+			patternTemplate = new PatternTemplate4(skirtRadius);
 		}
 	}
 
@@ -191,12 +194,4 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	public Optimizer getOptimizer() {
 		return optimizer;
 	}
-
-	/**
-	 * @param optimizer the optimizer to set
-	 */
-	public void setOptimizer(Optimizer optimizer) {
-		this.optimizer = optimizer;
-	}
-
 }

@@ -3,7 +3,6 @@ package meshIneBits.PatternTemplates;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.Config.CraftConfig;
-import meshIneBits.util.Optimizer;
 import meshIneBits.util.Vector2;
 
 public abstract class PatternTemplate {
@@ -38,12 +37,13 @@ public abstract class PatternTemplate {
 	public abstract Pattern createPattern(int layerNumber);
 
 	/**
-	 * To be called in auto-optimization. Or can be used to perform for a
-	 * specific slice of a layer
+	 * To be called in auto-optimization. Or can be used to perform on a
+	 * specific layer
 	 * 
 	 * @param realState
+	 * @return the number of bits not solved yet
 	 */
-	public abstract void optimize(Layer realState);
+	public abstract int optimize(Layer realState);
 
 	/**
 	 * @return the name
@@ -69,12 +69,12 @@ public abstract class PatternTemplate {
 	 * @param actualState
 	 *            the actual state of layer which is paved by this pattern
 	 *            template
-	 * @param keyOfBitToMove
-	 * @param direction
+	 * @param bitKey
+	 * @param localDirection
 	 *            the direction in the coordinate system of bit
 	 * @return the new origin of the moved bit
 	 */
-	public abstract Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction);
+	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection);
 
 	/**
 	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the
@@ -83,10 +83,10 @@ public abstract class PatternTemplate {
 	 * @return the new key of the moved bit
 	 * @see {@link #moveBit(Pattern, Vector2, Vector2)}
 	 * @param actualState
-	 * @param keyOfBitToMove
-	 * @param direction
+	 * @param bitKey
+	 * @param localDirection
 	 * @param distance
 	 * @return the new origin of the moved bit
 	 */
-	public abstract Vector2 moveBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 direction, double distance);
+	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 }

@@ -59,6 +59,7 @@ import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
 import meshIneBits.Config.Setting;
 import meshIneBits.util.Logger;
+import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
 
 public class Ribbon extends JTabbedPane implements Observer {
@@ -70,6 +71,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private JButton computeTemplateBtn;
 	private JLabel selectedSlice;
 	private JPopupMenu filePopup;
+	private JButton autoOptimizeLayerBtn;
+	private JButton autoOptimizeGPartBtn;
 	private HashMap<String, Setting> setupAnnotations = loadAnnotations();
 
 	public Ribbon() {
@@ -123,6 +126,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeSlicesBtn.setEnabled(false);
 			computeTemplateBtn.setEnabled(false);
 		}
+		// If a STL is loaded & sliced & layers generated, enable both button
+		// (to allow redo computation)
+		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isSliced()) {
+			computeSlicesBtn.setEnabled(true);
+			computeTemplateBtn.setEnabled(true);
+		}
 
 		// If a STL is loaded & sliced but layers not generated, enable the
 		// generate layers button
@@ -131,15 +140,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers()
 					.get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));
 			computeTemplateBtn.setEnabled(true);
+			// Add this to observe the optimizer
+			viewObservable.getCurrentPart().getOptimizer().addObserver(this);
 		}
 
-		// If a STL is loaded & sliced & layers generated, enable both button
-		// (to allow redo computation)
-		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isSliced()) {
-			computeSlicesBtn.setEnabled(true);
-			computeTemplateBtn.setEnabled(true);
+		
+		// If the auto-optimization is complete
+		if (o instanceof Optimizer){
+			autoOptimizeGPartBtn.setEnabled(true);
+			autoOptimizeLayerBtn.setEnabled(true);
 		}
-
 		revalidate();
 	}
 
@@ -554,6 +564,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		private static final long serialVersionUID = -6062849183461607573L;
 
+
 		public ReviewTab() {
 			super();
 
@@ -653,13 +664,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// For auto-optimizing
 			add(new TabContainerSeparator());
 			OptionsContainer autoOptimizeCont = new OptionsContainer("Auto-optimizing bits' distribution");
-			// TODO
-			JButton autoOptimizeLayerBtn = new ButtonIcon("Auto-optimize this layer", "cog.png");
-			JButton autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
+			autoOptimizeLayerBtn = new ButtonIcon("Auto-optimize this layer", "cog.png");
+			autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
 			autoOptimizeLayerBtn.setToolTipText(
-					"Trying to minimize the irregular bits in this layer. This does not guarantee all irregularities deleted.");
+					"Trying to minimize the irregular bits in this layer. This does not guarantee all irregularities eliminated.");
 			autoOptimizeGPartBtn.setToolTipText(
-					"Trying to minimize the irregular bits in this generated part. This does not guarantee all irregularities deleted.");
+					"Trying to minimize the irregular bits in this generated part. This does not guarantee all irregularities eliminated.");
 			autoOptimizeCont.add(autoOptimizeLayerBtn);
 			autoOptimizeCont.add(autoOptimizeGPartBtn);
 
@@ -751,6 +761,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					autoOptimizeLayerBtn.setEnabled(false);
+					autoOptimizeGPartBtn.setEnabled(false);
 					GeneratedPart currentPart = viewObservable.getCurrentPart();
 					Layer currentLayer = currentPart.getLayers().get(viewObservable.getCurrentLayerNumber());
 					currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
@@ -761,7 +773,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.getCurrentPart().getOptimizer().automaticallyOptimizeGeneratedPart();
+					autoOptimizeLayerBtn.setEnabled(false);
+					autoOptimizeGPartBtn.setEnabled(false);
+					GeneratedPart currentPart = viewObservable.getCurrentPart();
+					currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
 				}
 			});
 			
@@ -914,6 +929,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
 			JToggleButton pattern3Btn = new JToggleButton();
 			JToggleButton pattern2Btn = new JToggleButton();
+			JToggleButton pattern4Btn = new JToggleButton();
 //			if (CraftConfig.patternNumber == 3) {
 //				pattern3Btn.setSelected(true);
 //			} else {
@@ -921,6 +937,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 //			}
 			patternGallery.addButton(pattern3Btn, "p1.png");
 			patternGallery.addButton(pattern2Btn, "p2.png");
+			patternGallery.addButton(pattern4Btn, "p1.png");
 
 			// Template options
 			OptionsContainer patternCont = new OptionsContainer("Template options");
@@ -982,7 +999,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
-			/**
+			/*
 			 * TODO Should generalize for multiple options
 			 */
 			pattern3Btn.addActionListener(new ActionListener() {
@@ -998,6 +1015,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 					CraftConfig.patternNumber = 2;
 				}
 			});
+			
+			pattern4Btn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					CraftConfig.patternNumber = 4;
+				}
+			});
+			
 
 			computeTemplateBtn.addActionListener(new ActionListener() {
 				@Override

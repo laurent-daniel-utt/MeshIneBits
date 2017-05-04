@@ -8,6 +8,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
+import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 
@@ -17,7 +18,14 @@ import meshIneBits.Pattern;
  * @author NHATHAN
  * 
  */
-public class Optimizer implements Observer {
+public class Optimizer extends Observable implements Observer, Runnable {
+
+	private Thread threadForAutoOptimizingLayer = null;
+	private Thread threadForAutoOptimizingGeneratedPart = null;
+	/**
+	 * What we will try to solve. Either the generated part or the layer.
+	 */
+	private Object target;
 
 	/**
 	 * All the constructed layers
@@ -46,18 +54,27 @@ public class Optimizer implements Observer {
 
 	/**
 	 * Automatically optimize all whole generated part
+	 * @param generatedPart TODO
 	 * 
 	 */
-	public void automaticallyOptimizeGeneratedPart() {
-		int[] layersHavingIrregularities = new int[irregularBits.keySet().size()];
-		int i = 0;
-		for (Integer integer : irregularBits.keySet()) {
-			layersHavingIrregularities[i] = integer.intValue();
-			i++;
+	public void automaticallyOptimizeGeneratedPart(GeneratedPart generatedPart) {
+		if (threadForAutoOptimizingGeneratedPart == null
+				|| (threadForAutoOptimizingGeneratedPart != null & !threadForAutoOptimizingGeneratedPart.isAlive())) {
+			target = generatedPart;
+			threadForAutoOptimizingGeneratedPart = new Thread(this);
+			threadForAutoOptimizingGeneratedPart.start();
 		}
-		for (int j = 0; j < layersHavingIrregularities.length; j++) {
-			automaticallyOptimizeLayer(layers.get(j));
+	}
+
+	private void optimizeGeneratedPart() {
+		int progressGoal = layers.size();
+		int irregularitiesRest = 0;
+		Logger.updateStatus("Optimizing the generated part.");
+		for (int j = 0; j < layers.size(); j++) {
+			Logger.setProgress(j + 1, progressGoal);
+			irregularitiesRest += optimizeLayer(layers.get(j));
 		}
+		Logger.updateStatus("Auto-optimization complete. Still has " + irregularitiesRest + " not solved yet");
 	}
 
 	/**
@@ -66,7 +83,26 @@ public class Optimizer implements Observer {
 	 * @param layer
 	 */
 	public void automaticallyOptimizeLayer(Layer layer) {
-		layer.getPatternTemplate().optimize(layer);
+		if (threadForAutoOptimizingLayer == null
+				|| (threadForAutoOptimizingLayer != null & !threadForAutoOptimizingLayer.isAlive())) {
+			target = layer;
+			threadForAutoOptimizingLayer = new Thread(this);
+			threadForAutoOptimizingLayer.start();
+		}
+	}
+
+	/**
+	 * Automatically optimize the given layer
+	 * 
+	 * @param layer
+	 * @return the number of irregularities not solved yet
+	 */
+	private int optimizeLayer(Layer layer) {
+		int irregularitiesRest = layer.getPatternTemplate().optimize(layer);
+		if (irregularitiesRest < 0){
+			Logger.updateStatus("Auto-optimization for layer " + layer.getLayerNumber() + " failed.");
+		}
+		return irregularitiesRest;
 	}
 
 	/**
@@ -112,6 +148,19 @@ public class Optimizer implements Observer {
 			this.irregularBits.remove(layer.getLayerNumber());
 			this.irregularBits.put(layer.getLayerNumber(),
 					DetectorTool.detectIrregularBits(layer.getSelectedPattern()));
+		}
+	}
+
+	@Override
+	public void run() {
+		if (target != null){
+			if (target instanceof Layer){
+				optimizeLayer((Layer) target);
+			} else if (target instanceof GeneratedPart){
+				optimizeGeneratedPart();
+			}
+			setChanged();
+			notifyObservers();
 		}
 	}
 }
