@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -452,17 +453,40 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private class GalleryContainer extends OptionsContainer {
 
 		private static final long serialVersionUID = 5081506030712556983L;
+		
+		private Vector<JToggleButton> templateButtons = new Vector<JToggleButton>();
 
 		public GalleryContainer(String title) {
 			super(title);
 			this.setLayout(new GridLayout(1, 2, 3, 3));
 		}
 
-		public void addButton(JToggleButton btn, String iconName) {
+		public void addButton(JToggleButton btn, String iconName, int patternTemplateNum) {
 			Icon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName));
 			btn.setIcon(icon);
 			btn.setPreferredSize(new Dimension(60, 60));
 			this.add(btn);
+			this.templateButtons.add(btn);
+			btn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Clear all the old choices
+					clearOldChoices();
+					// Set the new choice
+					btn.setSelected(true);
+					CraftConfig.patternNumber = patternTemplateNum;
+				}
+			});
+		}
+		
+		/**
+		 * Clear all old choices. For a clearer view.
+		 */
+		public void clearOldChoices(){
+			for (JToggleButton tmplBtn : templateButtons) {
+				tmplBtn.setSelected(false);
+			}
 		}
 	}
 
@@ -927,17 +951,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Pattern choice
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
-			JToggleButton pattern3Btn = new JToggleButton();
-			JToggleButton pattern2Btn = new JToggleButton();
-			JToggleButton pattern4Btn = new JToggleButton();
-//			if (CraftConfig.patternNumber == 3) {
-//				pattern3Btn.setSelected(true);
-//			} else {
-//				pattern2Btn.setSelected(true);
-//			}
-			patternGallery.addButton(pattern3Btn, "p1.png");
-			patternGallery.addButton(pattern2Btn, "p2.png");
-			patternGallery.addButton(pattern4Btn, "p1.png");
+//			JToggleButton pattern3Btn = new JToggleButton();
+//			JToggleButton pattern2Btn = new JToggleButton();
+//			JToggleButton pattern4Btn = new JToggleButton();
+			patternGallery.addButton(new JToggleButton(), "p1.png", 3);
+			patternGallery.addButton(new JToggleButton(), "p2.png", 2);
+			patternGallery.addButton(new JToggleButton(), "p1.png", 4);
 
 			// Template options
 			OptionsContainer patternCont = new OptionsContainer("Template options");
@@ -999,30 +1018,27 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
-			/*
-			 * TODO Should generalize for multiple options
-			 */
-			pattern3Btn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					CraftConfig.patternNumber = 3;
-				}
-			});
-
-			pattern2Btn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					CraftConfig.patternNumber = 2;
-				}
-			});
-			
-			pattern4Btn.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					CraftConfig.patternNumber = 4;
-				}
-			});
+//			pattern3Btn.addActionListener(new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					CraftConfig.patternNumber = 3;
+//				}
+//			});
+//
+//			pattern2Btn.addActionListener(new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					CraftConfig.patternNumber = 2;
+//				}
+//			});
+//			
+//			pattern4Btn.addActionListener(new ActionListener() {
+//				
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					CraftConfig.patternNumber = 4;
+//				}
+//			});
 			
 
 			computeTemplateBtn.addActionListener(new ActionListener() {

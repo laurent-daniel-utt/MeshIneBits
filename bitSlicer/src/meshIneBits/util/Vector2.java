@@ -42,6 +42,7 @@ public class Vector2 {
 
 	/**
 	 * Accelerating the comparison
+	 * 
 	 * @param v
 	 * @return
 	 */
@@ -189,6 +190,13 @@ public class Vector2 {
 	}
 
 	/**
+	 * @return a new vector with x and y rounded following {@link CraftConfig#errorAccepted}
+	 */
+	public Vector2 getRounded() {
+		return new Vector2(Rounder.round(x, CraftConfig.errorAccepted), Rounder.round(y, CraftConfig.errorAccepted));
+	}
+
+	/**
 	 * Special tools for vectors.
 	 * 
 	 * @author NHATHAN
@@ -233,10 +241,10 @@ public class Vector2 {
 				return Math.abs(n.dot(point.sub(line.start))) / nLength;
 			}
 		}
-		
+
 		/**
-		 * Find the vector whose origin is point p, moving perpendicularly away from
-		 * (origin, v) and length is 1
+		 * Find the vector whose origin is point p, moving perpendicularly away
+		 * from (origin, v) and length is 1
 		 * 
 		 * @param o
 		 *            origin of departure of v
@@ -244,7 +252,8 @@ public class Vector2 {
 		 *            vector of direction departing from origin
 		 * @param p
 		 *            point of depart
-		 * @return null if p is on the line passing by o with v as directing vector
+		 * @return null if p is on the line passing by o with v as directing
+		 *         vector
 		 */
 		public static Vector2 getCentrifugalVector(Vector2 o, Vector2 v, Vector2 p) {
 			Vector2 v2 = v.getCWAngularRotated();
@@ -262,5 +271,5 @@ public class Vector2 {
 			}
 		}
 	}
-	
+
 }

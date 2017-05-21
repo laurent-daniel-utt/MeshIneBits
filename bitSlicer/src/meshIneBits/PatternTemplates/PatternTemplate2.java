@@ -52,7 +52,7 @@ public class PatternTemplate2 extends PatternTemplate {
 		return new Pattern(bits, new Vector2(1,0), skirtRadius); //every pattern have no rotation in that template
 	}
 	@Override
-	public int optimize(Layer realState) {
+	public int optimize(Layer actualState) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

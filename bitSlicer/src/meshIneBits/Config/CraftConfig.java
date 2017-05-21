@@ -148,8 +148,29 @@ public class CraftConfig
 	@Setting()
 	public static String lastSlicedFile = "";	
 	
-	@Setting(title = "Acceptable error in calculating",
+	@Setting(title = "Acceptable error",
 			description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation")
 	public static int errorAccepted = 5;
+	
+	/**
+	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
+	 */
+	@Setting(title = "Limit for optimising 1st line's height",
+			description = "The maximum number of essays to change 1st line's height by dichotomic algorithm")
+	public static int limitForCalculatingHeightOffsets = 3;
+	
+	/**
+	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
+	 */
+	@Setting(title = "Limit for optimising layer rotation",
+			description = "The maximum number of essays to change the rotation of layer by dichotomic algorithm")
+	public static int limitForChangingDiffLayerRotation = 2;
+	
+	/**
+	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
+	 */
+	@Setting(title = "Limit for optimising 1st bit's length",
+			description = "The maximum number of essays to change the 1st bit's length per line by dichotomic algorithm")
+	public static int litmitForCalculatingLengthOffsets = 2;
 	
 }

@@ -40,10 +40,10 @@ public abstract class PatternTemplate {
 	 * To be called in auto-optimization. Or can be used to perform on a
 	 * specific layer
 	 * 
-	 * @param realState
+	 * @param actualState
 	 * @return the number of bits not solved yet
 	 */
-	public abstract int optimize(Layer realState);
+	public abstract int optimize(Layer actualState);
 
 	/**
 	 * @return the name

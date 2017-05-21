@@ -109,12 +109,8 @@ public class Pattern implements Cloneable {
 	public void computeBits(Slice slice) {
 		Area sliceArea = AreaTool.getAreaFrom(slice);
 		sliceArea.transform(inverseTransfoMatrix);
-		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);// 0.1f
-																		// is
-																		// the
-																		// smaller
-																		// stroke
-																		// possible
+		// 0.1f is the smaller stroke possible
+		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);
 		Area cutLine = new Area(str);
 		Area cutLineClone;
 		Vector<Vector2> keys = new Vector<Vector2>(mapBits.keySet());

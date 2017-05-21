@@ -47,7 +47,7 @@ public class PatternTemplate1 extends PatternTemplate {
 
 
 	@Override
-	public int optimize(Layer realState) {
+	public int optimize(Layer actualState) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

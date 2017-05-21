@@ -101,6 +101,8 @@ public class Optimizer extends Observable implements Observer, Runnable {
 		int irregularitiesRest = layer.getPatternTemplate().optimize(layer);
 		if (irregularitiesRest < 0){
 			Logger.updateStatus("Auto-optimization for layer " + layer.getLayerNumber() + " failed.");
+		} else {
+			Logger.updateStatus("Auto-optimization for layer " + layer.getLayerNumber() + " done. Unsolved bits :" + irregularitiesRest);
 		}
 		return irregularitiesRest;
 	}
