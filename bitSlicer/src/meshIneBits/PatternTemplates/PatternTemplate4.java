@@ -19,6 +19,12 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 /**
+ * A pattern which tries optimization not by displacing paved bits but rather
+ * right from the phase of paving. Therefore, it requires auto-optimization task
+ * to complete. Note that this pattern does not always return a result because
+ * once it can not fill a separated zone of the generated part, that whole layer
+ * will end up failed.
+ * 
  * @author NHATHAN
  *
  */
@@ -145,8 +151,7 @@ public class PatternTemplate4 extends PatternTemplate {
 		}
 		// Recreate the referential pattern for this layer
 		if (overallPavement != null) {
-			actualState.setReferentialPattern(
-					new Pattern(overallPavement, new Vector2(1, 0), skirtRadius));
+			actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0), skirtRadius));
 			layersRotations.set(actualState.getLayerNumber(), thisLayerRotation);
 			actualState.rebuild();
 			return 0;
@@ -447,27 +452,22 @@ public class PatternTemplate4 extends PatternTemplate {
 	}
 
 	private double[] getTrialRotations(int layerNum) {
-		double[] x = { 90, // 1st level
-				45, 135, // 2nd level
-				30, 60, 120, 150, // 3rd level
-		}, x2 = { 0, // 0 level
-				90, // 1st level
-				45, 135, // 2nd level
-				30, 60, 120, 150, // 3rd level
-		};
-		if (layerNum == 0) {
-			return x2;
-		} else {
-			if (layersRotations.get(layerNum - 1) == null) {
-				return x2;
+		double[] x = CraftConfig.diffAngleForTryingOptimising;
+		double[] x3 = null;
+		if (layerNum == 0 || layersRotations.get(layerNum - 1) == null) {
+			x3 = new double[x.length + 1];
+			x3[0] = 0;
+			for (int i = 0; i < x.length; i++) {
+				x3[i + 1] = x[i];
 			}
-			double[] x3 = new double[x.length];
+		} else {
 			double previousRotation = layersRotations.get(layerNum - 1);
+			x3 = new double[x.length];
 			for (int i = 0; i < x.length; i++) {
 				x3[i] = previousRotation + x[i];
 			}
-			return x3;
 		}
+		return x3;
 	}
 
 	private Vector<Bit2D> transform(Vector<Bit2D> bits, AffineTransform conservativeTransformation) {

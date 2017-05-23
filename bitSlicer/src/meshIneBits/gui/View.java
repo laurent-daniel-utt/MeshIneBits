@@ -201,6 +201,15 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 
 				Layer layer = viewObservable.getCurrentPart().getLayers().get(viewObservable.getCurrentLayerNumber());
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
+				
+				// Look if we hit a bit control (arrows)
+				for (int i = 0; i < bitControls.size(); i++) {
+					if (bitControls.get(i).contains(oldX, oldY)) {
+						clickOnBitControl(i);
+						bitControls.clear();
+						return;
+					}
+				}
 
 				// Look for a bit which contains the clicked spot
 				for (Vector2 bitKey : bitKeys) {
@@ -227,14 +236,6 @@ public class View extends JPanel implements MouseMotionListener, MouseListener, 
 					}
 				}
 
-				// Look if we hit a bit control (arrows)
-				for (int i = 0; i < bitControls.size(); i++) {
-					if (bitControls.get(i).contains(oldX, oldY)) {
-						clickOnBitControl(i);
-						bitControls.clear();
-						return;
-					}
-				}
 			}
 		}
 	}

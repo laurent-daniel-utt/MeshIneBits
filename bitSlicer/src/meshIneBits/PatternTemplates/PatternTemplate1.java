@@ -6,8 +6,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.Config.CraftConfig;
-import meshIneBits.PatternTemplates.PatternTemplate;
-import meshIneBits.util.Optimizer;
 import meshIneBits.util.Vector2;
 
 /*

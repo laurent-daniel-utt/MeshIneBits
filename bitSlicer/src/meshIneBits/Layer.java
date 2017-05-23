@@ -48,7 +48,7 @@ public class Layer extends Observable {
 	public Vector2 addBit(Bit2D bit) {
 		Vector2 newKey = referentialPattern.addBit(bit);
 		rebuild();
-		if (this.getBit3D(newKey) == null){
+		if (this.getBit3D(newKey) == null) {
 			return null;
 		} else {
 			return newKey;
@@ -146,11 +146,11 @@ public class Layer extends Observable {
 	public Pattern getSelectedPattern() {
 		return this.patterns.get(sliceToSelect);
 	}
-	
+
 	/**
 	 * @return the slice corresponding to the selected pattern
 	 */
-	public Slice getSelectedSlice(){
+	public Slice getSelectedSlice() {
 		return this.slices.elementAt(sliceToSelect);
 	}
 
@@ -197,13 +197,18 @@ public class Layer extends Observable {
 	 * @param bit
 	 * @param percentageLength
 	 * @param percentageWidth
-	 * @return the key of the replaced bit
+	 * @return the key of the replaced bit. If <tt>percentageLength</tt> or
+	 *         <tt>percentageWidth</tt> is 0, the bit will be removed instead.
 	 */
 	public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
 		Bit2D modelBit = bit.getBit2dToExtrude();
 		removeBit(bit.getOrigin());
-		Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
-		return addBit(newBit);
+		if (percentageLength != 0 && percentageWidth != 0) {
+			Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
+			return addBit(newBit);
+		} else {
+			return null;
+		}
 	}
 
 	/**

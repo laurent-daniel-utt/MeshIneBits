@@ -678,9 +678,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 			OptionsContainer modifCont = new OptionsContainer("Replace bit");
 			JButton replaceBitBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
 			JButton replaceBitBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
+			JButton replaceBitBtn3 = new ButtonIcon("", "cut-quart.png", true, 80, 25);
+			JButton deleteBitBtn = new ButtonIcon("", "delete-bit.png", true, 80, 25);
 			JButton replaceByFullBitBtn = new ButtonIcon("", "full-bit.png", true, 80, 25);
 			modifCont.add(replaceBitBtn1);
 			modifCont.add(replaceBitBtn2);
+			modifCont.add(replaceBitBtn3);
+			modifCont.add(deleteBitBtn);
 			modifCont.add(replaceByFullBitBtn);
 
 			add(modifCont);
@@ -772,6 +776,21 @@ public class Ribbon extends JTabbedPane implements Observer {
 					replaceSelectedBit(50, 100);
 				}
 			});
+			
+			replaceBitBtn3.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					replaceSelectedBit(50, 50);
+				}
+			});
+			
+			deleteBitBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					replaceSelectedBit(0, 0);
+				}
+			});
+			
 
 			replaceByFullBitBtn.addActionListener(new ActionListener() {
 				@Override
@@ -951,15 +970,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Pattern choice
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
-//			JToggleButton pattern3Btn = new JToggleButton();
-//			JToggleButton pattern2Btn = new JToggleButton();
-//			JToggleButton pattern4Btn = new JToggleButton();
 			patternGallery.addButton(new JToggleButton(), "p1.png", 3);
 			patternGallery.addButton(new JToggleButton(), "p2.png", 2);
-			patternGallery.addButton(new JToggleButton(), "p1.png", 4);
+			patternGallery.addButton(new JToggleButton(), "p4.png", 4);
 
 			// Template options
-			OptionsContainer patternCont = new OptionsContainer("Template options");
+			OptionsContainer patternParameters = new OptionsContainer("Template parameters");
 			LabeledSpinner rotationSpinner = new LabeledSpinner(setupAnnotations.get("rotation"));
 			LabeledSpinner xOffsetSpinner = new LabeledSpinner(setupAnnotations.get("xOffset"));
 			LabeledSpinner yOffsetSpinner = new LabeledSpinner(setupAnnotations.get("yOffset"));
@@ -970,15 +986,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffxOffset"));
 			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffyOffset"));
 
-			patternCont.add(rotationSpinner);
-			patternCont.add(diffRotationSpinner);
-			patternCont.add(xOffsetSpinner);
-			patternCont.add(yOffsetSpinner);
-			patternCont.add(diffxOffsetSpinner);
-			patternCont.add(diffyOffsetSpinner);
-			patternCont.add(layersOffsetSpinner);
-			patternCont.add(bitsWidthSpaceSpinner);
-			patternCont.add(bitsLengthSpaceSpinner);
+			patternParameters.add(rotationSpinner);
+			patternParameters.add(diffRotationSpinner);
+			patternParameters.add(xOffsetSpinner);
+			patternParameters.add(yOffsetSpinner);
+			patternParameters.add(diffxOffsetSpinner);
+			patternParameters.add(diffyOffsetSpinner);
+			patternParameters.add(layersOffsetSpinner);
+			patternParameters.add(bitsWidthSpaceSpinner);
+			patternParameters.add(bitsLengthSpaceSpinner);
 
 			// Computing options
 			OptionsContainer computeCont = new OptionsContainer("Compute");
@@ -998,7 +1014,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 			add(patternGallery);
 			add(new TabContainerSeparator());
-			add(patternCont);
+			add(patternParameters);
 			add(new TabContainerSeparator());
 			add(computeCont);
 
@@ -1017,29 +1033,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
-
-//			pattern3Btn.addActionListener(new ActionListener() {
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					CraftConfig.patternNumber = 3;
-//				}
-//			});
-//
-//			pattern2Btn.addActionListener(new ActionListener() {
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					CraftConfig.patternNumber = 2;
-//				}
-//			});
-//			
-//			pattern4Btn.addActionListener(new ActionListener() {
-//				
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					CraftConfig.patternNumber = 4;
-//				}
-//			});
-			
 
 			computeTemplateBtn.addActionListener(new ActionListener() {
 				@Override

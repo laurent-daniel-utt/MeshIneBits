@@ -57,7 +57,7 @@ public class CraftConfig
 	
 	@Setting(title = "Pattern number",
 			description = "Pattern template you want to apply",
-			minValue = 1, maxValue = 3
+			minValue = 1, maxValue = 4
 			)
 	public static int patternNumber = 2;
 	
@@ -162,15 +162,18 @@ public class CraftConfig
 	/**
 	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
 	 */
-	@Setting(title = "Limit for optimising layer rotation",
-			description = "The maximum number of essays to change the rotation of layer by dichotomic algorithm")
-	public static int limitForChangingDiffLayerRotation = 2;
-	
-	/**
-	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
-	 */
 	@Setting(title = "Limit for optimising 1st bit's length",
 			description = "The maximum number of essays to change the 1st bit's length per line by dichotomic algorithm")
 	public static int litmitForCalculatingLengthOffsets = 2;
 	
+	/**
+	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}
+	 */
+	@Setting(title = "Differential angle for trying optimizing",
+			description = "The trial angles (in °) to rotate a layer in comparision with the previous one")
+	public static double[] diffAngleForTryingOptimising = {
+			90, // 1st level
+			45, 135, // 2nd level
+			30, 60, 120, 150, // 3rd level
+	};
 }
