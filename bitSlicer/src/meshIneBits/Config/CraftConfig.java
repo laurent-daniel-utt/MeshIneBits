@@ -164,7 +164,7 @@ public class CraftConfig
 	 */
 	@Setting(title = "Limit for optimising 1st bit's length",
 			description = "The maximum number of essays to change the 1st bit's length per line by dichotomic algorithm")
-	public static int litmitForCalculatingLengthOffsets = 2;
+	public static int litmitForCalculatingLengthOffsets = 3;
 	
 	/**
 	 * Only in {@link meshIneBits.PatternTemplates.PatternTemplate4}

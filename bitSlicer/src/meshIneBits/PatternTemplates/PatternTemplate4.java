@@ -170,106 +170,90 @@ public class PatternTemplate4 extends PatternTemplate {
 	 * @return bits to be placed
 	 */
 	private Vector<Bit2D> fillZone(Area zone) {
-		Vector<Bit2D> zonePavement = new Vector<Bit2D>(), lastBand = null, thisBand = null;
+		Vector<Bit2D> zonePavement = new Vector<Bit2D>();
 		// The rectangle enclosing the area
 		Rectangle2D.Double zoneOuterRect = (Double) zone.getBounds2D();
-		// Initial parameters
-		Area unpavedZone = (Area) zone.clone();
-		Area lastState = null;
-		double thisBandHeight = CraftConfig.bitWidth;
-		int idx = 0;
-		// Starting to pave band by band
-		while (!unpavedZone.isEmpty()) {
-			lastState = (Area) unpavedZone.clone();
-			Rectangle2D.Double unpavedZoneRect = (Double) unpavedZone.getBounds2D();
-			// Creating a buffering rectangle
-			// which will contain a portion of the given area
-			// in which we will place the bits
-			Rectangle2D.Double unpavedBandRect = new Rectangle2D.Double(unpavedZoneRect.x, unpavedZoneRect.y,
-					unpavedZoneRect.width, thisBandHeight);
-			if (zonePavement.isEmpty()) {
-				// If this is the first band,
-				// we will push it back a little bit
-				unpavedBandRect.y -= trialHeightOffsets[idx];
-			}
-			Area unpavedBand = new Area(unpavedBandRect);
-			// Intersecting this band with the initial area
-			// gives us real surface in which we will fill bits
-			unpavedBand.intersect(zone);
-			// Starting to fill bit by bit
-			thisBand = this.fillBand(unpavedBand, thisBandHeight);
-			// Check out the result
-			if (thisBand == null) {
-				// It means we failed at this band
-				if (lastBand == null) {
-					// It means we failed to fill this zone
-					// (either we are in the first band
-					// or we were trying to rebuild a band)
-					// We need to change the height of first line
-					// and reset all
-					if (idx < trialHeightOffsets.length) {
-						idx++;
-						zonePavement.clear();
-						unpavedZone = (Area) zone.clone();
-						thisBandHeight = CraftConfig.bitWidth;
+		for (int idx = 0; idx < trialHeightOffsets.length; idx++) {
+			// Initial parameters
+			Area unpavedZone = (Area) zone.clone();
+			Area lastState = null;
+			Vector<Bit2D> lastBand = null, thisBand = null;
+			double thisBandHeight = CraftConfig.bitWidth;
+			// Starting to pave line by line
+			while (!unpavedZone.isEmpty()) {
+				lastState = (Area) unpavedZone.clone();
+				Rectangle2D.Double unpavedZoneRect = (Double) unpavedZone.getBounds2D();
+				// Creating a buffering rectangle
+				// which will contain a portion of the given area
+				// in which we will place the bits
+				Rectangle2D.Double unpavedBandRect = new Rectangle2D.Double(unpavedZoneRect.x, unpavedZoneRect.y,
+						unpavedZoneRect.width, thisBandHeight);
+				if (zonePavement.isEmpty()) {
+					// If this is the first band,
+					// we will push it back a little bit
+					unpavedBandRect.y -= trialHeightOffsets[idx];
+				}
+				Area unpavedBand = new Area(unpavedBandRect);
+				// Intersecting this band with the initial area
+				// gives us real surface in which we will fill bits
+				unpavedBand.intersect(zone);
+				// Starting to fill bit by bit
+				thisBand = this.fillBand(unpavedBand, thisBandHeight);
+				// Check out the result
+				if (thisBand == null) {
+					// It means we failed at this band
+					if (lastBand == null) {
+						// It means we failed to fill this zone
+						// (either we are in the first band
+						// or we were trying to rebuild a band)
+						// We need to change the height of first line
+						break;
 					} else {
-						// If no more number to try
-						return null;
+						if (lastBand.lastElement().getWidth() == CraftConfig.bitWidth) {
+							// If the previous band has not been cut in half
+							// we will rebuild it with half of its height
+							// First, we need to recover the space
+							// covered by last step
+							Rectangle2D.Double lastlyPavedSpaceRect = new Rectangle2D.Double(zoneOuterRect.x,
+									unpavedZoneRect.y - CraftConfig.bitsLengthSpace - CraftConfig.bitWidth,
+									zoneOuterRect.width, CraftConfig.bitsLengthSpace + CraftConfig.bitWidth);
+							Area lastlyPavedSpace = new Area(lastlyPavedSpaceRect);
+							lastlyPavedSpace.intersect(zone);
+							// Then add to the unpaved zone
+							unpavedZone.add(lastlyPavedSpace);
+							// Assuming new height to build
+							thisBandHeight = CraftConfig.bitWidth / 2;
+							// Remove the old bits from zonePavement
+							for (Bit2D bit : lastBand) {
+								zonePavement.remove(bit);
+							}
+							// Delete the memory
+							lastBand = null;
+						} else {
+							// Although the last line has been rebuilt
+							// with half height
+							// we still can not find a solution for this line
+							// We need to change the height of first line
+							break;
+						}
 					}
 				} else {
-					if (lastBand.lastElement().getWidth() == CraftConfig.bitWidth) {
-						// If the previous band has not been cut in half
-						// we will rebuild it with half of its height
-						// First, we need to recover the space
-						// covered by last step
-						Rectangle2D.Double lastlyPavedSpaceRect = new Rectangle2D.Double(zoneOuterRect.x,
-								unpavedZoneRect.y - CraftConfig.bitsLengthSpace - CraftConfig.bitWidth,
-								zoneOuterRect.width, CraftConfig.bitsLengthSpace + CraftConfig.bitWidth);
-						Area lastlyPavedSpace = new Area(lastlyPavedSpaceRect);
-						lastlyPavedSpace.intersect(zone);
-						// Then add to the unpaved zone
-						unpavedZone.add(lastlyPavedSpace);
-						// Assuming new height to build
-						thisBandHeight = CraftConfig.bitWidth / 2;
-						// Remove the old bits from zonePavement
-						for (Bit2D bit : lastBand) {
-							zonePavement.remove(bit);
-						}
-						// Delete the memory
-						lastBand = null;
-					} else {
-						// Although the last line has been rebuilt
-						// with half height
-						// we still can not find a solution for this line
-						// We need to change the height of first line
-						// and reset all
-						if (idx < trialHeightOffsets.length) {
-							idx++;
-							zonePavement.clear();
-							unpavedZone = (Area) zone.clone();
-							thisBandHeight = CraftConfig.bitWidth;
-						} else {
-							// If no more number to try
-							return null;
-						}
-					}
+					// This line has been filled successfully
+					// Let's save this line for later use
+					lastBand = thisBand;
+					// Reduce the unpaved space
+					Rectangle2D.Double pavedZoneRect = new Rectangle2D.Double(zoneOuterRect.x, unpavedZoneRect.y,
+							zoneOuterRect.width, thisBandHeight + CraftConfig.bitsLengthSpace);
+					unpavedZone.subtract(new Area(pavedZoneRect));
+					// Assuming the height of the next line
+					thisBandHeight = CraftConfig.bitWidth;
+					// Collecting the result
+					zonePavement.addAll(thisBand);
 				}
-			} else {
-				// This line has been filled successfully
-				// Let's save this line for later use
-				lastBand = thisBand;
-				// Reduce the unpaved space
-				Rectangle2D.Double pavedZoneRect = new Rectangle2D.Double(zoneOuterRect.x, unpavedZoneRect.y,
-						zoneOuterRect.width, thisBandHeight + CraftConfig.bitsLengthSpace);
-				unpavedZone.subtract(new Area(pavedZoneRect));
-				// Assuming the height of the next line
-				thisBandHeight = CraftConfig.bitWidth;
-				// Collecting the result
-				zonePavement.addAll(thisBand);
+				// Preventing infinite loop
+				if (unpavedZone.equals(lastState))
+					return null;
 			}
-			// Preventing infinite loop
-			if (unpavedZone.equals(lastState))
-				return null;
 		}
 		return zonePavement;
 	}
@@ -287,108 +271,90 @@ public class PatternTemplate4 extends PatternTemplate {
 	 */
 	private Vector<Bit2D> fillBand(Area band, double bandHeight) {
 		Vector<Bit2D> bandPavement = new Vector<Bit2D>();
-		// This index is to mark the offset
-		int idx = 0;
-		// Save of the rest area
-		Area unpavedSpace = (Area) band.clone();
-		// Initial parameters
-		Rectangle2D.Double bandOuterRect = (Double) band.getBounds2D();
-		double originY = bandOuterRect.y + CraftConfig.bitWidth / 2, thisBitLength = CraftConfig.bitLength;
-		// Commencement
-		while (!unpavedSpace.isEmpty()) {
-			// Get the boundary
-			Rectangle2D.Double unpavedSpaceRect = (Double) unpavedSpace.getBounds2D();
-			// Creating a new bit
-			// Attention to the case of rebuilding a bit
-			// with half of its normal length
-			Vector2 origin = new Vector2(unpavedSpaceRect.x + thisBitLength - CraftConfig.bitLength / 2, originY);
-			if (bandPavement.isEmpty()) {
-				// If this is the first bit
-				// we will push it backward a little bit
-				origin.sub(new Vector2(trialLengthOffsets[idx], 0));
-			}
-			Bit2D newBit = new Bit2D(origin, new Vector2(1, 0), thisBitLength, bandHeight);
-			// Update the area of the bit
-			Area newBitArea = newBit.getArea();
-			newBitArea.intersect(unpavedSpace);
-			if (newBitArea.isEmpty()) {
-				// If no space left,
-				// we complete the fill
-				//
-				// In fact, this if is to prevent NullPointerException
-				break;
-			}
-			newBit.updateBoundaries(newBitArea);
-			// Check if the new bit have a lift point
-			// in the unpaved space before the fill
-			if (newBit.computeLiftPoint() != null) {
-				// If yes, we retrieve it
-				bandPavement.add(newBit);
-				// Decrease the unpaved space
-				Rectangle2D.Double pavedSpaceRect = new Rectangle2D.Double(unpavedSpaceRect.x, bandOuterRect.y,
-						thisBitLength + CraftConfig.bitsWidthSpace, bandHeight);
-				unpavedSpace.subtract(new Area(pavedSpaceRect));
-				// Assuming the next bit will have full length
-				thisBitLength = CraftConfig.bitLength;
-			} else {
-				// If no, it means we failed
-				if (thisBitLength == CraftConfig.bitLength) {
-					// We were building a new full-length bit
-					// So we will retry by rebuilding the last bit
-					// with half of its length
-					if (bandPavement.isEmpty()) {
-						// But if we have no previous bit
-						// Changing the length of the first bit
-						// has no meaning
-						return null;
-					} else {
-						Bit2D lastBit = bandPavement.lastElement();
-						if (lastBit.getLength() == CraftConfig.bitLength / 2) {
-							// If we had rebuilt the last bit
-							// and retried this bit but ended up failure
-							// That means we fail
-							//
-							// We should change the offset
-							// and reset all
-							if (idx + 1 < trialLengthOffsets.length) {
-								idx++;
-								bandPavement.clear();
-								unpavedSpace = (Area) band.clone();
-								thisBitLength = CraftConfig.bitLength;
-							} else {
-								// If we have no more number to try
-								return null;
-							}
-						} else {
-							// Else, we recover the space taken by the last bit
-							// Note: we must include the skipped space
-							double lastX = lastBit.getOrigin().x - CraftConfig.bitLength / 2;
-							Rectangle2D.Double lastPavedSpaceRect = new Rectangle2D.Double(lastX, bandOuterRect.y,
-									unpavedSpaceRect.x - lastX, bandHeight);
-							Area lastlyPavedSpace = new Area(lastPavedSpaceRect);
-							lastlyPavedSpace.intersect(band);
-							unpavedSpace.add(lastlyPavedSpace);
-							// Assuming the rebuild with a half normal length
-							thisBitLength = CraftConfig.bitLength / 2;
-							// We remove the last bit
-							bandPavement.remove(lastBit);
-						}
-					}
-				} else {
-					// In case we were trying rebuilding
-					// We will change the initial startingX
-					// and reset the line pavement
+		for (int idx = 0; idx < trialLengthOffsets.length; idx++) {
+			// Reset for each loop
+			bandPavement = new Vector<Bit2D>();
+			// Save of the rest area
+			Area unpavedSpace = (Area) band.clone();
+			// Initial parameters
+			Rectangle2D.Double bandOuterRect = (Double) band.getBounds2D();
+			double originY = bandOuterRect.y + CraftConfig.bitWidth / 2, thisBitLength = CraftConfig.bitLength;
+			// Commencement
+			while (!unpavedSpace.isEmpty()) {
+				// Get the boundary
+				Rectangle2D.Double unpavedSpaceRect = (Double) unpavedSpace.getBounds2D();
+				// Creating a new bit
+				// Attention to the case of rebuilding a bit
+				// with half of its normal length
+				Vector2 origin = new Vector2(unpavedSpaceRect.x + thisBitLength - CraftConfig.bitLength / 2, originY);
+				if (bandPavement.isEmpty()) {
+					// If this is the first bit
+					// we will push it backward a little bit
+					origin.sub(new Vector2(trialLengthOffsets[idx], 0));
+				}
+				Bit2D newBit = new Bit2D(origin, new Vector2(1, 0), thisBitLength, bandHeight);
+				// Update the area of the bit
+				Area newBitArea = newBit.getArea();
+				newBitArea.intersect(unpavedSpace);
+				if (newBitArea.isEmpty()) {
+					// If no space left,
+					// we complete the fill
 					//
-					// If no more ratio to try
-					// we just get out
-					if (idx < trialLengthOffsets.length) {
-						idx++;
-						bandPavement.clear();
-						unpavedSpace = (Area) band.clone();
-						thisBitLength = CraftConfig.bitLength;
+					// In fact, this if is to prevent NullPointerException
+					break;
+				}
+				newBit.updateBoundaries(newBitArea);
+				// Check if the new bit have a lift point
+				// in the unpaved space before the fill
+				if (newBit.computeLiftPoint() != null) {
+					// If yes, we retrieve it
+					bandPavement.add(newBit);
+					// Decrease the unpaved space
+					Rectangle2D.Double pavedSpaceRect = new Rectangle2D.Double(unpavedSpaceRect.x, bandOuterRect.y,
+							thisBitLength + CraftConfig.bitsWidthSpace, bandHeight);
+					unpavedSpace.subtract(new Area(pavedSpaceRect));
+					// Assuming the next bit will have full length
+					thisBitLength = CraftConfig.bitLength;
+				} else {
+					// If no, it means we failed
+					if (thisBitLength == CraftConfig.bitLength) {
+						// We were building a new full-length bit
+						// So we will retry by rebuilding the last bit
+						// with half of its length
+						if (bandPavement.isEmpty()) {
+							// But if we have no previous bit
+							// We change the offset of first bit
+							break;
+						} else {
+							Bit2D lastBit = bandPavement.lastElement();
+							if (lastBit.getLength() == CraftConfig.bitLength / 2) {
+								// If we had rebuilt the last bit
+								// and retried this bit but ended up failure
+								// That means we fail
+								//
+								// We should change the offset
+								break;
+							} else {
+								// Else, we recover the space taken
+								// by the last bit
+								// Note: we must include the skipped space
+								double lastX = lastBit.getOrigin().x - CraftConfig.bitLength / 2;
+								Rectangle2D.Double lastPavedSpaceRect = new Rectangle2D.Double(lastX, bandOuterRect.y,
+										unpavedSpaceRect.x - lastX, bandHeight);
+								Area lastlyPavedSpace = new Area(lastPavedSpaceRect);
+								lastlyPavedSpace.intersect(band);
+								unpavedSpace.add(lastlyPavedSpace);
+								// Assuming the rebuild
+								// with a half normal length
+								thisBitLength = CraftConfig.bitLength / 2;
+								// We remove the last bit
+								bandPavement.remove(lastBit);
+							}
+						}
 					} else {
-						// If we have no more number to try
-						return null;
+						// In case we were trying rebuilding
+						// We will change the offset
+						break;
 					}
 				}
 			}
@@ -433,9 +399,8 @@ public class PatternTemplate4 extends PatternTemplate {
 	private double[] getTrialLengthOffsets() {
 		int m = (int) Math.pow(2, CraftConfig.litmitForCalculatingLengthOffsets);
 		double[] x = new double[m];
-		// We only apply the dichotomic algorithm on [0, 1/2[
 		for (int i = 0; i < m; i++) {
-			x[i] = 1.0 / 2.0 * i / m * CraftConfig.bitLength;
+			x[i] = i / m * CraftConfig.bitLength;
 		}
 		return x;
 	}
@@ -443,10 +408,8 @@ public class PatternTemplate4 extends PatternTemplate {
 	private double[] getTrialHeightOffsets() {
 		int m = (int) Math.pow(2, CraftConfig.limitForCalculatingHeightOffsets);
 		double[] x = new double[m];
-		// We only apply the dichotomic algorithm on [0, 1/2[
-		x[1] = 1;
 		for (int i = 0; i < m; i++) {
-			x[i] = 1.0 / 2.0 * i / m * CraftConfig.bitWidth;
+			x[i] = i / m * CraftConfig.bitWidth;
 		}
 		return x;
 	}

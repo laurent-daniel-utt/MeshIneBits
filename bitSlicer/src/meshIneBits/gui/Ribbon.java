@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -23,7 +22,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -38,14 +36,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
@@ -59,6 +52,11 @@ import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
 import meshIneBits.Config.Setting;
+import meshIneBits.gui.GUIUtilities.ButtonIcon;
+import meshIneBits.gui.GUIUtilities.LabeledSpinner;
+import meshIneBits.gui.GUIUtilities.OptionsContainer;
+import meshIneBits.gui.GUIUtilities.RibbonTab;
+import meshIneBits.gui.GUIUtilities.TabContainerSeparator;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
@@ -67,27 +65,32 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
 	private ViewObservable viewObservable;
 	private File file = null;
-	private JLabel fileSelectedLabel;
-	private JButton computeSlicesBtn;
-	private JButton computeTemplateBtn;
-	private JLabel selectedSlice;
-	private JPopupMenu filePopup;
-	private JButton autoOptimizeLayerBtn;
-	private JButton autoOptimizeGPartBtn;
-	private HashMap<String, Setting> setupAnnotations = loadAnnotations();
+	private JPanel FileTab;
+	private SlicerTab SlicerTab;
+	private TemplateTab TemplateTab;
+	private ReviewTab ReviewTab;
+	private HashMap<String, Setting> setupAnnotations = preloadAnnotations();
+
+	public HashMap<String, Setting> getSetupAnnotations() {
+		return setupAnnotations;
+	}
 
 	public Ribbon() {
 		viewObservable = ViewObservable.getInstance();
 
 		// Add the tab
-		addTab("File", new JPanel());
-		addTab("Slicer", new JScrollPane(new SlicerTab()));
-		addTab("Template", new JScrollPane(new TemplateTab()));
-		addTab("Review", new JScrollPane(new ReviewTab()));
+		FileTab = new JPanel();
+		SlicerTab = new SlicerTab();
+		TemplateTab = new TemplateTab();
+		ReviewTab = new ReviewTab();
+		addTab("File", FileTab);
+		addTab("Slicer", new JScrollPane(SlicerTab));
+		addTab("Template", new JScrollPane(TemplateTab));
+		addTab("Review", new JScrollPane(ReviewTab));
 
 		// Add the menu button
 		FileMenuButton fileMenuBtn = new FileMenuButton();
-		this.setTabComponentAt(0, fileMenuBtn);
+		Ribbon.this.setTabComponentAt(0, fileMenuBtn);
 
 		Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 
@@ -99,166 +102,46 @@ public class Ribbon extends JTabbedPane implements Observer {
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
 	}
 
-	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {
-		spinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				try {
-					Field f = CraftConfig.class.getField(configFieldName);
-					f.setDouble(null, spinner.getValue());
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
 	@Override
 	public void update(Observable o, Object arg) {
 		// If no STL loaded, disable slice and generate layers button
 		if (viewObservable.getCurrentPart() == null) {
 			setEnabledAt(indexOfTab("Review"), false);
-			computeSlicesBtn.setEnabled(false);
-			computeTemplateBtn.setEnabled(false);
+			SlicerTab.getComputeSlicesBtn().setEnabled(false);
+			TemplateTab.getComputeTemplateBtn().setEnabled(false);
 		}
 		// If a STL is loaded & sliced & layers generated, enable both button
 		// (to allow redo computation)
 		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isSliced()) {
-			computeSlicesBtn.setEnabled(true);
-			computeTemplateBtn.setEnabled(true);
+			SlicerTab.getComputeSlicesBtn().setEnabled(true);
+			TemplateTab.getComputeTemplateBtn().setEnabled(true);
 		}
 
 		// If a STL is loaded & sliced but layers not generated, enable the
 		// generate layers button
 		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
 			setEnabledAt(indexOfTab("Review"), true);
-			selectedSlice.setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers()
+			ReviewTab.getSelectedSlice().setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers()
 					.get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));
-			computeTemplateBtn.setEnabled(true);
+			TemplateTab.getComputeTemplateBtn().setEnabled(true);
 			// Add this to observe the optimizer
 			viewObservable.getCurrentPart().getOptimizer().addObserver(this);
 		}
 
-		
 		// If the auto-optimization is complete
-		if (o instanceof Optimizer){
-			autoOptimizeGPartBtn.setEnabled(true);
-			autoOptimizeLayerBtn.setEnabled(true);
+		if (o instanceof Optimizer) {
+			ReviewTab.getAutoOptimizeGPartBtn().setEnabled(true);
+			ReviewTab.getAutoOptimizeLayerBtn().setEnabled(true);
 		}
 		revalidate();
 	}
 
-	private class AboutDialogWindow extends JDialog {
-		private static final long serialVersionUID = -3389839563563221684L;
-
-		public AboutDialogWindow(JFrame parent, String title, boolean modal) {
-			super(parent, title, modal);
-
-			// Visual options
-			Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png"))
-					.getImage();
-			this.setIconImage(windowIcon);
-			this.setSize(350, 160);
-			this.setLocationRelativeTo(null);
-			this.setResizable(false);
-
-			// Setting up the dialog
-			JPanel jp = new JPanel();
-			jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
-
-			JLabel bg = new JLabel("");
-			ImageIcon icon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")).getImage()
-							.getScaledInstance(248, 42, Image.SCALE_SMOOTH));
-			bg.setIcon(icon);
-			bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
-			bg.setForeground(new Color(0, 0, 0, 8));
-			bg.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-			JLabel copyrightLabel = new JLabel("Copyright� 2016 Thibault Cassard & Nicolas Gouju.");
-			copyrightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-			JButton helpFileBtn = new JButton("Open help file (PDF format)");
-			helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-			jp.add(new JLabel(" "));
-			jp.add(bg);
-			jp.add(copyrightLabel);
-			jp.add(new JLabel(" "));
-			jp.add(helpFileBtn);
-			AboutDialogWindow.this.getContentPane().add(jp, BorderLayout.CENTER);
-
-			// Actions listener
-			helpFileBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					AboutDialogWindow.this.dispose();
-					Desktop dt = Desktop.getDesktop();
-					try {
-						dt.open(new File(this.getClass().getClassLoader().getResource("resources/help.pdf").getPath()));
-					} catch (IOException e1) {
-						Logger.error("Failed to load help file");
-					}
-				}
-			});
-
-			this.setVisible(true);
-		}
-	}
-
-	private class ButtonIcon extends JButton {
-		private static final long serialVersionUID = 4439705350058229259L;
-
-		public ButtonIcon(String label, String iconName) {
-			this(label, iconName, false);
-		}
-
-		public ButtonIcon(String label, String iconName, boolean onlyIcon) {
-			this(label, iconName, onlyIcon, 22, 22);
-		}
-
-		public ButtonIcon(String label, String iconName, boolean onlyIcon, int width, int height) {
-			super((label.isEmpty() ? "" : " ") + label);
-			this.setHorizontalAlignment(LEFT);
-			this.setMargin(new Insets(0, 0, 0, 2));
-
-			try {
-				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
-								.getScaledInstance(width, height, Image.SCALE_DEFAULT));
-				this.setIcon(icon);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			if (onlyIcon) {
-				setContentAreaFilled(false);
-				setBorder(new EmptyBorder(3, 3, 3, 3));
-
-				// Actions listener
-				addMouseListener(new java.awt.event.MouseAdapter() {
-					@Override
-					public void mouseEntered(java.awt.event.MouseEvent evt) {
-						setContentAreaFilled(true);
-					}
-
-					@Override
-					public void mouseExited(java.awt.event.MouseEvent evt) {
-						setContentAreaFilled(false);
-					}
-				});
-			}
-		}
-	}
-
+	/**
+	 * Button to show the pop-up menu for loading model, etc.
+	 */
 	private class FileMenuButton extends JToggleButton {
 		private static final long serialVersionUID = 5613899244422633632L;
+		private FileMenuPopUp filePopup;
 
 		public FileMenuButton() {
 			// Visual options
@@ -317,277 +200,218 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 
 		}
-	}
 
-	private class FileMenuItem extends JMenuItem {
+		private class FileMenuPopUp extends JPopupMenu {
+			private static final long serialVersionUID = 3631645660924751860L;
 
-		private static final long serialVersionUID = 3576752233844578812L;
+			private JMenuItem openMenu;
+			private JMenuItem closeMenu;
+			private JMenuItem exportMenu;
+			private JMenuItem aboutMenu;
 
-		public FileMenuItem(String label, String iconName) {
-			super(label);
+			public FileMenuPopUp() {
+				// Setting up
+				openMenu = new FileMenuItem("Open", "file-o.png");
+				closeMenu = new FileMenuItem("Close part", "times.png");
+				exportMenu = new FileMenuItem("Export", "file-code-o.png");
+				aboutMenu = new FileMenuItem("About", "info-circle.png");
 
-			// Visual options
-			setRolloverEnabled(true);
-			this.setHorizontalAlignment(LEFT);
-			this.setMargin(new Insets(0, 0, 0, 2));
+				add(openMenu);
+				add(closeMenu);
+				add(exportMenu);
+				addSeparator();
+				add(aboutMenu);
 
-			// Setting up
-			try {
-				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
-								.getScaledInstance(22, 22, Image.SCALE_DEFAULT));
-				this.setIcon(icon);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				openMenu.setRolloverEnabled(true);
 
-			// Actions listener
-			addMouseListener(new MouseListener() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-				};
+				// Actions listener
+				openMenu.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						setVisible(false);// Close the popUpMenu
+						final JFileChooser fc = new JFileChooser();
+						fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+						// fc.setCurrentDirectory(new
+						// File(CraftConfig.lastSlicedFile).getParentFile());
+						// System.out.println(new
+						// File(CraftConfig.lastSlicedFile));
+						fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+						int returnVal = fc.showOpenDialog(null);
 
-				@Override
-				public void mouseEntered(MouseEvent e) {
-					setArmed(true);
-				}
-
-				@Override
-				public void mouseExited(MouseEvent e) {
-					setArmed(false);
-				}
-
-				@Override
-				public void mousePressed(MouseEvent e) {
-				}
-
-				@Override
-				public void mouseReleased(MouseEvent e) {
-				};
-			});
-		}
-	}
-
-	private class FileMenuPopUp extends JPopupMenu {
-		private static final long serialVersionUID = 3631645660924751860L;
-
-		private JMenuItem openMenu;
-		private JMenuItem closeMenu;
-		private JMenuItem exportMenu;
-		private JMenuItem aboutMenu;
-
-		public FileMenuPopUp() {
-			// Setting up
-			openMenu = new FileMenuItem("Open", "file-o.png");
-			closeMenu = new FileMenuItem("Close part", "times.png");
-			exportMenu = new FileMenuItem("Export", "file-code-o.png");
-			aboutMenu = new FileMenuItem("About", "info-circle.png");
-
-			add(openMenu);
-			add(closeMenu);
-			add(exportMenu);
-			addSeparator();
-			add(aboutMenu);
-
-			openMenu.setRolloverEnabled(true);
-
-			// Actions listener
-			openMenu.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);// Close the popUpMenu
-					final JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-					// fc.setCurrentDirectory(new
-					// File(CraftConfig.lastSlicedFile).getParentFile());
-					// System.out.println(new File(CraftConfig.lastSlicedFile));
-					fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
-					int returnVal = fc.showOpenDialog(null);
-
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						file = fc.getSelectedFile();
-						fileSelectedLabel.setText(file.getName());
-						Logger.updateStatus("Ready to slice " + file.getName());
-						computeSlicesBtn.setEnabled(true);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							file = fc.getSelectedFile();
+							Logger.updateStatus("Ready to slice " + file.getName());
+							Ribbon.this.SlicerTab.setReadyToSlice(true);
+						}
 					}
-				}
-			});
+				});
 
-			closeMenu.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);// Close the popUpMenu
-					Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
-					Ribbon.this.viewObservable.setPart(null);
-				}
-			});
-
-			exportMenu.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);// Close the popUpMenu
-					final JFileChooser fc = new JFileChooser();
-					fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-					int returnVal = fc.showSaveDialog(null);
-
-					GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
-					if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
-						XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
-						xt.writeXmlCode();
-					} else {
-						Logger.error("The XML file has not been generated");
+				closeMenu.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						setVisible(false);// Close the popUpMenu
+						Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
+						Ribbon.this.viewObservable.setPart(null);
 					}
-				}
-			});
+				});
 
-			aboutMenu.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
-					new AboutDialogWindow(null, "About MeshIneBits", true);
-				}
-			});
-		}
-	}
+				exportMenu.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						setVisible(false);// Close the popUpMenu
+						final JFileChooser fc = new JFileChooser();
+						fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+						int returnVal = fc.showSaveDialog(null);
 
-	private class GalleryContainer extends OptionsContainer {
+						GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
+						if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
+							XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
+							xt.writeXmlCode();
+						} else {
+							Logger.error("The XML file has not been generated");
+						}
+					}
+				});
 
-		private static final long serialVersionUID = 5081506030712556983L;
-		
-		private Vector<JToggleButton> templateButtons = new Vector<JToggleButton>();
-
-		public GalleryContainer(String title) {
-			super(title);
-			this.setLayout(new GridLayout(1, 2, 3, 3));
-		}
-
-		public void addButton(JToggleButton btn, String iconName, int patternTemplateNum) {
-			Icon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName));
-			btn.setIcon(icon);
-			btn.setPreferredSize(new Dimension(60, 60));
-			this.add(btn);
-			this.templateButtons.add(btn);
-			btn.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// Clear all the old choices
-					clearOldChoices();
-					// Set the new choice
-					btn.setSelected(true);
-					CraftConfig.patternNumber = patternTemplateNum;
-				}
-			});
-		}
-		
-		/**
-		 * Clear all old choices. For a clearer view.
-		 */
-		public void clearOldChoices(){
-			for (JToggleButton tmplBtn : templateButtons) {
-				tmplBtn.setSelected(false);
+				aboutMenu.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						setVisible(false);
+						new AboutDialogWindow(null, "About MeshIneBits", true);
+					}
+				});
 			}
-		}
-	}
 
-	private class LabeledSpinner extends JPanel {
-		private static final long serialVersionUID = 6726754934854914029L;
+			private class FileMenuItem extends JMenuItem {
 
-		private JSpinner spinner;
+				private static final long serialVersionUID = 3576752233844578812L;
 
-		private JLabel name;
+				public FileMenuItem(String label, String iconName) {
+					super(label);
 
-		private String getNameFromAnnotation(HashMap<String, Setting> hm, Setting annotation) {
-			for (String str : hm.keySet()) {
-				if (annotation.equals(hm.get(str))) {
-					return str;
+					// Visual options
+					setRolloverEnabled(true);
+					this.setHorizontalAlignment(LEFT);
+					this.setMargin(new Insets(0, 0, 0, 2));
+
+					// Setting up
+					try {
+						ImageIcon icon = new ImageIcon(
+								new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName))
+										.getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+						this.setIcon(icon);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					// Actions listener
+					addMouseListener(new MouseListener() {
+						@Override
+						public void mouseClicked(MouseEvent e) {
+						};
+
+						@Override
+						public void mouseEntered(MouseEvent e) {
+							setArmed(true);
+						}
+
+						@Override
+						public void mouseExited(MouseEvent e) {
+							setArmed(false);
+						}
+
+						@Override
+						public void mousePressed(MouseEvent e) {
+						}
+
+						@Override
+						public void mouseReleased(MouseEvent e) {
+						};
+					});
 				}
 			}
-			return "";
-		}
 
-		public JSpinner getSpinner() {
-			return spinner;
-		}
+			private class AboutDialogWindow extends JDialog {
+				private static final long serialVersionUID = -3389839563563221684L;
 
-		public JLabel getTitle() {
-			return name;
-		}
+				public AboutDialogWindow(JFrame parent, String title, boolean modal) {
+					super(parent, title, modal);
 
-		public void setEnabled(boolean enabled) {
-			getSpinner().setEnabled(enabled);
-			getTitle().setEnabled(enabled);
-		}
+					// Visual options
+					Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png"))
+							.getImage();
+					this.setIconImage(windowIcon);
+					this.setSize(350, 160);
+					this.setLocationRelativeTo(null);
+					this.setResizable(false);
 
-		public LabeledSpinner(Setting parameters) {
-			// Visual options
-			this.setLayout(new BorderLayout());
-			this.setBackground(Color.WHITE);
-			this.setBorder(new EmptyBorder(4, 0, 0, 0));
+					// Setting up the dialog
+					JPanel jp = new JPanel();
+					jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
 
-			// Setting up
-			name = new JLabel(parameters.title());
-			name.setToolTipText(parameters.description());
-			this.add(name, BorderLayout.WEST);
-			String attributeName = getNameFromAnnotation(setupAnnotations, parameters);
-			Field attribute;
-			double defaultValue = 0;
-			try {
-				attribute = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredField(attributeName);
-				attribute.setAccessible(true);
-				defaultValue = attribute.getDouble(attribute);
-			} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
-					| IllegalAccessException e) {
-				e.printStackTrace();
+					JLabel bg = new JLabel("");
+					ImageIcon icon = new ImageIcon(
+							new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png"))
+									.getImage().getScaledInstance(248, 42, Image.SCALE_SMOOTH));
+					bg.setIcon(icon);
+					bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
+					bg.setForeground(new Color(0, 0, 0, 8));
+					bg.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+					JLabel copyrightLabel = new JLabel("Copyright© 2016 Thibault Cassard & Nicolas Gouju.");
+					copyrightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+					JButton helpFileBtn = new JButton("Open help file (PDF format)");
+					helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+					jp.add(new JLabel(" "));
+					jp.add(bg);
+					jp.add(copyrightLabel);
+					jp.add(new JLabel(" "));
+					jp.add(helpFileBtn);
+					AboutDialogWindow.this.getContentPane().add(jp, BorderLayout.CENTER);
+
+					// Actions listener
+					helpFileBtn.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							AboutDialogWindow.this.dispose();
+							Desktop dt = Desktop.getDesktop();
+							try {
+								dt.open(new File(
+										this.getClass().getClassLoader().getResource("resources/help.pdf").getPath()));
+							} catch (IOException e1) {
+								Logger.error("Failed to load help file");
+							}
+						}
+					});
+
+					this.setVisible(true);
+				}
 			}
-			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
-					parameters.step()));
-			this.add(spinner, BorderLayout.EAST);
-		}
-
-		public void addChangeListener(ChangeListener listener) {
-			spinner.addChangeListener(listener);
-		}
-
-		public Double getValue() {
-			return (Double) spinner.getValue();
-		}
-	}
-
-	private class OptionsContainer extends JPanel {
-
-		private static final long serialVersionUID = 136154266552080732L;
-
-		public OptionsContainer(String title) {
-			// Visual options
-			this.setMinimumSize(new Dimension(500, 500));
-			this.setLayout(new GridLayout(3, 0, 10, 0));
-			this.setBackground(Color.WHITE);
-
-			TitledBorder centerBorder = BorderFactory.createTitledBorder(title);
-			centerBorder.setTitleJustification(TitledBorder.CENTER);
-			centerBorder.setTitleFont(new Font(this.getFont().toString(), Font.BOLD, 12));
-			centerBorder.setTitleColor(Color.gray);
-			centerBorder.setBorder(BorderFactory.createEmptyBorder());
-			this.setBorder(centerBorder);
 
 		}
 
-		@Override
-		public int getBaseline(int width, int height) {
-			return 0;
-		}
-
-		@Override
-		public Component.BaselineResizeBehavior getBaselineResizeBehavior() {
-			return Component.BaselineResizeBehavior.CONSTANT_ASCENT;
-		}
 	}
 
 	private class ReviewTab extends RibbonTab {
 
 		private static final long serialVersionUID = -6062849183461607573L;
+		private JLabel selectedSlice;
+		private JButton autoOptimizeLayerBtn;
+		private JButton autoOptimizeGPartBtn;
 
+		public JButton getAutoOptimizeLayerBtn() {
+			return autoOptimizeLayerBtn;
+		}
+
+		public JButton getAutoOptimizeGPartBtn() {
+			return autoOptimizeGPartBtn;
+		}
+
+		public JLabel getSelectedSlice() {
+			return selectedSlice;
+		}
 
 		public ReviewTab() {
 			super();
@@ -776,21 +600,20 @@ public class Ribbon extends JTabbedPane implements Observer {
 					replaceSelectedBit(50, 100);
 				}
 			});
-			
+
 			replaceBitBtn3.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					replaceSelectedBit(50, 50);
 				}
 			});
-			
+
 			deleteBitBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					replaceSelectedBit(0, 0);
 				}
 			});
-			
 
 			replaceByFullBitBtn.addActionListener(new ActionListener() {
 				@Override
@@ -822,7 +645,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
 				}
 			});
-			
+
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
@@ -839,54 +662,54 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			vo.setSelectedBitKey(layer.replaceBit(bit, percentageLength, percentageWidth));
 		}
-	}
 
-	private class RibbonCheckBox extends JCheckBox implements Observer {
+		/**
+		 * Options of viewing.
+		 */
+		private class RibbonCheckBox extends JCheckBox implements Observer {
 
-		private static final long serialVersionUID = 9143671052675167109L;
+			private static final long serialVersionUID = 9143671052675167109L;
 
-		public RibbonCheckBox(String label) {
-			super(label);
-			// Visual options
-			this.setBackground(Color.WHITE);
-			this.setFocusable(false);
+			public RibbonCheckBox(String label) {
+				super(label);
+				// Visual options
+				this.setBackground(Color.WHITE);
+				this.setFocusable(false);
 
-			// Setting up
-			viewObservable.addObserver(this);
-		}
+				// Setting up
+				viewObservable.addObserver(this);
+			}
 
-		@Override
-		public void update(Observable o, Object arg) {
+			@Override
+			public void update(Observable o, Object arg) {
 
-		}
+			}
 
-	}
-
-	private class RibbonTab extends JPanel {
-
-		private static final long serialVersionUID = 5540398663631111329L;
-
-		public RibbonTab() {
-			// Visual options
-			FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
-			layout.setAlignOnBaseline(true);
-			this.setLayout(layout);
-			this.setBackground(Color.WHITE);
-			this.setFocusable(false);
 		}
 	}
 
 	private class SlicerTab extends RibbonTab {
 
 		private static final long serialVersionUID = -2435250564072409684L;
+		private JLabel fileSelectedLabel;
+		private JButton computeSlicesBtn;
+
+		public JButton getComputeSlicesBtn() {
+			return computeSlicesBtn;
+		}
+
+		public void setReadyToSlice(boolean ready) {
+			fileSelectedLabel.setText(file.getName());
+			computeSlicesBtn.setEnabled(true);
+		}
 
 		public SlicerTab() {
 			super();
 
 			// Setting up
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
-			LabeledSpinner sliceHeightSpinner = new LabeledSpinner(setupAnnotations.get("sliceHeight"));
-			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(
+			LabeledSpinner sliceHeightSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("sliceHeight"));
+			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(Ribbon.this,
 					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
@@ -939,21 +762,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
-	private class TabContainerSeparator extends JSeparator {
-		private static final long serialVersionUID = 7739612020735334296L;
-
-		public TabContainerSeparator() {
-			// Visual options
-			this.setOrientation(SwingConstants.VERTICAL);
-			Dimension d = this.getPreferredSize();
-			d.height = 105;
-			this.setPreferredSize(d);
-		}
-	}
-
 	private class TemplateTab extends RibbonTab {
 
 		private static final long serialVersionUID = -2963705108403089250L;
+
+		private JButton computeTemplateBtn;
+
+		public JButton getComputeTemplateBtn() {
+			return computeTemplateBtn;
+		}
 
 		public TemplateTab() {
 			super();
@@ -961,9 +778,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Setting up
 			// Bits options
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
-			LabeledSpinner bitThicknessSpinner = new LabeledSpinner(setupAnnotations.get("bitThickness"));
-			LabeledSpinner bitWidthSpinner = new LabeledSpinner(setupAnnotations.get("bitWidth"));
-			LabeledSpinner bitLengthSpinner = new LabeledSpinner(setupAnnotations.get("bitLength"));
+			LabeledSpinner bitThicknessSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitThickness"));
+			LabeledSpinner bitWidthSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitWidth"));
+			LabeledSpinner bitLengthSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitLength"));
 			bitsCont.add(bitThicknessSpinner);
 			bitsCont.add(bitWidthSpinner);
 			bitsCont.add(bitLengthSpinner);
@@ -976,15 +793,17 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Template options
 			OptionsContainer patternParameters = new OptionsContainer("Template parameters");
-			LabeledSpinner rotationSpinner = new LabeledSpinner(setupAnnotations.get("rotation"));
-			LabeledSpinner xOffsetSpinner = new LabeledSpinner(setupAnnotations.get("xOffset"));
-			LabeledSpinner yOffsetSpinner = new LabeledSpinner(setupAnnotations.get("yOffset"));
-			LabeledSpinner layersOffsetSpinner = new LabeledSpinner(setupAnnotations.get("layersOffset"));
-			LabeledSpinner bitsLengthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsLengthSpace"));
-			LabeledSpinner bitsWidthSpaceSpinner = new LabeledSpinner(setupAnnotations.get("bitsWidthSpace"));
-			LabeledSpinner diffRotationSpinner = new LabeledSpinner(setupAnnotations.get("diffRotation"));
-			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffxOffset"));
-			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(setupAnnotations.get("diffyOffset"));
+			LabeledSpinner rotationSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("rotation"));
+			LabeledSpinner xOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("xOffset"));
+			LabeledSpinner yOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("yOffset"));
+			LabeledSpinner layersOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("layersOffset"));
+			LabeledSpinner bitsLengthSpaceSpinner = new LabeledSpinner(Ribbon.this,
+					setupAnnotations.get("bitsLengthSpace"));
+			LabeledSpinner bitsWidthSpaceSpinner = new LabeledSpinner(Ribbon.this,
+					setupAnnotations.get("bitsWidthSpace"));
+			LabeledSpinner diffRotationSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffRotation"));
+			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffxOffset"));
+			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffyOffset"));
 
 			patternParameters.add(rotationSpinner);
 			patternParameters.add(diffRotationSpinner);
@@ -1001,9 +820,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(Ribbon.this,
 					setupAnnotations.get("minPercentageOfSlices"));
-			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(Ribbon.this,
 					setupAnnotations.get("defaultSliceToSelect"));
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
@@ -1044,13 +863,79 @@ public class Ribbon extends JTabbedPane implements Observer {
 			});
 		}
 
+		private class GalleryContainer extends OptionsContainer {
+
+			private static final long serialVersionUID = 5081506030712556983L;
+
+			private Vector<JToggleButton> templateButtons = new Vector<JToggleButton>();
+
+			public GalleryContainer(String title) {
+				super(title);
+				this.setLayout(new GridLayout(1, 2, 3, 3));
+			}
+
+			public void addButton(JToggleButton btn, String iconName, int patternTemplateNum) {
+				Icon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName));
+				btn.setIcon(icon);
+				btn.setPreferredSize(new Dimension(60, 60));
+				this.add(btn);
+				this.templateButtons.add(btn);
+				btn.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// Clear all the old choices
+						clearOldChoices();
+						// Set the new choice
+						btn.setSelected(true);
+						CraftConfig.patternNumber = patternTemplateNum;
+					}
+				});
+			}
+
+			/**
+			 * Clear all old choices. For a clearer view.
+			 */
+			public void clearOldChoices() {
+				for (JToggleButton tmplBtn : templateButtons) {
+					tmplBtn.setSelected(false);
+				}
+			}
+		}
 	}
 
 	/**
+	 * Only applicable for mono-value field of {@link CraftConfig}.
+	 * 
+	 * @param spinner
+	 * @param configFieldName
+	 */
+	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {
+		spinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				try {
+					Field f = CraftConfig.class.getField(configFieldName);
+					f.setDouble(null, spinner.getValue());
+				} catch (NoSuchFieldException e) {
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Get special annotations of fields from {@link CraftConfig}
 	 * 
 	 * @return names of attributes associated by their annotations
 	 */
-	public HashMap<String, Setting> loadAnnotations() {
+	private HashMap<String, Setting> preloadAnnotations() {
 		HashMap<String, Setting> result = new HashMap<>();
 		try {
 			// Get all declared attributes
