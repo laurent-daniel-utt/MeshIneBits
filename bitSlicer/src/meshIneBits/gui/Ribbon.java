@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -17,13 +16,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -51,12 +51,17 @@ import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.Config.PatternConfig;
+import meshIneBits.Config.PatternParameterConfig;
 import meshIneBits.Config.Setting;
-import meshIneBits.gui.GUIUtilities.ButtonIcon;
-import meshIneBits.gui.GUIUtilities.LabeledSpinner;
-import meshIneBits.gui.GUIUtilities.OptionsContainer;
-import meshIneBits.gui.GUIUtilities.RibbonTab;
-import meshIneBits.gui.GUIUtilities.TabContainerSeparator;
+import meshIneBits.PatternTemplates.PatternTemplate;
+import meshIneBits.gui.utilities.ButtonIcon;
+import meshIneBits.gui.utilities.CustomFileChooser;
+import meshIneBits.gui.utilities.LabeledListReceiver;
+import meshIneBits.gui.utilities.LabeledSpinner;
+import meshIneBits.gui.utilities.OptionsContainer;
+import meshIneBits.gui.utilities.RibbonTab;
+import meshIneBits.gui.utilities.TabContainerSeparator;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
@@ -65,11 +70,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
 	private ViewObservable viewObservable;
 	private File file = null;
+	private File patternConfigFile = null;
 	private JPanel FileTab;
 	private SlicerTab SlicerTab;
 	private TemplateTab TemplateTab;
 	private ReviewTab ReviewTab;
-	private HashMap<String, Setting> setupAnnotations = preloadAnnotations();
+	private HashMap<String, Setting> setupAnnotations = loadAnnotations();
 
 	public HashMap<String, Setting> getSetupAnnotations() {
 		return setupAnnotations;
@@ -137,7 +143,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 	}
 
 	/**
-	 * Button to show the pop-up menu for loading model, etc.
+	 * To show the pop-up menu for loading model, etc.
 	 */
 	private class FileMenuButton extends JToggleButton {
 		private static final long serialVersionUID = 5613899244422633632L;
@@ -167,8 +173,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent ev) {
 					JToggleButton b = FileMenuButton.this;
 					if (b.isSelected()) {
-						filePopup.show(null, FileMenuButton.this.getLocationOnScreen().x - 5,
-								FileMenuButton.this.getLocationOnScreen().y + 25);
+						filePopup.show(b, b.getLocationOnScreen().x, b.getLocationOnScreen().y);
 						setIcon(selectedIcon);
 					} else {
 						filePopup.setVisible(false);
@@ -198,26 +203,26 @@ public class Ribbon extends JTabbedPane implements Observer {
 				}
 
 			});
-
 		}
 
 		private class FileMenuPopUp extends JPopupMenu {
 			private static final long serialVersionUID = 3631645660924751860L;
 
-			private JMenuItem openMenu;
-			private JMenuItem closeMenu;
-			private JMenuItem exportMenu;
-			private JMenuItem aboutMenu;
 
 			public FileMenuPopUp() {
 				// Setting up
-				openMenu = new FileMenuItem("Open", "file-o.png");
-				closeMenu = new FileMenuItem("Close part", "times.png");
-				exportMenu = new FileMenuItem("Export", "file-code-o.png");
-				aboutMenu = new FileMenuItem("About", "info-circle.png");
+				JMenuItem openMenu = new FileMenuItem("Open Model", "file-o.png");
+				JMenuItem closeMenu = new FileMenuItem("Close part", "times.png");
+				JMenuItem openPatternConfigMenu = new FileMenuItem("Load pattern configuration", "conf-o.png");
+				JMenuItem savePatternConfigMenu = new FileMenuItem("Save pattern configuration", "conf-save.png");
+				JMenuItem exportMenu = new FileMenuItem("Export XML", "file-code-o.png");
+				JMenuItem aboutMenu = new FileMenuItem("About", "info-circle.png");
 
 				add(openMenu);
 				add(closeMenu);
+				addSeparator();
+				add(openPatternConfigMenu);
+				add(savePatternConfigMenu);
 				add(exportMenu);
 				addSeparator();
 				add(aboutMenu);
@@ -228,13 +233,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 				openMenu.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						setVisible(false);// Close the popUpMenu
-						final JFileChooser fc = new JFileChooser();
+						final JFileChooser fc = new CustomFileChooser();
 						fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-						// fc.setCurrentDirectory(new
-						// File(CraftConfig.lastSlicedFile).getParentFile());
-						// System.out.println(new
-						// File(CraftConfig.lastSlicedFile));
 						fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
 						int returnVal = fc.showOpenDialog(null);
 
@@ -249,16 +249,51 @@ public class Ribbon extends JTabbedPane implements Observer {
 				closeMenu.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						setVisible(false);// Close the popUpMenu
 						Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
 						Ribbon.this.viewObservable.setPart(null);
+					}
+				});
+				
+				openPatternConfigMenu.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						final JFileChooser fc = new CustomFileChooser();
+						String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
+						fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+						fc.setSelectedFile(new File(CraftConfig.lastPatternConfigFile.replace("\n", "\\n")));
+						if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+							patternConfigFile = fc.getSelectedFile();
+							CraftConfig.lastPatternConfigFile = patternConfigFile.getAbsolutePath();
+							PatternConfig loadedConf = CraftConfigLoader.loadPatternConfig(patternConfigFile);
+							if (loadedConf != null){
+								TemplateTab.patternParametersContainer.setupPatternParameters(loadedConf);
+								Logger.updateStatus("Pattern configuration loaded.");
+							}
+						}
+					}
+				});
+				
+				savePatternConfigMenu.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						final JFileChooser fc = new CustomFileChooser();
+						String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
+						fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+						if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION){
+							File f = fc.getSelectedFile();
+							if (!f.getName().endsWith("." + ext)){
+								f = new File(f.getPath() + "." + ext);
+							}
+							CraftConfigLoader.savePatternConfig(f);
+						}
 					}
 				});
 
 				exportMenu.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						setVisible(false);// Close the popUpMenu
 						final JFileChooser fc = new JFileChooser();
 						fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
 						int returnVal = fc.showSaveDialog(null);
@@ -276,7 +311,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 				aboutMenu.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						setVisible(false);
 						new AboutDialogWindow(null, "About MeshIneBits", true);
 					}
 				});
@@ -394,6 +428,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 	}
 
+	/**
+	 * For reviewing result and auto-optimizing
+	 */
 	private class ReviewTab extends RibbonTab {
 
 		private static final long serialVersionUID = -6062849183461607573L;
@@ -688,6 +725,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
+	/**
+	 * For slicing object into multiple slices
+	 */
 	private class SlicerTab extends RibbonTab {
 
 		private static final long serialVersionUID = -2435250564072409684L;
@@ -708,8 +748,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Setting up
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
-			LabeledSpinner sliceHeightSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("sliceHeight"));
-			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner(Ribbon.this,
+			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
+			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("firstSliceHeightPercent",
 					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
@@ -762,11 +802,15 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 	}
 
+	/**
+	 * For customizing parameters of the chosen pattern
+	 */
 	private class TemplateTab extends RibbonTab {
 
 		private static final long serialVersionUID = -2963705108403089250L;
 
 		private JButton computeTemplateBtn;
+		private PatternParametersContainer patternParametersContainer;
 
 		public JButton getComputeTemplateBtn() {
 			return computeTemplateBtn;
@@ -778,52 +822,33 @@ public class Ribbon extends JTabbedPane implements Observer {
 			// Setting up
 			// Bits options
 			OptionsContainer bitsCont = new OptionsContainer("Bits options");
-			LabeledSpinner bitThicknessSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitThickness"));
-			LabeledSpinner bitWidthSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitWidth"));
-			LabeledSpinner bitLengthSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("bitLength"));
+			LabeledSpinner bitThicknessSpinner = new LabeledSpinner("bitThickness",
+					setupAnnotations.get("bitThickness"));
+			LabeledSpinner bitWidthSpinner = new LabeledSpinner("bitWidth", setupAnnotations.get("bitWidth"));
+			LabeledSpinner bitLengthSpinner = new LabeledSpinner("bitLength", setupAnnotations.get("bitLength"));
 			bitsCont.add(bitThicknessSpinner);
 			bitsCont.add(bitWidthSpinner);
 			bitsCont.add(bitLengthSpinner);
 
 			// Pattern choice
 			GalleryContainer patternGallery = new GalleryContainer("Pattern");
-			patternGallery.addButton(new JToggleButton(), "p1.png", 3);
-			patternGallery.addButton(new JToggleButton(), "p2.png", 2);
-			patternGallery.addButton(new JToggleButton(), "p4.png", 4);
 
 			// Template options
-			OptionsContainer patternParameters = new OptionsContainer("Template parameters");
-			LabeledSpinner rotationSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("rotation"));
-			LabeledSpinner xOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("xOffset"));
-			LabeledSpinner yOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("yOffset"));
-			LabeledSpinner layersOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("layersOffset"));
-			LabeledSpinner bitsLengthSpaceSpinner = new LabeledSpinner(Ribbon.this,
-					setupAnnotations.get("bitsLengthSpace"));
-			LabeledSpinner bitsWidthSpaceSpinner = new LabeledSpinner(Ribbon.this,
-					setupAnnotations.get("bitsWidthSpace"));
-			LabeledSpinner diffRotationSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffRotation"));
-			LabeledSpinner diffxOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffxOffset"));
-			LabeledSpinner diffyOffsetSpinner = new LabeledSpinner(Ribbon.this, setupAnnotations.get("diffyOffset"));
-
-			patternParameters.add(rotationSpinner);
-			patternParameters.add(diffRotationSpinner);
-			patternParameters.add(xOffsetSpinner);
-			patternParameters.add(yOffsetSpinner);
-			patternParameters.add(diffxOffsetSpinner);
-			patternParameters.add(diffyOffsetSpinner);
-			patternParameters.add(layersOffsetSpinner);
-			patternParameters.add(bitsWidthSpaceSpinner);
-			patternParameters.add(bitsLengthSpaceSpinner);
+			patternParametersContainer = new PatternParametersContainer("Pattern parameters");
+			patternParametersContainer.setupPatternParameters();
 
 			// Computing options
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner(Ribbon.this,
+			LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
+					setupAnnotations.get("layersOffset"));
+			LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
 					setupAnnotations.get("minPercentageOfSlices"));
-			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner(Ribbon.this,
+			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
 					setupAnnotations.get("defaultSliceToSelect"));
+			computeCont.add(layersOffsetSpinner);
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
 			computeCont.add(computeTemplateBtn);
@@ -833,7 +858,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			add(new TabContainerSeparator());
 			add(patternGallery);
 			add(new TabContainerSeparator());
-			add(patternParameters);
+			// add(patternParameters);
+			add(patternParametersContainer);
 			add(new TabContainerSeparator());
 			add(computeCont);
 
@@ -841,14 +867,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
 			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
 			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
-			addConfigSpinnerChangeListener(rotationSpinner, "rotation");
-			addConfigSpinnerChangeListener(diffRotationSpinner, "diffRotation");
-			addConfigSpinnerChangeListener(xOffsetSpinner, "xOffset");
-			addConfigSpinnerChangeListener(yOffsetSpinner, "yOffset");
-			addConfigSpinnerChangeListener(diffxOffsetSpinner, "diffxOffset");
-			addConfigSpinnerChangeListener(diffyOffsetSpinner, "diffyOffset");
-			addConfigSpinnerChangeListener(bitsLengthSpaceSpinner, "bitsLengthSpace");
-			addConfigSpinnerChangeListener(bitsWidthSpaceSpinner, "bitsWidthSpace");
 			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
 			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
 			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
@@ -867,45 +885,182 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			private static final long serialVersionUID = 5081506030712556983L;
 
-			private Vector<JToggleButton> templateButtons = new Vector<JToggleButton>();
+			/**
+			 * For the display
+			 */
+			private JLabel templateChosen;
+			private JPopupMenu templatesMenu;
 
 			public GalleryContainer(String title) {
 				super(title);
-				this.setLayout(new GridLayout(1, 2, 3, 3));
-			}
-
-			public void addButton(JToggleButton btn, String iconName, int patternTemplateNum) {
-				Icon icon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName));
-				btn.setIcon(icon);
-				btn.setPreferredSize(new Dimension(60, 60));
-				this.add(btn);
-				this.templateButtons.add(btn);
-				btn.addActionListener(new ActionListener() {
+				// this.setLayout(new GridLayout(1, 2, 3, 3));
+				this.setLayout(new BorderLayout());
+				// For the chosen template
+				PatternTemplate defaultTemplate = CraftConfig.templateChoice;
+				ImageIcon image = new ImageIcon(
+						this.getClass().getClassLoader().getResource("resources/" + defaultTemplate.getIconName()));
+				ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+				this.templateChosen = new JLabel(defaultTemplate.getCommonName(), icon, SwingConstants.CENTER);
+				this.templateChosen.setPreferredSize(new Dimension(150, 50));
+				this.templateChosen.setToolTipText(descriptiveText(defaultTemplate));
+				this.add(templateChosen, BorderLayout.CENTER);
+				// For the menu
+				image = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "angle-down.png"));
+				icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
+				JButton choosingTemplateBtn = new JButton(icon);
+				this.add(choosingTemplateBtn, BorderLayout.SOUTH);
+				choosingTemplateBtn.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						// Clear all the old choices
-						clearOldChoices();
-						// Set the new choice
-						btn.setSelected(true);
-						CraftConfig.patternNumber = patternTemplateNum;
+						templatesMenu.show(choosingTemplateBtn, 0, choosingTemplateBtn.getHeight());
 					}
 				});
+				this.templatesMenu = new TemplatesMenu(this);
+			}
+
+			protected String descriptiveText(PatternTemplate template) {
+				StringBuilder str = new StringBuilder();
+				str.append("<html><div>");
+				str.append("<p><strong>" + template.getCommonName() + "</strong></p>");
+				str.append("<p>" + template.getDescription() + "</p>");
+				str.append("<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>");
+				str.append("</div></html>");
+				return str.toString();
 			}
 
 			/**
-			 * Clear all old choices. For a clearer view.
+			 * All the available templates for choosing
+			 * 
+			 * @author NHATHAN
 			 */
-			public void clearOldChoices() {
-				for (JToggleButton tmplBtn : templateButtons) {
-					tmplBtn.setSelected(false);
+			private class TemplatesMenu extends JPopupMenu {
+
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 4906068175556528411L;
+				private GalleryContainer parent;
+
+				public TemplatesMenu(GalleryContainer galleryContainer) {
+					super("...");
+					this.parent = galleryContainer;
+					// Load all templates we have
+					// TODO
+					// Load all saved templates
+					CraftConfig.templatesLoaded = new Vector<PatternTemplate>(
+							Arrays.asList(CraftConfig.templatesPreloaded));
+					for (PatternTemplate template : CraftConfig.templatesLoaded) {
+						this.addNewTemplate(template);
+					}
+					// A button to load external template
+					this.addSeparator();
+					JMenuItem loadExternalTemplateBtn = new JMenuItem("More...");
+					this.add(loadExternalTemplateBtn);
+					// TODO
+					// Implement function "add external pattern"
+				}
+
+				public void addNewTemplate(PatternTemplate template) {
+					JMenuItem newTemplate = new JMenuItem(template.getCommonName());
+					ImageIcon image = new ImageIcon(
+							this.getClass().getClassLoader().getResource("resources/" + template.getIconName()));
+					ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
+					newTemplate.setIcon(icon);
+					this.add(newTemplate);
+					newTemplate.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							parent.refreshTemplateChosen(template);
+							CraftConfig.templateChoice = template;
+							patternParametersContainer.setupPatternParameters();
+						}
+					});
 				}
 			}
+
+			public void refreshTemplateChosen(PatternTemplate template) {
+				this.templateChosen.setText(template.getCommonName());
+				ImageIcon image = new ImageIcon(
+						this.getClass().getClassLoader().getResource("resources/" + template.getIconName()));
+				ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+				this.templateChosen.setIcon(icon);
+				this.templateChosen.setToolTipText(descriptiveText(template));
+			}
+		}
+
+		/**
+		 * Contains specialized parameters for the chosen pattern
+		 */
+		private class PatternParametersContainer extends OptionsContainer {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -5486094986597798629L;
+
+			public PatternParametersContainer(String title) {
+				super(title);
+			}
+
+			/**
+			 * Remove all loaded components in containers then load new
+			 * parameters from the currently chosen pattern.
+			 */
+			public void setupPatternParameters() {
+				this.removeAll();
+				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
+					if (paramConfig.getCurrentValue() instanceof Double) {
+						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
+						addPatternParameterListener(spinner, paramConfig);
+						this.add(spinner);
+					}
+					if (paramConfig.getCurrentValue() instanceof List<?>) {
+						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
+						this.add(listReceiver);
+					}
+				}
+			}
+
+			/**
+			 * Remove all loaded components in containers then load new
+			 * parameters from the given <tt>config</tt> (input will be filtered
+			 * by attribute's name, type)
+			 * 
+			 * @param config
+			 */
+			public void setupPatternParameters(PatternConfig config) {
+				this.removeAll();
+				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
+					if (paramConfig.getCurrentValue() instanceof Double) {
+						// Update current value
+						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
+						if (importParam != null){
+							paramConfig.setCurrentValue(importParam.getCurrentValue());
+						}
+						// Then show
+						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
+						addPatternParameterListener(spinner, paramConfig);
+						this.add(spinner);
+					}
+					if (paramConfig.getCurrentValue() instanceof List<?>) {
+						// Update current value
+						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
+						if (importParam != null){
+							paramConfig.setCurrentValue(importParam.getCurrentValue());
+						}
+						// Then show
+						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
+						this.add(listReceiver);
+					}
+				}
+			}
+
 		}
 	}
 
 	/**
-	 * Only applicable for mono-value field of {@link CraftConfig}.
+	 * Only for double-type static field of {@link CraftConfig}.
 	 * 
 	 * @param spinner
 	 * @param configFieldName
@@ -930,12 +1085,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 		});
 	}
 
+	private void addPatternParameterListener(LabeledSpinner spinner, PatternParameterConfig config) {
+		spinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				config.setCurrentValue(spinner.getValue());
+			}
+		});
+	}
+
 	/**
-	 * Get special annotations of fields from {@link CraftConfig}
+	 * Get annotations for fields from {@link CraftConfig}
 	 * 
 	 * @return names of attributes associated by their annotations
 	 */
-	private HashMap<String, Setting> preloadAnnotations() {
+	private HashMap<String, Setting> loadAnnotations() {
 		HashMap<String, Setting> result = new HashMap<>();
 		try {
 			// Get all declared attributes

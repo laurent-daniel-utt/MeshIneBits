@@ -4,9 +4,11 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
+import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.PatternParameterConfig;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Logger;
@@ -21,51 +23,60 @@ import meshIneBits.util.Vector2;
  */
 public class PatternTemplate3 extends PatternTemplate {
 
-	public PatternTemplate3(double skirtRadius) {
-		super(skirtRadius);
-	}
+	private Vector2 patternStart;
+	private Vector2 patternEnd;
+	private double skirtRadius;
+	private double bitsWidthSpace;
+	private double bitsLengthSpace;
+	private double diffxOffset;
+	private double diffyOffset;
+	private double diffRotation;
 
 	public Pattern createPattern(int layerNumber) {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
-		// space between 2 consecutive
-		// bits' height's side
-		double f = CraftConfig.bitsWidthSpace;
-		// space between 2 consecutive
-		// bits' length's side
-		double e = CraftConfig.bitsLengthSpace;
-		double L = CraftConfig.bitLength;
-		double H = CraftConfig.bitWidth;
+		// Setup parameters
+		bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();
+		bitsLengthSpace = (double) config.get("bitsLengthSpace").getCurrentValue();
+		diffxOffset = (double) config.get("diffxOffset").getCurrentValue();
+		diffyOffset = (double) config.get("diffyOffset").getCurrentValue();
+		diffRotation = (double) config.get("diffRotation").getCurrentValue();
 		// The first bit is displaced by multiples of diffxOffset and
 		// diffyOffset
-		Vector2 _1stBit = new Vector2(CraftConfig.diffxOffset * layerNumber % CraftConfig.bitLength,
-				CraftConfig.diffyOffset * layerNumber % CraftConfig.bitWidth);
+		Vector2 _1stBit = new Vector2(diffxOffset * layerNumber % CraftConfig.bitLength,
+				diffyOffset * layerNumber % CraftConfig.bitWidth);
 		// Fill out the square
 		int lineNum = 0;// Initialize
 		// Vertically downward
-		while (_1stBit.y - H / 2 + lineNum * (H + e) <= patternEnd.y) {
+		while (_1stBit.y - CraftConfig.bitWidth / 2
+				+ lineNum * (CraftConfig.bitWidth + bitsLengthSpace) <= patternEnd.y) {
 			// Horizontally
 			if (lineNum % 2 == 0) {
-				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y + lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+						bits);
 			} else {
-				fillHorizontally(new Vector2(_1stBit.x + L / 2 + f / 2, _1stBit.y + lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+						_1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)), bits);
 			}
 			lineNum++;
 		}
 		// Vertically upward
 		lineNum = 1; // Reinitialize
-		while (_1stBit.y + H / 2 - lineNum * (H + e) >= patternStart.y) {
+		while (_1stBit.y + CraftConfig.bitWidth / 2
+				- lineNum * (CraftConfig.bitWidth + bitsLengthSpace) >= patternStart.y) {
 			// Horizontally
 			if (lineNum % 2 == 0) {
-				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y - lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x, _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+						bits);
 			} else {
-				fillHorizontally(new Vector2(_1stBit.x + L / 2 + f / 2, _1stBit.y - lineNum * (H + e)), bits);
+				fillHorizontally(new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+						_1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)), bits);
 			}
 			lineNum++;
 		}
 
 		// Rotation for this layer
-		Vector2 customizedRotation = Vector2.getEquivalentVector((CraftConfig.diffRotation * layerNumber) % 360);
-		return new Pattern(bits, customizedRotation, skirtRadius);
+		Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
+		return new Pattern(bits, customizedRotation);
 	}
 
 	/**
@@ -78,7 +89,7 @@ public class PatternTemplate3 extends PatternTemplate {
 	 */
 	private void fillHorizontally(Vector2 _1stBitOrigin, Vector<Bit2D> bits) {
 		double L = CraftConfig.bitLength;
-		double f = CraftConfig.bitsWidthSpace;
+		double f = bitsWidthSpace;
 		// To the right
 		int colNum = 0; // Initialize
 		while (_1stBitOrigin.x - L / 2 + colNum * (L + f) <= patternEnd.x) {
@@ -127,7 +138,6 @@ public class PatternTemplate3 extends PatternTemplate {
 				selectedPattern.computeBits(selectedBoundary);
 				// Try to recover the gap left behind
 				this.cover(selectedPattern, initialStateOfBitToMove, localDirectionToMove);
-				Logger.updateStatus("Covered");
 				// Re-validate
 				selectedPattern.computeBits(selectedBoundary);
 				// Apply the changes on whole layer
@@ -140,7 +150,8 @@ public class PatternTemplate3 extends PatternTemplate {
 			}
 		}
 		int irregularitiesRest = DetectorTool.detectIrregularBits(actualState.getSelectedPattern()).size();
-		Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized. Still has " + irregularitiesRest + " irregularities not solved yet." );
+		Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized. " + irregularitiesRest
+				+ " irregularities not solved yet.");
 		return irregularitiesRest;
 	}
 
@@ -209,9 +220,9 @@ public class PatternTemplate3 extends PatternTemplate {
 	private void cover(Pattern actualState, Bit2D movedBit, Vector2 localDirectionOfMove) {
 		double paddle = 0;
 		if (localDirectionOfMove.x == 0) {
-			paddle = CraftConfig.bitsLengthSpace / 2;
+			paddle = bitsLengthSpace / 2;
 		} else {
-			paddle = CraftConfig.bitsWidthSpace / 2;
+			paddle = bitsWidthSpace / 2;
 		}
 		Vector2 coveringBitKey = actualState.addBit(movedBit);
 		coveringBitKey = this.pushBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite());
@@ -268,12 +279,12 @@ public class PatternTemplate3 extends PatternTemplate {
 			// If we push up and down
 			verticalDisplacement = CraftConfig.bitWidth / 2;
 			horizontalDisplacement = CraftConfig.bitLength / 2;
-			additionalVerticalDisplacement = CraftConfig.bitsLengthSpace / 2;
+			additionalVerticalDisplacement = bitsLengthSpace / 2;
 		} else {
 			// If we push right or left
 			verticalDisplacement = CraftConfig.bitLength / 2;
 			horizontalDisplacement = CraftConfig.bitWidth / 2;
-			additionalVerticalDisplacement = CraftConfig.bitsWidthSpace / 2;
+			additionalVerticalDisplacement = bitsWidthSpace / 2;
 		}
 
 		// Treating the group bitEntirelyInFrontOfBitToMove.
@@ -322,8 +333,7 @@ public class PatternTemplate3 extends PatternTemplate {
 				// which has just been reduced to none
 				Vector2 coveringBitKey = actualState.addBit(bit);
 				// Then reform
-				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector,
-						horizontalDisplacement);
+				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector, horizontalDisplacement);
 			}
 		}
 
@@ -388,8 +398,8 @@ public class PatternTemplate3 extends PatternTemplate {
 		Vector2 x = bit1.getOrientation().normal(), y = x.getCWAngularRotated(),
 				dist = bit2.getCenter().sub(bit1.getCenter());
 
-		double length1 = bit1.getLength(), width1 = bit1.getWidth(),
-				length2 = bit2.getLength(), width2 = bit2.getWidth();
+		double length1 = bit1.getLength(), width1 = bit1.getWidth(), length2 = bit2.getLength(),
+				width2 = bit2.getWidth();
 
 		// Firstly, we check if they do not overlap.
 		// Even if they have only one common point,
@@ -508,4 +518,53 @@ public class PatternTemplate3 extends PatternTemplate {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
+	@Override
+	public String getCommonName() {
+		return "Improved Brick Pattern";
+	}
+
+	@Override
+	public String getIconName() {
+		return "p3.png";
+	}
+	
+	@Override
+	public String getDescription() {
+		return "A pattern improved from classic Brick Pattern with much more flexibility.";
+	}
+	
+	@Override
+	public String getHowToUse() {
+		return "You can add incremental rotations or displacement for layers.";
+	}
+
+	@Override
+	public void initiateConfig() {
+		// bitsLengthSpace
+		config.add(new PatternParameterConfig("bitsLengthSpace", "Space between bits' lengths",
+				"The gap between two consecutive bits' lengths (in mm)", 1.0, 100.0, 1.0, 1.0));
+		// bitsWidthSpace
+		config.add(new PatternParameterConfig("bitsWidthSpace", "Space between bits' widths",
+				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 5.0, 1.0));
+		// diffRotation
+		config.add(new PatternParameterConfig("diffRotation", "Differential rotation",
+				"Rotation of a layer in comparison to the previous one (in degrees °)", 0.0, 360.0, 0.0, 0.1));
+		// diffxOffset
+		config.add(new PatternParameterConfig("diffxOffset", "Differential X offset",
+				"Offset in the X-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
+		// diffyOffset
+		config.add(new PatternParameterConfig("diffyOffset", "Differential Y offset",
+				"Offset in the Y-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
+
+	}
+
+	@Override
+	public boolean ready(GeneratedPart generatedPart) {
+		// Setting the skirtRadius and starting/ending points
+		this.skirtRadius = generatedPart.getSkirtRadius();
+		double maxiSide = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
+		this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
+		this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
+		return true;
+	}
 }

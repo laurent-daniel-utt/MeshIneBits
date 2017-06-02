@@ -22,7 +22,6 @@ import meshIneBits.util.Vector2;
  */
 public class Pattern implements Cloneable {
 	private Vector2 rotation;
-	private double skirtRadius;
 	/**
 	 * The key is the origin of bit in coordinate system of global object.
 	 */
@@ -30,10 +29,9 @@ public class Pattern implements Cloneable {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 
-	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, double skirtRadius,
-			AffineTransform transfoMatrix, AffineTransform inverseTransfoMatrix) {
+	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transfoMatrix,
+			AffineTransform inverseTransfoMatrix) {
 		this.rotation = rotation;
-		this.skirtRadius = skirtRadius;
 		this.mapBits = mapBits;
 		this.transfoMatrix = transfoMatrix;
 		this.inverseTransfoMatrix = inverseTransfoMatrix;
@@ -43,21 +41,19 @@ public class Pattern implements Cloneable {
 	 * 
 	 * @param bits
 	 * @param rotation
-	 * @param skirtRadius
 	 */
 
-	public Pattern(Vector<Bit2D> bits, Vector2 rotation, double skirtRadius) {
+	public Pattern(Vector<Bit2D> bits, Vector2 rotation) {
 
 		this.rotation = rotation;
-		this.skirtRadius = skirtRadius;
 
 		// Each pattern can have a rotation, usually linked to the layer number
 		transfoMatrix.rotate(rotation.x, rotation.y);
-		// Rotation of the whole patternTemplate
-		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x,
-				Vector2.getEquivalentVector(CraftConfig.rotation).y);
-		// Translation of the whole patternTemplate
-		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset);
+//		// Rotation of the whole patternTemplate
+//		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x,
+//				Vector2.getEquivalentVector(CraftConfig.rotation).y);
+//		// Translation of the whole patternTemplate
+//		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset);
 
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
@@ -97,7 +93,7 @@ public class Pattern implements Cloneable {
 			clonedMapBits.put(key, mapBits.get(key).clone());
 		}
 
-		return new Pattern(clonedMapBits, rotation, skirtRadius, transfoMatrix, inverseTransfoMatrix);
+		return new Pattern(clonedMapBits, rotation, transfoMatrix, inverseTransfoMatrix);
 	}
 
 	/**

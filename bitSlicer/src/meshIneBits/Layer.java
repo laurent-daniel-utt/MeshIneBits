@@ -121,7 +121,7 @@ public class Layer extends Observable {
 
 	public Vector2 getNewOrientation(Bit2D bit) {
 		AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
-		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
+//		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
 		return bit.getOrientation().getTransformed(patternAffTrans);
 	}
 

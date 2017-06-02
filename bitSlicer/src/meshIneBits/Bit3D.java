@@ -89,7 +89,6 @@ public class Bit3D {
 		for (Area subBit : bit2dToExtrude.getRawAreas()) {
 			Vector2 liftPoint = computeLiftPoint(subBit);
 			liftPoints.add(liftPoint);
-			// TODO
 			if (liftPoint != null) {
 				// A new lift point means a new deposit point which is the
 				// addition of the origin point of the bit and the lift point

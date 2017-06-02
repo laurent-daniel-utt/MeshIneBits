@@ -1,32 +1,68 @@
 package meshIneBits.PatternTemplates;
 
+import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.PatternConfig;
 import meshIneBits.util.Vector2;
 
+/**
+ * This is a factory paving the layers. Use {@link #createPattern(layerNum)} to
+ * pave.
+ */
 public abstract class PatternTemplate {
 
-	protected Vector2 patternStart, patternEnd;
-	protected double skirtRadius;
+	/**
+	 * Contains all customizable special parameters of the pattern template
+	 */
+	protected PatternConfig config = new PatternConfig();
 
 	/**
-	 * The common name for the template (not in enumeration)
+	 * Prepare own parameters (use {@link PatternTemplate#initiateConfig()}
+	 * 
 	 */
-	private String name;
-
-	public PatternTemplate(double skirtRadius) {
-
-		// skirtRadius is the radius of the cylinder that fully contains the
-		// part.
-		// The points patternStart and patternEnd make the rectangle that the
-		// method createPattern() will cover.
-		double maxiSide = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
-		patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
-		patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
-
-		this.skirtRadius = skirtRadius;
+	public PatternTemplate() {
+		super();
+		initiateConfig();
 	}
+
+	/**
+	 * Prepare own parameters from a externally loaded configuration.
+	 * 
+	 * @param patternConfig
+	 *            all given parameters will be filtered again before applying.
+	 *            Those which do not appear in the default configuration of
+	 *            template will be discarded.
+	 */
+	public PatternTemplate(PatternConfig patternConfig) {
+		super();
+		initiateConfig();
+		// Setup currentValue fields
+		for (String configName : config.keySet()) {
+			if (patternConfig.containsKey(configName)) {
+				Object currentValue = config.get(configName).getCurrentValue(),
+						newValue = patternConfig.get(configName).getCurrentValue();
+				if (currentValue.getClass().isAssignableFrom(newValue.getClass())) {
+					config.get(configName).setCurrentValue(newValue);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Initialize the specialized configuration if no predefined configuration
+	 * found.
+	 */
+	public abstract void initiateConfig();
+
+	/**
+	 * Calculate private parameters, after slicing and before generating bits.
+	 * 
+	 * @param generatedPart
+	 *            the current part in workplace
+	 * @return <tt>false</tt> if the preparation fails
+	 */
+	public abstract boolean ready(GeneratedPart generatedPart);
 
 	/**
 	 * Construct the layer based on this pattern
@@ -44,21 +80,6 @@ public abstract class PatternTemplate {
 	 * @return the number of bits not solved yet
 	 */
 	public abstract int optimize(Layer actualState);
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	/**
 	 * Move the bit by the minimum distance automatically calculated.
@@ -89,4 +110,36 @@ public abstract class PatternTemplate {
 	 * @return the new origin of the moved bit
 	 */
 	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance);
+
+	/**
+	 * @return the full name of icon representation the template
+	 */
+	public String getIconName() {
+		return "default-template-icon.png";
+	}
+
+	/**
+	 * @return the common name of the template
+	 */
+	public String getCommonName() {
+		return "An Unknown Template";
+	}
+
+	/**
+	 * @return a block of text of description about this template
+	 */
+	public String getDescription() {
+		return "A predefined template.";
+	}
+
+	/**
+	 * @return a block of text about how to use this template
+	 */
+	public String getHowToUse() {
+		return "Customize parameters to reach the desired pattern.";
+	}
+
+	public PatternConfig getPatternConfig() {
+		return config;
+	}
 }

@@ -260,6 +260,9 @@ public class Bit2D implements Cloneable {
 		return area;
 	}
 
+	/**
+	 * @return set of raw areas of this bit (not transformed)
+	 */
 	public Vector<Area> getRawAreas() {
 		return areas;
 	}
@@ -304,10 +307,18 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * @return the lift point on this bit
+	 * @return a set of lift points, each of which is in charge of each
+	 *         separated area (in case a bit has many separated areas)
 	 */
-	public Vector2 computeLiftPoint() {
-		return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
+	public Vector<Vector2> computeLiftPoints() {
+		Vector<Vector2> result = new Vector<Vector2>();
+		for (Area area : areas) {
+			Vector2 localLiftPoint = AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2);
+			if (localLiftPoint != null) {
+				result.add(localLiftPoint);
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -333,15 +344,16 @@ public class Bit2D implements Cloneable {
 
 	/**
 	 * This method only accepts the conservative transformation (no scaling).
-	 * The coordinates are rounded by {@link CraftConfig#errorAccepted} to accelerate calculation.
+	 * The coordinates are rounded by {@link CraftConfig#errorAccepted} to
+	 * accelerate calculation.
 	 * 
 	 * @param transformation
 	 * @return a new bit with same geometric with initial one transformed by
 	 *         <tt>transfoMatrix</tt>
 	 */
 	public Bit2D createTransformedBit(AffineTransform transformation) {
-		Vector2 newOrigin = origin.getTransformed(transformation).getRounded(),
-				newOrientation = origin.add(orientation).getTransformed(transformation).sub(newOrigin).normal().getRounded();
+		Vector2 newOrigin = origin.getTransformed(transformation).getRounded(), newOrientation = origin.add(orientation)
+				.getTransformed(transformation).sub(newOrigin).normal().getRounded();
 		Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
 		newBit.updateBoundaries(this.getArea().createTransformedArea(transformation));
 		return newBit;

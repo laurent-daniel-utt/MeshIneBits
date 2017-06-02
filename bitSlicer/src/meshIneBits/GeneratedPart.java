@@ -6,10 +6,6 @@ import java.util.Vector;
 
 import meshIneBits.Config.CraftConfig;
 import meshIneBits.PatternTemplates.PatternTemplate;
-import meshIneBits.PatternTemplates.PatternTemplate1;
-import meshIneBits.PatternTemplates.PatternTemplate2;
-import meshIneBits.PatternTemplates.PatternTemplate3;
-import meshIneBits.PatternTemplates.PatternTemplate4;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.Slicer.SliceTool;
 import meshIneBits.util.Logger;
@@ -35,6 +31,9 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		slicer.sliceModel();
 	}
 
+	/**
+	 * Start the process of generating bits
+	 */
 	public void buildBits2D() {
 
 		if ((t == null) || ((t != null) && !t.isAlive())) {
@@ -139,19 +138,9 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	}
 
 	private void setPatternTemplate() {
-		switch (CraftConfig.patternNumber) {
-		case 1:
-			patternTemplate = new PatternTemplate1(skirtRadius);
-			break;
-		case 2:
-			patternTemplate = new PatternTemplate2(skirtRadius);
-			break;
-		case 3:
-			patternTemplate = new PatternTemplate3(skirtRadius);
-			break;
-		case 4:
-			patternTemplate = new PatternTemplate4(skirtRadius);
-		}
+		patternTemplate = CraftConfig.templateChoice;
+		patternTemplate.ready(this);
+		Logger.updateStatus("Prepared for generating bits.");
 	}
 
 	/**
@@ -173,8 +162,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		}
 
 		skirtRadius = Math.sqrt(radius);
-
-		System.out.println("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
+		Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
 	}
 
 	@Override

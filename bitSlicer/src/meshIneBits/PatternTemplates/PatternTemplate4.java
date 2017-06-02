@@ -8,14 +8,19 @@ import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
+import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.Config.CraftConfig;
+import meshIneBits.Config.PatternParameterConfig;
 import meshIneBits.Slicer.Slice;
 import meshIneBits.util.AreaTool;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
 
 /**
@@ -46,27 +51,27 @@ public class PatternTemplate4 extends PatternTemplate {
 	 */
 	private double[] trialLengthOffsets;
 	/**
+	 * The gap between 2 bits' width
+	 */
+	private double bitsWidthSpace;
+
+	/**
+	 * The gap between 2 bits' length
+	 */
+	private double bitsLengthSpace;
+	/**
 	 * Stocks all rotations' layers.
 	 */
 	private static Vector<java.lang.Double> layersRotations = new Vector<java.lang.Double>();
 
 	/**
-	 * This template in fact does not need a skirtRadius
-	 * 
-	 * @param skirtRadius
-	 */
-	public PatternTemplate4(double skirtRadius) {
-		super(skirtRadius);
-	}
-
-	/**
 	 * This constructor will only leave a black space. The real job is done in
-	 * auto-optimization.
+	 * {@link #optimize(Layer)}
 	 */
 	@Override
 	public Pattern createPattern(int layerNumber) {
 		layersRotations.add(layerNumber, null);
-		return new Pattern(new Vector<Bit2D>(), new Vector2(1, 0), skirtRadius);
+		return new Pattern(new Vector<Bit2D>(), new Vector2(1, 0));
 	}
 
 	/**
@@ -78,11 +83,13 @@ public class PatternTemplate4 extends PatternTemplate {
 	@Override
 	public int optimize(Layer actualState) {
 		// Reset the state
-		actualState.setReferentialPattern(new Pattern(new Vector<Bit2D>(), new Vector2(1, 0), skirtRadius));
-		// Initial layer parameters
-		trialLengthOffsets = this.getTrialLengthOffsets();
-		trialHeightOffsets = this.getTrialHeightOffsets();
-		trialRotations = this.getTrialRotations(actualState.getLayerNumber());
+		actualState.setReferentialPattern(new Pattern(new Vector<Bit2D>(), new Vector2(1, 0)));
+		// Prepare parameters
+		this.setupTrialLengthOffsets();
+		this.setupTrialHeightOffsets();
+		this.setupTrialRotations(actualState.getLayerNumber());
+		this.bitsLengthSpace = (double) config.get("bitsLengthSpace").getCurrentValue();
+		this.bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();
 		// Slice in fact is a set of polygons
 		Slice selectedBoundary = actualState.getSelectedSlice();
 		Vector<Bit2D> overallPavement = null;
@@ -151,7 +158,7 @@ public class PatternTemplate4 extends PatternTemplate {
 		}
 		// Recreate the referential pattern for this layer
 		if (overallPavement != null) {
-			actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0), skirtRadius));
+			actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0)));
 			layersRotations.set(actualState.getLayerNumber(), thisLayerRotation);
 			actualState.rebuild();
 			return 0;
@@ -215,8 +222,8 @@ public class PatternTemplate4 extends PatternTemplate {
 							// First, we need to recover the space
 							// covered by last step
 							Rectangle2D.Double lastlyPavedSpaceRect = new Rectangle2D.Double(zoneOuterRect.x,
-									unpavedZoneRect.y - CraftConfig.bitsLengthSpace - CraftConfig.bitWidth,
-									zoneOuterRect.width, CraftConfig.bitsLengthSpace + CraftConfig.bitWidth);
+									unpavedZoneRect.y - bitsLengthSpace - CraftConfig.bitWidth, zoneOuterRect.width,
+									bitsLengthSpace + CraftConfig.bitWidth);
 							Area lastlyPavedSpace = new Area(lastlyPavedSpaceRect);
 							lastlyPavedSpace.intersect(zone);
 							// Then add to the unpaved zone
@@ -243,7 +250,7 @@ public class PatternTemplate4 extends PatternTemplate {
 					lastBand = thisBand;
 					// Reduce the unpaved space
 					Rectangle2D.Double pavedZoneRect = new Rectangle2D.Double(zoneOuterRect.x, unpavedZoneRect.y,
-							zoneOuterRect.width, thisBandHeight + CraftConfig.bitsLengthSpace);
+							zoneOuterRect.width, thisBandHeight + bitsLengthSpace);
 					unpavedZone.subtract(new Area(pavedZoneRect));
 					// Assuming the height of the next line
 					thisBandHeight = CraftConfig.bitWidth;
@@ -306,12 +313,12 @@ public class PatternTemplate4 extends PatternTemplate {
 				newBit.updateBoundaries(newBitArea);
 				// Check if the new bit have a lift point
 				// in the unpaved space before the fill
-				if (newBit.computeLiftPoint() != null) {
+				if (!DetectorTool.checkIrregular(newBit)) {
 					// If yes, we retrieve it
 					bandPavement.add(newBit);
 					// Decrease the unpaved space
 					Rectangle2D.Double pavedSpaceRect = new Rectangle2D.Double(unpavedSpaceRect.x, bandOuterRect.y,
-							thisBitLength + CraftConfig.bitsWidthSpace, bandHeight);
+							thisBitLength + bitsWidthSpace, bandHeight);
 					unpavedSpace.subtract(new Area(pavedSpaceRect));
 					// Assuming the next bit will have full length
 					thisBitLength = CraftConfig.bitLength;
@@ -396,41 +403,41 @@ public class PatternTemplate4 extends PatternTemplate {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
-	private double[] getTrialLengthOffsets() {
-		int m = (int) Math.pow(2, CraftConfig.litmitForCalculatingLengthOffsets);
-		double[] x = new double[m];
-		for (int i = 0; i < m; i++) {
-			x[i] = i / m * CraftConfig.bitLength;
+	@SuppressWarnings("unchecked")
+	private void setupTrialLengthOffsets() throws ClassCastException, UnsupportedOperationException {
+		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialLengthOffsets").getCurrentValue();
+		// Adapt values
+		trialLengthOffsets = new double[a.size()];
+		for (int i = 0; i < a.size(); i++) {
+			trialLengthOffsets[i] = a.get(i) * CraftConfig.bitLength;
 		}
-		return x;
 	}
 
-	private double[] getTrialHeightOffsets() {
-		int m = (int) Math.pow(2, CraftConfig.limitForCalculatingHeightOffsets);
-		double[] x = new double[m];
-		for (int i = 0; i < m; i++) {
-			x[i] = i / m * CraftConfig.bitWidth;
+	@SuppressWarnings("unchecked")
+	private void setupTrialHeightOffsets() {
+		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialHeightOffsets").getCurrentValue();
+		trialHeightOffsets = new double[a.size()];
+		for (int i = 0; i < trialHeightOffsets.length; i++) {
+			trialHeightOffsets[i] = a.get(i) * CraftConfig.bitWidth;
 		}
-		return x;
 	}
 
-	private double[] getTrialRotations(int layerNum) {
-		double[] x = CraftConfig.diffAngleForTryingOptimising;
-		double[] x3 = null;
+	@SuppressWarnings("unchecked")
+	private void setupTrialRotations(int layerNum) {
+		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialDiffAngles").getCurrentValue();
 		if (layerNum == 0 || layersRotations.get(layerNum - 1) == null) {
-			x3 = new double[x.length + 1];
-			x3[0] = 0;
-			for (int i = 0; i < x.length; i++) {
-				x3[i + 1] = x[i];
+			trialRotations = new double[a.size() + 1];
+			trialRotations[0] = 0;
+			for (int i = 0; i < a.size(); i++) {
+				trialRotations[i + 1] = a.get(i);
 			}
 		} else {
 			double previousRotation = layersRotations.get(layerNum - 1);
-			x3 = new double[x.length];
-			for (int i = 0; i < x.length; i++) {
-				x3[i] = previousRotation + x[i];
+			trialRotations = new double[a.size()];
+			for (int i = 0; i < a.size(); i++) {
+				trialRotations[i] = previousRotation + a.get(i);
 			}
 		}
-		return x3;
 	}
 
 	private Vector<Bit2D> transform(Vector<Bit2D> bits, AffineTransform conservativeTransformation) {
@@ -482,5 +489,84 @@ public class PatternTemplate4 extends PatternTemplate {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	@Override
+	public String getCommonName() {
+		return "Economic Pattern";
+	}
+
+	@Override
+	public String getIconName() {
+		return "p4.png";
+	}
+
+	@Override
+	public String getDescription() {
+		return "A pattern which tries optimization not by displacing paved bits "
+				+ "but rather right from the phase of paving.";
+	}
+
+	@Override
+	public String getHowToUse() {
+		return "It requires auto-optimization task to complete. "
+				+ "Note that this pattern does not always return a result "
+				+ "because once it can not fill a separated zone of the generated part, "
+				+ "that whole layer will end up failed.";
+	}
+
+	/*
+	 * This does nothing in particular.
+	 */
+	@Override
+	public boolean ready(GeneratedPart generatedPart) {
+		return true;
+	}
+
+	@Override
+	public void initiateConfig() {
+		// bitsLengthSpace
+		config.add(new PatternParameterConfig("bitsLengthSpace", "Space between bits' lengths",
+				"The gap between two consecutive bits' lengths (in mm)", 1.0, 100.0, 1.0, 1.0));
+		// bitsWidthSpace
+		config.add(new PatternParameterConfig("bitsWidthSpace", "Space between bits' widths",
+				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 1.0, 1.0));
+		// trialLengthRatioOffsets
+		double[] x = { 0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };
+		ArrayList<java.lang.Double> trialLengthRatios = new ArrayList<>(x.length);
+		for (int i = 0; i < x.length; i++) {
+			trialLengthRatios.add(java.lang.Double.valueOf(x[i]));
+		}
+		config.add(new PatternParameterConfig("trialLengthRatioOffsets", "Trial length's ratios",
+				"This helps us in finding the most suitable length for the first bit of a line."
+						+ "\nThese ratios should be distinct between 0 and 1."
+						+ "\nOtherwise values will be filtered.",
+				0.0, 1.0, trialLengthRatios, 0.001));
+		// trialHeightRatioOffsets
+		double[] y = { 0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };
+		ArrayList<java.lang.Double> trialHeightRatios = new ArrayList<>(y.length);
+		for (int i = 0; i < y.length; i++) {
+			trialHeightRatios.add(java.lang.Double.valueOf(y[i]));
+		}
+		config.add(new PatternParameterConfig("trialHeightRatioOffsets", "Trial height's ratios",
+				"This helps us in finding the most suitable height for the first line of the pavement."
+						+ "\nThese ratios should be distinct between 0 and 1."
+						+ "\nOtherwise values will be filtered.",
+				0.0, 1.0, trialHeightRatios, 0.001));
+		// trialDiffAngles
+		double[] z = { 90, // 1st level
+				45, 135, // 2nd level
+				30, 60, 120, 150, // 3rd level
+		};
+		ArrayList<java.lang.Double> trialDiffAngles = new ArrayList<>(z.length);
+		for (int i = 0; i < z.length; i++) {
+			trialDiffAngles.add(java.lang.Double.valueOf(z[i]));
+		}
+		config.add(new PatternParameterConfig("trialDiffAngles", "Trial differential angles",
+				"This helps us in finding the most suitable rotation of a layer in comparision with the previous one,"
+						+ " in order not to have 2 layers having same rotation."
+						+ "\nThese angles should be distinct between 0 and 180."
+						+ "\nOtherwise values will be filtered.",
+				0.0, 180.0, trialDiffAngles, 0.1));
 	}
 }

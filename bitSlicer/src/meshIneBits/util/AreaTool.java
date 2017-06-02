@@ -207,21 +207,25 @@ public class AreaTool {
 		// We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
-		double minDist = CraftConfig.bitLength * 2; // To be sure every other
-													// distances will be smaller
-		for (Vector<Segment2D> polygon : segments) {
-			for (Segment2D segment : polygon) {
-				double dist = segment.distFromPoint(barycenter);
-				if (dist < minDist) {
-					minDist = dist;
+		if (area.contains(barycenter.x, barycenter.y)) {
+			// To be sure every other
+			// distances will be smaller
+			double minDist = CraftConfig.bitLength * 2;
+			for (Vector<Segment2D> polygon : segments) {
+				for (Segment2D segment : polygon) {
+					double dist = segment.distFromPoint(barycenter);
+					if (dist < minDist) {
+						minDist = dist;
+					}
 				}
 			}
+			if (minDist >= minRadius) {
+				return new Vector2(barycenter.x, barycenter.y);
+			}
 		}
-		if (minDist >= minRadius) {
-			return new Vector2(barycenter.x, barycenter.y);
-		}
-
-		// If not we fill the area with points
+		// In case the barycenter is not in the area
+		// or the circle of sucker is not fit in the area,
+		// we fill the area with points
 		Rectangle2D bounds = area.getBounds2D();
 		double stepX = 1;
 		double stepY = 1;
@@ -270,12 +274,8 @@ public class AreaTool {
 		// fit the sucker cup, the first one to be ok will be the liftPoint
 		Vector2 liftPoint = null;
 		for (Vector2 p : sortedPoints) {
-			double minDistFromBounds = CraftConfig.bitLength * 2; // To be sure
-																	// every
-																	// other
-																	// distances
-																	// will be
-																	// smaller
+			// To be sure every other distances will be smaller
+			double minDistFromBounds = CraftConfig.bitLength * 2;
 			for (Vector<Segment2D> polygon : segments) {
 				for (Segment2D segment : polygon) {
 					double dist = segment.distFromPoint(new Vector2(p.x, p.y));

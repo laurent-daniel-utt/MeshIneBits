@@ -1,4 +1,4 @@
-package meshIneBits.gui.GUIUtilities;
+package meshIneBits.gui.utilities;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
