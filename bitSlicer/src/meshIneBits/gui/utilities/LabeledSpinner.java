@@ -11,8 +11,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 
-import meshIneBits.Config.PatternParameterConfig;
-import meshIneBits.Config.Setting;
+import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.Setting;
 
 public class LabeledSpinner extends JPanel {
 
@@ -48,7 +48,7 @@ public class LabeledSpinner extends JPanel {
 		Field attribute;
 		double defaultValue = 0;
 		try {
-			attribute = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredField(attributeName);
+			attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
 			attribute.setAccessible(true);
 			defaultValue = attribute.getDouble(attribute);
 		} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException

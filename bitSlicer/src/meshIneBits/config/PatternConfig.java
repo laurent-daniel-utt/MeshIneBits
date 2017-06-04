@@ -1,7 +1,7 @@
 /**
  * 
  */
-package meshIneBits.Config;
+package meshIneBits.config;
 
 import java.util.HashMap;
 

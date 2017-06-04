@@ -1,7 +1,7 @@
 /**
  * 
  */
-package meshIneBits.Config;
+package meshIneBits.config;
 
 import java.io.Serializable;
 import java.util.ArrayList;

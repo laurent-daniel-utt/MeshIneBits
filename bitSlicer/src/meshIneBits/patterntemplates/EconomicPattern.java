@@ -1,7 +1,7 @@
 /**
  * 
  */
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -16,9 +16,9 @@ import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.PatternParameterConfig;
-import meshIneBits.Slicer.Slice;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
@@ -33,7 +33,7 @@ import meshIneBits.util.Vector2;
  * @author NHATHAN
  *
  */
-public class PatternTemplate4 extends PatternTemplate {
+public class EconomicPattern extends PatternTemplate {
 
 	/**
 	 * Contains all offsets for trying to rotate this layer, in order to not
@@ -377,7 +377,7 @@ public class PatternTemplate4 extends PatternTemplate {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * meshIneBits.PatternTemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
 	 */
 	@Override
@@ -395,7 +395,7 @@ public class PatternTemplate4 extends PatternTemplate {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * meshIneBits.PatternTemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
 	 */
 	@Override

@@ -8,7 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.Vector;
 
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 
 public class AreaTool {
 

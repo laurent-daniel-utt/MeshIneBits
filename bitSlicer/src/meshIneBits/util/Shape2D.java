@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 
 /**
  * Shape2D is composed of {@link Segment2D} and {@link Polygon}. The segments represent all the

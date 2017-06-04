@@ -1,4 +1,4 @@
-package meshIneBits.Config;
+package meshIneBits.config;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

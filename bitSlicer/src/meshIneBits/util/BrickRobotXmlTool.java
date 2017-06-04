@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 
 /**
  * 

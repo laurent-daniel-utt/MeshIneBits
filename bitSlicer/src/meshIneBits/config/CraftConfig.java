@@ -1,12 +1,12 @@
-package meshIneBits.Config;
+package meshIneBits.config;
 
 import java.util.Vector;
 
-import meshIneBits.PatternTemplates.PatternTemplate;
-import meshIneBits.PatternTemplates.PatternTemplate1;
-import meshIneBits.PatternTemplates.PatternTemplate2;
-import meshIneBits.PatternTemplates.PatternTemplate3;
-import meshIneBits.PatternTemplates.PatternTemplate4;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.patterntemplates.ClassicBrickPattern;
+import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
+import meshIneBits.patterntemplates.ImprovedBrickPattern;
+import meshIneBits.patterntemplates.EconomicPattern;
 
 /**
  * The CraftConfig class contains the configurable
@@ -21,14 +21,14 @@ public class CraftConfig
 	
 	// Slicer options
 
-	@Setting(title = "Slice height (mm)",
-			description = "Height of each sliced layer.",
+	@Setting(title = "Slice height",
+			description = "Height of each sliced layer (in mm)",
 			minValue = 1.0, maxValue = 1000.0
 			)
 	public static double sliceHeight = 2;
 
-	@Setting(title = "First slice height (%)",
-			description = "Starting height of the first slice in the model. 50% is the default.",
+	@Setting(title = "First slice height",
+			description = "Starting height of the first slice in the model (in %). 50% is the default.",
 			minValue = 0.0, maxValue = 200.0
 			)
 	public static double firstSliceHeightPercent = 50;
@@ -41,20 +41,20 @@ public class CraftConfig
 	
 	// Bits options
 	
-	@Setting(title = "Bit thickness (mm)",
-			description = "Thickness of the bits",
+	@Setting(title = "Bit thickness",
+			description = "Thickness of the bits (in mm)",
 			minValue = 1.0, maxValue = 1000.0
 			)
 	public static double bitThickness = 8.0;
 	
-	@Setting(title = "Bit width (mm)",
-			description = "Width of the bits",
+	@Setting(title = "Bit width",
+			description = "Width of the bits (in mm)",
 			minValue = 1.0, maxValue = 1000.0
 			)
 	public static double bitWidth = 24.0;
 	
-	@Setting(title = "Bit length (mm)",
-			description = "Length of the bits",
+	@Setting(title = "Bit length",
+			description = "Length of the bits (in mm)",
 			minValue = 1.0, maxValue = 1000.0
 			)
 	public static double bitLength = 120.0;
@@ -74,10 +74,10 @@ public class CraftConfig
 	 * The provided templates
 	 */
 	public static PatternTemplate[] templatesPreloaded = {
-			new PatternTemplate1(),
-			new PatternTemplate2(),
-			new PatternTemplate3(),
-			new PatternTemplate4()
+			new ClassicBrickPattern(),
+			new DiagonalHerringbonePattern(),
+			new ImprovedBrickPattern(),
+			new EconomicPattern()
 	};
 	/**
 	 * Includes the provided templates and added lately ones
@@ -91,8 +91,10 @@ public class CraftConfig
 	// Deprecated pattern parameters
 	
 	/**
-	 * Should be replaced in the next version by 3D-view.
 	 * @deprecated
+	 */
+	/*
+	 * Should be replaced in the next version by 3D-view.
 	 */
 	@Setting(title = "Overall rotation (°)",
 			description = "Rotation you want to apply on the whole object (in degrees)",
@@ -101,8 +103,10 @@ public class CraftConfig
 	public static double rotation = 0.0;
 	
 	/**
-	 * Should be replaced in the next version by 3D-view.
 	 * @deprecated
+	 */
+	/*
+	 * Should be replaced in the next version by 3D-view.
 	 */
 	@Setting(title = "Overall X offSet (mm)",
 			description = "Offset you want to apply on the whole object in the X direction (mm)",
@@ -111,8 +115,10 @@ public class CraftConfig
 	public static double xOffset = 0.0;
 	
 	/**
-	 * Should be replaced in the next version by 3D-view.
 	 * @deprecated
+	 */
+	/*
+	 * Should be replaced in the next version by 3D-view.
 	 */
 	@Setting(title = "Overall Y offSet (mm)",
 			description = "Offset you want to apply on the whole object in the Y direction (mm)",
@@ -122,26 +128,26 @@ public class CraftConfig
 	
 	// Layer computation 
 	
-	@Setting(title = "Space between layers (mm)",
-			description = "The vertical gap between each layers (mm)",
+	@Setting(title = "Space between layers",
+			description = "The vertical gap between each layers (in mm)",
 			minValue = 1.0, maxValue = 100.0
 			)
 	public static double layersOffset = 1;
 	
 	@Setting(title = "Min % of slices in a bit3D",
-			description = "Minimun percentage of slices in a bit3D (%)",
+			description = "Minimun percentage of number slices in a bit3D (%)",
 			minValue = 1.0, maxValue = 100.0
 			)
 	public static double minPercentageOfSlices = 50.0;
 	
-	@Setting(title = "Default slice to select (in % of bit height)",
-			description = "Default slice to select in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
+	@Setting(title = "Default slice to select",
+			description = "Default slice to select (in % of bit height) in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
 			minValue = 0.0, maxValue = 100.0
 			)
 	public static double defaultSliceToSelect = 50.0;
 	
-	@Setting(title = "Suction cup diameter (mm)",
-			description = "Diameter of the suction cup which lifts the bits (mm)",
+	@Setting(title = "Suction cup diameter",
+			description = "Diameter of the suction cup which lifts the bits (in mm)",
 			minValue = 1.0, maxValue = 100.0
 			)
 	public static double suckerDiameter = 10.0;

@@ -4,7 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 
 /**
  * Vector2 represent a point in a 2D space
@@ -141,7 +141,7 @@ public class Vector2 {
 	/**
 	 * Returns a normalized vector with a length of 1, having the same direction
 	 * as the origonal vector. Note: if the length is smaller than
-	 * 10^({@link meshIneBits.Config.CraftConfig#errorAccepted -errorAccepted})
+	 * 10^({@link meshIneBits.config.CraftConfig#errorAccepted -errorAccepted})
 	 * then the returned result will 0.
 	 */
 	public Vector2 normal() {

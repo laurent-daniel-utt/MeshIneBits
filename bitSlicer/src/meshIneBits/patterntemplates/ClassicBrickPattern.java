@@ -1,4 +1,4 @@
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;
 
 import java.util.Vector;
 
@@ -6,8 +6,8 @@ import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.PatternParameterConfig;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.util.Vector2;
 
 /**
@@ -15,7 +15,7 @@ import meshIneBits.util.Vector2;
  * is no auto-optimization implemented in this class.
  */
 
-public class PatternTemplate1 extends PatternTemplate {
+public class ClassicBrickPattern extends PatternTemplate {
 
 	private Vector2 patternStart;
 	private Vector2 patternEnd;
@@ -53,7 +53,7 @@ public class PatternTemplate1 extends PatternTemplate {
 	}
 
 	/* Not yet implemented
-	 * @see meshIneBits.PatternTemplates.PatternTemplate#optimize(meshIneBits.Layer)
+	 * @see meshIneBits.patterntemplates.PatternTemplate#optimize(meshIneBits.Layer)
 	 */
 	@Override
 	public int optimize(Layer actualState) {

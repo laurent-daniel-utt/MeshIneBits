@@ -1,4 +1,4 @@
-package meshIneBits.Slicer;
+package meshIneBits.slicer;
 
 import meshIneBits.util.Shape2D;
 

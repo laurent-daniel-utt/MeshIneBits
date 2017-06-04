@@ -1,9 +1,9 @@
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.PatternConfig;
+import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
 /**

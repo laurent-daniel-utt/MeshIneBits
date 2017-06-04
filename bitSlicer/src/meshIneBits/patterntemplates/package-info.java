@@ -6,4 +6,4 @@
  * This PatternTemplate can have a rotation around the Z-axis of the part and an offset regarding the part origin.
  */
 
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;

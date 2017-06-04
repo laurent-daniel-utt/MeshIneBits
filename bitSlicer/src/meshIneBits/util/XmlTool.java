@@ -11,7 +11,7 @@ import java.util.Vector;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 
 public class XmlTool {
 

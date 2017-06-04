@@ -1,4 +1,4 @@
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -7,21 +7,21 @@ import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.PatternParameterConfig;
-import meshIneBits.Slicer.Slice;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 /**
  * Pattern improved from classic pattern
- * {@link meshIneBits.PatternTemplates.PatternTemplate1 PatternTemplate1}.
+ * {@link meshIneBits.patterntemplates.ClassicBrickPattern ClassicBrickPattern}.
  * 
  * @author NHATHAN
  *
  */
-public class PatternTemplate3 extends PatternTemplate {
+public class ImprovedBrickPattern extends PatternTemplate {
 
 	private Vector2 patternStart;
 	private Vector2 patternEnd;

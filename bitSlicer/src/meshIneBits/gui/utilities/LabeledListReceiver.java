@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import meshIneBits.Config.PatternParameterConfig;
+import meshIneBits.config.PatternParameterConfig;
 
 /**
  * Contains a label and a text area, which receive multiple input

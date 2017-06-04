@@ -3,6 +3,7 @@ package meshIneBits.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -49,12 +50,11 @@ import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.CraftConfigLoader;
-import meshIneBits.Config.PatternConfig;
-import meshIneBits.Config.PatternParameterConfig;
-import meshIneBits.Config.Setting;
-import meshIneBits.PatternTemplates.PatternTemplate;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
+import meshIneBits.config.PatternConfig;
+import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.Setting;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
 import meshIneBits.gui.utilities.LabeledListReceiver;
@@ -62,6 +62,7 @@ import meshIneBits.gui.utilities.LabeledSpinner;
 import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.gui.utilities.RibbonTab;
 import meshIneBits.gui.utilities.TabContainerSeparator;
+import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
@@ -261,7 +262,10 @@ public class Ribbon extends JTabbedPane implements Observer {
 						final JFileChooser fc = new CustomFileChooser();
 						String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
 						fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-						fc.setSelectedFile(new File(CraftConfig.lastPatternConfigFile.replace("\n", "\\n")));
+						String filePath = CraftConfig.lastPatternConfigFile.replace("\n", "\\n");
+						if (filePath != null){
+							fc.setSelectedFile(new File(filePath));
+						}
 						if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
 							patternConfigFile = fc.getSelectedFile();
 							CraftConfig.lastPatternConfigFile = patternConfigFile.getAbsolutePath();
@@ -839,6 +843,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 			// Computing options
 			OptionsContainer computeCont = new OptionsContainer("Compute");
+			computeCont.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
 			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -848,9 +853,12 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setupAnnotations.get("minPercentageOfSlices"));
 			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
 					setupAnnotations.get("defaultSliceToSelect"));
+			LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter", setupAnnotations.get("suckerDiameter"));
 			computeCont.add(layersOffsetSpinner);
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
+			computeCont.add(suctionCupDiameter);
+			computeCont.add(new JLabel()); // dummy
 			computeCont.add(computeTemplateBtn);
 
 			// Overall
@@ -1104,7 +1112,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		HashMap<String, Setting> result = new HashMap<>();
 		try {
 			// Get all declared attributes
-			Field[] fieldList = Class.forName("meshIneBits.Config.CraftConfig").getDeclaredFields();
+			Field[] fieldList = Class.forName("meshIneBits.config.CraftConfig").getDeclaredFields();
 			for (Field field : fieldList) {
 				result.put(field.getName(), field.getAnnotation(Setting.class));
 			}

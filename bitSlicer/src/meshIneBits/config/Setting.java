@@ -1,4 +1,4 @@
-package meshIneBits.Config;
+package meshIneBits.config;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

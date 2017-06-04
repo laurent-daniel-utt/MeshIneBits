@@ -2,8 +2,8 @@ package meshIneBits;
 
 import java.io.File;
 
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.CraftConfigLoader;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.util.Logger;
 

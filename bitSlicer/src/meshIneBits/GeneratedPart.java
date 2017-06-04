@@ -4,10 +4,10 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.PatternTemplates.PatternTemplate;
-import meshIneBits.Slicer.Slice;
-import meshIneBits.Slicer.SliceTool;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.slicer.Slice;
+import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.Segment2D;

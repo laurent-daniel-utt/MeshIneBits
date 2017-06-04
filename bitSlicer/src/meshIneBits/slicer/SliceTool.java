@@ -1,11 +1,11 @@
-package meshIneBits.Slicer;
+package meshIneBits.slicer;
 
 import java.util.Observable;
 import java.util.Vector;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
-import meshIneBits.Config.CraftConfig;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Triangle;

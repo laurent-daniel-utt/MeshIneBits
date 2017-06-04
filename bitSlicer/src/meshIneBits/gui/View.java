@@ -25,8 +25,8 @@ import javax.swing.SwingUtilities;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Slicer.Slice;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
 

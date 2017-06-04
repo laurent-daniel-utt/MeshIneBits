@@ -1,4 +1,4 @@
-package meshIneBits.PatternTemplates;
+package meshIneBits.patterntemplates;
 
 import java.util.Vector;
 
@@ -6,14 +6,14 @@ import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
-import meshIneBits.Config.CraftConfig;
-import meshIneBits.Config.PatternParameterConfig;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.util.Vector2;
 
 /**
  * 
  */
-public class PatternTemplate2 extends PatternTemplate {
+public class DiagonalHerringbonePattern extends PatternTemplate {
 
 	private Vector2 patternStart;
 	private Vector2 patternEnd;
