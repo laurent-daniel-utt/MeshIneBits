@@ -34,8 +34,9 @@ public class DetectorTool {
 	}
 
 	/**
-	 * Compare the number of lift points on <tt>bit</tt> (each separated area
-	 * has no more than 1 lift point) and its areas' one.
+	 * Detect if <tt>bit</tt> is irregular by comparing the number of lift
+	 * points on <tt>bit</tt> and its separated areas' one (each separated area
+	 * has no more than 1 lift point).
 	 * 
 	 * @param bit
 	 * @return <tt>true</tt> if those 2 numbers are different

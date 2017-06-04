@@ -94,6 +94,7 @@ public class EconomicPattern extends PatternTemplate {
 		Slice selectedBoundary = actualState.getSelectedSlice();
 		Vector<Bit2D> overallPavement = null;
 		double thisLayerRotation = 0;
+		boolean essay = true;
 		for (int idx = 0; idx < trialRotations.length; idx++) {
 			thisLayerRotation = trialRotations[idx];
 			// Assuming this rotation of this layer will give us the best answer
@@ -107,7 +108,6 @@ public class EconomicPattern extends PatternTemplate {
 			// Receive the map of keys
 			overallPavement = new Vector<Bit2D>();
 			// Assuming we're able to fill this layer
-			boolean ableToFillAreas = true;
 			for (Area area : lv0Areas) {
 				Rectangle2D.Double bound = (Double) area.getBounds2D();
 				double anchorX = bound.x + bound.width / 2, anchorY = bound.y + bound.height / 2;
@@ -126,7 +126,7 @@ public class EconomicPattern extends PatternTemplate {
 				Vector<Bit2D> localPavement = null;
 				Vector<AffineTransform> possibleFlips = this.calculatePossibleFlips(rotatedZone);
 				if (possibleFlips == null) {
-					ableToFillAreas = false;
+					essay = false;
 					break;
 				}
 				// Try all possible flips
@@ -147,17 +147,17 @@ public class EconomicPattern extends PatternTemplate {
 				}
 				// Even if we try all flips
 				if (localPavement == null) {
-					ableToFillAreas = false;
+					essay = false;
 					break;
 				}
 			}
-			if (ableToFillAreas) {
+			if (essay) {
 				// If we find at least one fill
 				break;
 			}
 		}
 		// Recreate the referential pattern for this layer
-		if (overallPavement != null) {
+		if (essay) {
 			actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0)));
 			layersRotations.set(actualState.getLayerNumber(), thisLayerRotation);
 			actualState.rebuild();
@@ -174,10 +174,10 @@ public class EconomicPattern extends PatternTemplate {
 	 * 
 	 * @param zone
 	 *            a constraint surface without any other one inside or outside.
-	 * @return bits to be placed
+	 * @return <tt>null</tt> if no solution found
 	 */
 	private Vector<Bit2D> fillZone(Area zone) {
-		Vector<Bit2D> zonePavement = new Vector<Bit2D>();
+		Vector<Bit2D> zonePavement = null;
 		// The rectangle enclosing the area
 		Rectangle2D.Double zoneOuterRect = (Double) zone.getBounds2D();
 		for (int idx = 0; idx < trialHeightOffsets.length; idx++) {
@@ -186,6 +186,8 @@ public class EconomicPattern extends PatternTemplate {
 			Area lastState = null;
 			Vector<Bit2D> lastBand = null, thisBand = null;
 			double thisBandHeight = CraftConfig.bitWidth;
+			boolean essay = true;
+			zonePavement = new Vector<Bit2D>();
 			// Starting to pave line by line
 			while (!unpavedZone.isEmpty()) {
 				lastState = (Area) unpavedZone.clone();
@@ -193,12 +195,15 @@ public class EconomicPattern extends PatternTemplate {
 				// Creating a buffering rectangle
 				// which will contain a portion of the given area
 				// in which we will place the bits
-				Rectangle2D.Double unpavedBandRect = new Rectangle2D.Double(unpavedZoneRect.x, unpavedZoneRect.y,
-						unpavedZoneRect.width, thisBandHeight);
+				Rectangle2D.Double unpavedBandRect = new Rectangle2D.Double();
 				if (zonePavement.isEmpty()) {
 					// If this is the first band,
 					// we will push it back a little bit
-					unpavedBandRect.y -= trialHeightOffsets[idx];
+					unpavedBandRect.setRect(unpavedZoneRect.x, unpavedZoneRect.y - trialHeightOffsets[idx],
+							unpavedZoneRect.width, thisBandHeight);
+				} else {
+					unpavedBandRect.setRect(unpavedZoneRect.x, unpavedZoneRect.y, unpavedZoneRect.width,
+							thisBandHeight);
 				}
 				Area unpavedBand = new Area(unpavedBandRect);
 				// Intersecting this band with the initial area
@@ -214,6 +219,7 @@ public class EconomicPattern extends PatternTemplate {
 						// (either we are in the first band
 						// or we were trying to rebuild a band)
 						// We need to change the height of first line
+						essay = false;
 						break;
 					} else {
 						if (lastBand.lastElement().getWidth() == CraftConfig.bitWidth) {
@@ -241,6 +247,7 @@ public class EconomicPattern extends PatternTemplate {
 							// with half height
 							// we still can not find a solution for this line
 							// We need to change the height of first line
+							essay = false;
 							break;
 						}
 					}
@@ -261,8 +268,13 @@ public class EconomicPattern extends PatternTemplate {
 				if (unpavedZone.equals(lastState))
 					return null;
 			}
+			// If we find at least one fill satisfying
+			if (essay){
+				return zonePavement;
+			}
 		}
-		return zonePavement;
+		// Even though we tried all height offsets
+		return null;
 	}
 
 	/**
@@ -277,15 +289,16 @@ public class EconomicPattern extends PatternTemplate {
 	 * @return <tt>null</tt> if no solution found
 	 */
 	private Vector<Bit2D> fillBand(Area band, double bandHeight) {
-		Vector<Bit2D> bandPavement = new Vector<Bit2D>();
+		Vector<Bit2D> bandPavement = null;
 		for (int idx = 0; idx < trialLengthOffsets.length; idx++) {
 			// Reset for each loop
 			bandPavement = new Vector<Bit2D>();
-			// Save of the rest area
+			// Save the rest area
 			Area unpavedSpace = (Area) band.clone();
 			// Initial parameters
 			Rectangle2D.Double bandOuterRect = (Double) band.getBounds2D();
 			double originY = bandOuterRect.y + CraftConfig.bitWidth / 2, thisBitLength = CraftConfig.bitLength;
+			boolean essay = true;
 			// Commencement
 			while (!unpavedSpace.isEmpty()) {
 				// Get the boundary
@@ -306,12 +319,10 @@ public class EconomicPattern extends PatternTemplate {
 				if (newBitArea.isEmpty()) {
 					// If no space left,
 					// we complete the fill
-					//
-					// In fact, this if is to prevent NullPointerException
 					break;
 				}
 				newBit.updateBoundaries(newBitArea);
-				// Check if the new bit have a lift point
+				// Check if the new bit have sufficient lift points
 				// in the unpaved space before the fill
 				if (!DetectorTool.checkIrregular(newBit)) {
 					// If yes, we retrieve it
@@ -330,7 +341,8 @@ public class EconomicPattern extends PatternTemplate {
 						// with half of its length
 						if (bandPavement.isEmpty()) {
 							// But if we have no previous bit
-							// We change the offset of first bit
+							// We change the length offset of first bit
+							essay = false;
 							break;
 						} else {
 							Bit2D lastBit = bandPavement.lastElement();
@@ -338,8 +350,8 @@ public class EconomicPattern extends PatternTemplate {
 								// If we had rebuilt the last bit
 								// and retried this bit but ended up failure
 								// That means we fail
-								//
-								// We should change the offset
+								// We should change the length offset
+								essay = false;
 								break;
 							} else {
 								// Else, we recover the space taken
@@ -361,16 +373,18 @@ public class EconomicPattern extends PatternTemplate {
 					} else {
 						// In case we were trying rebuilding
 						// We will change the offset
+						essay = false;
 						break;
 					}
 				}
 			}
+			if (essay){
+				// If there is one fill satisfying
+				return bandPavement;
+			}
 		}
-		// In case no fill satisfies
-		if (bandPavement.isEmpty()) {
-			return null;
-		}
-		return bandPavement;
+		// If all offsets yield fail
+		return null;
 	}
 
 	/*
@@ -405,7 +419,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	@SuppressWarnings("unchecked")
 	private void setupTrialLengthOffsets() throws ClassCastException, UnsupportedOperationException {
-		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialLengthOffsets").getCurrentValue();
+		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialLengthRatioOffsets").getCurrentValue();
 		// Adapt values
 		trialLengthOffsets = new double[a.size()];
 		for (int i = 0; i < a.size(); i++) {
@@ -415,7 +429,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	@SuppressWarnings("unchecked")
 	private void setupTrialHeightOffsets() {
-		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialHeightOffsets").getCurrentValue();
+		List<java.lang.Double> a = (List<java.lang.Double>) config.get("trialHeightRatioOffsets").getCurrentValue();
 		trialHeightOffsets = new double[a.size()];
 		for (int i = 0; i < trialHeightOffsets.length; i++) {
 			trialHeightOffsets[i] = a.get(i) * CraftConfig.bitWidth;
@@ -466,7 +480,7 @@ public class EconomicPattern extends PatternTemplate {
 	 * Calculate all possible flips for <tt>area</tt>, keeping the same boundary
 	 * 
 	 * @param area
-	 * @return
+	 * @return a table of 4 possible flips
 	 */
 	private Vector<AffineTransform> calculatePossibleFlips(Area area) {
 		AffineTransform t = this.centerize(area);
@@ -539,8 +553,7 @@ public class EconomicPattern extends PatternTemplate {
 		}
 		config.add(new PatternParameterConfig("trialLengthRatioOffsets", "Trial length's ratios",
 				"This helps us in finding the most suitable length for the first bit of a line."
-						+ "\nThese ratios should be distinct between 0 and 1."
-						+ "\nOtherwise values will be filtered.",
+						+ "\nThese ratios should be distinct between 0 and 1." + "\nOtherwise values will be filtered.",
 				0.0, 1.0, trialLengthRatios, 0.001));
 		// trialHeightRatioOffsets
 		double[] y = { 0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };
@@ -550,8 +563,7 @@ public class EconomicPattern extends PatternTemplate {
 		}
 		config.add(new PatternParameterConfig("trialHeightRatioOffsets", "Trial height's ratios",
 				"This helps us in finding the most suitable height for the first line of the pavement."
-						+ "\nThese ratios should be distinct between 0 and 1."
-						+ "\nOtherwise values will be filtered.",
+						+ "\nThese ratios should be distinct between 0 and 1." + "\nOtherwise values will be filtered.",
 				0.0, 1.0, trialHeightRatios, 0.001));
 		// trialDiffAngles
 		double[] z = { 90, // 1st level
