@@ -548,7 +548,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 5.0, 1.0));
 		// diffRotation
 		config.add(new PatternParameterConfig("diffRotation", "Differential rotation",
-				"Rotation of a layer in comparison to the previous one (in degrees °)", 0.0, 360.0, 0.0, 0.1));
+				"Rotation of a layer in comparison to the previous one (in degrees °)", 90.0, 360.0, 0.0, 0.1));
 		// diffxOffset
 		config.add(new PatternParameterConfig("diffxOffset", "Differential X offset",
 				"Offset in the X-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
