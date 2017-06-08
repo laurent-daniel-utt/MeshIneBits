@@ -3,6 +3,7 @@
  */
 package meshIneBits.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -69,12 +70,25 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	private void optimizeGeneratedPart() {
 		int progressGoal = layers.size();
 		int irregularitiesRest = 0;
+		ArrayList<Integer> unsolvedLayers = new ArrayList<Integer>();
 		Logger.updateStatus("Optimizing the generated part.");
 		for (int j = 0; j < layers.size(); j++) {
 			Logger.setProgress(j + 1, progressGoal);
-			irregularitiesRest += optimizeLayer(layers.get(j));
+			int ir = optimizeLayer(layers.get(j));
+			if (ir > 0) {
+				irregularitiesRest += optimizeLayer(layers.get(j));				
+			} else if (ir < 0) {
+				unsolvedLayers.add(layers.get(j).getLayerNumber());
+			}
 		}
-		Logger.updateStatus("Auto-optimization complete. Still has " + irregularitiesRest + " not solved yet");
+		Logger.updateStatus("Auto-optimization complete. Still has " + irregularitiesRest + " not solved yet.");
+		if (!unsolvedLayers.isEmpty()){
+			StringBuilder str = new StringBuilder();
+			for (Integer integer : unsolvedLayers) {
+				str.append(integer + " ");
+			}
+			Logger.updateStatus("Layers which can not be solved:" + str.toString());
+		}
 	}
 
 	/**
@@ -98,6 +112,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	 * @return the number of irregularities not solved yet
 	 */
 	private int optimizeLayer(Layer layer) {
+		Logger.updateStatus("Auto-optimizing layer " + layer.getLayerNumber());
 		int irregularitiesRest = layer.getPatternTemplate().optimize(layer);
 		if (irregularitiesRest < 0){
 			Logger.updateStatus("Auto-optimization for layer " + layer.getLayerNumber() + " failed.");
