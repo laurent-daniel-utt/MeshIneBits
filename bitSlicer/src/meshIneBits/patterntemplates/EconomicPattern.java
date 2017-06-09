@@ -311,8 +311,8 @@ public class EconomicPattern extends PatternTemplate {
 		}
 		Vector<Bit2D> bandPavement = new Vector<Bit2D>();
 		for (int idx = 0; idx < trialLengthOffsets.length; idx++) {
-			System.out.println("Band: W " + band.getBounds2D().getWidth() + " H " + band.getBounds2D().getHeight()
-					+ " - Height to build: " + bandHeight + " - Essay of length:" + trialLengthOffsets[idx]);
+//			System.out.println("Band: W " + band.getBounds2D().getWidth() + " H " + band.getBounds2D().getHeight()
+//					+ " - Height to build: " + bandHeight + " - Essay of length:" + trialLengthOffsets[idx]);
 			// Save the rest area
 			Area unpavedSpace = (Area) band.clone();
 			// Initial parameters
