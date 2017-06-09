@@ -61,8 +61,12 @@ public class LabeledListReceiver extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String s = (String) JOptionPane.showInputDialog(null, msgInstruction, convertToString(config.getCurrentValue()));
-				LabeledListReceiver.this.config.setCurrentValue(parseToList(s));
-				btnName.setToolTipText(generateToolTipText(config));
+				if (s != null){
+					// Just change the value in case
+					// user hits Ok button
+					LabeledListReceiver.this.config.setCurrentValue(parseToList(s));
+					btnName.setToolTipText(generateToolTipText(config));
+				}
 			}
 		});
 	}
