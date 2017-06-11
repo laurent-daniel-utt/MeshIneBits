@@ -11,8 +11,8 @@ import java.util.Vector;
 /**
  * Describe a parameter, including uniqueName, title, description (further
  * explain of use), default value (this currently accepts {@link Double},
- * {@link List} of {@link Double}) and step (minimal precision). <br/>
- * <br/>
+ * {@link List} of {@link Double}) and step (minimal precision). <br>
+ * <br>
  * These attributes <tt>minValue</tt> and <tt>maxValue</tt> define a range of
  * selection.
  * 
@@ -81,9 +81,9 @@ public class PatternParameterConfig implements Serializable {
 	 *            {@link Double#MAX_VALUE}
 	 * @param defaultValue
 	 *            should be either a {@link Double} or a {@link List} of
-	 *            {@link Double}. <br/>
+	 *            {@link Double}. <br>
 	 *            In case of a number: Default = 0.0 or <tt>minValue</tt> if
-	 *            inferior or <tt>maxValue</tt> if superior. <br/>
+	 *            inferior or <tt>maxValue</tt> if superior. <br>
 	 *            In case of a list: an empty {@link Vector} of {@link Double}
 	 *            or a {@link List} of filtered {@link Double}
 	 * @param step

@@ -62,8 +62,7 @@ public class CraftConfig
 	// Pattern choices
 	
 	/**
-	 * @see {@link #templateChoice}
-	 * @deprecated
+	 * @deprecated As of release of 0.2, replaced by {@link #templateChoice}
 	 */
 	@Setting(title = "Pattern number",
 			description = "Pattern template you want to apply",

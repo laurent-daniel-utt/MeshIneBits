@@ -136,10 +136,10 @@ public class Segment2D extends AABBrect {
 	/**
 	 * Check if this segment contains a point (x,y).
 	 * 
-	 * @see {@link Vector2#isOnSegment()}
 	 * @param x
 	 * @param y
 	 * @return
+	 * @see {@link Vector2#isOnSegment(Segment2D)}
 	 */
 	public boolean contains(double x, double y) {
 		return (new Vector2(x, y)).isOnSegment(this);
@@ -148,9 +148,9 @@ public class Segment2D extends AABBrect {
 	/**
 	 * Check if this segment contains a point (x,y)
 	 * 
-	 * @see {@link Vector2#isOnSegment()}
 	 * @param point
 	 * @return
+	 * @see {@link Vector2#isOnSegment(Segment2D)}
 	 */
 	public boolean contains(Vector2 point) {
 		return point.isOnSegment(this);

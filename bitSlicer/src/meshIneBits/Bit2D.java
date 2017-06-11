@@ -13,7 +13,7 @@ import meshIneBits.util.Vector2;
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
  * build with multiple Bit2D <br>
- * <img src="./doc-files/bit2d.png">
+ * <img src="./doc-files/bit2d.png" alt="">
  * 
  * @see Bit3D
  */
@@ -37,6 +37,7 @@ public class Bit2D implements Cloneable {
 	 * All the other parameters remain unchanged in comparison to model bit.
 	 * 
 	 * @param modelBit
+	 *            the model
 	 * @param percentageLength
 	 *            from 0 to 100
 	 * @param percentageWidth
@@ -53,8 +54,11 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * a new full bit with originBit and orientation in the coordinate system of
-	 * the associated pattern
+	 * A new full bit with <tt>originBit</tt> and <tt>orientation</tt> in the
+	 * coordinate system of the associated pattern
+	 * 
+	 * @param origin the center of bit's outer bound
+	 * @param orientation the rotation of bit
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation) {
 		this.origin = origin;
@@ -67,12 +71,12 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * Constructor for custom length & width.
+	 * Constructor for custom length and width.
 	 * 
-	 * @param origin
-	 * @param orientation
-	 * @param length
-	 * @param width
+	 * @param origin the center of bit's outer bound
+	 * @param orientation the rotation of bit
+	 * @param length length of the bit
+	 * @param width width of the bit
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width) {
 		this.origin = origin;
@@ -87,14 +91,14 @@ public class Bit2D implements Cloneable {
 	/**
 	 * Constructor for cloning
 	 * 
-	 * @param origin
-	 * @param orientation
-	 * @param length
-	 * @param width
-	 * @param transfoMatrix
-	 * @param inverseTransfoMatrix
-	 * @param cutPaths
-	 * @param areas
+	 * @param origin center of bit's outer bound
+	 * @param orientation rotation of the bit
+	 * @param length length of the bit
+	 * @param width width of the bit
+	 * @param transfoMatrix transformation to be applied
+	 * @param inverseTransfoMatrix inversion of <tt>transfoMatrix</tt>
+	 * @param cutPaths where to cut this bit
+	 * @param areas set of non intersected areas
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix,
 			AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
@@ -250,7 +254,7 @@ public class Bit2D implements Cloneable {
 	 * A raw area is an area that has not been transformed to another coordinate
 	 * system.
 	 * 
-	 * @return
+	 * @return the union of raw (non intersected) areas
 	 */
 	public Area getRawArea() {
 		Area area = new Area();
@@ -348,6 +352,7 @@ public class Bit2D implements Cloneable {
 	 * accelerate calculation.
 	 * 
 	 * @param transformation
+	 *            a combination of affine transformation
 	 * @return a new bit with same geometric with initial one transformed by
 	 *         <tt>transfoMatrix</tt>
 	 */

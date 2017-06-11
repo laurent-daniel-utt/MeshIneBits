@@ -38,7 +38,7 @@ public class LabeledListReceiver extends JPanel {
 	/**
 	 * Only for entering {@link List} of {@link Double}
 	 * 
-	 * @param config
+	 * @param config a specified setting for a certain parameter
 	 */
 	public LabeledListReceiver(PatternParameterConfig config) {
 		if (!(config.defaultValue instanceof List<?>)) {

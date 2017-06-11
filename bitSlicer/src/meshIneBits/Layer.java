@@ -39,7 +39,7 @@ public class Layer extends Observable {
 
 	/**
 	 * Add a bit to the {@link #referentialPattern} and call {@link #rebuild}
-	 * which will rebuild all the {@link #Pattern} taking in account this new
+	 * which will rebuild all the {@link Pattern} taking in account this new
 	 * bit.
 	 * 
 	 * @param bit

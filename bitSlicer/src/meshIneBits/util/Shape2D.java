@@ -14,7 +14,7 @@ import meshIneBits.config.CraftConfig;
  * inside and an outside. The Polygon class contains references to the Segment2D
  * contained in a Shape2D. There can be several polygons per Shape2D, if for
  * example a piece is hollow, pierced, with a hanse ...
- * <br><img src="./doc-files/polygone.png">
+ * <br><img src="./doc-files/polygone.png" alt="">
  */
 public class Shape2D implements Iterable<Polygon> {
 	protected Vector<Segment2D> segmentList = new Vector<Segment2D>();
@@ -65,6 +65,8 @@ public class Shape2D implements Iterable<Polygon> {
 
 	/**
 	 * Link up the segments with start/ends, so polygons are created.
+	 * 
+	 * @return if this process encounters an error
 	 */
 	public boolean optimize() {
 

@@ -14,7 +14,7 @@ import meshIneBits.util.Vector3;
 /**
  * The slice tool slices the model into slices, it does so by going trough all
  * model triangles and slice those into 2D lines. <br>
- * <img src="./doc-files/slices.png"> <br>
+ * <img src="./doc-files/slices.png" alt=""> <br>
  * For each slice, it go through all the triangles of the model. If the z of the
  * slice is between the z_min and the z_max of the triangle, then it call the
  * method {@link Triangle#project2D(double)}, which returns a

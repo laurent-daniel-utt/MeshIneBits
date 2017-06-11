@@ -56,7 +56,7 @@ public class Model {
 	 * origin of the basis. To find the centre, it search the distance between
 	 * maximum and minimum of X and Y and divide it by two. The centre is always
 	 * placed at the lower Z.
-	 * <br><img src="./doc-files/center.png">
+	 * <br><img src="./doc-files/center.png" alt="">
 	 */
 	public void center() {
 		Vector3 min = getMin();

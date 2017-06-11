@@ -24,10 +24,10 @@ public class CraftConfigLoader {
 	public final static String PATTERN_CONFIG_EXTENSION = "mpconf";
 
 	/**
-	 * loadConfig
-	 * 
 	 * Loads the configuration from a file, use 'null' for the default config
 	 * file.
+	 * 
+	 * @param filename name of file (no file path)
 	 */
 	public static void loadConfig(String filename) {
 		if (filename == null) {
@@ -109,10 +109,10 @@ public class CraftConfigLoader {
 	}
 
 	/**
-	 * saveConfig
-	 * 
 	 * Saves the configuration to a file, use 'null' for the default config
 	 * file.
+	 * 
+	 * @param filename name of file (not a file path)
 	 */
 	public static void saveConfig(String filename) {
 		if (filename == null)

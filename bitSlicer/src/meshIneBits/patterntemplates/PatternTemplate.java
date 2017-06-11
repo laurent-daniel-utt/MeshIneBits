@@ -7,7 +7,7 @@ import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
 /**
- * This is a factory paving the layers. Use {@link #createPattern(layerNum)} to
+ * This is a factory paving the layers. Use {@link #createPattern(int)} to
  * pave.
  */
 public abstract class PatternTemplate {
@@ -68,7 +68,8 @@ public abstract class PatternTemplate {
 	 * Construct the layer based on this pattern
 	 * 
 	 * @param layerNumber
-	 * @return
+	 *            an integer not negative
+	 * @return a bit-filled pattern
 	 */
 	public abstract Pattern createPattern(int layerNumber);
 
@@ -77,6 +78,7 @@ public abstract class PatternTemplate {
 	 * specific layer
 	 * 
 	 * @param actualState
+	 *            the whole actual bits' placement in layer
 	 * @return the number of bits not solved yet
 	 */
 	public abstract int optimize(Layer actualState);
@@ -91,6 +93,7 @@ public abstract class PatternTemplate {
 	 *            the actual state of layer which is paved by this pattern
 	 *            template
 	 * @param bitKey
+	 *            the transformed origin of bit
 	 * @param localDirection
 	 *            the direction in the coordinate system of bit
 	 * @return the new origin of the moved bit
@@ -101,13 +104,17 @@ public abstract class PatternTemplate {
 	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the
 	 * distance is free to decide.
 	 * 
-	 * @return the new key of the moved bit
-	 * @see {@link #moveBit(Pattern, Vector2, Vector2)}
 	 * @param actualState
+	 *            the actual state of layer which is paved by this pattern
+	 *            template
 	 * @param bitKey
+	 *            the transformed origin of bit
 	 * @param localDirection
+	 *            the direction in the coordinate system of bit
 	 * @param distance
+	 *            an positive real number (in double precision)
 	 * @return the new origin of the moved bit
+	 * @see {@link PatternTemplate#moveBit(Pattern, Vector2, Vector2)}
 	 */
 	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 

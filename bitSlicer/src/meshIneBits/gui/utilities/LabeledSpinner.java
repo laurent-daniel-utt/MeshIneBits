@@ -3,6 +3,7 @@ package meshIneBits.gui.utilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.lang.reflect.Field;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -62,9 +63,9 @@ public class LabeledSpinner extends JPanel {
 
 	/**
 	 * This constructor is only for attributes whose type is {@link Double}.
-	 * For the {@link List}, use {@link LabeledListReceiver}.<br/>
+	 * For the {@link List}, use {@link LabeledListReceiver}.
 	 * 
-	 * @param config
+	 * @param config a specified setting for a certain parameter
 	 */
 	public LabeledSpinner(PatternParameterConfig config) {
 		if (!(config.defaultValue instanceof Double)) {
