@@ -1,4 +1,3 @@
+/.gradle/
 /bin/
-/aaa.xml
-/qbfh.xml
-/test/
+/build/
