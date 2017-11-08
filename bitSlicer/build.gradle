@@ -10,6 +10,8 @@
 apply plugin: 'java'
 // Apply the plugin to be runnable
 apply plugin: 'application'
+// Apply the eclipse plugin to import project on other machines
+apply plugin: 'eclipse'
 
 // Define the entry point
 mainClassName = 'meshIneBits.MeshIneBitsMain'
