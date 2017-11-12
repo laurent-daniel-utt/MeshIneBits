@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.gui.processing.ProcessingView;
 
 public class MainWindow extends JFrame {
 	private static MainWindow instance = null;
@@ -47,6 +48,13 @@ public class MainWindow extends JFrame {
 		setSize(1280, 700);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        ProcessingView.closeProcessingView();
+		    }
+		});
 
 		// Menu with the tabs
 		ribbon = new Ribbon();

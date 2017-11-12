@@ -15,6 +15,10 @@ public class Vector2 {
 	public static double dist2(Vector2 v, Vector2 w) {
 		return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
 	}
+	
+	public static double dist(Vector2 v, Vector2 w) {
+		return Math.sqrt(dist2(v, w));
+	}
 
 	//
 	/**
@@ -72,10 +76,19 @@ public class Vector2 {
 	}
 
 	/**
+	 * Value between 0 - 180
 	 * @return The angle between Ox and vector.
 	 */
 	public double getEquivalentAngle() {
 		return (Math.atan(y / x) * 180) / Math.PI;
+	}
+	
+	/**
+	 * Value between 0 - 360
+	 * @return The angle between Ox and vector.
+	 */
+	public double getEquivalentAngle2() {
+		return (Math.atan2(y, x) * 180) / Math.PI;
 	}
 
 	public Vector2 getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin) {

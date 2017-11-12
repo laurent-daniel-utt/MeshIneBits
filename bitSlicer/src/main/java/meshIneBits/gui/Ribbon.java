@@ -55,6 +55,7 @@ import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.gui.processing.ProcessingView;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
 import meshIneBits.gui.utilities.LabeledListReceiver;
@@ -567,6 +568,19 @@ public class Ribbon extends JTabbedPane implements Observer {
 			autoOptimizeCont.add(autoOptimizeGPartBtn);
 
 			add(autoOptimizeCont);
+			
+			// For 3d view
+			add(new TabContainerSeparator());
+			OptionsContainer processingViewCont = new OptionsContainer("3D view");
+			ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
+			processingViewCont.add(processingViewBtn);
+			add(processingViewCont);
+			
+			
+			
+			autoOptimizeLayerBtn.setEnabled(false);
+			autoOptimizeGPartBtn.setEnabled(false);
+			
 
 			/////////////////////////////////////////////
 			// Actions listener
@@ -684,6 +698,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 					autoOptimizeGPartBtn.setEnabled(false);
 					GeneratedPart currentPart = viewObservable.getCurrentPart();
 					currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
+				}
+			});
+			
+			
+			//For 3D view
+			processingViewBtn.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ProcessingView.startProcessingView(null);
 				}
 			});
 
