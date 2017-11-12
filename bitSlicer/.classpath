@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java">
-		<attributes>
-			<attribute name="FROM_GRADLE_MODEL" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="src/main/resources">
-		<attributes>
-			<attribute name="FROM_GRADLE_MODEL" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry path="bin" kind="output"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/99e0f64bb8882f054825ae4a8a527a17b544a0b5/jogl-all-2.3.2.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/edc35ccfc13d4a4ad02c50d580874c18bf48bbef/gluegen-rt-2.3.2.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/ffd1c6bd5f6fb088df6cad25e25721eb55ad2228/jogl-all-2.3.2-natives-linux-amd64.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/6d14f46336be9e2dc5f85d5df17490cee5d09a90/jogl-all-2.3.2-natives-linux-armv6.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/2c434c560dbd821b0ed569e44d3d441727491dac/jogl-all-2.3.2-natives-linux-armv6hf.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/59b7a336c0ee54161e33662d2ca8ac9d8f6c476d/jogl-all-2.3.2-natives-linux-i586.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/2da2215dbe1091c54cb83cf2484f8a54a4d0cf7a/jogl-all-2.3.2-natives-macosx-universal.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/94d1ed501fe53b7f75eab0f712f39802390d0f5b/jogl-all-2.3.2-natives-solaris-i586.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/becd519b1f741176561d93645abd90971ca0dca0/jogl-all-2.3.2-natives-windows-amd64.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/677f26584c8860b8ac2091a09b08b5facedc6d68/jogl-all-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.jogl/jogl-all/2.3.2/5db8db5eca6b4445db6cd14f68938736630ae976/jogl-all-2.3.2-natives-windows-i586.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/477a6bc4f9256d8c9935b75d55e2b7b01314440b/gluegen-rt-2.3.2-natives-linux-amd64.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/c55cd566d98d4fcd004b9aaa2c502c8c2dcec192/gluegen-rt-2.3.2-natives-linux-armv6.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/f6d3587b061d7ae6e68932fc62317e3500d2112d/gluegen-rt-2.3.2-natives-linux-armv6hf.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/da68aff010edd35a9ee89b1801dce6e284c7e673/gluegen-rt-2.3.2-natives-linux-i586.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/7227ae9e480354909d80f4df92b30bbb965387be/gluegen-rt-2.3.2-natives-macosx-universal.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/85213c97a5a50d8dd37de4c35ef32cd4b0ac2ef0/gluegen-rt-2.3.2-natives-windows-amd64.jar"/>
+	<classpathentry sourcepath="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/1e6c7836f978e8c96734b12600f800dff20c628b/gluegen-rt-2.3.2-sources.jar" kind="lib" path="C:/Users/NHATHAN/.gradle/caches/modules-2/files-2.1/org.jogamp.gluegen/gluegen-rt/2.3.2/f9b848384a343f39f454e59cead435c2c0cbf542/gluegen-rt-2.3.2-natives-windows-i586.jar"/>
 </classpath>
