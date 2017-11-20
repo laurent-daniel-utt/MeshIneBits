@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.gui.processing.ProcessingModelView;
 import meshIneBits.gui.processing.ProcessingView;
 
 public class MainWindow extends JFrame {
@@ -53,6 +54,7 @@ public class MainWindow extends JFrame {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 		        ProcessingView.closeProcessingView();
+		        ProcessingModelView.closeProcessingView();
 		    }
 		});
 

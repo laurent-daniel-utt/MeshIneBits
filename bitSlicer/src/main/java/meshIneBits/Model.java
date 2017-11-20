@@ -265,4 +265,15 @@ public class Model {
 		raf.close();
 		return resultTriangles;
 	}
+
+	/**
+	 * TODO
+	 * Rotate all triangles
+	 * @param rotateX
+	 * @param rotateZ
+	 */
+	public void rotate() {
+		// TODO 
+		
+	}
 }

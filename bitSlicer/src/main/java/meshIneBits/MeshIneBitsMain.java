@@ -5,6 +5,7 @@ import java.io.File;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.MainWindow;
+import meshIneBits.gui.processing.ProcessingModelView;
 import meshIneBits.util.Logger;
 
 /**
@@ -46,7 +47,15 @@ public class MeshIneBitsMain {
 			return;
 		}
 		m.center();
-
+		
+		ProcessingModelView.startProcessingView(m);
+	}
+	
+	/**
+	 * 
+	 * @param m
+	 */
+	public static void sliceModel(Model m){
 		GeneratedPart part = new GeneratedPart(m);
 
 		MainWindow.getInstance().setPart(part);
