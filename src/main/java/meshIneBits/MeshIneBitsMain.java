@@ -30,40 +30,4 @@ public class MeshIneBitsMain {
 		// Load the graphical interface
 		MainWindow.getInstance();
 	}
-
-	/**
-	 * Call this method to slice the model, create a {@link GeneratedPart} and be
-	 * able to generate a pattern.
-	 * 
-	 * @param filename
-	 *            {@link File#toString()}
-	 * @see GeneratedPart
-	 */
-	public static void sliceModel(String filename) {
-		CraftConfig.lastSlicedFile = filename;
-		CraftConfigLoader.saveConfig(null);
-
-		Model m;
-		try {
-			m = new Model(filename);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Logger.error("Failed to load model");
-			return;
-		}
-		m.center();
-
-		// ProcessingModelView.startProcessingView(m);
-		sliceModel(m);
-	}
-
-	/**
-	 * 
-	 * @param m
-	 */
-	public static void sliceModel(Model m) {
-		GeneratedPart part = new GeneratedPart(m);
-
-		MainWindow.getInstance().setPart(part);
-	}
 }

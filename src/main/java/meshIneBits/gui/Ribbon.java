@@ -50,6 +50,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
+import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
@@ -809,8 +810,22 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 					if (file != null) {
 						computeSlicesBtn.setEnabled(false);
+						String filename = file.toString();
+						CraftConfig.lastSlicedFile = filename;
+						CraftConfigLoader.saveConfig(null);
 						try {
-							MeshIneBitsMain.sliceModel(file.toString());
+							Model m;
+							try {
+								m = new Model(filename);
+							} catch (Exception e1) {
+								e1.printStackTrace();
+								Logger.error("Failed to load model");
+								return;
+							}
+							m.center();
+							GeneratedPart part = new GeneratedPart(m);
+							MainWindow.getInstance().setPart(part);
+							// ProcessingModelView.startProcessingView(m);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							StringBuilder sb = new StringBuilder();
