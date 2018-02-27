@@ -317,7 +317,7 @@ public class ProcessingModelView extends PApplet implements Observer{
     	
     	MODEL.rotate();// function rotate() TODO (Rotation parameters will have to be given to that function)
     	
-    	MeshIneBitsMain.sliceModel(MODEL);
+//    	MeshIneBitsMain.sliceModel(MODEL);
     	
     	destroyGLWindow();
     }
