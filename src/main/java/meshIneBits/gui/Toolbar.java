@@ -108,7 +108,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 		Toolbar.this.setSelectedIndex(indexOfTab("Slicer"));
 
 		// Disabling the tabs that are useless before slicing
-		setEnabledAt(indexOfTab("Review"), false);
+		// setEnabledAt(indexOfTab("Review"), false);
 		setEnabledAt(indexOfTab("File"), false); // Actually this is a fake tab
 
 		// Visual options
@@ -119,32 +119,32 @@ public class Toolbar extends JTabbedPane implements Observer {
 	public void update(Observable o, Object arg) {
 		// If no STL loaded, disable slice and generate layers button
 		if (view2DController.getCurrentPart() == null) {
-			setEnabledAt(indexOfTab("Review"), false);
-			SlicerTab.getComputeSlicesBtn().setEnabled(false);
-			TemplateTab.getComputeTemplateBtn().setEnabled(false);
+			// setEnabledAt(indexOfTab("Review"), false);
+			// SlicerTab.getComputeSlicesBtn().setEnabled(false);
+			// TemplateTab.getComputeTemplateBtn().setEnabled(false);
 		}
 		// If a STL is loaded & sliced & layers generated, enable both button
 		// (to allow redo computation)
 		if ((view2DController.getCurrentPart() != null) && view2DController.getCurrentPart().isSliced()) {
-			SlicerTab.getComputeSlicesBtn().setEnabled(true);
-			TemplateTab.getComputeTemplateBtn().setEnabled(true);
+			// SlicerTab.getComputeSlicesBtn().setEnabled(true);
+			// TemplateTab.getComputeTemplateBtn().setEnabled(true);
 		}
 
 		// If a STL is loaded & sliced but layers not generated, enable the
 		// generate layers button
 		if ((view2DController.getCurrentPart() != null) && view2DController.getCurrentPart().isGenerated()) {
-			setEnabledAt(indexOfTab("Review"), true);
+			// setEnabledAt(indexOfTab("Review"), true);
 			ReviewTab.getSelectedSlice().setText(" " + String.valueOf(view2DController.getCurrentPart().getLayers()
 					.get(view2DController.getCurrentLayerNumber()).getSliceToSelect()));
-			TemplateTab.getComputeTemplateBtn().setEnabled(true);
+			// TemplateTab.getComputeTemplateBtn().setEnabled(true);
 			// Add this to observe the optimizer
-			view2DController.getCurrentPart().getOptimizer().addObserver(this);
+			// view2DController.getCurrentPart().getOptimizer().addObserver(this);
 		}
 
 		// If the auto-optimization is complete
 		if (o instanceof Optimizer) {
-			ReviewTab.getAutoOptimizeGPartBtn().setEnabled(true);
-			ReviewTab.getAutoOptimizeLayerBtn().setEnabled(true);
+			// ReviewTab.getAutoOptimizeGPartBtn().setEnabled(true);
+			// ReviewTab.getAutoOptimizeLayerBtn().setEnabled(true);
 		}
 		revalidate();
 	}
@@ -580,8 +580,8 @@ public class Toolbar extends JTabbedPane implements Observer {
 			processingViewCont.add(processingViewBtn);
 			add(processingViewCont);
 
-			autoOptimizeLayerBtn.setEnabled(false);
-			autoOptimizeGPartBtn.setEnabled(false);
+			// autoOptimizeLayerBtn.setEnabled(false);
+			// autoOptimizeGPartBtn.setEnabled(false);
 
 			/////////////////////////////////////////////
 			// Actions listener
@@ -688,6 +688,8 @@ public class Toolbar extends JTabbedPane implements Observer {
 					GeneratedPart currentPart = view2DController.getCurrentPart();
 					Layer currentLayer = currentPart.getLayers().get(view2DController.getCurrentLayerNumber());
 					currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
 				}
 			});
 
@@ -695,10 +697,12 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					autoOptimizeLayerBtn.setEnabled(false);
-					autoOptimizeGPartBtn.setEnabled(false);
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
 					GeneratedPart currentPart = view2DController.getCurrentPart();
 					currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
 				}
 			});
 
@@ -790,7 +794,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
 			computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			computeSlicesBtn.setEnabled(false);
+			// computeSlicesBtn.setEnabled(false);
 			fileSelectedLabel = new JLabel("No file selected");
 			computeCont.add(fileSelectedLabel);
 			computeCont.add(computeSlicesBtn);
@@ -853,18 +857,18 @@ public class Toolbar extends JTabbedPane implements Observer {
 			ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
 			viewsCont.add(_2D);
 			viewsCont.add(_3D);
-			
+
 			_2D.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Show up the 2D view
 					MainWindow.getInstance().get2DView().toggle();
 				}
 			});
-			
+
 			_3D.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Show up the 3D view
