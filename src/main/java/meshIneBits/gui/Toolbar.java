@@ -50,6 +50,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.MeshIneBitsMain;
+import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
@@ -63,14 +64,18 @@ import meshIneBits.gui.utilities.LabeledSpinner;
 import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.gui.utilities.RibbonTab;
 import meshIneBits.gui.utilities.TabContainerSeparator;
+import meshIneBits.gui.view2d.Controller;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
 
-public class Ribbon extends JTabbedPane implements Observer {
+/**
+ * All tasks are placed here.
+ */
+public class Toolbar extends JTabbedPane implements Observer {
 	private static final long serialVersionUID = -1759701286071368808L;
-	private ViewObservable viewObservable;
+	private Controller view2DController;
 	private File file = null;
 	private File patternConfigFile = null;
 	private JPanel FileTab;
@@ -83,8 +88,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 		return setupAnnotations;
 	}
 
-	public Ribbon() {
-		viewObservable = ViewObservable.getInstance();
+	public Toolbar() {
+		view2DController = Controller.getInstance();
 
 		// Add the tab
 		FileTab = new JPanel();
@@ -98,13 +103,13 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 		// Add the menu button
 		FileMenuButton fileMenuBtn = new FileMenuButton();
-		Ribbon.this.setTabComponentAt(0, fileMenuBtn);
+		Toolbar.this.setTabComponentAt(0, fileMenuBtn);
 
-		Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
+		Toolbar.this.setSelectedIndex(indexOfTab("Slicer"));
 
 		// Disabling the tabs that are useless before slicing
-		setEnabledAt(indexOfTab("Review"), false);
-		setEnabledAt(indexOfTab("File"), false);
+		// setEnabledAt(indexOfTab("Review"), false);
+		setEnabledAt(indexOfTab("File"), false); // Actually this is a fake tab
 
 		// Visual options
 		setFont(new Font(this.getFont().toString(), Font.PLAIN, 15));
@@ -113,33 +118,33 @@ public class Ribbon extends JTabbedPane implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		// If no STL loaded, disable slice and generate layers button
-		if (viewObservable.getCurrentPart() == null) {
-			setEnabledAt(indexOfTab("Review"), false);
-			SlicerTab.getComputeSlicesBtn().setEnabled(false);
-			TemplateTab.getComputeTemplateBtn().setEnabled(false);
+		if (view2DController.getCurrentPart() == null) {
+			// setEnabledAt(indexOfTab("Review"), false);
+			// SlicerTab.getComputeSlicesBtn().setEnabled(false);
+			// TemplateTab.getComputeTemplateBtn().setEnabled(false);
 		}
 		// If a STL is loaded & sliced & layers generated, enable both button
 		// (to allow redo computation)
-		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isSliced()) {
-			SlicerTab.getComputeSlicesBtn().setEnabled(true);
-			TemplateTab.getComputeTemplateBtn().setEnabled(true);
+		if ((view2DController.getCurrentPart() != null) && view2DController.getCurrentPart().isSliced()) {
+			// SlicerTab.getComputeSlicesBtn().setEnabled(true);
+			// TemplateTab.getComputeTemplateBtn().setEnabled(true);
 		}
 
 		// If a STL is loaded & sliced but layers not generated, enable the
 		// generate layers button
-		if ((viewObservable.getCurrentPart() != null) && viewObservable.getCurrentPart().isGenerated()) {
-			setEnabledAt(indexOfTab("Review"), true);
-			ReviewTab.getSelectedSlice().setText(" " + String.valueOf(viewObservable.getCurrentPart().getLayers()
-					.get(viewObservable.getCurrentLayerNumber()).getSliceToSelect()));
-			TemplateTab.getComputeTemplateBtn().setEnabled(true);
+		if ((view2DController.getCurrentPart() != null) && view2DController.getCurrentPart().isGenerated()) {
+			// setEnabledAt(indexOfTab("Review"), true);
+			ReviewTab.getSelectedSlice().setText(" " + String.valueOf(view2DController.getCurrentPart().getLayers()
+					.get(view2DController.getCurrentLayerNumber()).getSliceToSelect()));
+			// TemplateTab.getComputeTemplateBtn().setEnabled(true);
 			// Add this to observe the optimizer
-			viewObservable.getCurrentPart().getOptimizer().addObserver(this);
+			// view2DController.getCurrentPart().getOptimizer().addObserver(this);
 		}
 
 		// If the auto-optimization is complete
 		if (o instanceof Optimizer) {
-			ReviewTab.getAutoOptimizeGPartBtn().setEnabled(true);
-			ReviewTab.getAutoOptimizeLayerBtn().setEnabled(true);
+			// ReviewTab.getAutoOptimizeGPartBtn().setEnabled(true);
+			// ReviewTab.getAutoOptimizeLayerBtn().setEnabled(true);
 		}
 		revalidate();
 	}
@@ -210,7 +215,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 		private class FileMenuPopUp extends JPopupMenu {
 			private static final long serialVersionUID = 3631645660924751860L;
 
-
 			public FileMenuPopUp() {
 				// Setting up
 				JMenuItem openMenu = new FileMenuItem("Open Model", "file-o.png");
@@ -243,7 +247,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							file = fc.getSelectedFile();
 							Logger.updateStatus("Ready to slice " + file.getName());
-							Ribbon.this.SlicerTab.setReadyToSlice(true);
+							Toolbar.this.SlicerTab.setReadyToSlice(true);
 						}
 					}
 				});
@@ -251,44 +255,44 @@ public class Ribbon extends JTabbedPane implements Observer {
 				closeMenu.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						Ribbon.this.setSelectedIndex(indexOfTab("Slicer"));
-						Ribbon.this.viewObservable.setPart(null);
+						Toolbar.this.setSelectedIndex(indexOfTab("Slicer"));
+						Toolbar.this.view2DController.setPart(null);
 					}
 				});
-				
+
 				openPatternConfigMenu.addActionListener(new ActionListener() {
-					
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						final JFileChooser fc = new CustomFileChooser();
 						String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
 						fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
 						String filePath = CraftConfig.lastPatternConfigFile.replace("\n", "\\n");
-						if (filePath != null){
+						if (filePath != null) {
 							fc.setSelectedFile(new File(filePath));
 						}
-						if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+						if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 							patternConfigFile = fc.getSelectedFile();
 							CraftConfig.lastPatternConfigFile = patternConfigFile.getAbsolutePath();
 							PatternConfig loadedConf = CraftConfigLoader.loadPatternConfig(patternConfigFile);
-							if (loadedConf != null){
+							if (loadedConf != null) {
 								TemplateTab.patternParametersContainer.setupPatternParameters(loadedConf);
 								Logger.updateStatus("Pattern configuration loaded.");
 							}
 						}
 					}
 				});
-				
+
 				savePatternConfigMenu.addActionListener(new ActionListener() {
-					
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						final JFileChooser fc = new CustomFileChooser();
 						String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
 						fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-						if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION){
+						if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 							File f = fc.getSelectedFile();
-							if (!f.getName().endsWith("." + ext)){
+							if (!f.getName().endsWith("." + ext)) {
 								f = new File(f.getPath() + "." + ext);
 							}
 							CraftConfigLoader.savePatternConfig(f);
@@ -303,7 +307,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 						fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
 						int returnVal = fc.showSaveDialog(null);
 
-						GeneratedPart part = ViewObservable.getInstance().getCurrentPart();
+						GeneratedPart part = Controller.getInstance().getCurrentPart();
 						if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
 							XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
 							xt.writeXmlCode();
@@ -466,7 +470,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void update(Observable o, Object arg) {
-					setSelected(viewObservable.showSlices());
+					setSelected(view2DController.showSlices());
 				}
 			};
 
@@ -475,7 +479,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void update(Observable o, Object arg) {
-					setSelected(viewObservable.showLiftPoints());
+					setSelected(view2DController.showLiftPoints());
 				}
 			};
 			JCheckBox previousLayerCheckBox = new RibbonCheckBox("Show previous layer") {
@@ -483,7 +487,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void update(Observable o, Object arg) {
-					setSelected(viewObservable.showPreviousLayer());
+					setSelected(view2DController.showPreviousLayer());
 				}
 			};
 			JCheckBox cutPathsCheckBox = new RibbonCheckBox("Show cut paths") {
@@ -491,7 +495,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void update(Observable o, Object arg) {
-					setSelected(viewObservable.showCutPaths());
+					setSelected(view2DController.showCutPaths());
 				}
 			};
 
@@ -500,7 +504,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void update(Observable o, Object arg) {
-					setSelected(viewObservable.showIrregularBits());
+					setSelected(view2DController.showIrregularBits());
 				}
 			};
 
@@ -568,19 +572,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 			autoOptimizeCont.add(autoOptimizeGPartBtn);
 
 			add(autoOptimizeCont);
-			
+
 			// For 3d view
 			add(new TabContainerSeparator());
 			OptionsContainer processingViewCont = new OptionsContainer("3D view");
 			ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
 			processingViewCont.add(processingViewBtn);
 			add(processingViewCont);
-			
-			
-			
-			autoOptimizeLayerBtn.setEnabled(false);
-			autoOptimizeGPartBtn.setEnabled(false);
-			
+
+			// autoOptimizeLayerBtn.setEnabled(false);
+			// autoOptimizeGPartBtn.setEnabled(false);
 
 			/////////////////////////////////////////////
 			// Actions listener
@@ -589,28 +590,28 @@ public class Ribbon extends JTabbedPane implements Observer {
 			slicesCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.toggleShowSlice(slicesCheckBox.isSelected());
+					view2DController.toggleShowSlice(slicesCheckBox.isSelected());
 				}
 			});
 
 			liftPointsCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.toggleShowLiftPoints(liftPointsCheckBox.isSelected());
+					view2DController.toggleShowLiftPoints(liftPointsCheckBox.isSelected());
 				}
 			});
 
 			previousLayerCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.toggleShowPreviousLayer(previousLayerCheckBox.isSelected());
+					view2DController.toggleShowPreviousLayer(previousLayerCheckBox.isSelected());
 				}
 			});
 
 			cutPathsCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.toggleShowCutPaths(cutPathsCheckBox.isSelected());
+					view2DController.toggleShowCutPaths(cutPathsCheckBox.isSelected());
 				}
 			});
 
@@ -618,7 +619,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					viewObservable.toggleShowIrregularBits(irregularBitsCheckBox.isSelected());
+					view2DController.toggleShowIrregularBits(irregularBitsCheckBox.isSelected());
 				}
 			});
 
@@ -626,8 +627,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			upArrow.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Layer currentLayer = viewObservable.getCurrentPart().getLayers()
-							.get(viewObservable.getCurrentLayerNumber());
+					Layer currentLayer = view2DController.getCurrentPart().getLayers()
+							.get(view2DController.getCurrentLayerNumber());
 					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() + 1);
 				}
 			});
@@ -635,8 +636,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			downArrow.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Layer currentLayer = viewObservable.getCurrentPart().getLayers()
-							.get(viewObservable.getCurrentLayerNumber());
+					Layer currentLayer = view2DController.getCurrentPart().getLayers()
+							.get(view2DController.getCurrentLayerNumber());
 					currentLayer.setSliceToSelect(currentLayer.getSliceToSelect() - 1);
 				}
 			});
@@ -684,9 +685,11 @@ public class Ribbon extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					autoOptimizeLayerBtn.setEnabled(false);
 					autoOptimizeGPartBtn.setEnabled(false);
-					GeneratedPart currentPart = viewObservable.getCurrentPart();
-					Layer currentLayer = currentPart.getLayers().get(viewObservable.getCurrentLayerNumber());
+					GeneratedPart currentPart = view2DController.getCurrentPart();
+					Layer currentLayer = currentPart.getLayers().get(view2DController.getCurrentLayerNumber());
 					currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
 				}
 			});
 
@@ -694,15 +697,16 @@ public class Ribbon extends JTabbedPane implements Observer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					autoOptimizeLayerBtn.setEnabled(false);
-					autoOptimizeGPartBtn.setEnabled(false);
-					GeneratedPart currentPart = viewObservable.getCurrentPart();
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
+					GeneratedPart currentPart = view2DController.getCurrentPart();
 					currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
+					autoOptimizeLayerBtn.setEnabled(true);
+					autoOptimizeGPartBtn.setEnabled(true);
 				}
 			});
-			
-			
-			//For 3D view
+
+			// For 3D view
 			processingViewBtn.addActionListener(new ActionListener() {
 
 				@Override
@@ -714,7 +718,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
-			ViewObservable vo = ViewObservable.getInstance();
+			Controller vo = Controller.getInstance();
 			GeneratedPart part = vo.getCurrentPart();
 			Layer layer = part.getLayers().get(vo.getCurrentLayerNumber());
 
@@ -742,7 +746,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 				this.setFocusable(false);
 
 				// Setting up
-				viewObservable.addObserver(this);
+				view2DController.addObserver(this);
 			}
 
 			@Override
@@ -774,43 +778,58 @@ public class Ribbon extends JTabbedPane implements Observer {
 		public SlicerTab() {
 			super();
 
-			// Setting up
+			// Slicer section
 			OptionsContainer slicerCont = new OptionsContainer("Slicer options");
 			LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
 			LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("firstSliceHeightPercent",
 					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
+			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
+			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
+			add(slicerCont);
+
+			// Compute section
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
 			computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-			computeSlicesBtn.setEnabled(false);
+			// computeSlicesBtn.setEnabled(false);
 			fileSelectedLabel = new JLabel("No file selected");
 			computeCont.add(fileSelectedLabel);
 			computeCont.add(computeSlicesBtn);
 
-			add(slicerCont);
 			add(new TabContainerSeparator());
 			add(computeCont);
 
 			// Actions listener
-			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
-
-			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
 			computeSlicesBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 
-					if (Ribbon.this.viewObservable.getCurrentPart() != null) {
-						Ribbon.this.viewObservable.setPart(null);
+					if (Toolbar.this.view2DController.getCurrentPart() != null) {
+						Toolbar.this.view2DController.setPart(null);
 					}
 
 					if (file != null) {
+						// Disable button to prevent further clicking
 						computeSlicesBtn.setEnabled(false);
+						String filename = file.toString();
+						CraftConfig.lastSlicedFile = filename;
+						CraftConfigLoader.saveConfig(null);
 						try {
-							MeshIneBitsMain.sliceModel(file.toString());
+							Model m;
+							try {
+								m = new Model(filename);
+							} catch (Exception e1) {
+								e1.printStackTrace();
+								Logger.error("Failed to load model");
+								return;
+							}
+							m.center();
+							GeneratedPart part = new GeneratedPart(m);
+							Controller.getInstance().setPart(part);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							StringBuilder sb = new StringBuilder();
@@ -821,12 +840,41 @@ public class Ribbon extends JTabbedPane implements Observer {
 								sb.append("\n");
 							}
 							JOptionPane.showMessageDialog(null, sb, "Exception", JOptionPane.ERROR_MESSAGE);
-							computeSlicesBtn.setEnabled(true);
 						}
+						// Re-enable the button
+						computeSlicesBtn.setEnabled(true);
 					}
 				}
 			});
 
+			// View option
+			// TODO
+			// Should move this into menu bar
+
+			OptionsContainer viewsCont = new OptionsContainer("Views");
+			add(viewsCont);
+			ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
+			ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
+			viewsCont.add(_2D);
+			viewsCont.add(_3D);
+
+			_2D.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Show up the 2D view
+					MainWindow.getInstance().get2DView().toggle();
+				}
+			});
+
+			_3D.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Show up the 3D view
+					MainWindow.getInstance().get3DView().toggle();
+				}
+			});
 		}
 	}
 
@@ -869,7 +917,6 @@ public class Ribbon extends JTabbedPane implements Observer {
 			OptionsContainer computeCont = new OptionsContainer("Compute");
 			computeCont.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 			computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
-			computeTemplateBtn.setEnabled(false);
 			computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
 			LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
 					setupAnnotations.get("layersOffset"));
@@ -877,7 +924,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 					setupAnnotations.get("minPercentageOfSlices"));
 			LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
 					setupAnnotations.get("defaultSliceToSelect"));
-			LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter", setupAnnotations.get("suckerDiameter"));
+			LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter",
+					setupAnnotations.get("suckerDiameter"));
 			computeCont.add(layersOffsetSpinner);
 			computeCont.add(minPercentageOfSlicesSpinner);
 			computeCont.add(defaultSliceToSelectSpinner);
@@ -907,8 +955,9 @@ public class Ribbon extends JTabbedPane implements Observer {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					computeTemplateBtn.setEnabled(false);
-					Ribbon.this.viewObservable.getCurrentPart().buildBits2D();
+					Toolbar.this.view2DController.getCurrentPart().buildBits2D();
 					CraftConfigLoader.saveConfig(null);
+					computeTemplateBtn.setEnabled(true);
 				}
 			});
 		}
@@ -1036,8 +1085,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			}
 
 			/**
-			 * Remove all loaded components in containers then load new
-			 * parameters from the currently chosen pattern.
+			 * Remove all loaded components in containers then load new parameters from the
+			 * currently chosen pattern.
 			 */
 			public void setupPatternParameters() {
 				this.removeAll();
@@ -1055,9 +1104,8 @@ public class Ribbon extends JTabbedPane implements Observer {
 			}
 
 			/**
-			 * Remove all loaded components in containers then load new
-			 * parameters from the given <tt>config</tt> (input will be filtered
-			 * by attribute's name, type)
+			 * Remove all loaded components in containers then load new parameters from the
+			 * given <tt>config</tt> (input will be filtered by attribute's name, type)
 			 * 
 			 * @param config
 			 */
@@ -1067,7 +1115,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					if (paramConfig.getCurrentValue() instanceof Double) {
 						// Update current value
 						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
-						if (importParam != null){
+						if (importParam != null) {
 							paramConfig.setCurrentValue(importParam.getCurrentValue());
 						}
 						// Then show
@@ -1078,7 +1126,7 @@ public class Ribbon extends JTabbedPane implements Observer {
 					if (paramConfig.getCurrentValue() instanceof List<?>) {
 						// Update current value
 						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
-						if (importParam != null){
+						if (importParam != null) {
 							paramConfig.setCurrentValue(importParam.getCurrentValue());
 						}
 						// Then show

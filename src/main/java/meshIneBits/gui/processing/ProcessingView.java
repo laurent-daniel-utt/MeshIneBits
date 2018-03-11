@@ -11,9 +11,11 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 
 import meshIneBits.Bit3D;
+import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.ViewObservable;
+import meshIneBits.gui.SubWindow;
+import meshIneBits.gui.view2d.Controller;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
@@ -24,16 +26,16 @@ import processing.event.MouseEvent;
 import processing.opengl.PJOGL;
 
 /**
- * 
+ * The 3D view of model loaded
  * @author Nicolas
  *
  */
-public class ProcessingView extends PApplet implements Observer{
+public class ProcessingView extends PApplet implements Observer, SubWindow{
 	
 	private float zRotation = 0;
 	private float xRotation = -PI/6;	
 	private float scale = 1;
-	private ViewObservable curVO = null;	
+	private Controller curVO = null;	
 	private HashMap<Position, PShape> shapeMap;
 	private boolean autoRotate = true;
 	
@@ -110,7 +112,7 @@ public class ProcessingView extends PApplet implements Observer{
     	
     	noLoop();
     	
-    	curVO = ViewObservable.getInstance();
+    	curVO = Controller.getInstance();
     	curVO.addObserver(this);
     	
     	setCloseOperation();
@@ -474,6 +476,42 @@ public class ProcessingView extends PApplet implements Observer{
 	@Override
 	public void update(Observable o, Object arg) {
 		redraw();
+		
+	}
+
+	@Override
+	public void open() {
+		// TODO Auto-generated method stub
+		ProcessingView.startProcessingView(null);
+	}
+
+	@Override
+	public void hide() {
+		// TODO Auto-generated method stub
+		ProcessingView.closeProcessingView();
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		redraw();
+	}
+
+	@Override
+	public void setPart(GeneratedPart part) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void getPart() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void toggle() {
+		// TODO Auto-generated method stub
 		
 	}
 

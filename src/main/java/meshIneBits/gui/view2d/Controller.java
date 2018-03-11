@@ -1,14 +1,20 @@
-package meshIneBits.gui;
+package meshIneBits.gui.view2d;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.gui.MainWindow;
 import meshIneBits.util.Vector2;
 
-public class ViewObservable extends Observable implements Observer {
+/**
+ * The controller, linking 2D views and part (so-called {@link GeneratedPart}).
+ * It observes the part. And it is observed by {@link Core} and {@link Wrapper}.
+ * A singleton.
+ */
+public class Controller extends Observable implements Observer {
 
-	static private ViewObservable instance;
+	static private Controller instance;
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
 	private int sliceNumber = 0;
@@ -20,15 +26,15 @@ public class ViewObservable extends Observable implements Observer {
 	private boolean showCutPaths = false;
 	private boolean showIrregularBits = false;
 
-	public static ViewObservable getInstance() {
+	public static Controller getInstance() {
 		if (instance == null) {
-			instance = new ViewObservable();
+			instance = new Controller();
 		}
 
 		return instance;
 	}
 
-	private ViewObservable() {
+	private Controller() {
 	}
 
 	public int getCurrentLayerNumber() {
@@ -69,6 +75,12 @@ public class ViewObservable extends Observable implements Observer {
 		notifyObservers(Component.LAYER);
 	}
 
+	/**
+	 * Put a generated part under observation of this controller. Also signify
+	 * {@link Core} and {@link Wrapper} to repaint.
+	 * 
+	 * @param part should not be null
+	 */
 	public void setPart(GeneratedPart part) {
 		if ((this.part == null) && (part != null)) {
 			part.addObserver(this);
@@ -79,7 +91,6 @@ public class ViewObservable extends Observable implements Observer {
 		setLayer(0);
 		setSelectedBitKey(null);
 
-		MainWindow.getInstance().refresh();
 		setChanged();
 		notifyObservers(Component.PART);
 	}
@@ -183,12 +194,12 @@ public class ViewObservable extends Observable implements Observer {
 	public boolean showIrregularBits() {
 		return showIrregularBits;
 	}
-	
-	public void toggleShowIrregularBits(boolean selected){
+
+	public void toggleShowIrregularBits(boolean selected) {
 		this.showIrregularBits = selected;
-		
+
 		setChanged();
 		notifyObservers();
 	}
-	
+
 }

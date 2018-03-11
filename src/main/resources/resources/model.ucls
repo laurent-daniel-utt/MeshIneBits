@@ -19,7 +19,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <enumeration id="3" language="java" name="meshIneBits.gui.ViewObservable.Component" project="MeshIneBits" 
+  <enumeration id="3" language="java" name="meshIneBits.gui.view2d.ViewObservable.Component" project="MeshIneBits" 
     file="/MeshIneBits/src/meshIneBits/gui/ViewObservable.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="171" width="157" x="575" y="2093"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -64,7 +64,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="meshIneBits.gui.ViewPanel" project="MeshIneBits" 
+  <class id="8" language="java" name="meshIneBits.gui.view2d.ViewPanel" project="MeshIneBits" 
     file="/MeshIneBits/src/meshIneBits/gui/ViewPanel.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="423" width="180" x="374" y="460"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -190,7 +190,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="22" language="java" name="meshIneBits.gui.ViewObservable" project="MeshIneBits" 
+  <class id="22" language="java" name="meshIneBits.gui.view2d.ViewObservable" project="MeshIneBits" 
     file="/MeshIneBits/src/meshIneBits/gui/ViewObservable.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="603" width="223" x="575" y="1440"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -199,7 +199,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="23" language="java" name="meshIneBits.gui.ViewPanel.ButtonIcon" project="MeshIneBits" 
+  <class id="23" language="java" name="meshIneBits.gui.view2d.ViewPanel.ButtonIcon" project="MeshIneBits" 
     file="/MeshIneBits/src/meshIneBits/gui/ViewPanel.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="99" width="131" x="101" y="923"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
