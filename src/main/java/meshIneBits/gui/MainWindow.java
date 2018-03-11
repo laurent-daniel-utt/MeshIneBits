@@ -13,14 +13,23 @@ import javax.swing.plaf.ColorUIResource;
 import meshIneBits.GeneratedPart;
 import meshIneBits.gui.processing.ProcessingModelView;
 import meshIneBits.gui.processing.ProcessingView;
+import meshIneBits.gui.view2d.Controller;
+import meshIneBits.gui.view2d.Window;
+import meshIneBits.gui.view2d.Wrapper;
 
+/**
+ * Main window should only contain menu bar, toolbar, log and status bar. Every
+ * graphic shall be executed in {@link SubWindow}, which can be toggled by menu
+ * bar.
+ *
+ */
 public class MainWindow extends JFrame {
 	private static MainWindow instance = null;
 	private static final long serialVersionUID = -74349571204769732L;
 	private Container content;
-	private Ribbon ribbon;
-	private ViewObservable viewObservable;
-	private ViewPanel viewPanel;
+	private Toolbar toolbar;
+	private SubWindow view2DWindow;
+	private SubWindow view3DWindow;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -46,44 +55,41 @@ public class MainWindow extends JFrame {
 
 		// Window options
 		setTitle("MeshIneBits");
-		setSize(1280, 700);
+		setSize(1280, 500);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		        ProcessingView.closeProcessingView();
-		        ProcessingModelView.closeProcessingView();
-		    }
-		});
-
 		// Menu with the tabs
-		ribbon = new Ribbon();
-		
+		toolbar = new Toolbar();
+
 		// Preview of the generated part & controls
-		viewPanel = new ViewPanel();
-		
-		// ViewObservable make connection between generated part and the view
-		viewObservable = ViewObservable.getInstance();
-		viewObservable.addObserver(viewPanel);
-		viewObservable.addObserver(ribbon);
+		view2DWindow = new Window();
+		view3DWindow = new ProcessingView();
 
 		content = getContentPane();
 		content.setLayout(new BorderLayout());
-		content.add(ribbon, BorderLayout.NORTH);
-		content.add(viewPanel, BorderLayout.CENTER);
+		content.add(toolbar, BorderLayout.NORTH);
+		// TODO
+		// A text log here
 		content.add(new StatusBar(), BorderLayout.SOUTH);
 
+		// Show the frames
 		setVisible(true);
 	}
 
 	public void refresh() {
 		repaint();
 		revalidate();
+		// Refresh subwindows
+		view2DWindow.refresh();
+		view3DWindow.refresh();
 	}
 
-	public void setPart(GeneratedPart part) {
-		viewObservable.setPart(part);
+	public SubWindow get2DView() {
+		return view2DWindow;
+	}
+	
+	public SubWindow get3DView() {
+		return view3DWindow;
 	}
 }

@@ -1,4 +1,4 @@
-package meshIneBits.gui;
+package meshIneBits.gui.view2d;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,22 +16,30 @@ import java.util.Observer;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.gui.MainWindow;
+import meshIneBits.gui.SubWindow;
 
-public class ViewPanel extends JPanel implements Observer {
+/**
+ * The panel wrapping 2D representation with view orienting tools. Exported from
+ * {@link MainWindow}. It observes {@link Controller}.
+ */
+public class Wrapper extends JPanel implements Observer {
 
 	private static final long serialVersionUID = 1L;
-	private View view;
+	private Core coreView;
 	private JSlider zoomSlider;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
@@ -41,44 +49,51 @@ public class ViewPanel extends JPanel implements Observer {
 	private JPanel slicePanel;
 	private JPanel displayOptionsPanel;
 	private JLabel bg;
-	private ViewObservable viewObservable;
-	
+
 	private final double minZoomValue = 0.5;
 	private final double maxZoomValue = 10;
 	private final int minZoomSliderValue = 1;
 	private final int maxZoomSliderValue = 500;
-	
-	//Following attributes are the coefficients from the formula Y = a * EXP(b * x) used for the zoom's log scale
+
+	// Following attributes are the coefficients from the formula Y = a * EXP(b * x)
+	// used for the zoom's log scale
 	private final double aCoef;
 	private final double bCoef;
 
-	public ViewPanel() {
+	public Wrapper() {
 		this.setLayout(new BorderLayout());
 
-		viewObservable = ViewObservable.getInstance();
+		Controller.getInstance().addObserver(this);
 
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
-				new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBitsAlpha.png")).getImage().getScaledInstance(645, 110, Image.SCALE_SMOOTH));
+				new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBitsAlpha.png")).getImage()
+						.getScaledInstance(645, 110, Image.SCALE_SMOOTH));
 		bg.setIcon(icon);
 		bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
 		bg.setForeground(new Color(0, 0, 0, 8));
-		this.add(bg);
-		
+		this.add(bg, BorderLayout.CENTER);
+
 		bCoef = Math.log(minZoomValue / maxZoomValue) / (minZoomSliderValue - maxZoomSliderValue);
 		aCoef = minZoomValue / Math.exp(bCoef * minZoomSliderValue);
+		
+		// Set up the core of view
+		coreView = new Core();
+		Controller.getInstance().addObserver(coreView);
 	}
-	
-	private int getZoomSliderValue(double zoomValue){
-		return (int) (Math.log(zoomValue / aCoef) / bCoef); 
+
+	private int getZoomSliderValue(double zoomValue) {
+		return (int) (Math.log(zoomValue / aCoef) / bCoef);
 	}
-	
-	private double getZoomValue(int zoomSliderValue){
+
+	private double getZoomValue(int zoomSliderValue) {
 		return aCoef * Math.exp(bCoef * zoomSliderValue);
 	}
 
 	private void buildDisplayOptionsPanel() {
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, minZoomSliderValue, maxZoomSliderValue, getZoomSliderValue(viewObservable.getZoom()));
+		Controller controller = Controller.getInstance();
+		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, minZoomSliderValue, maxZoomSliderValue,
+				getZoomSliderValue(controller.getZoom()));
 		zoomSlider.setMaximumSize(new Dimension(maxZoomSliderValue, 20));
 
 		ButtonIcon zoomMinusBtn = new ButtonIcon("search-minus.png");
@@ -97,7 +112,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setZoom(getZoomValue(zoomSlider.getValue()));
+				controller.setZoom(getZoomValue(zoomSlider.getValue()));
 			}
 		});
 
@@ -105,7 +120,7 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				viewObservable.setZoom(viewObservable.getZoom() / 2);
+				controller.setZoom(controller.getZoom() / 2);
 			}
 		});
 
@@ -113,13 +128,14 @@ public class ViewPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				viewObservable.setZoom(viewObservable.getZoom() * 2);
+				controller.setZoom(controller.getZoom() * 2);
 			}
 		});
 	}
 
 	private void buildLayerPanel() {
-		GeneratedPart part = viewObservable.getCurrentPart();
+		Controller controller = Controller.getInstance();
+		GeneratedPart part = controller.getCurrentPart();
 
 		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
 		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
@@ -138,20 +154,21 @@ public class ViewPanel extends JPanel implements Observer {
 		layerSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setLayer(((Integer) layerSpinner.getValue()).intValue());
+				controller.setLayer(((Integer) layerSpinner.getValue()).intValue());
 			}
 		});
 
 		layerSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setLayer(((Integer) layerSlider.getValue()).intValue());
+				controller.setLayer(((Integer) layerSlider.getValue()).intValue());
 			}
 		});
 	}
 
 	private void buildSlicePanel() {
-		GeneratedPart part = viewObservable.getCurrentPart();
+		Controller controller = Controller.getInstance();
+		GeneratedPart part = controller.getCurrentPart();
 
 		sliceSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
 		sliceSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
@@ -170,44 +187,36 @@ public class ViewPanel extends JPanel implements Observer {
 		sliceSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setSlice(((Integer) sliceSpinner.getValue()).intValue());
+				controller.setSlice(((Integer) sliceSpinner.getValue()).intValue());
 			}
 		});
 
 		sliceSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				viewObservable.setSlice(((Integer) sliceSlider.getValue()).intValue());
+				controller.setSlice(((Integer) sliceSlider.getValue()).intValue());
 			}
 		});
 	}
 
 	private void init() {
-		this.setLayout(new BorderLayout());
-
-		this.view = new View();
-		viewObservable.addObserver(view);
-
 		// remove old components
-		for (Component c : this.getComponents()) {
-			this.remove(c);
-		}
+		this.removeAll();
+		
+		// Repaint
+		this.add(coreView, BorderLayout.CENTER);
 
-		if (viewObservable.getCurrentPart().isGenerated()) {
+		if (Controller.getInstance().getCurrentPart().isGenerated()) {
 			buildLayerPanel();
 		} else {
 			buildSlicePanel();
 		}
 
 		buildDisplayOptionsPanel();
-
-		this.add(view, BorderLayout.CENTER);
 	}
 
 	private void noPart() {
-		for (Component c : this.getComponents()) {
-			remove(c);
-		}
+		this.removeAll();
 
 		this.add(bg);
 		repaint();
@@ -218,23 +227,29 @@ public class ViewPanel extends JPanel implements Observer {
 	@SuppressWarnings("incomplete-switch")
 	public void update(Observable o, Object arg) {
 		if (arg != null) {
-			switch ((ViewObservable.Component) arg) {
+			Controller controller = Controller.getInstance();
+			switch ((Controller.Component) arg) {
 			case PART:
-				GeneratedPart part = this.viewObservable.getCurrentPart();
+				GeneratedPart part = controller.getCurrentPart();
+				System.out.println(
+						part.toString() + " isGenerated = " + part.isGenerated() + " isSliced = " + part.isSliced());
 				if ((part != null) && (part.isGenerated() || part.isSliced())) {
+					System.out.println("Initializing 2D view");
 					init();
+					repaint();
+					revalidate();
 				} else {
 					noPart();
 				}
 				break;
 			case LAYER:
-				updateLayerChoice(this.viewObservable.getCurrentLayerNumber());
+				updateLayerChoice(controller.getCurrentLayerNumber());
 				break;
 			case ZOOM:
-				updateZoom(this.viewObservable.getZoom());
+				updateZoom(controller.getZoom());
 				break;
 			case SLICE:
-				updateSliceChoice(this.viewObservable.getCurrentSliceNumber());
+				updateSliceChoice(controller.getCurrentSliceNumber());
 				break;
 			}
 		}
@@ -247,7 +262,7 @@ public class ViewPanel extends JPanel implements Observer {
 			layerSpinner.setValue(layerNr);
 			layerSlider.setValue(layerNr);
 		} catch (Exception e) {
-			//If layer spinner and slider don't exist
+			// If layer spinner and slider don't exist
 		}
 	}
 
@@ -256,20 +271,20 @@ public class ViewPanel extends JPanel implements Observer {
 			sliceSpinner.setValue(sliceNr);
 			sliceSlider.setValue(sliceNr);
 		} catch (Exception e) {
-			//If slice spinner and slider don't exist
+			// If slice spinner and slider don't exist
 		}
 	}
 
 	private void updateZoom(double zoom) {
 		try {
-			if(getZoomSliderValue(zoom) <= maxZoomSliderValue)
+			if (getZoomSliderValue(zoom) <= maxZoomSliderValue)
 				zoomSlider.setValue(getZoomSliderValue(zoom));
-			else if (getZoomSliderValue(zoom) > maxZoomSliderValue && zoomSlider.getValue() < maxZoomSliderValue - 1){
+			else if (getZoomSliderValue(zoom) > maxZoomSliderValue && zoomSlider.getValue() < maxZoomSliderValue - 1) {
 				zoomSlider.setValue(maxZoomSliderValue - 1);
 			}
-				
+
 		} catch (Exception e) {
-			//If the slider doesn't exist
+			// If the slider doesn't exist
 		}
 	}
 
@@ -283,7 +298,8 @@ public class ViewPanel extends JPanel implements Observer {
 			super("");
 			try {
 				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
+						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
+								.getScaledInstance(22, 22, Image.SCALE_DEFAULT));
 				this.setIcon(icon);
 			} catch (Exception e) {
 				e.printStackTrace();
