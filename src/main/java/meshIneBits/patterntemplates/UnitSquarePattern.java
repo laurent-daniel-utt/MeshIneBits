@@ -3,6 +3,9 @@
  */
 package meshIneBits.patterntemplates;
 
+import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
@@ -10,6 +13,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 /**
@@ -42,6 +46,8 @@ import meshIneBits.util.Vector2;
  *
  */
 public class UnitSquarePattern extends PatternTemplate {
+	
+	private Set<UnitSquare> unitSquares = new HashSet<UnitSquare>();
 
 	/*
 	 * (non-Javadoc)
@@ -97,7 +103,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public int optimize(Layer actualState) {
-		// TODO Auto-generated method stub
+		// TODO Implement
+		Logger.updateStatus("Paving layer " + actualState.getLayerNumber());
+		
 		return 0;
 	}
 
@@ -146,6 +154,14 @@ public class UnitSquarePattern extends PatternTemplate {
 	@Override
 	public String getHowToUse() {
 		return "Unit square's size should be a little bit larger than Lift Points, so that we have safe space between bits.";
+	}
+	
+	private class UnitSquare extends Rectangle2D.Double {
+		public UnitState state;
+	}
+	
+	enum UnitState {
+		ACCEPTED, BORDER, IGNORED
 	}
 
 }
