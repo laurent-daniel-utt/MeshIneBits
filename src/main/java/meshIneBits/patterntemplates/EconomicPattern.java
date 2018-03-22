@@ -65,7 +65,7 @@ public class EconomicPattern extends PatternTemplate {
 	private static Vector<java.lang.Double> layersRotations = new Vector<java.lang.Double>();
 
 	/**
-	 * This constructor will only leave a black space. The real job is done in
+	 * This constructor will only leave a blank space. The real job is done in
 	 * {@link #optimize(Layer)}
 	 */
 	@Override

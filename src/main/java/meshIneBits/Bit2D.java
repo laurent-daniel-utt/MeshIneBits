@@ -57,8 +57,10 @@ public class Bit2D implements Cloneable {
 	 * A new full bit with <tt>originBit</tt> and <tt>orientation</tt> in the
 	 * coordinate system of the associated pattern
 	 * 
-	 * @param origin the center of bit's outer bound
-	 * @param orientation the rotation of bit
+	 * @param origin
+	 *            the center of bit's outer bound
+	 * @param orientation
+	 *            the rotation of bit
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation) {
 		this.origin = origin;
@@ -73,10 +75,14 @@ public class Bit2D implements Cloneable {
 	/**
 	 * Constructor for custom length and width.
 	 * 
-	 * @param origin the center of bit's outer bound
-	 * @param orientation the rotation of bit
-	 * @param length length of the bit
-	 * @param width width of the bit
+	 * @param origin
+	 *            the center of bit's outer bound
+	 * @param orientation
+	 *            the rotation of bit
+	 * @param length
+	 *            length of the bit
+	 * @param width
+	 *            width of the bit
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width) {
 		this.origin = origin;
@@ -91,14 +97,22 @@ public class Bit2D implements Cloneable {
 	/**
 	 * Constructor for cloning
 	 * 
-	 * @param origin center of bit's outer bound
-	 * @param orientation rotation of the bit
-	 * @param length length of the bit
-	 * @param width width of the bit
-	 * @param transfoMatrix transformation to be applied
-	 * @param inverseTransfoMatrix inversion of <tt>transfoMatrix</tt>
-	 * @param cutPaths where to cut this bit
-	 * @param areas set of non intersected areas
+	 * @param origin
+	 *            center of bit's outer bound
+	 * @param orientation
+	 *            rotation of the bit
+	 * @param length
+	 *            length of the bit
+	 * @param width
+	 *            width of the bit
+	 * @param transfoMatrix
+	 *            transformation to be applied
+	 * @param inverseTransfoMatrix
+	 *            inversion of <tt>transfoMatrix</tt>
+	 * @param cutPaths
+	 *            where to cut this bit
+	 * @param areas
+	 *            set of non intersected areas
 	 */
 	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix,
 			AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
@@ -113,12 +127,11 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * Create the area of the bit and set an initial cut path if necessary. This
-	 * is necessary when the bit has been reduced manually. Note: Oy axe points
-	 * downward and Ox points to the right. We always take the up right corner
-	 * as ({@link CraftConfig#bitLength bitLength} / 2, -
-	 * {@link CraftConfig#bitWidth bitWidth} / 2 ). The bit' boundary is a
-	 * rectangle.
+	 * Create the area of the bit and set an initial cut path if necessary. This is
+	 * necessary when the bit has been reduced manually. Note: Oy axe points
+	 * downward and Ox points to the right. We always take the up right corner as
+	 * ({@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+	 * bitWidth} / 2 ). The bit' boundary is a rectangle.
 	 */
 	private void buildBoundaries() {
 		Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
@@ -301,6 +314,11 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * Given an area cut from a zone, construct the surface of this bit
+	 * 
+	 * @param transformedArea
+	 */
 	public void updateBoundaries(Area transformedArea) {
 		areas.clear();
 		Area newArea = (Area) transformedArea.clone();
@@ -311,8 +329,8 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * @return a set of lift points, each of which is in charge of each
-	 *         separated area (in case a bit has many separated areas)
+	 * @return a set of lift points, each of which is in charge of each separated
+	 *         area (in case a bit has many separated areas)
 	 */
 	public Vector<Vector2> computeLiftPoints() {
 		Vector<Vector2> result = new Vector<Vector2>();
@@ -347,9 +365,9 @@ public class Bit2D implements Cloneable {
 	}
 
 	/**
-	 * This method only accepts the conservative transformation (no scaling).
-	 * The coordinates are rounded by {@link CraftConfig#errorAccepted} to
-	 * accelerate calculation.
+	 * This method only accepts the conservative transformation (no scaling). The
+	 * coordinates are rounded by {@link CraftConfig#errorAccepted} to accelerate
+	 * calculation.
 	 * 
 	 * @param transformation
 	 *            a combination of affine transformation
