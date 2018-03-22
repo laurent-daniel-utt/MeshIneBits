@@ -456,7 +456,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * @author Quoc Nhat Han TRAN
 	 *
 	 */
-	enum UnitState {
+	private enum UnitState {
 		/**
 		 * Unit totally inside area, possibly touching boundary
 		 */
