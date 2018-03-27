@@ -129,7 +129,9 @@ public class UnitSquarePattern extends PatternTemplate {
 			matrix.resolve();
 			overallPavement.addAll(matrix.exportBits());
 		}
-		actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0)));
+		Pattern thisPattern = new Pattern(overallPavement, new Vector2(1, 0));
+		actualState.setReferentialPattern(thisPattern);
+		actualState.rebuild();
 		return 0;
 	}
 
@@ -303,7 +305,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		public boolean add(UnitSquare thatUnit) {
 			if (this.isEmpty()) {
 				// Quick check
-				return super.add(thatUnit);
+				super.add(thatUnit);
+				this.updateBoundaryAfterAdding(thatUnit);
+				return true;
 			}
 			if (!this.contains(thatUnit) && this.isStillValidIfAdding(thatUnit) && this.havingUnitTouching(thatUnit)) {
 				super.add(thatUnit);
@@ -313,15 +317,26 @@ public class UnitSquarePattern extends PatternTemplate {
 				return false;
 		}
 
-		private Rectangle2D.Double boundary;
+		private Rectangle2D.Double boundary = new Rectangle2D.Double();
 
 		/**
-		 * Update the coordinate of boundary
+		 * Update the coordinate of boundary. Should be only called after adding, if
+		 * else, it does nothing.
 		 * 
 		 * @param thatUnit
 		 */
 		private void updateBoundaryAfterAdding(UnitSquare thatUnit) {
-			this.boundary = (Double) this.boundary.createUnion(thatUnit);
+			if (!this.contains(thatUnit)) // If the unit has not been added
+				return;
+
+			if (this.size() == 1)
+				// If this is the first unit
+				// The boundary of this polyomino should be that of the unit
+				this.boundary = thatUnit;
+			else
+				// If already having other unit
+				// We find their union
+				this.boundary = (Double) this.boundary.createUnion(thatUnit);
 		}
 
 		/**
@@ -364,18 +379,29 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *         {@link UnitState#ACCEPTED accepted} unit
 		 */
 		public Bit2D convertToBit2D() {
-			Vector2 bitOrientation = null;
-			if (this.boundary.getWidth() >= this.boundary.getHeight()) {
-				bitOrientation = new Vector2(1, 0); // Horizontal
-			} else {
-				bitOrientation = new Vector2(0, 1); // Vertical
-			}
+			if (this.isEmpty())
+				return null;
+
+			Vector2 bitOrientation = this.calculateBitOrientation();
 
 			Vector2 bitOrigin = this.calculateBitOrigin(bitOrientation);
 
 			Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
 			bit.updateBoundaries(this.getUnitedArea());
 			return bit;
+		}
+
+		/**
+		 * Check if the bit should lie horizontally or vertically
+		 * 
+		 * @return <tt>(1, 0)</tt> if horizontal, otherwise <tt>(0, 1)</tt>
+		 */
+		private Vector2 calculateBitOrientation() {
+			if (this.boundary.getWidth() >= this.boundary.getHeight()) {
+				return new Vector2(1, 0); // Horizontal
+			} else {
+				return new Vector2(0, 1); // Vertical
+			}
 		}
 
 		/**
@@ -390,33 +416,39 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Direction to float
 			boolean top = false, left = false, bottom = false, right = false;
 
-			Predicate<UnitSquare> isAcceptedUnit = unit -> unit.state == UnitState.ACCEPTED;
-			Predicate<UnitSquare> onTopSide = unit -> unit.y == this.boundary.y;
-			Predicate<UnitSquare> onLeftSide = unit -> unit.x == this.boundary.x;
-			Predicate<UnitSquare> onBottomSide = unit -> unit.getMaxY() == this.boundary.getMaxY();
-			Predicate<UnitSquare> onRightSide = unit -> unit.getMaxX() == this.boundary.getMaxX();
+			for (UnitSquare unit : this) {
+				if (unit.state == UnitState.ACCEPTED) {
+					if (unit.getMinY() == this.boundary.getMinY()) {
+						// On top side
+						top = true;
+					} else if (unit.getMaxY() == this.boundary.getMaxY()) {
+						// On bottom side
+						bottom = true;
+					}
 
-			Stream<UnitSquare> acceptedUnits = this.stream().filter(isAcceptedUnit)
-					.collect(Collectors.toCollection(HashSet::new)).stream();
-			if (acceptedUnits.anyMatch(onTopSide))
-				top = true;
-			if (acceptedUnits.anyMatch(onLeftSide))
-				left = true;
-			if (acceptedUnits.anyMatch(onBottomSide))
-				bottom = true;
-			if (acceptedUnits.anyMatch(onRightSide))
-				right = true;
+					if (unit.getMinX() == this.boundary.getMinX()) {
+						// On left side
+						left = true;
+					} else if (unit.getMaxX() == this.boundary.getMaxX()) {
+						// On right side
+						right = true;
+					}
+				}
+			}
 
 			// Default float
+			// By default, origin floats to top-left corner
 			if (!top && !bottom)
 				top = true;
 			if (!left && !right)
 				left = true;
 
-			double h = CraftConfig.bitLength / 2, v = CraftConfig.bitWidth / 2;// horizontal and vertical length
-			if (orientation.x == 0 && orientation.y == 1) {// vertical orientation
-				h = CraftConfig.bitWidth / 2;
-				v = CraftConfig.bitLength / 2;
+			double h = CraftConfig.bitLength, v = CraftConfig.bitWidth;// horizontal and vertical length in
+																				// horizontal orientation
+			if (orientation.x == 0 && orientation.y == 1) {
+				// if the bit is in vertical orientation
+				h = CraftConfig.bitWidth;
+				v = CraftConfig.bitLength;
 			}
 
 			Vector2 origin = null;
@@ -433,7 +465,6 @@ public class UnitSquarePattern extends PatternTemplate {
 					origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMaxY() - v / 2);
 				}
 			}
-			// By default, origin floats to top-left corner
 
 			return origin;
 		}
@@ -519,7 +550,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public Vector<Bit2D> exportBits() {
 			Vector<Bit2D> v = new Vector<Bit2D>();
-			this.pavage.forEach(piece -> v.add(piece.convertToBit2D()));
+			for (Polyomino p : this.pavage) {
+				v.add(p.convertToBit2D());
+			}
 			return v;
 		}
 
@@ -555,6 +588,33 @@ public class UnitSquarePattern extends PatternTemplate {
 					}
 				}
 			}
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder str = new StringBuilder();
+			str.append("[\n");
+			for (int i = 0; i < matrix.length; i++) {
+				str.append("[");
+				for (int j = 0; j < matrix[i].length; j++) {
+					switch (matrix[i][j].state) {
+					case ACCEPTED:
+						str.append("A,");
+						break;
+					case BORDER:
+						str.append("B,");
+						break;
+					case IGNORED:
+						str.append("I,");
+						break;
+					default:
+						break;
+					}
+				}
+				str.append("]\n");
+			}
+			str.append("]\n");
+			return str.toString();
 		}
 	}
 }
