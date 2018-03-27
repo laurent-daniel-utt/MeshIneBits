@@ -65,6 +65,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * Equal to vertical margin plus lift point diameter
 	 */
 	private double unitHeight;
+	
+	private static String HORIZONTAL_MARGIN = "horizontalMargin";
+	private static String VERTICAL_MARGIN = "verticalMargin";
 
 	/*
 	 * (non-Javadoc)
@@ -73,9 +76,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public void initiateConfig() {
-		config.add(new PatternParameterConfig("horizontalMargin", "Horizontal margin",
+		config.add(new PatternParameterConfig(HORIZONTAL_MARGIN, "Horizontal margin",
 				"A little space allowing Lift Point move horizontally", 1.0, 100.0, 2.0, 1.0));
-		config.add(new PatternParameterConfig("verticalMargin", "Vertical margin",
+		config.add(new PatternParameterConfig(VERTICAL_MARGIN, "Vertical margin",
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
 	}
 
@@ -383,11 +386,14 @@ public class UnitSquarePattern extends PatternTemplate {
 				return null;
 
 			Vector2 bitOrientation = this.calculateBitOrientation();
-
-			Vector2 bitOrigin = this.calculateBitOrigin(bitOrientation);
-
+			String floatpos = this.calculateBitFloatingPosition();
+			Vector2 bitOrigin = this.calculateBitOrigin(bitOrientation, floatpos);
 			Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
-			bit.updateBoundaries(this.getUnitedArea());
+
+			Area bitArea = this.getLimitArea(bit, floatpos);
+			Area polyominoArea = this.getUnitedArea();
+			bitArea.intersect(polyominoArea);
+			bit.updateBoundaries(bitArea);
 			return bit;
 		}
 
@@ -405,15 +411,13 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * By calculating which corner / side of boundary the bit should float to, we
-		 * deduct the origin point of the bit covering this polyomino
+		 * Which corner / side of boundary the bit should float to
 		 * 
-		 * @param orientation
-		 *            horizontal (1, 0) or vertical (0, 1)
-		 * @return origin of the bit covering this polyomino
+		 * @return either "top-left", "top-right", "bottom-left" or "bottom-right"
 		 */
-		private Vector2 calculateBitOrigin(Vector2 orientation) {
+		private String calculateBitFloatingPosition() {
 			// Direction to float
+			// Top-left / Top-right / Bottom-left / Bottom-right
 			boolean top = false, left = false, bottom = false, right = false;
 
 			for (UnitSquare unit : this) {
@@ -443,8 +447,32 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (!left && !right)
 				left = true;
 
+			if (top) {
+				if (left)
+					return "top-left";
+				else
+					return "top-right";
+			} else {
+				if (left)
+					return "bottom-left";
+				else
+					return "bottom-right";
+			}
+		}
+
+		/**
+		 * Deduct the origin point of the bit covering this polyomino
+		 * 
+		 * @param orientation
+		 *            horizontal (1, 0) or vertical (0, 1)
+		 * @param floatpos
+		 *            either "top-left", "top-right", "bottom-left" or "bottom-right"
+		 * @return origin of the bit covering this polyomino
+		 */
+		private Vector2 calculateBitOrigin(Vector2 orientation, String floatpos) {
+
 			double h = CraftConfig.bitLength, v = CraftConfig.bitWidth;// horizontal and vertical length in
-																				// horizontal orientation
+																		// horizontal orientation
 			if (orientation.x == 0 && orientation.y == 1) {
 				// if the bit is in vertical orientation
 				h = CraftConfig.bitWidth;
@@ -452,18 +480,22 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			Vector2 origin = null;
-			if (top) {
-				if (left) {
-					origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMinY() + v / 2);
-				} else {
-					origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMinY() + v / 2);
-				}
-			} else {
-				if (left) {
-					origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMaxY() - v / 2);
-				} else {
-					origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMaxY() - v / 2);
-				}
+			switch (floatpos) {
+			case "top-left":
+				origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMinY() + v / 2);
+				break;
+			case "top-right":
+				origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMinY() + v / 2);
+				break;
+			case "bottom-left":
+				origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMaxY() - v / 2);
+				break;
+			case "bottom-right":
+				origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMaxY() - v / 2);
+				break;
+			default:
+				origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMinY() + v / 2);
+				break;
 			}
 
 			return origin;
@@ -472,12 +504,78 @@ public class UnitSquarePattern extends PatternTemplate {
 		/**
 		 * Union of all units' area (each unit's area is a part of the whole layer's)
 		 * 
-		 * @return <tt>null</tt> if this polyomino is empty
+		 * @return empty area if this polyomino is empty
 		 */
 		private Area getUnitedArea() {
 			Area union = new Area();
 			this.stream().forEach(unit -> union.add(unit.getArea()));
 			return union;
+		}
+
+		/**
+		 * The bit surface should be limited inside boundary of this polyomino minus a
+		 * minimum margin. The margin should run along opposite border of floating
+		 * position. If the bit is bigger than the polyomino, the margin's width will be
+		 * equal to pattern's parameter. Otherwise, the margin's width would be the
+		 * difference between bit's and polyomino's size.
+		 * 
+		 * @param bit
+		 *            whose origin and orientation are determined
+		 * @param floatpos
+		 *            either "top-left", "top-right", "bottom-left" or "bottom-right"
+		 * @return a rectangular area smaller than boundary
+		 */
+		private Area getLimitArea(Bit2D bit, String floatpos) {
+			Rectangle2D.Double lim = (Double) this.boundary.clone();
+
+			// Determine the float position of bit
+			String[] pos = floatpos.split("-");
+			// pos[0] would be "top" or "bottom"
+			// pos[1] would be "left" or "right"
+			
+			double bitHorizontalLength = bit.getLength(), bitVerticalLength = bit.getWidth();
+			if (bit.getOrientation().equals(new Vector2(0, 1))) {// If vertical
+				bitHorizontalLength = bit.getWidth();
+				bitVerticalLength = bit.getLength();
+			}
+
+			double horizontalMarginAroundBit;
+			if (this.boundary.width <= bitHorizontalLength) {
+				// We will put in a margin whose width is equal to pattern's parameter
+				// "horizontal margin"
+				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN).getCurrentValue();
+				lim.width -= horizontalMarginAroundBit;
+				if (pos[1] == "right")
+					// Move top-left corner of boundary to right
+					lim.x += horizontalMarginAroundBit;
+			} else {
+				// Margin will be difference between boundary's size and bit's
+				horizontalMarginAroundBit = this.boundary.width - bitHorizontalLength;
+				lim.width -= horizontalMarginAroundBit; // equal to bit's horizontal length in fact
+				if (pos[1] == "right")
+					// Move top-left corner of boundary to right
+					lim.x += horizontalMarginAroundBit;
+			}
+			
+			double verticalMarginAroundBit;
+			if (this.boundary.height <= bitVerticalLength) {
+				// We will put in a margin whose width is equal to pattern's parameter
+				// "vertical margin"
+				verticalMarginAroundBit = (double) UnitSquarePattern.this.config.get(VERTICAL_MARGIN).getCurrentValue();
+				lim.height -= verticalMarginAroundBit;
+				if (pos[0] == "bottom")
+					// Move down top-left corner of boundary
+					lim.y += verticalMarginAroundBit;
+			} else {
+				// Margin will be difference between boundary's size and bit's
+				verticalMarginAroundBit = this.boundary.height - bitVerticalLength;
+				lim.height -= verticalMarginAroundBit; // equal to bit's vertical length in fact
+				if (pos[0] == "bottom")
+					// Move down top-left corner of boundary
+					lim.y += verticalMarginAroundBit;
+			}
+			
+			return new Area(lim);
 		}
 	}
 
@@ -569,19 +667,13 @@ public class UnitSquarePattern extends PatternTemplate {
 						// Do nothing
 						break;
 					case ACCEPTED:
-						// TODO Resolution
-						// Test
+						// TODO Need a full solution
 						Polyomino p = new Polyomino();
 						p.add(unit);
 						this.pavage.add(p);
 						break;
 					case BORDER:
-						// TODO Resolution
-						// Check neighbors
-						// Test
-						Polyomino p2 = new Polyomino();
-						p2.add(unit);
-						this.pavage.add(p2);
+						// TODO Concatenate "intelligently" with accepted unit
 						break;
 					default:
 						break;
