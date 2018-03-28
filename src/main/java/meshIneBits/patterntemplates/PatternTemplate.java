@@ -7,8 +7,7 @@ import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
 /**
- * This is a factory paving the layers. Use {@link #createPattern(int)} to
- * pave.
+ * This is a factory paving the layers. Use {@link #createPattern(int)} to pave.
  */
 public abstract class PatternTemplate {
 
@@ -30,9 +29,9 @@ public abstract class PatternTemplate {
 	 * Prepare own parameters from a externally loaded configuration.
 	 * 
 	 * @param patternConfig
-	 *            all given parameters will be filtered again before applying.
-	 *            Those which do not appear in the default configuration of
-	 *            template will be discarded.
+	 *            all given parameters will be filtered again before applying. Those
+	 *            which do not appear in the default configuration of template will
+	 *            be discarded.
 	 */
 	public PatternTemplate(PatternConfig patternConfig) {
 		super();
@@ -50,8 +49,7 @@ public abstract class PatternTemplate {
 	}
 
 	/**
-	 * Initialize the specialized configuration if no predefined configuration
-	 * found.
+	 * Initialize the special configurations if no predefined configuration found.
 	 */
 	public abstract void initiateConfig();
 
@@ -65,7 +63,8 @@ public abstract class PatternTemplate {
 	public abstract boolean ready(GeneratedPart generatedPart);
 
 	/**
-	 * Construct the layer based on this pattern
+	 * Construct the layer based on this pattern. This constructor is similar to
+	 * make cake: apply a mould onto flour.
 	 * 
 	 * @param layerNumber
 	 *            an integer not negative
@@ -74,8 +73,8 @@ public abstract class PatternTemplate {
 	public abstract Pattern createPattern(int layerNumber);
 
 	/**
-	 * To be called in auto-optimization. Or can be used to perform on a
-	 * specific layer
+	 * Auto-optimization. Also a constructor who considers completely the layer's
+	 * boundary.
 	 * 
 	 * @param actualState
 	 *            the whole actual bits' placement in layer
@@ -90,8 +89,7 @@ public abstract class PatternTemplate {
 	 * pattern.
 	 * 
 	 * @param actualState
-	 *            the actual state of layer which is paved by this pattern
-	 *            template
+	 *            the actual state of layer which is paved by this pattern template
 	 * @param bitKey
 	 *            the transformed origin of bit
 	 * @param localDirection
@@ -101,12 +99,11 @@ public abstract class PatternTemplate {
 	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection);
 
 	/**
-	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the
-	 * distance is free to decide.
+	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the distance is
+	 * free to decide.
 	 * 
 	 * @param actualState
-	 *            the actual state of layer which is paved by this pattern
-	 *            template
+	 *            the actual state of layer which is paved by this pattern template
 	 * @param bitKey
 	 *            the transformed origin of bit
 	 * @param localDirection

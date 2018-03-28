@@ -3,6 +3,7 @@ package meshIneBits.config;
 import java.util.Vector;
 
 import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.patterntemplates.UnitSquarePattern;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
 import meshIneBits.patterntemplates.ImprovedBrickPattern;
@@ -76,7 +77,8 @@ public class CraftConfig
 			new ClassicBrickPattern(),
 			new DiagonalHerringbonePattern(),
 			new ImprovedBrickPattern(),
-			new EconomicPattern()
+			new EconomicPattern(),
+			new UnitSquarePattern()
 	};
 	/**
 	 * Includes the provided templates and added lately ones
