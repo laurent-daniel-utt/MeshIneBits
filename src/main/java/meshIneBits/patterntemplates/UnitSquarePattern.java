@@ -167,15 +167,19 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
 	 */
+	/**
+	 * No bit displacement is allowed in this pattern
+	 */
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
-		double distance = 0;
-		if (localDirection.x == 0) {// up or down
-			distance = CraftConfig.bitWidth / 2;
-		} else if (localDirection.y == 0) {// left or right
-			distance = CraftConfig.bitLength / 2;
-		}
-		return this.moveBit(actualState, bitKey, localDirection, distance);
+		// double distance = 0;
+		// if (localDirection.x == 0) {// up or down
+		// distance = CraftConfig.bitWidth / 2;
+		// } else if (localDirection.y == 0) {// left or right
+		// distance = CraftConfig.bitLength / 2;
+		// }
+		// return this.moveBit(actualState, bitKey, localDirection, distance);
+		return null;
 	}
 
 	/*
@@ -185,9 +189,13 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
 	 */
+	/**
+	 * No bit displacement is allowed in this pattern
+	 */
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-		return actualState.moveBit(bitKey, localDirection, distance);
+		// return actualState.moveBit(bitKey, localDirection, distance);
+		return null;
 	}
 
 	@Override
@@ -226,12 +234,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * A part of zone's area which is contained by this unit
 		 */
 		private Area containedArea;
-		
+
 		/**
 		 * The matrix' line in which this unit resides
 		 */
 		public int _i = -1;
-		
+
 		/**
 		 * The matrix' column in which this unit resides
 		 */
@@ -251,11 +259,14 @@ public class UnitSquarePattern extends PatternTemplate {
 			this.determineState(area);
 			this.calculateContainedArea(area);
 		}
-		
+
 		/**
 		 * Set up the virtual coordinate to simplify calculation
-		 * @param i non-negative, otherwise 0
-		 * @param j non-negative, otherwise 0
+		 * 
+		 * @param i
+		 *            non-negative, otherwise 0
+		 * @param j
+		 *            non-negative, otherwise 0
 		 */
 		public void setVirtualCoor(int i, int j) {
 			this._i = (i >= 0 ? i : 0);
