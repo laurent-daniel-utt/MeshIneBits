@@ -426,9 +426,9 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (this.isEmpty())
 				return null;
 
-			Vector2 bitOrientation = this.calculateBitOrientation();
-			String floatpos = this.calculateBitFloatingPosition();
-			Vector2 bitOrigin = this.calculateBitOrigin(bitOrientation, floatpos);
+			Vector2 bitOrientation = this.getBitOrientation();
+			String floatpos = this.getBitFloatingPosition();
+			Vector2 bitOrigin = this.getBitOrigin(bitOrientation, floatpos);
 			Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
 
 			Area bitArea = this.getLimitArea(bit, floatpos);
@@ -443,7 +443,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * 
 		 * @return <tt>(1, 0)</tt> if horizontal, otherwise <tt>(0, 1)</tt>
 		 */
-		private Vector2 calculateBitOrientation() {
+		private Vector2 getBitOrientation() {
 			if (this.boundary.getWidth() >= this.boundary.getHeight()) {
 				return new Vector2(1, 0); // Horizontal
 			} else {
@@ -456,7 +456,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * 
 		 * @return either "top-left", "top-right", "bottom-left" or "bottom-right"
 		 */
-		private String calculateBitFloatingPosition() {
+		private String getBitFloatingPosition() {
 			// Direction to float
 			// Top-left / Top-right / Bottom-left / Bottom-right
 			boolean top = false, left = false, bottom = false, right = false;
@@ -510,7 +510,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *            either "top-left", "top-right", "bottom-left" or "bottom-right"
 		 * @return origin of the bit covering this polyomino
 		 */
-		private Vector2 calculateBitOrigin(Vector2 orientation, String floatpos) {
+		private Vector2 getBitOrigin(Vector2 orientation, String floatpos) {
 
 			double h = CraftConfig.bitLength, v = CraftConfig.bitWidth;// horizontal and vertical length in
 																		// horizontal orientation
