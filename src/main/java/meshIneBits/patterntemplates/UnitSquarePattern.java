@@ -64,8 +64,20 @@ public class UnitSquarePattern extends PatternTemplate {
 	/**
 	 * Equal to vertical margin plus lift point diameter
 	 */
-	private double unitHeight;
-	
+	private double unitWidth;
+
+	/**
+	 * A bit requires at least <tt>n x m</tt> unit squares to cover itself.
+	 * <tt>n</tt> is the number of unit squares in horizontal to cover a bit's
+	 * length.
+	 */
+	private int n = 0;
+	/**
+	 * A bit requires at least <tt>n x m</tt> unit squares to cover itself.
+	 * <tt>m</tt> is the number of unit squares in vertical to cover a bit's width.
+	 */
+	private int m = 0;
+
 	private static String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static String VERTICAL_MARGIN = "verticalMargin";
 
@@ -143,7 +155,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	private void calcUnitSizeAndLimits() {
 		this.unitLength = ((double) config.get("horizontalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
-		this.unitHeight = ((double) config.get("verticalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
+		this.unitWidth = ((double) config.get("verticalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
+		this.n = (int) Math.ceil(CraftConfig.bitLength / this.unitLength);
+		this.m = (int) Math.ceil(CraftConfig.bitWidth / this.unitWidth);
 	}
 
 	/*
@@ -212,6 +226,16 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * A part of zone's area which is contained by this unit
 		 */
 		private Area containedArea;
+		
+		/**
+		 * The matrix' line in which this unit resides
+		 */
+		public int _i = -1;
+		
+		/**
+		 * The matrix' column in which this unit resides
+		 */
+		public int _j = -1;
 
 		/**
 		 * Create a unit square staying inside <tt>zone</tt> with top-left corner at
@@ -220,11 +244,22 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @param x
 		 * @param y
 		 * @param area
+		 *            target to pave
 		 */
 		public UnitSquare(double x, double y, Area area) {
-			super(x, y, unitLength, unitHeight);
+			super(x, y, unitLength, unitWidth);
 			this.determineState(area);
 			this.calculateContainedArea(area);
+		}
+		
+		/**
+		 * Set up the virtual coordinate to simplify calculation
+		 * @param i non-negative, otherwise 0
+		 * @param j non-negative, otherwise 0
+		 */
+		public void setVirtualCoor(int i, int j) {
+			this._i = (i >= 0 ? i : 0);
+			this._j = (j >= 0 ? j : 0);
 		}
 
 		/**
@@ -259,13 +294,19 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * Check if this touches other unit
 		 * 
 		 * @param that
+		 *            relating directly to the same area of this unit
 		 * @return
 		 */
 		public boolean touch(UnitSquare that) {
-			if (((Math.abs(this.getX() - that.getX()) == unitLength) && (this.getY() == that.getY()))
-					|| ((Math.abs(this.getY() - that.getY()) == unitHeight) && (this.getX() == that.getX()))) {
+			if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) == 1) {
 				return true;
 			}
+			// if (((Math.abs(this.getX() - that.getX()) == unitLength) && (this.getY() ==
+			// that.getY()))
+			// || ((Math.abs(this.getY() - that.getY()) == unitWidth) && (this.getX() ==
+			// that.getX()))) {
+			// return true;
+			// }
 			return false;
 		}
 
@@ -532,7 +573,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			String[] pos = floatpos.split("-");
 			// pos[0] would be "top" or "bottom"
 			// pos[1] would be "left" or "right"
-			
+
 			double bitHorizontalLength = bit.getLength(), bitVerticalLength = bit.getWidth();
 			if (bit.getOrientation().equals(new Vector2(0, 1))) {// If vertical
 				bitHorizontalLength = bit.getWidth();
@@ -543,7 +584,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (this.boundary.width <= bitHorizontalLength) {
 				// We will put in a margin whose width is equal to pattern's parameter
 				// "horizontal margin"
-				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN).getCurrentValue();
+				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN)
+						.getCurrentValue();
 				lim.width -= horizontalMarginAroundBit;
 				if (pos[1] == "right")
 					// Move top-left corner of boundary to right
@@ -556,7 +598,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Move top-left corner of boundary to right
 					lim.x += horizontalMarginAroundBit;
 			}
-			
+
 			double verticalMarginAroundBit;
 			if (this.boundary.height <= bitVerticalLength) {
 				// We will put in a margin whose width is equal to pattern's parameter
@@ -574,7 +616,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Move down top-left corner of boundary
 					lim.y += verticalMarginAroundBit;
 			}
-			
+
 			return new Area(lim);
 		}
 	}
@@ -630,12 +672,13 @@ public class UnitSquarePattern extends PatternTemplate {
 			this.area = area;
 			Rectangle2D.Double outerRect = (Double) this.area.getBounds2D();
 			int numOfColumns = (int) Math.ceil(outerRect.getWidth() / unitLength);
-			int numOfLines = (int) Math.ceil(outerRect.getHeight() / unitHeight);
+			int numOfLines = (int) Math.ceil(outerRect.getHeight() / unitWidth);
 			this.matrix = new UnitSquare[numOfLines][numOfColumns];
 			for (int i = 0; i < matrix.length; i++) {
 				for (int j = 0; j < matrix[i].length; j++) {
 					this.matrix[i][j] = new UnitSquare(outerRect.getX() + j * unitLength,
-							outerRect.getY() + i * unitHeight, area);
+							outerRect.getY() + i * unitWidth, area);
+					this.matrix[i][j].setVirtualCoor(i, j);
 				}
 			}
 			this.pavage = new HashSet<Polyomino>();
