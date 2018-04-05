@@ -6,13 +6,17 @@ package meshIneBits.patterntemplates;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
@@ -20,10 +24,8 @@ import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.PatternParameterConfig;
-import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
-import meshIneBits.util.Shape2D;
 import meshIneBits.util.Vector2;
 
 /**
@@ -238,12 +240,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		/**
 		 * The matrix' line in which this unit resides
 		 */
-		public int _i = -1;
+		public int _i;
 
 		/**
 		 * The matrix' column in which this unit resides
 		 */
-		public int _j = -1;
+		public int _j;
 
 		/**
 		 * Create a unit square staying inside <tt>zone</tt> with top-left corner at
@@ -253,22 +255,15 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @param y
 		 * @param area
 		 *            target to pave
+		 * @param i
+		 *            virtual abscissa. Non-negative, otherwise 0
+		 * @param j
+		 *            virtual coordinate. Non-negative, otherwise 0
 		 */
-		public UnitSquare(double x, double y, Area area) {
+		public UnitSquare(double x, double y, Area area, int i, int j) {
 			super(x, y, unitLength, unitWidth);
 			this.determineState(area);
 			this.calculateContainedArea(area);
-		}
-
-		/**
-		 * Set up the virtual coordinate to simplify calculation
-		 * 
-		 * @param i
-		 *            non-negative, otherwise 0
-		 * @param j
-		 *            non-negative, otherwise 0
-		 */
-		public void setVirtualCoor(int i, int j) {
 			this._i = (i >= 0 ? i : 0);
 			this._j = (j >= 0 ? j : 0);
 		}
@@ -327,7 +322,11 @@ public class UnitSquarePattern extends PatternTemplate {
 		public Area getArea() {
 			return this.containedArea;
 		}
-
+		
+		@Override
+		public String toString() {
+			return "";
+		}
 	}
 
 	/**
@@ -372,6 +371,9 @@ public class UnitSquarePattern extends PatternTemplate {
 				return false;
 		}
 
+		/**
+		 * Outer border of this polyomino
+		 */
 		private Rectangle2D.Double boundary = new Rectangle2D.Double();
 
 		/**
@@ -402,11 +404,11 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *         that
 		 */
 		private boolean havingUnitTouching(UnitSquare thatUnit) {
-			Predicate<UnitSquare> directNeighbor = thisUnit -> thisUnit.touch(thatUnit);
-			if (this.stream().anyMatch(directNeighbor))
-				return true;
-			else
-				return false;
+			for (UnitSquare u : this) {
+				if (u.touch(thatUnit))
+					return true;
+			}
+			return false;
 		}
 
 		/**
@@ -418,10 +420,20 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private boolean isStillValidIfAdding(UnitSquare thatUnit) {
 			Rectangle2D.Double newBoundary = (Double) this.boundary.createUnion(thatUnit);
-			if (newBoundary.getWidth() > CraftConfig.bitLength || newBoundary.getHeight() > CraftConfig.bitWidth)
-				return false;
-			else
-				return true;
+			Vector2 orientation = this.getBitOrientation();
+			if (orientation.x == 1 && orientation.y == 0) {
+				// Horizontal
+				if (newBoundary.getWidth() > CraftConfig.bitLength || newBoundary.getHeight() > CraftConfig.bitWidth)
+					return false;
+				else
+					return true;
+			} else {
+				// Vertical
+				if (newBoundary.getWidth() > CraftConfig.bitWidth || newBoundary.getHeight() > CraftConfig.bitLength)
+					return false;
+				else
+					return true;
+			}
 		}
 
 		/**
@@ -663,15 +675,19 @@ public class UnitSquarePattern extends PatternTemplate {
 		/**
 		 * All units created
 		 */
-		private UnitSquare[][] matrix;
+		private UnitSquare[][] matrixU;
+		/**
+		 * Indicate each unit belongs which polyomino
+		 */
+		private Polyomino[][] matrixP;
+		/**
+		 * Who proposes to the unit <tt>(i, j)</tt>
+		 */
+		private Map<UnitSquare, Set<UnitSquare>> proposersRegistry;
 		/**
 		 * Predefine zone on which this matrix is put
 		 */
 		private Area area;
-		/**
-		 * A set of polyominos used to fill the whole matrix
-		 */
-		private Set<Polyomino> pavage;
 
 		/**
 		 * Prepare buckets to hold units
@@ -684,15 +700,20 @@ public class UnitSquarePattern extends PatternTemplate {
 			Rectangle2D.Double outerRect = (Double) this.area.getBounds2D();
 			int numOfColumns = (int) Math.ceil(outerRect.getWidth() / unitLength);
 			int numOfLines = (int) Math.ceil(outerRect.getHeight() / unitWidth);
-			this.matrix = new UnitSquare[numOfLines][numOfColumns];
-			for (int i = 0; i < matrix.length; i++) {
-				for (int j = 0; j < matrix[i].length; j++) {
-					this.matrix[i][j] = new UnitSquare(outerRect.getX() + j * unitLength,
-							outerRect.getY() + i * unitWidth, area);
-					this.matrix[i][j].setVirtualCoor(i, j);
+			matrixU = new UnitSquare[numOfLines][numOfColumns];
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					matrixU[i][j] = new UnitSquare(outerRect.getX() + j * unitLength,
+							outerRect.getY() + i * unitWidth, area, i, j);
 				}
 			}
-			this.pavage = new HashSet<Polyomino>();
+			matrixP = new Polyomino[numOfLines][numOfColumns];
+			proposersRegistry = new HashMap<UnitSquare, Set<UnitSquare>>();
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					proposersRegistry.put(matrixU[i][j], new HashSet<UnitSquare>());
+				}
+			}
 		}
 
 		/**
@@ -700,12 +721,19 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * 
 		 * @return bits regrouped from polyominos
 		 */
-		public Vector<Bit2D> exportBits() {
-			Vector<Bit2D> v = new Vector<Bit2D>();
-			for (Polyomino p : this.pavage) {
-				v.add(p.convertToBit2D());
+		public Set<Bit2D> exportBits() {
+			Set<Polyomino> setPolyominos = new HashSet<Polyomino>();
+			for (int i = 0; i < matrixP.length; i++) {
+				for (int j = 0; j < matrixP[i].length; j++) {
+					if (matrixP[i][j] != null)
+						setPolyominos.add(matrixP[i][j]);// Not adding if already had
+				}
 			}
-			return v;
+			Set<Bit2D> setBits = new HashSet<Bit2D>();
+			for (Polyomino p : setPolyominos) {
+				setBits.add(p.convertToBit2D());
+			}
+			return setBits;
 		}
 
 		/**
@@ -713,37 +741,117 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * {@link UnitState#ACCEPTED accepted} one to create polyominos
 		 */
 		public void resolve() {
-			for (int i = 0; i < matrix.length; i++) {
-				for (int j = 0; j < matrix[i].length; j++) {
-					UnitSquare unit = this.matrix[i][j];
-					switch (unit.state) {
-					case IGNORED:
+			// Make each border unit propose to an accepted one
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					UnitSquare unit = matrixU[i][j];
+					if (unit.state == UnitState.BORDER) {
+						// Check each direct contact unit
+						// if it is accepted
+						// then propose
+
+						// Above
+						if (i > 0) {
+							if (matrixU[i - 1][j].state == UnitState.ACCEPTED)
+								this.registerProposal(unit, matrixU[i - 1][j]);
+						}
+						// Below
+						if (i + 1 < matrixU.length) {
+							if (matrixU[i + 1][j].state == UnitState.ACCEPTED)
+								this.registerProposal(unit, matrixU[i + 1][j]);
+						}
+						// Left
+						if (j > 0) {
+							if (matrixU[i][j - 1].state == UnitState.ACCEPTED)
+								this.registerProposal(unit, matrixU[i][j - 1]);
+						}
+						// Right
+						if (j + 1 < matrixU[i].length) {
+							if (matrixU[i][j + 1].state == UnitState.ACCEPTED)
+								this.registerProposal(unit, matrixU[i][j + 1]);
+						}
+					} else if (unit.state == UnitState.ACCEPTED) {
+						// Propose to itself
+						this.registerProposal(unit, unit);
+					} else if (unit.state == UnitState.IGNORED) {
+						// No follower
 						// Do nothing
-						break;
-					case ACCEPTED:
-						// TODO Need a full solution
-						Polyomino p = new Polyomino();
-						p.add(unit);
-						this.pavage.add(p);
-						break;
-					case BORDER:
-						// TODO Concatenate "intelligently" with accepted unit
-						break;
-					default:
-						break;
 					}
 				}
 			}
+
+			Comparator<UnitSquare> compareFamousLevel = (u1, u2) -> {
+				// Compare between number of followers
+				// in ascendant order
+				return (proposersRegistry.get(u1).size() - proposersRegistry.get(u2).size());
+			};
+			SortedSet<UnitSquare> targetList = new TreeSet<UnitSquare>(compareFamousLevel);
+			targetList.addAll(proposersRegistry.keySet());
+			
+			// TODO Approve marriage
+			// A minimal solution
+			// Consider the proposals list in ascendant order,
+			// we approve the concatenation of the most wanted unit first (the last in list)
+			// Once approving, remove all its proposals to others (to remain faithful)
+			while (!targetList.isEmpty()) {
+				UnitSquare target = targetList.last();
+				targetList.remove(target);
+				Set<UnitSquare> proposers = proposersRegistry.get(target);
+				if (proposers.isEmpty())
+					continue; // To fast forward
+				
+				// Create a polyomino containing target and all proposers
+				Polyomino p = new Polyomino();
+				// TODO check validity
+				p.add(target);
+				p.addAll(proposers);
+				// Register p into matrixP
+				this.registerPolyomino(p);
+
+				// Remove married units in proposers list to remain faithful
+				targetList.removeAll(proposers);
+				for (UnitSquare u : targetList) {
+					// Cancel proposal of married proposers
+					proposersRegistry.get(u).removeAll(proposers);
+				}
+
+				// Resort to ensure the ascendant order
+				List<UnitSquare> tl = new ArrayList<UnitSquare>(targetList);
+				Collections.sort(tl, compareFamousLevel);
+				targetList = new TreeSet<UnitSquare>(compareFamousLevel);
+				targetList.addAll(tl);
+			}
+		}
+
+		/**
+		 * Register the polyomino into tracking matrix
+		 * 
+		 * @param polyomino
+		 */
+		private void registerPolyomino(Polyomino polyomino) {
+			for (UnitSquare u : polyomino) {
+				matrixP[u._i][u._j] = polyomino;
+			}
+		}
+
+		/**
+		 * Register the proposal of <tt>proposer</tt> to <tt>target</tt>
+		 * 
+		 * @param proposer
+		 * @param target
+		 */
+		private void registerProposal(UnitSquare proposer, UnitSquare target) {
+			this.proposersRegistry.get(target).add(proposer);
 		}
 
 		@Override
 		public String toString() {
 			StringBuilder str = new StringBuilder();
 			str.append("[\n");
-			for (int i = 0; i < matrix.length; i++) {
+			for (int i = 0; i < matrixU.length; i++) {
 				str.append("[");
-				for (int j = 0; j < matrix[i].length; j++) {
-					switch (matrix[i][j].state) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					switch (matrixU[i][j].state) {
 					case ACCEPTED:
 						str.append("A,");
 						break;
