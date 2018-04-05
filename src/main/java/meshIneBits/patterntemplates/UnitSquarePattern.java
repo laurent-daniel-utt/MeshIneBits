@@ -445,7 +445,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return a regular bit if this polyomino has at least one
 		 *         {@link UnitState#ACCEPTED accepted} unit
 		 */
-		public Bit2D convertToBit2D() {
+		public Bit2D getBit2D() {
 			if (this.isEmpty())
 				return null;
 
@@ -458,6 +458,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			Area polyominoArea = this.getUnitedArea();
 			bitArea.intersect(polyominoArea);
 			bit.updateBoundaries(bitArea);
+
+			if (this.size() > 1) {
+				// For test
+				System.out.println(this.toString() + "\nfloatpos=" + floatpos);
+			}
 			return bit;
 		}
 
@@ -598,7 +603,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			// pos[1] would be "left" or "right"
 
 			double bitHorizontalLength = bit.getLength(), bitVerticalLength = bit.getWidth();
-			if (bit.getOrientation().equals(new Vector2(0, 1))) {// If vertical
+			Vector2 bitOrientation = bit.getOrientation();
+			if (bitOrientation.x == 0 && bitOrientation.y == 1) {// If vertical
 				bitHorizontalLength = bit.getWidth();
 				bitVerticalLength = bit.getLength();
 			}
@@ -609,43 +615,42 @@ public class UnitSquarePattern extends PatternTemplate {
 				// "horizontal margin"
 				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN)
 						.getCurrentValue();
-				lim.width -= horizontalMarginAroundBit;
-				if (pos[1] == "right")
-					// Move top-left corner of boundary to right
-					lim.x += horizontalMarginAroundBit;
 			} else {
 				// Margin will be difference between boundary's size and bit's
 				horizontalMarginAroundBit = this.boundary.width - bitHorizontalLength;
-				lim.width -= horizontalMarginAroundBit; // equal to bit's horizontal length in fact
-				if (pos[1] == "right")
-					// Move top-left corner of boundary to right
-					lim.x += horizontalMarginAroundBit;
 			}
+			lim.width -= horizontalMarginAroundBit;
+			if (pos[1].equals("right"))
+				// Move top-left corner of boundary to right
+				lim.x += horizontalMarginAroundBit;
 
 			double verticalMarginAroundBit;
 			if (this.boundary.height <= bitVerticalLength) {
 				// We will put in a margin whose width is equal to pattern's parameter
 				// "vertical margin"
 				verticalMarginAroundBit = (double) UnitSquarePattern.this.config.get(VERTICAL_MARGIN).getCurrentValue();
-				lim.height -= verticalMarginAroundBit;
-				if (pos[0] == "bottom")
-					// Move down top-left corner of boundary
-					lim.y += verticalMarginAroundBit;
 			} else {
 				// Margin will be difference between boundary's size and bit's
 				verticalMarginAroundBit = this.boundary.height - bitVerticalLength;
-				lim.height -= verticalMarginAroundBit; // equal to bit's vertical length in fact
-				if (pos[0] == "bottom")
-					// Move down top-left corner of boundary
-					lim.y += verticalMarginAroundBit;
 			}
+			lim.height -= verticalMarginAroundBit; // equal to bit's vertical length in fact
+			if (pos[0].equals("bottom"))
+				// Move down top-left corner of boundary
+				lim.y += verticalMarginAroundBit;
 
 			return new Area(lim);
 		}
 
 		@Override
 		public String toString() {
-			return this.toArray().toString();
+			StringBuilder str = new StringBuilder();
+			str.append("[");
+			for (UnitSquare u : this) {
+				str.append(u);
+				str.append(" ");
+			}
+			str.append("]");
+			return str.toString();
 		}
 	}
 
@@ -747,7 +752,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 			Set<Bit2D> setBits = new HashSet<Bit2D>();
 			for (Polyomino p : setPolyominos) {
-				setBits.add(p.convertToBit2D());
+				setBits.add(p.getBit2D());
 			}
 			return setBits;
 		}
@@ -799,7 +804,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			Comparator<UnitSquare> comparingFamousLevel = (u1, u2) -> {
 				// Compare between number of followers
 				// in descendant order
-				return - (proposersRegistry.get(u1).size() - proposersRegistry.get(u2).size());
+				return -(proposersRegistry.get(u1).size() - proposersRegistry.get(u2).size());
 			};
 			List<UnitSquare> targetList = new ArrayList<UnitSquare>(proposersRegistry.keySet());
 			Collections.sort(targetList, comparingFamousLevel);
@@ -807,7 +812,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			// TODO Approve marriage
 			// A minimal solution
 			// Consider the proposals list in descendant order,
-			// we approve the concatenation of the most wanted unit first (the first in list)
+			// we approve the concatenation of the most wanted unit first (the first in
+			// list)
 			// Once approving, remove all its proposals to others (to remain faithful)
 			while (!targetList.isEmpty()) {
 				UnitSquare target = targetList.get(0);
