@@ -322,10 +322,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		public Area getArea() {
 			return this.containedArea;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "";
+			return state + "(" + _i + "," + _j + ")";
 		}
 	}
 
@@ -642,6 +642,11 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			return new Area(lim);
 		}
+
+		@Override
+		public String toString() {
+			return this.toArray().toString();
+		}
 	}
 
 	/**
@@ -654,15 +659,26 @@ public class UnitSquarePattern extends PatternTemplate {
 		/**
 		 * Unit totally inside area, possibly touching boundary
 		 */
-		ACCEPTED,
+		ACCEPTED("A"),
 		/**
 		 * Unit partially inside area, not counted if only touching boundary
 		 */
-		BORDER,
+		BORDER("B"),
 		/**
 		 * Unit totally outside area
 		 */
-		IGNORED
+		IGNORED("I");
+
+		private String codename;
+
+		private UnitState(String codename) {
+			this.codename = codename;
+		}
+
+		@Override
+		public String toString() {
+			return codename;
+		}
 	}
 
 	/**
@@ -703,8 +719,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			matrixU = new UnitSquare[numOfLines][numOfColumns];
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
-					matrixU[i][j] = new UnitSquare(outerRect.getX() + j * unitLength,
-							outerRect.getY() + i * unitWidth, area, i, j);
+					matrixU[i][j] = new UnitSquare(outerRect.getX() + j * unitLength, outerRect.getY() + i * unitWidth,
+							area, i, j);
 				}
 			}
 			matrixP = new Polyomino[numOfLines][numOfColumns];
@@ -787,7 +803,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			};
 			SortedSet<UnitSquare> targetList = new TreeSet<UnitSquare>(compareFamousLevel);
 			targetList.addAll(proposersRegistry.keySet());
-			
+
 			// TODO Approve marriage
 			// A minimal solution
 			// Consider the proposals list in ascendant order,
@@ -799,7 +815,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				Set<UnitSquare> proposers = proposersRegistry.get(target);
 				if (proposers.isEmpty())
 					continue; // To fast forward
-				
+
 				// Create a polyomino containing target and all proposers
 				Polyomino p = new Polyomino();
 				// TODO check validity
@@ -851,19 +867,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			for (int i = 0; i < matrixU.length; i++) {
 				str.append("[");
 				for (int j = 0; j < matrixU[i].length; j++) {
-					switch (matrixU[i][j].state) {
-					case ACCEPTED:
-						str.append("A,");
-						break;
-					case BORDER:
-						str.append("B,");
-						break;
-					case IGNORED:
-						str.append("I,");
-						break;
-					default:
-						break;
-					}
+					str.append(matrixU[i][j].state);
+					str.append(",");
 				}
 				str.append("]\n");
 			}
