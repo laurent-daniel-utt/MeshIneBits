@@ -796,25 +796,25 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 			}
 
-			Comparator<UnitSquare> compareFamousLevel = (u1, u2) -> {
+			Comparator<UnitSquare> comparingFamousLevel = (u1, u2) -> {
 				// Compare between number of followers
-				// in ascendant order
-				return (proposersRegistry.get(u1).size() - proposersRegistry.get(u2).size());
+				// in descendant order
+				return - (proposersRegistry.get(u1).size() - proposersRegistry.get(u2).size());
 			};
-			SortedSet<UnitSquare> targetList = new TreeSet<UnitSquare>(compareFamousLevel);
-			targetList.addAll(proposersRegistry.keySet());
+			List<UnitSquare> targetList = new ArrayList<UnitSquare>(proposersRegistry.keySet());
+			Collections.sort(targetList, comparingFamousLevel);
 
 			// TODO Approve marriage
 			// A minimal solution
-			// Consider the proposals list in ascendant order,
-			// we approve the concatenation of the most wanted unit first (the last in list)
+			// Consider the proposals list in descendant order,
+			// we approve the concatenation of the most wanted unit first (the first in list)
 			// Once approving, remove all its proposals to others (to remain faithful)
 			while (!targetList.isEmpty()) {
-				UnitSquare target = targetList.last();
+				UnitSquare target = targetList.get(0);
 				targetList.remove(target);
 				Set<UnitSquare> proposers = proposersRegistry.get(target);
 				if (proposers.isEmpty())
-					continue; // To fast forward
+					break; // No more proposals to approve
 
 				// Create a polyomino containing target and all proposers
 				Polyomino p = new Polyomino();
@@ -832,10 +832,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 
 				// Resort to ensure the ascendant order
-				List<UnitSquare> tl = new ArrayList<UnitSquare>(targetList);
-				Collections.sort(tl, compareFamousLevel);
-				targetList = new TreeSet<UnitSquare>(compareFamousLevel);
-				targetList.addAll(tl);
+				Collections.sort(targetList, comparingFamousLevel);
 			}
 		}
 
