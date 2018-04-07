@@ -222,6 +222,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		return "Unit square's size should be a little bit larger than Lift Points, so that we have safe space between bits.";
 	}
 
+	/**
+	 * Represents a small square (or rectangle) on surface of {@link Layer}
+	 * 
+	 * @author Quoc Nhat Han TRAN
+	 *
+	 */
 	private class UnitSquare extends Rectangle2D.Double {
 		/**
 		 * 
@@ -331,8 +337,8 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
-	 * A sequence of adjacent unit squares. A polyomino could not be too larger than
-	 * a bit
+	 * A sequence of adjacent {@link UnitSquare}s. A polyomino could not be too
+	 * larger than a {@link Bit2D}
 	 * 
 	 * @author Quoc Nhat Han TRAN
 	 *
@@ -691,7 +697,8 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
-	 * Describe the relative position in respect to predefined area
+	 * Describe the relative position of a {@link UnitSquare} in respect to
+	 * predefined area
 	 * 
 	 * @author Quoc Nhat Han TRAN
 	 *
@@ -723,7 +730,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
-	 * Flat description of units
+	 * Flat description of multiple {@link UnitSquare}s
 	 * 
 	 * @author Quoc Nhat Han TRAN
 	 *
