@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -652,6 +653,41 @@ public class UnitSquarePattern extends PatternTemplate {
 			str.append("]");
 			return str.toString();
 		}
+
+		/**
+		 * Connect 2 polyominos
+		 * 
+		 * @param thatPolyomino
+		 * @return <tt>false</tt> if there is no direct contact between them
+		 */
+		public boolean addAll(Polyomino thatPolyomino) {
+			UnitSquare contactPoint = null;
+			for (UnitSquare u : thatPolyomino) {
+				if (this.isStillValidIfAdding(u)) {
+					contactPoint = u;
+					break;
+				}
+			}
+			if (contactPoint != null) {
+				this.add(contactPoint);
+				for (UnitSquare u : thatPolyomino) {
+					this.add(u);
+				}
+				return true;
+			} else
+				return false;
+		}
+
+		/**
+		 * Prohibit the removal
+		 * 
+		 * @return always <tt>false</tt>
+		 */
+		@Override
+		public boolean remove(Object o) {
+			return false;
+		}
+
 	}
 
 	/**
@@ -840,6 +876,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				// Resort to ensure the ascendant order
 				Collections.sort(targetList, comparingFamousLevel);
 			}
+
 		}
 
 		/**
