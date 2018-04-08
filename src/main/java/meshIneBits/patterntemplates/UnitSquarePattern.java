@@ -229,7 +229,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * @author Quoc Nhat Han TRAN
 	 *
 	 */
-	private interface Puzzle extends Cloneable {
+	private interface Puzzle {
 		/**
 		 * Put together two pieces of puzzles
 		 * 
@@ -238,8 +238,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return <tt>null</tt> if there is no contact between them
 		 */
 		public Polyomino merge(Puzzle other);
-
-		public Puzzle clone();
 	}
 
 	/**
@@ -357,12 +355,6 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		@Override
 		public Polyomino merge(Puzzle other) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Puzzle clone() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -731,13 +723,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
-		@Override
-		public Puzzle clone() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	/**
@@ -975,7 +960,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private class Action {
 			/**
-			 * Clones of what we chose to merge
+			 * What we chose to merge
 			 */
 			private List<Puzzle> mergeTarget;
 
@@ -992,7 +977,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			public void setTarget(Collection<Puzzle> puzzles) {
 				this.mergeTarget.clear();
 				for (Puzzle p : puzzles) {
-					this.mergeTarget.add(p.clone());
+					this.mergeTarget.add(p);
 				}
 			}
 
