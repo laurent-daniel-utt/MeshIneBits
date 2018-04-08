@@ -235,7 +235,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * 
 		 * @param other
 		 * 
-		 * @return <tt>null</tt> if there is no contact between them
+		 * @return A new {@link Polyomino} containing all {@link UnitSquare} making up
+		 *         these 2 puzzles. <tt>null</tt> if there is no contact between them
 		 */
 		public Polyomino merge(Puzzle other);
 	}
@@ -355,7 +356,19 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		@Override
 		public Polyomino merge(Puzzle other) {
-			// TODO Auto-generated method stub
+			Polyomino p = new Polyomino();
+			p.add(this);
+			if (other instanceof UnitSquare) {
+				if (p.add((UnitSquare) other))
+					return p;
+				else
+					return null;
+			} else if (other instanceof Polyomino) {
+				if (p.addAll((Polyomino) other))
+					return p;
+				else
+					return null;
+			}
 			return null;
 		}
 	}
@@ -720,7 +733,21 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		@Override
 		public Polyomino merge(Puzzle other) {
-			// TODO Auto-generated method stub
+			Polyomino p = new Polyomino();
+			p.addAll(this);
+			if (other instanceof UnitSquare) {
+				UnitSquare u = (UnitSquare) other;
+				if (p.add(u))
+					return p;
+				else
+					return null;
+			} else if (other instanceof Polyomino) {
+				Polyomino op = (Polyomino) other;
+				if (p.addAll(op))
+					return p;
+				else
+					return null;
+			}
 			return null;
 		}
 	}
