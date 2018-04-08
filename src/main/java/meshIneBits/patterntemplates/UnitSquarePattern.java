@@ -7,6 +7,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -223,12 +224,31 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
+	 * Represents a combination of {@link UnitSquare} on matrix
+	 * 
+	 * @author Quoc Nhat Han TRAN
+	 *
+	 */
+	private interface Puzzle extends Cloneable {
+		/**
+		 * Put together two pieces of puzzles
+		 * 
+		 * @param other
+		 * 
+		 * @return <tt>null</tt> if there is no contact between them
+		 */
+		public Polyomino merge(Puzzle other);
+
+		public Puzzle clone();
+	}
+
+	/**
 	 * Represents a small square (or rectangle) on surface of {@link Layer}
 	 * 
 	 * @author Quoc Nhat Han TRAN
 	 *
 	 */
-	private class UnitSquare extends Rectangle2D.Double {
+	private class UnitSquare extends Rectangle2D.Double implements Puzzle {
 		/**
 		 * 
 		 */
@@ -334,6 +354,18 @@ public class UnitSquarePattern extends PatternTemplate {
 		public String toString() {
 			return state + "(" + _i + "," + _j + ")";
 		}
+
+		@Override
+		public Polyomino merge(Puzzle other) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Puzzle clone() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	/**
@@ -343,7 +375,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * @author Quoc Nhat Han TRAN
 	 *
 	 */
-	private class Polyomino extends HashSet<UnitSquare> {
+	private class Polyomino extends HashSet<UnitSquare> implements Puzzle {
 		/**
 		 * 
 		 */
@@ -692,6 +724,18 @@ public class UnitSquarePattern extends PatternTemplate {
 		@Override
 		public boolean remove(Object o) {
 			return false;
+		}
+
+		@Override
+		public Polyomino merge(Puzzle other) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Puzzle clone() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
