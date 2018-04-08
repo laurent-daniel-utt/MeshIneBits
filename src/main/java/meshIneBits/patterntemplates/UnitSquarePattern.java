@@ -966,5 +966,59 @@ public class UnitSquarePattern extends PatternTemplate {
 			str.append("]\n");
 			return str.toString();
 		}
+
+		/**
+		 * A transformation of current state of matrix
+		 * 
+		 * @author Quoc Nhat Han TRAN
+		 *
+		 */
+		private class Action {
+			/**
+			 * Clones of what we chose to merge
+			 */
+			private List<Puzzle> mergeTarget;
+
+			public Action() {
+				this.mergeTarget = new ArrayList<Puzzle>();
+			}
+
+			/**
+			 * The target set will be reset each time this method is called
+			 * 
+			 * @param puzzles
+			 *            on which we realized this action. At least 2 puzzles.
+			 */
+			public void setTarget(Collection<Puzzle> puzzles) {
+				this.mergeTarget.clear();
+				for (Puzzle p : puzzles) {
+					this.mergeTarget.add(p.clone());
+				}
+			}
+
+			public void realise() {
+				Polyomino fusion = new Polyomino();
+				Iterator<Puzzle> itP = mergeTarget.iterator();
+				while (itP.hasNext()) {
+					fusion = fusion.merge(itP.next());
+				}
+				// Register
+				registerPolyomino(fusion);
+			}
+
+			/**
+			 * Revert this action. Unregister the merged polyominos
+			 */
+			public void undo() {
+				for (Puzzle p : mergeTarget) {
+					if (p instanceof Polyomino) {
+						registerPolyomino((Polyomino) p);
+					} else if (p instanceof UnitSquare) {
+						UnitSquare up = (UnitSquare) p;
+						matrixP[up._i][up._j] = null;
+					}
+				}
+			}
+		}
 	}
 }
