@@ -861,6 +861,14 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * {@link UnitState#ACCEPTED accepted} one to create polyominos
 		 */
 		public void resolve() {
+			this.quickRegroup();
+		}
+
+		/**
+		 * A quick regrouping {@link UnitSquare} at the border with
+		 * {@link UnitState#ACCEPTED accepted} one. Not deterministic
+		 */
+		private void quickRegroup() {
 			// Make each border unit propose to an accepted one
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
@@ -892,7 +900,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						}
 					} else if (unit.state == UnitState.ACCEPTED) {
 						// Propose to itself
-						this.registerProposal(unit, unit);
+						// this.registerProposal(unit, unit);
 					} else if (unit.state == UnitState.IGNORED) {
 						// No follower
 						// Do nothing
@@ -908,7 +916,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			List<UnitSquare> targetList = new ArrayList<UnitSquare>(proposersRegistry.keySet());
 			Collections.sort(targetList, comparingFamousLevel);
 
-			// TODO Approve marriage
 			// A minimal solution
 			// Consider the proposals list in descendant order,
 			// we approve the concatenation of the most wanted unit first (the first in
@@ -923,11 +930,17 @@ public class UnitSquarePattern extends PatternTemplate {
 
 				// Create a polyomino containing target and all proposers
 				Polyomino p = new Polyomino();
-				// TODO check validity
 				p.add(target);
-				p.addAll(proposers);
+				Set<UnitSquare> rejectedProposers = new HashSet<UnitSquare>();
+				for (UnitSquare proposer : proposers) {
+					if (!p.add(proposer)) {
+						rejectedProposers.add(proposer);
+					}
+				}
 				// Register p into matrixP
 				this.registerPolyomino(p);
+				// Spare the rejected units
+				proposers.removeAll(rejectedProposers);
 
 				// Remove married units in proposers list to remain faithful
 				targetList.removeAll(proposers);
@@ -935,11 +948,10 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Cancel proposal of married proposers
 					proposersRegistry.get(u).removeAll(proposers);
 				}
-
+				
 				// Resort to ensure the ascendant order
 				Collections.sort(targetList, comparingFamousLevel);
 			}
-
 		}
 
 		/**
