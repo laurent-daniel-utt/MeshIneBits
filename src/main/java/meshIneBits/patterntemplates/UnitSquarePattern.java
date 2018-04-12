@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -370,11 +371,16 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * A candidate is a puzzle (on {@link #matrixP} or {@link #matrixU}) before
-		 * {@link #dfsTry()}. Each candidate comes with a list of {@link Possibility} to
-		 * transform it into a valid {@link Polyomino}. That list should be sorted from
-		 * largest to smallest in terms of size.
+		 * {@link #dfsTry()}.
 		 */
-		private SortedMap<Puzzle, List<Possibility>> candidates;
+		private Stack<Puzzle> candidates;
+
+		/**
+		 * Each candidate comes with a list of {@link Possibility} to transform it into
+		 * a valid {@link Polyomino}. That list should be sorted from largest to
+		 * smallest in terms of size.
+		 */
+		private Map<Puzzle, List<Possibility>> possibilites;
 
 		/**
 		 * After realising an {@link Action}, the corresponding candidates will be
@@ -409,26 +415,26 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			Action act = new Action();
-			// Implement act
-			for (Puzzle candidate : candidates.keySet()) {
+			// TODO Implement act
+			for (Puzzle candidate : candidates) {
 				// If the candidate has been merged --> ignore
 				if (hasMerged.get(candidate) == true)
 					continue;
 				// Else
-				List<Possibility> possibilities = candidates.get(candidate);
-				for (Possibility possibility : possibilities) {
-					if (!possibility.isRealizable())
-						continue;
-					// If this possibility is realizable, do it
-					act.setTarget(possibility);
-					act.realize();
-					boolean success = dfsTry();
-					if (success) {
-						return true;
-					} else {
-						act.undo(); // To try another way
-					}
-				}
+				// List<Possibility> possibilities = candidates.pop();
+				// for (Possibility possibility : possibilities) {
+				// if (!possibility.isRealizable())
+				// continue;
+				// // If this possibility is realizable, do it
+				// act.setTarget(possibility);
+				// act.realize();
+				// boolean success = dfsTry();
+				// if (success) {
+				// return true;
+				// } else {
+				// act.undo(); // To try another way
+				// }
+				// }
 				// All possibilities of this puzzle do not give us any solution
 				// so we try an other one
 			}
@@ -445,15 +451,16 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @see Possibility#isRealizable()
 		 */
 		private boolean noMorePossibility() {
-			for (Puzzle puzzle : candidates.keySet()) {
-				if (hasMerged.get(puzzle) == false) {
-					List<Possibility> possibilities = candidates.get(puzzle);
-					for (Possibility possibility : possibilities) {
-						if (possibility.isRealizable())
-							return false; // If there is at least one realizable possibility
-					}
-				}
-			}
+			// TODO Reimplement
+//			for (Puzzle puzzle : candidates.keySet()) {
+//				if (hasMerged.get(puzzle) == false) {
+//					List<Possibility> possibilities = candidates.get(puzzle);
+//					for (Possibility possibility : possibilities) {
+//						if (possibility.isRealizable())
+//							return false; // If there is at least one realizable possibility
+//					}
+//				}
+//			}
 			return true;
 		}
 
@@ -484,21 +491,22 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @see #registerCandidate(Puzzle)
 		 */
 		private void findCandidates() {
-			candidates = new TreeMap<Puzzle, List<Possibility>>();
-			hasMerged = new HashMap<Puzzle, Boolean>();
-			for (int i = 0; i < matrixP.length; i++) {
-				for (int j = 0; j < matrixP[i].length; j++) {
-					Polyomino p = matrixP[i][j];
-					if (p != null) {
-						// A polyomino has been placed here
-						registerCandidate(p);
-					} else {
-						// This square belongs to a unit non concatenated
-						// Only accepts accepted / border unit
-						registerCandidate(matrixU[i][j]);
-					}
-				}
-			}
+			// TODO Reimplement
+//			candidates = new TreeMap<Puzzle, List<Possibility>>();
+//			hasMerged = new HashMap<Puzzle, Boolean>();
+//			for (int i = 0; i < matrixP.length; i++) {
+//				for (int j = 0; j < matrixP[i].length; j++) {
+//					Polyomino p = matrixP[i][j];
+//					if (p != null) {
+//						// A polyomino has been placed here
+//						registerCandidate(p);
+//					} else {
+//						// This square belongs to a unit non concatenated
+//						// Only accepts accepted / border unit
+//						registerCandidate(matrixU[i][j]);
+//					}
+//				}
+//			}
 		}
 
 		/**
@@ -641,10 +649,10 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (puzzle instanceof UnitSquare) {
 				UnitSquare u = (UnitSquare) puzzle;
 				if (u.state == UnitState.IGNORED)
-					return ;
-				
+					return;
+
 			} else if (puzzle instanceof Polyomino) {
-				 Polyomino p = (Polyomino) puzzle;
+				Polyomino p = (Polyomino) puzzle;
 			}
 		}
 
