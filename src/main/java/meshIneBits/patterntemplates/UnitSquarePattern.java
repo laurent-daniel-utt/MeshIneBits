@@ -491,20 +491,11 @@ public class UnitSquarePattern extends PatternTemplate {
 					Polyomino p = matrixP[i][j];
 					if (p != null) {
 						// A polyomino has been placed here
-						if (candidates.containsKey(p))
-							continue; // If has been registered --> ignore
-						else
-							registerCandidate(p);
+						registerCandidate(p);
 					} else {
 						// This square belongs to a unit non concatenated
-						UnitSquare u = matrixU[i][j];
 						// Only accepts accepted / border unit
-						if (u.state != UnitState.IGNORED) {
-							registerPuzzle(u);
-							// No need to check if candidates contains this unit
-							// Because we are checking units in well ordered
-							// and each unit appears only once in matrixU
-						}
+						registerCandidate(matrixU[i][j]);
 					}
 				}
 			}
@@ -635,14 +626,26 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * Add a new {@link Puzzle} to list of {@link #candidates} for further try. Also
-		 * find all its {@link Possibility}
+		 * find its {@link Possibility}. If <tt>puzzle</tt> has been added, this will do
+		 * thing.
 		 * 
 		 * @param puzzle
+		 *            if a {@link Polyomino}, ignore if has been registered. If a
+		 *            {@link UnitSquare}, only accept non-{@link UnitState#IGNORED} and
+		 *            non registered
 		 */
 		private void registerCandidate(Puzzle puzzle) {
 			// TODO implement how to register a new candidate
 			// Calculate its Possibility
 			// And put it in #candidates
+			if (puzzle instanceof UnitSquare) {
+				UnitSquare u = (UnitSquare) puzzle;
+				if (u.state == UnitState.IGNORED)
+					return ;
+				
+			} else if (puzzle instanceof Polyomino) {
+				 Polyomino p = (Polyomino) puzzle;
+			}
 		}
 
 		/**
