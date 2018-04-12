@@ -5,7 +5,7 @@ import java.io.File;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.MainWindow;
-import meshIneBits.gui.processing.ProcessingModelView;
+import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.util.Logger;
 
 /**

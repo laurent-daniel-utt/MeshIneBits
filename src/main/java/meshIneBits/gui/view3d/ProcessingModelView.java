@@ -1,4 +1,4 @@
-package meshIneBits.gui.processing;
+package meshIneBits.gui.view3d;
 
 import java.util.Observable;
 import java.util.Observer;
