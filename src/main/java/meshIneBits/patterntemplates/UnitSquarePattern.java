@@ -1294,9 +1294,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			/**
-			 * Apply this action to the current state of {@link UnitMatrix#matrixP}. Also
-			 * register the {@link #mergeTarget} as merged and add the newly merged
-			 * polyomino into {@link UnitMatrix#candidates}
+			 * Apply this action to the current state of {@link UnitMatrix#matrixP}.
 			 * 
 			 * @see UnitMatrix#registerPuzzle(Puzzle)
 			 * @see UnitMatrix#registerCandidate(Puzzle)
