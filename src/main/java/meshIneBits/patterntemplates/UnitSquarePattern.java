@@ -379,64 +379,70 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * A candidate is a puzzle (on {@link #matrixP} or {@link #matrixU}) before
-		 * {@link #dfsTry()}.
+		 * {@link #dfsTry()}. This stack should be sorted in descendant by<br>
+		 * <ol>
+		 * <li>Largest</li>
+		 * <li>Top most</li>
+		 * <li>Left most</li>
+		 * </ol>
 		 */
 		private Stack<Puzzle> candidates;
 
 		/**
-		 * Each candidate comes with a list of {@link Possibility} to transform it into
-		 * a valid {@link Polyomino}. That list should be sorted from largest to
-		 * smallest in terms of size.
+		 * Each candidate comes with a list of neighbor {@link Possibility}. That list
+		 * should be sorted in descendant by<br>
+		 * <ol>
+		 * <li>Largest</li>
+		 * <li>Top most</li>
+		 * <li>Left most</li>
+		 * </ol>
 		 */
-		private Map<Puzzle, List<Possibility>> possibilites;
+		private Map<Puzzle, List<Puzzle>> possibilites;
 
 		/**
-		 * For each state of matrix, we pick the an element A of {@link #candidates}. We
-		 * know all possible polyominos P_1, P_2, ..., P_n containing A. Define an
-		 * action of merge to create P_i. Apply action then redo from beginning with an
-		 * other piece. <br>
+		 * For each state of matrix, we check {@link #candidates} from the stop point of
+		 * last {@link Action} to find a puzzle we can merge. Then we merge it, push the
+		 * new {@link Polyomino} into {@link #candidates}.<br>
 		 * 
 		 * If we cannot find any more candidate, check: <br>
 		 * 1. No more isolated border units --> print out (and stop)<br>
 		 * 2. Exist an isolated border units --> failed --> revert and try with other
 		 * P_i <br>
-		 * If we cannot find any possible polyominos containing A --> Try an other A.
-		 * <br>
 		 * 
 		 * @return
 		 */
 		private boolean dfsTry() {
 			// Check current state
-			if (noMorePossibility()) {
-				if (solutionFound())
-					return true; // To stop right away
-				else {
-					return false;
-				}
-			}
-
-			Action act = new Action();
+			// if (noMorePossibility()) {
+			// if (solutionFound())
+			// return true; // To stop right away
+			// else {
+			// return false;
+			// }
+			// }
+			//
+			// Action act = new Action();
 			// TODO Implement act
-			for (Puzzle candidate : candidates) {
-				// If the candidate has been merged --> ignore
-				// Else
-				// List<Possibility> possibilities = candidates.pop();
-				// for (Possibility possibility : possibilities) {
-				// if (!possibility.isRealizable())
-				// continue;
-				// // If this possibility is realizable, do it
-				// act.setTarget(possibility);
-				// act.realize();
-				// boolean success = dfsTry();
-				// if (success) {
-				// return true;
-				// } else {
-				// act.undo(); // To try another way
-				// }
-				// }
-				// All possibilities of this puzzle do not give us any solution
-				// so we try an other one
-			}
+			// for (Puzzle candidate : candidates) {
+			// If the candidate has been merged --> ignore
+			// Else
+			// List<Possibility> possibilities = candidates.pop();
+			// for (Possibility possibility : possibilities) {
+			// if (!possibility.isRealizable())
+			// continue;
+			// // If this possibility is realizable, do it
+			// act.setTarget(possibility);
+			// act.realize();
+			// boolean success = dfsTry();
+			// if (success) {
+			// return true;
+			// } else {
+			// act.undo(); // To try another way
+			// }
+			// }
+			// All possibilities of this puzzle do not give us any solution
+			// so we try an other one
+			// }
 			// Even though we tried all the ways
 			// Nothing returns solution
 			// So we declare our failure
@@ -1253,35 +1259,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * A group of {@link Puzzle} which can be concatenated into a valid
-		 * {@link Polyomino}. A hope to save a certain puzzle
-		 * 
-		 * @author Quoc Nhat Han TRAN
-		 *
-		 */
-		private class Possibility extends ArrayList<Puzzle> {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 2282744368410773034L;
-
-			/**
-			 * @return <tt>true</tt> if all {@link Puzzle} members have not been merged
-			 * 
-			 * @see Puzzle#isMerged()
-			 */
-			public boolean isRealizable() {
-				for (Puzzle puzzle : this) {
-					if (puzzle.isMerged())
-						return false;
-				}
-				return true;
-			}
-
-		}
-
-		/**
 		 * A transformation of current state of matrix
 		 * 
 		 * @author Quoc Nhat Han TRAN
@@ -1299,7 +1276,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			private Polyomino result;
 
 			public Action() {
-				this.mergeTarget = new ArrayList<Puzzle>();
+				this.mergeTarget = new ArrayList<Puzzle>(2);
 				this.result = null;
 			}
 
@@ -1307,7 +1284,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * The target set will be reset each time this method is called
 			 * 
 			 * @param puzzles
-			 *            on which we realized this action. At least 2 puzzles.
+			 *            on which we realized this action. Only 2 puzzles.
 			 */
 			public void setTarget(Collection<Puzzle> puzzles) {
 				this.mergeTarget.clear();
