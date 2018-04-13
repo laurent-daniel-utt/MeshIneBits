@@ -280,6 +280,14 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *         these 2 puzzles. <tt>null</tt> if there is no contact between them
 		 */
 		public Puzzle merge(Puzzle other);
+
+		/**
+		 * Whether this puzzle has been merged with another, basing on their presence on
+		 * {@link UnitMatrix#matrixP}
+		 * 
+		 * @return
+		 */
+		public boolean isMerged();
 	}
 
 	/**
@@ -452,15 +460,15 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private boolean noMorePossibility() {
 			// TODO Reimplement
-//			for (Puzzle puzzle : candidates.keySet()) {
-//				if (hasMerged.get(puzzle) == false) {
-//					List<Possibility> possibilities = candidates.get(puzzle);
-//					for (Possibility possibility : possibilities) {
-//						if (possibility.isRealizable())
-//							return false; // If there is at least one realizable possibility
-//					}
-//				}
-//			}
+			// for (Puzzle puzzle : candidates.keySet()) {
+			// if (hasMerged.get(puzzle) == false) {
+			// List<Possibility> possibilities = candidates.get(puzzle);
+			// for (Possibility possibility : possibilities) {
+			// if (possibility.isRealizable())
+			// return false; // If there is at least one realizable possibility
+			// }
+			// }
+			// }
 			return true;
 		}
 
@@ -492,21 +500,21 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private void findCandidates() {
 			// TODO Reimplement
-//			candidates = new TreeMap<Puzzle, List<Possibility>>();
-//			hasMerged = new HashMap<Puzzle, Boolean>();
-//			for (int i = 0; i < matrixP.length; i++) {
-//				for (int j = 0; j < matrixP[i].length; j++) {
-//					Polyomino p = matrixP[i][j];
-//					if (p != null) {
-//						// A polyomino has been placed here
-//						registerCandidate(p);
-//					} else {
-//						// This square belongs to a unit non concatenated
-//						// Only accepts accepted / border unit
-//						registerCandidate(matrixU[i][j]);
-//					}
-//				}
-//			}
+			// candidates = new TreeMap<Puzzle, List<Possibility>>();
+			// hasMerged = new HashMap<Puzzle, Boolean>();
+			// for (int i = 0; i < matrixP.length; i++) {
+			// for (int j = 0; j < matrixP[i].length; j++) {
+			// Polyomino p = matrixP[i][j];
+			// if (p != null) {
+			// // A polyomino has been placed here
+			// registerCandidate(p);
+			// } else {
+			// // This square belongs to a unit non concatenated
+			// // Only accepts accepted / border unit
+			// registerCandidate(matrixU[i][j]);
+			// }
+			// }
+			// }
 		}
 
 		/**
@@ -804,6 +812,18 @@ public class UnitSquarePattern extends PatternTemplate {
 					return p;
 				else
 					return null;
+			}
+
+			/**
+			 * @return <tt>false</tt> if its corresponding position on
+			 *         {@link UnitMatrix#matrixP} is not <tt>null</tt>
+			 */
+			@Override
+			public boolean isMerged() {
+				if (matrixP[_i][_j] != null)
+					return false;
+				else
+					return true;
 			}
 		}
 
@@ -1226,6 +1246,19 @@ public class UnitSquarePattern extends PatternTemplate {
 					return p;
 				else
 					return null;
+			}
+
+			/**
+			 * @return <tt>true</tt> if its corresponding position on
+			 *         {@link UnitMatrix#matrixP} is still occupied by <tt>this</tt>
+			 */
+			@Override
+			public boolean isMerged() {
+				UnitSquare u = this.iterator().next();
+				if (matrixP[u._i][u._j].equals(this))
+					return true;
+				else
+					return false;
 			}
 		}
 
