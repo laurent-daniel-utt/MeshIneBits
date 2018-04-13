@@ -391,13 +391,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		private Map<Puzzle, List<Possibility>> possibilites;
 
 		/**
-		 * After realising an {@link Action}, the corresponding candidates will be
-		 * marked as "merged", and the newly merged puzzle will be inserted into the map
-		 * with the tag "not merged" on head.
-		 */
-		private Map<Puzzle, Boolean> hasMerged;
-
-		/**
 		 * For each state of matrix, we pick the an element A of {@link #candidates}. We
 		 * know all possible polyominos P_1, P_2, ..., P_n containing A. Define an
 		 * action of merge to create P_i. Apply action then redo from beginning with an
@@ -426,8 +419,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			// TODO Implement act
 			for (Puzzle candidate : candidates) {
 				// If the candidate has been merged --> ignore
-				if (hasMerged.get(candidate) == true)
-					continue;
 				// Else
 				// List<Possibility> possibilities = candidates.pop();
 				// for (Possibility possibility : possibilities) {
@@ -495,7 +486,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * candidates and register them
 		 * 
 		 * @see #candidates
-		 * @see #hasMerged
 		 * @see #registerCandidate(Puzzle)
 		 */
 		private void findCandidates() {
@@ -1279,11 +1269,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * @return <tt>true</tt> if all {@link Puzzle} members have not been merged
 			 * 
-			 * @see UnitMatrix#hasMerged
+			 * @see Puzzle#isMerged()
 			 */
 			public boolean isRealizable() {
 				for (Puzzle puzzle : this) {
-					if (hasMerged.get(puzzle) == true)
+					if (puzzle.isMerged())
 						return false;
 				}
 				return true;
@@ -1332,7 +1322,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * polyomino into {@link UnitMatrix#candidates}
 			 * 
 			 * @see UnitMatrix#registerPuzzle(Puzzle)
-			 * @see UnitMatrix#hasMerged
 			 * @see UnitMatrix#registerCandidate(Puzzle)
 			 */
 			public void realize() {
@@ -1341,13 +1330,9 @@ public class UnitSquarePattern extends PatternTemplate {
 				while (itP.hasNext()) {
 					Puzzle p = itP.next();
 					result = result.merge(p);
-					// Mark as merged
-					hasMerged.put(p, true);
 				}
 				// Register
 				registerPuzzle(result);
-				// Put new polyomino into list of hasTried
-				hasMerged.put(result, false);
 				// Calculate all Possibility of this new polyomino
 				registerCandidate(result);
 			}
@@ -1360,8 +1345,6 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Remove the fusion in tracking matrix
 					// Re-register the old puzzles
 					registerPuzzle(p);
-					// Unmark for further different try
-					hasMerged.put(p, false);
 				}
 				unregisterCandidate(result);
 				result = null;
