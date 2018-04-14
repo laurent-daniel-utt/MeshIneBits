@@ -13,8 +13,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -648,8 +650,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private void registerCandidate(Puzzle puzzle) {
 			// TODO implement how to register a new candidate
+			// Push it in #candidates
+			candidates.push(puzzle);
 			// Calculate its Possibility
-			// And put it in #candidates
 			if (puzzle instanceof UnitSquare) {
 				UnitSquare u = (UnitSquare) puzzle;
 				if (u.state == UnitState.IGNORED)
@@ -1266,31 +1269,37 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private class Action {
 			/**
-			 * What we chose to merge
+			 * Initiator of this action
 			 */
-			private List<Puzzle> mergeTarget;
+			private Puzzle trigger;
 
 			/**
-			 * Fusion of {@link #mergeTarget}
+			 * What we chose to merge with trigger
+			 */
+			private Puzzle target;
+
+			/**
+			 * What we did right before this
+			 */
+			private Action parent;
+
+			/**
+			 * What we did in following this
+			 */
+			private Queue<Action> children;
+
+			/**
+			 * Fusion of {@link #target}
 			 */
 			private Polyomino result;
 
-			public Action() {
-				this.mergeTarget = new ArrayList<Puzzle>(2);
+			public Action(Action parent, Puzzle trigger, Puzzle target) {
+				this.parent = parent;
+				this.parent.getChildren().add(this);
+				this.children = new LinkedList<Action>();
+				this.trigger = trigger;
+				this.target = target;
 				this.result = null;
-			}
-
-			/**
-			 * The target set will be reset each time this method is called
-			 * 
-			 * @param puzzles
-			 *            on which we realized this action. Only 2 puzzles.
-			 */
-			public void setTarget(Collection<Puzzle> puzzles) {
-				this.mergeTarget.clear();
-				for (Puzzle p : puzzles) {
-					this.mergeTarget.add(p);
-				}
 			}
 
 			/**
@@ -1300,12 +1309,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @see UnitMatrix#registerCandidate(Puzzle)
 			 */
 			public void realize() {
-				result = new Polyomino();
-				Iterator<Puzzle> itP = mergeTarget.iterator();
-				while (itP.hasNext()) {
-					Puzzle p = itP.next();
-					result = result.merge(p);
-				}
+				result = (Polyomino) trigger.merge(target); // All 2 implementations return Polyomino
 				// Register
 				registerPuzzle(result);
 				// Calculate all Possibility of this new polyomino
@@ -1316,13 +1320,40 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * Revert this action. Unregister the merged polyominos
 			 */
 			public void undo() {
-				for (Puzzle p : mergeTarget) {
-					// Remove the fusion in tracking matrix
-					// Re-register the old puzzles
-					registerPuzzle(p);
-				}
+				// Remove the fusion in tracking matrix
+				// Re-register the old puzzles
+				registerPuzzle(trigger);
+				registerPuzzle(target);
 				unregisterCandidate(result);
 				result = null;
+			}
+
+			/**
+			 * @return what we did before
+			 */
+			public Action getParent() {
+				return parent;
+			}
+			
+			/**
+			 * @return who called this
+			 */
+			public Puzzle getTrigger() {
+				return trigger;
+			}
+			
+			/**
+			 * @return whom we merged with
+			 */
+			public Puzzle getTarget() {
+				return target;
+			}
+
+			/**
+			 * @return what we did after
+			 */
+			public Queue<Action> getChildren() {
+				return children;
 			}
 		}
 	}
