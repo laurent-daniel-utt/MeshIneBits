@@ -273,6 +273,16 @@ public class UnitSquarePattern extends PatternTemplate {
 	 *
 	 */
 	private interface Puzzle {
+
+		/**
+		 * Check if 2 puzzle can be merged. Should check this before
+		 * {@link #merge(Puzzle)}
+		 * 
+		 * @param puzzle
+		 *            a {@link UnitSquare} or {@link Polyomino}
+		 */
+		public boolean canMergeWith(Puzzle puzzle);
+
 		/**
 		 * Put together two pieces of puzzles
 		 * 
@@ -783,12 +793,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) == 1) {
 					return true;
 				}
-				// if (((Math.abs(this.getX() - that.getX()) == unitLength) && (this.getY() ==
-				// that.getY()))
-				// || ((Math.abs(this.getY() - that.getY()) == unitWidth) && (this.getX() ==
-				// that.getX()))) {
-				// return true;
-				// }
 				return false;
 			}
 
@@ -837,6 +841,16 @@ public class UnitSquarePattern extends PatternTemplate {
 				UnitSquare u = (UnitSquare) arg0;
 				return u._i == this._i && u._j == this._j;
 			}
+
+			@Override
+			public boolean canMergeWith(Puzzle puzzle) {
+				if (puzzle instanceof UnitSquare)
+					return this.touch((UnitSquare) puzzle);
+				else if (puzzle instanceof Polyomino)
+					return ((Polyomino) puzzle).canMergeWith(this);
+				else
+					return false;
+			}
 		}
 
 		/**
@@ -853,7 +867,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			private static final long serialVersionUID = 1974861227965075981L;
 
 			/**
-			 * Only accept unit which touches at lease an other in the polyomino
+			 * Always check {@link #canMergeWith(Puzzle)} before hand
 			 * 
 			 * @param thatUnit
 			 *            a unit not {@link UnitState#IGNORED ignored}
@@ -867,19 +881,9 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			@Override
 			public boolean add(UnitSquare thatUnit) {
-				if (this.isEmpty()) {
-					// Quick check
-					super.add(thatUnit);
-					this.updateBoundaryAfterAdding(thatUnit);
-					return true;
-				}
-				if (!this.contains(thatUnit) && this.isStillValidIfAdding(thatUnit)
-						&& this.havingUnitTouching(thatUnit)) {
-					super.add(thatUnit);
-					this.updateBoundaryAfterAdding(thatUnit);
-					return true;
-				} else
-					return false;
+				super.add(thatUnit);
+				this.updateBoundaryAfterAdding(thatUnit);
+				return true;
 			}
 
 			/**
@@ -917,14 +921,25 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * Verify connectivity
 			 * 
-			 * @param thatUnit
+			 * @param that
 			 * @return <tt>true</tt> if at least one internal unit is directly adjacent to
 			 *         that
 			 */
-			private boolean havingUnitTouching(UnitSquare thatUnit) {
-				for (UnitSquare u : this) {
-					if (u.touch(thatUnit))
-						return true;
+			public boolean touch(Puzzle that) {
+				if (that instanceof UnitSquare) {
+					UnitSquare thatU = (UnitSquare) that;
+					for (UnitSquare u : this) {
+						if (u.touch(thatU))
+							return true;
+					}
+				} else if (that instanceof Polyomino) {
+					Polyomino thatP = (Polyomino) that;
+					for (UnitSquare u : this) {
+						for (UnitSquare u2 : thatP) {
+							if (u.touch(u2))
+								return true;
+						}
+					}
 				}
 				return false;
 			}
@@ -932,23 +947,16 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * Verify size
 			 * 
-			 * @param thatUnit
+			 * @param that
 			 * @return <tt>false</tt> if concatenation violates the size of a bit (exceeding
 			 *         height or length)
 			 */
-			private boolean isStillValidIfAdding(UnitSquare thatUnit) {
-				return checkBoundaryUnionWith(thatUnit);
-			}
-
-			/**
-			 * Verify size
-			 * 
-			 * @param thatPolyomino
-			 * @return <tt>false</tt> if concatenation violates the size of a bit (exceeding
-			 *         height or length)
-			 */
-			private boolean isStillValidIfAdding(Polyomino thatPolyomino) {
-				return checkBoundaryUnionWith(thatPolyomino.getBoundary());
+			private boolean isStillValidIfAdding(Puzzle that) {
+				if (that instanceof UnitSquare)
+					return checkBoundaryUnionWith((UnitSquare) that);
+				else if (that instanceof Polyomino)
+					return checkBoundaryUnionWith(((Polyomino) that).getBoundary());
+				return false;
 			}
 
 			/**
@@ -1197,29 +1205,10 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * Connect 2 polyominos
 			 * 
 			 * @param thatPolyomino
-			 * @return <tt>false</tt> if there is no direct contact between them or the
-			 *         union is bigger than {@link Bit2D}
+			 * @return 
 			 */
 			public boolean add(Polyomino thatPolyomino) {
-				// Check connect point
-				UnitSquare contactPoint = null;
-				for (UnitSquare u : thatPolyomino) {
-					if (this.isStillValidIfAdding(u)) {
-						contactPoint = u;
-						break;
-					}
-				}
-				if (contactPoint == null)
-					return false;
-				// Check union of boundary
-				if (this.isStillValidIfAdding(thatPolyomino)) {
-					this.add(contactPoint);
-					for (UnitSquare u : thatPolyomino) {
-						this.add(u);
-					}
-					return true;
-				} else
-					return false;
+				return super.addAll(thatPolyomino);
 			}
 
 			/**
@@ -1268,6 +1257,20 @@ public class UnitSquarePattern extends PatternTemplate {
 			public boolean isMerged() {
 				UnitSquare u = this.iterator().next();
 				if (matrixP[u._i][u._j].equals(this))
+					return true;
+				else
+					return false;
+			}
+
+			/**
+			 * @param puzzle
+			 * 
+			 */
+			@Override
+			public boolean canMergeWith(Puzzle puzzle) {
+				if (this.isEmpty())
+					return true;
+				if (!this.contains(puzzle) && this.touch(puzzle) && this.isStillValidIfAdding(puzzle))
 					return true;
 				else
 					return false;
