@@ -381,12 +381,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			this.quickRegroup();
+			neighbors = new ConnectivityGraph();
 			this.findCandidates();
-			boolean success = this.dfsTry();
-			if (success)
-				return true;
-			else
-				return false;
+			return this.dfsTry();
 		}
 
 		/**
@@ -410,6 +407,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * </ol>
 		 */
 		private Map<Puzzle, List<Puzzle>> possibilites;
+
+		/**
+		 * Graph of links between non {@link UnitState#IGNORED} {@link UnitSquare}s and
+		 * {@link Polyomino}s
+		 */
+		private ConnectivityGraph neighbors;
 
 		/**
 		 * For each state of matrix, we check {@link #candidates} from the stop point of
@@ -1205,7 +1208,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * Connect 2 polyominos
 			 * 
 			 * @param thatPolyomino
-			 * @return 
+			 * @return
 			 */
 			public boolean add(Polyomino thatPolyomino) {
 				return super.addAll(thatPolyomino);
@@ -1274,6 +1277,107 @@ public class UnitSquarePattern extends PatternTemplate {
 					return true;
 				else
 					return false;
+			}
+		}
+
+		/**
+		 * All direct links between {@link UnitSquare}s and {@link Polyomino}s
+		 * 
+		 * @author Quoc Nhat Han TRAN
+		 *
+		 */
+		private class ConnectivityGraph extends HashMap<Puzzle, Set<Puzzle>> {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 5057068857746901001L;
+
+			public ConnectivityGraph() {
+				for (int i = 0; i < matrixP.length; i++) {
+					for (int j = 0; j < matrixP[i].length; j++) {
+						if (matrixP[i][j] == null && matrixU[i][j].state != UnitState.IGNORED)
+							// This is a non ignored unit
+							this.put(matrixU[i][j], neighborsOf(matrixU[i][j]));
+
+						if (matrixP[i][j] != null && !this.containsKey(matrixP[i][j]))
+							// This is a Polyomino
+							this.put(matrixP[i][j], neighborsOf(matrixP[i][j]));
+					}
+				}
+			}
+
+			/**
+			 * Calculate neighbors by searching around each unit square
+			 * 
+			 * @param unit
+			 * @return
+			 */
+			private Set<Puzzle> neighborsOf(Polyomino polyomino) {
+				Set<Puzzle> _neighbors = new HashSet<Puzzle>();
+				for (UnitSquare unit : polyomino) {
+					_neighbors.addAll(neighborsOf(unit));
+				}
+				return _neighbors;
+			}
+
+			/**
+			 * @param unit
+			 *            a non {@link UnitState#IGNORED} {@link UnitSquare}
+			 * @return a sublist from 4 direct neighbors
+			 */
+			private Set<Puzzle> neighborsOf(UnitSquare unit) {
+				int i = unit._i;
+				int j = unit._j;
+				Set<Puzzle> _neighbors = new HashSet<Puzzle>(4);
+				// Top
+				if (i > 0) {
+					if (matrixP[i - 1][j] != null && !matrixP[i - 1][j].contains(unit)) {
+						_neighbors.add(matrixP[i - 1][j]);
+					}
+
+					if (matrixP[i - 1][j] == null && matrixU[i - 1][j].state != UnitState.IGNORED) {
+						_neighbors.add(matrixU[i - 1][j]);
+					}
+				}
+				// Bottom
+				if (i < matrixP.length) {
+					if (matrixP[i + 1][j] != null && !matrixP[i + 1][j].contains(unit)) {
+						_neighbors.add(matrixP[i + 1][j]);
+					}
+
+					if (matrixP[i + 1][j] == null && matrixU[i + 1][j].state != UnitState.IGNORED) {
+						_neighbors.add(matrixU[i + 1][j]);
+					}
+				}
+				// Left
+				if (j > 0) {
+					if (matrixP[i][j - 1] != null && !matrixP[i][j - 1].contains(unit)) {
+						_neighbors.add(matrixP[i][j - 1]);
+					}
+					if (matrixP[i][j - 1] == null && matrixU[i][j - 1].state != UnitState.IGNORED) {
+						_neighbors.add(matrixU[i][j - 1]);
+					}
+				}
+				// Right
+				if (j < matrixP[0].length) {
+					if (matrixP[i][j + 1] != null && !matrixP[i][j + 1].contains(unit)) {
+						_neighbors.add(matrixP[i][j + 1]);
+					}
+					if (matrixP[i][j + 1] == null && matrixU[i][j + 1].state != UnitState.IGNORED) {
+						_neighbors.add(matrixU[i][j + 1]);
+					}
+				}
+				return _neighbors;
+			}
+
+			/**
+			 * Instead of {@link #get(Object)}
+			 * 
+			 * @param puzzle
+			 * @return
+			 */
+			public Set<Puzzle> of(Puzzle puzzle) {
+				return this.get(puzzle);
 			}
 		}
 
