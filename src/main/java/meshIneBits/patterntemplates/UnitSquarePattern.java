@@ -1368,6 +1368,19 @@ public class UnitSquarePattern extends PatternTemplate {
 			public Queue<Action> getChildren() {
 				return children;
 			}
+
+			/**
+			 * Two {@link Action} are equal if their targets and triggers are asymetrically
+			 * identical
+			 */
+			@Override
+			public boolean equals(Object arg0) {
+				if (!(arg0 instanceof Action))
+					return false;
+				Action a = (Action) arg0;
+				return ((this.trigger == a.getTrigger() && this.target == a.getTarget())
+						|| (this.trigger == a.getTarget() && this.target == a.getTrigger()));
+			}
 		}
 	}
 }
