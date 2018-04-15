@@ -714,12 +714,12 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * The matrix' line in which this unit resides
 			 */
-			public int _i;
+			public final int _i;
 
 			/**
 			 * The matrix' column in which this unit resides
 			 */
-			public int _j;
+			public final int _j;
 
 			/**
 			 * Create a unit square staying inside <tt>zone</tt> with top-left corner at
@@ -738,8 +738,10 @@ public class UnitSquarePattern extends PatternTemplate {
 				super(x, y, unitLength, unitWidth);
 				this.determineState(area);
 				this.calculateContainedArea(area);
-				this._i = (i >= 0 ? i : 0);
-				this._j = (j >= 0 ? j : 0);
+				if (i < 0 || j < 0)
+					throw new IllegalArgumentException("Virtual coordinates of a Unit Square must not be negative.");
+				this._i = i;
+				this._j = j;
 			}
 
 			/**
@@ -823,6 +825,17 @@ public class UnitSquarePattern extends PatternTemplate {
 					return false;
 				else
 					return true;
+			}
+
+			/**
+			 * Two {@link UnitSquare} are equal if their virtual coordinates are identical
+			 */
+			@Override
+			public boolean equals(Object arg0) {
+				if (!(arg0 instanceof UnitSquare))
+					return false;
+				UnitSquare u = (UnitSquare) arg0;
+				return u._i == this._i && u._j == this._j;
 			}
 		}
 
@@ -1334,14 +1347,14 @@ public class UnitSquarePattern extends PatternTemplate {
 			public Action getParent() {
 				return parent;
 			}
-			
+
 			/**
 			 * @return who called this
 			 */
 			public Puzzle getTrigger() {
 				return trigger;
 			}
-			
+
 			/**
 			 * @return whom we merged with
 			 */
