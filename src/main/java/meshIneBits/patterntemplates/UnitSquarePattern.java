@@ -3,6 +3,7 @@
  */
 package meshIneBits.patterntemplates;
 
+import java.awt.Point;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
@@ -300,6 +301,17 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return
 		 */
 		public boolean isMerged();
+
+		/**
+		 * @return 1 if a single unit, or actual size if a polyomino
+		 */
+		public int size();
+
+		/**
+		 * @return Top-most and left-most virtual coordination of current puzzle.
+		 *         <tt>(x,y) = (j, i)</tt>
+		 */
+		public Point getTopCoor();
 	}
 
 	/**
@@ -383,6 +395,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			this.quickRegroup();
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
+			this.sortCandidates();
 			return this.dfsTry();
 		}
 
@@ -398,8 +411,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		private Stack<Puzzle> candidates;
 
 		/**
-		 * Each candidate comes with a list of neighbor {@link Possibility}. That list
-		 * should be sorted in descendant by<br>
+		 * Each candidate comes with a list of neighbors. That list should be sorted in
+		 * descendant by<br>
 		 * <ol>
 		 * <li>Largest</li>
 		 * <li>Top most</li>
@@ -510,22 +523,53 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @see #registerCandidate(Puzzle)
 		 */
 		private void findCandidates() {
-			// TODO Reimplement
-			// candidates = new TreeMap<Puzzle, List<Possibility>>();
-			// hasMerged = new HashMap<Puzzle, Boolean>();
-			// for (int i = 0; i < matrixP.length; i++) {
-			// for (int j = 0; j < matrixP[i].length; j++) {
-			// Polyomino p = matrixP[i][j];
-			// if (p != null) {
-			// // A polyomino has been placed here
-			// registerCandidate(p);
-			// } else {
-			// // This square belongs to a unit non concatenated
-			// // Only accepts accepted / border unit
-			// registerCandidate(matrixU[i][j]);
-			// }
-			// }
-			// }
+			candidates = new Stack<Puzzle>();
+			possibilites = new HashMap<Puzzle, List<Puzzle>>(matrixU.length * matrixU[0].length);
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					if (matrixP[i][j] != null)
+						registerCandidate(matrixP[i][j]);
+					else
+						registerCandidate(matrixU[i][j]);
+				}
+			}
+		}
+
+		/**
+		 * Sort the list of candidates in descending order <br>
+		 * <ol>
+		 * <li>Largest</li>
+		 * <li>Top most</li>
+		 * <li>Left most</li>
+		 * </ol>
+		 */
+		private void sortCandidates() {
+			Comparator<Puzzle> c = (p1, p2) -> {
+				// Largest
+				if (p1.size() > p2.size())
+					return 1;
+				else if (p1.size() < p2.size())
+					return -1;
+				else {
+					// Top most
+					Point p1p = p1.getTopCoor();
+					Point p2p = p2.getTopCoor();
+					if (p1p.y < p2p.y)
+						return 1;
+					else if (p1p.y > p2p.y)
+						return -1;
+					else {
+						// Left most
+						if (p1p.x < p2p.x)
+							return 1;
+						else if (p1p.x > p2p.x)
+							return -1;
+						else
+							return 0;
+					}
+				}
+			};
+			candidates.sort(c);
 		}
 
 		/**
@@ -653,37 +697,64 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * Add a new {@link Puzzle} to list of {@link #candidates} for further try. Also
-		 * find its {@link Possibility}. If <tt>puzzle</tt> has been added, this will do
-		 * thing.
+		 * figure out its possibilities in a descendant order.<br>
+		 * <ol>
+		 * <li>Largest</li>
+		 * <li>Top most</li>
+		 * <li>Left most</li>
+		 * </ol>
 		 * 
 		 * @param puzzle
 		 *            if a {@link Polyomino}, ignore if has been registered. If a
 		 *            {@link UnitSquare}, only accept non-{@link UnitState#IGNORED} and
-		 *            non registered
+		 *            non registered. Its connectivities should be already saved in
+		 *            {@link #neighbors}
 		 */
 		private void registerCandidate(Puzzle puzzle) {
-			// TODO implement how to register a new candidate
 			// Push it in #candidates
-			candidates.push(puzzle);
+			if (candidates.contains(puzzle))
+				return;
+			candidates.push(puzzle); // Push to the first
 			// Calculate its Possibility
-			if (puzzle instanceof UnitSquare) {
-				UnitSquare u = (UnitSquare) puzzle;
-				if (u.state == UnitState.IGNORED)
-					return;
-
-			} else if (puzzle instanceof Polyomino) {
-				Polyomino p = (Polyomino) puzzle;
-			}
+			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
+			Comparator<Puzzle> c = (p1, p2) -> {
+				// Largest
+				if (p1.size() > p2.size())
+					return 1;
+				else if (p1.size() < p2.size())
+					return -1;
+				else {
+					// Top most
+					Point p1p = p1.getTopCoor();
+					Point p2p = p2.getTopCoor();
+					if (p1p.y < p2p.y)
+						return 1;
+					else if (p1p.y > p2p.y)
+						return -1;
+					else {
+						// Left most
+						if (p1p.x < p2p.x)
+							return 1;
+						else if (p1p.x > p2p.x)
+							return -1;
+						else
+							return 0;
+					}
+				}
+			};
+			list.sort(c);
+			possibilites.put(puzzle, list);
 		}
 
 		/**
 		 * Remove the puzzle (a merged one resulted by an {@link Action}) from
-		 * candidates
+		 * candidates and its possibilities
 		 * 
 		 * @param puzzle
 		 */
 		private void unregisterCandidate(Puzzle puzzle) {
 			candidates.remove(puzzle);
+			possibilites.remove(puzzle);
 		}
 
 		@Override
@@ -853,6 +924,16 @@ public class UnitSquarePattern extends PatternTemplate {
 					return ((Polyomino) puzzle).canMergeWith(this);
 				else
 					return false;
+			}
+
+			@Override
+			public int size() {
+				return 1;
+			}
+
+			@Override
+			public Point getTopCoor() {
+				return new Point(this._j, this._i);
 			}
 		}
 
@@ -1277,6 +1358,21 @@ public class UnitSquarePattern extends PatternTemplate {
 					return true;
 				else
 					return false;
+			}
+
+			@Override
+			public Point getTopCoor() {
+				Point maxP = new Point(matrixU.length, matrixU[0].length);
+				for (UnitSquare u : this) {
+					Point coor = u.getTopCoor();
+					if (maxP.y > coor.y)
+						maxP = coor;
+					else if (maxP.y == coor.y) {
+						if (maxP.x > coor.x)
+							maxP = coor;
+					}
+				}
+				return maxP;
 			}
 		}
 
