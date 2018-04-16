@@ -8,20 +8,13 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.Stack;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
@@ -408,7 +401,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * <li>Left most</li>
 		 * </ol>
 		 */
-		private Stack<Puzzle> candidates;
+		private ArrayList<Puzzle> candidates;
 
 		/**
 		 * Each candidate comes with a list of neighbors. That list should be sorted in
@@ -440,61 +433,32 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return
 		 */
 		private boolean dfsTry() {
-			// Check current state
-			// if (noMorePossibility()) {
-			// if (solutionFound())
-			// return true; // To stop right away
-			// else {
-			// return false;
-			// }
-			// }
-			//
-			// Action act = new Action();
-			// TODO Implement act
-			// for (Puzzle candidate : candidates) {
-			// If the candidate has been merged --> ignore
-			// Else
-			// List<Possibility> possibilities = candidates.pop();
-			// for (Possibility possibility : possibilities) {
-			// if (!possibility.isRealizable())
-			// continue;
-			// // If this possibility is realizable, do it
-			// act.setTarget(possibility);
-			// act.realize();
-			// boolean success = dfsTry();
-			// if (success) {
-			// return true;
-			// } else {
-			// act.undo(); // To try another way
-			// }
-			// }
-			// All possibilities of this puzzle do not give us any solution
-			// so we try an other one
-			// }
-			// Even though we tried all the ways
-			// Nothing returns solution
-			// So we declare our failure
-			return false;
-		}
-
-		/**
-		 * Test if we can continue to realize any {@link Action}
-		 * 
-		 * @return <tt>true</tt> if there is no more realizable {@link Possibility}
-		 * @see Possibility#isRealizable()
-		 */
-		private boolean noMorePossibility() {
-			// TODO Reimplement
-			// for (Puzzle puzzle : candidates.keySet()) {
-			// if (hasMerged.get(puzzle) == false) {
-			// List<Possibility> possibilities = candidates.get(puzzle);
-			// for (Possibility possibility : possibilities) {
-			// if (possibility.isRealizable())
-			// return false; // If there is at least one realizable possibility
-			// }
-			// }
-			// }
-			return true;
+			// Initiate root of actions
+			Action rootAction = new Action(null, null, null);
+			Action currentAction = rootAction;
+			do {
+				Action childAction = currentAction.nextChild();
+				if (childAction != null) {
+					// If there is a way to continue
+					childAction.realize();
+					registerCandidate(childAction);
+					currentAction = childAction;
+				} else {
+					// If nothing we can do further
+					if (solutionFound())
+						return true;
+					else {
+						// If there is no more child from root
+						if (currentAction.equals(rootAction))
+							return false;
+						// Else
+						// Revert
+						currentAction.undo();
+						// Climb up in tree
+						currentAction = currentAction.getParent();
+					}
+				}
+			} while (true);
 		}
 
 		/**
@@ -523,7 +487,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @see #registerCandidate(Puzzle)
 		 */
 		private void findCandidates() {
-			candidates = new Stack<Puzzle>();
+			candidates = new ArrayList<Puzzle>();
 			possibilites = new HashMap<Puzzle, List<Puzzle>>(matrixU.length * matrixU[0].length);
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
@@ -714,8 +678,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Push it in #candidates
 			if (candidates.contains(puzzle))
 				return;
-			candidates.push(puzzle); // Push to the first
-			// Calculate its Possibility
+			candidates.add(0, puzzle); // Push to the first
+			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
 			Comparator<Puzzle> c = (p1, p2) -> {
 				// Largest
@@ -747,14 +711,47 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
+		 * Register the result from an {@link Action}. Also determine its new neighbors
+		 * and register them to {@link #neighbors}
+		 * 
+		 * @param fromAction
+		 *            what we just did
+		 */
+		private void registerCandidate(Action fromAction) {
+			registerNeighborsOfMergedPolyomino(fromAction);
+			registerCandidate(fromAction.getResult());
+		}
+
+		/**
+		 * Find neighbors of {@link Puzzle} resulted by <tt>action</tt> and register them
+		 * 
+		 * @param action
+		 */
+		private void registerNeighborsOfMergedPolyomino(Action action) {
+			Puzzle result = action.getResult();
+			Puzzle trigger = action.getTrigger();
+			Puzzle target = action.getTarget();
+			Set<Puzzle> neighborsOfResult = new HashSet<Puzzle>();
+			// Intersection of 2 neighborhoods
+			neighborsOfResult.addAll(neighbors.of(trigger));
+			neighborsOfResult.addAll(neighbors.of(target));
+			// Remove components of result
+			neighborsOfResult.remove(trigger);
+			neighborsOfResult.remove(target);
+			// Register neighbors
+			neighbors.put(result, neighborsOfResult);
+		}
+
+		/**
 		 * Remove the puzzle (a merged one resulted by an {@link Action}) from
-		 * candidates and its possibilities
+		 * candidates and its possibilities. Also remove from {@link #neighbors}
 		 * 
 		 * @param puzzle
 		 */
 		private void unregisterCandidate(Puzzle puzzle) {
 			candidates.remove(puzzle);
 			possibilites.remove(puzzle);
+			neighbors.remove(puzzle);
 		}
 
 		@Override
@@ -1502,17 +1499,17 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * What we did in following this
 			 */
-			private Queue<Action> children;
+			private ArrayList<Action> children;
 
 			/**
 			 * Fusion of {@link #target}
 			 */
-			private Polyomino result;
+			private Puzzle result;
 
 			public Action(Action parent, Puzzle trigger, Puzzle target) {
 				this.parent = parent;
 				this.parent.getChildren().add(this);
-				this.children = new LinkedList<Action>();
+				this.children = new ArrayList<Action>();
 				this.trigger = trigger;
 				this.target = target;
 				this.result = null;
@@ -1520,28 +1517,33 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			/**
 			 * Apply this action to the current state of {@link UnitMatrix#matrixP}.
+			 * Register the result into {@link UnitMatrix#matrixP}
 			 * 
 			 * @see UnitMatrix#registerPuzzle(Puzzle)
-			 * @see UnitMatrix#registerCandidate(Puzzle)
 			 */
 			public void realize() {
-				result = (Polyomino) trigger.merge(target); // All 2 implementations return Polyomino
-				// Register
+				result = trigger.merge(target);
 				registerPuzzle(result);
-				// Calculate all Possibility of this new polyomino
-				registerCandidate(result);
 			}
 
 			/**
-			 * Revert this action. Unregister the merged polyominos
+			 * Revert this action. Unregister the merged polyominos. Remove result from
+			 * {@link UnitMatrix#candidates} and {@link UnitMatrix#neighbors}
 			 */
 			public void undo() {
 				// Remove the fusion in tracking matrix
 				// Re-register the old puzzles
 				registerPuzzle(trigger);
 				registerPuzzle(target);
+				// Remove result from candidates and neighbors
 				unregisterCandidate(result);
-				result = null;
+			}
+
+			/**
+			 * @return what we obtained after merging
+			 */
+			public Puzzle getResult() {
+				return result;
 			}
 
 			/**
@@ -1568,8 +1570,52 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * @return what we did after
 			 */
-			public Queue<Action> getChildren() {
+			public ArrayList<Action> getChildren() {
 				return children;
+			}
+
+			/**
+			 * After realizing an {@link Action}, we search what we do next
+			 * 
+			 * @return <tt>null</tt> if nothing
+			 */
+			public Action nextChild() {
+				if (this.children.isEmpty()) {
+					for (Puzzle puzzleTrigger : candidates) {
+						// Skip merged puzzle
+						if (puzzleTrigger.isMerged())
+							continue;
+						// Check its possibilities
+						for (Puzzle puzzleTarget : possibilites.get(puzzleTrigger)) {
+							// If at least a target Puzzle has not been merged
+							if (!puzzleTarget.isMerged())
+								return new Action(this, puzzleTrigger, puzzleTarget);
+						}
+					}
+					return null;
+				} else
+					return children.get(children.size() - 1).nextSibling();
+			}
+
+			/**
+			 * @return what we should do after undoing an {@link Action}. <tt>null</tt> if
+			 *         nothing
+			 */
+			public Action nextSibling() {
+				for (int i = candidates.indexOf(trigger); i < candidates.size(); i++) {
+					List<Puzzle> listPossibilities = possibilites.get(trigger);
+					for (int j = listPossibilities.indexOf(target) + 1; j < listPossibilities.size(); j++) {
+						// Check if merged
+						Puzzle newTarget = listPossibilities.get(j);
+						if (!newTarget.isMerged()) {
+							Action sibling = new Action(parent, trigger, newTarget);
+							// Check if has done
+							if (!parent.getChildren().contains(sibling))
+								return sibling;
+						}
+					}
+				}
+				return null;
 			}
 
 			/**
