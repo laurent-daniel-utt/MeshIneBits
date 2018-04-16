@@ -56,7 +56,12 @@ dependencies {
 			'org.junit.platform:junit-platform-launcher:1.1.0')
 }
 
-eclipse { project.natures 'org.eclipse.buildship.core.gradleprojectnature' }
+eclipse {
+	project.natures 'org.eclipse.buildship.core.gradleprojectnature'
+	classpath {
+		file { containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer' }
+	}
+}
 
 buildscript {
 	repositories { mavenCentral() }
