@@ -59,7 +59,17 @@ dependencies {
 eclipse {
 	project.natures 'org.eclipse.buildship.core.gradleprojectnature'
 	classpath {
-		file { containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer' }
+		file {
+			defaultOutputDir = file('bin/main')
+			whenMerged {
+				//change output folder for tests
+				def testsrc = entries.find { it.path == 'src/test/java' }
+				testsrc.output = "bin/test"
+
+				def testres = entries.find { it.path == 'src/test/resources' }
+				testres.output = "bin/test"
+			}
+			containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer' }
 	}
 }
 
