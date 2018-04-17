@@ -19,8 +19,8 @@ import meshIneBits.patterntemplates.UnitSquarePattern;
  *
  */
 class UnitSquarePatternTest {
-
-	private static final Logger logger = Logger.getLogger(UnitSquarePatternTest.class.getName());
+	
+	private final static Logger logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternTest.class);
 
 	UnitSquarePattern pattern;
 
