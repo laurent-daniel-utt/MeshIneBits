@@ -3,16 +3,15 @@
  */
 package patternTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
@@ -25,7 +24,6 @@ import meshIneBits.patterntemplates.UnitSquarePattern;
  * @author Quoc Nhat Han TRAN
  *
  */
-@TestInstance(Lifecycle.PER_CLASS)
 class UnitSquarePatternTest {
 
 	private final static Logger LOGGER = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternTest.class);
@@ -37,11 +35,31 @@ class UnitSquarePatternTest {
 	 */
 	final static int TIME_LIMIT = 60;
 
-	@BeforeAll
+	@BeforeEach
 	void setUp() {
-		LOGGER.info("Initiate a Unit Square Template");
 		patternTemplate = new UnitSquarePattern();
 		CraftConfig.templateChoice = patternTemplate;
+	}
+
+	/**
+	 * A complete scenario
+	 */
+	@Test
+	@Tag("slow")
+	void testSphereScenario() {
+		LOGGER.info(
+				"Scenario Sphere.stl. This test contains 3 parts: slicing model, generate layers, and optimize layers");
+		setUpPart("Sphere.stl");
+		// The slicer runs on a different thread
+		// We need to wait until it settles down
+		waitSlicerDone();
+		// Once the part is sliced
+		// We generate layers
+		// And test each layer
+		testGenerateLayers();
+		// Once ensured the layers
+		// Run the auto-optimization
+		testOptimizeLayers();
 	}
 
 	/**
@@ -59,25 +77,6 @@ class UnitSquarePatternTest {
 			e.printStackTrace();
 			fail("Cannot properly load up model and slice");
 		}
-	}
-
-	/**
-	 * A complete scenario
-	 */
-	@Test
-	@Tag("slow")
-	void testSphereScenario() {
-		setUpPart("Sphere.stl");
-		// The slicer runs on a different thread
-		// We need to wait until it settles down
-		waitSlicerDone();
-		// Once the part is sliced
-		// We generate layers
-		// And test each layer
-		testGenerateLayers();
-		// Once ensured the layers
-		// Run the auto-optimization
-		testOptimizeLayers();
 	}
 
 	/**
@@ -158,15 +157,8 @@ class UnitSquarePatternTest {
 			LOGGER.warning("Some irregularities have not been resolved");
 		else
 			LOGGER.info("Optimization succeeded on layer " + layerToTest.getLayerNumber());
-		// The optimizer runs on a different thread
-		// We need to wait
-		// waitOptimizerDone();
 
 		LOGGER.info("Optimizer test terminated");
-	}
-
-	private void waitOptimizerDone() {
-
 	}
 
 	/**
@@ -174,7 +166,6 @@ class UnitSquarePatternTest {
 	 * {@link meshIneBits.patterntemplates.UnitSquarePattern#initiateConfig()}.
 	 */
 	@Test
-	@Disabled
 	void testInitiateConfig() {
 		LOGGER.info("InitiateConfig test starts");
 
@@ -196,12 +187,11 @@ class UnitSquarePatternTest {
 	 * {@link meshIneBits.patterntemplates.UnitSquarePattern#moveBit(meshIneBits.Pattern, meshIneBits.util.Vector2, meshIneBits.util.Vector2)}.
 	 */
 	@Test
-	@Disabled
 	void testMoveBitByDefault() {
 		LOGGER.info("MoveBit (by default) test starts");
 
 		LOGGER.info("Assert MoveBit return null (bit movement is prohibited)");
-		fail("Not yet implementd");
+		assertNull(patternTemplate.moveBit(null, null, null), "This template should not allow bit displacement");
 
 		LOGGER.info("MoveBit (by default) test terminated");
 	}
@@ -211,12 +201,12 @@ class UnitSquarePatternTest {
 	 * {@link meshIneBits.patterntemplates.UnitSquarePattern#moveBit(meshIneBits.Pattern, meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)}.
 	 */
 	@Test
-	@Disabled
 	void testMoveBitExtended() {
 		LOGGER.info("MoveBit (extended) test starts");
 
 		LOGGER.info("Assert MoveBit return null (bit movement is prohibited)");
-		fail("Not yet implementd");
+		assertNull(patternTemplate.moveBit(null, null, null, CraftConfig.bitLength),
+				"This template should not allow bit displacement");
 
 		LOGGER.info("MoveBit (extended) test terminated");
 	}
