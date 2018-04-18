@@ -84,6 +84,8 @@ public class UnitSquarePattern extends PatternTemplate {
 	private static final String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static final String VERTICAL_MARGIN = "verticalMargin";
 
+	private static final java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -135,6 +137,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	@Override
 	public int optimize(Layer actualState) {
 		Logger.updateStatus("Paving layer " + actualState.getLayerNumber());
+		LOGGER.info("Paving layer " + actualState.getLayerNumber());
 		// Calculate size of unit square
 		this.calcUnitSizeAndLimits();
 		// Get the boundary
@@ -144,9 +147,11 @@ public class UnitSquarePattern extends PatternTemplate {
 		for (Area zone : zones) {
 			// Generate the corresponding matrix
 			UnitMatrix matrix = new UnitMatrix(zone);
-			if (matrix.resolve())
+			if (matrix.resolve()) {
+				LOGGER.info("Solution found for " + zone);
 				overallPavement.addAll(matrix.exportBits());
-			else {
+			} else {
+				LOGGER.warning("Pavement of layer " + actualState.getLayerNumber() + " failed.");
 				Logger.updateStatus("Pavement of layer " + actualState.getLayerNumber() + " failed.");
 				return -1;
 			}
@@ -344,6 +349,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *            a level 0 area
 		 */
 		public UnitMatrix(Area area) {
+			LOGGER.fine("Init a matrix for " + area);
 			this.area = area;
 			Rectangle2D.Double outerRect = (Double) this.area.getBounds2D();
 			int numOfColumns = (int) Math.ceil(outerRect.getWidth() / unitLength);
@@ -356,12 +362,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 			}
 			matrixP = new Polyomino[numOfLines][numOfColumns];
-			proposersRegistry = new HashMap<UnitSquare, Set<UnitSquare>>();
-			for (int i = 0; i < matrixU.length; i++) {
-				for (int j = 0; j < matrixU[i].length; j++) {
-					proposersRegistry.put(matrixU[i][j], new HashSet<UnitSquare>());
-				}
-			}
+			LOGGER.fine("Simple representation:\r\n" + this);
 		}
 
 		/**
@@ -391,6 +392,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return <tt>true</tt> if a solution found
 		 */
 		public boolean resolve() {
+			LOGGER.fine("Resolve this matrix");
 			this.quickRegroup();
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
@@ -439,6 +441,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return
 		 */
 		private boolean dfsTry() {
+			LOGGER.finer("Depth-first Search for solution");
 			// Initiate root of actions
 			Action rootAction = new Action(null, null, null);
 			Action currentAction = rootAction;
@@ -449,6 +452,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					childAction.realize();
 					registerCandidate(childAction);
 					currentAction = childAction;
+					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + ".\r\nPossibilites=" + possibilites.get(childAction.getResult()));
 				} else {
 					// If nothing we can do further
 					if (solutionFound())
@@ -460,6 +464,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						// Else
 						// Revert
 						currentAction.undo();
+						LOGGER.finest("Undo " + currentAction.getResult() + "->" + currentAction);
 						// Climb up in tree
 						currentAction = currentAction.getParent();
 					}
@@ -493,6 +498,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @see #registerCandidate(Puzzle)
 		 */
 		private void findCandidates() {
+			LOGGER.finer("Find candidates and possibilities for each candidate");
 			candidates = new ArrayList<Puzzle>();
 			possibilites = new HashMap<Puzzle, List<Puzzle>>(matrixU.length * matrixU[0].length);
 			for (int i = 0; i < matrixU.length; i++) {
@@ -516,6 +522,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * </ol>
 		 */
 		private void sortCandidates() {
+			LOGGER.finer("Sort candidates list in largest > top most > left most");
 			Comparator<Puzzle> c = (p1, p2) -> {
 				// Largest
 				if (p1.size() > p2.size())
@@ -549,7 +556,14 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * {@link UnitState#ACCEPTED accepted} one. Not deterministic
 		 */
 		private void quickRegroup() {
+			LOGGER.finer("Quick regrouping border units");
 			// Make each border unit propose to an accepted one
+			proposersRegistry = new HashMap<UnitSquare, Set<UnitSquare>>();
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					proposersRegistry.put(matrixU[i][j], new HashSet<UnitSquare>());
+				}
+			}
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
 					UnitSquare unit = matrixU[i][j];
@@ -1419,6 +1433,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			private static final long serialVersionUID = 5057068857746901001L;
 
 			public ConnectivityGraph() {
+				LOGGER.finer("Init neighborhood graph");
 				for (int i = 0; i < matrixP.length; i++) {
 					for (int j = 0; j < matrixP[i].length; j++) {
 						if (matrixP[i][j] == null && matrixU[i][j].state != UnitState.IGNORED)
@@ -1668,7 +1683,10 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public String toString() {
-				return "{" + trigger.toString() + "+" + target.toString() + "}";
+				if (this.parent == null)
+					return "{root}";
+				else
+					return "{" + trigger.toString() + "+" + target.toString() + "}";
 			}
 		}
 	}
