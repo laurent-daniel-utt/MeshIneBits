@@ -64,11 +64,11 @@ public class Logger {
 		mainLogger.setUseParentHandlers(false);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setFormatter(new SimpleFormatter() {
-			private static final String format = "[%1$tF %1$tT] [%2$-7s] [%4$s] %3$s %n";
+			private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
 
 			@Override
 			public synchronized String format(LogRecord lr) {
-				return String.format(format, new Date(lr.getMillis()), lr.getLevel().getLocalizedName(),
+				return String.format(format, new Date(lr.getMillis()), lr.getLevel().getName(),
 						lr.getMessage(), simpleName);
 			}
 		});
