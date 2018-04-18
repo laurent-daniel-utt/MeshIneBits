@@ -8,7 +8,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -296,6 +295,13 @@ public class UnitSquarePattern extends PatternTemplate {
 		public boolean isMerged();
 
 		/**
+		 * Mark or unmark a puzzle
+		 * 
+		 * @param b
+		 */
+		public void setMerged(boolean b);
+
+		/**
 		 * @return 1 if a single unit, or actual size if a polyomino
 		 */
 		public int size();
@@ -513,23 +519,23 @@ public class UnitSquarePattern extends PatternTemplate {
 			Comparator<Puzzle> c = (p1, p2) -> {
 				// Largest
 				if (p1.size() > p2.size())
-					return 1;
-				else if (p1.size() < p2.size())
 					return -1;
+				else if (p1.size() < p2.size())
+					return 1;
 				else {
 					// Top most
 					Point p1p = p1.getTopCoor();
 					Point p2p = p2.getTopCoor();
 					if (p1p.y < p2p.y)
-						return 1;
-					else if (p1p.y > p2p.y)
 						return -1;
+					else if (p1p.y > p2p.y)
+						return 1;
 					else {
 						// Left most
 						if (p1p.x < p2p.x)
-							return 1;
-						else if (p1p.x > p2p.x)
 							return -1;
+						else if (p1p.x > p2p.x)
+							return 1;
 						else
 							return 0;
 					}
@@ -586,14 +592,14 @@ public class UnitSquarePattern extends PatternTemplate {
 				// Compare between number of followers
 				// in descendant order
 				if (proposersRegistry.get(u1).size() > proposersRegistry.get(u2).size())
-					return 1;
-				else if (proposersRegistry.get(u1).size() < proposersRegistry.get(u2).size())
 					return -1;
+				else if (proposersRegistry.get(u1).size() < proposersRegistry.get(u2).size())
+					return 1;
 				else
 					return 0;
 			};
 			List<UnitSquare> targetList = new ArrayList<UnitSquare>(proposersRegistry.keySet());
-			Collections.sort(targetList, comparingFamousLevel);
+			targetList.sort(comparingFamousLevel);
 
 			// A minimal solution
 			// Consider the proposals list in descendant order,
@@ -629,7 +635,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 
 				// Resort to ensure the ascendant order
-				Collections.sort(targetList, comparingFamousLevel);
+				targetList.sort(comparingFamousLevel);
 			}
 		}
 
@@ -642,6 +648,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *            corresponding tile will be <tt>null</tt>
 		 */
 		private void registerPuzzle(Puzzle puzzle) {
+			puzzle.setMerged(false);
 			if (puzzle instanceof Polyomino) {
 				Polyomino p = (Polyomino) puzzle;
 				for (UnitSquare u : p) {
@@ -727,7 +734,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * Find neighbors of {@link Puzzle} resulted by <tt>action</tt> and register them
+		 * Find neighbors of {@link Puzzle} resulted by <tt>action</tt> and register
+		 * them
 		 * 
 		 * @param action
 		 */
@@ -790,6 +798,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * Relative position to the area containing this square
 			 */
 			public UnitState state;
+			
+			/**
+			 * Whether this unit has been merged into a {@link Polyomino}
+			 */
+			private boolean merged = false;;
 
 			/**
 			 * A part of zone's area which is contained by this unit
@@ -888,22 +901,23 @@ public class UnitSquarePattern extends PatternTemplate {
 				Polyomino p = new Polyomino();
 				p.add(this);
 				boolean success = p.add(other);
-				if (success)
+				if (success) {
+					this.setMerged(true);
+					other.setMerged(true);
 					return p;
+				}
 				else
 					return null;
 			}
 
-			/**
-			 * @return <tt>false</tt> if its corresponding position on
-			 *         {@link UnitMatrix#matrixP} is not <tt>null</tt>
-			 */
 			@Override
 			public boolean isMerged() {
-				if (matrixP[_i][_j] != null)
-					return false;
-				else
-					return true;
+				return merged;
+			}
+			
+			@Override
+			public void setMerged(boolean b) {
+				this.merged = b;
 			}
 
 			/**
@@ -950,6 +964,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 */
 			private static final long serialVersionUID = 1974861227965075981L;
+			
+			/**
+			 * Whether this is merged into an other {@link Polyomino}
+			 */
+			private boolean merged = false;
 
 			/**
 			 * Always check {@link #canMergeWith(Puzzle)} before hand
@@ -1328,23 +1347,23 @@ public class UnitSquarePattern extends PatternTemplate {
 				Polyomino p = new Polyomino();
 				p.add(this);
 				boolean success = p.add(other);
-				if (success)
+				if (success) {
+					this.setMerged(true);
+					other.setMerged(true);
 					return p;
+				}
 				else
 					return null;
 			}
 
-			/**
-			 * @return <tt>true</tt> if its corresponding position on
-			 *         {@link UnitMatrix#matrixP} is still occupied by <tt>this</tt>
-			 */
 			@Override
 			public boolean isMerged() {
-				UnitSquare u = this.iterator().next();
-				if (matrixP[u._i][u._j].equals(this))
-					return true;
-				else
-					return false;
+				return merged;
+			}
+			
+			@Override
+			public void setMerged(boolean b) {
+				this.merged = b;
 			}
 
 			/**
@@ -1636,7 +1655,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				return ((this.trigger == a.getTrigger() && this.target == a.getTarget())
 						|| (this.trigger == a.getTarget() && this.target == a.getTrigger()));
 			}
-			
+
 			@Override
 			public String toString() {
 				return "{" + trigger.toString() + "+" + target.toString() + "}";
