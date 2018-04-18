@@ -1611,7 +1611,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						// Check its possibilities
 						for (Puzzle puzzleTarget : possibilites.get(puzzleTrigger)) {
 							// If at least a target Puzzle has not been merged
-							if (!puzzleTarget.isMerged())
+							if (!puzzleTarget.isMerged() && puzzleTrigger.canMergeWith(puzzleTarget))
 								return new Action(this, puzzleTrigger, puzzleTarget);
 						}
 					}
