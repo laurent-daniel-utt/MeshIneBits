@@ -492,8 +492,10 @@ public class UnitSquarePattern extends PatternTemplate {
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
 					if (matrixP[i][j] != null)
+						// Register a polyomino
 						registerCandidate(matrixP[i][j]);
-					else
+					else if (matrixU[i][j].state != UnitState.IGNORED)
+						// Register a non-ignored unit
 						registerCandidate(matrixU[i][j]);
 				}
 			}
@@ -583,10 +585,12 @@ public class UnitSquarePattern extends PatternTemplate {
 			Comparator<UnitSquare> comparingFamousLevel = (u1, u2) -> {
 				// Compare between number of followers
 				// in descendant order
-				if (proposersRegistry.get(u1).size() >= proposersRegistry.get(u2).size())
+				if (proposersRegistry.get(u1).size() > proposersRegistry.get(u2).size())
 					return 1;
-				else
+				else if (proposersRegistry.get(u1).size() < proposersRegistry.get(u2).size())
 					return -1;
+				else
+					return 0;
 			};
 			List<UnitSquare> targetList = new ArrayList<UnitSquare>(proposersRegistry.keySet());
 			Collections.sort(targetList, comparingFamousLevel);
@@ -1433,7 +1437,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					}
 				}
 				// Bottom
-				if (i < matrixP.length) {
+				if (i + 1 < matrixP.length) {
 					if (matrixP[i + 1][j] != null && !matrixP[i + 1][j].contains(unit)) {
 						_neighbors.add(matrixP[i + 1][j]);
 					}
@@ -1452,7 +1456,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					}
 				}
 				// Right
-				if (j < matrixP[0].length) {
+				if (j + 1 < matrixP[0].length) {
 					if (matrixP[i][j + 1] != null && !matrixP[i][j + 1].contains(unit)) {
 						_neighbors.add(matrixP[i][j + 1]);
 					}
@@ -1508,7 +1512,9 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			public Action(Action parent, Puzzle trigger, Puzzle target) {
 				this.parent = parent;
-				this.parent.getChildren().add(this);
+				if (parent != null)
+					// If this is not the root
+					this.parent.getChildren().add(this);
 				this.children = new ArrayList<Action>();
 				this.trigger = trigger;
 				this.target = target;
