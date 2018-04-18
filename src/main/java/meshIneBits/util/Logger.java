@@ -3,6 +3,7 @@ package meshIneBits.util;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
@@ -13,6 +14,7 @@ import java.util.logging.SimpleFormatter;
  * version can show a nice progress dialog.
  */
 public class Logger {
+	
 	private static HashSet<LoggingInterface> loggers = new HashSet<LoggingInterface>();
 
 	public static void error(String error) {
@@ -63,6 +65,7 @@ public class Logger {
 		java.util.logging.Logger mainLogger = java.util.logging.Logger.getLogger(simpleName);
 		mainLogger.setUseParentHandlers(false);
 		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(Level.ALL);
 		handler.setFormatter(new SimpleFormatter() {
 			private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
 
