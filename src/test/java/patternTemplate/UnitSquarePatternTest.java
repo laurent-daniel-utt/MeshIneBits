@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -47,8 +48,7 @@ class UnitSquarePatternTest {
 	@Test
 	@Tag("slow")
 	void testSphereScenario() {
-		LOGGER.info(
-				"Scenario Sphere.stl. This test contains 3 parts: slicing model, generate layers, and optimize layers");
+		LOGGER.info("Scenario Sphere");
 		setUpPart("Sphere.stl");
 		// The slicer runs on a different thread
 		// We need to wait until it settles down
@@ -60,6 +60,7 @@ class UnitSquarePatternTest {
 		// Once ensured the layers
 		// Run the auto-optimization
 		testOptimizeLayers();
+		LOGGER.info("Scenario Sphere completed");
 	}
 
 	/**
@@ -70,12 +71,13 @@ class UnitSquarePatternTest {
 	 */
 	private void setUpPart(String modelFilename) {
 		try {
+			LOGGER.info("Load Sphere.stl");
 			Model m = new Model(this.getClass().getResource("/stlModel/" + modelFilename).getPath());
 			m.center();
 			part = new GeneratedPart(m);
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Cannot properly load up model and slice");
+			LOGGER.log(Level.SEVERE, "Cannot properly load up model and slice." + e.getMessage(), e);
+			fail("Cannot properly load up model and slice", e);
 		}
 	}
 
@@ -95,7 +97,7 @@ class UnitSquarePatternTest {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		if (timeElapsed >= TIME_LIMIT && !part.isSliced())
@@ -108,7 +110,6 @@ class UnitSquarePatternTest {
 	private void testGenerateLayers() {
 		LOGGER.info("GenerateLayers test starts");
 
-		LOGGER.info("Starting layers generator");
 		part.buildBits2D();
 		// The generator runs on a different thread
 		// We need to wait until its end
@@ -134,7 +135,7 @@ class UnitSquarePatternTest {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		if (timeElapsed >= TIME_LIMIT && !part.isGenerated())
@@ -148,13 +149,13 @@ class UnitSquarePatternTest {
 		LOGGER.info("Optimizer test starts");
 
 		// For instance, we only test the first layer
-		LOGGER.info("Single layer optimize");
+		LOGGER.warning("We only try optimize one single layer");
 		Layer layerToTest = part.getLayers().get(0);
 		int res = patternTemplate.optimize(layerToTest);
 		if (res < 0)
 			LOGGER.warning("Optimization failed on layer " + layerToTest.getLayerNumber());
 		else if (res > 0)
-			LOGGER.warning("Some irregularities have not been resolved");
+			LOGGER.warning(res + " irregularities on layer " + layerToTest.getLayerNumber() + " have not been resolved");
 		else
 			LOGGER.info("Optimization succeeded on layer " + layerToTest.getLayerNumber());
 
@@ -171,7 +172,6 @@ class UnitSquarePatternTest {
 
 		PatternConfig config = patternTemplate.getPatternConfig();
 		// Verify default value
-		LOGGER.info("Assert current value of margins");
 		LOGGER.info("Assert current value of horizontal margin");
 		assertEquals((Double) config.get("horizontalMargin").getCurrentValue(), (Double) 2.0,
 				"Default horizontal margin should be 2.0 mm");
