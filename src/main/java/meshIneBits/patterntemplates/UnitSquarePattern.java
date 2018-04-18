@@ -800,7 +800,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * Relative position to the area containing this square
 			 */
 			public UnitState state;
-			
+
 			/**
 			 * Whether this unit has been merged into a {@link Polyomino}
 			 */
@@ -907,8 +907,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					this.setMerged(true);
 					other.setMerged(true);
 					return p;
-				}
-				else
+				} else
 					return null;
 			}
 
@@ -916,7 +915,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			public boolean isMerged() {
 				return merged;
 			}
-			
+
 			@Override
 			public void setMerged(boolean b) {
 				this.merged = b;
@@ -966,11 +965,16 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 */
 			private static final long serialVersionUID = 1974861227965075981L;
-			
+
 			/**
 			 * Whether this is merged into an other {@link Polyomino}
 			 */
 			private boolean merged = false;
+
+			/**
+			 * To not let bit float into the sides
+			 */
+			private final double SAFETY_MARGIN = 1.0;
 
 			/**
 			 * Always check {@link #canMergeWith(Puzzle)} before hand
@@ -1111,7 +1115,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				Area polyominoArea = this.getUnitedArea();
 				bitArea.intersect(polyominoArea);
 				bit.updateBoundaries(bitArea);
-				
+
 				return bit;
 			}
 
@@ -1200,19 +1204,24 @@ public class UnitSquarePattern extends PatternTemplate {
 				Vector2 origin = null;
 				switch (floatpos) {
 				case "top-left":
-					origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMinY() + v / 2);
+					origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+							this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 					break;
 				case "top-right":
-					origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMinY() + v / 2);
+					origin = new Vector2(this.boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
+							this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 					break;
 				case "bottom-left":
-					origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMaxY() - v / 2);
+					origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+							this.boundary.getMaxY() - v / 2 + SAFETY_MARGIN);
 					break;
 				case "bottom-right":
-					origin = new Vector2(this.boundary.getMaxX() - h / 2, this.boundary.getMaxY() - v / 2);
+					origin = new Vector2(this.boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
+							this.boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
 					break;
 				default:
-					origin = new Vector2(this.boundary.getMinX() + h / 2, this.boundary.getMinY() + v / 2);
+					origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+							this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 					break;
 				}
 
@@ -1271,7 +1280,9 @@ public class UnitSquarePattern extends PatternTemplate {
 				lim.width -= horizontalMarginAroundBit;
 				if (pos[1].equals("right"))
 					// Move top-left corner of boundary to right
-					lim.x += horizontalMarginAroundBit;
+					lim.x += horizontalMarginAroundBit - SAFETY_MARGIN;
+				else
+					lim.x += SAFETY_MARGIN;
 
 				double verticalMarginAroundBit;
 				if (this.boundary.height <= bitVerticalLength) {
@@ -1286,7 +1297,9 @@ public class UnitSquarePattern extends PatternTemplate {
 				lim.height -= verticalMarginAroundBit; // equal to bit's vertical length in fact
 				if (pos[0].equals("bottom"))
 					// Move down top-left corner of boundary
-					lim.y += verticalMarginAroundBit;
+					lim.y += verticalMarginAroundBit - SAFETY_MARGIN;
+				else
+					lim.y += SAFETY_MARGIN;
 
 				return new Area(lim);
 			}
@@ -1349,8 +1362,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					this.setMerged(true);
 					other.setMerged(true);
 					return p;
-				}
-				else
+				} else
 					return null;
 			}
 
@@ -1358,7 +1370,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			public boolean isMerged() {
 				return merged;
 			}
-			
+
 			@Override
 			public void setMerged(boolean b) {
 				this.merged = b;
