@@ -697,23 +697,23 @@ public class UnitSquarePattern extends PatternTemplate {
 			Comparator<Puzzle> c = (p1, p2) -> {
 				// Largest
 				if (p1.size() > p2.size())
-					return 1;
-				else if (p1.size() < p2.size())
 					return -1;
+				else if (p1.size() < p2.size())
+					return 1;
 				else {
 					// Top most
 					Point p1p = p1.getTopCoor();
 					Point p2p = p2.getTopCoor();
 					if (p1p.y < p2p.y)
-						return 1;
-					else if (p1p.y > p2p.y)
 						return -1;
+					else if (p1p.y > p2p.y)
+						return 1;
 					else {
 						// Left most
 						if (p1p.x < p2p.x)
-							return 1;
-						else if (p1p.x > p2p.x)
 							return -1;
+						else if (p1p.x > p2p.x)
+							return 1;
 						else
 							return 0;
 					}
