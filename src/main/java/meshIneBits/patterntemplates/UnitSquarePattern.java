@@ -1280,7 +1280,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				str.append("[");
 				for (UnitSquare u : this) {
 					str.append(u);
-					str.append(" ");
+					str.append(",");
 				}
 				str.append("]");
 				return str.toString();
@@ -1635,6 +1635,11 @@ public class UnitSquarePattern extends PatternTemplate {
 				Action a = (Action) arg0;
 				return ((this.trigger == a.getTrigger() && this.target == a.getTarget())
 						|| (this.trigger == a.getTarget() && this.target == a.getTrigger()));
+			}
+			
+			@Override
+			public String toString() {
+				return "{" + trigger.toString() + "+" + target.toString() + "}";
 			}
 		}
 	}
