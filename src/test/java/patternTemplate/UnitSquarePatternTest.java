@@ -149,7 +149,15 @@ class UnitSquarePatternTest {
 		LOGGER.info("Optimizer test starts");
 
 		// For instance, we only test the first layer
-		patternTemplate.optimize(part.getLayers().get(0));
+		LOGGER.info("Single layer optimize");
+		Layer layerToTest = part.getLayers().get(0);
+		int res = patternTemplate.optimize(layerToTest);
+		if (res < 0)
+			LOGGER.warning("Optimization failed on layer " + layerToTest.getLayerNumber());
+		else if (res > 0)
+			LOGGER.warning("Some irregularities have not been resolved");
+		else
+			LOGGER.info("Optimization succeeded on layer " + layerToTest.getLayerNumber());
 		// The optimizer runs on a different thread
 		// We need to wait
 		// waitOptimizerDone();
