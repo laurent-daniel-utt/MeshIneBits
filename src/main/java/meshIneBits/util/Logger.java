@@ -65,6 +65,7 @@ public class Logger {
 		java.util.logging.Logger mainLogger = java.util.logging.Logger.getLogger(simpleName);
 		mainLogger.setUseParentHandlers(false);
 		ConsoleHandler handler = new ConsoleHandler();
+		mainLogger.setLevel(Level.ALL);
 		handler.setLevel(Level.ALL);
 		handler.setFormatter(new SimpleFormatter() {
 			private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
