@@ -618,13 +618,15 @@ public class UnitSquarePattern extends PatternTemplate {
 				p.add(target);
 				Set<UnitSquare> rejectedProposers = new HashSet<UnitSquare>();
 				for (UnitSquare proposer : proposers) {
-					if (!p.add(proposer)) {
+					if (!p.canMergeWith(proposer)) {
 						rejectedProposers.add(proposer);
+					} else {
+						p = p.merge(proposer);
 					}
 				}
 				// Register p into matrixP
 				this.registerPuzzle(p);
-				// Spare the rejected units
+				// Successful proposers
 				proposers.removeAll(rejectedProposers);
 
 				// Remove married units in proposers list to remain faithful
@@ -1109,11 +1111,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				Area polyominoArea = this.getUnitedArea();
 				bitArea.intersect(polyominoArea);
 				bit.updateBoundaries(bitArea);
-
-				if (this.size() > 1) {
-					// For test
-					System.out.println(this.toString() + "\nfloatpos=" + floatpos);
-				}
+				
 				return bit;
 			}
 
