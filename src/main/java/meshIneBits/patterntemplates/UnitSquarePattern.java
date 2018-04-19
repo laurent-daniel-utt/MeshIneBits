@@ -393,7 +393,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
-			this.quickRegroup();
+//			this.quickRegroup();
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
 			this.sortCandidates();
@@ -443,7 +443,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		private boolean dfsTry() {
 			LOGGER.finer("Depth-first Search for solution");
 			// Initiate root of actions
-			Action rootAction = new Action(null, null, null);
+			Action rootAction = null;
+			try {
+				rootAction = new Action(null, null, null);
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
 			Action currentAction = rootAction;
 			do {
 				Action childAction = currentAction.nextChild();
@@ -452,7 +457,10 @@ public class UnitSquarePattern extends PatternTemplate {
 					childAction.realize();
 					registerCandidate(childAction);
 					currentAction = childAction;
-					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + ".\r\nPossibilites=" + possibilites.get(childAction.getResult()));
+					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + "\r\n"
+							+ "Neighbors of trigger=" + neighbors.of(childAction.getTrigger()) + "\r\n"
+							+ "Neighbors of target=" + neighbors.of(childAction.getTarget()) + "\r\n" + "Possibilites="
+							+ possibilites.get(childAction.getResult()));
 				} else {
 					// If nothing we can do further
 					if (solutionFound())
@@ -763,9 +771,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Intersection of 2 neighborhoods
 			neighborsOfResult.addAll(neighbors.of(trigger));
 			neighborsOfResult.addAll(neighbors.of(target));
-			// Remove components of result
-			neighborsOfResult.remove(trigger);
-			neighborsOfResult.remove(target);
+			// Remove merged ones
+			neighborsOfResult.removeIf(Puzzle::isMerged);
 			// Register neighbors
 			neighbors.put(result, neighborsOfResult);
 		}
@@ -1554,15 +1561,28 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			private Puzzle result;
 
-			public Action(Action parent, Puzzle trigger, Puzzle target) {
+			/**
+			 * @param parent
+			 * @param trigger
+			 * @param target
+			 * @throws IllegalArgumentException
+			 *             if this action has been done before (with <tt>target</tt> as
+			 *             trigger and <tt>trigger</tt> as target)
+			 */
+			public Action(Action parent, Puzzle trigger, Puzzle target) throws IllegalArgumentException {
 				this.parent = parent;
-				if (parent != null)
-					// If this is not the root
-					this.parent.getChildren().add(this);
-				this.children = new ArrayList<Action>();
 				this.trigger = trigger;
 				this.target = target;
+				this.children = new ArrayList<Action>();
 				this.result = null;
+				if (parent != null) {
+					// If this is not the root
+					// Only append to parent if this has not been done
+					if (!this.parent.getChildren().contains(this))
+						this.parent.getChildren().add(this);
+					else
+						throw new IllegalArgumentException("This action has been tried before");
+				}
 			}
 
 			/**
@@ -1639,7 +1659,11 @@ public class UnitSquarePattern extends PatternTemplate {
 						for (Puzzle puzzleTarget : possibilites.get(puzzleTrigger)) {
 							// If at least a target Puzzle has not been merged
 							if (!puzzleTarget.isMerged() && puzzleTrigger.canMergeWith(puzzleTarget))
-								return new Action(this, puzzleTrigger, puzzleTarget);
+								try {
+									return new Action(this, puzzleTrigger, puzzleTarget);
+								} catch (IllegalArgumentException e) {
+									return null;
+								}
 						}
 					}
 					return null;
@@ -1652,16 +1676,35 @@ public class UnitSquarePattern extends PatternTemplate {
 			 *         nothing
 			 */
 			public Action nextSibling() {
-				for (int i = candidates.indexOf(trigger); i < candidates.size(); i++) {
-					List<Puzzle> listPossibilities = possibilites.get(trigger);
-					for (int j = listPossibilities.indexOf(target) + 1; j < listPossibilities.size(); j++) {
+				int resumePointOfTrigger = candidates.indexOf(trigger);
+				List<Puzzle> oldPossibilities = possibilites.get(trigger);
+				int resumtPointOfTarget = oldPossibilities.indexOf(target);
+				// Resume on old list of possibilities of old trigger
+				for (int j = resumtPointOfTarget + 1; j < oldPossibilities.size(); j++) {
+					Puzzle newTarget = oldPossibilities.get(j);
+					if (!newTarget.isMerged()) {
+						try {
+							return new Action(parent, trigger, newTarget);
+						} catch (IllegalArgumentException e) {
+							// The action has been tried
+							// We search for others
+						}
+					}
+				}
+				// Search on new trigger
+				for (int i = resumePointOfTrigger + 1; i < candidates.size(); i++) {
+					Puzzle newTrigger = candidates.get(i);
+					List<Puzzle> listPossibilities = possibilites.get(newTrigger);
+					for (int j = 0; j < listPossibilities.size(); j++) {
 						// Check if merged
 						Puzzle newTarget = listPossibilities.get(j);
 						if (!newTarget.isMerged()) {
-							Action sibling = new Action(parent, trigger, newTarget);
-							// Check if has done
-							if (!parent.getChildren().contains(sibling))
-								return sibling;
+							try {
+								return new Action(parent, newTrigger, newTarget);
+							} catch (IllegalArgumentException e) {
+								// This action has been tried
+								// We search for others
+							}
 						}
 					}
 				}
