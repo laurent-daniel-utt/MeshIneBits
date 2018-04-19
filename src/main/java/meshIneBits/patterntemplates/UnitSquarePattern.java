@@ -393,7 +393,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
-//			this.quickRegroup();
+			// this.quickRegroup();
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
 			this.sortCandidates();
@@ -401,13 +401,16 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * A candidate is a puzzle (on {@link #matrixP} or {@link #matrixU}) before
-		 * {@link #dfsTry()}. This stack should be sorted in descendant by<br>
+		 * A candidate is a puzzle before {@link #dfsTry()}. This stack should be sorted
+		 * in descendant by<br>
 		 * <ol>
 		 * <li>Largest</li>
 		 * <li>Top most</li>
 		 * <li>Left most</li>
 		 * </ol>
+		 * <br>
+		 * A candidate has to be either a {@link Polyomino} or {@link UnitState#ACCEPTED
+		 * ACCEPTED} {@link UnitSquare}.
 		 */
 		private ArrayList<Puzzle> candidates;
 
@@ -514,8 +517,8 @@ public class UnitSquarePattern extends PatternTemplate {
 					if (matrixP[i][j] != null)
 						// Register a polyomino
 						registerCandidate(matrixP[i][j]);
-					else if (matrixU[i][j].state != UnitState.IGNORED)
-						// Register a non-ignored unit
+					else if (matrixU[i][j].state == UnitState.ACCEPTED)
+						// Only register an accepted unit
 						registerCandidate(matrixU[i][j]);
 				}
 			}
@@ -704,10 +707,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * </ol>
 		 * 
 		 * @param puzzle
-		 *            if a {@link Polyomino}, ignore if has been registered. If a
-		 *            {@link UnitSquare}, only accept non-{@link UnitState#IGNORED} and
-		 *            non registered. Its connectivities should be already saved in
-		 *            {@link #neighbors}
+		 *            Its connectivities should be already saved in {@link #neighbors}
+		 * @see #candidates
 		 */
 		private void registerCandidate(Puzzle puzzle) {
 			// Push it in #candidates
@@ -901,10 +902,10 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @return
 			 */
 			public boolean touch(UnitSquare that) {
-				if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) == 1) {
+				if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) == 1)
 					return true;
-				}
-				return false;
+				else
+					return false;
 			}
 
 			/**
@@ -955,9 +956,10 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public boolean canMergeWith(Puzzle puzzle) {
-				if (puzzle instanceof UnitSquare)
-					return this.touch((UnitSquare) puzzle);
-				else if (puzzle instanceof Polyomino)
+				if (puzzle instanceof UnitSquare) {
+					UnitSquare u = (UnitSquare) puzzle;
+					return (this.state == UnitState.ACCEPTED || u.state == UnitState.ACCEPTED) && this.touch(u);
+				} else if (puzzle instanceof Polyomino)
 					return ((Polyomino) puzzle).canMergeWith(this);
 				else
 					return false;
@@ -976,7 +978,8 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * A sequence of adjacent {@link UnitSquare}s. A polyomino could not be too
-		 * larger than a {@link Bit2D}
+		 * larger than a {@link Bit2D}. It contains at least one
+		 * {@link UnitState#ACCEPTED ACCEPTED} {@link UnitSquare}
 		 * 
 		 * @author Quoc Nhat Han TRAN
 		 *
