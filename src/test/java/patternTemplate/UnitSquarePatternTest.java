@@ -150,7 +150,7 @@ class UnitSquarePatternTest {
 
 		// For instance, we only test the first layer
 		LOGGER.warning("We only try optimize one single layer");
-		Layer layerToTest = part.getLayers().get(0);
+		Layer layerToTest = part.getLayers().get(2);
 		int res = patternTemplate.optimize(layerToTest);
 		if (res < 0)
 			LOGGER.warning("Optimization failed on layer " + layerToTest.getLayerNumber());
