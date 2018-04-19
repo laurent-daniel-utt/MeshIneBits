@@ -212,8 +212,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	@Override
 	public String getIconName() {
-		// TODO Change icon
-		return "p3.png";
+		return "p5.png";
 	}
 
 	@Override
