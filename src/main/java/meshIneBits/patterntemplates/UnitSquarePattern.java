@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
@@ -449,6 +450,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			try {
 				rootAction = new Action(null, null, null);
 			} catch (IllegalArgumentException e) {
+				LOGGER.log(Level.SEVERE, "Cannot create root of actions", e);
 				return false;
 			}
 			Action currentAction = rootAction;
