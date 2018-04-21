@@ -91,9 +91,8 @@ public class DoubleParam implements PatternParameter {
 	private void setStep(Double s) {
 		if (Double.isInfinite(s) || Double.isNaN(s) || s == null || s == 0) {
 			this.step = 1.0;
-		}
-		if (s < 0) {
-			this.step = -s;
+		} else {
+			this.step = (s < 0 ? -s : s);
 		}
 	}
 
