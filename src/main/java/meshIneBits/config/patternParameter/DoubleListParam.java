@@ -14,7 +14,7 @@ import meshIneBits.gui.utilities.LabeledListReceiver;
  * @author Quoc Nhat Han TRAN
  *
  */
-public class DoubleListParam implements PatternParameter {
+public class DoubleListParam extends PatternParameter {
 
 	/**
 	 * 
@@ -25,9 +25,6 @@ public class DoubleListParam implements PatternParameter {
 	private Double step;
 	private List<Double> defaultValue;
 	private List<Double> currentValue;
-	private final String TITLE;
-	private final String CODENAME;
-	private final String DESCRIPTION;
 
 	/**
 	 * <tt>minValue<tt>, <tt>maxValue</tt> and <tt>step</tt> will be applied to each
@@ -55,9 +52,9 @@ public class DoubleListParam implements PatternParameter {
 	 */
 	public DoubleListParam(String name, String title, String description, Double minValue, Double maxValue,
 			List<Double> defaultValue, Double step) {
-		this.CODENAME = name;
-		this.TITLE = title;
-		this.DESCRIPTION = description;
+		this.codename = name;
+		this.title = title;
+		this.description = description;
 		setMin(minValue);
 		setMax(maxValue);
 		checkMinMax();
@@ -211,17 +208,23 @@ public class DoubleListParam implements PatternParameter {
 
 	@Override
 	public String getCodename() {
-		return CODENAME;
+		return codename;
 	}
 
 	@Override
 	public String getTitle() {
-		return TITLE;
+		return title;
 	}
 
 	@Override
 	public String getDescription() {
-		return DESCRIPTION;
+		return description;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

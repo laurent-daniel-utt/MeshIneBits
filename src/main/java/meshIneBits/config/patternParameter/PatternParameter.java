@@ -11,18 +11,22 @@ import java.io.Serializable;
  * @author NHATHAN
  *
  */
-public interface PatternParameter extends Serializable {
+public abstract class PatternParameter implements Serializable {
+
 	/**
 	 * 
 	 */
 	static final long serialVersionUID = -1032848466522000185L;
+	protected String title;
+	protected String codename;
+	protected String description;
 
 	/**
 	 * Type of current value depends on sub class
 	 * 
 	 * @return
 	 */
-	public Object getCurrentValue();
+	public abstract Object getCurrentValue();
 
 	/**
 	 * This method will be use by interfaces on each change event
@@ -31,25 +35,31 @@ public interface PatternParameter extends Serializable {
 	 *            will be filtered before affecting, in the same way of
 	 *            <tt>defaultValue</tt>
 	 */
-	public void setCurrentValue(Object currentValue);
+	public abstract void setCurrentValue(Object currentValue);
 
 	/**
 	 * @return name of parameters. Should be different among parameters.
 	 */
-	public String getCodename();
+	public String getCodename() {
+		return codename;
+	}
 
 	/**
 	 * @return human-readable name
 	 */
-	public String getTitle();
+	public String getTitle() {
+		return title;
+	}
 
 	/**
 	 * @return what it is and how to use
 	 */
-	public String getDescription();
+	public String getDescription() {
+		return description;
+	}
 
 	/**
 	 * @return encoded string
 	 */
-	public String toString();
+	public abstract String toString();
 }

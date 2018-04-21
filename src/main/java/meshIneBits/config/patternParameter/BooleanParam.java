@@ -7,7 +7,7 @@ package meshIneBits.config.patternParameter;
  * @author Quoc Nhat Han TRAN
  *
  */
-public class BooleanParam implements PatternParameter {
+public class BooleanParam extends PatternParameter {
 
 	/**
 	 * 
@@ -15,21 +15,22 @@ public class BooleanParam implements PatternParameter {
 	private static final long serialVersionUID = -2259784876889236537L;
 	private boolean currentValue;
 	private boolean defaultValue;
-	private final String TITLE;
-	private final String CODENAME;
-	private final String DESCRIPTION;
 
 	/**
+	 * @param name
+	 *            Should be unique among parameters of a pattern
 	 * @param title
-	 * @param codename
 	 * @param description
 	 * @param defaultValue
+	 *            which value this parameter should hold at first or when meet a
+	 *            wrong setting
 	 * @param currentValue
+	 *            current state of parameter
 	 */
-	public BooleanParam(String title, String codename, String description, boolean defaultValue, boolean currentValue) {
-		TITLE = title;
-		CODENAME = codename;
-		DESCRIPTION = description;
+	public BooleanParam(String name, String title, String description, boolean defaultValue, boolean currentValue) {
+		this.title = title;
+		this.codename = name;
+		this.description = description;
 		this.defaultValue = defaultValue;
 		this.currentValue = currentValue;
 	}
@@ -59,34 +60,9 @@ public class BooleanParam implements PatternParameter {
 			this.currentValue = defaultValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see meshIneBits.config.patternParameter.PatternParameter#getCodename()
-	 */
 	@Override
-	public String getCodename() {
-		return CODENAME;
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see meshIneBits.config.patternParameter.PatternParameter#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see meshIneBits.config.patternParameter.PatternParameter#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return DESCRIPTION;
-	}
-
 }

@@ -13,7 +13,7 @@ import meshIneBits.gui.utilities.LabeledSpinner;
  * @author Quoc Nhat Han TRAN
  *
  */
-public class DoubleParam implements PatternParameter {
+public class DoubleParam extends PatternParameter {
 
 	/**
 	 * 
@@ -24,9 +24,6 @@ public class DoubleParam implements PatternParameter {
 	private Double defaultValue;
 	private Double step;
 	private Double currentValue;
-	private final String TITLE;
-	private final String CODENAME;
-	private final String DESCRIPTION;
 
 	/**
 	 * This will validate each input. If one does not satisfy, it will bring the
@@ -61,9 +58,9 @@ public class DoubleParam implements PatternParameter {
 	 */
 	public DoubleParam(String name, String title, String description, Double minValue, Double maxValue,
 			Double defaultValue, Double step) {
-		this.CODENAME = name;
-		this.TITLE = title;
-		this.DESCRIPTION = description;
+		this.codename = name;
+		this.title = title;
+		this.description = description;
 		setMin(minValue);
 		setMax(maxValue);
 		checkMinMax();
@@ -190,7 +187,7 @@ public class DoubleParam implements PatternParameter {
 
 	@Override
 	public String toString() {
-		return "PatternParam [name=" + CODENAME + ", title=" + TITLE + ", description=" + DESCRIPTION + ", minValue="
+		return "PatternParam [name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
 				+ minValue + ", maxValue=" + maxValue + ", defaultValue=" + defaultValue + ", step=" + step
 				+ ", currentValue=" + currentValue + "]";
 	}
@@ -202,17 +199,17 @@ public class DoubleParam implements PatternParameter {
 
 	@Override
 	public String getCodename() {
-		return CODENAME;
+		return codename;
 	}
 
 	@Override
 	public String getTitle() {
-		return TITLE;
+		return title;
 	}
 
 	@Override
 	public String getDescription() {
-		return DESCRIPTION;
+		return description;
 	}
 
 	public Double getMinValue() {
