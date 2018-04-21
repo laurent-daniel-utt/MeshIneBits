@@ -14,7 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleListParam;
+import meshIneBits.config.patternParameter.PatternParameter;
 
 /**
  * Contains a label and a text area, which receive multiple input
@@ -25,7 +26,7 @@ import meshIneBits.config.PatternParameterConfig;
 public class LabeledListReceiver extends JPanel {
 
 	private JLabel btnName;
-	private PatternParameterConfig config;
+	private PatternParameter config;
 	private static String delimiter = ";";
 	private static String msgInstruction = "<html>" + "<p>Please enter a new array of double values</p>"
 			+ "<p><small>Use " + delimiter + " to separate values and . to mark decimal point.</small></p>" + "</html>";
@@ -38,12 +39,10 @@ public class LabeledListReceiver extends JPanel {
 	/**
 	 * Only for entering {@link List} of {@link Double}
 	 * 
-	 * @param config a specified setting for a certain parameter
+	 * @param config
+	 *            a specified setting for a certain parameter
 	 */
-	public LabeledListReceiver(PatternParameterConfig config) {
-		if (!(config.defaultValue instanceof List<?>)) {
-			return;
-		}
+	public LabeledListReceiver(DoubleListParam config) {
 		this.config = config;
 		// Visual options
 		this.setLayout(new BorderLayout());
@@ -51,7 +50,7 @@ public class LabeledListReceiver extends JPanel {
 		this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
 		// Setting up
-		btnName = new JLabel(config.title);
+		btnName = new JLabel(config.getTitle());
 		this.add(btnName, BorderLayout.WEST);
 		btnName.setToolTipText(generateToolTipText(config));
 		JButton btnChangeValue = new JButton("Modify");
@@ -60,8 +59,9 @@ public class LabeledListReceiver extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String s = (String) JOptionPane.showInputDialog(null, msgInstruction, convertToString(config.getCurrentValue()));
-				if (s != null){
+				String s = (String) JOptionPane.showInputDialog(null, msgInstruction,
+						convertToString(config.getCurrentValue()));
+				if (s != null) {
 					// Just change the value in case
 					// user hits Ok button
 					LabeledListReceiver.this.config.setCurrentValue(parseToList(s));
@@ -70,11 +70,11 @@ public class LabeledListReceiver extends JPanel {
 			}
 		});
 	}
-	
-	private String generateToolTipText(PatternParameterConfig config){
+
+	private String generateToolTipText(PatternParameter config) {
 		StringBuilder str = new StringBuilder();
 		str.append("<html><div>");
-		str.append("<p>" + config.description + "</p>");
+		str.append("<p>" + config.getDescription() + "</p>");
 		str.append("<p><strong>Current Value</strong><br/>" + convertToString(config.getCurrentValue()) + "</p>");
 		str.append("</div></html>");
 		return str.toString();
@@ -86,10 +86,10 @@ public class LabeledListReceiver extends JPanel {
 		}
 		List<?> o = (List<?>) object;
 		StringBuilder str = new StringBuilder();
-		if (!o.isEmpty()){
+		if (!o.isEmpty()) {
 			for (Iterator<?> iterator = o.iterator(); iterator.hasNext();) {
 				Object obj = (Object) iterator.next();
-				if (iterator.hasNext()){
+				if (iterator.hasNext()) {
 					str.append(obj + " ; ");
 				} else {
 					str.append(obj);
@@ -100,7 +100,8 @@ public class LabeledListReceiver extends JPanel {
 	}
 
 	private List<Double> parseToList(String s) {
-		if (s == null) return new ArrayList<Double>();
+		if (s == null)
+			return new ArrayList<Double>();
 		String[] values = s.split(delimiter, 0);
 		ArrayList<Double> list = new ArrayList<Double>();
 		for (int i = 0; i < values.length; i++) {

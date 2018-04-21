@@ -7,23 +7,17 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
-import meshIneBits.slicer.Slice;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
-import meshIneBits.util.Shape2D;
 import meshIneBits.util.Vector2;
 
 /**
@@ -65,7 +59,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * Equal to vertical margin plus lift point diameter
 	 */
 	private double unitHeight;
-	
+
 	private static String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static String VERTICAL_MARGIN = "verticalMargin";
 
@@ -76,9 +70,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public void initiateConfig() {
-		config.add(new PatternParameterConfig(HORIZONTAL_MARGIN, "Horizontal margin",
+		config.add(new DoubleParam(HORIZONTAL_MARGIN, "Horizontal margin",
 				"A little space allowing Lift Point move horizontally", 1.0, 100.0, 2.0, 1.0));
-		config.add(new PatternParameterConfig(VERTICAL_MARGIN, "Vertical margin",
+		config.add(new DoubleParam(VERTICAL_MARGIN, "Vertical margin",
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
 	}
 
@@ -532,7 +526,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			String[] pos = floatpos.split("-");
 			// pos[0] would be "top" or "bottom"
 			// pos[1] would be "left" or "right"
-			
+
 			double bitHorizontalLength = bit.getLength(), bitVerticalLength = bit.getWidth();
 			if (bit.getOrientation().equals(new Vector2(0, 1))) {// If vertical
 				bitHorizontalLength = bit.getWidth();
@@ -543,7 +537,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (this.boundary.width <= bitHorizontalLength) {
 				// We will put in a margin whose width is equal to pattern's parameter
 				// "horizontal margin"
-				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN).getCurrentValue();
+				horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN)
+						.getCurrentValue();
 				lim.width -= horizontalMarginAroundBit;
 				if (pos[1] == "right")
 					// Move top-left corner of boundary to right
@@ -556,7 +551,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Move top-left corner of boundary to right
 					lim.x += horizontalMarginAroundBit;
 			}
-			
+
 			double verticalMarginAroundBit;
 			if (this.boundary.height <= bitVerticalLength) {
 				// We will put in a margin whose width is equal to pattern's parameter
@@ -574,7 +569,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					// Move down top-left corner of boundary
 					lim.y += verticalMarginAroundBit;
 			}
-			
+
 			return new Area(lim);
 		}
 	}

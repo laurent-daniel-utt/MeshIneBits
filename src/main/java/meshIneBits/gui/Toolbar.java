@@ -54,8 +54,10 @@ import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
-import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.DoubleListParam;
+import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.config.patternParameter.PatternParameter;
 import meshIneBits.gui.processing.ProcessingView;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
@@ -1090,15 +1092,12 @@ public class Toolbar extends JTabbedPane implements Observer {
 			 */
 			public void setupPatternParameters() {
 				this.removeAll();
-				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-					if (paramConfig.getCurrentValue() instanceof Double) {
-						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
-						addPatternParameterListener(spinner, paramConfig);
-						this.add(spinner);
+				for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
+					if (paramConfig instanceof DoubleParam) {
+						this.add(new LabeledSpinner((DoubleParam) paramConfig));
 					}
-					if (paramConfig.getCurrentValue() instanceof List<?>) {
-						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
-						this.add(listReceiver);
+					if (paramConfig instanceof DoubleListParam) {
+						this.add(new LabeledListReceiver((DoubleListParam) paramConfig));
 					}
 				}
 			}
@@ -1111,27 +1110,23 @@ public class Toolbar extends JTabbedPane implements Observer {
 			 */
 			public void setupPatternParameters(PatternConfig config) {
 				this.removeAll();
-				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-					if (paramConfig.getCurrentValue() instanceof Double) {
+				for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
+					PatternParameter importParam = config.get(param.getCodename());
+					if (param instanceof DoubleParam) {
 						// Update current value
-						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
 						if (importParam != null) {
-							paramConfig.setCurrentValue(importParam.getCurrentValue());
+							param.setCurrentValue(importParam.getCurrentValue());
 						}
 						// Then show
-						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
-						addPatternParameterListener(spinner, paramConfig);
-						this.add(spinner);
+						this.add(new LabeledSpinner((DoubleParam) param));
 					}
-					if (paramConfig.getCurrentValue() instanceof List<?>) {
+					if (param instanceof DoubleListParam) {
 						// Update current value
-						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
 						if (importParam != null) {
-							paramConfig.setCurrentValue(importParam.getCurrentValue());
+							param.setCurrentValue(importParam.getCurrentValue());
 						}
 						// Then show
-						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
-						this.add(listReceiver);
+						this.add(new LabeledListReceiver((DoubleListParam) param));
 					}
 				}
 			}
@@ -1161,16 +1156,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				}
-			}
-		});
-	}
-
-	private void addPatternParameterListener(LabeledSpinner spinner, PatternParameterConfig config) {
-		spinner.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				config.setCurrentValue(spinner.getValue());
 			}
 		});
 	}

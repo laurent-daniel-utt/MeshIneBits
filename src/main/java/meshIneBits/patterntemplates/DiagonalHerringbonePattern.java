@@ -7,7 +7,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
 
 /**
@@ -27,39 +27,41 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		double xOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLength + bitsOffset;
 		double yOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitWidth + bitsOffset;
-		for (double i = patternStart.x; i <= patternEnd.x; i = i + 2 * xOffSet){
-			for (double j = patternStart.y; j <= patternEnd.y; j = j + 2 * yOffSet){
+		for (double i = patternStart.x; i <= patternEnd.x; i = i + 2 * xOffSet) {
+			for (double j = patternStart.y; j <= patternEnd.y; j = j + 2 * yOffSet) {
 				Vector2 originBit;
 				Vector2 orientationBit;
 				double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-				if (layerNumber%2 == 0){
+				if (layerNumber % 2 == 0) {
 					layerOffSet = yOffSet;
 				}
 				originBit = new Vector2(i, j + layerOffSet);
 				orientationBit = new Vector2(1, 1);
-				bits.add(new Bit2D(originBit, orientationBit));	
+				bits.add(new Bit2D(originBit, orientationBit));
 			}
 		}
-		for (double i = patternStart.x + xOffSet; i <= patternEnd.x; i = i + 2 * xOffSet){
-			for (double j = patternStart.y + yOffSet; j <= patternEnd.y; j = j + 2 * yOffSet){
+		for (double i = patternStart.x + xOffSet; i <= patternEnd.x; i = i + 2 * xOffSet) {
+			for (double j = patternStart.y + yOffSet; j <= patternEnd.y; j = j + 2 * yOffSet) {
 				Vector2 originBit;
 				Vector2 orientationBit;
 				double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-				if (layerNumber%2 == 0){
+				if (layerNumber % 2 == 0) {
 					layerOffSet = yOffSet;
 				}
 				originBit = new Vector2(i, j + layerOffSet);
 				orientationBit = new Vector2(-1, 1);
-				bits.add(new Bit2D(originBit, orientationBit));	
+				bits.add(new Bit2D(originBit, orientationBit));
 			}
 		}
-		return new Pattern(bits, new Vector2(1,0)); //every pattern have no rotation in that template
+		return new Pattern(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
 	}
+
 	@Override
 	public int optimize(Layer actualState) {
 		// TODO Auto-generated method stub
 		return -1;
 	}
+
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
 		double distance = 0;
@@ -70,26 +72,27 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 		}
 		return this.moveBit(actualState, bitKey, localDirection, distance);
 	}
+
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
-	
+
 	@Override
 	public String getCommonName() {
 		return "Diagonal Herringbone";
 	}
-	
+
 	@Override
 	public String getIconName() {
 		return "p2.png";
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "A rather usual pattern. No auto-optimization implemented yet.";
 	}
-	
+
 	@Override
 	public String getHowToUse() {
 		return "Choose the gap you desired.";
@@ -97,8 +100,8 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
 	@Override
 	public void initiateConfig() {
-		config.add(new PatternParameterConfig("bitsOffset", "Space between bits",
-				"The horizontal and vertical gap in mm", 1.0, 100.0, 3.0, 1.0));
+		config.add(new DoubleParam("bitsOffset", "Space between bits", "The horizontal and vertical gap in mm", 1.0,
+				100.0, 3.0, 1.0));
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
 
 /**
@@ -26,7 +26,6 @@ public class ClassicBrickPattern extends PatternTemplate {
 		return skirtRadius;
 	}
 
-
 	public Pattern createPattern(int layerNumber) {
 		// Setup parameters
 		bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
@@ -40,8 +39,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 				bits.add(new Bit2D(coo, new Vector2(1, 0)));
 				coo = coo.add(new Vector2(0, CraftConfig.bitWidth + bitsOffset));
 			}
-			coo = new Vector2(patternStart.x + (CraftConfig.bitLength + bitsOffset) * column,
-					patternStart.y);
+			coo = new Vector2(patternStart.x + (CraftConfig.bitLength + bitsOffset) * column, patternStart.y);
 			column++;
 		}
 		// in this pattern 1 layer on 2 has a 90° rotation
@@ -52,7 +50,9 @@ public class ClassicBrickPattern extends PatternTemplate {
 		return new Pattern(bits, rotation);
 	}
 
-	/* Not yet implemented
+	/*
+	 * Not yet implemented
+	 * 
 	 * @see meshIneBits.patterntemplates.PatternTemplate#optimize(meshIneBits.Layer)
 	 */
 	@Override
@@ -85,13 +85,13 @@ public class ClassicBrickPattern extends PatternTemplate {
 	public String getIconName() {
 		return "p1.png";
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "The simplest patterne: a grid with a rotation of 90° 1 layer on 2. "
 				+ "There is no auto-optimization implemented in this class.";
 	}
-	
+
 	@Override
 	public String getHowToUse() {
 		return "Choose the gap you desire.";
@@ -110,7 +110,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 	@Override
 	public void initiateConfig() {
 		// This template only need the distance between bits
-		config.add(new PatternParameterConfig("bitsOffset", "Space between bits",
-				"The horizontal and vertical gap in mm", 1.0, 100.0, 3.0, 1.0));
+		config.add(new DoubleParam("bitsOffset", "Space between bits", "The horizontal and vertical gap in mm", 1.0,
+				100.0, 3.0, 1.0));
 	}
 }

@@ -10,10 +10,11 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.DoubleParam;
 
 public class LabeledSpinner extends JPanel {
 
@@ -62,27 +63,32 @@ public class LabeledSpinner extends JPanel {
 	}
 
 	/**
-	 * This constructor is only for attributes whose type is {@link Double}.
-	 * For the {@link List}, use {@link LabeledListReceiver}.
+	 * This constructor is only for attributes whose type is {@link Double}. For the
+	 * {@link List}, use {@link LabeledListReceiver}.
 	 * 
-	 * @param config a specified setting for a certain parameter
+	 * @param config
+	 *            a parameter of type {@link Double}
 	 */
-	public LabeledSpinner(PatternParameterConfig config) {
-		if (!(config.defaultValue instanceof Double)) {
-			return;
-		}
+	public LabeledSpinner(DoubleParam config) {
 		// Visual options
 		this.setLayout(new BorderLayout());
 		this.setBackground(Color.WHITE);
 		this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
 		// Setting up
-		lblName = new JLabel(config.title);
-		lblName.setToolTipText("<html><div>" + config.description + "</div></html>");
+		lblName = new JLabel(config.getTitle());
+		lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
 		this.add(lblName, BorderLayout.WEST);
 
-		spinner = new JSpinner(new SpinnerNumberModel((double) config.getCurrentValue(), (double) config.minValue,
-				(double) config.maxValue, (double) config.step));
+		spinner = new JSpinner(new SpinnerNumberModel(config.getCurrentValue(), config.getMinValue(),
+				config.getMaxValue(), config.getStep()));
+		spinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				config.setCurrentValue(spinner.getValue());
+			}
+		});
 		this.add(spinner, BorderLayout.EAST);
 
 	}
