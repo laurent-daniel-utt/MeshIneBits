@@ -47,19 +47,31 @@ public class LabeledSpinner extends JPanel {
 		lblName = new JLabel(parameters.title());
 		lblName.setToolTipText(parameters.description());
 		this.add(lblName, BorderLayout.WEST);
-		Field attribute;
+		final Field attribute;
 		double defaultValue = 0;
 		try {
 			attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
 			attribute.setAccessible(true);
 			defaultValue = attribute.getDouble(attribute);
+			
+			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
+					parameters.step()));
+			spinner.addChangeListener(new ChangeListener() {
+
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					try {
+						attribute.setDouble(null, (double) spinner.getValue());
+					} catch (IllegalArgumentException | IllegalAccessException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			this.add(spinner, BorderLayout.EAST);
 		} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
 				| IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		spinner = new JSpinner(
-				new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(), parameters.step()));
-		this.add(spinner, BorderLayout.EAST);
 	}
 
 	/**
@@ -91,13 +103,5 @@ public class LabeledSpinner extends JPanel {
 		});
 		this.add(spinner, BorderLayout.EAST);
 
-	}
-
-	public void addChangeListener(ChangeListener listener) {
-		spinner.addChangeListener(listener);
-	}
-
-	public Double getValue() {
-		return (Double) spinner.getValue();
 	}
 }

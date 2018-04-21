@@ -787,8 +787,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
-			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
-			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
 			add(slicerCont);
 
@@ -946,12 +944,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 			add(computeCont);
 
 			// Actions listener
-			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
-			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
-			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
-			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
-			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
-			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
 			computeTemplateBtn.addActionListener(new ActionListener() {
 				@Override
@@ -1132,32 +1124,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 			}
 
 		}
-	}
-
-	/**
-	 * Only for double-type static field of {@link CraftConfig}.
-	 * 
-	 * @param spinner
-	 * @param configFieldName
-	 */
-	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {
-		spinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				try {
-					Field f = CraftConfig.class.getField(configFieldName);
-					f.setDouble(null, spinner.getValue());
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 
 	/**
