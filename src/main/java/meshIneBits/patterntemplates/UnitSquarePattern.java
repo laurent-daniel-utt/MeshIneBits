@@ -230,6 +230,12 @@ public class UnitSquarePattern extends PatternTemplate {
 	public String getHowToUse() {
 		return "Unit square's size should be a little bit larger than Lift Points, so that we have safe space between bits.";
 	}
+	
+	private boolean applyQuickRegroup = false;
+	
+	public void setApplyQuickRegroup(boolean b) {
+		applyQuickRegroup = b;
+	}
 
 	/**
 	 * Describe the relative position of a {@link UnitSquare} in respect to
@@ -393,7 +399,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
-			// this.quickRegroup();
+			if (applyQuickRegroup) {
+				LOGGER.finer("Apply quick regroup strategy");
+				this.quickRegroup();
+			}
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
 			this.sortCandidates();
