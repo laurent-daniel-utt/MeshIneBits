@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import meshIneBits.config.patternParameter.DoubleListParam;
-import meshIneBits.config.patternParameter.PatternParameter;
 
 /**
  * Contains a label and a text area, which receive multiple input
@@ -26,7 +25,7 @@ import meshIneBits.config.patternParameter.PatternParameter;
 public class LabeledListReceiver extends JPanel {
 
 	private JLabel btnName;
-	private PatternParameter config;
+	private DoubleListParam dlconfig;
 	private static String delimiter = ";";
 	private static String msgInstruction = "<html>" + "<p>Please enter a new array of double values</p>"
 			+ "<p><small>Use " + delimiter + " to separate values and . to mark decimal point.</small></p>" + "</html>";
@@ -43,7 +42,7 @@ public class LabeledListReceiver extends JPanel {
 	 *            a specified setting for a certain parameter
 	 */
 	public LabeledListReceiver(DoubleListParam config) {
-		this.config = config;
+		this.dlconfig = config;
 		// Visual options
 		this.setLayout(new BorderLayout());
 		this.setBackground(Color.WHITE);
@@ -52,7 +51,7 @@ public class LabeledListReceiver extends JPanel {
 		// Setting up
 		btnName = new JLabel(config.getTitle());
 		this.add(btnName, BorderLayout.WEST);
-		btnName.setToolTipText(generateToolTipText(config));
+		btnName.setToolTipText(generateToolTipText());
 		JButton btnChangeValue = new JButton("Modify");
 		this.add(btnChangeValue, BorderLayout.EAST);
 		btnChangeValue.addActionListener(new ActionListener() {
@@ -60,35 +59,32 @@ public class LabeledListReceiver extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String s = (String) JOptionPane.showInputDialog(null, msgInstruction,
-						convertToString(config.getCurrentValue()));
+						convertToString());
 				if (s != null) {
 					// Just change the value in case
 					// user hits Ok button
-					LabeledListReceiver.this.config.setCurrentValue(parseToList(s));
-					btnName.setToolTipText(generateToolTipText(config));
+					LabeledListReceiver.this.dlconfig.setCurrentValue(parseToList(s));
+					btnName.setToolTipText(generateToolTipText());
 				}
 			}
 		});
 	}
 
-	private String generateToolTipText(PatternParameter config) {
+	private String generateToolTipText() {
 		StringBuilder str = new StringBuilder();
 		str.append("<html><div>");
-		str.append("<p>" + config.getDescription() + "</p>");
-		str.append("<p><strong>Current Value</strong><br/>" + convertToString(config.getCurrentValue()) + "</p>");
+		str.append("<p>" + dlconfig.getDescription() + "</p>");
+		str.append("<p><strong>Current Value</strong><br/>" + convertToString() + "</p>");
 		str.append("</div></html>");
 		return str.toString();
 	}
 
-	private String convertToString(Object object) {
-		if (!(object instanceof List<?>)) {
-			return "";
-		}
-		List<?> o = (List<?>) object;
+	private String convertToString() {
+		List<Double> l = dlconfig.getCurrentValue();
 		StringBuilder str = new StringBuilder();
-		if (!o.isEmpty()) {
-			for (Iterator<?> iterator = o.iterator(); iterator.hasNext();) {
-				Object obj = (Object) iterator.next();
+		if (!l.isEmpty()) {
+			for (Iterator<Double> iterator = l.iterator(); iterator.hasNext();) {
+				Double obj = iterator.next();
 				if (iterator.hasNext()) {
 					str.append(obj + " ; ");
 				} else {

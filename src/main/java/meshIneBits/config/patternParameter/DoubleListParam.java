@@ -61,7 +61,7 @@ public class DoubleListParam extends PatternParameter {
 		setStep(step);
 		setDefault(defaultValue);
 		// Setup temporary currentValue
-		this.currentValue = new ArrayList<Double>();
+		this.currentValue = this.defaultValue;
 	}
 
 	/**
