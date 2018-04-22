@@ -230,9 +230,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	public String getHowToUse() {
 		return "Unit square's size should be a little bit larger than Lift Points, so that we have safe space between bits.";
 	}
-	
+
 	private boolean applyQuickRegroup = false;
-	
+
 	public void setApplyQuickRegroup(boolean b) {
 		applyQuickRegroup = b;
 	}
@@ -441,6 +441,36 @@ public class UnitSquarePattern extends PatternTemplate {
 		private ConnectivityGraph neighbors;
 
 		/**
+		 * Strategy of sorting candidates and possibilites: Largest > Top-most >
+		 * Left-most
+		 */
+		private final Comparator<Puzzle> NATURAL = (p1, p2) -> {
+			// Largest
+			if (p1.size() > p2.size())
+				return -1;
+			else if (p1.size() < p2.size())
+				return 1;
+			else {
+				// Top most
+				Point p1p = p1.getTopCoor();
+				Point p2p = p2.getTopCoor();
+				if (p1p.y < p2p.y)
+					return -1;
+				else if (p1p.y > p2p.y)
+					return 1;
+				else {
+					// Left most
+					if (p1p.x < p2p.x)
+						return -1;
+					else if (p1p.x > p2p.x)
+						return 1;
+					else
+						return 0;
+				}
+			}
+		};
+
+		/**
 		 * For each state of matrix, we check {@link #candidates} from the stop point of
 		 * last {@link Action} to find a puzzle we can merge. Then we merge it, push the
 		 * new {@link Polyomino} into {@link #candidates}.<br>
@@ -544,32 +574,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private void sortCandidates() {
 			LOGGER.finer("Sort candidates list in largest > top most > left most");
-			Comparator<Puzzle> c = (p1, p2) -> {
-				// Largest
-				if (p1.size() > p2.size())
-					return -1;
-				else if (p1.size() < p2.size())
-					return 1;
-				else {
-					// Top most
-					Point p1p = p1.getTopCoor();
-					Point p2p = p2.getTopCoor();
-					if (p1p.y < p2p.y)
-						return -1;
-					else if (p1p.y > p2p.y)
-						return 1;
-					else {
-						// Left most
-						if (p1p.x < p2p.x)
-							return -1;
-						else if (p1p.x > p2p.x)
-							return 1;
-						else
-							return 0;
-					}
-				}
-			};
-			candidates.sort(c);
+			candidates.sort(NATURAL);
 		}
 
 		/**
@@ -727,32 +732,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			candidates.add(0, puzzle); // Push to the first
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
-			Comparator<Puzzle> c = (p1, p2) -> {
-				// Largest
-				if (p1.size() > p2.size())
-					return -1;
-				else if (p1.size() < p2.size())
-					return 1;
-				else {
-					// Top most
-					Point p1p = p1.getTopCoor();
-					Point p2p = p2.getTopCoor();
-					if (p1p.y < p2p.y)
-						return -1;
-					else if (p1p.y > p2p.y)
-						return 1;
-					else {
-						// Left most
-						if (p1p.x < p2p.x)
-							return -1;
-						else if (p1p.x > p2p.x)
-							return 1;
-						else
-							return 0;
-					}
-				}
-			};
-			list.sort(c);
+			list.sort(NATURAL);
 			possibilites.put(puzzle, list);
 		}
 
