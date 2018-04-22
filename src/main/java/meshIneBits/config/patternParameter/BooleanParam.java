@@ -35,23 +35,11 @@ public class BooleanParam extends PatternParameter {
 		this.currentValue = currentValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see meshIneBits.config.patternParameter.PatternParameter#getCurrentValue()
-	 */
 	@Override
 	public Boolean getCurrentValue() {
 		return currentValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * meshIneBits.config.patternParameter.PatternParameter#setCurrentValue(java.
-	 * lang.Object)
-	 */
 	@Override
 	public void setCurrentValue(Object newValue) {
 		if (newValue instanceof Boolean)
