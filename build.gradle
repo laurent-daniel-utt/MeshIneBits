@@ -68,6 +68,9 @@ eclipse {
 
 				def testres = entries.find { it.path == 'src/test/resources' }
 				testres.output = "bin/test"
+				
+				// Remove local ref for libs
+				entries.removeAll{ it.kind == "lib" }
 			}
 			containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer' }
 	}
