@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -942,6 +943,11 @@ public class UnitSquarePattern extends PatternTemplate {
 					return false;
 				UnitSquare u = (UnitSquare) arg0;
 				return u._i == this._i && u._j == this._j;
+			}
+			
+			@Override
+			public int hashCode() {
+				return Objects.hash(_i, _j);
 			}
 
 			@Override
