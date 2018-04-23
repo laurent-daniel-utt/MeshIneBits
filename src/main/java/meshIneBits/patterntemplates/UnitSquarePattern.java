@@ -152,6 +152,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			if (matrix.resolve()) {
 				LOGGER.info("Solution found for " + zone);
 				overallPavement.addAll(matrix.exportBits());
+				LOGGER.info(matrix.pToString());
 			} else {
 				LOGGER.warning("Pavement of layer " + actualState.getLayerNumber() + " failed.");
 				Logger.updateStatus("Pavement of layer " + actualState.getLayerNumber() + " failed.");
@@ -333,6 +334,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * Indicate each unit belongs which polyomino
 		 */
 		private Polyomino[][] matrixP;
+
+		private int countPolyomino = 0;
 		/**
 		 * Who proposes to the unit <tt>(i, j)</tt>
 		 */
@@ -371,6 +374,18 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return bits regrouped from polyominos
 		 */
 		public Set<Bit2D> exportBits() {
+			Set<Polyomino> setPolyominos = this.collectPolyominos();
+			Set<Bit2D> setBits = new HashSet<Bit2D>();
+			for (Polyomino p : setPolyominos) {
+				setBits.add(p.getBit2D());
+			}
+			return setBits;
+		}
+		
+		/**
+		 * @return all polyominos filling {@link #matrixP}
+		 */
+		private Set<Polyomino> collectPolyominos() {
 			Set<Polyomino> setPolyominos = new HashSet<Polyomino>();
 			for (int i = 0; i < matrixP.length; i++) {
 				for (int j = 0; j < matrixP[i].length; j++) {
@@ -378,12 +393,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						setPolyominos.add(matrixP[i][j]);// Not adding if already had
 				}
 			}
-			Set<Bit2D> setBits = new HashSet<Bit2D>();
-			for (Polyomino p : setPolyominos) {
-				LOGGER.finer(p.toString());
-				setBits.add(p.getBit2D());
-			}
-			return setBits;
+			return setPolyominos;
 		}
 
 		/**
@@ -786,7 +796,30 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 				str.append("]\n");
 			}
+			str.append("]");
+			return str.toString();
+		}
+
+		public String pToString() {
+			Set<Polyomino> setPolyominos = this.collectPolyominos();
+			StringBuilder str = new StringBuilder("Representations of polyominos in matrix\n");
+			str.append("[\n");
+			for (int i = 0; i < matrixP.length; i++) {
+				str.append(i + "[");
+				for (int j = 0; j < matrixP[i].length; j++) {
+					if (matrixP[i][j] != null) {
+						str.append(matrixP[i][j].id);
+						str.append(",");
+					} else {
+						str.append("0,");
+					}
+				}
+				str.append("]\n");
+			}
 			str.append("]\n");
+			for (Polyomino p : setPolyominos) {
+				str.append(p.toString() + "\n");
+			}
 			return str.toString();
 		}
 
@@ -966,6 +999,13 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 */
 			private static final long serialVersionUID = 1974861227965075981L;
+
+			public final int id;
+
+			public Polyomino() {
+				super();
+				this.id = countPolyomino++;
+			}
 
 			/**
 			 * To not let bit float into the sides
@@ -1303,7 +1343,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			@Override
 			public String toString() {
 				StringBuilder str = new StringBuilder();
-				str.append("[");
+				str.append(this.id + "[");
 				for (UnitSquare u : this) {
 					str.append(u);
 					str.append(",");
