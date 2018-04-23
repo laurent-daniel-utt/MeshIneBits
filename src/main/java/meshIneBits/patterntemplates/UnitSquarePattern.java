@@ -307,13 +307,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		public boolean isMerged();
 
 		/**
-		 * Mark or unmark a puzzle
-		 * 
-		 * @param b
-		 */
-		public void setMerged(boolean b);
-
-		/**
 		 * @return 1 if a single unit, or actual size if a polyomino
 		 */
 		public int size();
@@ -387,6 +380,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 			Set<Bit2D> setBits = new HashSet<Bit2D>();
 			for (Polyomino p : setPolyominos) {
+				LOGGER.finer(p.toString());
 				setBits.add(p.getBit2D());
 			}
 			return setBits;
@@ -691,7 +685,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *            corresponding tile will be <tt>null</tt>
 		 */
 		private void registerPuzzle(Puzzle puzzle) {
-			puzzle.setMerged(false);
 			if (puzzle instanceof Polyomino) {
 				Polyomino p = (Polyomino) puzzle;
 				for (UnitSquare u : p) {
@@ -815,11 +808,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			public UnitState state;
 
 			/**
-			 * Whether this unit has been merged into a {@link Polyomino}
-			 */
-			private boolean merged = false;;
-
-			/**
 			 * A part of zone's area which is contained by this unit
 			 */
 			private Area containedArea;
@@ -917,8 +905,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				p.add(this);
 				boolean success = p.add(other);
 				if (success) {
-					this.setMerged(true);
-					other.setMerged(true);
 					return p;
 				} else
 					return null;
@@ -926,12 +912,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public boolean isMerged() {
-				return merged;
-			}
-
-			@Override
-			public void setMerged(boolean b) {
-				this.merged = b;
+				return matrixP[_i][_j] != null;
 			}
 
 			/**
@@ -944,7 +925,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				UnitSquare u = (UnitSquare) arg0;
 				return u._i == this._i && u._j == this._j;
 			}
-			
+
 			@Override
 			public int hashCode() {
 				return Objects.hash(_i, _j);
@@ -985,11 +966,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 */
 			private static final long serialVersionUID = 1974861227965075981L;
-
-			/**
-			 * Whether this is merged into an other {@link Polyomino}
-			 */
-			private boolean merged = false;
 
 			/**
 			 * To not let bit float into the sides
@@ -1379,8 +1355,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				p.add(this);
 				boolean success = p.add(other);
 				if (success) {
-					this.setMerged(true);
-					other.setMerged(true);
 					return p;
 				} else
 					return null;
@@ -1388,12 +1362,11 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public boolean isMerged() {
-				return merged;
-			}
-
-			@Override
-			public void setMerged(boolean b) {
-				this.merged = b;
+				if (this.isEmpty())
+					return false;
+				UnitSquare u = this.iterator().next();
+				Polyomino p = matrixP[u._i][u._j];
+				return p == null ? true : !this.equals(matrixP[u._i][u._j]);
 			}
 
 			/**
