@@ -335,7 +335,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private Polyomino[][] matrixP;
 
-		private int countPolyomino = 0;
+		private int countPolyomino = 1;
 		/**
 		 * Who proposes to the unit <tt>(i, j)</tt>
 		 */
@@ -426,7 +426,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * A candidate has to be either a {@link Polyomino} or {@link UnitState#ACCEPTED
 		 * ACCEPTED} {@link UnitSquare}.
 		 */
-		private ArrayList<Puzzle> candidates;
+		private List<Puzzle> candidates;
 
 		/**
 		 * Each candidate comes with a list of neighbors. That list should be sorted in
@@ -498,13 +498,14 @@ public class UnitSquarePattern extends PatternTemplate {
 				return false;
 			}
 			Action currentAction = rootAction;
+			Action childAction = null;
 			do {
-				Action childAction = currentAction.nextChild();
+				childAction = currentAction.nextChild();
 				if (childAction != null) {
 					// If there is a way to continue
 					childAction.realize();
 					registerCandidate(childAction);
-					currentAction = childAction;
+   					currentAction = childAction;
 					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + "\r\n"
 							+ "Neighbors of trigger=" + neighbors.of(childAction.getTrigger()) + "\r\n"
 							+ "Neighbors of target=" + neighbors.of(childAction.getTarget()) + "\r\n" + "Possibilites="
@@ -736,6 +737,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			candidates.add(0, puzzle); // Push to the first
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
+			list.removeIf(p -> !p.canMergeWith(puzzle));
 			list.sort(NATURAL);
 			possibilites.put(puzzle, list);
 		}
@@ -789,7 +791,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			StringBuilder str = new StringBuilder();
 			str.append("[\n");
 			for (int i = 0; i < matrixU.length; i++) {
-				str.append("[");
+				str.append(i + "[");
 				for (int j = 0; j < matrixU[i].length; j++) {
 					str.append(matrixU[i][j].state);
 					str.append(",");
@@ -1613,12 +1615,12 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * {@link UnitMatrix#candidates} and {@link UnitMatrix#neighbors}
 			 */
 			public void undo() {
+				// Remove result from candidates and neighbors
+				unregisterCandidate(result);
 				// Remove the fusion in tracking matrix
 				// Re-register the old puzzles
 				registerPuzzle(trigger);
 				registerPuzzle(target);
-				// Remove result from candidates and neighbors
-				unregisterCandidate(result);
 			}
 
 			/**
@@ -1670,7 +1672,8 @@ public class UnitSquarePattern extends PatternTemplate {
 						// Check its possibilities
 						for (Puzzle puzzleTarget : possibilites.get(puzzleTrigger)) {
 							// If at least a target Puzzle has not been merged
-							if (!puzzleTarget.isMerged() && puzzleTrigger.canMergeWith(puzzleTarget))
+							// Each puzzle in possibilities list has been confirmed mergeable with trigger
+							if (!puzzleTarget.isMerged())
 								try {
 									return new Action(this, puzzleTrigger, puzzleTarget);
 								} catch (IllegalArgumentException e) {
@@ -1706,6 +1709,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				// Search on new trigger
 				for (int i = resumePointOfTrigger + 1; i < candidates.size(); i++) {
 					Puzzle newTrigger = candidates.get(i);
+					if (newTrigger.isMerged())
+						continue; // skip merged candidates
 					List<Puzzle> listPossibilities = possibilites.get(newTrigger);
 					for (int j = 0; j < listPossibilities.size(); j++) {
 						// Check if merged
@@ -1732,8 +1737,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				if (!(arg0 instanceof Action))
 					return false;
 				Action a = (Action) arg0;
-				return ((this.trigger == a.getTrigger() && this.target == a.getTarget())
-						|| (this.trigger == a.getTarget() && this.target == a.getTrigger()));
+				return ((this.trigger.equals(a.getTrigger()) && this.target.equals(a.getTarget()))
+						|| (this.trigger.equals(a.getTarget()) && this.target.equals(a.getTrigger())));
 			}
 
 			@Override
