@@ -493,7 +493,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			Action rootAction = null;
 			try {
 				rootAction = new Action(null, null, null);
-			} catch (IllegalArgumentException e) {
+			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "Cannot create root of actions", e);
 				return false;
 			}
@@ -1588,6 +1588,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				if (parent != null) {
 					if (parent.getChildren().parallelStream().anyMatch(c -> c.hasTriedToMerge(trigger, target)))
 						throw new IllegalArgumentException("Has tried {" + trigger + "+" + target + "}");
+					else
+						parent.getChildren().add(this);
 				}
 				// Only append to parent if this has not been done
 				this.parent = parent;
@@ -1595,7 +1597,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				this.target = target;
 				this.children = new ArrayList<Action>();
 				this.result = null;
-				parent.getChildren().add(this);
 			}
 
 			/**
