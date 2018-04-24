@@ -381,7 +381,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 			return setBits;
 		}
-		
+
 		/**
 		 * @return all polyominos filling {@link #matrixP}
 		 */
@@ -505,7 +505,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					// If there is a way to continue
 					childAction.realize();
 					registerCandidate(childAction);
-   					currentAction = childAction;
+					currentAction = childAction;
 					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + "\r\n"
 							+ "Neighbors of trigger=" + neighbors.of(childAction.getTrigger()) + "\r\n"
 							+ "Neighbors of target=" + neighbors.of(childAction.getTarget()) + "\r\n" + "Possibilites="
@@ -1568,7 +1568,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * What we did in following this
 			 */
-			private ArrayList<Action> children;
+			private List<Action> children;
 
 			/**
 			 * Fusion of {@link #target}
@@ -1584,19 +1584,29 @@ public class UnitSquarePattern extends PatternTemplate {
 			 *             trigger and <tt>trigger</tt> as target)
 			 */
 			public Action(Action parent, Puzzle trigger, Puzzle target) throws IllegalArgumentException {
+				// If this is not the root
+				if (parent != null) {
+					if (parent.getChildren().parallelStream().anyMatch(c -> c.hasTriedToMerge(trigger, target)))
+						throw new IllegalArgumentException("Has tried {" + trigger + "+" + target + "}");
+				}
+				// Only append to parent if this has not been done
 				this.parent = parent;
 				this.trigger = trigger;
 				this.target = target;
 				this.children = new ArrayList<Action>();
 				this.result = null;
-				if (parent != null) {
-					// If this is not the root
-					// Only append to parent if this has not been done
-					if (!this.parent.getChildren().contains(this))
-						this.parent.getChildren().add(this);
-					else
-						throw new IllegalArgumentException("This action has been tried before");
-				}
+				parent.getChildren().add(this);
+			}
+
+			/**
+			 * @param p1
+			 * @param p2
+			 * @return <tt>true</tt> if {p1, p2} is equal to {{@link #trigger},
+			 *         {@link #target}}
+			 */
+			public boolean hasTriedToMerge(Puzzle p1, Puzzle p2) {
+				return (this.trigger.equals(p1) && this.target.equals(p2))
+						|| (this.trigger.equals(p2) && this.target.equals(p2));
 			}
 
 			/**
@@ -1654,7 +1664,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * @return what we did after
 			 */
-			public ArrayList<Action> getChildren() {
+			public List<Action> getChildren() {
 				return children;
 			}
 
@@ -1703,6 +1713,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						} catch (IllegalArgumentException e) {
 							// The action has been tried
 							// We search for others
+							continue;
 						}
 					}
 				}
@@ -1721,6 +1732,7 @@ public class UnitSquarePattern extends PatternTemplate {
 							} catch (IllegalArgumentException e) {
 								// This action has been tried
 								// We search for others
+								continue;
 							}
 						}
 					}
