@@ -1583,11 +1583,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			 *             if this action has been done before (with <tt>target</tt> as
 			 *             trigger and <tt>trigger</tt> as target)
 			 */
-			public Action(Action parent, Puzzle trigger, Puzzle target) throws IllegalArgumentException {
+			public Action(Action parent, Puzzle trigger, Puzzle target) throws DuplicateActionException {
 				// If this is not the root
 				if (parent != null) {
 					if (parent.getChildren().parallelStream().anyMatch(c -> c.hasTriedToMerge(trigger, target)))
-						throw new IllegalArgumentException("Has tried {" + trigger + "+" + target + "}");
+						throw new DuplicateActionException(trigger, target);
 					else
 						parent.getChildren().add(this);
 				}
@@ -1687,7 +1687,8 @@ public class UnitSquarePattern extends PatternTemplate {
 							if (!puzzleTarget.isMerged())
 								try {
 									return new Action(this, puzzleTrigger, puzzleTarget);
-								} catch (IllegalArgumentException e) {
+								} catch (DuplicateActionException e) {
+									LOGGER.finest(e.getMessage());
 									return null;
 								}
 						}
@@ -1711,7 +1712,8 @@ public class UnitSquarePattern extends PatternTemplate {
 					if (!newTarget.isMerged()) {
 						try {
 							return new Action(parent, trigger, newTarget);
-						} catch (IllegalArgumentException e) {
+						} catch (DuplicateActionException e) {
+							LOGGER.finest(e.getMessage());
 							// The action has been tried
 							// We search for others
 							continue;
@@ -1730,7 +1732,8 @@ public class UnitSquarePattern extends PatternTemplate {
 						if (!newTarget.isMerged()) {
 							try {
 								return new Action(parent, newTrigger, newTarget);
-							} catch (IllegalArgumentException e) {
+							} catch (DuplicateActionException e) {
+								LOGGER.finest(e.getMessage());
 								// This action has been tried
 								// We search for others
 								continue;
@@ -1760,6 +1763,24 @@ public class UnitSquarePattern extends PatternTemplate {
 					return "{root}";
 				else
 					return "{" + trigger.toString() + "+" + target.toString() + "}";
+			}
+		}
+
+		/**
+		 * Indicate an action has been realized previously
+		 * 
+		 * @author Quoc Nhat Han TRAN
+		 *
+		 */
+		public class DuplicateActionException extends Exception {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 5125661697708952752L;
+			
+			public DuplicateActionException(Puzzle p1, Puzzle p2) {
+				super("Has tried {" + p1 + "+" + p2 + "}");
 			}
 		}
 	}
