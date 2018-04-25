@@ -240,6 +240,15 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
+	 * Limit the depth of search
+	 */
+	private int limitActions = 10000;
+
+	public void setLimitAction(int l) {
+		limitActions = l;
+	}
+
+	/**
 	 * Describe the relative position of a {@link UnitSquare} in respect to
 	 * predefined area
 	 * 
@@ -336,6 +345,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		private Polyomino[][] matrixP;
 
 		private int countPolyomino = 1;
+		private int countAction = 1;
 		/**
 		 * Who proposes to the unit <tt>(i, j)</tt>
 		 */
@@ -500,7 +510,12 @@ public class UnitSquarePattern extends PatternTemplate {
 			Action currentAction = rootAction;
 			Action childAction = null;
 			do {
-				childAction = currentAction.nextChild();
+				try {
+					childAction = currentAction.nextChild();
+				} catch (TooDeepSearchException e) {
+					LOGGER.severe(e.getMessage());
+					return false;
+				}
 				if (childAction != null) {
 					// If there is a way to continue
 					childAction.realize();
@@ -1579,19 +1594,26 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @param parent
 			 * @param trigger
 			 * @param target
+			 * @throws TooDeepSearchException
+			 *             if we had done more than demanded
 			 * @throws IllegalArgumentException
 			 *             if this action has been done before (with <tt>target</tt> as
 			 *             trigger and <tt>trigger</tt> as target)
 			 */
-			public Action(Action parent, Puzzle trigger, Puzzle target) throws DuplicateActionException {
+			public Action(Action parent, Puzzle trigger, Puzzle target)
+					throws DuplicateActionException, TooDeepSearchException {
 				// If this is not the root
 				if (parent != null) {
 					if (parent.getChildren().parallelStream().anyMatch(c -> c.hasTriedToMerge(trigger, target)))
 						throw new DuplicateActionException(trigger, target);
 					else
+						// Only append to parent if this has not been done
 						parent.getChildren().add(this);
 				}
-				// Only append to parent if this has not been done
+				countAction++;
+				if (countAction > limitActions)
+					// Stop the search
+					throw new TooDeepSearchException();
 				this.parent = parent;
 				this.trigger = trigger;
 				this.target = target;
@@ -1673,8 +1695,9 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * After realizing an {@link Action}, we search what we do next
 			 * 
 			 * @return <tt>null</tt> if nothing
+			 * @throws TooDeepSearchException 
 			 */
-			public Action nextChild() {
+			public Action nextChild() throws TooDeepSearchException {
 				if (this.children.isEmpty()) {
 					for (Puzzle puzzleTrigger : candidates) {
 						// Skip merged puzzle
@@ -1701,8 +1724,9 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * @return what we should do after undoing an {@link Action}. <tt>null</tt> if
 			 *         nothing
+			 * @throws TooDeepSearchException 
 			 */
-			public Action nextSibling() {
+			public Action nextSibling() throws TooDeepSearchException {
 				int resumePointOfTrigger = candidates.indexOf(trigger);
 				List<Puzzle> oldPossibilities = possibilites.get(trigger);
 				int resumtPointOfTarget = oldPossibilities.indexOf(target);
@@ -1778,9 +1802,27 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 */
 			private static final long serialVersionUID = 5125661697708952752L;
-			
+
 			public DuplicateActionException(Puzzle p1, Puzzle p2) {
 				super("Has tried {" + p1 + "+" + p2 + "}");
+			}
+		}
+
+		/**
+		 * Indicate that the number actions we realized has been too much
+		 * 
+		 * @author Quoc Nhat Han TRAN
+		 *
+		 */
+		public class TooDeepSearchException extends Exception {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -3388495688242904101L;
+
+			public TooDeepSearchException() {
+				super(limitActions + " actions have been realized but no solution is found");
 			}
 		}
 	}
