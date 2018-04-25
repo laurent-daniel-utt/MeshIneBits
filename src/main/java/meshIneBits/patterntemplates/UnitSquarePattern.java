@@ -282,6 +282,83 @@ public class UnitSquarePattern extends PatternTemplate {
 	}
 
 	/**
+	 * To decide which {@link Puzzle} will be the first target to begin the dfs
+	 * search
+	 */
+	private Comparator<Puzzle> candidateComparator = Strategy.NATURAL._c();
+
+	/**
+	 * To decide which {@link Puzzle} will be the first to try
+	 */
+	private Comparator<Puzzle> possibilityComparator = Strategy.NATURAL._c();
+
+	/**
+	 * @param c
+	 */
+	public void setCandidatesPrioritizor(Comparator<Puzzle> c) {
+		this.candidateComparator = c;
+	}
+
+	/**
+	 * @param c
+	 */
+	public void setPossibilitiesPrioritizer(Comparator<Puzzle> c) {
+		this.possibilityComparator = c;
+	}
+
+	/**
+	 * Useful comparators for puzzles
+	 */
+	private enum Strategy {
+		NATURAL("Largest > Top-most > Left-most", (p1, p2) -> {
+			// Largest
+			if (p1.size() > p2.size())
+				return -1;
+			else if (p1.size() < p2.size())
+				return 1;
+			else {
+				// Top most
+				Point p1p = p1.getTopCoor();
+				Point p2p = p2.getTopCoor();
+				if (p1p.y < p2p.y)
+					return -1;
+				else if (p1p.y > p2p.y)
+					return 1;
+				else {
+					// Left most
+					if (p1p.x < p2p.x)
+						return -1;
+					else if (p1p.x > p2p.x)
+						return 1;
+					else
+						return 0;
+				}
+			}
+		});
+		private String description;
+		private Comparator<Puzzle> comparator;
+
+		private Strategy(String description, Comparator<Puzzle> comparator) {
+			this.description = description;
+			this.comparator = comparator;
+		}
+
+		/**
+		 * @return comparator under this strategy
+		 */
+		public Comparator<Puzzle> _c() {
+			return comparator;
+		}
+
+		/**
+		 * @return description
+		 */
+		public String _d() {
+			return description;
+		}
+	}
+
+	/**
 	 * Represents a combination of {@link UnitSquare} on matrix
 	 * 
 	 * @author Quoc Nhat Han TRAN
@@ -456,36 +533,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		private ConnectivityGraph neighbors;
 
 		/**
-		 * Strategy of sorting candidates and possibilites: Largest > Top-most >
-		 * Left-most
-		 */
-		private final Comparator<Puzzle> NATURAL = (p1, p2) -> {
-			// Largest
-			if (p1.size() > p2.size())
-				return -1;
-			else if (p1.size() < p2.size())
-				return 1;
-			else {
-				// Top most
-				Point p1p = p1.getTopCoor();
-				Point p2p = p2.getTopCoor();
-				if (p1p.y < p2p.y)
-					return -1;
-				else if (p1p.y > p2p.y)
-					return 1;
-				else {
-					// Left most
-					if (p1p.x < p2p.x)
-						return -1;
-					else if (p1p.x > p2p.x)
-						return 1;
-					else
-						return 0;
-				}
-			}
-		};
-
-		/**
 		 * For each state of matrix, we check {@link #candidates} from the stop point of
 		 * last {@link Action} to find a puzzle we can merge. Then we merge it, push the
 		 * new {@link Polyomino} into {@link #candidates}.<br>
@@ -595,7 +642,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private void sortCandidates() {
 			LOGGER.finer("Sort candidates list in largest > top most > left most");
-			candidates.sort(NATURAL);
+			candidates.sort(candidateComparator);
 		}
 
 		/**
@@ -753,7 +800,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
 			list.removeIf(p -> !p.canMergeWith(puzzle));
-			list.sort(NATURAL);
+			list.sort(possibilityComparator);
 			possibilites.put(puzzle, list);
 		}
 
@@ -1695,7 +1742,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * After realizing an {@link Action}, we search what we do next
 			 * 
 			 * @return <tt>null</tt> if nothing
-			 * @throws TooDeepSearchException 
+			 * @throws TooDeepSearchException
 			 */
 			public Action nextChild() throws TooDeepSearchException {
 				if (this.children.isEmpty()) {
@@ -1724,7 +1771,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * @return what we should do after undoing an {@link Action}. <tt>null</tt> if
 			 *         nothing
-			 * @throws TooDeepSearchException 
+			 * @throws TooDeepSearchException
 			 */
 			public Action nextSibling() throws TooDeepSearchException {
 				int resumePointOfTrigger = candidates.indexOf(trigger);
