@@ -187,7 +187,7 @@ public class DoubleParam extends PatternParameter {
 
 	@Override
 	public String toString() {
-		return "PatternParam [name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
+		return "Double[name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
 				+ minValue + ", maxValue=" + maxValue + ", defaultValue=" + defaultValue + ", step=" + step
 				+ ", currentValue=" + currentValue + "]";
 	}

@@ -50,7 +50,7 @@ public class BooleanParam extends PatternParameter {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Boolean[name=" + codename + ", title=" + title + ", description=" + description + ", defaultValue="
+				+ defaultValue + ", currentValue=" + currentValue + "]";
 	}
 }

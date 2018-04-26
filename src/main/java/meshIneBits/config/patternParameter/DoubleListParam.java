@@ -223,8 +223,9 @@ public class DoubleListParam extends PatternParameter {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		return "DoubleList[name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
+				+ minValue + ", maxValue=" + maxValue + ", defaultValue=" + defaultValue + ", step=" + step
+				+ ", currentValue=" + currentValue + "]";
 	}
 
 }
