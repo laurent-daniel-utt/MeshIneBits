@@ -284,26 +284,44 @@ public class UnitSquarePattern extends PatternTemplate {
 	/**
 	 * To decide which {@link Puzzle} will be the first target to begin the dfs
 	 * search
+	 * 
+	 * @see #setCandidatesSorter(String)
 	 */
-	private Comparator<Puzzle> candidateComparator = Strategy.NATURAL._c();
+	private Strategy candidateSorter = Strategy.NATURAL;
 
 	/**
 	 * To decide which {@link Puzzle} will be the first to try
+	 * 
+	 * @see #setPossibilitiesSorter(String)
 	 */
-	private Comparator<Puzzle> possibilityComparator = Strategy.NATURAL._c();
+	private Strategy possibilitySorter = Strategy.NATURAL;
 
 	/**
-	 * @param c
+	 * @param name
+	 *            "NATURAL" or "DUTY_FIRST". If not found, will set NATURAL by
+	 *            default
+	 * @see Strategy
 	 */
-	public void setCandidatesPrioritizor(Comparator<Puzzle> c) {
-		this.candidateComparator = c;
+	public void setCandidatesSorter(String name) {
+		try {
+			this.candidateSorter = Strategy.valueOf(name.toUpperCase());
+		} catch (Exception e) {
+			this.candidateSorter = Strategy.NATURAL;
+		}
 	}
 
 	/**
-	 * @param c
+	 * @param name
+	 *            "NATURAL" or "BORDER_FIRST". If not found, will set NATURAL by
+	 *            default
+	 * @see Strategy
 	 */
-	public void setPossibilitiesPrioritizer(Comparator<Puzzle> c) {
-		this.possibilityComparator = c;
+	public void setPossibilitiesSorter(String name) {
+		try {
+			this.possibilitySorter = Strategy.valueOf(name.toUpperCase());
+		} catch (Exception e) {
+			this.possibilitySorter = Strategy.NATURAL;
+		}
 	}
 
 	/**
@@ -334,7 +352,14 @@ public class UnitSquarePattern extends PatternTemplate {
 						return 0;
 				}
 			}
-		});
+		}),
+
+		DUTY_FIRST(
+				"(Only for accepted units and polyominos) Having most contact (direct or semi-direct) with border units",
+				(p1, p2) -> -(p1.getDuty().size() - p2.getDuty().size())),
+
+		BORDER_FIRST("Prioritize the border units", (p1, p2) -> -(p1.getIsolatedLevel() - p2.getIsolatedLevel()));
+
 		private String description;
 		private Comparator<Puzzle> comparator;
 
@@ -403,6 +428,16 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *         <tt>(x,y) = (j, i)</tt>
 		 */
 		public Point getTopCoor();
+
+		/**
+		 * @return all neighbors (direct or semi-direct) this puzzle needs to save
+		 */
+		public Set<Puzzle> getDuty();
+
+		/**
+		 * @return 3 for border unit, 0 for accepted unit or polyomino
+		 */
+		public int getIsolatedLevel();
 	}
 
 	/**
@@ -495,6 +530,10 @@ public class UnitSquarePattern extends PatternTemplate {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
 			}
+			// Init duty graph on demand
+			if (candidateSorter == Strategy.DUTY_FIRST)
+				duty = new DutyGraph();
+
 			neighbors = new ConnectivityGraph();
 			this.findCandidates();
 			this.sortCandidates();
@@ -531,6 +570,12 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * {@link Polyomino}s
 		 */
 		private ConnectivityGraph neighbors;
+
+		/**
+		 * Graph of {@link UnitSquare}s to save of each {@link UnitState#ACCEPTED
+		 * ACCEPTED} {@link UnitSquare} and {@link Polyomino}
+		 */
+		private DutyGraph duty;
 
 		/**
 		 * For each state of matrix, we check {@link #candidates} from the stop point of
@@ -641,8 +686,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * </ol>
 		 */
 		private void sortCandidates() {
-			LOGGER.finer("Sort candidates list in largest > top most > left most");
-			candidates.sort(candidateComparator);
+			LOGGER.finer("Sort candidates by " + candidateSorter.toString() + "(" + candidateSorter._d() + ")");
+			candidates.sort(candidateSorter._c());
 		}
 
 		/**
@@ -800,7 +845,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
 			list.removeIf(p -> !p.canMergeWith(puzzle));
-			list.sort(possibilityComparator);
+			list.sort(possibilitySorter._c());
 			possibilites.put(puzzle, list);
 		}
 
@@ -812,8 +857,29 @@ public class UnitSquarePattern extends PatternTemplate {
 		 *            what we just did
 		 */
 		private void registerCandidate(Action fromAction) {
+			if (candidateSorter == Strategy.DUTY_FIRST)
+				registerDutyOfMergedPolyomino(fromAction);
 			registerNeighborsOfMergedPolyomino(fromAction);
 			registerCandidate(fromAction.getResult());
+		}
+
+		/**
+		 * Register level of duty of a newly created polymoino
+		 * 
+		 * @param action
+		 */
+		private void registerDutyOfMergedPolyomino(Action action) {
+			Puzzle result = action.getResult();
+			Puzzle trigger = action.getTrigger();
+			Puzzle target = action.getTarget();
+			Set<Puzzle> dutyOfResult = new HashSet<Puzzle>();
+			// Intersection
+			dutyOfResult.addAll(duty.of(trigger));
+			dutyOfResult.addAll(duty.of(target));
+			// Filter
+			dutyOfResult.removeIf(Puzzle::isMerged);
+			// Register
+			duty.put(result, dutyOfResult);
 		}
 
 		/**
@@ -1047,6 +1113,21 @@ public class UnitSquarePattern extends PatternTemplate {
 			@Override
 			public Point getTopCoor() {
 				return new Point(this._j, this._i);
+			}
+
+			@Override
+			public Set<Puzzle> getDuty() {
+				return duty.get(this);
+			}
+
+			@Override
+			public int getIsolatedLevel() {
+				switch (this.state) {
+				case BORDER:
+					return 3;
+				default:
+					return 0;
+				}
 			}
 		}
 
@@ -1501,6 +1582,16 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 				return maxP;
 			}
+
+			@Override
+			public Set<Puzzle> getDuty() {
+				return duty.get(this);
+			}
+
+			@Override
+			public int getIsolatedLevel() {
+				return 0;
+			}
 		}
 
 		/**
@@ -1602,6 +1693,125 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			public Set<Puzzle> of(Puzzle puzzle) {
 				return this.get(puzzle);
+			}
+		}
+
+		/**
+		 * Duty to save all {@link UnitState#BORDER BORDER} {@link UnitSquare}s
+		 * 
+		 * @author Quoc Nhat Han TRAN
+		 *
+		 */
+		private class DutyGraph extends HashMap<Puzzle, Set<Puzzle>> {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 4729535080154862879L;
+
+			public DutyGraph() {
+				LOGGER.finer("Init duty graph");
+				for (int i = 0; i < matrixU.length; i++) {
+					for (int j = 0; j < matrixU[i].length; j++) {
+						this.put(matrixU[i][j], dutyOf(matrixU[i][j]));
+					}
+				}
+				for (int i = 0; i < matrixP.length; i++) {
+					for (int j = 0; j < matrixP[i].length; j++) {
+						if (matrixP[i][j] != null && !this.containsKey(matrixP[i][j]))
+							this.put(matrixP[i][j], dutyOf(matrixP[i][j]));
+					}
+				}
+			}
+
+			/**
+			 * What this puzzle needs to save
+			 * 
+			 * @param p
+			 * @return
+			 */
+			private Set<Puzzle> of(Puzzle p) {
+				return this.get(p);
+			}
+
+			/**
+			 * Check 8 corners around
+			 * 
+			 * @param u
+			 *            should be {@link UnitState#ACCEPTED ACCEPTED}
+			 * @return empty list if not {@link UnitState#ACCEPTED} {@link UnitSquare}
+			 */
+			private Set<Puzzle> dutyOf(UnitSquare u) {
+				Set<Puzzle> s = new HashSet<Puzzle>(8);
+				if (u.state != UnitState.ACCEPTED)
+					return s;
+				int i = u._i;
+				int j = u._j;
+				// Top
+				if (i > 0) {
+					if (matrixP[i - 1][j] == null && matrixU[i - 1][j].state == UnitState.BORDER) {
+						s.add(matrixU[i - 1][j]);
+					}
+				}
+				// Top-left
+				if (i > 0 && j > 0) {
+					if (matrixP[i - 1][j - 1] == null && matrixU[i - 1][j - 1].state == UnitState.BORDER) {
+						s.add(matrixU[i - 1][j - 1]);
+					}
+				}
+				// Top-right
+				if (i > 0 && j < matrixU[i].length) {
+					if (matrixP[i - 1][j + 1] == null && matrixU[i - 1][j + 1].state == UnitState.BORDER) {
+						s.add(matrixU[i - 1][j + 1]);
+					}
+				}
+				// Bottom
+				if (i + 1 < matrixU.length) {
+					if (matrixP[i + 1][j] == null && matrixU[i + 1][j].state == UnitState.BORDER) {
+						s.add(matrixU[i + 1][j]);
+					}
+				}
+				// Bottom-left
+				if (i + 1 < matrixU.length && j > 0) {
+					if (matrixP[i + 1][j - 1] == null && matrixU[i + 1][j - 1].state == UnitState.BORDER) {
+						s.add(matrixU[i + 1][j - 1]);
+					}
+				}
+				// Bottom-right
+				if (i + 1 < matrixU.length && j < matrixU[i].length) {
+					if (matrixP[i + 1][j + 1] == null && matrixU[i + 1][j + 1].state == UnitState.BORDER) {
+						s.add(matrixU[i + 1][j + 1]);
+					}
+				}
+				// Left
+				if (j > 0) {
+					if (matrixP[i][j - 1] == null && matrixU[i][j - 1].state == UnitState.BORDER) {
+						s.add(matrixU[i][j - 1]);
+					}
+				}
+				// Right
+				if (j + 1 < matrixU[i].length) {
+					if (matrixP[i][j + 1] == null && matrixU[i][j + 1].state == UnitState.BORDER) {
+						s.add(matrixU[i][j + 1]);
+					}
+				}
+				return s;
+			}
+
+			/**
+			 * Combine duties of all components
+			 * 
+			 * @param p
+			 * @return
+			 */
+			private Set<Puzzle> dutyOf(Polyomino p) {
+				Set<Puzzle> s = new HashSet<Puzzle>();
+				for (UnitSquare u : p) {
+					s.addAll((Set<Puzzle>) this.get(u));
+				}
+				// Remove all units absorbed into p
+				s.removeAll(p);
+				return s;
 			}
 		}
 
