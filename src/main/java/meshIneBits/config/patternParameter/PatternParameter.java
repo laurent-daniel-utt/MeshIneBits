@@ -31,11 +31,11 @@ public abstract class PatternParameter implements Serializable {
 	/**
 	 * This method will be use by interfaces on each change event
 	 * 
-	 * @param currentValue
+	 * @param newValue
 	 *            will be filtered before affecting, in the same way of
 	 *            <tt>defaultValue</tt>
 	 */
-	public abstract void setCurrentValue(Object currentValue);
+	public abstract void setCurrentValue(Object newValue);
 
 	/**
 	 * @return name of parameters. Should be different among parameters.
