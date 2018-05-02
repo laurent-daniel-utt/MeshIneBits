@@ -635,7 +635,12 @@ public class UnitSquarePattern extends PatternTemplate {
 				if (childAction != null) {
 					// If there is a way to continue
 					childAction.realize();
-					registerCandidate(childAction);
+					// Register candidate and its neighbors
+					if (candidateSorter == Strategy.DUTY_FIRST)
+						registerDutyOfMergedPolyomino(childAction);
+					registerNeighborsOfMergedPolyomino(childAction);
+					registerCandidate(childAction.getResult());
+					// Descend
 					currentAction = childAction;
 					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + "\r\n"
 							+ "Neighbors of trigger=" + neighbors.of(childAction.getTrigger()) + "\r\n"
@@ -643,21 +648,25 @@ public class UnitSquarePattern extends PatternTemplate {
 							+ possibilites.get(childAction.getResult()));
 				} else {
 					// If nothing we can do further
-					if (onBorderSaving && noMoreBorderUnits())
-						return true;
-					else if (!onBorderSaving && solutionFound())
-						return true;
-					else {
-						// If there is no more child from root
-						if (currentAction.equals(rootAction))
-							return false;
-						// Else
-						// Revert
-						currentAction.undo();
-						LOGGER.finest("Undo " + currentAction.getResult() + "->" + currentAction);
-						// Climb up in tree
-						currentAction = currentAction.getParent();
+					if (onBorderSaving) {
+						// If we are currently try to cover borders
+						if (noMoreBorderUnits())
+							return true;
+					} else {
+						// If we are currently try to fill stage
+						if (solutionFound())
+							return true;
 					}
+					// In case of condition not being fulfilled yet
+					// If there is no more child from root
+					if (currentAction.equals(rootAction))
+						return false;
+					// Else
+					// Revert
+					currentAction.undo();
+					LOGGER.finest("Undo " + currentAction.getResult() + "->" + currentAction);
+					// Climb up in tree
+					currentAction = currentAction.getParent();
 				}
 			} while (true);
 		}
@@ -885,20 +894,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			list.removeIf(p -> !p.canMergeWith(puzzle));
 			list.sort(possibilitySorter._c());
 			possibilites.put(puzzle, list);
-		}
-
-		/**
-		 * Register the result from an {@link Action}. Also determine its new neighbors
-		 * and register them to {@link #neighbors}
-		 * 
-		 * @param fromAction
-		 *            what we just did
-		 */
-		private void registerCandidate(Action fromAction) {
-			if (candidateSorter == Strategy.DUTY_FIRST)
-				registerDutyOfMergedPolyomino(fromAction);
-			registerNeighborsOfMergedPolyomino(fromAction);
-			registerCandidate(fromAction.getResult());
 		}
 
 		/**
