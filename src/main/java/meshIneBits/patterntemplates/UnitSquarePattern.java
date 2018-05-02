@@ -534,6 +534,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			onBorderSaving = true; // Change the way of register new candidate and possibilities
 			if (this.dfsTry() == false) // cannnot save all border units
 				return false;
+			else
+				onBorderSaving = false; // Move to next step
 			// Reset count of action
 			countAction = 1;
 			// Init duty graph on demand
