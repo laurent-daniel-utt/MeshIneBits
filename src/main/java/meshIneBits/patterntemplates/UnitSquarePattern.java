@@ -531,16 +531,19 @@ public class UnitSquarePattern extends PatternTemplate {
 				this.quickRegroup();
 			}
 			neighbors = new ConnectivityGraph();
-			onBorderSaving = true; // Change the way of register new candidate and possibilities
-			if (this.dfsTry() == false) // cannnot save all border units
+			// Init duty graph on demand
+			if (candidateSorter == Strategy.DUTY_FIRST)
+				duty = new DutyGraph();
+			// Change the way of register new candidate and possibilities
+			onBorderSaving = true;
+			this.findCandidates();
+			this.sortCandidates();
+			if (this.dfsTry() == false) // cannot save all border units
 				return false;
 			else
 				onBorderSaving = false; // Move to next step
 			// Reset count of action
 			countAction = 1;
-			// Init duty graph on demand
-			if (candidateSorter == Strategy.DUTY_FIRST)
-				duty = new DutyGraph();
 			this.findCandidates();
 			this.sortCandidates();
 			return this.dfsTry();
@@ -701,7 +704,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		private void findCandidates() {
 			LOGGER.finer("Find candidates and possibilities for each candidate");
 			candidates = new ArrayList<Puzzle>();
-			possibilites = new HashMap<Puzzle, List<Puzzle>>(matrixU.length * matrixU[0].length);
+			possibilites = new HashMap<Puzzle, List<Puzzle>>();
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
 					if (matrixP[i][j] != null)
