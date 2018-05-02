@@ -530,11 +530,15 @@ public class UnitSquarePattern extends PatternTemplate {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
 			}
+			neighbors = new ConnectivityGraph();
+			onBorderSaving = true; // Change the way of register new candidate and possibilities
+			if (this.dfsTry() == false) // cannnot save all border units
+				return false;
+			// Reset count of action
+			countAction = 1;
 			// Init duty graph on demand
 			if (candidateSorter == Strategy.DUTY_FIRST)
 				duty = new DutyGraph();
-
-			neighbors = new ConnectivityGraph();
 			this.findCandidates();
 			this.sortCandidates();
 			return this.dfsTry();
@@ -577,6 +581,23 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private DutyGraph duty;
 
+		private boolean onBorderSaving;
+
+		/**
+		 * Check if no more {@link UnitState#BORDER BORDER} {@link UnitSquare}
+		 * 
+		 * @return <tt>false</tt> if a border unit is not merged into polyominos
+		 */
+		private boolean noMoreBorderUnits() {
+			for (int i = 0; i < matrixU.length; i++) {
+				for (int j = 0; j < matrixU[i].length; j++) {
+					if (matrixU[i][j].state == UnitState.BORDER && matrixP[i][j] != null)
+						return false;
+				}
+			}
+			return true;
+		}
+
 		/**
 		 * For each state of matrix, we check {@link #candidates} from the stop point of
 		 * last {@link Action} to find a puzzle we can merge. Then we merge it, push the
@@ -590,7 +611,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @return
 		 */
 		private boolean dfsTry() {
-			LOGGER.finer("Depth-first Search for solution");
+			if (onBorderSaving)
+				LOGGER.finer("Depth-first search to resolve border units");
+			else
+				LOGGER.finer("Depth-first Search for solution");
 			// Initiate root of actions
 			Action rootAction = null;
 			try {
@@ -619,7 +643,9 @@ public class UnitSquarePattern extends PatternTemplate {
 							+ possibilites.get(childAction.getResult()));
 				} else {
 					// If nothing we can do further
-					if (solutionFound())
+					if (onBorderSaving && noMoreBorderUnits())
+						return true;
+					else if (!onBorderSaving && solutionFound())
 						return true;
 					else {
 						// If there is no more child from root
@@ -844,6 +870,18 @@ public class UnitSquarePattern extends PatternTemplate {
 			candidates.add(0, puzzle); // Push to the first
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
+			// Remove not border units
+			if (onBorderSaving)
+				list.removeIf(p -> {
+					if (!(p instanceof UnitSquare))
+						return true;
+					UnitSquare u = (UnitSquare) p;
+					if (u.state != UnitState.BORDER)
+						return true;
+					// Only retain border unit
+					return false;
+				});
+			// Remove unmergeable puzzles
 			list.removeIf(p -> !p.canMergeWith(puzzle));
 			list.sort(possibilitySorter._c());
 			possibilites.put(puzzle, list);
