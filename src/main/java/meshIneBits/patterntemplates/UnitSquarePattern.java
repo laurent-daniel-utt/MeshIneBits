@@ -358,7 +358,15 @@ public class UnitSquarePattern extends PatternTemplate {
 				"(Only for accepted units and polyominos) Having most contact (direct or semi-direct) with border units",
 				(p1, p2) -> -(p1.getDuty().size() - p2.getDuty().size())),
 
-		BORDER_FIRST("Prioritize the border units", (p1, p2) -> -(p1.getIsolatedLevel() - p2.getIsolatedLevel()));
+		BORDER_FIRST("Prioritize the border units", (p1, p2) -> {
+			double i = p1.getIsolatedLevel() - p2.getIsolatedLevel();
+			if (i > 0)
+				return -1;
+			else if (i < 0)
+				return 1;
+			else
+				return 0;
+		});
 
 		private String description;
 		private Comparator<Puzzle> comparator;
@@ -435,9 +443,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		public Set<Puzzle> getDuty();
 
 		/**
-		 * @return 3 for border unit, 0 for accepted unit or polyomino
+		 * @return 3 (+0.1 -> 0.8) for border unit, 0 for accepted unit or polyomino
 		 */
-		public int getIsolatedLevel();
+		public double getIsolatedLevel();
 	}
 
 	/**
@@ -897,7 +905,12 @@ public class UnitSquarePattern extends PatternTemplate {
 				});
 			// Remove unmergeable puzzles
 			list.removeIf(p -> !p.canMergeWith(puzzle));
-			list.sort(possibilitySorter._c());
+			// Sort possibilities
+			if (onBorderSaving)
+				list.sort(Strategy.BORDER_FIRST._c());
+			else
+				list.sort(possibilitySorter._c());
+			// Register
 			possibilites.put(puzzle, list);
 		}
 
@@ -1159,13 +1172,47 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			@Override
-			public int getIsolatedLevel() {
+			public double getIsolatedLevel() {
 				switch (this.state) {
 				case BORDER:
-					return 3;
+					return 3 + this.getOrphanLevel();
 				default:
 					return 0;
 				}
+			}
+
+			/**
+			 * @return the number of non {@link UnitState#ACCEPTED ACCEPTED}
+			 *         {@link UnitSquare}s around
+			 */
+			private double getOrphanLevel() {
+				int count = 0;
+				// Top
+				if (_i > 0 && matrixU[_i - 1][_j].state != UnitState.ACCEPTED)
+					count++;
+				// Bottom
+				if (_i + 1 < matrixU.length && matrixU[_i + 1][_j].state != UnitState.ACCEPTED)
+					count++;
+				// Left
+				if (_j > 0 && matrixU[_i][_j - 1].state != UnitState.ACCEPTED)
+					count++;
+				// Right
+				if (_j + 1 < matrixU[_i].length && matrixU[_i][_j + 1].state != UnitState.ACCEPTED)
+					count++;
+				// Top-left
+				if (_i > 0 && _j > 0 && matrixU[_i - 1][_j - 1].state != UnitState.ACCEPTED)
+					count++;
+				// Top-right
+				if (_i > 0 && _j + 1 < matrixU[_i].length && matrixU[_i - 1][_j + 1].state != UnitState.ACCEPTED)
+					count++;
+				// Bottom-right
+				if (_i + 1 < matrixU.length && _j + 1 < matrixU[_i + 1].length
+						&& matrixU[_i + 1][_j + 1].state != UnitState.ACCEPTED)
+					count++;
+				// Bottom-left
+				if (_i + 1 < matrixU.length && _j > 0 && matrixU[_i + 1][_j - 1].state != UnitState.ACCEPTED)
+					count++;
+				return count / 10;
 			}
 		}
 
@@ -1627,7 +1674,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			@Override
-			public int getIsolatedLevel() {
+			public double getIsolatedLevel() {
 				return 0;
 			}
 		}
