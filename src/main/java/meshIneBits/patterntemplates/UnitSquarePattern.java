@@ -604,8 +604,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		private boolean noMoreBorderUnits() {
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
-					if (matrixU[i][j].state == UnitState.BORDER && matrixP[i][j] != null)
+					if (matrixU[i][j].state == UnitState.BORDER && matrixP[i][j] == null) {
+						LOGGER.finest(matrixU[i][j] + " is not rescued");
 						return false;
+					}
 				}
 			}
 			return true;
