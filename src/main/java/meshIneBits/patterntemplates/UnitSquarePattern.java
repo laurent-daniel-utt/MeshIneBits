@@ -554,7 +554,41 @@ public class UnitSquarePattern extends PatternTemplate {
 			countAction = 1;
 			this.findCandidates();
 			this.sortCandidates();
-			return this.dfsTry();
+			this.quickPave();
+			return true;
+			// return this.dfsTry();
+		}
+
+		/**
+		 * Quickly pave the rest of zone without using dfs
+		 */
+		private void quickPave() {
+			for (int i = 0; i < matrixP.length; i++) {
+				for (int j = 0; j < matrixP[i].length; j++) {
+					UnitSquare u = matrixU[i][j];
+					if (u.state != UnitState.IGNORED) {
+						Puzzle p = (matrixP[i][j] == null ? u : matrixP[i][j]);
+
+						// Check concat to the left
+						if (j > 0) {
+							Puzzle pLeft = (matrixP[i][j - 1] == null ? matrixU[i][j - 1] : matrixP[i][j - 1]);
+							if (p.canMergeWith(pLeft)) {
+								p = p.merge(pLeft);
+								registerPuzzle(p);
+							}
+						}
+
+						// Check concat to the top
+						if (i > 0) {
+							Puzzle pTop = (matrixP[i - 1][j] == null ? matrixU[i - 1][j] : matrixP[i - 1][j]);
+							if (p.canMergeWith(pTop)) {
+								p = p.merge(pTop);
+								registerPuzzle(p);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		/**
@@ -1585,28 +1619,17 @@ public class UnitSquarePattern extends PatternTemplate {
 			}
 
 			/**
-			 * Connect 2 polyominos
-			 * 
-			 * @param thatPolyomino
-			 * @return
-			 */
-			public boolean add(Polyomino thatPolyomino) {
-				return super.addAll(thatPolyomino);
-			}
-
-			/**
 			 * General connect
 			 * 
 			 * @param puzzle
 			 * @return
-			 * @see {@link #add(Polyomino)}
 			 * @see {@link #add(UnitSquare)}
 			 */
 			public boolean add(Puzzle puzzle) {
 				if (puzzle instanceof UnitSquare) {
 					return this.add((UnitSquare) puzzle);
 				} else if (puzzle instanceof Polyomino) {
-					return this.add((Polyomino) puzzle);
+					return this.addAll((Polyomino) puzzle);
 				}
 				return false;
 			}
@@ -1624,7 +1647,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			@Override
 			public Polyomino merge(Puzzle other) {
 				Polyomino p = new Polyomino();
-				p.add(this);
+				p.addAll(this);
 				boolean success = p.add(other);
 				if (success) {
 					return p;
@@ -1641,14 +1664,12 @@ public class UnitSquarePattern extends PatternTemplate {
 				return p == null ? true : !this.equals(matrixP[u._i][u._j]);
 			}
 
-			/**
-			 * @param puzzle
-			 * 
-			 */
 			@Override
 			public boolean canMergeWith(Puzzle puzzle) {
 				if (this.isEmpty())
 					return true;
+				if (this.equals(puzzle)) // Cannot merge with itself
+					return false;
 				if (!this.contains(puzzle) && this.touch(puzzle) && this.isStillValidIfAdding(puzzle))
 					return true;
 				else
