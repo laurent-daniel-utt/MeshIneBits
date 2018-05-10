@@ -565,26 +565,28 @@ public class UnitSquarePattern extends PatternTemplate {
 		private void quickPave() {
 			for (int i = 0; i < matrixP.length; i++) {
 				for (int j = 0; j < matrixP[i].length; j++) {
-					UnitSquare u = matrixU[i][j];
-					if (u.state != UnitState.IGNORED) {
-						Puzzle p = (matrixP[i][j] == null ? u : matrixP[i][j]);
+					Puzzle p = (matrixP[i][j] != null ? matrixP[i][j]
+							: matrixU[i][j].state == UnitState.ACCEPTED ? matrixU[i][j] : null);
+					if (p == null)
+						continue;
 
-						// Check concat to the left
-						if (j > 0) {
-							Puzzle pLeft = (matrixP[i][j - 1] == null ? matrixU[i][j - 1] : matrixP[i][j - 1]);
-							if (p.canMergeWith(pLeft)) {
-								p = p.merge(pLeft);
-								registerPuzzle(p);
-							}
+					// Check concat to the left
+					if (j > 0) {
+						Puzzle pLeft = (matrixP[i][j - 1] != null ? matrixP[i][j - 1]
+								: matrixU[i][j - 1].state == UnitState.ACCEPTED ? matrixU[i][j - 1] : null);
+						if (p.canMergeWith(pLeft)) {
+							p = p.merge(pLeft);
+							registerPuzzle(p);
 						}
+					}
 
-						// Check concat to the top
-						if (i > 0) {
-							Puzzle pTop = (matrixP[i - 1][j] == null ? matrixU[i - 1][j] : matrixP[i - 1][j]);
-							if (p.canMergeWith(pTop)) {
-								p = p.merge(pTop);
-								registerPuzzle(p);
-							}
+					// Check concat to the top
+					if (i > 0) {
+						Puzzle pTop = (matrixP[i - 1][j] != null ? matrixP[i - 1][j]
+								: matrixU[i - 1][j].state == UnitState.ACCEPTED ? matrixU[i - 1][j] : null);
+						if (p.canMergeWith(pTop)) {
+							p = p.merge(pTop);
+							registerPuzzle(p);
 						}
 					}
 				}
@@ -1666,6 +1668,8 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public boolean canMergeWith(Puzzle puzzle) {
+				if (puzzle == null) // Cannot merge with null
+					return false;
 				if (this.isEmpty())
 					return true;
 				if (this.equals(puzzle)) // Cannot merge with itself
