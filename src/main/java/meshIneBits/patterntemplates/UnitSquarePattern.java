@@ -225,7 +225,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	@Override
 	public String getDescription() {
-		return "This pattern defines systematically possible position of Lift Points, basing on which we will create a regular bit.";
+		return "This pattern transforms the to-be-filled zone into a grid of unit squares, which we will regroup into regular bits later.";
 	}
 
 	@Override
@@ -302,7 +302,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 *            default
 	 * @see Strategy
 	 */
-	public void setCandidatesSorter(String name) {
+	private void setCandidatesSorter(String name) {
 		try {
 			this.candidateSorter = Strategy.valueOf(name.toUpperCase());
 		} catch (Exception e) {
@@ -316,7 +316,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 *            default
 	 * @see Strategy
 	 */
-	public void setPossibilitiesSorter(String name) {
+	private void setPossibilitiesSorter(String name) {
 		try {
 			this.possibilitySorter = Strategy.valueOf(name.toUpperCase());
 		} catch (Exception e) {
@@ -538,25 +538,25 @@ public class UnitSquarePattern extends PatternTemplate {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
 			}
+			// Init graph of neighbors
 			neighbors = new ConnectivityGraph();
 			// Init duty graph on demand
-			if (candidateSorter == Strategy.DUTY_FIRST)
-				duty = new DutyGraph();
-			// Change the way of register new candidate and possibilities
-			onBorderSaving = true;
+			duty = new DutyGraph();
+			// Choose strategy of sorting candidates
+			setCandidatesSorter("DUTY_FIRST");
+			// Choose strategy of sorting possibilities
+			setPossibilitiesSorter("BORDER_FIRST");
+			// Establish matrix of candidates and possibilities
 			this.findCandidates();
 			this.sortCandidates();
+			// Try to cover the border first
 			if (this.dfsTry() == false) // cannot save all border units
 				return false;
-			else
-				onBorderSaving = false; // Move to next step
-			// Reset count of action
-			countAction = 1;
-			this.findCandidates();
-			this.sortCandidates();
+			// Else
+			// We pave as quickly as possibile
+			// We might optimize later
 			this.quickPave();
 			return true;
-			// return this.dfsTry();
 		}
 
 		/**
@@ -594,33 +594,21 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * A candidate is a puzzle before {@link #dfsTry()}. This stack should be sorted
-		 * in descendant by<br>
-		 * <ol>
-		 * <li>Largest</li>
-		 * <li>Top most</li>
-		 * <li>Left most</li>
-		 * </ol>
-		 * <br>
-		 * A candidate has to be either a {@link Polyomino} or {@link UnitState#ACCEPTED
-		 * ACCEPTED} {@link UnitSquare}.
+		 * A candidate is a puzzle to try as trigger of concatenation in
+		 * {@link #dfsTry()}. It has to be either a {@link Polyomino} or
+		 * {@link UnitState#ACCEPTED ACCEPTED} {@link UnitSquare}.
 		 */
 		private List<Puzzle> candidates;
 
 		/**
-		 * Each candidate comes with a list of neighbors. That list should be sorted in
-		 * descendant by<br>
-		 * <ol>
-		 * <li>Largest</li>
-		 * <li>Top most</li>
-		 * <li>Left most</li>
-		 * </ol>
+		 * Each candidate comes with a list of possibilities, which are in fact puzzles
+		 * that can couple with that candidate
 		 */
 		private Map<Puzzle, List<Puzzle>> possibilites;
 
 		/**
-		 * Graph of links between non {@link UnitState#IGNORED} {@link UnitSquare}s and
-		 * {@link Polyomino}s
+		 * Graph of direct contacts between non {@link UnitState#IGNORED}
+		 * {@link UnitSquare}s and {@link Polyomino}s
 		 */
 		private ConnectivityGraph neighbors;
 
@@ -629,8 +617,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * ACCEPTED} {@link UnitSquare} and {@link Polyomino}
 		 */
 		private DutyGraph duty;
-
-		private boolean onBorderSaving;
 
 		/**
 		 * Check if no more {@link UnitState#BORDER BORDER} {@link UnitSquare}
@@ -650,22 +636,11 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * For each state of matrix, we check {@link #candidates} from the stop point of
-		 * last {@link Action} to find a puzzle we can merge. Then we merge it, push the
-		 * new {@link Polyomino} into {@link #candidates}.<br>
-		 * 
-		 * If we cannot find any more candidate, check: <br>
-		 * 1. No more isolated border units --> print out (and stop)<br>
-		 * 2. Exist an isolated border units --> failed --> revert and try with other
-		 * P_i <br>
-		 * 
-		 * @return
+		 * Try to cover the border by trying in order each candidate with each its
+		 * possibility
 		 */
 		private boolean dfsTry() {
-			if (onBorderSaving)
-				LOGGER.finer("Depth-first search to resolve border units");
-			else
-				LOGGER.finer("Depth-first Search for solution");
+			LOGGER.finer("Depth-first search to resolve border units");
 			// Initiate root of actions
 			Action rootAction = null;
 			try {
@@ -698,16 +673,8 @@ public class UnitSquarePattern extends PatternTemplate {
 							+ "Neighbors of target=" + neighbors.of(childAction.getTarget()) + "\r\n" + "Possibilites="
 							+ possibilites.get(childAction.getResult()));
 				} else {
-					// If nothing we can do further
-					if (onBorderSaving) {
-						// If we are currently try to cover borders
-						if (noMoreBorderUnits())
-							return true;
-					} else {
-						// If we are currently try to fill stage
-						if (solutionFound())
-							return true;
-					}
+					if (noMoreBorderUnits())
+						return true;
 					// In case of condition not being fulfilled yet
 					// If there is no more child from root
 					if (currentAction.equals(rootAction))
@@ -722,23 +689,23 @@ public class UnitSquarePattern extends PatternTemplate {
 			} while (true);
 		}
 
-		/**
-		 * Check if the current state of matrixP satisfies
-		 * 
-		 * @return <tt>true</tt> if each non-{@link UnitState#IGNORED IGNORED}
-		 *         {@link UnitSquare} ({@link UnitState#ACCEPTED ACCEPTED} or
-		 *         {@link UnitState#BORDER BORDER}) belongs to one {@link Polyomino}
-		 */
-		private boolean solutionFound() {
-			for (int i = 0; i < matrixP.length; i++) {
-				for (int j = 0; j < matrixP[i].length; j++) {
-					// If a non ignored unit belongs to no polyomino
-					if (matrixU[i][j].state != UnitState.IGNORED && matrixP[i][j] == null)
-						return false;
-				}
-			}
-			return true;
-		}
+		// /**
+		// * Check if the current state of matrixP satisfies
+		// *
+		// * @return <tt>true</tt> if each non-{@link UnitState#IGNORED IGNORED}
+		// * {@link UnitSquare} ({@link UnitState#ACCEPTED ACCEPTED} or
+		// * {@link UnitState#BORDER BORDER}) belongs to one {@link Polyomino}
+		// */
+		// private boolean solutionFound() {
+		// for (int i = 0; i < matrixP.length; i++) {
+		// for (int j = 0; j < matrixP[i].length; j++) {
+		// // If a non ignored unit belongs to no polyomino
+		// if (matrixU[i][j].state != UnitState.IGNORED && matrixP[i][j] == null)
+		// return false;
+		// }
+		// }
+		// return true;
+		// }
 
 		/**
 		 * Given current state of {@link #matrixP} and {@link #matrixU}, we find all
@@ -764,12 +731,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * Sort the list of candidates in descending order <br>
-		 * <ol>
-		 * <li>Largest</li>
-		 * <li>Top most</li>
-		 * <li>Left most</li>
-		 * </ol>
+		 * Sort the list of candidates using {@link Strategy} defined by
+		 * {@link UnitSquarePattern#candidateSorter}
 		 */
 		private void sortCandidates() {
 			LOGGER.finer("Sort candidates by " + candidateSorter.toString() + "(" + candidateSorter._d() + ")");
@@ -777,7 +740,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		}
 
 		/**
-		 * A quick regrouping {@link UnitSquare} at the border with
+		 * A quick regrouping {@link UnitSquare}s at the border with
 		 * {@link UnitState#ACCEPTED accepted} one. Not deterministic
 		 */
 		private void quickRegroup() {
@@ -912,12 +875,8 @@ public class UnitSquarePattern extends PatternTemplate {
 
 		/**
 		 * Add a new {@link Puzzle} to list of {@link #candidates} for further try. Also
-		 * figure out its possibilities in a descendant order.<br>
-		 * <ol>
-		 * <li>Largest</li>
-		 * <li>Top most</li>
-		 * <li>Left most</li>
-		 * </ol>
+		 * figure out its possibilities and sort them by
+		 * {@link UnitSquarePattern#possibilitySorter}
 		 * 
 		 * @param puzzle
 		 *            Its connectivities should be already saved in {@link #neighbors}
@@ -931,23 +890,19 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Calculate its possibilities
 			List<Puzzle> list = new ArrayList<Puzzle>(neighbors.of(puzzle));
 			// Remove not border units
-			if (onBorderSaving)
-				list.removeIf(p -> {
-					if (!(p instanceof UnitSquare))
-						return true;
-					UnitSquare u = (UnitSquare) p;
-					if (u.state != UnitState.BORDER)
-						return true;
-					// Only retain border unit
-					return false;
-				});
+			list.removeIf(p -> {
+				if (!(p instanceof UnitSquare))
+					return true;
+				UnitSquare u = (UnitSquare) p;
+				if (u.state != UnitState.BORDER)
+					return true;
+				// Only retain border unit
+				return false;
+			});
 			// Remove unmergeable puzzles
 			list.removeIf(p -> !p.canMergeWith(puzzle));
 			// Sort possibilities
-			if (onBorderSaving)
-				list.sort(Strategy.BORDER_FIRST._c());
-			else
-				list.sort(possibilitySorter._c());
+			list.sort(possibilitySorter._c());
 			// Register
 			possibilites.put(puzzle, list);
 		}
@@ -1006,14 +961,14 @@ public class UnitSquarePattern extends PatternTemplate {
 		@Override
 		public String toString() {
 			StringBuilder str = new StringBuilder();
-			str.append("[\n");
+			str.append("[\r\n");
 			for (int i = 0; i < matrixU.length; i++) {
 				str.append(i + "[");
 				for (int j = 0; j < matrixU[i].length; j++) {
 					str.append(matrixU[i][j].state);
 					str.append(",");
 				}
-				str.append("]\n");
+				str.append("]\r\n");
 			}
 			str.append("]");
 			return str.toString();
@@ -1022,7 +977,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		public String pToString() {
 			Set<Polyomino> setPolyominos = this.collectPolyominos();
 			StringBuilder str = new StringBuilder("Representations of polyominos in matrix\n");
-			str.append("[\n");
+			str.append("[\r\n");
 			for (int i = 0; i < matrixP.length; i++) {
 				str.append(i + "[");
 				for (int j = 0; j < matrixP[i].length; j++) {
@@ -1033,11 +988,11 @@ public class UnitSquarePattern extends PatternTemplate {
 						str.append("0,");
 					}
 				}
-				str.append("]\n");
+				str.append("]\r\n");
 			}
-			str.append("]\n");
+			str.append("]\r\n");
 			for (Polyomino p : setPolyominos) {
-				str.append(p.toString() + "\n");
+				str.append(p.toString() + "\r\n");
 			}
 			return str.toString();
 		}
