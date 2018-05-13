@@ -11,7 +11,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import meshIneBits.config.patternParameter.DoubleListParam;

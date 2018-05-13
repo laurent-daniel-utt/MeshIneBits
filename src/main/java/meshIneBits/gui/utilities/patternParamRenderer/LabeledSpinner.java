@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
