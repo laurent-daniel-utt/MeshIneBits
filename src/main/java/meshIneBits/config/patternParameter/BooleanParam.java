@@ -3,6 +3,7 @@
  */
 package meshIneBits.config.patternParameter;
 
+import meshIneBits.gui.utilities.patternParamRenderer.Checkbox;
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
@@ -58,7 +59,6 @@ public class BooleanParam extends PatternParameter {
 
 	@Override
 	public Renderer getRenderer() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Checkbox(this);
 	}
 }
