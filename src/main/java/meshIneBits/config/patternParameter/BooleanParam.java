@@ -3,6 +3,8 @@
  */
 package meshIneBits.config.patternParameter;
 
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
+
 /**
  * @author Quoc Nhat Han TRAN
  *
@@ -52,5 +54,11 @@ public class BooleanParam extends PatternParameter {
 	public String toString() {
 		return "Boolean[name=" + codename + ", title=" + title + ", description=" + description + ", defaultValue="
 				+ defaultValue + ", currentValue=" + currentValue + "]";
+	}
+
+	@Override
+	public Renderer getRenderer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

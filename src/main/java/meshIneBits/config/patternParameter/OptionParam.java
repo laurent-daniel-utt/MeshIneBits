@@ -5,6 +5,8 @@ package meshIneBits.config.patternParameter;
 
 import java.util.List;
 
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
+
 /**
  * List of options to choose one
  * 
@@ -69,5 +71,11 @@ public class OptionParam extends PatternParameter {
 	public String toString() {
 		return "DoubleList[name=" + codename + ", title=" + title + ", description=" + description + ", values="
 				+ values + ", defaultValue=" + defaultValue + ", currentValue=" + currentValue + "]";
+	}
+
+	@Override
+	public Renderer getRenderer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

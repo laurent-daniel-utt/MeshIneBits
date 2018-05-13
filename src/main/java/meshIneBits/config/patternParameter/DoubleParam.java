@@ -5,7 +5,8 @@ package meshIneBits.config.patternParameter;
 
 import java.util.List;
 
-import meshIneBits.gui.utilities.LabeledSpinner;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
  * To be used in couple with {@link LabeledSpinner}
@@ -222,5 +223,10 @@ public class DoubleParam extends PatternParameter {
 
 	public Double getStep() {
 		return step;
+	}
+
+	@Override
+	public Renderer getRenderer() {
+		return new LabeledSpinner(this);
 	}
 }

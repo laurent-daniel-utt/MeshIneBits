@@ -1,4 +1,4 @@
-package meshIneBits.gui.utilities;
+package meshIneBits.gui.utilities.patternParamRenderer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,7 +22,7 @@ import meshIneBits.config.patternParameter.DoubleListParam;
  * @author NHATHAN
  *
  */
-public class LabeledListReceiver extends JPanel {
+public class LabeledListReceiver extends Renderer {
 
 	private JLabel btnName;
 	private DoubleListParam dlconfig;

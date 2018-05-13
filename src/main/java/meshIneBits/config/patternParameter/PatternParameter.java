@@ -5,6 +5,8 @@ package meshIneBits.config.patternParameter;
 
 import java.io.Serializable;
 
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
+
 /**
  * Describe a parameter of pattern <br>
  * 
@@ -62,4 +64,9 @@ public abstract class PatternParameter implements Serializable {
 	 * @return encoded string
 	 */
 	public abstract String toString();
+
+	/**
+	 * @return gui of parameter
+	 */
+	public abstract Renderer getRenderer();
 }

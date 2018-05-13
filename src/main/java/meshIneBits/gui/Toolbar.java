@@ -57,11 +57,11 @@ import meshIneBits.config.patternParameter.PatternParameter;
 import meshIneBits.gui.processing.ProcessingView;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
-import meshIneBits.gui.utilities.LabeledListReceiver;
-import meshIneBits.gui.utilities.LabeledSpinner;
 import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.gui.utilities.RibbonTab;
 import meshIneBits.gui.utilities.TabContainerSeparator;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledListReceiver;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view2d.Controller;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
@@ -1081,12 +1081,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 			public void setupPatternParameters() {
 				this.removeAll();
 				for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-					if (paramConfig instanceof DoubleParam) {
-						this.add(new LabeledSpinner((DoubleParam) paramConfig));
-					}
-					if (paramConfig instanceof DoubleListParam) {
-						this.add(new LabeledListReceiver((DoubleListParam) paramConfig));
-					}
+					this.add(paramConfig.getRenderer());
 				}
 			}
 
@@ -1100,22 +1095,12 @@ public class Toolbar extends JTabbedPane implements Observer {
 				this.removeAll();
 				for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
 					PatternParameter importParam = config.get(param.getCodename());
-					if (param instanceof DoubleParam) {
-						// Update current value
-						if (importParam != null) {
-							param.setCurrentValue(importParam.getCurrentValue());
-						}
-						// Then show
-						this.add(new LabeledSpinner((DoubleParam) param));
+					// Update current value
+					if (importParam != null) {
+						param.setCurrentValue(importParam.getCurrentValue());
 					}
-					if (param instanceof DoubleListParam) {
-						// Update current value
-						if (importParam != null) {
-							param.setCurrentValue(importParam.getCurrentValue());
-						}
-						// Then show
-						this.add(new LabeledListReceiver((DoubleListParam) param));
-					}
+					// Then show
+					this.add(param.getRenderer());
 				}
 			}
 

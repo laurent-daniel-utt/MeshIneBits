@@ -6,7 +6,8 @@ package meshIneBits.config.patternParameter;
 import java.util.ArrayList;
 import java.util.List;
 
-import meshIneBits.gui.utilities.LabeledListReceiver;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledListReceiver;
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
  * To be used in couple with {@link LabeledListReceiver}
@@ -226,6 +227,11 @@ public class DoubleListParam extends PatternParameter {
 		return "DoubleList[name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
 				+ minValue + ", maxValue=" + maxValue + ", defaultValue=" + defaultValue + ", step=" + step
 				+ ", currentValue=" + currentValue + "]";
+	}
+
+	@Override
+	public Renderer getRenderer() {
+		return new LabeledListReceiver(this);
 	}
 
 }

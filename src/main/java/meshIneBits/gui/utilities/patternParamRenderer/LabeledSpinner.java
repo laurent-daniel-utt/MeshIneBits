@@ -1,4 +1,4 @@
-package meshIneBits.gui.utilities;
+package meshIneBits.gui.utilities.patternParamRenderer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 import meshIneBits.config.Setting;
 import meshIneBits.config.patternParameter.DoubleParam;
 
-public class LabeledSpinner extends JPanel {
+public class LabeledSpinner extends Renderer {
 
 	private static final long serialVersionUID = 6726754934854914029L;
 
