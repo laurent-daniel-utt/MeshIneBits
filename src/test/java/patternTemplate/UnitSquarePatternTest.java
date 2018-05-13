@@ -27,7 +27,7 @@ import meshIneBits.patterntemplates.UnitSquarePattern;
  */
 class UnitSquarePatternTest {
 
-	private final static Logger LOGGER = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternTest.class);
+	final static Logger LOGGER = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternTest.class);
 
 	UnitSquarePattern patternTemplate;
 	GeneratedPart part;
@@ -50,6 +50,8 @@ class UnitSquarePatternTest {
 	void testSphereScenario() {
 		LOGGER.info("Scenario Sphere");
 		setUpPart("Sphere.stl");
+		patternTemplate.setApplyQuickRegroup(true);
+		patternTemplate.setLimitAction(10000);
 		// The slicer runs on a different thread
 		// We need to wait until it settles down
 		waitSlicerDone();
@@ -150,7 +152,7 @@ class UnitSquarePatternTest {
 
 		// For instance, we only test the first layer
 		LOGGER.warning("We only try optimize one single layer");
-		Layer layerToTest = part.getLayers().get(2);
+		Layer layerToTest = part.getLayers().get(0);
 		int res = patternTemplate.optimize(layerToTest);
 		if (res < 0)
 			LOGGER.warning("Optimization failed on layer " + layerToTest.getLayerNumber());
