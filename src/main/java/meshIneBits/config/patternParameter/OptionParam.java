@@ -5,7 +5,7 @@ package meshIneBits.config.patternParameter;
 
 import java.util.List;
 
-import meshIneBits.gui.utilities.patternParamRenderer.OptionSelector;
+import meshIneBits.gui.utilities.patternParamRenderer.Selector;
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
@@ -90,6 +90,6 @@ public class OptionParam extends PatternParameter {
 
 	@Override
 	public Renderer getRenderer() {
-		return new OptionSelector(this);
+		return new Selector(this);
 	}
 }

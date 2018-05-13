@@ -20,7 +20,7 @@ import meshIneBits.config.patternParameter.OptionParam;
  * @author Quoc Nhat Han TRAN
  *
  */
-public class OptionSelector extends Renderer {
+public class Selector extends Renderer {
 
 	/**
 	 * 
@@ -34,7 +34,7 @@ public class OptionSelector extends Renderer {
 	/**
 	 * @param config
 	 */
-	public OptionSelector(OptionParam config) {
+	public Selector(OptionParam config) {
 		super();
 		this.config = config;
 		this.initGUI();
