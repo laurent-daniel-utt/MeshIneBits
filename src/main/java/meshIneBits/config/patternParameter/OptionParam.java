@@ -5,6 +5,7 @@ package meshIneBits.config.patternParameter;
 
 import java.util.List;
 
+import meshIneBits.gui.utilities.patternParamRenderer.OptionSelector;
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
@@ -73,9 +74,22 @@ public class OptionParam extends PatternParameter {
 				+ values + ", defaultValue=" + defaultValue + ", currentValue=" + currentValue + "]";
 	}
 
+	/**
+	 * @return possible choices
+	 */
+	public List<String> getChoices() {
+		return values;
+	}
+
+	/**
+	 * @return default value
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
 	@Override
 	public Renderer getRenderer() {
-		// TODO Auto-generated method stub
-		return null;
+		return new OptionSelector(this);
 	}
 }
