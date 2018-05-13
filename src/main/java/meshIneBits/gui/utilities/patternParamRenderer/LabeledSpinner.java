@@ -3,7 +3,6 @@ package meshIneBits.gui.utilities.patternParamRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.lang.reflect.Field;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -52,7 +51,7 @@ public class LabeledSpinner extends Renderer {
 			attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
 			attribute.setAccessible(true);
 			defaultValue = attribute.getDouble(attribute);
-			
+
 			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
 					parameters.step()));
 			spinner.addChangeListener(new ChangeListener() {
@@ -74,11 +73,9 @@ public class LabeledSpinner extends Renderer {
 	}
 
 	/**
-	 * This constructor is only for attributes whose type is {@link Double}. For the
-	 * {@link List}, use {@link LabeledListReceiver}.
+	 * This constructor is to render {@link DoubleParam}
 	 * 
 	 * @param config
-	 *            a parameter of type {@link Double}
 	 */
 	public LabeledSpinner(DoubleParam config) {
 		// Visual options

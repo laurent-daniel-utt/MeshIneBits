@@ -16,7 +16,8 @@ import javax.swing.border.EmptyBorder;
 import meshIneBits.config.patternParameter.DoubleListParam;
 
 /**
- * Contains a label and a text area, which receive multiple input
+ * Contains a label and a text area, which receive multiple input.<br>
+ * Renders {@link DoubleListParam}
  * 
  * @author NHATHAN
  *
@@ -35,10 +36,9 @@ public class LabeledListReceiver extends Renderer {
 	private static final long serialVersionUID = 5463905865176363388L;
 
 	/**
-	 * Only for entering {@link List} of {@link Double}
+	 * Render {@link DoubleListParam}
 	 * 
 	 * @param config
-	 *            a specified setting for a certain parameter
 	 */
 	public LabeledListReceiver(DoubleListParam config) {
 		this.dlconfig = config;
@@ -57,8 +57,7 @@ public class LabeledListReceiver extends Renderer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String s = (String) JOptionPane.showInputDialog(null, msgInstruction,
-						convertToString());
+				String s = (String) JOptionPane.showInputDialog(null, msgInstruction, convertToString());
 				if (s != null) {
 					// Just change the value in case
 					// user hits Ok button
