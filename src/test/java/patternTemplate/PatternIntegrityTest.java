@@ -25,16 +25,16 @@ public abstract class PatternIntegrityTest {
 	/**
 	 * Initialize this logger when subclass
 	 */
-	static Logger LOGGER;
+	protected static Logger LOGGER;
 
 	/**
 	 * Change type to a subclass of {@link PatternTemplate} when subclass
 	 */
-	PatternTemplate pattern;
+	protected PatternTemplate pattern;
 
-	Model model;
+	protected Model model;
 
-	GeneratedPart part;
+	protected GeneratedPart part;
 
 	/**
 	 * Subclass can change this depending on size of test sample and algorithm
