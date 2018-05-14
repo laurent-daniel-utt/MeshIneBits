@@ -27,15 +27,13 @@ public class BooleanParam extends PatternParameter {
 	 * @param defaultValue
 	 *            which value this parameter should hold at first or when meet a
 	 *            wrong setting
-	 * @param currentValue
-	 *            current state of parameter
 	 */
-	public BooleanParam(String name, String title, String description, boolean defaultValue, boolean currentValue) {
+	public BooleanParam(String name, String title, String description, boolean defaultValue) {
 		this.title = title;
 		this.codename = name;
 		this.description = description;
 		this.defaultValue = defaultValue;
-		this.currentValue = currentValue;
+		this.currentValue = defaultValue;
 	}
 
 	@Override
