@@ -23,7 +23,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
@@ -95,9 +95,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public void initiateConfig() {
-		config.add(new PatternParameterConfig(HORIZONTAL_MARGIN, "Horizontal margin",
+		config.add(new DoubleParam(HORIZONTAL_MARGIN, "Horizontal margin",
 				"A little space allowing Lift Point move horizontally", 1.0, 100.0, 2.0, 1.0));
-		config.add(new PatternParameterConfig(VERTICAL_MARGIN, "Vertical margin",
+		config.add(new DoubleParam(VERTICAL_MARGIN, "Vertical margin",
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
 	}
 

@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -40,8 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -49,20 +46,18 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.MeshIneBitsMain;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
-import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.PatternParameter;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
-import meshIneBits.gui.utilities.LabeledListReceiver;
-import meshIneBits.gui.utilities.LabeledSpinner;
 import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.gui.utilities.RibbonTab;
 import meshIneBits.gui.utilities.TabContainerSeparator;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view2d.Controller;
 import meshIneBits.gui.view3d.ProcessingView;
 import meshIneBits.patterntemplates.PatternTemplate;
@@ -785,8 +780,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 					setupAnnotations.get("firstSliceHeightPercent"));
 			slicerCont.add(sliceHeightSpinner);
 			slicerCont.add(firstSliceHeightPercentSpinner);
-			addConfigSpinnerChangeListener(sliceHeightSpinner, "sliceHeight");
-			addConfigSpinnerChangeListener(firstSliceHeightPercentSpinner, "firstSliceHeightPercent");
 
 			add(slicerCont);
 
@@ -944,12 +937,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 			add(computeCont);
 
 			// Actions listener
-			addConfigSpinnerChangeListener(bitThicknessSpinner, "bitThickness");
-			addConfigSpinnerChangeListener(bitWidthSpinner, "bitWidth");
-			addConfigSpinnerChangeListener(bitLengthSpinner, "bitLength");
-			addConfigSpinnerChangeListener(layersOffsetSpinner, "layersOffset");
-			addConfigSpinnerChangeListener(minPercentageOfSlicesSpinner, "minPercentageOfSlices");
-			addConfigSpinnerChangeListener(defaultSliceToSelectSpinner, "defaultSliceToSelect");
 
 			computeTemplateBtn.addActionListener(new ActionListener() {
 				@Override
@@ -1090,16 +1077,8 @@ public class Toolbar extends JTabbedPane implements Observer {
 			 */
 			public void setupPatternParameters() {
 				this.removeAll();
-				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-					if (paramConfig.getCurrentValue() instanceof Double) {
-						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
-						addPatternParameterListener(spinner, paramConfig);
-						this.add(spinner);
-					}
-					if (paramConfig.getCurrentValue() instanceof List<?>) {
-						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
-						this.add(listReceiver);
-					}
+				for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
+					this.add(paramConfig.getRenderer());
 				}
 			}
 
@@ -1111,68 +1090,18 @@ public class Toolbar extends JTabbedPane implements Observer {
 			 */
 			public void setupPatternParameters(PatternConfig config) {
 				this.removeAll();
-				for (PatternParameterConfig paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-					if (paramConfig.getCurrentValue() instanceof Double) {
-						// Update current value
-						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
-						if (importParam != null) {
-							paramConfig.setCurrentValue(importParam.getCurrentValue());
-						}
-						// Then show
-						LabeledSpinner spinner = new LabeledSpinner(paramConfig);
-						addPatternParameterListener(spinner, paramConfig);
-						this.add(spinner);
+				for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
+					PatternParameter importParam = config.get(param.getCodename());
+					// Update current value
+					if (importParam != null) {
+						param.setCurrentValue(importParam.getCurrentValue());
 					}
-					if (paramConfig.getCurrentValue() instanceof List<?>) {
-						// Update current value
-						PatternParameterConfig importParam = config.get(paramConfig.uniqueName);
-						if (importParam != null) {
-							paramConfig.setCurrentValue(importParam.getCurrentValue());
-						}
-						// Then show
-						LabeledListReceiver listReceiver = new LabeledListReceiver(paramConfig);
-						this.add(listReceiver);
-					}
+					// Then show
+					this.add(param.getRenderer());
 				}
 			}
 
 		}
-	}
-
-	/**
-	 * Only for double-type static field of {@link CraftConfig}.
-	 * 
-	 * @param spinner
-	 * @param configFieldName
-	 */
-	private void addConfigSpinnerChangeListener(LabeledSpinner spinner, String configFieldName) {
-		spinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				try {
-					Field f = CraftConfig.class.getField(configFieldName);
-					f.setDouble(null, spinner.getValue());
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	private void addPatternParameterListener(LabeledSpinner spinner, PatternParameterConfig config) {
-		spinner.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				config.setCurrentValue(spinner.getValue());
-			}
-		});
 	}
 
 	/**

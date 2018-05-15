@@ -8,7 +8,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Logger;
@@ -159,19 +159,19 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 * Attempt to resolve by moving the bit in 4 directions.
 	 * 
 	 * Prioritizing the height's sides. If the obtained state has less irregular
-	 * bits, we will follow that way. Note: we also try to cover what we left
-	 * behind by a full bit.
+	 * bits, we will follow that way. Note: we also try to cover what we left behind
+	 * by a full bit.
 	 * 
 	 * @param pattern
-	 *            the selected pattern in the layer. This method will work on
-	 *            its clone
+	 *            the selected pattern in the layer. This method will work on its
+	 *            clone
 	 * @param boundary
 	 *            used to re-validate the attempt
 	 * @param irBitKey
 	 *            the key of the bit to try
-	 * @return the first direction which reduce the total number of irregular
-	 *         bits in the pattern. Null if no way to get better state.
-	 *         Calculated in local coordinate system of input b.it
+	 * @return the first direction which reduce the total number of irregular bits
+	 *         in the pattern. Null if no way to get better state. Calculated in
+	 *         local coordinate system of input b.it
 	 */
 	private Vector2 attemptToSolve(Pattern pattern, Slice boundary, Vector2 irBitKey) {
 		// Initial number of irregularities
@@ -234,15 +234,15 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 * To push forward a bit into one direction.
 	 * 
 	 * Automatically reduce back every bit in front of it. The step of push is
-	 * determined by direction, either a half of {@link CraftConfig#bitLength}
-	 * or {@link CraftConfig#bitWidth}
+	 * determined by direction, either a half of {@link CraftConfig#bitLength} or
+	 * {@link CraftConfig#bitWidth}
 	 * 
 	 * @param actualState
 	 * @param keyOfBitToMove
 	 *            key of the bitToMove
 	 * @param localDirectionToPush
-	 *            in the coordinate system of the bitToMove. Either (1, 0), (-1,
-	 *            0), (0, 1), (0, -1).
+	 *            in the coordinate system of the bitToMove. Either (1, 0), (-1, 0),
+	 *            (0, 1), (0, -1).
 	 * @return new origin of bit after being pushed into the given direction
 	 */
 	private Vector2 pushBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 localDirectionToPush) {
@@ -351,8 +351,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 * @param actualState
 	 *            the selected pattern
 	 * @param localDirectionToReduce
-	 *            in the coordinate system of bit. Should be either (0, 1), (0,
-	 *            -1), (1, 0), (-1, 0).
+	 *            in the coordinate system of bit. Should be either (0, 1), (0, -1),
+	 *            (1, 0), (-1, 0).
 	 * @param lengthToReduce
 	 *            in millimeter. If greater than sides, the bit will be removed.
 	 * @return origin of reduced bit. Null if bit is removed.
@@ -425,16 +425,16 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	/**
 	 * To check if the second input bit is directly in front of the first one.
 	 * 
-	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D, Pattern)
-	 * checkAdjacence} before this.
+	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D, Pattern) checkAdjacence}
+	 * before this.
 	 * 
 	 * @param bit1
 	 *            the first input bit (reference bit)
 	 * @param bit2
 	 *            the second input bit (bit to check)
 	 * @param localDirection
-	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0),
-	 *            (0, -1), (-1, 0)
+	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0), (0,
+	 *            -1), (-1, 0)
 	 * @return true if 2 bits' sides have common length.
 	 */
 	private boolean checkInFront(Bit2D bit1, Bit2D bit2, Vector2 localDirection) {
@@ -463,8 +463,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	}
 
 	/**
-	 * Check if the second bit's center is in front of the first one's side,
-	 * given the direction.
+	 * Check if the second bit's center is in front of the first one's side, given
+	 * the direction.
 	 * 
 	 * Ensure to use {@link #checkInFront(Bit2D, Bit2D, Vector2) checkInFront}
 	 * before this.
@@ -474,8 +474,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 * @param bit2
 	 *            the second input bit (bit to check)
 	 * @param localDirection
-	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0),
-	 *            (0, -1), (-1, 0)
+	 *            in the local coordinate system of bit1. Either (0, 1), (1, 0), (0,
+	 *            -1), (-1, 0)
 	 * @return <tt>true</tt> if the second bit's center is in front of the first
 	 *         one's side
 	 */
@@ -527,12 +527,12 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	public String getIconName() {
 		return "p3.png";
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "A pattern improved from classic Brick Pattern with much more flexibility.";
 	}
-	
+
 	@Override
 	public String getHowToUse() {
 		return "You can add incremental rotations or displacement for layers.";
@@ -541,19 +541,19 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	@Override
 	public void initiateConfig() {
 		// bitsLengthSpace
-		config.add(new PatternParameterConfig("bitsLengthSpace", "Space between bits' lengths",
+		config.add(new DoubleParam("bitsLengthSpace", "Space between bits' lengths",
 				"The gap between two consecutive bits' lengths (in mm)", 1.0, 100.0, 1.0, 1.0));
 		// bitsWidthSpace
-		config.add(new PatternParameterConfig("bitsWidthSpace", "Space between bits' widths",
+		config.add(new DoubleParam("bitsWidthSpace", "Space between bits' widths",
 				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 5.0, 1.0));
 		// diffRotation
-		config.add(new PatternParameterConfig("diffRotation", "Differential rotation",
+		config.add(new DoubleParam("diffRotation", "Differential rotation",
 				"Rotation of a layer in comparison to the previous one (in degrees °)", 90.0, 360.0, 0.0, 0.1));
 		// diffxOffset
-		config.add(new PatternParameterConfig("diffxOffset", "Differential X offset",
+		config.add(new DoubleParam("diffxOffset", "Differential X offset",
 				"Offset in the X-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
 		// diffyOffset
-		config.add(new PatternParameterConfig("diffyOffset", "Differential Y offset",
+		config.add(new DoubleParam("diffyOffset", "Differential Y offset",
 				"Offset in the Y-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
 
 	}

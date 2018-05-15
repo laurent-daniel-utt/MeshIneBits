@@ -17,7 +17,8 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.PatternParameterConfig;
+import meshIneBits.config.patternParameter.DoubleListParam;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
@@ -36,13 +37,12 @@ import meshIneBits.util.Vector2;
 public class EconomicPattern extends PatternTemplate {
 
 	/**
-	 * Contains all offsets for trying to rotate this layer, in order to not
-	 * have the same rotation with the previous layer.
+	 * Contains all offsets for trying to rotate this layer, in order to not have
+	 * the same rotation with the previous layer.
 	 */
 	private double[] trialRotations;
 	/**
-	 * Contains all offsets for trying to dislocate the first line following
-	 * y-axe.
+	 * Contains all offsets for trying to dislocate the first line following y-axe.
 	 */
 	private double[] trialHeightOffsets;
 	/**
@@ -311,8 +311,10 @@ public class EconomicPattern extends PatternTemplate {
 		}
 		Vector<Bit2D> bandPavement = new Vector<Bit2D>();
 		for (int idx = 0; idx < trialLengthOffsets.length; idx++) {
-//			System.out.println("Band: W " + band.getBounds2D().getWidth() + " H " + band.getBounds2D().getHeight()
-//					+ " - Height to build: " + bandHeight + " - Essay of length:" + trialLengthOffsets[idx]);
+			// System.out.println("Band: W " + band.getBounds2D().getWidth() + " H " +
+			// band.getBounds2D().getHeight()
+			// + " - Height to build: " + bandHeight + " - Essay of length:" +
+			// trialLengthOffsets[idx]);
 			// Save the rest area
 			Area unpavedSpace = (Area) band.clone();
 			// Initial parameters
@@ -566,28 +568,28 @@ public class EconomicPattern extends PatternTemplate {
 	@Override
 	public void initiateConfig() {
 		// bitsLengthSpace
-		config.add(new PatternParameterConfig("bitsLengthSpace", "Space between bits' lengths",
+		config.add(new DoubleParam("bitsLengthSpace", "Space between bits' lengths",
 				"The gap between two consecutive bits' lengths (in mm)", 1.0, 100.0, 1.0, 1.0));
 		// bitsWidthSpace
-		config.add(new PatternParameterConfig("bitsWidthSpace", "Space between bits' widths",
+		config.add(new DoubleParam("bitsWidthSpace", "Space between bits' widths",
 				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 1.0, 1.0));
 		// trialLengthRatioOffsets
 		double[] x = { 0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };
-		ArrayList<java.lang.Double> trialLengthRatios = new ArrayList<>(x.length);
+		List<java.lang.Double> trialLengthRatios = new ArrayList<java.lang.Double>(x.length);
 		for (int i = 0; i < x.length; i++) {
 			trialLengthRatios.add(java.lang.Double.valueOf(x[i]));
 		}
-		config.add(new PatternParameterConfig("trialLengthRatioOffsets", "Trial length's ratios",
+		config.add(new DoubleListParam("trialLengthRatioOffsets", "Trial length's ratios",
 				"This helps us in finding the most suitable length for the first bit of a line."
 						+ "\nThese ratios should be distinct between 0 and 1." + "\nOtherwise values will be filtered.",
 				0.0, 1.0, trialLengthRatios, 0.001));
 		// trialHeightRatioOffsets
 		double[] y = { 0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };
-		ArrayList<java.lang.Double> trialHeightRatios = new ArrayList<>(y.length);
+		List<java.lang.Double> trialHeightRatios = new ArrayList<java.lang.Double>(y.length);
 		for (int i = 0; i < y.length; i++) {
 			trialHeightRatios.add(java.lang.Double.valueOf(y[i]));
 		}
-		config.add(new PatternParameterConfig("trialHeightRatioOffsets", "Trial height's ratios",
+		config.add(new DoubleListParam("trialHeightRatioOffsets", "Trial height's ratios",
 				"This helps us in finding the most suitable height for the first line of the pavement."
 						+ "\nThese ratios should be distinct between 0 and 1." + "\nOtherwise values will be filtered.",
 				0.0, 1.0, trialHeightRatios, 0.001));
@@ -596,11 +598,11 @@ public class EconomicPattern extends PatternTemplate {
 				45, 135, // 2nd level
 				30, 60, 120, 150, // 3rd level
 		};
-		ArrayList<java.lang.Double> trialDiffAngles = new ArrayList<>(z.length);
+		List<java.lang.Double> trialDiffAngles = new ArrayList<java.lang.Double>(z.length);
 		for (int i = 0; i < z.length; i++) {
 			trialDiffAngles.add(java.lang.Double.valueOf(z[i]));
 		}
-		config.add(new PatternParameterConfig("trialDiffAngles", "Trial differential angles",
+		config.add(new DoubleListParam("trialDiffAngles", "Trial differential angles",
 				"This helps us in finding the most suitable rotation of a layer in comparision with the previous one,"
 						+ " in order not to have 2 layers having same rotation."
 						+ "\nThese angles should be distinct between 0 and 180."
