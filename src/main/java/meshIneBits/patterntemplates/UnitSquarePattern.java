@@ -69,15 +69,13 @@ public class UnitSquarePattern extends PatternTemplate {
 	private double unitWidth;
 
 	/**
-	 * A bit requires at least <tt>n x m</tt> unit squares to cover itself. This is
-	 * maximum length of a
+	 * Maximum length of a
 	 * {@link meshIneBits.patterntemplates.UnitSquarePattern.UnitMatrix.Polyomino
 	 * Polyomino} if it lies horizontally
 	 */
 	private double maxPLength;
 	/**
-	 * A bit requires at least <tt>n x m</tt> unit squares to cover itself. This is
-	 * the maximum width of a
+	 * Maximum width of a
 	 * {@link meshIneBits.patterntemplates.UnitSquarePattern.UnitMatrix.Polyomino
 	 * Polyomino} if it lies horizontally
 	 */
