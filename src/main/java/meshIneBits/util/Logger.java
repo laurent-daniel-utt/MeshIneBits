@@ -1,6 +1,11 @@
 package meshIneBits.util;
 
+import java.util.Date;
 import java.util.HashSet;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Logging class, has static functions for logging.
@@ -9,6 +14,7 @@ import java.util.HashSet;
  * version can show a nice progress dialog.
  */
 public class Logger {
+	
 	private static HashSet<LoggingInterface> loggers = new HashSet<LoggingInterface>();
 
 	public static void error(String error) {
@@ -52,5 +58,25 @@ public class Logger {
 		for (LoggingInterface li : loggers) {
 			li.warning(warning);
 		}
+	}
+
+	public static java.util.logging.Logger createSimpleInstanceFor(Class<?> cls) {
+		final String simpleName = cls.getSimpleName();
+		java.util.logging.Logger mainLogger = java.util.logging.Logger.getLogger(simpleName);
+		mainLogger.setUseParentHandlers(false);
+		ConsoleHandler handler = new ConsoleHandler();
+		mainLogger.setLevel(Level.ALL);
+		handler.setLevel(Level.ALL);
+		handler.setFormatter(new SimpleFormatter() {
+			private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
+
+			@Override
+			public synchronized String format(LogRecord lr) {
+				return String.format(format, new Date(lr.getMillis()), lr.getLevel().getName(),
+						lr.getMessage(), simpleName);
+			}
+		});
+		mainLogger.addHandler(handler);
+		return mainLogger;
 	}
 }

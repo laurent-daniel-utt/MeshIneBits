@@ -11,11 +11,11 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
 import meshIneBits.GeneratedPart;
-import meshIneBits.gui.processing.ProcessingModelView;
-import meshIneBits.gui.processing.ProcessingView;
 import meshIneBits.gui.view2d.Controller;
 import meshIneBits.gui.view2d.Window;
 import meshIneBits.gui.view2d.Wrapper;
+import meshIneBits.gui.view3d.ProcessingModelView;
+import meshIneBits.gui.view3d.ProcessingView;
 
 /**
  * Main window should only contain menu bar, toolbar, log and status bar. Every
