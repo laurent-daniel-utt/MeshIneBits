@@ -23,6 +23,7 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
@@ -97,6 +98,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				"A little space allowing Lift Point move horizontally", 1.0, 100.0, 2.0, 1.0));
 		config.add(new DoubleParam(VERTICAL_MARGIN, "Vertical margin",
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
+		config.add(new BooleanParam("applyQuickRegroup", "Use quick regroup",
+				"Allow pattern to regroup some border units before actually resolving", true));
 	}
 
 	/*
@@ -233,8 +236,19 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	private boolean applyQuickRegroup = false;
 
+	/**
+	 * Set the pattern to use quick regroup some border units before actually resolving
+	 * @param b
+	 */
 	public void setApplyQuickRegroup(boolean b) {
 		applyQuickRegroup = b;
+	}
+	
+	/**
+	 * Update {@link #applyQuickRegroup} 
+	 */
+	private void updateApplyQuickRegroup() {
+		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
 	}
 
 	/**
@@ -532,6 +546,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
+			// Update the choice on applying quick regroup
+			updateApplyQuickRegroup();
 			if (applyQuickRegroup) {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
