@@ -5,6 +5,8 @@ package meshIneBits.config;
 
 import java.util.HashMap;
 
+import meshIneBits.config.patternParameter.PatternParameter;
+
 /**
  * This class is to declare all parameters which are customizable by users. All
  * for the sake of saving configurations.
@@ -12,14 +14,14 @@ import java.util.HashMap;
  * @author NHATHAN
  *
  */
-public class PatternConfig extends HashMap<String, PatternParameterConfig> {
+public class PatternConfig extends HashMap<String, PatternParameter> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2295740737265238707L;
 
-	public void add(PatternParameterConfig paramConf) {
-		this.put(paramConf.uniqueName, paramConf);
+	public void add(PatternParameter paramConf) {
+		this.put(paramConf.getCodename(), paramConf);
 	}
 }

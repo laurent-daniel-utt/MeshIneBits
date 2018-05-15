@@ -1,21 +1,20 @@
-package meshIneBits.gui.utilities;
+package meshIneBits.gui.utilities.patternParamRenderer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.lang.reflect.Field;
-import java.util.List;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import meshIneBits.config.PatternParameterConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.DoubleParam;
 
-public class LabeledSpinner extends JPanel {
+public class LabeledSpinner extends Renderer {
 
 	private static final long serialVersionUID = 6726754934854914029L;
 
@@ -46,52 +45,59 @@ public class LabeledSpinner extends JPanel {
 		lblName = new JLabel(parameters.title());
 		lblName.setToolTipText(parameters.description());
 		this.add(lblName, BorderLayout.WEST);
-		Field attribute;
+		final Field attribute;
 		double defaultValue = 0;
 		try {
 			attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
 			attribute.setAccessible(true);
 			defaultValue = attribute.getDouble(attribute);
+
+			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
+					parameters.step()));
+			spinner.addChangeListener(new ChangeListener() {
+
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					try {
+						attribute.setDouble(null, (double) spinner.getValue());
+					} catch (IllegalArgumentException | IllegalAccessException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			this.add(spinner, BorderLayout.EAST);
 		} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
 				| IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		spinner = new JSpinner(
-				new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(), parameters.step()));
-		this.add(spinner, BorderLayout.EAST);
 	}
 
 	/**
-	 * This constructor is only for attributes whose type is {@link Double}.
-	 * For the {@link List}, use {@link LabeledListReceiver}.
+	 * This constructor is to render {@link DoubleParam}
 	 * 
-	 * @param config a specified setting for a certain parameter
+	 * @param config
 	 */
-	public LabeledSpinner(PatternParameterConfig config) {
-		if (!(config.defaultValue instanceof Double)) {
-			return;
-		}
+	public LabeledSpinner(DoubleParam config) {
 		// Visual options
 		this.setLayout(new BorderLayout());
 		this.setBackground(Color.WHITE);
 		this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
 		// Setting up
-		lblName = new JLabel(config.title);
-		lblName.setToolTipText("<html><div>" + config.description + "</div></html>");
+		lblName = new JLabel(config.getTitle());
+		lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
 		this.add(lblName, BorderLayout.WEST);
 
-		spinner = new JSpinner(new SpinnerNumberModel((double) config.getCurrentValue(), (double) config.minValue,
-				(double) config.maxValue, (double) config.step));
+		spinner = new JSpinner(new SpinnerNumberModel(config.getCurrentValue(), config.getMinValue(),
+				config.getMaxValue(), config.getStep()));
+		spinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				config.setCurrentValue(spinner.getValue());
+			}
+		});
 		this.add(spinner, BorderLayout.EAST);
 
-	}
-
-	public void addChangeListener(ChangeListener listener) {
-		spinner.addChangeListener(listener);
-	}
-
-	public Double getValue() {
-		return (Double) spinner.getValue();
 	}
 }
