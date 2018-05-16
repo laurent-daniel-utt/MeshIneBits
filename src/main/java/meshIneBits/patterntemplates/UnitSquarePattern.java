@@ -100,6 +100,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
 		config.add(new BooleanParam("applyQuickRegroup", "Use quick regroup",
 				"Allow pattern to regroup some border units before actually resolving", true));
+		config.add(new DoubleParam("limitActions", "Depth of search", "Number of actions to take before giving up", 1.0,
+				1000000.0, 10000.0, 1.0));
 	}
 
 	/*
@@ -143,6 +145,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		LOGGER.info("Paving layer " + actualState.getLayerNumber());
 		// Calculate size of unit square
 		this.calcUnitSizeAndLimits();
+		// Update the choice on applying quick regroup
+		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
+		// Limit depth of search
+		limitActions = (int) Math.round((double) config.get("limitActions").getCurrentValue());
 		// Get the boundary
 		Vector<Area> zones = AreaTool.getLevel0AreasFrom(actualState.getSelectedSlice());
 		// Sum of pavement
@@ -244,13 +250,6 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	public void setApplyQuickRegroup(boolean b) {
 		applyQuickRegroup = b;
-	}
-
-	/**
-	 * Update {@link #applyQuickRegroup}
-	 */
-	private void updateApplyQuickRegroup() {
-		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
 	}
 
 	/**
@@ -548,8 +547,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
-			// Update the choice on applying quick regroup
-			updateApplyQuickRegroup();
 			if (applyQuickRegroup) {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
