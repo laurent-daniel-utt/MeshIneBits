@@ -158,6 +158,8 @@ public abstract class PatternIntegrityTest {
 
 		logger.warning("We only try optimize one random layer");
 		Layer layerToTest = getRandomLayer();
+		if (layerToTest == null)
+			fail("No layer to test");
 		int res = pattern.optimize(layerToTest);
 		if (res < 0)
 			logger.warning("Optimization failed on layer " + layerToTest.getLayerNumber());
@@ -171,11 +173,14 @@ public abstract class PatternIntegrityTest {
 	}
 
 	/**
-	 * @return a random layer
+	 * 
+	 * @return a random layer. <tt>null</tt> if {@link #part} is empty
 	 */
 	private Layer getRandomLayer() {
 		List<Layer> layers = part.getLayers();
-		int i = (int) Math.round(Math.random() * layers.size());
+		if (layers.isEmpty())
+			return null;
+		int i = (int) Math.round(Math.random() * (layers.size() - 1));
 		return layers.get(i);
 	}
 }
