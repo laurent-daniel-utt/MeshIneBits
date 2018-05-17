@@ -237,15 +237,17 @@ public class UnitSquarePattern extends PatternTemplate {
 	private boolean applyQuickRegroup = false;
 
 	/**
-	 * Set the pattern to use quick regroup some border units before actually resolving
+	 * Set the pattern to use quick regroup some border units before actually
+	 * resolving
+	 * 
 	 * @param b
 	 */
 	public void setApplyQuickRegroup(boolean b) {
 		applyQuickRegroup = b;
 	}
-	
+
 	/**
-	 * Update {@link #applyQuickRegroup} 
+	 * Update {@link #applyQuickRegroup}
 	 */
 	private void updateApplyQuickRegroup() {
 		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
@@ -1384,10 +1386,10 @@ public class UnitSquarePattern extends PatternTemplate {
 				Vector2 bitOrigin = this.getBitOrigin(bitOrientation, floatpos);
 				Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
 
-				Area bitArea = this.getLimitArea(bit, floatpos);
+				Area bitLimArea = this.getLimArea(floatpos, bitOrientation);
 				Area polyominoArea = this.getUnitedArea();
-				bitArea.intersect(polyominoArea);
-				bit.updateBoundaries(bitArea);
+				bitLimArea.intersect(polyominoArea);
+				bit.updateBoundaries(bitLimArea);
 
 				return bit;
 			}
@@ -1486,7 +1488,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					break;
 				case "bottom-left":
 					origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
-							this.boundary.getMaxY() - v / 2 + SAFETY_MARGIN);
+							this.boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
 					break;
 				case "bottom-right":
 					origin = new Vector2(this.boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
@@ -1519,13 +1521,13 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * equal to pattern's parameter. Otherwise, the margin's width would be the
 			 * difference between bit's and polyomino's size.
 			 * 
-			 * @param bit
-			 *            whose origin and orientation are determined
 			 * @param floatpos
 			 *            either "top-left", "top-right", "bottom-left" or "bottom-right"
+			 * @param bitOrientation
+			 *            (0;1) or (1;0)
 			 * @return a rectangular area smaller than boundary
 			 */
-			private Area getLimitArea(Bit2D bit, String floatpos) {
+			private Area getLimArea(String floatpos, Vector2 bitOrientation) {
 				Rectangle2D.Double lim = (Double) this.boundary.clone();
 
 				// Determine the float position of bit
@@ -1533,19 +1535,17 @@ public class UnitSquarePattern extends PatternTemplate {
 				// pos[0] would be "top" or "bottom"
 				// pos[1] would be "left" or "right"
 
-				double bitHorizontalLength = bit.getLength(), bitVerticalLength = bit.getWidth();
-				Vector2 bitOrientation = bit.getOrientation();
+				double bitHorizontalLength = CraftConfig.bitLength, bitVerticalLength = CraftConfig.bitWidth;
 				if (bitOrientation.x == 0 && bitOrientation.y == 1) {// If vertical
-					bitHorizontalLength = bit.getWidth();
-					bitVerticalLength = bit.getLength();
+					bitHorizontalLength = CraftConfig.bitWidth;
+					bitVerticalLength = CraftConfig.bitLength;
 				}
 
 				double horizontalMarginAroundBit;
 				if (this.boundary.width <= bitHorizontalLength) {
 					// We will put in a margin whose width is equal to pattern's parameter
 					// "horizontal margin"
-					horizontalMarginAroundBit = (double) UnitSquarePattern.this.config.get(HORIZONTAL_MARGIN)
-							.getCurrentValue();
+					horizontalMarginAroundBit = (double) config.get(HORIZONTAL_MARGIN).getCurrentValue();
 				} else {
 					// Margin will be difference between boundary's size and bit's
 					horizontalMarginAroundBit = this.boundary.width - bitHorizontalLength;
@@ -1561,8 +1561,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				if (this.boundary.height <= bitVerticalLength) {
 					// We will put in a margin whose width is equal to pattern's parameter
 					// "vertical margin"
-					verticalMarginAroundBit = (double) UnitSquarePattern.this.config.get(VERTICAL_MARGIN)
-							.getCurrentValue();
+					verticalMarginAroundBit = (double) config.get(VERTICAL_MARGIN).getCurrentValue();
 				} else {
 					// Margin will be difference between boundary's size and bit's
 					verticalMarginAroundBit = this.boundary.height - bitVerticalLength;
