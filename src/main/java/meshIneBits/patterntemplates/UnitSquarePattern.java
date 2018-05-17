@@ -117,7 +117,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public boolean ready(GeneratedPart generatedPart) {
-		return false;
+		return true;
 	}
 
 	/*
