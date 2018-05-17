@@ -5,7 +5,3 @@ bin/
 .classpath
 .project
 .settings/
-/nullmain/
-/nulltest/
-/main/
-/test/
