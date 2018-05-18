@@ -655,14 +655,13 @@ public class UnitSquarePattern extends PatternTemplate {
 		private boolean dfsTry() {
 			LOGGER.finer("Depth-first search to resolve border units");
 			// Initiate root of actions
-			Action rootAction = null;
+			Action currentAction;
 			try {
-				rootAction = new Action(null, null, null);
+				currentAction = new Action(null, null, null);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "Cannot create root of actions", e);
 				return false;
 			}
-			Action currentAction = rootAction;
 			Action childAction = null;
 			do {
 				try {
@@ -690,7 +689,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						return true;
 					// In case of condition not being fulfilled yet
 					// If there is no more child from root
-					if (currentAction.equals(rootAction))
+					if (currentAction.isRoot())
 						return false;
 					// Else
 					// Revert
@@ -1953,6 +1952,13 @@ public class UnitSquarePattern extends PatternTemplate {
 				this.target = target;
 				this.children = new ArrayList<Action>();
 				this.result = null;
+			}
+
+			/**
+			 * @return <tt>true</tt> if no parent, no trigger, no target
+			 */
+			public boolean isRoot() {
+				return parent == null && trigger == null && target == null;
 			}
 
 			/**
