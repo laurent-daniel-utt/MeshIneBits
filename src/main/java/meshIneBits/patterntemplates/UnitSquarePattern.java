@@ -82,6 +82,11 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	private double maxPWidth;
 
+	/**
+	 * To not let bit graze each other
+	 */
+	private final double SAFETY_MARGIN = 1.0;
+
 	private static final String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static final String VERTICAL_MARGIN = "verticalMargin";
 
@@ -1106,13 +1111,6 @@ public class UnitSquarePattern extends PatternTemplate {
 					return false;
 			}
 
-			/**
-			 * @return intersection of this unit and the zone in which it stays
-			 */
-			public Area getArea() {
-				return this.containedArea;
-			}
-
 			@Override
 			public String toString() {
 				return state + "(" + _i + "," + _j + ")";
@@ -1219,6 +1217,70 @@ public class UnitSquarePattern extends PatternTemplate {
 					count++;
 				return count / 10;
 			}
+
+			/**
+			 * Only use this method after resolving completely
+			 * 
+			 * @return this area minus a safe space. <tt>null</tt> if {@link #state} is
+			 *         {@link UnitState#IGNORED IGNORED}
+			 */
+			public Area getSafeArea() {
+				if (state == UnitState.IGNORED)
+					return null;
+				Rectangle2D.Double r = (Double) super.clone();
+				// Reduce border
+				// Top
+				if (_i > 0 && matrixP[_i - 1][_j] != null && matrixP[_i - 1][_j] != matrixP[_i][_j]) {
+					r.y += SAFETY_MARGIN;
+					r.height -= SAFETY_MARGIN;
+				}
+				// Bottom
+				if (_i + 1 < matrixP.length && matrixP[_i + 1][_j] != null && matrixP[_i + 1][_j] != matrixP[_i][_j]) {
+					r.height -= SAFETY_MARGIN;
+				}
+				// Left
+				if (_j > 0 && matrixP[_i][_j - 1] != null && matrixP[_i][_j - 1] != matrixP[_i][_j]) {
+					r.x += SAFETY_MARGIN;
+					r.width -= SAFETY_MARGIN;
+				}
+				// Right
+				if (_j + 1 < matrixP[_i].length && matrixP[_i][_j + 1] != null
+						&& matrixP[_i][_j + 1] != matrixP[_i][_j]) {
+					r.width -= SAFETY_MARGIN;
+				}
+				// Intersect area
+				Area a = (Area) this.containedArea.clone();
+				a.intersect(new Area(r));
+				// Whittle corners
+				// Reset r
+				r = new Rectangle2D.Double();
+				// Top-right
+				if (_i > 0 && _j + 1 < matrixP[_i].length && matrixP[_i - 1][_j + 1] != null
+						&& matrixP[_i - 1][_j + 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Top-left
+				if (_i > 0 && _j > 0 && matrixP[_i - 1][_j - 1] != null && matrixP[_i - 1][_j - 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMinX(), this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Bottom-left
+				if (_i + 1 < matrixP.length && _j > 0 && matrixP[_i + 1][_j - 1] != null
+						&& matrixP[_i + 1][_j - 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMinX(), this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Bottom-right
+				if (_i + 1 < matrixP.length && _j + 1 < matrixP[_i].length && matrixP[_i + 1][_j + 1] != null
+						&& matrixP[_i + 1][_j + 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN,
+							SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+
+				return a;
+			}
 		}
 
 		/**
@@ -1241,11 +1303,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				super();
 				this.id = countPolyomino++;
 			}
-
-			/**
-			 * To not let bit float into the sides
-			 */
-			private final double SAFETY_MARGIN = 1.0;
 
 			/**
 			 * Always check {@link #canMergeWith(Puzzle)} before hand
@@ -1506,7 +1563,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			private Area getUnitedArea() {
 				Area union = new Area();
-				this.stream().forEach(unit -> union.add(unit.getArea()));
+				this.stream().forEach(unit -> union.add(unit.getSafeArea()));
 				return union;
 			}
 
