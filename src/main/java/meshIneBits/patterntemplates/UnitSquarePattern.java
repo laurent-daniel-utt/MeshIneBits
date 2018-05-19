@@ -82,6 +82,11 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	private double maxPWidth;
 
+	/**
+	 * To not let bit graze each other
+	 */
+	private final double SAFETY_MARGIN = 1.0;
+
 	private static final String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static final String VERTICAL_MARGIN = "verticalMargin";
 
@@ -100,6 +105,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
 		config.add(new BooleanParam("applyQuickRegroup", "Use quick regroup",
 				"Allow pattern to regroup some border units before actually resolving", true));
+		config.add(new DoubleParam("limitActions", "Depth of search", "Number of actions to take before giving up", 1.0,
+				1000000.0, 10000.0, 1.0));
 	}
 
 	/*
@@ -115,7 +122,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	@Override
 	public boolean ready(GeneratedPart generatedPart) {
-		return false;
+		return true;
 	}
 
 	/*
@@ -143,6 +150,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		LOGGER.info("Paving layer " + actualState.getLayerNumber());
 		// Calculate size of unit square
 		this.calcUnitSizeAndLimits();
+		// Update the choice on applying quick regroup
+		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
+		// Limit depth of search
+		limitActions = (int) Math.round((double) config.get("limitActions").getCurrentValue());
 		// Get the boundary
 		Vector<Area> zones = AreaTool.getLevel0AreasFrom(actualState.getSelectedSlice());
 		// Sum of pavement
@@ -244,13 +255,6 @@ public class UnitSquarePattern extends PatternTemplate {
 	 */
 	public void setApplyQuickRegroup(boolean b) {
 		applyQuickRegroup = b;
-	}
-
-	/**
-	 * Update {@link #applyQuickRegroup}
-	 */
-	private void updateApplyQuickRegroup() {
-		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
 	}
 
 	/**
@@ -548,8 +552,6 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		public boolean resolve() {
 			LOGGER.fine("Resolve this matrix");
-			// Update the choice on applying quick regroup
-			updateApplyQuickRegroup();
 			if (applyQuickRegroup) {
 				LOGGER.finer("Apply quick regroup strategy");
 				this.quickRegroup();
@@ -658,14 +660,13 @@ public class UnitSquarePattern extends PatternTemplate {
 		private boolean dfsTry() {
 			LOGGER.finer("Depth-first search to resolve border units");
 			// Initiate root of actions
-			Action rootAction = null;
+			Action currentAction;
 			try {
-				rootAction = new Action(null, null, null);
+				currentAction = new Action(null, null, null);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "Cannot create root of actions", e);
 				return false;
 			}
-			Action currentAction = rootAction;
 			Action childAction = null;
 			do {
 				try {
@@ -693,7 +694,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						return true;
 					// In case of condition not being fulfilled yet
 					// If there is no more child from root
-					if (currentAction.equals(rootAction))
+					if (currentAction.isRoot())
 						return false;
 					// Else
 					// Revert
@@ -1110,13 +1111,6 @@ public class UnitSquarePattern extends PatternTemplate {
 					return false;
 			}
 
-			/**
-			 * @return intersection of this unit and the zone in which it stays
-			 */
-			public Area getArea() {
-				return this.containedArea;
-			}
-
 			@Override
 			public String toString() {
 				return state + "(" + _i + "," + _j + ")";
@@ -1223,6 +1217,70 @@ public class UnitSquarePattern extends PatternTemplate {
 					count++;
 				return count / 10;
 			}
+
+			/**
+			 * Only use this method after resolving completely
+			 * 
+			 * @return this area minus a safe space. <tt>null</tt> if {@link #state} is
+			 *         {@link UnitState#IGNORED IGNORED}
+			 */
+			public Area getSafeArea() {
+				if (state == UnitState.IGNORED)
+					return null;
+				Rectangle2D.Double r = (Double) super.clone();
+				// Reduce border
+				// Top
+				if (_i > 0 && matrixP[_i - 1][_j] != null && matrixP[_i - 1][_j] != matrixP[_i][_j]) {
+					r.y += SAFETY_MARGIN;
+					r.height -= SAFETY_MARGIN;
+				}
+				// Bottom
+				if (_i + 1 < matrixP.length && matrixP[_i + 1][_j] != null && matrixP[_i + 1][_j] != matrixP[_i][_j]) {
+					r.height -= SAFETY_MARGIN;
+				}
+				// Left
+				if (_j > 0 && matrixP[_i][_j - 1] != null && matrixP[_i][_j - 1] != matrixP[_i][_j]) {
+					r.x += SAFETY_MARGIN;
+					r.width -= SAFETY_MARGIN;
+				}
+				// Right
+				if (_j + 1 < matrixP[_i].length && matrixP[_i][_j + 1] != null
+						&& matrixP[_i][_j + 1] != matrixP[_i][_j]) {
+					r.width -= SAFETY_MARGIN;
+				}
+				// Intersect area
+				Area a = (Area) this.containedArea.clone();
+				a.intersect(new Area(r));
+				// Whittle corners
+				// Reset r
+				r = new Rectangle2D.Double();
+				// Top-right
+				if (_i > 0 && _j + 1 < matrixP[_i].length && matrixP[_i - 1][_j + 1] != null
+						&& matrixP[_i - 1][_j + 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Top-left
+				if (_i > 0 && _j > 0 && matrixP[_i - 1][_j - 1] != null && matrixP[_i - 1][_j - 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMinX(), this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Bottom-left
+				if (_i + 1 < matrixP.length && _j > 0 && matrixP[_i + 1][_j - 1] != null
+						&& matrixP[_i + 1][_j - 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMinX(), this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN, SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+				// Bottom-right
+				if (_i + 1 < matrixP.length && _j + 1 < matrixP[_i].length && matrixP[_i + 1][_j + 1] != null
+						&& matrixP[_i + 1][_j + 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN,
+							SAFETY_MARGIN);
+					a.subtract(new Area(r));
+				}
+
+				return a;
+			}
 		}
 
 		/**
@@ -1245,11 +1303,6 @@ public class UnitSquarePattern extends PatternTemplate {
 				super();
 				this.id = countPolyomino++;
 			}
-
-			/**
-			 * To not let bit float into the sides
-			 */
-			private final double SAFETY_MARGIN = 1.0;
 
 			/**
 			 * Always check {@link #canMergeWith(Puzzle)} before hand
@@ -1510,7 +1563,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			private Area getUnitedArea() {
 				Area union = new Area();
-				this.stream().forEach(unit -> union.add(unit.getArea()));
+				this.stream().forEach(unit -> union.add(unit.getSafeArea()));
 				return union;
 			}
 
@@ -1956,6 +2009,13 @@ public class UnitSquarePattern extends PatternTemplate {
 				this.target = target;
 				this.children = new ArrayList<Action>();
 				this.result = null;
+			}
+
+			/**
+			 * @return <tt>true</tt> if no parent, no trigger, no target
+			 */
+			public boolean isRoot() {
+				return parent == null && trigger == null && target == null;
 			}
 
 			/**
