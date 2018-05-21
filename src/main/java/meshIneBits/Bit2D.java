@@ -170,7 +170,7 @@ public class Bit2D implements Cloneable {
 	@Override
 	public Bit2D clone() {
 		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(),
-				(AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(), getClonedAreas());
+				(AffineTransform) inverseTransfoMatrix.clone(), getClonedRawCutPaths(), getClonedRawAreas());
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw areas
 	 */
-	public Vector<Area> getClonedAreas() {
+	public Vector<Area> getClonedRawAreas() {
 		Vector<Area> clonedAreas = new Vector<Area>();
 		for (Area a : areas) {
 			clonedAreas.add((Area) a.clone());
@@ -214,7 +214,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw cut paths
 	 */
-	public Vector<Path2D> getClonedCutPaths() {
+	public Vector<Path2D> getClonedRawCutPaths() {
 		if (cutPaths != null) {
 			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
 			for (Path2D p : cutPaths) {
@@ -226,6 +226,10 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * @return clone of cut paths (after transforming into coordinates system of
+	 *         layer)
+	 */
 	public Vector<Path2D> getCutPaths() {
 		if (this.cutPaths == null) {
 			return null;
@@ -238,10 +242,16 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * @return horizontal side
+	 */
 	public double getLength() {
 		return length;
 	}
 
+	/**
+	 * @return orientation in coordinates system of layer
+	 */
 	public Vector2 getOrientation() {
 		return orientation;
 	}
@@ -284,14 +294,28 @@ public class Bit2D implements Cloneable {
 		return areas;
 	}
 
+	/**
+	 * Any change will reflect on bit itself
+	 * 
+	 * @return raw cut paths
+	 */
 	public Vector<Path2D> getRawCutPaths() {
 		return cutPaths;
 	}
 
+	/**
+	 * @return vertical side
+	 */
 	public double getWidth() {
 		return width;
 	}
 
+	/**
+	 * Incorporate new cut paths into bit
+	 * 
+	 * @param paths
+	 *            measured in coordinate system of layer
+	 */
 	public void setCutPath(Vector<Path2D> paths) {
 		if (this.cutPaths == null) {
 			this.cutPaths = new Vector<Path2D>();
@@ -302,6 +326,9 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * Set up the matrix transformation from bit into coordinate system of layer
+	 */
 	private void setTransfoMatrix() {
 
 		transfoMatrix.translate(origin.x, origin.y);
