@@ -173,6 +173,7 @@ public class Segment2D extends AABBrect {
 	 * 
 	 * @param other
 	 * @return
+	 * @see #contains(Vector2)
 	 */
 	public boolean contains(Segment2D other) {
 		return this.contains(other.start) && this.contains(other.end);
