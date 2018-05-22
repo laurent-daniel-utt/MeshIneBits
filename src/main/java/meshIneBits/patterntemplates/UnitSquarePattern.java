@@ -85,7 +85,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	/**
 	 * To not let bit graze each other
 	 */
-	private final double SAFETY_MARGIN = 1.0;
+	private final double SAFETY_MARGIN = 0.5;
 
 	private static final String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static final String VERTICAL_MARGIN = "verticalMargin";
