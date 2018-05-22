@@ -168,4 +168,14 @@ public class Segment2D extends AABBrect {
 		return (v1.dot(v2) == 0);
 	}
 
+	/**
+	 * Check if a segment lies entirely (vertex included) in this
+	 * 
+	 * @param other
+	 * @return
+	 */
+	public boolean contains(Segment2D other) {
+		return this.contains(other.start) && this.contains(other.end);
+	}
+
 }
