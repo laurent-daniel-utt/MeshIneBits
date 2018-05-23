@@ -622,7 +622,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * Each candidate comes with a list of possibilities, which are in fact puzzles
 		 * that can couple with that candidate
 		 */
-		private Map<Puzzle, List<Puzzle>> possibilites;
+		private Map<Puzzle, List<Puzzle>> possibilities;
 
 		/**
 		 * Graph of direct contacts between non {@link UnitState#IGNORED}
@@ -688,7 +688,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					LOGGER.finest("Do " + childAction.toString() + "->" + childAction.getResult() + "\r\n"
 							+ "Neighbors of trigger=" + neighbors.of(childAction.getTrigger()) + "\r\n"
 							+ "Neighbors of target=" + neighbors.of(childAction.getTarget()) + "\r\n" + "Possibilites="
-							+ possibilites.get(childAction.getResult()));
+							+ possibilities.get(childAction.getResult()));
 				} else {
 					if (noMoreBorderUnits())
 						return true;
@@ -734,7 +734,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		private void findCandidates() {
 			LOGGER.finer("Find candidates and possibilities for each candidate");
 			candidates = new ArrayList<Puzzle>();
-			possibilites = new HashMap<Puzzle, List<Puzzle>>();
+			possibilities = new HashMap<Puzzle, List<Puzzle>>();
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
 					if (matrixP[i][j] != null)
@@ -921,7 +921,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			// Sort possibilities
 			list.sort(possibilitySorter._c());
 			// Register
-			possibilites.put(puzzle, list);
+			possibilities.put(puzzle, list);
 		}
 
 		/**
@@ -971,7 +971,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		 */
 		private void unregisterCandidate(Puzzle puzzle) {
 			candidates.remove(puzzle);
-			possibilites.remove(puzzle);
+			possibilities.remove(puzzle);
 			neighbors.remove(puzzle);
 		}
 
@@ -1561,7 +1561,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * 
 			 * @return empty area if this polyomino is empty
 			 */
-			private Area getUnitedArea() {
+			public Area getUnitedArea() {
 				Area union = new Area();
 				this.stream().forEach(unit -> union.add(unit.getSafeArea()));
 				return union;
@@ -2101,7 +2101,7 @@ public class UnitSquarePattern extends PatternTemplate {
 						if (puzzleTrigger.isMerged())
 							continue;
 						// Check its possibilities
-						for (Puzzle puzzleTarget : possibilites.get(puzzleTrigger)) {
+						for (Puzzle puzzleTarget : possibilities.get(puzzleTrigger)) {
 							// If at least a target Puzzle has not been merged
 							// Each puzzle in possibilities list has been confirmed mergeable with trigger
 							if (!puzzleTarget.isMerged())
@@ -2125,7 +2125,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			public Action nextSibling() throws TooDeepSearchException {
 				int resumePointOfTrigger = candidates.indexOf(trigger);
-				List<Puzzle> oldPossibilities = possibilites.get(trigger);
+				List<Puzzle> oldPossibilities = possibilities.get(trigger);
 				int resumtPointOfTarget = oldPossibilities.indexOf(target);
 				// Resume on old list of possibilities of old trigger
 				for (int j = resumtPointOfTarget + 1; j < oldPossibilities.size(); j++) {
@@ -2146,7 +2146,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					Puzzle newTrigger = candidates.get(i);
 					if (newTrigger.isMerged())
 						continue; // skip merged candidates
-					List<Puzzle> listPossibilities = possibilites.get(newTrigger);
+					List<Puzzle> listPossibilities = possibilities.get(newTrigger);
 					for (int j = 0; j < listPossibilities.size(); j++) {
 						// Check if merged
 						Puzzle newTarget = listPossibilities.get(j);
