@@ -4,6 +4,7 @@
 package meshIneBits.patterntemplates;
 
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
@@ -17,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
@@ -107,6 +109,9 @@ public class UnitSquarePattern extends PatternTemplate {
 				"Allow pattern to regroup some border units before actually resolving", true));
 		config.add(new DoubleParam("limitActions", "Depth of search", "Number of actions to take before giving up", 1.0,
 				1000000.0, 10000.0, 1.0));
+		config.add(new DoubleParam("incrementalRotation", "Incremental rotation (deg)",
+				"Positive offset means to rotate the pavement in clockwise order an angle calculated by the ordinal number of the layer. Negative means otherwise.",
+				-180.0, 180.0, 0.0, 1.0));
 	}
 
 	/*
@@ -156,14 +161,24 @@ public class UnitSquarePattern extends PatternTemplate {
 		limitActions = (int) Math.round((double) config.get("limitActions").getCurrentValue());
 		// Get the boundary
 		Vector<Area> zones = AreaTool.getLevel0AreasFrom(actualState.getSelectedSlice());
+		// Rotation
+		double rotation = Math.toRadians(((double) config.get("incrementalRotation").getCurrentValue()) * actualState.getLayerNumber());
+		// Matrix of transformation
+		AffineTransform atmatrix = AffineTransform.getRotateInstance(-rotation);
+		AffineTransform inv = AffineTransform.getRotateInstance(rotation);
 		// Sum of pavement
 		Vector<Bit2D> overallPavement = new Vector<Bit2D>();
 		for (Area zone : zones) {
+			// Transform the zone beforehand
+			zone.transform(atmatrix);
 			// Generate the corresponding matrix
 			UnitMatrix matrix = new UnitMatrix(zone);
 			if (matrix.resolve()) {
 				LOGGER.info("Solution found for " + zone);
-				overallPavement.addAll(matrix.exportBits());
+				// Re-transform bits
+				Set<Bit2D> biasedBits = matrix.exportBits();
+				Set<Bit2D> trueBits = biasedBits.stream().map(bit -> bit.createTransformedBit(inv)).collect(Collectors.toSet());
+				overallPavement.addAll(trueBits);
 				LOGGER.info(matrix.pToString());
 			} else {
 				LOGGER.warning("Pavement of layer " + actualState.getLayerNumber() + " failed.");
