@@ -82,7 +82,7 @@ public abstract class PatternIntegrityTest {
 	 */
 	private void setUpPart(String modelFilename) {
 		try {
-			logger.info("Load Sphere.stl");
+			logger.info("Load " + modelFilename);
 			model = new Model(this.getClass().getResource("/stlModel/" + modelFilename).getPath());
 			model.center();
 		} catch (Exception e) {
