@@ -35,6 +35,7 @@ dependencies {
     compile 'org.processing:core:3.3.5'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
     compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
