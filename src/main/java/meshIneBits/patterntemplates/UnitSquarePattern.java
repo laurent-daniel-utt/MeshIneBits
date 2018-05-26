@@ -160,7 +160,8 @@ public class UnitSquarePattern extends PatternTemplate {
 		// Limit depth of search
 		limitActions = (int) Math.round((double) config.get("limitActions").getCurrentValue());
 		// Get the boundary
-		Vector<Area> zones = AreaTool.getLevel0AreasFrom(actualState.getSelectedSlice());
+//		Vector<Area> zones = AreaTool.getLevel0AreasFrom(actualState.getSelectedSlice());
+		Vector<Area> zones = AreaTool.segregateArea(new Area(AreaTool.getAreaFrom(actualState.getSelectedSlice())));
 		// Rotation
 		double rotation = Math.toRadians(((double) config.get("incrementalRotation").getCurrentValue()) * actualState.getLayerNumber());
 		// Matrix of transformation
