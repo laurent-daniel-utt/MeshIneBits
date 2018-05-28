@@ -239,4 +239,19 @@ public class Polygon implements Iterable<Segment2D> {
 		}
 	}
 
+	/**
+	 * Check if this polygon contains entirely the other
+	 *
+	 * @param other non intersecting with this
+	 * @return <tt>true</tt> if all other's vertices stay inside this
+	 */
+	public boolean contains(Polygon other) {
+		// Each time we check the starting point of each segment
+		for (Iterator<Segment2D> it = other.iterator(); it.hasNext(); ) {
+			Segment2D nextSegment = it.next();
+			if (!this.contains(nextSegment.start))
+				return false;
+		}
+		return true;
+	}
 }
