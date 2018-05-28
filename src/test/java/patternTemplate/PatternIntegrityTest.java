@@ -1,20 +1,19 @@
 package patternTemplate;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Integrity test. Subclass to test each pattern
@@ -48,7 +47,7 @@ public abstract class PatternIntegrityTest {
 	abstract protected void setUp();
 
 	@ParameterizedTest
-	@ValueSource(strings = { "Sphere.stl", "CreuxBoite.stl", "Cylindre.stl", "Tour.stl", "Blob.stl" })
+	@ValueSource(strings = { "Sphere.stl", "HoledBox.stl", "Cylindre.stl", "Tour.stl", "Blob.stl" })
 	protected void testScenario(String modelFilename) {
 		String clname = this.getClass().getSimpleName();
 		logger.info("Integrity test of " + clname + " in scenario " + modelFilename + " starts");
