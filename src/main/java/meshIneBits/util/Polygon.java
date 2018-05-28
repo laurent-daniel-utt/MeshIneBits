@@ -12,6 +12,10 @@ public class Polygon implements Iterable<Segment2D> {
 
 	private Segment2D last = null;
 	private boolean enclosed = false;
+	/**
+	 * Cache of path2D
+	 */
+	private Path2D _path2D = null;
 
 	public Polygon() {
 	}
@@ -190,6 +194,9 @@ public class Polygon implements Iterable<Segment2D> {
 	 * Convert polygon to Path2D. Used to generate area.
 	 */
 	public Path2D toPath2D() {
+		if (_path2D != null)
+			return _path2D;
+		// If not created
 		Vector<Double> x = new Vector<Double>();
 		Vector<Double> y = new Vector<Double>();
 		for (Segment2D s : this) {
@@ -197,14 +204,16 @@ public class Polygon implements Iterable<Segment2D> {
 			y.add(s.start.y);
 		}
 
-		Path2D path = new Path2D.Double();
-		path.moveTo(x.get(0), y.get(0));
+		_path2D = new Path2D.Double();
+		_path2D.moveTo(x.get(0), y.get(0));
 		for (int i = 1; i < x.size(); ++i) {
-			path.lineTo(x.get(i), y.get(i));
+			_path2D.lineTo(x.get(i), y.get(i));
 		}
-		path.closePath();
+		_path2D.closePath();
 
-		return path;
+		_path2D.setWindingRule(Path2D.WIND_EVEN_ODD);
+
+		return _path2D;
 	}
 
 	private class Segment2DIterator implements Iterator<Segment2D> {
