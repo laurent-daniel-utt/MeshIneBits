@@ -11,11 +11,12 @@ public class AreaTool {
 	 * Returns the barycenter of an area
 	 *
 	 * @param area
-	 * @return Barycenter
+	 * @return Barycenter. <tt>null</tt> if area is empty
 	 */
 	public static Vector2 compute2DPolygonCentroid(Area area) {
 
 		Vector<Segment2D> segments = getLargestPolygon(area);
+		if (segments == null) return null;
 
 		Vector<Vector2> vertices = new Vector<Vector2>();
 		for (Segment2D s : segments) {
@@ -78,10 +79,11 @@ public class AreaTool {
 	 * boundary when there is a/some hole(s) in it)
 	 *
 	 * @param area
-	 * @return outside boundaries
+	 * @return outside boundaries. <tt>null</tt> if area is empty
 	 */
 	public static Vector<Segment2D> getLargestPolygon(Area area) {
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+		if (segments.isEmpty()) return null;
 		Vector<Double> boundLength = new Vector<Double>();
 		for (Vector<Segment2D> poly : segments) {
 			double length = 0;
@@ -258,14 +260,15 @@ public class AreaTool {
 	 * around for the sucker cup to work properly. It returns null if this bit
 	 * cannot be lifted.
 	 *
-	 * @param area
-	 * @param minRadius
-	 * @return liftPoint
+	 * @param area surface of bit
+	 * @param minRadius half of {@link CraftConfig#suckerDiameter}
+	 * @return liftPoint. <tt>null</tt> if area is empty
 	 */
 	public static Vector2 getLiftPoint(Area area, double minRadius) {
 
 		// We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
+		if (barycenter == null) return null;
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
 		if (area.contains(barycenter.x, barycenter.y)) {
 			// To be sure every other
