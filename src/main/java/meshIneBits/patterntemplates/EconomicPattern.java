@@ -3,15 +3,6 @@
  */
 package meshIneBits.patterntemplates;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
@@ -23,6 +14,15 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A pattern which tries optimization not by displacing paved bits but rather

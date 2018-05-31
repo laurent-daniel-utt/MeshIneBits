@@ -1,10 +1,10 @@
 package meshIneBits.util;
 
+import meshIneBits.config.CraftConfig;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
-
-import meshIneBits.config.CraftConfig;
 
 /**
  * Vector2 represent a point in a 2D space

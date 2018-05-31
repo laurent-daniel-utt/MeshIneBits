@@ -1,15 +1,15 @@
 package meshIneBits;
 
+import meshIneBits.config.CraftConfig;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.util.Vector;
-
-import meshIneBits.config.CraftConfig;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
