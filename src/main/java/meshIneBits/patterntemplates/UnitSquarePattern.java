@@ -327,8 +327,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		switch (name.toUpperCase()) {
 			case "DUTY_FIRST":
 				this.candidateSorter = Strategy.DUTY_FIRST;
+				break;
 			default:
 				this.candidateSorter = Strategy.NATURAL;
+				break;
 		}
 	}
 
@@ -341,8 +343,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		switch (name.toUpperCase()) {
 			case "BORDER_FIRST":
 				this.candidateSorter = Strategy.BORDER_FIRST;
+				break;
 			default:
 				this.candidateSorter = Strategy.NATURAL;
+				break;
 		}
 	}
 
@@ -466,6 +470,11 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * polyomino
 		 */
 		double getIsolatedLevel();
+
+		/**
+		 * @return surface area contained by this piece
+		 */
+		Area getRawArea();
 	}
 
 	/**
@@ -765,11 +774,6 @@ public class UnitSquarePattern extends PatternTemplate {
 			LOGGER.finer("Quick regrouping border units");
 			// Make each border unit propose to an accepted one
 			proposersRegistry = new HashMap<>();
-			for (UnitSquare[] matrixULine : matrixU) {
-				for (UnitSquare matrixUCase : matrixULine) {
-					proposersRegistry.put(matrixUCase, new HashSet<>());
-				}
-			}
 			for (int i = 0; i < matrixU.length; i++) {
 				for (int j = 0; j < matrixU[i].length; j++) {
 					UnitSquare unit = matrixU[i][j];
@@ -779,25 +783,17 @@ public class UnitSquarePattern extends PatternTemplate {
 						// then propose
 
 						// Above
-						if (i > 0) {
-							if (matrixU[i - 1][j].state == UnitState.ACCEPTED)
-								this.registerProposal(unit, matrixU[i - 1][j]);
-						}
+						if (i > 0 && unit.canMergeWith(matrixU[i - 1][j]))
+							this.registerProposal(unit, matrixU[i - 1][j]);
 						// Below
-						if (i + 1 < matrixU.length) {
-							if (matrixU[i + 1][j].state == UnitState.ACCEPTED)
-								this.registerProposal(unit, matrixU[i + 1][j]);
-						}
+						if (i + 1 < matrixU.length && unit.canMergeWith(matrixU[i + 1][j]))
+							this.registerProposal(unit, matrixU[i + 1][j]);
 						// Left
-						if (j > 0) {
-							if (matrixU[i][j - 1].state == UnitState.ACCEPTED)
-								this.registerProposal(unit, matrixU[i][j - 1]);
-						}
+						if (j > 0 && unit.canMergeWith(matrixU[i][j - 1]))
+							this.registerProposal(unit, matrixU[i][j - 1]);
 						// Right
-						if (j + 1 < matrixU[i].length) {
-							if (matrixU[i][j + 1].state == UnitState.ACCEPTED)
-								this.registerProposal(unit, matrixU[i][j + 1]);
-						}
+						if (j + 1 < matrixU[i].length && unit.canMergeWith(matrixU[i][j + 1]))
+							this.registerProposal(unit, matrixU[i][j + 1]);
 					}
 				}
 			}
@@ -822,15 +818,13 @@ public class UnitSquarePattern extends PatternTemplate {
 					break; // No more proposals to approve
 
 				// Create a polyomino containing target and all proposers
-				Polyomino p = new Polyomino();
-				p.add(target);
+				Polyomino p = new Polyomino(target);
 				Set<UnitSquare> rejectedProposers = new HashSet<>();
 				for (UnitSquare proposer : proposers) {
-					if (!p.canMergeWith(proposer)) {
-						rejectedProposers.add(proposer);
-					} else {
+					if (p.canMergeWith(proposer))
 						p = p.merge(proposer);
-					}
+					else
+						rejectedProposers.add(proposer);
 				}
 				// Register p into matrixP
 				this.registerPuzzle(p);
@@ -876,7 +870,9 @@ public class UnitSquarePattern extends PatternTemplate {
 		 * @param target   who will be the bride
 		 */
 		private void registerProposal(UnitSquare proposer, UnitSquare target) {
-			this.proposersRegistry.get(target).add(proposer);
+			proposersRegistry
+					.computeIfAbsent(target, k -> new HashSet<>())
+					.add(proposer);
 		}
 
 		/**
@@ -1021,7 +1017,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * A part of zone's area which is contained by this unit
 			 */
-			private Area containedArea;
+			private Area rawArea;
 
 			/**
 			 * The matrix' line in which this unit resides
@@ -1077,18 +1073,25 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @param zone a part of slice's area
 			 */
 			private void calculateContainedArea(Area zone) {
-				this.containedArea = new Area(this);
-				this.containedArea.intersect(zone);
+				this.rawArea = new Area(this);
+				this.rawArea.intersect(zone);
 			}
 
 			/**
 			 * Check if this touches other unit
 			 *
 			 * @param that relating directly to the same area of this unit
-			 * @return <tt>true</tt> if they sit next to each other
+			 * @return <tt>true</tt> if they sit next to each other and their
+			 * united area is continuous
 			 */
 			boolean touch(UnitSquare that) {
-				return Math.abs(this._i - that._i) + Math.abs(this._j - that._j) == 1;
+				// Sit next to each other
+				if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) != 1)
+					return false;
+				// Union area is continuous
+				Area union = new Area(this.getRawArea());
+				union.add(that.getRawArea());
+				return AreaTool.getContinuousSurfacesFrom(union).size() == 1;
 			}
 
 			@Override
@@ -1098,13 +1101,9 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public Polyomino merge(Puzzle other) {
-				Polyomino p = new Polyomino();
-				p.add(this);
-				boolean success = p.add(other);
-				if (success) {
-					return p;
-				} else
-					return null;
+				Polyomino p = new Polyomino(other);
+				p = p.merge(this);
+				return p;
 			}
 
 			@Override
@@ -1131,6 +1130,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public boolean canMergeWith(Puzzle puzzle) {
+				if (puzzle == null) return false;
 				if (puzzle instanceof UnitSquare) {
 					UnitSquare u = (UnitSquare) puzzle;
 					return (this.state == UnitState.ACCEPTED || u.state == UnitState.ACCEPTED) && this.touch(u);
@@ -1163,6 +1163,11 @@ public class UnitSquarePattern extends PatternTemplate {
 					default:
 						return 0;
 				}
+			}
+
+			@Override
+			public Area getRawArea() {
+				return rawArea;
 			}
 
 			/**
@@ -1230,7 +1235,7 @@ public class UnitSquarePattern extends PatternTemplate {
 					r.width -= SAFETY_MARGIN;
 				}
 				// Intersect area
-				Area a = (Area) this.containedArea.clone();
+				Area a = (Area) this.rawArea.clone();
 				a.intersect(new Area(r));
 				// Whittle corners
 				// Reset r
@@ -1276,11 +1281,21 @@ public class UnitSquarePattern extends PatternTemplate {
 			 */
 			private static final long serialVersionUID = 1974861227965075981L;
 
+			private Area rawArea = new Area();
+
 			final int id;
 
 			Polyomino() {
 				super();
 				this.id = countPolyomino++;
+			}
+
+			Polyomino(Puzzle puzzle) {
+				this();
+				if (puzzle instanceof UnitSquare)
+					add((UnitSquare) puzzle);
+				else if (puzzle instanceof Polyomino)
+					addAll((Polyomino) puzzle);
 			}
 
 			/**
@@ -1290,6 +1305,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @return <tt>false</tt> if
 			 * <ul>
 			 * <li>already having that unit</li>
+			 * <li>resulting an irregular bit</li>
 			 * <li>or that unit does not touch anyone</li>
 			 * <li>or concatenation violates the size of a bit (exceeding
 			 * height or length)</li>
@@ -1298,41 +1314,48 @@ public class UnitSquarePattern extends PatternTemplate {
 			@Override
 			public boolean add(UnitSquare thatUnit) {
 				super.add(thatUnit);
-				this.updateBoundaryAfterAdding(thatUnit);
+//				this.updateBoundaryAfterAdding(thatUnit);
+				this.updateRawAreaAfterAdding(thatUnit);
 				return true;
 			}
 
 			/**
-			 * Outer border of this polyomino
-			 */
-			private Rectangle2D.Double boundary = new Rectangle2D.Double();
-
-			/**
-			 * @return boundary in {@link Double} precision
-			 */
-			Rectangle2D.Double getBoundary() {
-				return boundary;
-			}
-
-			/**
-			 * Update the coordinate of boundary. Should be only called after
-			 * adding, if else, it does nothing.
+			 * Concatenate thatUnit's raw area into this
 			 *
-			 * @param thatUnit unit to be concatenated
+			 * @param thatUnit a piece of {@link #matrixU}
 			 */
-			private void updateBoundaryAfterAdding(UnitSquare thatUnit) {
-				if (!this.contains(thatUnit)) // If the unit has not been added
-					return;
-
-				if (this.size() == 1)
-					// If this is the first unit
-					// The boundary of this polyomino should be that of the unit
-					this.boundary = thatUnit;
-				else
-					// If already having other unit
-					// We find their union
-					this.boundary = (Double) this.boundary.createUnion(thatUnit);
+			private void updateRawAreaAfterAdding(UnitSquare thatUnit) {
+				this.rawArea.add(thatUnit.getRawArea());
 			}
+//
+//			/**
+//			 * Outer border of this polyomino
+//			 */
+//			private Rectangle2D.Double boundary = new Rectangle2D.Double();
+//
+//			/**
+//			 * @return boundary in {@link Double} precision
+//			 */
+//			Rectangle2D.Double getBoundary() {
+//				return boundary;
+//			}
+//
+//			/**
+//			 * Update the coordinate of boundary. Should be only called after
+//			 * adding, if else, it does nothing.
+//			 *
+//			 * @param thatUnit unit to be concatenated
+//			 */
+//			private void updateBoundaryAfterAdding(UnitSquare thatUnit) {
+//				if (this.size() == 1)
+//					// If this is the first unit
+//					// The boundary of this polyomino should be that of the unit
+//					this.boundary = thatUnit;
+//				else
+//					// If already having other unit
+//					// We find their union
+//					this.boundary = (Double) this.boundary.createUnion(thatUnit);
+//			}
 
 			/**
 			 * Verify connectivity
@@ -1368,29 +1391,29 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * bit (exceeding height or length)
 			 */
 			private boolean isStillValidIfAdding(Puzzle that) {
-				if (that instanceof UnitSquare)
-					return checkBoundaryUnionWith((UnitSquare) that);
-				else if (that instanceof Polyomino)
-					return checkBoundaryUnionWith(((Polyomino) that).getBoundary());
-				return false;
+				return checkUnionWith(that.getRawArea());
 			}
 
 			/**
-			 * Check if the union of boundary is still valid for producing a
-			 * {@link Bit2D}
+			 * Check if the union is still valid for producing a regular {@link
+			 * Bit2D}
 			 *
-			 * @param r boundary of piece to concatenated
+			 * @param newArea raw area of {@link Polyomino} or {@link
+			 *                UnitSquare}
 			 * @return <tt>true</tt> if fusion does not break limits
 			 */
-			private boolean checkBoundaryUnionWith(Rectangle2D r) {
-				Rectangle2D.Double newBoundary = (Double) this.boundary.createUnion(r);
+			private boolean checkUnionWith(Area newArea) {
+				Area union = (Area) this.getRawArea().clone();
+				union.add(newArea);
+				if (AreaTool.getContinuousSurfacesFrom(union).size() > 1)
+					return false;
 				Vector2 orientation = this.getBitOrientation();
 				if (orientation.x == 1 && orientation.y == 0) {
 					// Horizontal
-					return !(newBoundary.getWidth() > maxPLength) && !(newBoundary.getHeight() > maxPWidth);
+					return !(union.getBounds2D().getWidth() > maxPLength) && !(union.getBounds2D().getHeight() > maxPWidth);
 				} else {
 					// Vertical
-					return !(newBoundary.getWidth() > maxPWidth) && !(newBoundary.getHeight() > maxPLength);
+					return !(union.getBounds2D().getWidth() > maxPWidth) && !(union.getBounds2D().getHeight() > maxPLength);
 				}
 			}
 
@@ -1415,10 +1438,25 @@ public class UnitSquarePattern extends PatternTemplate {
 				Area bitLimArea = this.getLimArea(floatpos, bitOrientation);
 				Area polyominoArea = this.getUnitedArea();
 				bitLimArea.intersect(polyominoArea);
+//				bitLimArea = this.roundUp(bitLimArea);
 				bit.updateBoundaries(bitLimArea);
 
 				return bit;
 			}
+
+//			*
+//			 * Remove tiny areas to assure each bit contain only one area
+//			 *
+//			 * @param bitArea after all other calculations
+//			 * @return <tt>null</tt> if not containing a valid separated area
+//
+//			Area roundUp(Area bitArea) {
+//				return AreaTool.getContinuousSurfacesFrom(bitArea).stream()
+//						.filter(area
+//								-> AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2) != null)
+//						.findFirst() // Only take one
+//						.orElse(null);
+//			}
 
 			/**
 			 * Check if the bit should lie horizontally or vertically
@@ -1426,7 +1464,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @return <tt>(1, 0)</tt> if horizontal, otherwise <tt>(0, 1)</tt>
 			 */
 			private Vector2 getBitOrientation() {
-				if (this.boundary.getWidth() >= this.boundary.getHeight()) {
+				if (rawArea.getBounds2D().getWidth() >= rawArea.getBounds2D().getHeight()) {
 					return new Vector2(1, 0); // Horizontal
 				} else {
 					return new Vector2(0, 1); // Vertical
@@ -1444,20 +1482,21 @@ public class UnitSquarePattern extends PatternTemplate {
 				// Top-left / Top-right / Bottom-left / Bottom-right
 				boolean top = false, left = false, bottom = false, right = false;
 
+				Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
 				for (UnitSquare unit : this) {
 					if (unit.state == UnitState.ACCEPTED) {
-						if (unit.getMinY() == this.boundary.getMinY()) {
+						if (unit.getMinY() == boundary.getMinY()) {
 							// On top side
 							top = true;
-						} else if (unit.getMaxY() == this.boundary.getMaxY()) {
+						} else if (unit.getMaxY() == boundary.getMaxY()) {
 							// On bottom side
 							bottom = true;
 						}
 
-						if (unit.getMinX() == this.boundary.getMinX()) {
+						if (unit.getMinX() == boundary.getMinX()) {
 							// On left side
 							left = true;
-						} else if (unit.getMaxX() == this.boundary.getMaxX()) {
+						} else if (unit.getMaxX() == boundary.getMaxX()) {
 							// On right side
 							right = true;
 						}
@@ -1503,26 +1542,27 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 
 				Vector2 origin;
+				Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
 				switch (floatpos) {
 					case "top-left":
-						origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
-								this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
+						origin = new Vector2(boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+								boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 						break;
 					case "top-right":
-						origin = new Vector2(this.boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
-								this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
+						origin = new Vector2(boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
+								boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 						break;
 					case "bottom-left":
-						origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
-								this.boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
+						origin = new Vector2(boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+								boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
 						break;
 					case "bottom-right":
-						origin = new Vector2(this.boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
-								this.boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
+						origin = new Vector2(boundary.getMaxX() - h / 2 - SAFETY_MARGIN,
+								boundary.getMaxY() - v / 2 - SAFETY_MARGIN);
 						break;
 					default:
-						origin = new Vector2(this.boundary.getMinX() + h / 2 + SAFETY_MARGIN,
-								this.boundary.getMinY() + v / 2 + SAFETY_MARGIN);
+						origin = new Vector2(boundary.getMinX() + h / 2 + SAFETY_MARGIN,
+								boundary.getMinY() + v / 2 + SAFETY_MARGIN);
 						break;
 				}
 
@@ -1555,7 +1595,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @return a rectangular area smaller than boundary
 			 */
 			private Area getLimArea(String floatpos, Vector2 bitOrientation) {
-				Rectangle2D.Double lim = (Double) this.boundary.clone();
+				Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
+				Rectangle2D.Double lim = (Double) boundary.clone();
 
 				// Determine the float position of bit
 				String[] pos = floatpos.split("-");
@@ -1569,13 +1610,13 @@ public class UnitSquarePattern extends PatternTemplate {
 				}
 
 				double horizontalMarginAroundBit;
-				if (this.boundary.width <= bitHorizontalLength) {
+				if (boundary.width <= bitHorizontalLength) {
 					// We will put in a margin whose width is equal to pattern's parameter
 					// "horizontal margin"
 					horizontalMarginAroundBit = (double) config.get(HORIZONTAL_MARGIN).getCurrentValue();
 				} else {
 					// Margin will be difference between boundary's size and bit's
-					horizontalMarginAroundBit = this.boundary.width - bitHorizontalLength;
+					horizontalMarginAroundBit = boundary.width - bitHorizontalLength;
 				}
 				lim.width -= horizontalMarginAroundBit;
 				if (pos[1].equals("right"))
@@ -1585,13 +1626,13 @@ public class UnitSquarePattern extends PatternTemplate {
 					lim.x += SAFETY_MARGIN;
 
 				double verticalMarginAroundBit;
-				if (this.boundary.height <= bitVerticalLength) {
+				if (boundary.height <= bitVerticalLength) {
 					// We will put in a margin whose width is equal to pattern's parameter
 					// "vertical margin"
 					verticalMarginAroundBit = (double) config.get(VERTICAL_MARGIN).getCurrentValue();
 				} else {
 					// Margin will be difference between boundary's size and bit's
-					verticalMarginAroundBit = this.boundary.height - bitVerticalLength;
+					verticalMarginAroundBit = boundary.height - bitVerticalLength;
 				}
 				lim.height -= verticalMarginAroundBit; // equal to bit's vertical length in fact
 				if (pos[0].equals("bottom"))
@@ -1619,16 +1660,14 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * General connect
 			 *
 			 * @param puzzle an other piece
-			 * @return <tt>true</tt> if concatenation succeeds
 			 * @see #add(UnitSquare)
 			 */
-			public boolean add(Puzzle puzzle) {
+			private void add(Puzzle puzzle) {
 				if (puzzle instanceof UnitSquare) {
-					return this.add((UnitSquare) puzzle);
+					this.add((UnitSquare) puzzle);
 				} else if (puzzle instanceof Polyomino) {
-					return this.addAll((Polyomino) puzzle);
+					this.addAll((Polyomino) puzzle);
 				}
-				return false;
 			}
 
 			/**
@@ -1643,13 +1682,9 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			@Override
 			public Polyomino merge(Puzzle other) {
-				Polyomino p = new Polyomino();
-				p.addAll(this);
-				boolean success = p.add(other);
-				if (success) {
-					return p;
-				} else
-					return null;
+				Polyomino p = new Polyomino(this);
+				p.add(other);
+				return p;
 			}
 
 			@Override
@@ -1695,6 +1730,11 @@ public class UnitSquarePattern extends PatternTemplate {
 			@Override
 			public double getIsolatedLevel() {
 				return 0;
+			}
+
+			@Override
+			public Area getRawArea() {
+				return rawArea;
 			}
 		}
 
@@ -2064,7 +2104,8 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * After realizing an {@link Action}, we search what we do next
 			 *
 			 * @return <tt>null</tt> if nothing
-			 * @throws TooDeepSearchException when breaking the {@link #limitActions}
+			 * @throws TooDeepSearchException when breaking the {@link
+			 *                                #limitActions}
 			 */
 			Action nextChild() throws TooDeepSearchException {
 				if (this.children.isEmpty()) {

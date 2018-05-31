@@ -1,12 +1,11 @@
 package patternTemplate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.BeforeEach;
-
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.UnitSquarePattern;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 
@@ -14,9 +13,8 @@ public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 		logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
 	}
 
-	@Override
 	@BeforeEach
-	protected void setUp() {
+	void setUp() {
 		pattern = new UnitSquarePattern();
 		UnitSquarePattern p = (UnitSquarePattern) pattern;
 		logger.info("applyQuickRegroup=true");

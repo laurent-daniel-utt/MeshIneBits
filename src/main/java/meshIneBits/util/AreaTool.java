@@ -4,6 +4,7 @@ import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AreaTool {
 
@@ -176,18 +177,36 @@ public class AreaTool {
 			}
 		}
 
-		for (Area level0Area : areasByLevel.get(0)) {
-			for (int level = 1; level <= levelMax; level++) {
-				for (Area higherLevelArea : areasByLevel.get(level)) {
-					if ((level % 2) != 0) {
-						level0Area.subtract(higherLevelArea);
-					} else {
-						level0Area.add(higherLevelArea);
-					}
-				}
+//		for (Area level0Area : areasByLevel.get(0)) {
+//			for (int level = 1; level <= levelMax; level++) {
+//				for (Area higherLevelArea : areasByLevel.get(level)) {
+//					if ((level % 2) != 0) {
+//						level0Area.subtract(higherLevelArea);
+//					} else {
+//						level0Area.add(higherLevelArea);
+//					}
+//				}
+//			}
+//		}
+
+		Vector<Area> surfaces = new Vector<>();
+
+		for (int i = 0; i <= levelMax; i = i + 2) {
+			if (i + 1 > levelMax || areasByLevel.get(i + 1).isEmpty()) {
+				surfaces.addAll(areasByLevel.get(i));
+				continue;
 			}
+			Area hole = new Area();
+			areasByLevel.get(i + 1).forEach(hole::add);
+			// Reconstruct even level area
+			areasByLevel.get(i).forEach(area -> {
+				area.subtract(hole);
+				if (!area.isEmpty()) surfaces.add(area);
+			});
 		}
-		return areasByLevel.get(0);
+
+//		return areasByLevel.get(0);
+		return surfaces;
 	}
 
 	/**
@@ -196,18 +215,33 @@ public class AreaTool {
 	 * @param shape supposedly contains non self-intersected and non
 	 *              inter-intersected polygons
 	 * @return list of continuous area. Empty if no area
+	 * @see #getContinuousSurfacesFrom(List)
 	 * @since 0.3
 	 */
 	public static List<Area> getContinuousSurfacesFrom(Shape2D shape) {
+		return getContinuousSurfacesFrom(shape.polygons);
+	}
+
+	/**
+	 * Get separated areas extract from border-defining polygons. Use approx
+	 * check of polygon
+	 *
+	 * @param polygons border of areas. Not self-intersected and non
+	 *                 inter-intersected.
+	 * @return list of continuous area. Empty if no polygons
+	 * @since 0.3
+	 * @see CraftConfig#errorAccepted
+	 */
+	public static List<Area> getContinuousSurfacesFrom(List<Polygon> polygons) {
 		Map<Polygon, Integer> ranking = new HashMap<>();
-		for (Polygon newPolygon : shape.polygons) {
+		for (Polygon newPolygon : polygons) {
 			List<Polygon> containingPolygons = new Vector<>();
 			List<Polygon> containedPolygons = new Vector<>();
 			for (Polygon polygon : ranking.keySet()) {
-				if (polygon.contains(newPolygon)) {
+				if (polygon.approximatelyContains(newPolygon)) {
 					// Check the keys containing the new polygon
 					containingPolygons.add(polygon);
-				} else if (newPolygon.contains(polygon)) {
+				} else if (newPolygon.approximatelyContains(polygon)) {
 					// Check if it contains old polygons
 					containedPolygons.add(polygon);
 				}
@@ -223,7 +257,7 @@ public class AreaTool {
 		}
 		// Regroup into level
 		List<List<Polygon>> classing = new Vector<>();
-		shape.polygons.forEach(polygon -> classing.add(new Vector<>()));
+		polygons.forEach(polygon -> classing.add(new Vector<>()));
 		ranking.keySet().forEach((Polygon p) -> {
 			int r = ranking.get(p);
 			if (classing.get(r) == null)
@@ -255,12 +289,29 @@ public class AreaTool {
 	}
 
 	/**
+	 * Dissect an area into single continuous areas
+	 *
+	 * @param area of bit or of slice
+	 * @return list of areas not in union with others
+	 * @see #getContinuousSurfacesFrom(List)
+	 * @since 0.3
+	 */
+	public static List<Area> getContinuousSurfacesFrom(Area area) {
+		Vector<Vector<Segment2D>> polygonsSegmented = getSegmentsFrom(area);
+		List<Polygon> polygons = polygonsSegmented.stream()
+				.map(Polygon::extractFrom)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		return getContinuousSurfacesFrom(polygons);
+	}
+
+	/**
 	 * Returns the best point to take that bit. By best we mean the point the
 	 * closest to the barycenter of the bit and presenting enough material
 	 * around for the sucker cup to work properly. It returns null if this bit
 	 * cannot be lifted.
 	 *
-	 * @param area surface of bit
+	 * @param area      surface of bit
 	 * @param minRadius half of {@link CraftConfig#suckerDiameter}
 	 * @return liftPoint. <tt>null</tt> if area is empty
 	 */
