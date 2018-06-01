@@ -6,6 +6,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -112,6 +113,7 @@ class AreaToolTest {
 
 	@ParameterizedTest(name = "{index}. model={0}. slice={1}")
 	@MethodSource("areaSampleProvider")
+	@Disabled
 	void testGetLevel0AreasFrom(String modelFilename, int sliceNum,
 								List<Point2D.Double> insidePoints,
 								List<Point2D.Double> outsidePoints) {
