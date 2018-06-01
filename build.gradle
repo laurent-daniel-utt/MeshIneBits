@@ -67,14 +67,11 @@ eclipse {
             defaultOutputDir = file("bin/main")
             whenMerged {
                 //change output folder for tests
-                def testsrc = entries.find { it.path == 'src/test/java' }
-                testsrc.output = "bin/test"
+                def testSource = entries.find { it.path == 'src/test/java' }
+                testSource.output = "bin/test"
 
-                def testres = entries.find { it.path == 'src/test/resources' }
-                testres.output = "bin/test"
-
-                // Remove local ref for libs
-                entries.removeAll { it.kind == "lib" }
+                def testResource = entries.find { it.path == 'src/test/resources' }
+                testResource.output = "bin/test"
             }
             containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
         }
