@@ -210,20 +210,15 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
 	 */
-
-	/**
-	 * No bit displacement is allowed in this pattern
-	 */
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
-		// double distance = 0;
-		// if (localDirection.x == 0) {// up or down
-		// distance = CraftConfig.bitWidth / 2;
-		// } else if (localDirection.y == 0) {// left or right
-		// distance = CraftConfig.bitLength / 2;
-		// }
-		// return this.moveBit(actualState, bitKey, localDirection, distance);
-		return null;
+		double distance = 0;
+		if (localDirection.x == 0) {// up or down
+			distance = CraftConfig.bitWidth / 2;
+		} else if (localDirection.y == 0) {// left or right
+			distance = CraftConfig.bitLength / 2;
+		}
+		return this.moveBit(actualState, bitKey, localDirection, distance);
 	}
 
 	/*
@@ -233,14 +228,9 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
 	 */
-
-	/**
-	 * No bit displacement is allowed in this pattern
-	 */
 	@Override
 	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-		// return actualState.moveBit(bitKey, localDirection, distance);
-		return null;
+		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
 	@Override
