@@ -77,6 +77,10 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	private static final String HORIZONTAL_MARGIN = "horizontalMargin";
 	private static final String VERTICAL_MARGIN = "verticalMargin";
+	private static final String APPLY_QUICK_REGROUP = "applyQuickRegroup";
+	private static final String LIMIT_ACTIONS = "limitActions";
+	private static final String INCREMENTAL_ROTATION = "incrementalRotation";
+	private static final String CUT_DETAILS = "cutDetails";
 
 	private static final java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
 
@@ -88,16 +92,23 @@ public class UnitSquarePattern extends PatternTemplate {
 	@Override
 	public void initiateConfig() {
 		config.add(new DoubleParam(HORIZONTAL_MARGIN, "Horizontal margin",
-				"A little space allowing Lift Point move horizontally", 1.0, 100.0, 2.0, 1.0));
+				"A little space allowing Lift Point move horizontally",
+				1.0, 100.0, 2.0, 1.0));
 		config.add(new DoubleParam(VERTICAL_MARGIN, "Vertical margin",
-				"A little space allowing Lift Point move vertically", 1.0, 100.0, 2.0, 1.0));
-		config.add(new BooleanParam("applyQuickRegroup", "Use quick regroup",
-				"Allow pattern to regroup some border units before actually resolving", true));
-		config.add(new DoubleParam("limitActions", "Depth of search", "Number of actions to take before giving up", 1.0,
-				1000000.0, 10000.0, 1.0));
-		config.add(new DoubleParam("incrementalRotation", "Incremental rotation (deg)",
+				"A little space allowing Lift Point move vertically",
+				1.0, 100.0, 2.0, 1.0));
+		config.add(new BooleanParam(APPLY_QUICK_REGROUP, "Use quick regroup",
+				"Allow pattern to regroup some border units before actually resolving",
+				true));
+		config.add(new DoubleParam(LIMIT_ACTIONS, "Depth of search",
+				"Number of actions to take before giving up",
+				1.0, 1000000.0, 10000.0, 1.0));
+		config.add(new DoubleParam(INCREMENTAL_ROTATION, "Incremental rotation (deg)",
 				"Positive offset means to rotate the pavement in clockwise order an angle calculated by the ordinal number of the layer. Negative means otherwise.",
 				-180.0, 180.0, 0.0, 1.0));
+		config.add(new BooleanParam(CUT_DETAILS, "Cut details",
+				"Allow to drop off some minor details",
+				true));
 	}
 
 	/*
@@ -144,13 +155,15 @@ public class UnitSquarePattern extends PatternTemplate {
 		// Calculate size of unit square
 		this.calcUnitSizeAndLimits();
 		// Update the choice on applying quick regroup
-		applyQuickRegroup = (boolean) config.get("applyQuickRegroup").getCurrentValue();
+		applyQuickRegroup = (boolean) config.get(APPLY_QUICK_REGROUP).getCurrentValue();
 		// Limit depth of search
-		limitActions = (int) Math.round((double) config.get("limitActions").getCurrentValue());
-		// Get the boundary
+		limitActions = (int) Math.round((double) config.get(LIMIT_ACTIONS).getCurrentValue());
+		// Cut off minor details or not
+		cutDetails = (boolean) config.get(CUT_DETAILS).getCurrentValue();
+		// Get the boundaries
 		List<Area> zones = AreaTool.getContinuousSurfacesFrom(actualState.getSelectedSlice());
 		// Rotation
-		double rotation = Math.toRadians(((double) config.get("incrementalRotation").getCurrentValue()) * actualState.getLayerNumber());
+		double rotation = Math.toRadians(((double) config.get(INCREMENTAL_ROTATION).getCurrentValue()) * actualState.getLayerNumber());
 		// Matrix of transformation
 		AffineTransform atmatrix = AffineTransform.getRotateInstance(-rotation);
 		AffineTransform inv = AffineTransform.getRotateInstance(rotation);
@@ -250,7 +263,7 @@ public class UnitSquarePattern extends PatternTemplate {
 		return "Unit square's size should be a little bit larger than Lift Points, so that we have safe space between bits.";
 	}
 
-	private boolean applyQuickRegroup = false;
+	private boolean applyQuickRegroup = true;
 
 	/**
 	 * Set the pattern to use quick regroup some border units before actually
@@ -269,6 +282,18 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	public void setLimitAction(int l) {
 		limitActions = l;
+	}
+
+	private boolean cutDetails = true;
+
+	/**
+	 * Allow to drop off some minor details that we cannot resolve.
+	 *
+	 * @param b <tt>true</tt> to stop checking continuous surfaces and to round
+	 *          up bit area as we export
+	 */
+	public void setCutDetails(boolean b) {
+		cutDetails = b;
 	}
 
 	/**
@@ -533,9 +558,10 @@ public class UnitSquarePattern extends PatternTemplate {
 		Set<Bit2D> exportBits() {
 			Set<Polyomino> setPolyominos = this.collectPolyominos();
 			Set<Bit2D> setBits = new HashSet<>();
-			for (Polyomino p : setPolyominos) {
-				setBits.add(p.getBit2D());
-			}
+			setPolyominos.stream()
+					.map(Polyomino::getBit2D)
+					.filter(Objects::nonNull)
+					.forEach(setBits::add);
 			return setBits;
 		}
 
@@ -1088,7 +1114,16 @@ public class UnitSquarePattern extends PatternTemplate {
 				// Sit next to each other
 				if (Math.abs(this._i - that._i) + Math.abs(this._j - that._j) != 1)
 					return false;
-				// Union area is continuous
+				if (!cutDetails)
+					return checkContinuousSurface(that);
+				else return true;
+			}
+
+			/**
+			 * @param that next to this
+			 * @return <tt>true</tt> if union surface is in one piece
+			 */
+			boolean checkContinuousSurface(UnitSquare that) {
 				Area union = new Area(this.getRawArea());
 				union.add(that.getRawArea());
 				return AreaTool.getContinuousSurfacesFrom(union).size() == 1;
@@ -1172,7 +1207,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 			/**
 			 * @return the number of non {@link UnitState#ACCEPTED ACCEPTED}
-			 * {@link UnitSquare}s around
+			 * {@link UnitSquare}s around, divided by 10
 			 */
 			private double getOrphanLevel() {
 				int count = 0;
@@ -1207,60 +1242,76 @@ public class UnitSquarePattern extends PatternTemplate {
 			/**
 			 * Only use this method after resolving completely
 			 *
-			 * @return this area minus a safe space. <tt>null</tt> if {@link
-			 * #state} is {@link UnitState#IGNORED IGNORED}
+			 * @return this area minus a safe space. Empty if {@link #state} is
+			 * {@link UnitState#IGNORED IGNORED}
 			 */
 			Area getSafeArea() {
 				if (state == UnitState.IGNORED)
-					return null;
+					return new Area();
 				Rectangle2D.Double r = (Double) super.clone();
 				// Reduce border
 				// Top
-				if (_i > 0 && matrixP[_i - 1][_j] != null && matrixP[_i - 1][_j] != matrixP[_i][_j]) {
+				if (_i > 0
+						&& matrixP[_i - 1][_j] != null
+						&& matrixP[_i - 1][_j] != matrixP[_i][_j]) {
 					r.y += SAFETY_MARGIN;
 					r.height -= SAFETY_MARGIN;
 				}
 				// Bottom
-				if (_i + 1 < matrixP.length && matrixP[_i + 1][_j] != null && matrixP[_i + 1][_j] != matrixP[_i][_j]) {
+				if (_i + 1 < matrixP.length
+						&& matrixP[_i + 1][_j] != null
+						&& matrixP[_i + 1][_j] != matrixP[_i][_j]) {
 					r.height -= SAFETY_MARGIN;
 				}
 				// Left
-				if (_j > 0 && matrixP[_i][_j - 1] != null && matrixP[_i][_j - 1] != matrixP[_i][_j]) {
+				if (_j > 0
+						&& matrixP[_i][_j - 1] != null
+						&& matrixP[_i][_j - 1] != matrixP[_i][_j]) {
 					r.x += SAFETY_MARGIN;
 					r.width -= SAFETY_MARGIN;
 				}
 				// Right
-				if (_j + 1 < matrixP[_i].length && matrixP[_i][_j + 1] != null
+				if (_j + 1 < matrixP[_i].length
+						&& matrixP[_i][_j + 1] != null
 						&& matrixP[_i][_j + 1] != matrixP[_i][_j]) {
 					r.width -= SAFETY_MARGIN;
 				}
 				// Intersect area
-				Area a = (Area) this.rawArea.clone();
+				Area a = (Area) rawArea.clone();
 				a.intersect(new Area(r));
 				// Whittle corners
 				// Reset r
 				r = new Rectangle2D.Double();
 				// Top-right
-				if (_i > 0 && _j + 1 < matrixP[_i].length && matrixP[_i - 1][_j + 1] != null
+				if (_i > 0 && _j + 1 < matrixP[_i].length
+						&& matrixP[_i - 1][_j + 1] != null
 						&& matrixP[_i - 1][_j + 1] != matrixP[_i][_j]) {
-					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMinY(),
+							SAFETY_MARGIN, SAFETY_MARGIN);
 					a.subtract(new Area(r));
 				}
 				// Top-left
-				if (_i > 0 && _j > 0 && matrixP[_i - 1][_j - 1] != null && matrixP[_i - 1][_j - 1] != matrixP[_i][_j]) {
-					r.setRect(this.getMinX(), this.getMinY(), SAFETY_MARGIN, SAFETY_MARGIN);
+				if (_i > 0 && _j > 0
+						&& matrixP[_i - 1][_j - 1] != null
+						&& matrixP[_i - 1][_j - 1] != matrixP[_i][_j]) {
+					r.setRect(this.getMinX(), this.getMinY(),
+							SAFETY_MARGIN, SAFETY_MARGIN);
 					a.subtract(new Area(r));
 				}
 				// Bottom-left
-				if (_i + 1 < matrixP.length && _j > 0 && matrixP[_i + 1][_j - 1] != null
+				if (_i + 1 < matrixP.length && _j > 0
+						&& matrixP[_i + 1][_j - 1] != null
 						&& matrixP[_i + 1][_j - 1] != matrixP[_i][_j]) {
-					r.setRect(this.getMinX(), this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN, SAFETY_MARGIN);
+					r.setRect(this.getMinX(), this.getMaxY() - SAFETY_MARGIN,
+							SAFETY_MARGIN, SAFETY_MARGIN);
 					a.subtract(new Area(r));
 				}
 				// Bottom-right
-				if (_i + 1 < matrixP.length && _j + 1 < matrixP[_i].length && matrixP[_i + 1][_j + 1] != null
+				if (_i + 1 < matrixP.length && _j + 1 < matrixP[_i].length
+						&& matrixP[_i + 1][_j + 1] != null
 						&& matrixP[_i + 1][_j + 1] != matrixP[_i][_j]) {
-					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMaxY() - SAFETY_MARGIN, SAFETY_MARGIN, SAFETY_MARGIN);
+					r.setRect(this.getMaxX() - SAFETY_MARGIN, this.getMaxY() - SAFETY_MARGIN,
+							SAFETY_MARGIN, SAFETY_MARGIN);
 					a.subtract(new Area(r));
 				}
 
@@ -1405,15 +1456,18 @@ public class UnitSquarePattern extends PatternTemplate {
 			private boolean checkUnionWith(Area newArea) {
 				Area union = (Area) this.getRawArea().clone();
 				union.add(newArea);
-				if (AreaTool.getContinuousSurfacesFrom(union).size() > 1)
-					return false;
+				if (!cutDetails)
+					if (AreaTool.getContinuousSurfacesFrom(union).size() != 1)
+						return false;
 				Vector2 orientation = this.getBitOrientation();
 				if (orientation.x == 1 && orientation.y == 0) {
 					// Horizontal
-					return !(union.getBounds2D().getWidth() > maxPLength) && !(union.getBounds2D().getHeight() > maxPWidth);
+					return !(union.getBounds2D().getWidth() > maxPLength)
+							&& !(union.getBounds2D().getHeight() > maxPWidth);
 				} else {
 					// Vertical
-					return !(union.getBounds2D().getWidth() > maxPWidth) && !(union.getBounds2D().getHeight() > maxPLength);
+					return !(union.getBounds2D().getWidth() > maxPWidth)
+							&& !(union.getBounds2D().getHeight() > maxPLength);
 				}
 			}
 
@@ -1424,39 +1478,55 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * boundary, the generated bit will float toward that side.
 			 *
 			 * @return a regular bit if this polyomino has at least one {@link
-			 * UnitState#ACCEPTED accepted} unit
+			 * UnitState#ACCEPTED accepted} unit. <tt>null</tt> if bit contains
+			 * no valid surface
 			 */
 			Bit2D getBit2D() {
 				if (this.isEmpty())
 					return null;
 
 				Vector2 bitOrientation = this.getBitOrientation();
-				String floatpos = this.getBitFloatingPosition();
-				Vector2 bitOrigin = this.getBitOrigin(bitOrientation, floatpos);
+				String floatingPosition = this.getBitFloatingPosition();
+				Vector2 bitOrigin = this.getBitOrigin(bitOrientation, floatingPosition);
 				Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
 
-				Area bitLimArea = this.getLimArea(floatpos, bitOrientation);
+				Area bitLimArea = this.getLimArea(floatingPosition, bitOrientation);
 				Area polyominoArea = this.getUnitedArea();
 				bitLimArea.intersect(polyominoArea);
-//				bitLimArea = this.roundUp(bitLimArea);
+				if (cutDetails) {
+					bitLimArea = this.roundUp(bitLimArea);
+					if (bitLimArea.isEmpty())
+						return null;
+				}
 				bit.updateBoundaries(bitLimArea);
 
 				return bit;
 			}
 
-//			*
-//			 * Remove tiny areas to assure each bit contain only one area
-//			 *
-//			 * @param bitArea after all other calculations
-//			 * @return <tt>null</tt> if not containing a valid separated area
-//
-//			Area roundUp(Area bitArea) {
-//				return AreaTool.getContinuousSurfacesFrom(bitArea).stream()
-//						.filter(area
-//								-> AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2) != null)
-//						.findFirst() // Only take one
-//						.orElse(null);
-//			}
+			Comparator<Area> boundary = ((Area a1, Area a2) -> {
+				Rectangle2D.Double b1 = (Double) a1.getBounds2D(),
+						b2 = (Double) a2.getBounds2D();
+				double s = b1.width * b1.height - b2.width * b2.height;
+				if (s > 0) return 1;
+				else if (s == 0) return 0;
+				else return -1;
+			});
+
+			/**
+			 * Remove tiny areas to assure each bit contain only one area
+			 *
+			 * @param bitArea after all other calculations
+			 * @return <tt>null</tt> if not containing a valid separated area
+			 */
+
+			Area roundUp(Area bitArea) {
+				return AreaTool.getContinuousSurfacesFrom(bitArea).stream()
+						.filter(Objects::nonNull)
+						.filter(area
+								-> AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2) != null)
+						.max(boundary)
+						.orElse(null);
+			}
 
 			/**
 			 * Check if the bit should lie horizontally or vertically
@@ -1589,21 +1659,22 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * parameter. Otherwise, the margin's width would be the difference
 			 * between bit's and polyomino's size.
 			 *
-			 * @param floatpos       either "top-left", "top-right",
-			 *                       "bottom-left" or "bottom-right"
-			 * @param bitOrientation (0;1) or (1;0)
+			 * @param floatingPosition either "top-left", "top-right",
+			 *                         "bottom-left" or "bottom-right"
+			 * @param bitOrientation   (0;1) or (1;0)
 			 * @return a rectangular area smaller than boundary
 			 */
-			private Area getLimArea(String floatpos, Vector2 bitOrientation) {
+			private Area getLimArea(String floatingPosition, Vector2 bitOrientation) {
 				Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
 				Rectangle2D.Double lim = (Double) boundary.clone();
 
 				// Determine the float position of bit
-				String[] pos = floatpos.split("-");
+				String[] pos = floatingPosition.split("-");
 				// pos[0] would be "top" or "bottom"
 				// pos[1] would be "left" or "right"
 
-				double bitHorizontalLength = CraftConfig.bitLength, bitVerticalLength = CraftConfig.bitWidth;
+				double bitHorizontalLength = CraftConfig.bitLength,
+						bitVerticalLength = CraftConfig.bitWidth;
 				if (bitOrientation.x == 0 && bitOrientation.y == 1) {// If vertical
 					bitHorizontalLength = CraftConfig.bitWidth;
 					bitVerticalLength = CraftConfig.bitLength;

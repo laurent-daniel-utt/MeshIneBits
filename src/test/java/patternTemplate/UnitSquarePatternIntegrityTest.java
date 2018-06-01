@@ -21,6 +21,8 @@ public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 		p.setApplyQuickRegroup(true);
 		logger.info("limitAction=10000");
 		p.setLimitAction(10000);
+		logger.info("cutDetails=true");
+		p.setCutDetails(true);
 		CraftConfig.templateChoice = pattern;
 	}
 
