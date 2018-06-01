@@ -1495,7 +1495,7 @@ public class UnitSquarePattern extends PatternTemplate {
 				bitLimArea.intersect(polyominoArea);
 				if (cutDetails) {
 					bitLimArea = this.roundUp(bitLimArea);
-					if (bitLimArea.isEmpty())
+					if (bitLimArea == null || bitLimArea.isEmpty())
 						return null;
 				}
 				bit.updateBoundaries(bitLimArea);
