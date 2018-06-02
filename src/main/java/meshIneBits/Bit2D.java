@@ -1,14 +1,15 @@
 package meshIneBits;
 
+import meshIneBits.config.CraftConfig;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.util.Vector;
-
-import meshIneBits.config.CraftConfig;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Vector2;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
@@ -29,6 +30,10 @@ public class Bit2D implements Cloneable {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 	private Vector<Path2D> cutPaths = null;
+
+	/**
+	 * A bit should only have one area
+	 */
 	private Vector<Area> areas = new Vector<Area>();
 
 	/**
@@ -170,7 +175,7 @@ public class Bit2D implements Cloneable {
 	@Override
 	public Bit2D clone() {
 		return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(),
-				(AffineTransform) inverseTransfoMatrix.clone(), getClonedCutPaths(), getClonedAreas());
+				(AffineTransform) inverseTransfoMatrix.clone(), getClonedRawCutPaths(), getClonedRawAreas());
 	}
 
 	/**
@@ -203,7 +208,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw areas
 	 */
-	public Vector<Area> getClonedAreas() {
+	public Vector<Area> getClonedRawAreas() {
 		Vector<Area> clonedAreas = new Vector<Area>();
 		for (Area a : areas) {
 			clonedAreas.add((Area) a.clone());
@@ -214,7 +219,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw cut paths
 	 */
-	public Vector<Path2D> getClonedCutPaths() {
+	public Vector<Path2D> getClonedRawCutPaths() {
 		if (cutPaths != null) {
 			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
 			for (Path2D p : cutPaths) {
@@ -226,6 +231,10 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * @return clone of cut paths (after transforming into coordinates system of
+	 *         layer)
+	 */
 	public Vector<Path2D> getCutPaths() {
 		if (this.cutPaths == null) {
 			return null;
@@ -238,10 +247,16 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * @return horizontal side
+	 */
 	public double getLength() {
 		return length;
 	}
 
+	/**
+	 * @return orientation in coordinates system of layer
+	 */
 	public Vector2 getOrientation() {
 		return orientation;
 	}
@@ -284,14 +299,28 @@ public class Bit2D implements Cloneable {
 		return areas;
 	}
 
+	/**
+	 * Any change will reflect on bit itself
+	 * 
+	 * @return raw cut paths
+	 */
 	public Vector<Path2D> getRawCutPaths() {
 		return cutPaths;
 	}
 
+	/**
+	 * @return vertical side
+	 */
 	public double getWidth() {
 		return width;
 	}
 
+	/**
+	 * Incorporate new cut paths into bit
+	 * 
+	 * @param paths
+	 *            measured in coordinate system of layer
+	 */
 	public void setCutPath(Vector<Path2D> paths) {
 		if (this.cutPaths == null) {
 			this.cutPaths = new Vector<Path2D>();
@@ -302,6 +331,9 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	/**
+	 * Set up the matrix transformation from bit into coordinate system of layer
+	 */
 	private void setTransfoMatrix() {
 
 		transfoMatrix.translate(origin.x, origin.y);
@@ -328,19 +360,29 @@ public class Bit2D implements Cloneable {
 		}
 	}
 
+	// /**
+	// * @return a set of lift points, each of which is in charge of each separated
+	// * area (in case a bit has many separated areas)
+	// */
 	/**
-	 * @return a set of lift points, each of which is in charge of each separated
-	 *         area (in case a bit has many separated areas)
+	 * A bit should only have one lift point
+	 * 
+	 * @return <tt>null</tt> if this bit has multiple separated areas or no area.
+	 *         The lift point is calculated in coordinate system of layer
 	 */
-	public Vector<Vector2> computeLiftPoints() {
-		Vector<Vector2> result = new Vector<Vector2>();
-		for (Area area : areas) {
-			Vector2 localLiftPoint = AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2);
-			if (localLiftPoint != null) {
-				result.add(localLiftPoint);
-			}
-		}
-		return result;
+	public Vector2 computeLiftPoint() {
+		if (areas.size() != 1)
+			return null;
+		return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
+		// Vector<Vector2> result = new Vector<Vector2>();
+		// for (Area area : areas) {
+		// Vector2 localLiftPoint = AreaTool.getLiftPoint(area,
+		// CraftConfig.suckerDiameter / 2);
+		// if (localLiftPoint != null) {
+		// result.add(localLiftPoint);
+		// }
+		// }
+		// return result;
 	}
 
 	/**
@@ -380,5 +422,59 @@ public class Bit2D implements Cloneable {
 		Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
 		newBit.updateBoundaries(this.getArea().createTransformedArea(transformation));
 		return newBit;
+	}
+
+	/**
+	 * Reset cut paths and recalculate them after defining area
+	 */
+	public void calcCutPath() {
+		// We all calculate in coordinate
+		// Reset cut paths
+		this.cutPaths = new Vector<Path2D>();
+		Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
+		// Define 4 corners
+		Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
+		Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
+		Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
+		Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
+		// Define 4 sides
+		Segment2D sideTop = new Segment2D(cornerUpLeft, cornerUpRight);
+		Segment2D sideBottom = new Segment2D(cornerDownLeft, cornerDownRight);
+		Segment2D sideRight = new Segment2D(cornerUpRight, cornerDownRight);
+		Segment2D sideLeft = new Segment2D(cornerUpLeft, cornerDownLeft);
+		// Check cut path
+		// If and edge lives on sides of the bit
+		// We remove it
+		polygons.forEach(polygon -> polygon.removeIf(edge -> sideTop.contains(edge) || sideBottom.contains(edge)
+				|| sideRight.contains(edge) || sideLeft.contains(edge)));
+		// After filter out the edges on sides
+		// We form cut paths from these polygons
+		// Each polygon may contain multiple cut paths
+		for (Vector<Segment2D> polygon : polygons) {
+			if (polygon.isEmpty())
+				continue;
+			Path2D cutPath2D = new Path2D.Double();
+			Segment2D currentEdge = polygon.get(0);
+			cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
+			for (int i = 0; i < polygon.size(); i++) {
+				currentEdge = polygon.get(i);
+				cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
+				// Some edges may have been deleted
+				// So we check beforehand to skip
+				if (i + 1 < polygon.size() && !polygon.contains(currentEdge.getNext())) {
+					// If the next edge has been removed
+					// We complete the path
+					this.cutPaths.add(cutPath2D);
+					// Then we create a new one
+					// And move to the start of the succeeding edge
+					cutPath2D = new Path2D.Double();
+					cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
+				}
+			}
+			// Finish the last cut path
+			if (!this.cutPaths.contains(cutPath2D)) {
+				this.cutPaths.add(cutPath2D);
+			}
+		}
 	}
 }

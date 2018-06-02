@@ -1,20 +1,17 @@
 package patternTemplate;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import meshIneBits.GeneratedPart;
+import meshIneBits.Layer;
+import meshIneBits.Model;
+import meshIneBits.patterntemplates.PatternTemplate;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import meshIneBits.GeneratedPart;
-import meshIneBits.Layer;
-import meshIneBits.Model;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.patterntemplates.PatternTemplate;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Integrity test. Subclass to test each pattern
@@ -26,30 +23,22 @@ public abstract class PatternIntegrityTest {
 	/**
 	 * Initialize this logger when subclass
 	 */
-	protected static Logger logger;
+	static Logger logger;
 
-	protected PatternTemplate pattern;
+	PatternTemplate pattern;
 
-	protected Model model;
+	private Model model;
 
-	protected GeneratedPart part;
+	GeneratedPart part;
 
 	/**
 	 * Subclass can change this depending on size of test sample and algorithm
 	 */
-	static int TIME_LIMIT = 60;
-
-	/**
-	 * Init {@link #pattern} and set up its properties via
-	 * {@link PatternTemplate#getPatternConfig()} or its open APIs. <br>
-	 * Also set {@link CraftConfig#templateChoice} to the pattern
-	 */
-	@BeforeEach
-	abstract protected void setUp();
+	private static int TIME_LIMIT = 60;
 
 	@ParameterizedTest
-	@ValueSource(strings = { "Sphere.stl", "CreuxBoite.stl", "Cylindre.stl", "Tour.stl", "Blob.stl" })
-	protected void testScenario(String modelFilename) {
+	@ValueSource(strings = { "Sphere.stl", "HoledBox.stl", "Tour.stl", "Blob.stl" })
+	void testScenario(String modelFilename) {
 		String clname = this.getClass().getSimpleName();
 		logger.info("Integrity test of " + clname + " in scenario " + modelFilename + " starts");
 		setUpPart(modelFilename);
@@ -78,11 +67,11 @@ public abstract class PatternIntegrityTest {
 	/**
 	 * Load up the model and slice it
 	 * 
-	 * @param modelFilename
+	 * @param modelFilename in test resource
 	 */
 	private void setUpPart(String modelFilename) {
 		try {
-			logger.info("Load Sphere.stl");
+			logger.info("Load " + modelFilename);
 			model = new Model(this.getClass().getResource("/stlModel/" + modelFilename).getPath());
 			model.center();
 		} catch (Exception e) {

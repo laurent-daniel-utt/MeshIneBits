@@ -1,14 +1,14 @@
 package meshIneBits;
 
-import java.awt.geom.AffineTransform;
-import java.util.Hashtable;
-import java.util.Observable;
-import java.util.Vector;
-
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
+import java.util.Hashtable;
+import java.util.Observable;
+import java.util.Vector;
 
 /**
  * A layer contains all the bit 3D for a given Z. These bits are organized
