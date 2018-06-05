@@ -1,18 +1,14 @@
 package meshIneBits.gui.utilities.patternParamRenderer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.lang.reflect.Field;
+import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.DoubleParam;
 
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import meshIneBits.config.Setting;
-import meshIneBits.config.patternParameter.DoubleParam;
+import java.awt.*;
+import java.lang.reflect.Field;
 
 public class LabeledSpinner extends Renderer {
 
@@ -90,14 +86,7 @@ public class LabeledSpinner extends Renderer {
 
 		spinner = new JSpinner(new SpinnerNumberModel(config.getCurrentValue(), config.getMinValue(),
 				config.getMaxValue(), config.getStep()));
-		spinner.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				config.setCurrentValue(spinner.getValue());
-			}
-		});
+		spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
 		this.add(spinner, BorderLayout.EAST);
-
 	}
 }

@@ -8,6 +8,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.config.Setting;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.config.patternParameter.PatternParameter;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
@@ -314,7 +315,9 @@ public class Toolbar extends JTabbedPane implements Observer {
 					addMouseListener(new MouseListener() {
 						@Override
 						public void mouseClicked(MouseEvent e) {
-						};
+						}
+
+						;
 
 						@Override
 						public void mouseEntered(MouseEvent e) {
@@ -332,7 +335,9 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 						@Override
 						public void mouseReleased(MouseEvent e) {
-						};
+						}
+
+						;
 					});
 				}
 			}
@@ -522,6 +527,41 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 			add(modifCont);
 
+			// For adding new bits
+			add(new TabContainerSeparator());
+			OptionsContainer addingBitsCont = new OptionsContainer("Add bits");
+			final DoubleParam newBitsLengthParam = new DoubleParam(
+					"newBitsLength",
+					"Bit length",
+					"Length of bits to add",
+					1.0, CraftConfig.bitLength,
+					CraftConfig.bitLength, 1.0);
+			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(newBitsLengthParam);
+			addingBitsCont.add(newBitsLengthSpinner);
+			final DoubleParam newBitsWidthParam = new DoubleParam(
+					"newBitsWidth",
+					"Bit width",
+					"Length of bits to add",
+					1.0, CraftConfig.bitWidth,
+					CraftConfig.bitWidth, 1.0);
+			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(newBitsWidthParam);
+			addingBitsCont.add(newBitsWidthSpinner);
+			final DoubleParam newBitsOrientationParam = new DoubleParam(
+					"newBitsOrientation",
+					"Bit orientation",
+					"Angle of bits in respect to that of layer",
+					0.0, 360.0, 0.0, 0.01);
+			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(newBitsOrientationParam);
+			addingBitsCont.add(newBitsOrientationSpinner);
+			JButton chooseOriginsBtn = new JButton("Origins chooser");
+			addingBitsCont.add(chooseOriginsBtn);
+			JButton cancelChoosingOriginsBtn = new JButton("Cancel");
+			addingBitsCont.add(cancelChoosingOriginsBtn);
+			JButton addBitsBtn = new JButton("Add");
+			addingBitsCont.add(addBitsBtn);
+
+			add(addingBitsCont);
+
 			// For auto-optimizing
 			add(new TabContainerSeparator());
 			OptionsContainer autoOptimizeCont = new OptionsContainer("Auto-optimizing bits' distribution");
@@ -639,6 +679,20 @@ public class Toolbar extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					replaceSelectedBit(100, 100);
 				}
+			});
+
+			// For adding bits
+			chooseOriginsBtn.addActionListener(e ->
+					view2DController.startSelectingMultiplePoints());
+			cancelChoosingOriginsBtn.addActionListener(e ->
+					view2DController.stopSelectingMultiplePoints());
+			addBitsBtn.addActionListener(e -> {
+					view2DController.addNewBits(
+							newBitsLengthParam.getCurrentValue(),
+							newBitsWidthParam.getCurrentValue(),
+							newBitsOrientationParam.getCurrentValue()
+					);
+					view2DController.stopSelectingMultiplePoints();
 			});
 
 			// For auto-optimizing
@@ -967,13 +1021,13 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 			/**
 			 * All the available templates for choosing
-			 * 
+			 *
 			 * @author NHATHAN
 			 */
 			private class TemplatesMenu extends JPopupMenu {
 
 				/**
-				 * 
+				 *
 				 */
 				private static final long serialVersionUID = 4906068175556528411L;
 				private GalleryContainer parent;
@@ -1031,7 +1085,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 		private class PatternParametersContainer extends OptionsContainer {
 
 			/**
-			 * 
+			 *
 			 */
 			private static final long serialVersionUID = -5486094986597798629L;
 
@@ -1040,8 +1094,8 @@ public class Toolbar extends JTabbedPane implements Observer {
 			}
 
 			/**
-			 * Remove all loaded components in containers then load new parameters from the
-			 * currently chosen pattern.
+			 * Remove all loaded components in containers then load new
+			 * parameters from the currently chosen pattern.
 			 */
 			public void setupPatternParameters() {
 				this.removeAll();
@@ -1051,9 +1105,10 @@ public class Toolbar extends JTabbedPane implements Observer {
 			}
 
 			/**
-			 * Remove all loaded components in containers then load new parameters from the
-			 * given <tt>config</tt> (input will be filtered by attribute's name, type)
-			 * 
+			 * Remove all loaded components in containers then load new
+			 * parameters from the given <tt>config</tt> (input will be filtered
+			 * by attribute's name, type)
+			 *
 			 * @param config
 			 */
 			public void setupPatternParameters(PatternConfig config) {
@@ -1074,7 +1129,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 	/**
 	 * Get annotations for fields from {@link CraftConfig}
-	 * 
+	 *
 	 * @return names of attributes associated by their annotations
 	 */
 	private HashMap<String, Setting> loadAnnotations() {

@@ -14,6 +14,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -180,8 +181,8 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	private void drawModelPath2D(Graphics2D g2d, Path2D path) {
 		AffineTransform tx1 = new AffineTransform();
 
-		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2),
-				(viewOffsetY * drawScale) + (this.getHeight() / 2));
+		tx1.translate((viewOffsetX * drawScale) + ((double) this.getWidth() / 2),
+				(viewOffsetY * drawScale) + ((double) this.getHeight() / 2));
 		tx1.scale(drawScale, drawScale);
 		g2d.draw(path.createTransformedShape(tx1));
 	}
@@ -193,9 +194,15 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 
 			if ((part != null) && part.isGenerated()) {
 				// Get the clicked point in the right coordinate system
-				Point2D clickSpot = new Point2D.Double(
-						((((double) e.getX()) - (this.getWidth() / 2)) / drawScale) - viewOffsetX,
-						((((double) e.getY()) - (this.getHeight() / 2)) / drawScale) - viewOffsetY);
+				Point2D.Double clickSpot = new Point2D.Double(
+						((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
+						((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
+
+				// Register new selected point
+				if (_controller.isOnSelectingMultiplePoints()) {
+					_controller.addOrRemovePoint(clickSpot);
+					return;
+				}
 
 				Layer layer = _controller.getCurrentPart().getLayers().get(_controller.getCurrentLayerNumber());
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
@@ -304,8 +311,8 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
 
 		setDefaultZoom();
 		updateDrawScale();
@@ -342,7 +349,25 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 						currentLayer.getBit3D(_controller.getSelectedBitKey()));
 			}
 
+			// Draw the selected points
+			if (_controller.isOnSelectingMultiplePoints()) {
+				paintSelectedPoints(_controller.getSelectedPoints(), g2d);
+			}
 		}
+	}
+
+	private void paintSelectedPoints(Set<Point2D.Double> selectedPoints, Graphics2D g2d) {
+		selectedPoints.stream()
+				.map(this::layerToView)
+				.map((Point p) -> new Ellipse2D.Double(p.x - 5, p.y - 5, 10, 10))
+				.forEach(g2d::fill);
+	}
+
+	private Point layerToView(Point2D.Double p) {
+		return new Point(
+				(int) ((p.x + viewOffsetX) * drawScale) + (this.getWidth() / 2),
+				(int) ((p.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)
+		);
 	}
 
 	private void paintSlices(GeneratedPart currentPart, Graphics2D g2d) {
