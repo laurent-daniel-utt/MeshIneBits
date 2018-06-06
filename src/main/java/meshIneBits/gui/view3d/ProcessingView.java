@@ -1,21 +1,13 @@
 package meshIneBits.gui.view3d;
 
-import java.awt.geom.Area;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.gui.view2d.Controller;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
@@ -24,6 +16,12 @@ import processing.core.PApplet;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import processing.opengl.PJOGL;
+
+import java.awt.geom.Area;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 /**
  * The 3D view of model loaded
@@ -53,7 +51,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow{
 	 */
 	public static void startProcessingView(String[] args){
 		if(currentInstance == null)
-			PApplet.main("meshIneBits.gui.processing.ProcessingView");
+			PApplet.main("meshIneBits.gui.view3d.ProcessingView");
 	}
 	
 	/**
@@ -111,9 +109,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow{
     	frameRate(FRAME_RATE);   	
     	
     	noLoop();
-    	
-    	curVO = Controller.getInstance();
-    	curVO.addObserver(this);
     	
     	setCloseOperation();
     	
@@ -394,7 +389,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow{
     
     /**
      * Work only for shape on the xy plan
-     * @param points
      */
     private PShape extrude(PolygonPointsList[] poly, int z){
     	
@@ -480,39 +474,16 @@ public class ProcessingView extends PApplet implements Observer, SubWindow{
 	}
 
 	@Override
-	public void open() {
-		// TODO Auto-generated method stub
-		ProcessingView.startProcessingView(null);
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		ProcessingView.closeProcessingView();
-	}
-
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-		redraw();
-	}
-
-	@Override
-	public void setPart(GeneratedPart part) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void getPart() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void toggle() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void setCurrentPart(GeneratedPart currentPart) {
+    	curVO = Controller.getInstance();
+		curVO.addObserver(this);
+		curVO.setCurrentPart(currentPart);
 	}
 
 }

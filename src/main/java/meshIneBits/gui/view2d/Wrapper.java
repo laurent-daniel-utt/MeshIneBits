@@ -1,121 +1,116 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.Layer;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.MainWindow;
+import meshIneBits.gui.utilities.ButtonIcon;
+import meshIneBits.gui.utilities.OptionsContainer;
+import meshIneBits.gui.utilities.RibbonCheckBox;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The panel wrapping 2D representation with view orienting tools. Exported from
  * {@link MainWindow}. It observes {@link Controller}.
  */
-public class Wrapper extends JPanel implements Observer {
+class Wrapper extends JPanel implements Observer {
 
 	private static final long serialVersionUID = 1L;
+	private Controller controller;
 	private Core coreView;
 	private JSlider zoomSlider;
 	private JSlider layerSlider;
 	private JSpinner layerSpinner;
 	private JSlider sliceSlider;
 	private JSpinner sliceSpinner;
-	private JPanel layerPanel;
-	private JPanel slicePanel;
-	private JPanel displayOptionsPanel;
 	private JLabel bg;
 
-	private final double minZoomValue = 0.5;
-	private final double maxZoomValue = 10;
-	private final int minZoomSliderValue = 1;
-	private final int maxZoomSliderValue = 500;
+	static final double MIN_ZOOM_VALUE = 0.5;
+	private final int MIN_ZOOM_SLIDER_VALUE = 1;
+	private final int MAX_ZOOM_SLIDER_VALUE = 500;
 
 	// Following attributes are the coefficients from the formula Y = a * EXP(b * x)
 	// used for the zoom's log scale
-	private final double aCoef;
-	private final double bCoef;
+	private double aCoefficient;
+	private double bCoefficient;
 
-	public Wrapper() {
+	Wrapper() {
 		this.setLayout(new BorderLayout());
 
-		Controller.getInstance().addObserver(this);
+		controller = Controller.getInstance();
+		controller.addObserver(this);
 
+		buildBackground();
+		this.add(bg, BorderLayout.CENTER);
+
+
+		// Set up the core of view
+		coreView = new Core();
+		controller.addObserver(coreView);
+	}
+
+	Controller getController() {
+		return controller;
+	}
+
+	private void buildBackground() {
 		bg = new JLabel("", SwingConstants.CENTER);
 		ImageIcon icon = new ImageIcon(
-				new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBitsAlpha.png")).getImage()
+				new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/MeshIneBitsAlpha.png"))).getImage()
 						.getScaledInstance(645, 110, Image.SCALE_SMOOTH));
 		bg.setIcon(icon);
 		bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
 		bg.setForeground(new Color(0, 0, 0, 8));
-		this.add(bg, BorderLayout.CENTER);
 
-		bCoef = Math.log(minZoomValue / maxZoomValue) / (minZoomSliderValue - maxZoomSliderValue);
-		aCoef = minZoomValue / Math.exp(bCoef * minZoomSliderValue);
-		
-		// Set up the core of view
-		coreView = new Core();
-		Controller.getInstance().addObserver(coreView);
+		bCoefficient = Math.log(MIN_ZOOM_VALUE / 10) / (MIN_ZOOM_SLIDER_VALUE - MAX_ZOOM_SLIDER_VALUE);
+		aCoefficient = MIN_ZOOM_VALUE / Math.exp(bCoefficient * MIN_ZOOM_SLIDER_VALUE);
 	}
 
 	private int getZoomSliderValue(double zoomValue) {
-		return (int) (Math.log(zoomValue / aCoef) / bCoef);
+		return (int) (Math.log(zoomValue / aCoefficient) / bCoefficient);
 	}
 
 	private double getZoomValue(int zoomSliderValue) {
-		return aCoef * Math.exp(bCoef * zoomSliderValue);
+		return aCoefficient * Math.exp(bCoefficient * zoomSliderValue);
 	}
 
-	private void buildDisplayOptionsPanel() {
-		Controller controller = Controller.getInstance();
-		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, minZoomSliderValue, maxZoomSliderValue,
+	private void buildZoomer() {
+		zoomSlider = new JSlider(SwingConstants.HORIZONTAL, MIN_ZOOM_SLIDER_VALUE, MAX_ZOOM_SLIDER_VALUE,
 				getZoomSliderValue(controller.getZoom()));
-		zoomSlider.setMaximumSize(new Dimension(maxZoomSliderValue, 20));
+		zoomSlider.setMaximumSize(new Dimension(MAX_ZOOM_SLIDER_VALUE, 20));
 
-		ButtonIcon zoomMinusBtn = new ButtonIcon("search-minus.png");
-		ButtonIcon zoomPlusBtn = new ButtonIcon("search-plus.png");
+		ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
+		ButtonIcon zoomPlusBtn = new ButtonIcon("","search-plus.png", true);
 
-		displayOptionsPanel = new JPanel();
-		displayOptionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		displayOptionsPanel.add(zoomMinusBtn);
-		displayOptionsPanel.add(zoomSlider);
-		displayOptionsPanel.add(zoomPlusBtn);
-		displayOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		JPanel zoomer = new JPanel();
+		zoomer.setLayout(new FlowLayout(FlowLayout.CENTER));
+		zoomer.add(zoomMinusBtn);
+		zoomer.add(zoomSlider);
+		zoomer.add(zoomPlusBtn);
+		zoomer.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		this.add(displayOptionsPanel, BorderLayout.SOUTH);
+		this.add(zoomer, BorderLayout.SOUTH);
 
-		zoomSlider.addChangeListener(new ChangeListener() {
+		zoomSlider.addChangeListener(e -> controller.setZoom(getZoomValue(zoomSlider.getValue())));
 
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.setZoom(getZoomValue(zoomSlider.getValue()));
-			}
-		});
+		zoomMinusBtn.addActionListener(e -> controller.setZoom(controller.getZoom() / 2));
 
-		zoomMinusBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.setZoom(controller.getZoom() / 2);
-			}
-		});
-
-		zoomPlusBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.setZoom(controller.getZoom() * 2);
-			}
-		});
+		zoomPlusBtn.addActionListener(e -> controller.setZoom(controller.getZoom() * 2));
 	}
 
-	private void buildLayerPanel() {
-		Controller controller = Controller.getInstance();
+	private void buildLayerSelector() {
 		GeneratedPart part = controller.getCurrentPart();
 
 		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
@@ -124,7 +119,7 @@ public class Wrapper extends JPanel implements Observer {
 		layerSpinner.setFocusable(false);
 		layerSpinner.setMaximumSize(new Dimension(40, 40));
 
-		layerPanel = new JPanel();
+		JPanel layerPanel = new JPanel();
 		layerPanel.setLayout(new BoxLayout(layerPanel, BoxLayout.PAGE_AXIS));
 		layerPanel.add(layerSlider);
 		layerPanel.add(layerSpinner);
@@ -132,23 +127,12 @@ public class Wrapper extends JPanel implements Observer {
 
 		this.add(layerPanel, BorderLayout.EAST);
 
-		layerSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.setLayer(((Integer) layerSpinner.getValue()).intValue());
-			}
-		});
+		layerSpinner.addChangeListener(e -> controller.setLayer((Integer) layerSpinner.getValue()));
 
-		layerSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.setLayer(((Integer) layerSlider.getValue()).intValue());
-			}
-		});
+		layerSlider.addChangeListener(e -> controller.setLayer(layerSlider.getValue()));
 	}
 
-	private void buildSlicePanel() {
-		Controller controller = Controller.getInstance();
+	private void buildSliceSelector() {
 		GeneratedPart part = controller.getCurrentPart();
 
 		sliceSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
@@ -157,7 +141,7 @@ public class Wrapper extends JPanel implements Observer {
 		sliceSpinner.setFocusable(false);
 		sliceSpinner.setMaximumSize(new Dimension(40, 40));
 
-		slicePanel = new JPanel();
+		JPanel slicePanel = new JPanel();
 		slicePanel.setLayout(new BoxLayout(slicePanel, BoxLayout.PAGE_AXIS));
 		slicePanel.add(sliceSlider);
 		slicePanel.add(sliceSpinner);
@@ -165,73 +149,77 @@ public class Wrapper extends JPanel implements Observer {
 
 		this.add(slicePanel, BorderLayout.EAST);
 
-		sliceSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.setSlice(((Integer) sliceSpinner.getValue()).intValue());
-			}
-		});
+		sliceSpinner.addChangeListener(e -> controller.setSlice((Integer) sliceSpinner.getValue()));
 
-		sliceSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.setSlice(((Integer) sliceSlider.getValue()).intValue());
-			}
-		});
+		sliceSlider.addChangeListener(e -> controller.setSlice(sliceSlider.getValue()));
 	}
 
 	private void init() {
 		// remove old components
 		this.removeAll();
-		
+
 		// Repaint
 		this.add(coreView, BorderLayout.CENTER);
 
-		if (Controller.getInstance().getCurrentPart().isGenerated()) {
-			buildLayerPanel();
+		if (controller.getCurrentPart().isGenerated()) {
+			buildLayerSelector();
 		} else {
-			buildSlicePanel();
+			buildSliceSelector();
 		}
 
-		buildDisplayOptionsPanel();
+		buildZoomer();
+		buildToolbox();
 	}
+
+	private void buildToolbox() {
+		JPanel toolbox = new JPanel();
+		toolbox.setLayout(new BoxLayout(toolbox, BoxLayout.PAGE_AXIS));
+
+		// Build internal components
+		toolbox.add(new DisplayOptionsPane());
+		toolbox.add(new SliceSelectorPane());
+		toolbox.add(new BitModifierPane());
+		toolbox.add(new BitAdderPane());
+		toolbox.add(new AutoOptimizerPane());
+
+		add(new JScrollPane(toolbox), BorderLayout.WEST);
+	}
+
 
 	private void noPart() {
 		this.removeAll();
-
 		this.add(bg);
 		repaint();
 		revalidate();
 	}
 
 	@Override
-	@SuppressWarnings("incomplete-switch")
 	public void update(Observable o, Object arg) {
 		if (arg != null) {
-			Controller controller = Controller.getInstance();
 			switch ((Controller.Component) arg) {
-			case PART:
-				GeneratedPart part = controller.getCurrentPart();
-				System.out.println(
-						part.toString() + " isGenerated = " + part.isGenerated() + " isSliced = " + part.isSliced());
-				if ((part != null) && (part.isGenerated() || part.isSliced())) {
-					System.out.println("Initializing 2D view");
-					init();
-					repaint();
-					revalidate();
-				} else {
-					noPart();
-				}
-				break;
-			case LAYER:
-				updateLayerChoice(controller.getCurrentLayerNumber());
-				break;
-			case ZOOM:
-				updateZoom(controller.getZoom());
-				break;
-			case SLICE:
-				updateSliceChoice(controller.getCurrentSliceNumber());
-				break;
+				case PART:
+					GeneratedPart part = controller.getCurrentPart();
+					if (part != null && (part.isGenerated() || part.isSliced())) {
+						init();
+						repaint();
+						revalidate();
+					} else
+						noPart();
+					break;
+				case LAYER:
+					updateLayerChoice(controller.getCurrentLayerNumber());
+					break;
+				case ZOOM:
+					updateZoom(controller.getZoom());
+					break;
+				case SLICE:
+					updateSliceChoice(controller.getCurrentSliceNumber());
+					break;
+				case SELECTED_BIT:
+					// TODO show bit properties
+					break;
+				default:
+					break;
 			}
 		}
 		repaint();
@@ -258,10 +246,10 @@ public class Wrapper extends JPanel implements Observer {
 
 	private void updateZoom(double zoom) {
 		try {
-			if (getZoomSliderValue(zoom) <= maxZoomSliderValue)
+			if (getZoomSliderValue(zoom) <= MAX_ZOOM_SLIDER_VALUE)
 				zoomSlider.setValue(getZoomSliderValue(zoom));
-			else if (getZoomSliderValue(zoom) > maxZoomSliderValue && zoomSlider.getValue() < maxZoomSliderValue - 1) {
-				zoomSlider.setValue(maxZoomSliderValue - 1);
+			else if (getZoomSliderValue(zoom) > MAX_ZOOM_SLIDER_VALUE && zoomSlider.getValue() < MAX_ZOOM_SLIDER_VALUE - 1) {
+				zoomSlider.setValue(MAX_ZOOM_SLIDER_VALUE - 1);
 			}
 
 		} catch (Exception e) {
@@ -269,40 +257,154 @@ public class Wrapper extends JPanel implements Observer {
 		}
 	}
 
-	private class ButtonIcon extends JButton {
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = -7001268017690625534L;
+	private class DisplayOptionsPane extends OptionsContainer {
+		DisplayOptionsPane() {
+			super("Display options");
+			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices");
+			slicesCheckBox.addActionListener(e -> controller.toggleShowSlice(slicesCheckBox.isSelected()));
 
-		public ButtonIcon(String iconName) {
-			super("");
-			try {
-				ImageIcon icon = new ImageIcon(
-						new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
-								.getScaledInstance(22, 22, Image.SCALE_DEFAULT));
-				this.setIcon(icon);
-			} catch (Exception e) {
-				e.printStackTrace();
+			JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show lift points");
+			liftPointsCheckBox.addActionListener(e -> controller.toggleShowLiftPoints(liftPointsCheckBox.isSelected()));
+
+			JCheckBox previousLayerCheckBox = new RibbonCheckBox("Show previous layer");
+			previousLayerCheckBox.addActionListener(e -> controller.toggleShowPreviousLayer(previousLayerCheckBox.isSelected()));
+
+			JCheckBox cutPathsCheckBox = new RibbonCheckBox("Show cut paths");
+			cutPathsCheckBox.addActionListener(e -> controller.toggleShowCutPaths(cutPathsCheckBox.isSelected()));
+
+			JCheckBox irregularBitsCheckBox = new RibbonCheckBox("Show irregular bits");
+			irregularBitsCheckBox.addActionListener(e -> controller.toggleShowIrregularBits(irregularBitsCheckBox.isSelected()));
+
+			add(slicesCheckBox);
+			add(liftPointsCheckBox);
+			add(previousLayerCheckBox);
+			add(cutPathsCheckBox);
+			add(irregularBitsCheckBox);
+		}
+	}
+
+	private class SliceSelectorPane extends OptionsContainer {
+		SliceSelectorPane() {
+			super("Select slice");
+			// To be deleted in future version
+		}
+	}
+
+	private class BitModifierPane extends OptionsContainer {
+		BitModifierPane() {
+			super("Modify bit");
+			JButton replaceBitBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
+			JButton replaceBitBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
+			JButton replaceBitBtn3 = new ButtonIcon("", "cut-quart.png", true, 80, 25);
+			JButton deleteBitBtn = new ButtonIcon("", "delete-bit.png", true, 80, 25);
+			JButton replaceByFullBitBtn = new ButtonIcon("", "full-bit.png", true, 80, 25);
+			add(replaceBitBtn1);
+			add(replaceBitBtn2);
+			add(replaceBitBtn3);
+			add(deleteBitBtn);
+			add(replaceByFullBitBtn);
+
+			// Action listener
+			replaceBitBtn1.addActionListener(e -> replaceSelectedBit(100, 50));
+			replaceBitBtn2.addActionListener(e -> replaceSelectedBit(50, 100));
+			replaceBitBtn3.addActionListener(e -> replaceSelectedBit(50, 50));
+			deleteBitBtn.addActionListener(e -> replaceSelectedBit(0, 0));
+			replaceByFullBitBtn.addActionListener(e -> replaceSelectedBit(100, 100));
+		}
+
+		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
+			GeneratedPart part = controller.getCurrentPart();
+			Layer layer = part.getLayers().get(controller.getCurrentLayerNumber());
+
+			if (controller.getSelectedBitKeys().isEmpty()) {
+				Logger.warning("There is no bit selected");
+			} else {
+				Set<Vector2> newSelectedBitKeys = controller.getSelectedBits().stream()
+						.map(bit -> layer.replaceBit(bit, percentageLength, percentageWidth))
+						.collect(Collectors.toSet());
+				controller.setSelectedBitKeys(newSelectedBitKeys);
 			}
+		}
+	}
 
-			setContentAreaFilled(false);
-			setBorder(new EmptyBorder(3, 3, 3, 3));
+	private class BitAdderPane extends OptionsContainer {
+		BitAdderPane() {
+			super("Add bit");
+			final DoubleParam newBitsLengthParam = new DoubleParam(
+					"newBitLength",
+					"Bit length",
+					"Length of bits to add",
+					1.0, CraftConfig.bitLength,
+					CraftConfig.bitLength, 1.0);
+			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(newBitsLengthParam);
+			add(newBitsLengthSpinner);
+			final DoubleParam newBitsWidthParam = new DoubleParam(
+					"newBitWidth",
+					"Bit width",
+					"Length of bits to add",
+					1.0, CraftConfig.bitWidth,
+					CraftConfig.bitWidth, 1.0);
+			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(newBitsWidthParam);
+			add(newBitsWidthSpinner);
+			final DoubleParam newBitsOrientationParam = new DoubleParam(
+					"newBitOrientation",
+					"Bit orientation",
+					"Angle of bits in respect to that of layer",
+					0.0, 360.0, 0.0, 0.01);
+			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(newBitsOrientationParam);
+			add(newBitsOrientationSpinner);
+			JButton chooseOriginsBtn = new JButton("Origins chooser");
+			add(chooseOriginsBtn);
+			JButton cancelChoosingOriginsBtn = new JButton("Cancel");
+			add(cancelChoosingOriginsBtn);
+			JButton addBitsBtn = new JButton("Add");
+			add(addBitsBtn);
 
-			addMouseListener(new java.awt.event.MouseAdapter() {
-				@Override
-				public void mouseEntered(java.awt.event.MouseEvent evt) {
-					setContentAreaFilled(true);
-				}
+			chooseOriginsBtn.addActionListener(e ->
+					controller.startSelectingMultiplePoints());
+			cancelChoosingOriginsBtn.addActionListener(e ->
+					controller.stopSelectingMultiplePoints());
+			addBitsBtn.addActionListener(e -> {
+				controller.addNewBits(
+						newBitsLengthParam.getCurrentValue(),
+						newBitsWidthParam.getCurrentValue(),
+						newBitsOrientationParam.getCurrentValue()
+				);
+				controller.stopSelectingMultiplePoints();
+			});
+		}
+	}
 
-				@Override
-				public void mouseExited(java.awt.event.MouseEvent evt) {
-					setContentAreaFilled(false);
-				}
+	private class AutoOptimizerPane extends OptionsContainer {
+		AutoOptimizerPane() {
+			super("Auto-optimize");
+			JButton currentLayerBtn = new ButtonIcon("This layer", "cog.png");
+			JButton currentMeshBtn = new ButtonIcon("The whole mesh", "cog.png");
+			currentLayerBtn.setToolTipText(
+					"Try the best to eliminate all irregular bits in the currently selected layer");
+			currentMeshBtn.setToolTipText(
+					"Try the best to eliminate all irregular bits in the current mesh");
+			add(currentLayerBtn);
+			add(currentMeshBtn);
+
+			currentLayerBtn.addActionListener(e -> {
+				currentLayerBtn.setEnabled(false);
+				currentMeshBtn.setEnabled(false);
+				GeneratedPart currentPart = controller.getCurrentPart();
+				Layer currentLayer = currentPart.getLayers().get(controller.getCurrentLayerNumber());
+				currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
+				currentLayerBtn.setEnabled(true);
+				currentMeshBtn.setEnabled(true);
 			});
 
-			this.setHorizontalAlignment(LEFT);
-			this.setMargin(new Insets(0, 0, 0, 0));
+			currentMeshBtn.addActionListener(e -> {
+				currentLayerBtn.setEnabled(true);
+				currentMeshBtn.setEnabled(true);
+				GeneratedPart currentPart = controller.getCurrentPart();
+				currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
+				currentLayerBtn.setEnabled(true);
+				currentMeshBtn.setEnabled(true);
+			});
 		}
 	}
 }

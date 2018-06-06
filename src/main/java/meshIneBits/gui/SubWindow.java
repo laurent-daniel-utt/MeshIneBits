@@ -3,8 +3,6 @@
  */
 package meshIneBits.gui;
 
-import java.util.Observer;
-
 import meshIneBits.GeneratedPart;
 
 /**
@@ -16,32 +14,9 @@ import meshIneBits.GeneratedPart;
  */
 public interface SubWindow {
 	/**
-	 * Show up the window
-	 */
-	public void open();
-
-	/**
-	 * Close but not terminate window
-	 */
-	public void hide();
-	
-	/**
 	 * Switch visibility
 	 */
-	public void toggle();
-	
-	/**
-	 * Update the current figure
-	 */
-	public void refresh();
-	
-	/**
-	 * Set the generatedPart
-	 */
-	public void setPart(GeneratedPart part);
-	
-	/**
-	 * Get the generatedPart
-	 */
-	public void getPart();
+	void toggle();
+
+	void setCurrentPart(GeneratedPart currentPart);
 }

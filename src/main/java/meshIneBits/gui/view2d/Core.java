@@ -4,6 +4,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.gui.MainController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
@@ -19,20 +20,21 @@ import java.util.stream.Collectors;
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
  * Layer} of the {@link GeneratedPart}. It observes {@link Controller}
  */
-public class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
+class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
 	private double viewOffsetX, viewOffsetY;
 	private Map<Bit3D, BitControls> bitMovers = new HashMap<>();
 	private int oldX, oldY;
-	private Controller _controller;
+	private Controller controller;
 	private boolean rightClickPressed = false;
 	private double defaultZoom = 1;
 	private double drawScale = 1;
 
 	Core() {
 		// Setting up for easier use later
-		_controller = Controller.getInstance();
+		controller = Controller.getInstance();
+		controller.setCurrentPart(MainController.getInstance().getCurrentPart());
 
 		// Actions listener
 		addMouseMotionListener(this);
@@ -48,7 +50,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		getActionMap().put("RESET", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_controller.reset();
+				controller.reset();
 			}
 		});
 	}
@@ -57,17 +59,17 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		int width = this.getWidth();
 		int height = this.getHeight();
 		if (width > height)
-			defaultZoom = height / (_controller.getCurrentPart().getSkirtRadius() * 2);
+			defaultZoom = height / (controller.getCurrentPart().getSkirtRadius() * 2);
 		else
-			defaultZoom = width / (_controller.getCurrentPart().getSkirtRadius() * 2);
+			defaultZoom = width / (controller.getCurrentPart().getSkirtRadius() * 2);
 	}
 
 	private void updateDrawScale() {
-		drawScale = _controller.getZoom() * defaultZoom;
+		drawScale = controller.getZoom() * defaultZoom;
 	}
 
 	private void clickOnBitControl(int id) {
-		Layer layer = _controller.getCurrentPart().getLayers().get(_controller.getCurrentLayerNumber());
+		Layer layer = controller.getCurrentPart().getLayers().get(controller.getCurrentLayerNumber());
 		Vector2 direction = null;
 
 		// Every directions are in the bit's local coordinate system
@@ -87,10 +89,10 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		}
 		// Move all selected bits
 		final Vector2 finalDirection = direction;
-		Set<Vector2> newCoordinates = _controller.getSelectedBits().stream()
+		Set<Vector2> newCoordinates = controller.getSelectedBits().stream()
 				.map(bit2D -> layer.moveBit(bit2D.getOrigin(), finalDirection))
 				.collect(Collectors.toSet());
-		_controller.setSelectedBitKeys(newCoordinates);
+		controller.setSelectedBitKeys(newCoordinates);
 	}
 
 	private void paintBitControls(Bit3D bit, Graphics2D g2d) {
@@ -132,7 +134,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			GeneratedPart part = _controller.getCurrentPart();
+			GeneratedPart part = controller.getCurrentPart();
 
 			if ((part != null) && part.isGenerated()) {
 				// Get the clicked point in the right coordinate system
@@ -141,12 +143,12 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 						((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
 
 				// Register new selected point
-				if (_controller.isOnSelectingMultiplePoints()) {
-					_controller.addOrRemovePoint(clickSpot);
+				if (controller.isOnSelectingMultiplePoints()) {
+					controller.addOrRemovePoint(clickSpot);
 					return;
 				}
 
-				Layer layer = _controller.getCurrentPart().getLayers().get(_controller.getCurrentLayerNumber());
+				Layer layer = controller.getCurrentPart().getLayers().get(controller.getCurrentLayerNumber());
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
 				// Look if we hit a bit control (arrows)
@@ -169,7 +171,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 					area.transform(affTrans);
 					if (area.contains(clickSpot)) {
-						_controller.addOrRemoveSelectedBitKeys(bitKey);
+						controller.addOrRemoveSelectedBitKeys(bitKey);
 						break;
 					}
 				}
@@ -222,23 +224,23 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		if (!rightClickPressed) {
 			// Zoom on the view
 			int notches = e.getWheelRotation();
-			double zoom = _controller.getZoom();
+			double zoom = controller.getZoom();
 			if (notches > 0) {
 				zoom = zoom / 1.25;
 			} else {
 				zoom = zoom * 1.25;
 			}
-			_controller.setZoom(zoom);
+			controller.setZoom(zoom);
 		} else {
 			// Navigate through layers when right click pressed
 			int notches = e.getWheelRotation();
-			int layer = _controller.getCurrentLayerNumber();
+			int layer = controller.getCurrentLayerNumber();
 			if (notches > 0) {
 				layer -= Math.abs(notches);
 			} else {
 				layer += Math.abs(notches);
 			}
-			_controller.setLayer(layer);
+			controller.setLayer(layer);
 		}
 	}
 
@@ -251,7 +253,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		updateDrawScale();
 
 		Graphics2D g2d = (Graphics2D) g;
-		GeneratedPart currentPart = _controller.getCurrentPart();
+		GeneratedPart currentPart = controller.getCurrentPart();
 
 		// If part is only sliced (layers not generated yet), draw the slices
 		if ((currentPart != null) && !currentPart.isGenerated()) {
@@ -262,28 +264,28 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		else if ((currentPart != null) && currentPart.isGenerated()) {
 
 			// Draw previous layer
-			if (_controller.showPreviousLayer() && (_controller.getCurrentLayerNumber() > 0)) {
+			if (controller.showPreviousLayer() && (controller.getCurrentLayerNumber() > 0)) {
 				paintPreviousLayer(g2d);
 			}
 
 			// Draw bits
-			Layer currentLayer = currentPart.getLayers().get(_controller.getCurrentLayerNumber());
+			Layer currentLayer = currentPart.getLayers().get(controller.getCurrentLayerNumber());
 			paintBits(currentPart, currentLayer, g2d);
 
 			// Draw the slices contained in the layer
-			if (_controller.showSlices()) {
+			if (controller.showSlices()) {
 				paintSlicesInTheSameLayer(currentPart, currentLayer, g2d);
 			}
 
 			// Draw the controls of the selected bit
 			bitMovers.clear();
-			if (!_controller.getSelectedBitKeys().isEmpty())
-				_controller.getSelectedBits()
+			if (!controller.getSelectedBitKeys().isEmpty())
+				controller.getSelectedBits()
 						.forEach(bit -> this.paintBitControls(bit, g2d));
 
 			// Draw the selected points
-			if (_controller.isOnSelectingMultiplePoints()) {
-				paintSelectedPoints(_controller.getSelectedPoints(), g2d);
+			if (controller.isOnSelectingMultiplePoints()) {
+				paintSelectedPoints(controller.getSelectedPoints(), g2d);
 			}
 		}
 	}
@@ -304,7 +306,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	private void paintSlices(GeneratedPart currentPart, Graphics2D g2d) {
-		Slice slice = currentPart.getSlices().get(_controller.getCurrentSliceNumber());
+		Slice slice = currentPart.getSlices().get(controller.getCurrentSliceNumber());
 		for (Polygon p : slice) {
 			drawModelPath2D(g2d, p.toPath2D());
 		}
@@ -336,7 +338,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		Vector<Vector2> bitKeys = layer.getBits3dKeys();
 		// Get all the irregular bits (bitKey in fact) in this layer
 		Vector<Vector2> irregularBitsOfThisLayer = currentPart.getOptimizer()
-				.getIrregularBitKeysAtLayer(_controller.getCurrentLayerNumber());
+				.getIrregularBitKeysAtLayer(controller.getCurrentLayerNumber());
 
 		for (Vector2 b : bitKeys) { // Draw each bits
 			Bit3D bit = layer.getBit3D(b);
@@ -348,14 +350,14 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 
 			// Color irregular bits
 			g2d.setColor(new Color(164, 180, 200, 200));
-			if (_controller.showIrregularBits() && irregularBitsOfThisLayer.contains(b)) {
+			if (controller.showIrregularBits() && irregularBitsOfThisLayer.contains(b)) {
 				g2d.setColor(new Color(255, 0, 0, 100));
 			}
 			// Draw the bit's area
 			drawModelArea(g2d, area);
 
 			// Draw the cut path
-			if (_controller.showCutPaths() && (bit.getCutPaths() != null)) {
+			if (controller.showCutPaths() && (bit.getCutPaths() != null)) {
 				g2d.setColor(Color.blue.darker());
 				g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 				for (Path2D p : bit.getCutPaths()) {
@@ -366,7 +368,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 			}
 
 			// Draw the lift points path if checkbox is checked
-			if (_controller.showLiftPoints()) {
+			if (controller.showLiftPoints()) {
 				g2d.setColor(Color.red);
 				g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 				for (Vector2 liftPoint : bit.getLiftPoints()) {
@@ -388,8 +390,8 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	 */
 	private void paintPreviousLayer(Graphics2D g2d) {
 
-		Layer previousLayer = _controller.getCurrentPart().getLayers()
-				.get(_controller.getCurrentLayerNumber() - 1);
+		Layer previousLayer = controller.getCurrentPart().getLayers()
+				.get(controller.getCurrentLayerNumber() - 1);
 		Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
 
 		g2d.setColor(Color.DARK_GRAY);

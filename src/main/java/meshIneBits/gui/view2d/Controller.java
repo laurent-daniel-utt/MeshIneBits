@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * It observes the {@link GeneratedPart} and its {@link meshIneBits.Layer
  * Layers}. Observed by {@link Core} and {@link Wrapper}. A singleton.
  */
-public class Controller extends Observable implements Observer {
+class Controller extends Observable implements Observer {
 
 	static private Controller instance;
 	private GeneratedPart part = null;
@@ -42,19 +42,19 @@ public class Controller extends Observable implements Observer {
 	private Controller() {
 	}
 
-	public int getCurrentLayerNumber() {
+	int getCurrentLayerNumber() {
 		return layerNumber;
 	}
 
-	public GeneratedPart getCurrentPart() {
+	GeneratedPart getCurrentPart() {
 		return part;
 	}
 
-	public int getCurrentSliceNumber() {
+	int getCurrentSliceNumber() {
 		return sliceNumber;
 	}
 
-	public Set<Vector2> getSelectedBitKeys() {
+	Set<Vector2> getSelectedBitKeys() {
 		return selectedBitKeys;
 	}
 
@@ -62,7 +62,7 @@ public class Controller extends Observable implements Observer {
 	 * Bulk reset
 	 * @param newSelectedBitKeys <tt>null</tt> to reset to empty
 	 */
-	public void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
+	void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
 		selectedBitKeys.clear();
 		if (newSelectedBitKeys != null) {
 			selectedBitKeys.addAll(newSelectedBitKeys);
@@ -72,14 +72,14 @@ public class Controller extends Observable implements Observer {
 		notifyObservers(Component.SELECTED_BIT);
 	}
 
-	public Set<Bit3D> getSelectedBits() {
+	Set<Bit3D> getSelectedBits() {
 		Layer currentLayer = part.getLayers().get(layerNumber);
 		return selectedBitKeys.stream()
 				.map(currentLayer::getBit3D)
 				.collect(Collectors.toSet());
 	}
 
-	public double getZoom() {
+	double getZoom() {
 		return zoom;
 	}
 
@@ -105,17 +105,17 @@ public class Controller extends Observable implements Observer {
 	 * Put a generated part under observation of this controller. Also signify
 	 * {@link Core} and {@link Wrapper} to repaint.
 	 *
-	 * @param part should not be null
+	 * @param part <tt>null</tt> to reset
 	 */
-	public void setPart(GeneratedPart part) {
-		if ((this.part == null) && (part != null)) {
+	void setCurrentPart(GeneratedPart part) {
+		if (part != null) {
+			this.part = part;
 			part.addObserver(this);
-		}
 
-		this.part = part;
-
-		setLayer(0);
-		reset();
+			setLayer(0);
+			reset();
+		} else
+			this.part = null;
 
 		setChanged();
 		notifyObservers(Component.PART);
@@ -157,57 +157,54 @@ public class Controller extends Observable implements Observer {
 		notifyObservers(Component.SLICE);
 	}
 
-	public void setZoom(double zoomValue) {
+	void setZoom(double zoomValue) {
 		if (part == null) {
 			return;
 		}
-		zoom = zoomValue;
-		if (zoom < 0.5) {
-			zoom = 0.5;
-		}
+		zoom = zoomValue < Wrapper.MIN_ZOOM_VALUE ? 0.5 : zoomValue;
 
 		setChanged();
 		notifyObservers(Component.ZOOM);
 	}
 
-	public boolean showCutPaths() {
+	boolean showCutPaths() {
 		return showCutPaths;
 	}
 
-	public boolean showLiftPoints() {
+	boolean showLiftPoints() {
 		return showLiftPoints;
 	}
 
-	public boolean showPreviousLayer() {
+	boolean showPreviousLayer() {
 		return showPreviousLayer;
 	}
 
-	public boolean showSlices() {
+	boolean showSlices() {
 		return showSlices;
 	}
 
-	public void toggleShowCutPaths(boolean selected) {
+	void toggleShowCutPaths(boolean selected) {
 		this.showCutPaths = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowLiftPoints(boolean selected) {
+	void toggleShowLiftPoints(boolean selected) {
 		this.showLiftPoints = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowPreviousLayer(boolean selected) {
+	void toggleShowPreviousLayer(boolean selected) {
 		this.showPreviousLayer = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowSlice(boolean selected) {
+	void toggleShowSlice(boolean selected) {
 		this.showSlices = selected;
 
 		setChanged();
@@ -217,9 +214,9 @@ public class Controller extends Observable implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == this.part) {
-			this.setPart(part);
+			this.setCurrentPart(part);
 		} else if (o == this.part.getLayers().get(layerNumber)) {
-			addOrRemoveSelectedBitKeys(null);
+			reset();
 
 			setChanged();
 			notifyObservers(Component.LAYER);
@@ -231,11 +228,11 @@ public class Controller extends Observable implements Observer {
 		PART, LAYER, SELECTED_BIT, ZOOM, SLICE
 	}
 
-	public boolean showIrregularBits() {
+	boolean showIrregularBits() {
 		return showIrregularBits;
 	}
 
-	public void toggleShowIrregularBits(boolean selected) {
+	void toggleShowIrregularBits(boolean selected) {
 		this.showIrregularBits = selected;
 
 		setChanged();
@@ -248,14 +245,14 @@ public class Controller extends Observable implements Observer {
 		return onSelectingMultiplePoints;
 	}
 
-	public void startSelectingMultiplePoints() {
+	void startSelectingMultiplePoints() {
 		onSelectingMultiplePoints = true;
 		selectedPoints = new HashSet<>();
 		setChanged();
 		notifyObservers();
 	}
 
-	public void stopSelectingMultiplePoints() {
+	void stopSelectingMultiplePoints() {
 		onSelectingMultiplePoints = false;
 		selectedPoints.clear();
 		setChanged();
@@ -267,7 +264,7 @@ public class Controller extends Observable implements Observer {
 	 */
 	private Set<Point2D.Double> selectedPoints = new HashSet<>();
 
-	public Set<Point2D.Double> getSelectedPoints() {
+	Set<Point2D.Double> getSelectedPoints() {
 		return selectedPoints;
 	}
 
@@ -289,7 +286,7 @@ public class Controller extends Observable implements Observer {
 	 * @param width new bit's
 	 * @param orientation new bit's
 	 */
-	public void addNewBits(double length, double width, double orientation) {
+	void addNewBits(double length, double width, double orientation) {
 		if (part == null || !part.isGenerated() || selectedPoints == null) return;
 		Vector2 lOrientation = Vector2.getEquivalentVector(orientation);
 		Layer l = part.getLayers().get(layerNumber);

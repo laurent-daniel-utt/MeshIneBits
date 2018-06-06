@@ -1,41 +1,33 @@
 /**
- * 
+ *
  */
 package meshIneBits.gui.view2d;
-
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.gui.SubWindow;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.Objects;
+
 /**
  * @author Quoc Nhat Han TRAN
- *
  */
 public class Window extends JFrame implements SubWindow {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private Wrapper viewWrapper;
-	
+
+	Wrapper viewWrapper;
+
 	public Window() {
+		this.setIconImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png"))).getImage());
 		this.setTitle("MeshIneBits - 2D View");
-		this.setSize(new Dimension(720, 500));
+		this.setSize(new Dimension(1080, 720));
 		viewWrapper = new Wrapper();
 		this.setContentPane(viewWrapper);
-	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#open()
-	 */
-	@Override
-	public void open() {
-		this.setVisible(true);
 	}
 
 	/* (non-Javadoc)
@@ -50,31 +42,8 @@ public class Window extends JFrame implements SubWindow {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#refresh()
-	 */
 	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-
+	public void setCurrentPart(GeneratedPart currentPart) {
+		viewWrapper.getController().setCurrentPart(currentPart);
 	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#setPart(meshIneBits.GeneratedPart)
-	 */
-	@Override
-	public void setPart(GeneratedPart part) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#getPart()
-	 */
-	@Override
-	public void getPart() {
-		// TODO Auto-generated method stub
-
-	}
-
 }
