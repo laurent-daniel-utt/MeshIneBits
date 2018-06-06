@@ -1,6 +1,5 @@
 package meshIneBits.gui;
 
-import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.Model;
@@ -17,6 +16,7 @@ import meshIneBits.gui.view3d.ProcessingView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.XmlTool;
 
 import javax.swing.*;
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * All tasks are placed here.
@@ -735,18 +736,18 @@ public class Toolbar extends JTabbedPane implements Observer {
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
-			Controller vo = Controller.getInstance();
-			GeneratedPart part = vo.getCurrentPart();
-			Layer layer = part.getLayers().get(vo.getCurrentLayerNumber());
+			Controller controller = Controller.getInstance();
+			GeneratedPart part = controller.getCurrentPart();
+			Layer layer = part.getLayers().get(controller.getCurrentLayerNumber());
 
-			if (vo.getSelectedBitKey() == null) {
+			if (controller.getSelectedBitKeys().isEmpty()) {
 				Logger.warning("There is no bit selected");
-				return;
+			} else {
+				Set<Vector2> newSelectedBitKeys = controller.getSelectedBits().stream()
+						.map(bit -> layer.replaceBit(bit, percentageLength, percentageWidth))
+						.collect(Collectors.toSet());
+				controller.setSelectedBitKeys(newSelectedBitKeys);
 			}
-
-			Bit3D bit = layer.getBit3D(vo.getSelectedBitKey());
-
-			vo.setSelectedBitKey(layer.replaceBit(bit, percentageLength, percentageWidth));
 		}
 
 		/**

@@ -12,28 +12,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * A panel resided inside of {@link Wrapper} to show {@link Slice} or
- * {@link Layer} of the {@link GeneratedPart}. It observes
- * {@link Controller}
+ * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
+ * Layer} of the {@link GeneratedPart}. It observes {@link Controller}
  */
 public class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
 
 	private static final long serialVersionUID = 1L;
 	private double viewOffsetX, viewOffsetY;
-	private Vector<Area> bitControls = new Vector<Area>();
+	private Map<Bit3D, BitControls> bitMovers = new HashMap<>();
 	private int oldX, oldY;
 	private Controller _controller;
 	private boolean rightClickPressed = false;
 	private double defaultZoom = 1;
 	private double drawScale = 1;
 
-	public Core() {
+	Core() {
 		// Setting up for easier use later
 		_controller = Controller.getInstance();
 
@@ -41,6 +38,19 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		addMouseMotionListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
+		setFocusable(true);
+		setupKeyBindings();
+	}
+
+	private void setupKeyBindings() {
+		// Reset state when pressing Esc
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "RESET");
+		getActionMap().put("RESET", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_controller.reset();
+			}
+		});
 	}
 
 	private void setDefaultZoom() {
@@ -62,97 +72,29 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 
 		// Every directions are in the bit's local coordinate system
 		switch (id) {
-		case 0: // Top direction
-			direction = new Vector2(0, -1);
-			break;
-		case 1: // Left direction
-			direction = new Vector2(1, 0);
-			break;
-		case 2: // Bottom direction
-			direction = new Vector2(0, 1);
-			break;
-		case 3: // Right direction
-			direction = new Vector2(-1, 0);
-			break;
+			case 0: // Top direction
+				direction = new Vector2(0, -1);
+				break;
+			case 1: // Left direction
+				direction = new Vector2(1, 0);
+				break;
+			case 2: // Bottom direction
+				direction = new Vector2(0, 1);
+				break;
+			case 3: // Right direction
+				direction = new Vector2(-1, 0);
+				break;
 		}
-		Vector2 newCoor = layer.moveBit(_controller.getSelectedBitKey(), direction);
-		if (newCoor != null) {
-			_controller.setSelectedBitKey(newCoor);
-		}
+		// Move all selected bits
+		final Vector2 finalDirection = direction;
+		Set<Vector2> newCoordinates = _controller.getSelectedBits().stream()
+				.map(bit2D -> layer.moveBit(bit2D.getOrigin(), finalDirection))
+				.collect(Collectors.toSet());
+		_controller.setSelectedBitKeys(newCoordinates);
 	}
 
-	private void paintBitControls(Graphics2D g2d, Vector2 bitKey, Bit3D bit) {
-		bitControls.clear();
-
-		// Defining the shape of the arrows
-		TriangleShape triangleShape = new TriangleShape(new Point2D.Double(0, 0), new Point2D.Double(-7, 10),
-				new Point2D.Double(7, 10));
-
-		int padding = 15; // Space between bit and arrows
-
-		Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2,
-				CraftConfig.bitLength, CraftConfig.bitWidth));
-		Vector<Area> areas = new Vector<Area>();
-		areas.add(overlapBit);
-
-		AffineTransform affTrans = new AffineTransform();
-
-		Area topArrow = new Area(triangleShape);
-		affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
-		affTrans.rotate(0, 0);
-		topArrow.transform(affTrans);
-		areas.add(topArrow);
-		bitControls.add(topArrow);
-
-		Area leftArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
-		affTrans.rotate(0, 1);
-		leftArrow.transform(affTrans);
-		areas.add(leftArrow);
-		bitControls.add(leftArrow);
-
-		Area bottomArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
-		affTrans.rotate(-1, 0);
-		bottomArrow.transform(affTrans);
-		areas.add(bottomArrow);
-		bitControls.add(bottomArrow);
-
-		Area rightArrow = new Area(triangleShape);
-		affTrans = new AffineTransform();
-		affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
-		affTrans.rotate(0, -1);
-		rightArrow.transform(affTrans);
-		areas.add(rightArrow);
-		bitControls.add(rightArrow);
-
-		for (Area area : areas) {
-			affTrans = new AffineTransform();
-			affTrans.translate(bitKey.x, bitKey.y);
-			affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-			area.transform(affTrans);
-
-			affTrans = new AffineTransform();
-			affTrans.translate((viewOffsetX * drawScale) + (this.getWidth() / 2),
-					(viewOffsetY * drawScale) + (this.getHeight() / 2));
-			affTrans.scale(drawScale, drawScale);
-			area.transform(affTrans);
-
-			g2d.setColor(new Color(94, 125, 215));
-			if (!area.equals(overlapBit)) {
-				g2d.draw(area);
-				g2d.fill(area);
-			}
-		}
-
-		g2d.setColor(new Color(94, 125, 215));
-		g2d.draw(overlapBit);
-
-		g2d.setColor(new Color(0, 114, 255, 50));
-		g2d.fill(overlapBit);
-
+	private void paintBitControls(Bit3D bit, Graphics2D g2d) {
+		bitMovers.put(bit, new BitControls(bit, g2d));
 	}
 
 	private void drawModelArea(Graphics2D g2d, Area area) {
@@ -208,11 +150,13 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
 				// Look if we hit a bit control (arrows)
-				for (int i = 0; i < bitControls.size(); i++) {
-					if (bitControls.get(i).contains(oldX, oldY)) {
-						clickOnBitControl(i);
-						bitControls.clear();
-						return;
+				for (BitControls controls : bitMovers.values()) {
+					for (int i = 0; i < controls.size(); i++) {
+						if (controls.get(i).contains(oldX, oldY)) {
+							bitMovers.clear();
+							clickOnBitControl(i);
+							return;
+						}
 					}
 				}
 
@@ -225,22 +169,10 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 					affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
 					area.transform(affTrans);
 					if (area.contains(clickSpot)) {
-						if (_controller.getSelectedBitKey() == bitKey) {
-							// then it is a click to unselect this bit
-							_controller.setSelectedBitKey(null);
-							bitControls.clear();
-							// } else if (viewObservable.getSelectedBitKey() == null) {
-							// you need to unselect the bit before being able to select a new one
-						} else {
-							// Remove the highlight of currently selected bit
-							bitControls.clear();
-							// Choose the new one
-							_controller.setSelectedBitKey(bitKey);
-						}
+						_controller.addOrRemoveSelectedBitKeys(bitKey);
 						break;
 					}
 				}
-
 			}
 		}
 	}
@@ -313,6 +245,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		requestFocusInWindow();
 
 		setDefaultZoom();
 		updateDrawScale();
@@ -343,11 +276,10 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 			}
 
 			// Draw the controls of the selected bit
-			if ((_controller.getSelectedBitKey() != null)
-					&& (currentLayer.getBit3D(_controller.getSelectedBitKey()) != null)) {
-				paintBitControls(g2d, _controller.getSelectedBitKey(),
-						currentLayer.getBit3D(_controller.getSelectedBitKey()));
-			}
+			bitMovers.clear();
+			if (!_controller.getSelectedBitKeys().isEmpty())
+				_controller.getSelectedBits()
+						.forEach(bit -> this.paintBitControls(bit, g2d));
 
 			// Draw the selected points
 			if (_controller.isOnSelectingMultiplePoints()) {
@@ -357,6 +289,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 	}
 
 	private void paintSelectedPoints(Set<Point2D.Double> selectedPoints, Graphics2D g2d) {
+		g2d.setColor(Color.RED);
 		selectedPoints.stream()
 				.map(this::layerToView)
 				.map((Point p) -> new Ellipse2D.Double(p.x - 5, p.y - 5, 10, 10))
@@ -383,7 +316,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		for (int i = 0; i < layer.getSlices().size(); i++) {
 			if (i == layer.getSliceToSelect()) {
 				// Set the selected slice of the layer in blue
-				Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 2 },
+				Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{2},
 						0);
 				g2d.setStroke(dashed);
 				g2d.setColor(Color.blue);
@@ -450,7 +383,7 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 
 	/**
 	 * Draw the outline of the layer below the current showing one
-	 * 
+	 *
 	 * @param g2d
 	 */
 	private void paintPreviousLayer(Graphics2D g2d) {
@@ -501,4 +434,80 @@ public class Core extends JPanel implements MouseMotionListener, MouseListener, 
 		}
 	}
 
+	private class BitControls extends Vector<Area> {
+		BitControls(Bit3D bit, Graphics2D g2d) {
+			// Defining the shape of the arrows
+			TriangleShape triangleShape = new TriangleShape(new Point2D.Double(0, 0),
+					new Point2D.Double(-7, 10),
+					new Point2D.Double(7, 10));
+
+			int padding = 15; // Space between bit and arrows
+
+			Area overlapBit = new Area(new Rectangle2D.Double(-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2,
+					CraftConfig.bitLength, CraftConfig.bitWidth));
+			Vector<Area> areas = new Vector<>();
+			areas.add(overlapBit);
+
+			AffineTransform affTrans = new AffineTransform();
+
+			Area topArrow = new Area(triangleShape);
+			affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
+			affTrans.rotate(0, 0);
+			topArrow.transform(affTrans);
+			areas.add(topArrow);
+			this.add(topArrow);
+
+			Area leftArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
+			affTrans.rotate(0, 1);
+			leftArrow.transform(affTrans);
+			areas.add(leftArrow);
+			this.add(leftArrow);
+
+			Area bottomArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
+			affTrans.rotate(-1, 0);
+			bottomArrow.transform(affTrans);
+			areas.add(bottomArrow);
+			this.add(bottomArrow);
+
+			Area rightArrow = new Area(triangleShape);
+			affTrans = new AffineTransform();
+			affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
+			affTrans.rotate(0, -1);
+			rightArrow.transform(affTrans);
+			areas.add(rightArrow);
+			this.add(rightArrow);
+
+			double landscapeWidth = Core.this.getWidth();
+			double landscapeHeight = Core.this.getHeight();
+
+			for (Area area : areas) {
+				affTrans = new AffineTransform();
+				affTrans.translate(bit.getOrigin().x, bit.getOrigin().y);
+				affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+				area.transform(affTrans);
+
+				affTrans = new AffineTransform();
+				affTrans.translate(viewOffsetX * drawScale + landscapeWidth / 2,
+						viewOffsetY * drawScale + landscapeHeight / 2);
+				affTrans.scale(drawScale, drawScale);
+				area.transform(affTrans);
+
+				g2d.setColor(new Color(94, 125, 215));
+				if (!area.equals(overlapBit)) {
+					g2d.draw(area);
+					g2d.fill(area);
+				}
+			}
+
+			g2d.setColor(new Color(94, 125, 215));
+			g2d.draw(overlapBit);
+
+			g2d.setColor(new Color(0, 114, 255, 50));
+			g2d.fill(overlapBit);
+		}
+	}
 }
