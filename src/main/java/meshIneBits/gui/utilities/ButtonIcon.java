@@ -1,11 +1,9 @@
 package meshIneBits.gui.utilities;
 
-import java.awt.Image;
-import java.awt.Insets;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.Objects;
 
 public class ButtonIcon extends JButton {
 	private static final long serialVersionUID = 4439705350058229259L;
@@ -25,7 +23,7 @@ public class ButtonIcon extends JButton {
 
 		try {
 			ImageIcon icon = new ImageIcon(
-					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName)).getImage()
+					new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + iconName))).getImage()
 							.getScaledInstance(width, height, Image.SCALE_DEFAULT));
 			this.setIcon(icon);
 		} catch (Exception e) {

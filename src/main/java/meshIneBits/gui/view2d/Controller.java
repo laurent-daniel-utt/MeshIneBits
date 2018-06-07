@@ -1,24 +1,29 @@
 package meshIneBits.gui.view2d;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import meshIneBits.Bit2D;
+import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
-import meshIneBits.gui.MainWindow;
+import meshIneBits.Layer;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The controller, linking 2D views and part (so-called {@link GeneratedPart}).
- * It observes the part. And it is observed by {@link Core} and {@link Wrapper}.
- * A singleton.
+ * It observes the {@link GeneratedPart} and its {@link meshIneBits.Layer
+ * Layers}. Observed by {@link Core} and {@link Wrapper}. A singleton.
  */
-public class Controller extends Observable implements Observer {
+class Controller extends Observable implements Observer {
 
 	static private Controller instance;
 	private GeneratedPart part = null;
 	private int layerNumber = 0;
 	private int sliceNumber = 0;
-	private Vector2 selectedBitKey = null;
+	private Set<Vector2> selectedBitKeys = new HashSet<>();
 	private double zoom = 1;
 	private boolean showSlices = false;
 	private boolean showLiftPoints = false;
@@ -37,23 +42,44 @@ public class Controller extends Observable implements Observer {
 	private Controller() {
 	}
 
-	public int getCurrentLayerNumber() {
+	int getCurrentLayerNumber() {
 		return layerNumber;
 	}
 
-	public GeneratedPart getCurrentPart() {
+	GeneratedPart getCurrentPart() {
 		return part;
 	}
 
-	public int getCurrentSliceNumber() {
+	int getCurrentSliceNumber() {
 		return sliceNumber;
 	}
 
-	public Vector2 getSelectedBitKey() {
-		return selectedBitKey;
+	Set<Vector2> getSelectedBitKeys() {
+		return selectedBitKeys;
 	}
 
-	public double getZoom() {
+	/**
+	 * Bulk reset
+	 * @param newSelectedBitKeys <tt>null</tt> to reset to empty
+	 */
+	void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
+		selectedBitKeys.clear();
+		if (newSelectedBitKeys != null) {
+			selectedBitKeys.addAll(newSelectedBitKeys);
+			selectedBitKeys.removeIf(Objects::isNull);
+		}
+		setChanged();
+		notifyObservers(Component.SELECTED_BIT);
+	}
+
+	Set<Bit3D> getSelectedBits() {
+		Layer currentLayer = part.getLayers().get(layerNumber);
+		return selectedBitKeys.stream()
+				.map(currentLayer::getBit3D)
+				.collect(Collectors.toSet());
+	}
+
+	double getZoom() {
 		return zoom;
 	}
 
@@ -69,7 +95,7 @@ public class Controller extends Observable implements Observer {
 		}
 		layerNumber = nbrLayer;
 		part.getLayers().get(layerNumber).addObserver(this);
-		setSelectedBitKey(null);
+		reset();
 
 		setChanged();
 		notifyObservers(Component.LAYER);
@@ -78,28 +104,41 @@ public class Controller extends Observable implements Observer {
 	/**
 	 * Put a generated part under observation of this controller. Also signify
 	 * {@link Core} and {@link Wrapper} to repaint.
-	 * 
-	 * @param part should not be null
+	 *
+	 * @param part <tt>null</tt> to reset
 	 */
-	public void setPart(GeneratedPart part) {
-		if ((this.part == null) && (part != null)) {
+	void setCurrentPart(GeneratedPart part) {
+		if (part != null) {
+			this.part = part;
 			part.addObserver(this);
-		}
 
-		this.part = part;
-
-		setLayer(0);
-		setSelectedBitKey(null);
+			setLayer(0);
+			reset();
+		} else
+			this.part = null;
 
 		setChanged();
 		notifyObservers(Component.PART);
 	}
 
-	public void setSelectedBitKey(Vector2 bitKey) {
-		if (part == null) {
+	/**
+	 * Reset all attributes of chooser
+	 */
+	void reset() {
+		setSelectedBitKeys(null);
+		stopSelectingMultiplePoints();
+	}
+
+	/**
+	 * Add new bit key to {@link #selectedBitKeys} and remove if already present
+	 * @param bitKey in layer's coordinate system
+	 */
+	void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
+		if (part == null || !part.isGenerated()) {
 			return;
 		}
-		selectedBitKey = bitKey;
+		if (!selectedBitKeys.add(bitKey))
+			selectedBitKeys.remove(bitKey);
 
 		setChanged();
 		notifyObservers(Component.SELECTED_BIT);
@@ -118,57 +157,54 @@ public class Controller extends Observable implements Observer {
 		notifyObservers(Component.SLICE);
 	}
 
-	public void setZoom(double zoomValue) {
+	void setZoom(double zoomValue) {
 		if (part == null) {
 			return;
 		}
-		zoom = zoomValue;
-		if (zoom < 0.5) {
-			zoom = 0.5;
-		}
+		zoom = zoomValue < Wrapper.MIN_ZOOM_VALUE ? 0.5 : zoomValue;
 
 		setChanged();
 		notifyObservers(Component.ZOOM);
 	}
 
-	public boolean showCutPaths() {
+	boolean showCutPaths() {
 		return showCutPaths;
 	}
 
-	public boolean showLiftPoints() {
+	boolean showLiftPoints() {
 		return showLiftPoints;
 	}
 
-	public boolean showPreviousLayer() {
+	boolean showPreviousLayer() {
 		return showPreviousLayer;
 	}
 
-	public boolean showSlices() {
+	boolean showSlices() {
 		return showSlices;
 	}
 
-	public void toggleShowCutPaths(boolean selected) {
+	void toggleShowCutPaths(boolean selected) {
 		this.showCutPaths = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowLiftPoints(boolean selected) {
+	void toggleShowLiftPoints(boolean selected) {
 		this.showLiftPoints = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowPreviousLayer(boolean selected) {
+	void toggleShowPreviousLayer(boolean selected) {
 		this.showPreviousLayer = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
-	public void toggleShowSlice(boolean selected) {
+	void toggleShowSlice(boolean selected) {
 		this.showSlices = selected;
 
 		setChanged();
@@ -178,28 +214,96 @@ public class Controller extends Observable implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == this.part) {
-			this.setPart(part);
+			this.setCurrentPart(part);
 		} else if (o == this.part.getLayers().get(layerNumber)) {
-			setSelectedBitKey(null);
+			reset();
 
 			setChanged();
 			notifyObservers(Component.LAYER);
 		}
 	}
 
+
 	public enum Component {
 		PART, LAYER, SELECTED_BIT, ZOOM, SLICE
 	}
 
-	public boolean showIrregularBits() {
+	boolean showIrregularBits() {
 		return showIrregularBits;
 	}
 
-	public void toggleShowIrregularBits(boolean selected) {
+	void toggleShowIrregularBits(boolean selected) {
 		this.showIrregularBits = selected;
 
 		setChanged();
 		notifyObservers();
 	}
 
+	private boolean onSelectingMultiplePoints = false;
+
+	boolean isOnSelectingMultiplePoints() {
+		return onSelectingMultiplePoints;
+	}
+
+	void startSelectingMultiplePoints() {
+		onSelectingMultiplePoints = true;
+		selectedPoints = new HashSet<>();
+		setChanged();
+		notifyObservers();
+	}
+
+	void stopSelectingMultiplePoints() {
+		onSelectingMultiplePoints = false;
+		selectedPoints.clear();
+		setChanged();
+		notifyObservers();
+	}
+
+	/**
+	 * Points in coordinate system of layer
+	 */
+	private Set<Point2D.Double> selectedPoints = new HashSet<>();
+
+	Set<Point2D.Double> getSelectedPoints() {
+		return selectedPoints;
+	}
+
+	/**
+	 * Add a new point to {@link #selectedPoints} or remove if we already have
+	 *
+	 * @param newPoint in coordinate system of view not zooming
+	 */
+	void addOrRemovePoint(Point2D.Double newPoint) {
+		if (!selectedPoints.add(newPoint))
+			selectedPoints.remove(newPoint);
+		setChanged();
+		notifyObservers();
+	}
+
+	/**
+	 * Add new bits for each points saved in {@link #selectedPoints}
+	 * @param length new bit's
+	 * @param width new bit's
+	 * @param orientation new bit's
+	 */
+	void addNewBits(double length, double width, double orientation) {
+		if (part == null || !part.isGenerated() || selectedPoints == null) return;
+		Vector2 lOrientation = Vector2.getEquivalentVector(orientation);
+		Layer l = part.getLayers().get(layerNumber);
+		AffineTransform inv = new AffineTransform();
+		try {
+			 inv = l.getSelectedPattern().getAffineTransform().createInverse();
+		} catch (NoninvertibleTransformException e) {
+			// Ignore
+		}
+		final AffineTransform finalInv = inv;
+		selectedPoints.forEach((Point2D.Double p) ->
+		{
+			// Convert coordinates into layer's system
+			finalInv.transform(p, p);
+			Vector2 origin = new Vector2(p.x, p.y);
+			// Add
+			l.addBit(new Bit2D(origin, lOrientation, length, width));
+		});
+	}
 }

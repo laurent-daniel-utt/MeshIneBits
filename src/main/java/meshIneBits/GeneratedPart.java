@@ -1,9 +1,5 @@
 package meshIneBits;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
@@ -11,6 +7,10 @@ import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.Segment2D;
+
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 /**
  * This object is the equivalent of the part which will be printed
@@ -36,7 +36,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	 */
 	public void buildBits2D() {
 
-		if ((t == null) || ((t != null) && !t.isAlive())) {
+		if (t == null || !t.isAlive()) {
 			setPatternTemplate();
 
 			this.layers.clear();
@@ -129,7 +129,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		buildLayers();
 		detectIrregularBits();
 		setChanged();
-		notifyObservers();
+		notifyObservers(Events.PAVED);
 	}
 
 	private void detectIrregularBits() {
@@ -172,7 +172,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			sliced = true;
 			setSkirtRadius();
 			setChanged();
-			notifyObservers();
+			notifyObservers(Events.SLICED);
 		}
 	}
 
@@ -181,5 +181,9 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	 */
 	public Optimizer getOptimizer() {
 		return optimizer;
+	}
+
+	public enum Events {
+		MODEL_LOADED, SLICED, PAVED, AUTO_OPTIMIZED
 	}
 }
