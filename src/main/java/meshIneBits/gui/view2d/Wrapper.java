@@ -23,8 +23,6 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.OptionsContainer;
@@ -351,28 +349,11 @@ class Wrapper extends JPanel implements Observer {
 	private class BitAdderPane extends OptionsContainer {
 		BitAdderPane() {
 			super("Add bit");
-			final DoubleParam newBitsLengthParam = new DoubleParam(
-					"newBitLength",
-					"Bit length",
-					"Length of bits to add",
-					1.0, CraftConfig.bitLength,
-					CraftConfig.bitLength, 1.0);
-			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(newBitsLengthParam);
+			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(controller.getNewBitsLengthParam());
 			add(newBitsLengthSpinner);
-			final DoubleParam newBitsWidthParam = new DoubleParam(
-					"newBitWidth",
-					"Bit width",
-					"Length of bits to add",
-					1.0, CraftConfig.bitWidth,
-					CraftConfig.bitWidth, 1.0);
-			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(newBitsWidthParam);
+			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(controller.getNewBitsWidthParam());
 			add(newBitsWidthSpinner);
-			final DoubleParam newBitsOrientationParam = new DoubleParam(
-					"newBitOrientation",
-					"Bit orientation",
-					"Angle of bits in respect to that of layer",
-					0.0, 360.0, 0.0, 0.01);
-			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(newBitsOrientationParam);
+			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(controller.getNewBitsOrientationParam());
 			add(newBitsOrientationSpinner);
 			JButton chooseOriginsBtn = new JButton("Origins chooser");
 			add(chooseOriginsBtn);
@@ -384,14 +365,9 @@ class Wrapper extends JPanel implements Observer {
 			chooseOriginsBtn.addActionListener(e ->
 					controller.startSelectingMultiplePoints());
 			cancelChoosingOriginsBtn.addActionListener(e ->
-					controller.stopSelectingMultiplePoints());
+					controller.setOnAddingBits(false));
 			addBitsBtn.addActionListener(e -> {
-				controller.addNewBits(
-						newBitsLengthParam.getCurrentValue(),
-						newBitsWidthParam.getCurrentValue(),
-						newBitsOrientationParam.getCurrentValue()
-				);
-				controller.stopSelectingMultiplePoints();
+				controller.setOnAddingBits(true);
 			});
 		}
 	}

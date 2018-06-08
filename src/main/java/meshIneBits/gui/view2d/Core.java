@@ -163,10 +163,15 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 						((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
 						((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
 
-				// Register new selected point
-				if (controller.isOnSelectingMultiplePoints()) {
-					controller.addOrRemovePoint(clickSpot);
-					return;
+//				// Register new selected point
+//				if (controller.isOnSelectingMultiplePoints()) {
+//					controller.addOrRemovePoint(clickSpot);
+//					return;
+//				}
+
+				if (controller.isOnAddingBits()) {
+					controller.addNewBits(clickSpot);
+					return ;
 				}
 
 				Layer layer = controller.getCurrentPart().getLayers().get(controller.getCurrentLayerNumber());
