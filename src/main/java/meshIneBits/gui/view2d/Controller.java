@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.Model;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.util.Vector2;
 
@@ -25,6 +26,7 @@ public class Controller extends Observable implements Observer {
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;
 	private boolean showIrregularBits = false;
+	private Model model = null;
 
 	public static Controller getInstance() {
 		if (instance == null) {
@@ -57,6 +59,13 @@ public class Controller extends Observable implements Observer {
 		return zoom;
 	}
 
+	public Model getModel(){ return model; }
+
+	public void setModel(Model m){
+		model = m;
+		setChanged();
+		notifyObservers();
+	}
 	public void setLayer(int nbrLayer) {
 		if (part == null) {
 			return;

@@ -30,6 +30,7 @@ public class MainWindow extends JFrame {
 	private Toolbar toolbar;
 	private SubWindow view2DWindow;
 	private SubWindow view3DWindow;
+	private SubWindow modelWindow;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -65,6 +66,7 @@ public class MainWindow extends JFrame {
 		// Preview of the generated part & controls
 		view2DWindow = new Window();
 		view3DWindow = new ProcessingView();
+		modelWindow = new ProcessingModelView();
 
 		content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -83,6 +85,7 @@ public class MainWindow extends JFrame {
 		// Refresh subwindows
 		view2DWindow.refresh();
 		view3DWindow.refresh();
+		modelWindow.refresh();
 	}
 
 	public SubWindow get2DView() {
@@ -92,4 +95,6 @@ public class MainWindow extends JFrame {
 	public SubWindow get3DView() {
 		return view3DWindow;
 	}
+
+	public SubWindow getModelView() { return modelWindow; }
 }

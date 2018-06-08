@@ -46,6 +46,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		}
 	}
 
+
 	private void buildLayers() {
 		@SuppressWarnings("unchecked")
 		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
@@ -80,6 +81,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		}
 		Logger.updateStatus("Layer count: " + layerNumber);
 	}
+
 
 	public Vector<Layer> getLayers() {
 		if (!isGenerated()) {

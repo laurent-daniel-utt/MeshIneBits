@@ -10,6 +10,10 @@ import java.util.Vector;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
+import remixlab.dandelion.geom.Quat;
+import remixlab.dandelion.geom.Rot;
+import remixlab.dandelion.geom.Rotation;
+import remixlab.dandelion.geom.Vec;
 
 /**
  * A model is the full set of triangle of the existing 3D mesh to pattern. Model
@@ -269,11 +273,33 @@ public class Model {
 	/**
 	 * TODO
 	 * Rotate all triangles
-	 * @param rotateX
-	 * @param rotateZ
 	 */
-	public void rotate() {
-		// TODO 
-		
+	public void rotate(Rotation rot) {
+		for (Triangle t : triangles){
+            rotateTriangle(t,rot);
+        }
+	}
+	private void rotateTriangle(Triangle t, Rotation rot){
+	     for ( Vector3 p : t.point){
+	         Vec v = rot.rotate(new Vec((float)p.x,(float)p.y,(float)p.z));
+	         p.x = v.x();
+	         p.y = v.y();
+	         p.z = v.z();
+
+         }
+	}
+
+	public void translate(Vector3 trans){
+		float epsilon = 0.001f;
+		for (Triangle t : triangles) {
+			for (int i = 0; i < 3; i++) {
+				t.point[i].addToSelf(trans);
+			}
+		}
+		float min = (float)getMin().z;
+		if ((min < -epsilon) || (min > epsilon)){
+			move(new Vector3(0,0,-min));
+		}
+
 	}
 }

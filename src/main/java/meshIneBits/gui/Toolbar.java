@@ -78,6 +78,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 	private TemplateTab TemplateTab;
 	private ReviewTab ReviewTab;
 	private HashMap<String, Setting> setupAnnotations = loadAnnotations();
+	private Model m;
 
 	public HashMap<String, Setting> getSetupAnnotations() {
 		return setupAnnotations;
@@ -241,6 +242,17 @@ public class Toolbar extends JTabbedPane implements Observer {
 
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							file = fc.getSelectedFile();
+                            String filename = file.toString();
+                            CraftConfig.lastSlicedFile = filename;
+                            CraftConfigLoader.saveConfig(null);
+                            try {
+                                m = new Model(filename);
+                                view2DController.setModel(m);
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                                Logger.error("Failed to load model");
+                                return;
+                            }
 							Logger.updateStatus("Ready to slice " + file.getName());
 							Toolbar.this.SlicerTab.setReadyToSlice(true);
 						}
@@ -808,19 +820,9 @@ public class Toolbar extends JTabbedPane implements Observer {
 					if (file != null) {
 						// Disable button to prevent further clicking
 						computeSlicesBtn.setEnabled(false);
-						String filename = file.toString();
-						CraftConfig.lastSlicedFile = filename;
-						CraftConfigLoader.saveConfig(null);
 						try {
-							Model m;
-							try {
-								m = new Model(filename);
-							} catch (Exception e1) {
-								e1.printStackTrace();
-								Logger.error("Failed to load model");
-								return;
-							}
-							m.center();
+						    m = view2DController.getModel();
+                            m.center();
 							GeneratedPart part = new GeneratedPart(m);
 							Controller.getInstance().setPart(part);
 						} catch (Exception e1) {
@@ -848,8 +850,11 @@ public class Toolbar extends JTabbedPane implements Observer {
 			add(viewsCont);
 			ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
 			ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
+			ButtonIcon _model = new ButtonIcon("Toggle Model view", "gears.png");
 			viewsCont.add(_2D);
 			viewsCont.add(_3D);
+			viewsCont.add(_model);
+
 
 			_2D.addActionListener(new ActionListener() {
 
@@ -866,6 +871,15 @@ public class Toolbar extends JTabbedPane implements Observer {
 				public void actionPerformed(ActionEvent e) {
 					// Show up the 3D view
 					MainWindow.getInstance().get3DView().toggle();
+				}
+			});
+
+			_model.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Show up the 3D view
+					MainWindow.getInstance().getModelView().toggle();
 				}
 			});
 		}
