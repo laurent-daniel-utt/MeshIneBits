@@ -10,10 +10,9 @@ import java.util.Vector;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
-import remixlab.dandelion.geom.Quat;
-import remixlab.dandelion.geom.Rot;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
+
 
 /**
  * A model is the full set of triangle of the existing 3D mesh to pattern. Model
@@ -122,6 +121,7 @@ public class Model {
 		}
 		return ret;
 	}
+
 
 	public Vector<Triangle> getTriangles() {
 		return triangles;
@@ -296,10 +296,5 @@ public class Model {
 				t.point[i].addToSelf(trans);
 			}
 		}
-		float min = (float)getMin().z;
-		if ((min < -epsilon) || (min > epsilon)){
-			move(new Vector3(0,0,-min));
-		}
-
 	}
 }

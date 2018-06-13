@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d41a053f-6220-4c29-9a4a-9154279fe131" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/proscene.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/toxiclibs_p5.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/toxiclibscore.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java" afterDir="false" />
+    <list default="true" id="d41a053f-6220-4c29-9a4a-9154279fe131" name="Default" comment="Implementation model view">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/Model.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingView.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.gradle/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -35,27 +30,40 @@
       <file leaf-file-name="ProcessingModelView.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="601">
-              <caret line="318" lean-forward="true" selection-start-line="318" selection-end-line="318" />
+            <state relative-caret-position="293">
+              <caret line="177" column="88" selection-start-line="177" selection-start-column="88" selection-end-line="177" selection-end-column="88" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#2094#2095#0" expanded="true" />
-                <element signature="e#2166#2167#0" expanded="true" />
-                <element signature="e#2738#2973#0" expanded="true" />
-                <element signature="e#2972#2973#0" expanded="true" />
+                <element signature="e#2782#3017#0" expanded="true" />
+                <element signature="e#3016#3017#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ProcessingView.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingView.java">
+      <file leaf-file-name="PrinterConfig.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/resources/resources/PrinterConfig.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="986">
-              <caret line="77" column="7" lean-forward="true" selection-start-line="77" selection-start-column="7" selection-end-line="77" selection-end-column="7" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="102">
+              <caret line="6" selection-start-line="6" selection-end-line="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GeneratedPart.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Segment2D.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Segment2D.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="29" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -63,8 +71,8 @@
       <file leaf-file-name="Model.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Model.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="81">
-              <caret line="276" column="31" selection-start-line="276" selection-start-column="23" selection-end-line="276" selection-end-column="31" />
+            <state relative-caret-position="-884">
+              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -75,8 +83,8 @@
       <file leaf-file-name="Toolbar.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1734">
-              <caret line="92" column="40" lean-forward="true" selection-start-line="92" selection-start-column="40" selection-end-line="92" selection-end-column="40" />
+            <state relative-caret-position="-389">
+              <caret line="215" column="30" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -95,11 +103,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>openmen</find>
-      <find>rotatio</find>
-      <find>toggle</find>
-      <find>slicer</find>
-      <find>optionscon</find>
       <find>pattern</find>
       <find>toggle 3d</find>
       <find>open model</find>
@@ -121,15 +124,21 @@
       <find>openme</find>
       <find>Rot</find>
       <find>m.center</find>
-      <find>center</find>
       <find>update</find>
       <find>curVo</find>
       <find>closep</find>
+      <find>rot</find>
+      <find>rotate</find>
+      <find>rotate(</find>
+      <find>center</find>
+      <find>open</find>
+      <find>reset</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="Benjamin &lt;benjamin.vallon@yahoo.fr&gt;" />
         <option value="BenjaminVallon" />
       </list>
     </option>
@@ -602,8 +611,10 @@
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java" />
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java" />
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/patterntemplates/ClassicBrickPattern.java" />
-        <option value="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
+        <option value="$PROJECT_DIR$/src/main/resources/resources/PrinterConfig" />
+        <option value="$PROJECT_DIR$/src/main/resources/resources/PrinterConfig.txt" />
+        <option value="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" />
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" />
       </list>
     </option>
@@ -622,17 +633,14 @@
     </navigator>
     <panes>
       <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
               <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="doc" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
@@ -702,12 +710,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="SearchEverywhereHistoryKey" value="skirtradi&#9;PSI&#9;JAVA://meshIneBits.GeneratedPart#getSkirtRadius&#10;generatedpart&#9;PSI&#9;JAVA://meshIneBits.GeneratedPart" />
+    <property name="SearchEverywhereHistoryKey" value="boundaries&#9;PSI&#9;JAVA://meshIneBits.Bit2D#buildBoundaries&#10;skirtr&#9;PSI&#9;JAVA://meshIneBits.GeneratedPart#skirtRadius&#10;skirtradi&#9;PSI&#9;JAVA://meshIneBits.GeneratedPart#getSkirtRadius&#10;generatedpart&#9;PSI&#9;JAVA://meshIneBits.GeneratedPart" />
     <property name="last_opened_file_path" value="$USER_HOME$/Documents/Processing/libraries/toxiclibscore/library/toxiclibscore.jar!/" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
@@ -822,22 +828,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49487555" weight="0.32913387" />
+      <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49121523" weight="0.32913387" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.10761347" side_tool="true" weight="0.3480315" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.112737924" side_tool="true" visible="true" weight="0.1511811" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.89238656" visible="true" weight="0.3480315" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8872621" visible="true" weight="0.1511811" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19985358" />
-      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49926794" weight="0.033070866" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.05929722" />
       <window_info anchor="right" id="Gradle" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -850,6 +856,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49926794" weight="0.033070866" />
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
@@ -857,14 +864,14 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="right" id="Gradle" order="5" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.33070865" />
       <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2737921" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.33070865" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
       <window_info id="UI Designer" order="5" />
@@ -874,7 +881,7 @@
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Build" order="10" visible="true" weight="0.32755905" />
       <window_info id="Capture Tool" order="4" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -891,41 +898,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Implementation model view" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/Window3D.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/SubWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="35" column="26" lean-forward="true" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/package-info.java">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/config/CraftConfigLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2612">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_171/src.zip!/java/io/File.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="148" column="13" selection-start-line="148" selection-start-column="13" selection-end-line="148" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.processing/core/3.3.5/10ae24940346ccd9d4cad4c43caf95ddb1ef12a1/core-3.3.5-sources.jar!/processing/core/PSurface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="68" column="14" selection-start-line="68" selection-start-column="14" selection-end-line="68" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/utilities/CustomFileChooser.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -958,17 +930,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-372">
           <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Vector2.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="138">
-          <caret line="186" column="18" selection-start-line="186" selection-start-column="18" selection-end-line="186" selection-end-column="18" />
-          <folding>
-            <element signature="e#4529#4530#0" expanded="true" />
-            <element signature="e#4560#4561#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1011,13 +972,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Shape2D.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="27" column="36" selection-start-line="27" selection-start-column="33" selection-end-line="27" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/slicer/Slice.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
@@ -1036,9 +990,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="601">
           <caret line="85" column="31" selection-start-line="85" selection-start-column="31" selection-end-line="85" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1053,10 +1004,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="312">
           <caret line="698" column="29" selection-start-line="698" selection-start-column="29" selection-end-line="698" selection-end-column="29" />
-          <folding>
-            <element signature="e#15704#15705#0" expanded="true" />
-            <element signature="e#15770#15771#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1092,10 +1039,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="158">
           <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
-          <folding>
-            <element signature="e#3970#3971#0" expanded="true" />
-            <element signature="e#4021#4022#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1120,13 +1063,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Bit2D.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-238">
-          <caret line="33" column="7" lean-forward="true" selection-start-line="33" selection-start-column="7" selection-end-line="33" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/patterntemplates/ImprovedBrickPattern.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1394">
@@ -1148,33 +1084,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="183" column="17" selection-start-line="183" selection-start-column="11" selection-end-line="183" selection-end-column="20" />
-          <folding>
-            <element signature="e#1765#1772#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/patternTemplate/PatternIntegrityTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-289">
           <caret line="78" column="37" lean-forward="true" selection-start-line="78" selection-start-column="37" selection-end-line="78" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/doc-files/center.PNG">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="35" column="46" selection-start-line="35" selection-start-column="46" selection-end-line="35" selection-end-column="46" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1202,38 +1115,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Model.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="276" column="31" selection-start-line="276" selection-start-column="23" selection-end-line="276" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/Core.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5491">
           <caret line="362" selection-start-line="362" selection-end-line="362" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/Wrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1768">
-          <caret line="172" selection-start-line="172" selection-end-line="172" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.processing/core/3.3.5/10ae24940346ccd9d4cad4c43caf95ddb1ef12a1/core-3.3.5-sources.jar!/processing/core/PApplet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2063">
-          <caret line="818" column="21" selection-start-line="818" selection-start-column="21" selection-end-line="818" selection-end-column="21" />
-          <folding>
-            <element signature="e#29275#29276#0" expanded="true" />
-            <element signature="e#29299#29300#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1244,20 +1129,140 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.processing/core/3.3.5/10ae24940346ccd9d4cad4c43caf95ddb1ef12a1/core-3.3.5-sources.jar!/processing/core/PShape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="3097" column="21" selection-start-line="3097" selection-start-column="14" selection-end-line="3097" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/SubWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="35" column="26" lean-forward="true" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="35" column="46" selection-start-line="35" selection-start-column="46" selection-end-line="35" selection-end-column="46" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/PrinterConfig" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view2d/Wrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="69" column="109" lean-forward="true" selection-start-line="69" selection-start-column="30" selection-end-line="69" selection-end-column="109" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Vector2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="236" column="9" lean-forward="true" selection-start-line="236" selection-start-column="9" selection-end-line="236" selection-end-column="9" />
+          <folding>
+            <element signature="e#4529#4530#0" expanded="true" />
+            <element signature="e#4560#4561#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/AABBrect.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-780">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Segment2D.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="29" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.processing/core/3.3.5/10ae24940346ccd9d4cad4c43caf95ddb1ef12a1/core-3.3.5-sources.jar!/processing/core/PApplet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="818" column="21" selection-start-line="818" selection-start-column="21" selection-end-line="818" selection-end-column="21" />
+          <folding>
+            <element signature="e#29275#29276#0" expanded="true" />
+            <element signature="e#29299#29300#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.processing/core/3.3.5/10ae24940346ccd9d4cad4c43caf95ddb1ef12a1/core-3.3.5-sources.jar!/processing/awt/PGraphicsJava2D.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="2145" selection-start-line="2145" selection-end-line="2145" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Bit2D.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3643">
+          <caret line="139" column="63" lean-forward="true" selection-start-line="139" selection-start-column="63" selection-end-line="139" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/PrinterConfig.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1734">
-          <caret line="92" column="40" lean-forward="true" selection-start-line="92" selection-start-column="40" selection-end-line="92" selection-end-column="40" />
+        <state relative-caret-position="-389">
+          <caret line="215" column="30" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/doc-files/center.PNG">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Model.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-884">
+          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Shape2D.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-17">
+          <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
+          <folding>
+            <element signature="e#1767#1768#0" expanded="true" />
+            <element signature="e#1797#1798#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="986">
-          <caret line="77" column="7" lean-forward="true" selection-start-line="77" selection-start-column="7" selection-end-line="77" selection-end-column="7" />
+        <state relative-caret-position="-6044">
+          <caret line="77" column="7" selection-start-line="77" selection-start-column="7" selection-end-line="77" selection-end-column="7" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1266,14 +1271,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="601">
-          <caret line="318" lean-forward="true" selection-start-line="318" selection-end-line="318" />
+        <state relative-caret-position="293">
+          <caret line="177" column="88" selection-start-line="177" selection-start-column="88" selection-end-line="177" selection-end-column="88" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#2094#2095#0" expanded="true" />
-            <element signature="e#2166#2167#0" expanded="true" />
-            <element signature="e#2738#2973#0" expanded="true" />
-            <element signature="e#2972#2973#0" expanded="true" />
+            <element signature="e#2782#3017#0" expanded="true" />
+            <element signature="e#3016#3017#0" expanded="true" />
           </folding>
         </state>
       </provider>
