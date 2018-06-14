@@ -290,11 +290,31 @@ public class Model {
 	}
 
 	public void translate(Vector3 trans){
-		float epsilon = 0.001f;
 		for (Triangle t : triangles) {
 			for (int i = 0; i < 3; i++) {
 				t.point[i].addToSelf(trans);
 			}
 		}
+	}
+
+	public Vector3 getMinZ() {
+		Vector3 ret = new Vector3();
+		ret.x = Double.MAX_VALUE;
+		ret.y = Double.MAX_VALUE;
+		ret.z = Double.MAX_VALUE;
+		for (Triangle t : triangles) {
+			for (int i = 0; i < 3; i++) {
+				if (ret.x > t.point[i].x) {
+					ret.x = t.point[i].x;
+				}
+				if (ret.y > t.point[i].y) {
+					ret.y = t.point[i].y;
+				}
+				if (ret.z > t.point[i].z) {
+					ret.z = t.point[i].z;
+				}
+			}
+		}
+		return ret;
 	}
 }

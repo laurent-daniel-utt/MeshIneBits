@@ -248,6 +248,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                             try {
                                 m = new Model(filename);
                                 view2DController.setModel(m);
+								MainWindow.getInstance().getModelView().toggle();
                             } catch (Exception e1) {
                                 e1.printStackTrace();
                                 Logger.error("Failed to load model");
@@ -839,6 +840,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 						// Re-enable the button
 						computeSlicesBtn.setEnabled(true);
 					}
+					MainWindow.getInstance().get2DView().toggle();
 				}
 			});
 
@@ -850,10 +852,10 @@ public class Toolbar extends JTabbedPane implements Observer {
 			add(viewsCont);
 			ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
 			ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
-			ButtonIcon _model = new ButtonIcon("Toggle Model view", "gears.png");
+			//ButtonIcon _model = new ButtonIcon("Toggle Model view", "gears.png");
 			viewsCont.add(_2D);
 			viewsCont.add(_3D);
-			viewsCont.add(_model);
+			//viewsCont.add(_model);
 
 
 			_2D.addActionListener(new ActionListener() {
@@ -873,7 +875,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 					MainWindow.getInstance().get3DView().toggle();
 				}
 			});
-
+/*
 			_model.addActionListener(new ActionListener() {
 
 				@Override
@@ -881,7 +883,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 					// Show up the 3D view
 					MainWindow.getInstance().getModelView().toggle();
 				}
-			});
+			});*/
 		}
 	}
 
@@ -959,6 +961,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 					Toolbar.this.view2DController.getCurrentPart().buildBits2D();
 					CraftConfigLoader.saveConfig(null);
 					computeTemplateBtn.setEnabled(true);
+					//MainWindow.getInstance().get3DView().toggle();
 				}
 			});
 		}
