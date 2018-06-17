@@ -111,7 +111,7 @@ class Wrapper extends JPanel implements Observer {
 		zoomSlider.setMaximumSize(new Dimension(MAX_ZOOM_SLIDER_VALUE, 20));
 
 		ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
-		ButtonIcon zoomPlusBtn = new ButtonIcon("","search-plus.png", true);
+		ButtonIcon zoomPlusBtn = new ButtonIcon("", "search-plus.png", true);
 
 		JPanel zoomer = new JPanel();
 		zoomer.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -349,26 +349,21 @@ class Wrapper extends JPanel implements Observer {
 	private class BitAdderPane extends OptionsContainer {
 		BitAdderPane() {
 			super("Add bit");
-			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(controller.getNewBitsLengthParam());
+			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(controller.newBitsLengthParam);
 			add(newBitsLengthSpinner);
-			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(controller.getNewBitsWidthParam());
+			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(controller.newBitsWidthParam);
 			add(newBitsWidthSpinner);
-			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(controller.getNewBitsOrientationParam());
+			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(controller.newBitsOrientationParam);
 			add(newBitsOrientationSpinner);
-			JButton chooseOriginsBtn = new JButton("Origins chooser");
+			JButton chooseOriginsBtn = new JButton("Start");
 			add(chooseOriginsBtn);
 			JButton cancelChoosingOriginsBtn = new JButton("Cancel");
 			add(cancelChoosingOriginsBtn);
-			JButton addBitsBtn = new JButton("Add");
-			add(addBitsBtn);
 
 			chooseOriginsBtn.addActionListener(e ->
-					controller.startSelectingMultiplePoints());
+					controller.setOnAddingBits(true));
 			cancelChoosingOriginsBtn.addActionListener(e ->
 					controller.setOnAddingBits(false));
-			addBitsBtn.addActionListener(e -> {
-				controller.setOnAddingBits(true);
-			});
 		}
 	}
 

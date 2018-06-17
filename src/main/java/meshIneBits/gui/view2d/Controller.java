@@ -150,7 +150,7 @@ class Controller extends Observable implements Observer {
 	 */
 	void reset() {
 		setSelectedBitKeys(null);
-		stopSelectingMultiplePoints();
+		setOnAddingBits(false);
 	}
 
 	/**
@@ -242,8 +242,6 @@ class Controller extends Observable implements Observer {
 		if (o == this.part) {
 			this.setCurrentPart(part);
 		} else if (o == this.part.getLayers().get(layerNumber)) {
-			reset();
-
 			setChanged();
 			notifyObservers(Component.LAYER);
 		}
@@ -265,12 +263,6 @@ class Controller extends Observable implements Observer {
 		notifyObservers();
 	}
 
-	private boolean onSelectingMultiplePoints = false;
-
-	boolean isOnSelectingMultiplePoints() {
-		return onSelectingMultiplePoints;
-	}
-
 	private boolean onAddingBits = false;
 
 	boolean isOnAddingBits() {
@@ -279,68 +271,8 @@ class Controller extends Observable implements Observer {
 
 	void setOnAddingBits(boolean onAddingBits) {
 		this.onAddingBits = onAddingBits;
-	}
-
-	void startSelectingMultiplePoints() {
-		onSelectingMultiplePoints = true;
-		selectedPoints = new HashSet<>();
 		setChanged();
 		notifyObservers();
-	}
-
-	void stopSelectingMultiplePoints() {
-		onSelectingMultiplePoints = false;
-		selectedPoints.clear();
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Points in coordinate system of layer
-	 */
-	private Set<Point2D.Double> selectedPoints = new HashSet<>();
-
-	Set<Point2D.Double> getSelectedPoints() {
-		return selectedPoints;
-	}
-
-	/**
-	 * Add a new point to {@link #selectedPoints} or remove if we already have
-	 *
-	 * @param newPoint in coordinate system of view not zooming
-	 */
-	void addOrRemovePoint(Point2D.Double newPoint) {
-		if (!selectedPoints.add(newPoint))
-			selectedPoints.remove(newPoint);
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Add new bits for each points saved in {@link #selectedPoints}
-	 *
-	 * @param length      new bit's
-	 * @param width       new bit's
-	 * @param orientation new bit's
-	 */
-	void addNewBits(double length, double width, double orientation) {
-		if (part == null || !part.isGenerated() || selectedPoints == null)
-			return;
-		Vector2 lOrientation = Vector2.getEquivalentVector(orientation);
-		Layer l = part.getLayers().get(layerNumber);
-		AffineTransform inv = new AffineTransform();
-		try {
-			inv = l.getSelectedPattern().getAffineTransform().createInverse();
-		} catch (NoninvertibleTransformException e) {
-			// Ignore
-		}
-		final AffineTransform finalInv = inv;
-		for (Point2D.Double p : selectedPoints) {// Convert coordinates into layer's system
-			finalInv.transform(p, p);
-			Vector2 origin = new Vector2(p.x, p.y);
-			// Add
-			l.addBit(new Bit2D(origin, lOrientation, length, width));
-		}
 	}
 
 	// New bit config
@@ -361,18 +293,6 @@ class Controller extends Observable implements Observer {
 			"Bit orientation",
 			"Angle of bits in respect to that of layer",
 			0.0, 360.0, 0.0, 0.01);
-
-	public DoubleParam getNewBitsLengthParam() {
-		return newBitsLengthParam;
-	}
-
-	public DoubleParam getNewBitsWidthParam() {
-		return newBitsWidthParam;
-	}
-
-	public DoubleParam getNewBitsOrientationParam() {
-		return newBitsOrientationParam;
-	}
 
 	void addNewBits(Point2D.Double position) {
 		if (part == null || !part.isGenerated() || position == null) return;
