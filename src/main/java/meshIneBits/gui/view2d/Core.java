@@ -163,9 +163,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 						((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
 						((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
 
-				// Register new selected point
-				if (controller.isOnSelectingMultiplePoints()) {
-					controller.addOrRemovePoint(clickSpot);
+				if (controller.isOnAddingBits()) {
+					controller.addNewBits(clickSpot);
 					return;
 				}
 
@@ -224,6 +223,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	public void mouseMoved(MouseEvent e) {
 		oldX = e.getX();
 		oldY = e.getY();
+		if (controller.isOnAddingBits())
+			repaint();
 	}
 
 	@Override
@@ -279,8 +280,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		// If part is only sliced (layers not generated yet), draw the slices
 		if ((currentPart != null) && !currentPart.isGenerated()) {
 			paintSlices(currentPart, g2d);
-
 		}
+
 		// If layers are generated, draw the patterns
 		else if ((currentPart != null) && currentPart.isGenerated()) {
 
@@ -304,26 +305,30 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 				controller.getSelectedBits()
 						.forEach(bit -> this.paintBitControls(bit, g2d));
 
-			// Draw the selected points
-			if (controller.isOnSelectingMultiplePoints()) {
-				paintSelectedPoints(controller.getSelectedPoints(), g2d);
+			// Draw the preview of adding bits
+			if (controller.isOnAddingBits()) {
+				paintBitPreview(g2d);
 			}
 		}
 	}
 
-	private void paintSelectedPoints(Set<Point2D.Double> selectedPoints, Graphics2D g2d) {
-		g2d.setColor(Color.RED);
-		selectedPoints.stream()
-				.map(this::layerToView)
-				.map((Point p) -> new Ellipse2D.Double(p.x - 5, p.y - 5, 10, 10))
-				.forEach(g2d::fill);
-	}
+	private void paintBitPreview(Graphics2D g2d) {
+		Rectangle2D.Double r = new Rectangle2D.Double(
+				-CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2,
+				controller.newBitsLengthParam.getCurrentValue(),
+				controller.newBitsWidthParam.getCurrentValue());
+		Area a = new Area(r);
+		AffineTransform affineTransform = new AffineTransform();
+		affineTransform.translate(oldX, oldY);
+		Vector2 lOrientation = Vector2.getEquivalentVector(
+				controller.newBitsOrientationParam.getCurrentValue());
+		affineTransform.rotate(lOrientation.x, lOrientation.y);
+		affineTransform.scale(drawScale, drawScale);
+		a.transform(affineTransform);
 
-	private Point layerToView(Point2D.Double p) {
-		return new Point(
-				(int) ((p.x + viewOffsetX) * drawScale) + (this.getWidth() / 2),
-				(int) ((p.y + viewOffsetY) * drawScale) + (this.getHeight() / 2)
-		);
+		g2d.setColor(Color.BLUE);
+		g2d.setStroke(new BasicStroke(1.0f));
+		g2d.draw(a);
 	}
 
 	private void paintSlices(GeneratedPart currentPart, Graphics2D g2d) {
@@ -526,6 +531,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 				}
 			}
 
+			g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 			g2d.setColor(new Color(94, 125, 215));
 			g2d.draw(overlapBit);
 

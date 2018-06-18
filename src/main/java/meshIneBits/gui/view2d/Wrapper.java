@@ -23,8 +23,6 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.OptionsContainer;
@@ -113,7 +111,7 @@ class Wrapper extends JPanel implements Observer {
 		zoomSlider.setMaximumSize(new Dimension(MAX_ZOOM_SLIDER_VALUE, 20));
 
 		ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
-		ButtonIcon zoomPlusBtn = new ButtonIcon("","search-plus.png", true);
+		ButtonIcon zoomPlusBtn = new ButtonIcon("", "search-plus.png", true);
 
 		JPanel zoomer = new JPanel();
 		zoomer.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -351,48 +349,21 @@ class Wrapper extends JPanel implements Observer {
 	private class BitAdderPane extends OptionsContainer {
 		BitAdderPane() {
 			super("Add bit");
-			final DoubleParam newBitsLengthParam = new DoubleParam(
-					"newBitLength",
-					"Bit length",
-					"Length of bits to add",
-					1.0, CraftConfig.bitLength,
-					CraftConfig.bitLength, 1.0);
-			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(newBitsLengthParam);
+			LabeledSpinner newBitsLengthSpinner = new LabeledSpinner(controller.newBitsLengthParam);
 			add(newBitsLengthSpinner);
-			final DoubleParam newBitsWidthParam = new DoubleParam(
-					"newBitWidth",
-					"Bit width",
-					"Length of bits to add",
-					1.0, CraftConfig.bitWidth,
-					CraftConfig.bitWidth, 1.0);
-			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(newBitsWidthParam);
+			LabeledSpinner newBitsWidthSpinner = new LabeledSpinner(controller.newBitsWidthParam);
 			add(newBitsWidthSpinner);
-			final DoubleParam newBitsOrientationParam = new DoubleParam(
-					"newBitOrientation",
-					"Bit orientation",
-					"Angle of bits in respect to that of layer",
-					0.0, 360.0, 0.0, 0.01);
-			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(newBitsOrientationParam);
+			LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(controller.newBitsOrientationParam);
 			add(newBitsOrientationSpinner);
-			JButton chooseOriginsBtn = new JButton("Origins chooser");
+			JButton chooseOriginsBtn = new JButton("Start");
 			add(chooseOriginsBtn);
 			JButton cancelChoosingOriginsBtn = new JButton("Cancel");
 			add(cancelChoosingOriginsBtn);
-			JButton addBitsBtn = new JButton("Add");
-			add(addBitsBtn);
 
 			chooseOriginsBtn.addActionListener(e ->
-					controller.startSelectingMultiplePoints());
+					controller.setOnAddingBits(true));
 			cancelChoosingOriginsBtn.addActionListener(e ->
-					controller.stopSelectingMultiplePoints());
-			addBitsBtn.addActionListener(e -> {
-				controller.addNewBits(
-						newBitsLengthParam.getCurrentValue(),
-						newBitsWidthParam.getCurrentValue(),
-						newBitsOrientationParam.getCurrentValue()
-				);
-				controller.stopSelectingMultiplePoints();
-			});
+					controller.setOnAddingBits(false));
 		}
 	}
 

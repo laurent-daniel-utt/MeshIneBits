@@ -25,6 +25,8 @@ import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
@@ -81,6 +83,7 @@ class Controller extends Observable implements Observer {
 
 	/**
 	 * Bulk reset
+	 *
 	 * @param newSelectedBitKeys <tt>null</tt> to reset to empty
 	 */
 	void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
@@ -147,11 +150,13 @@ class Controller extends Observable implements Observer {
 	 */
 	void reset() {
 		setSelectedBitKeys(null);
-		stopSelectingMultiplePoints();
+		setOnAddingBits(false);
 	}
 
 	/**
-	 * Add new bit key to {@link #selectedBitKeys} and remove if already present
+	 * Add new bit key to {@link #selectedBitKeys} and remove if already
+	 * present
+	 *
 	 * @param bitKey in layer's coordinate system
 	 */
 	void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
@@ -237,8 +242,6 @@ class Controller extends Observable implements Observer {
 		if (o == this.part) {
 			this.setCurrentPart(part);
 		} else if (o == this.part.getLayers().get(layerNumber)) {
-			reset();
-
 			setChanged();
 			notifyObservers(Component.LAYER);
 		}
@@ -260,71 +263,53 @@ class Controller extends Observable implements Observer {
 		notifyObservers();
 	}
 
-	private boolean onSelectingMultiplePoints = false;
+	private boolean onAddingBits = false;
 
-	boolean isOnSelectingMultiplePoints() {
-		return onSelectingMultiplePoints;
+	boolean isOnAddingBits() {
+		return onAddingBits;
 	}
 
-	void startSelectingMultiplePoints() {
-		onSelectingMultiplePoints = true;
-		selectedPoints = new HashSet<>();
+	void setOnAddingBits(boolean onAddingBits) {
+		this.onAddingBits = onAddingBits;
 		setChanged();
 		notifyObservers();
 	}
 
-	void stopSelectingMultiplePoints() {
-		onSelectingMultiplePoints = false;
-		selectedPoints.clear();
-		setChanged();
-		notifyObservers();
-	}
+	// New bit config
+	final DoubleParam newBitsLengthParam = new DoubleParam(
+			"newBitLength",
+			"Bit length",
+			"Length of bits to add",
+			1.0, CraftConfig.bitLength,
+			CraftConfig.bitLength, 1.0);
+	final DoubleParam newBitsWidthParam = new DoubleParam(
+			"newBitWidth",
+			"Bit width",
+			"Length of bits to add",
+			1.0, CraftConfig.bitWidth,
+			CraftConfig.bitWidth, 1.0);
+	final DoubleParam newBitsOrientationParam = new DoubleParam(
+			"newBitOrientation",
+			"Bit orientation",
+			"Angle of bits in respect to that of layer",
+			0.0, 360.0, 0.0, 0.01);
 
-	/**
-	 * Points in coordinate system of layer
-	 */
-	private Set<Point2D.Double> selectedPoints = new HashSet<>();
-
-	Set<Point2D.Double> getSelectedPoints() {
-		return selectedPoints;
-	}
-
-	/**
-	 * Add a new point to {@link #selectedPoints} or remove if we already have
-	 *
-	 * @param newPoint in coordinate system of view not zooming
-	 */
-	void addOrRemovePoint(Point2D.Double newPoint) {
-		if (!selectedPoints.add(newPoint))
-			selectedPoints.remove(newPoint);
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Add new bits for each points saved in {@link #selectedPoints}
-	 * @param length new bit's
-	 * @param width new bit's
-	 * @param orientation new bit's
-	 */
-	void addNewBits(double length, double width, double orientation) {
-		if (part == null || !part.isGenerated() || selectedPoints == null) return;
-		Vector2 lOrientation = Vector2.getEquivalentVector(orientation);
+	void addNewBits(Point2D.Double position) {
+		if (part == null || !part.isGenerated() || position == null) return;
+		Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
 		Layer l = part.getLayers().get(layerNumber);
 		AffineTransform inv = new AffineTransform();
 		try {
-			 inv = l.getSelectedPattern().getAffineTransform().createInverse();
+			inv = l.getSelectedPattern().getAffineTransform().createInverse();
 		} catch (NoninvertibleTransformException e) {
 			// Ignore
 		}
 		final AffineTransform finalInv = inv;
-		selectedPoints.forEach((Point2D.Double p) ->
-		{
-			// Convert coordinates into layer's system
-			finalInv.transform(p, p);
-			Vector2 origin = new Vector2(p.x, p.y);
-			// Add
-			l.addBit(new Bit2D(origin, lOrientation, length, width));
-		});
+		finalInv.transform(position, position);
+		Vector2 origin = new Vector2(position.x, position.y);
+		// Add
+		l.addBit(new Bit2D(origin, lOrientation,
+				newBitsLengthParam.getCurrentValue(),
+				newBitsWidthParam.getCurrentValue()));
 	}
 }
