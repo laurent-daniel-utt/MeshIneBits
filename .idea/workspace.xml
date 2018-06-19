@@ -5,10 +5,105 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/Model.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/doc-files/bit2d.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/doc-files/center.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$AboutDialogWindow$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$AboutDialogWindow$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$AboutDialogWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$AboutDialogWindow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$FileMenuItem$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$FileMenuItem$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$FileMenuItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp$FileMenuItem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton$FileMenuPopUp.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$FileMenuButton.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$10.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$10.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$11.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$11.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$12.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$12.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$13.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$13.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$14.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$14.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$15.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$15.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$16.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$16.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$17.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$17.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$18.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$18.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$19.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$19.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$20.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$20.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$7.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$8.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$9.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$9.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$RibbonCheckBox.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab$RibbonCheckBox.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$ReviewTab.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$SlicerTab.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$TemplatesMenu$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$TemplatesMenu$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$TemplatesMenu.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer$TemplatesMenu.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$GalleryContainer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$PatternParametersContainer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab$PatternParametersContainer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar$TemplateTab.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/Toolbar.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/utilities/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingModelView.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingView$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingView$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/classes/meshIneBits/gui/view3d/ProcessingView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/slicer/doc-files/slice.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/slicer/doc-files/slices.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/meshIneBits/util/doc-files/polygone.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/3D.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/MeshIneBits.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/MeshIneBitsAlpha.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/align-center.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/angle-down.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/angle-up.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/bars.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/blue-bars.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/cog.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/compass.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/conf-o.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/conf-save.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/cut-length.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/cut-quart.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/cut-width.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/default-template-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/delete-bit.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/file-code-o.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/file-o.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/full-bit.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/gears.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/help.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/info-circle.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/model.ucls" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/p1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/p2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/p3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/p4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/p5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/rotate-left.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/save.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/search-minus.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/search-plus.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/classes/resources/times.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/classes/stlModel/Blob.stl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/classes/stlModel/CreuxBoite.stl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/classes/stlModel/Cylindre.stl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/classes/stlModel/Sphere.stl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/classes/stlModel/Tour.stl" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.gradle/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -27,16 +122,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ProcessingModelView.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ProcessingModelView.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="293">
-              <caret line="177" column="88" selection-start-line="177" selection-start-column="88" selection-end-line="177" selection-end-column="88" />
+              <caret line="156" column="24" selection-start-line="156" selection-start-column="24" selection-end-line="156" selection-end-column="24" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#2782#3017#0" expanded="true" />
-                <element signature="e#3016#3017#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="12" column="16" selection-start-line="12" selection-start-column="16" selection-end-line="12" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -53,8 +155,8 @@
       <file leaf-file-name="GeneratedPart.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
+            <state relative-caret-position="2414">
+              <caret line="142" column="9" selection-start-line="142" selection-start-column="9" selection-end-line="142" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -62,8 +164,8 @@
       <file leaf-file-name="Segment2D.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Segment2D.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="29" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="29" />
+            <state>
+              <caret column="25" selection-start-column="25" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -71,8 +173,7 @@
       <file leaf-file-name="Model.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Model.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-884">
-              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+            <state>
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -83,11 +184,8 @@
       <file leaf-file-name="Toolbar.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-389">
-              <caret line="215" column="30" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="30" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="3621">
+              <caret line="213" selection-start-line="213" selection-end-line="213" />
             </state>
           </provider>
         </entry>
@@ -148,6 +246,7 @@
         <entry key="$PROJECT_DIR$" value="campbell_trial_branch" />
       </map>
     </option>
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="GradleLocalSettings">
     <option name="myGradleHomes">
@@ -399,9 +498,9 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="6112357299727" />
+        <entry key="$PROJECT_DIR$" value="6115598366405" />
         <entry key="$PROJECT_DIR$/.gradle" value="0" />
-        <entry key="$PROJECT_DIR$/build.gradle" value="2969859910" />
+        <entry key="$PROJECT_DIR$/build.gradle" value="24081229" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="407797137" />
         <entry key="$PROJECT_DIR$/settings.gradle" value="4022173338" />
       </map>
@@ -616,6 +715,7 @@
         <option value="$PROJECT_DIR$/src/main/resources/resources/PrinterConfig.txt" />
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/Model.java" />
         <option value="$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -632,8 +732,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -642,74 +740,12 @@
               <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
               <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="meshIneBits" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="meshIneBits" type="462c0819:PsiDirectoryNode" />
-              <item name="doc-files" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="meshIneBits" type="462c0819:PsiDirectoryNode" />
-              <item name="gui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="meshIneBits" type="462c0819:PsiDirectoryNode" />
-              <item name="gui" type="462c0819:PsiDirectoryNode" />
-              <item name="view2d" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MeshIneBits" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MeshIneBits" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="meshIneBits" type="462c0819:PsiDirectoryNode" />
-              <item name="gui" type="462c0819:PsiDirectoryNode" />
-              <item name="view3d" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -824,11 +860,18 @@
       <option name="presentableId" value="Default" />
       <updated>1527863714843</updated>
     </task>
+    <task id="LOCAL-00001" summary="Update gitignore">
+      <created>1529418030736</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1529418030736</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -836,14 +879,15 @@
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.112737924" side_tool="true" visible="true" weight="0.1511811" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5015129" side_tool="true" weight="0.32843137" />
       <window_info anchor="right" id="Maven Projects" order="3" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8872621" visible="true" weight="0.1511811" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49848714" visible="true" weight="0.32843137" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.8865355" weight="0.1503268" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.05929722" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24962178" />
+      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49848714" weight="0.03267974" />
       <window_info anchor="right" id="Gradle" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -856,7 +900,6 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49926794" weight="0.033070866" />
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
@@ -866,14 +909,15 @@
       <window_info anchor="right" id="Gradle" order="5" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.33070865" />
       <window_info anchor="right" id="Theme Preview" order="6" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2737921" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
+      <window_info id="Capture Tool" order="4" />
       <window_info id="UI Designer" order="5" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -881,30 +925,49 @@
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Build" order="10" visible="true" weight="0.32755905" />
-      <window_info id="Capture Tool" order="4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Messages" order="11" weight="0.32913387" />
       <window_info anchor="right" id="Maven Projects" order="8" />
       <window_info id="Favorites" order="6" side_tool="true" />
     </layout-to-restore>
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Implementation model view" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implementation model view" />
+    <MESSAGE value="Update gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update gitignore" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/utilities/CustomFileChooser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/PolygonPointsList.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-304">
@@ -1147,9 +1210,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="125">
           <caret line="35" column="46" selection-start-line="35" selection-start-column="46" selection-end-line="35" selection-end-column="46" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1165,10 +1225,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
           <caret line="236" column="9" lean-forward="true" selection-start-line="236" selection-start-column="9" selection-end-line="236" selection-end-column="9" />
-          <folding>
-            <element signature="e#4529#4530#0" expanded="true" />
-            <element signature="e#4560#4561#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1181,8 +1237,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/util/Segment2D.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="29" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="29" />
+        <state>
+          <caret column="25" selection-start-column="25" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -1190,10 +1246,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="161">
           <caret line="818" column="21" selection-start-line="818" selection-start-column="21" selection-end-line="818" selection-end-column="21" />
-          <folding>
-            <element signature="e#29275#29276#0" expanded="true" />
-            <element signature="e#29299#29300#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1220,11 +1272,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/Toolbar.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-389">
-          <caret line="215" column="30" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="3621">
+          <caret line="213" selection-start-line="213" selection-end-line="213" />
         </state>
       </provider>
     </entry>
@@ -1233,8 +1282,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/Model.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-884">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+        <state>
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1245,17 +1293,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-17">
           <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
-          <folding>
-            <element signature="e#1767#1768#0" expanded="true" />
-            <element signature="e#1797#1798#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/GeneratedPart.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
+        <state relative-caret-position="2414">
+          <caret line="142" column="9" selection-start-line="142" selection-start-column="9" selection-end-line="142" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -1272,12 +1316,17 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/meshIneBits/gui/view3d/ProcessingModelView.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="293">
-          <caret line="177" column="88" selection-start-line="177" selection-start-column="88" selection-end-line="177" selection-end-column="88" />
+          <caret line="156" column="24" selection-start-line="156" selection-start-column="24" selection-end-line="156" selection-end-column="24" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#2782#3017#0" expanded="true" />
-            <element signature="e#3016#3017#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="16" selection-start-line="12" selection-start-column="16" selection-end-line="12" selection-end-column="16" />
         </state>
       </provider>
     </entry>
