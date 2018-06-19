@@ -1,6 +1,10 @@
 package meshIneBits.gui.view3d;
 
 import java.awt.geom.Area;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -16,14 +20,19 @@ import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
 import meshIneBits.gui.view2d.Controller;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
 import processing.core.PApplet;
 import processing.core.PShape;
-import processing.event.MouseEvent;
 import processing.opengl.PJOGL;
+
+import remixlab.proscene.Scene;
+import remixlab.dandelion.geom.Vec;
+
+import static java.awt.event.KeyEvent.VK_SPACE;
+import static meshIneBits.gui.view3d.ProcessingView.Mode.full;
+import static meshIneBits.gui.view3d.ProcessingView.Mode.sliced;
+import static remixlab.proscene.MouseAgent.WHEEL_ID;
+
 /**
  * The 3D view of model loaded
  *
@@ -32,31 +41,20 @@ import processing.opengl.PJOGL;
  */
 public class ProcessingView extends PApplet implements Observer, SubWindow {
 
-	private float zRotation = 0;
-	private float xRotation = -PI / 6;
-	private float scale = 1;
 	private Controller curVO = null;
 	private HashMap<Position, PShape> shapeMap;
-	private boolean autoRotate = true;
 
-	private final float ROTATION_STEP = PI / 12;
-	private final float ZOOM_STEP = (float) 1.25;
-	private final float FRAME_RATE = 20;
-	private final int BACKGROUND_COLOR = color(240, 240, 240);
-	private final int BIT_COLOR = color(155, 132, 91);
+	private final int BACKGROUND_COLOR = color(150, 150, 150);
+	private final int BIT_COLOR = color(219, 100, 50);
+	private float printerX;
+	private float printerY;
+	private float printerZ;
 
-	private float bx = width / 2;
-	private float by = height / 2;
-	private float rx = 0;
-	private float ry = 0;
-	private float xOffset = 0;
-	private float yOffset = 0;
-	private float scaleImg = 1;
-	private int boxSize = 100;
-	private boolean overBox = false;
-	boolean locked = false;
+	private Scene scene;
 
 	public static ProcessingView currentInstance = null;
+	public enum Mode { full, sliced };
+	public Mode mode = sliced ;
 
 	/**
 	 *
@@ -100,7 +98,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
 			win.removeWindowListener(wl);
 		}
-
 		win.setDefaultCloseOperation(WindowClosingMode.DISPOSE_ON_CLOSE);
 
 		win.addWindowListener(new WindowAdapter() {
@@ -121,39 +118,20 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 		surface.setTitle("MeshIneBits - 3D view");
 
-		frameRate(FRAME_RATE);
-
-		noLoop();
-
 		curVO = Controller.getInstance();
 		curVO.addObserver(this);
 		setCloseOperation();
 
+		scene = new Scene(this);
+		scene.eye().setPosition(new Vec(0, 1, 1));
+		scene.eye().lookAt(scene.eye().sceneCenter());
+		scene.setRadius(2500);
+		scene.showAll();
+		scene.disableKeyboardAgent();
+		scene.toggleGridVisualHint();
 
 		buildModel();
-
-		setInitialScale();
 	}
-
-	/**
-	 *
-	 */
-	private void setInitialScale() {
-		float modelSkirtDiameter = (float) (curVO.getCurrentPart().getSkirtRadius() * 2);
-
-		float bitThickness = (float) CraftConfig.bitThickness;
-		float layersOffSet = (float) CraftConfig.layersOffset;
-		float modelTotalHeight = curVO.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet);
-
-		float heightRatio = height / modelTotalHeight;
-		float widthRatio = width / modelSkirtDiameter;
-
-		if (heightRatio < widthRatio)
-			scale = heightRatio;
-		else
-			scale = widthRatio;
-	}
-
 	/**
 	 *
 	 */
@@ -169,34 +147,23 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		PShape uncutBitPShape = getUncutBitPShape(bitThickness);
 
 		float zLayer;
-
 		int bitCount = 0;
 
 		for (Layer curLayer : layers) {
-
 			zLayer = curLayer.getLayerNumber() * (bitThickness + layersOffSet);
-
 			for (Vector2 curBitKey : curLayer.getBits3dKeys()) {
-
 				bitCount++;
-
 				Bit3D curBit = curLayer.getBit3D(curBitKey);
-
 				PShape bitPShape;
-
 				// if(curBit.getCutPaths() == null)
 				// bitPShape = uncutBitPShape;
 				// else
 				bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
-
 				if (bitPShape != null) {
-
 					bitPShape.setFill(BIT_COLOR);
-
 					Vector2 curBitCenter = curBit.getOrigin();
 					float curBitCenterX = (float) curBitCenter.x;
 					float curBitCenterY = (float) curBitCenter.y;
-
 					float[] translation = { curBitCenterX, curBitCenterY, zLayer };
 					float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
 					Position curBitPosition = new Position(translation, rotation);
@@ -271,52 +238,25 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	 */
 	public void draw() {
 		background(BACKGROUND_COLOR);
-		System.out.println("drawing");
-		System.out.println("bx = " + bx + "by = " + by);
-		// if(autoRotate){
-		// loop();
-		// rect(20, height - 70, 20, 50);
-		// rect(50, height - 70, 20, 50);
-		// zRotation += PI/200;
-		// }
-		// else{
-		// noLoop();
-		// triangle(20, height - 70, 20, height - 20, 70, height - 45);
-		// }
+		lights();
 
 		float bitThickness = (float) CraftConfig.bitThickness;
 		float layersOffSet = (float) CraftConfig.layersOffset;
 
-//		float bx = width / 2;
-//		float by = height / 2;
-
-		int totalHeight = (int) (curVO.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
-
-		// camera(width/2, height/2, (height/2) / tan(PI/6), width/2, height/2, 0, 0, 1,
-		// 0);
-
-		// translate(width/2, height/2, (float) (curVO.getCurrentPart().getSkirtRadius()
-		// * -1));
-
-		translate(width / 2 + bx, height / 2 + by, -totalHeight);
-		//translate(bx, by, 0);
-
-		rotateX(xRotation);
-		rotateX(PI / 2);// In order to have the z axis upward
-
-		rotateZ(zRotation);
-
-		translate(0, 0, -totalHeight / 2);
-
-		scale(scale);
-		stroke(0, 0, 0);
-
 		int lNumber = curVO.getCurrentLayerNumber();
-		float zLayer = lNumber * (bitThickness + layersOffSet);
+		float zLayer = 0;
+		if (mode == sliced){
+			zLayer = lNumber * (bitThickness + layersOffSet);
+		}
+		else if (mode == full){
+			zLayer = (int) (curVO.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
+		}
 
+		Vector3 v = curVO.getModel().getPos();
+		drawWorkspace();
 		for (Position p : shapeMap.keySet()) {
-
 			pushMatrix();
+			translate((float)v.x, (float)v.y, 0);
 			float[] t = p.getTranslation();
 			translate(t[0], t[1], t[2]);
 			rotateZ(radians(p.getRotation()));
@@ -326,12 +266,71 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 			if (t[2] <= zLayer) {
 				shape(s);
 			}
-
 			popMatrix();
 		}
+	}
+	private void drawWorkspace() {
+		try {
+			File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+			FileInputStream file = new FileInputStream(filename);
+			BufferedReader br = new BufferedReader(new InputStreamReader(file));
+			String strline;
+			int linenumber = 0;
+			while ((strline = br.readLine()) != null){
+				linenumber++;
+				br.skip(3);
+				if (linenumber == 3){
+					printerX = Float.valueOf(strline);
+				}
+				else if (linenumber == 4){
+					printerY = Float.valueOf(strline);
+				}
+				else if (linenumber == 5){
+					printerZ = Float.valueOf(strline);
+				}
+
+			}
+			br.close();
+			file.close();
+
+		}
+		catch(Exception e){
+			System.out.println("Error :" + e.getMessage());
+		}
+		pushMatrix();
+		noFill();
+
+		stroke(255,255,0);
+		translate(0,0,printerZ/2);
+		box(printerX,printerY,printerZ);
+		popMatrix();
+		stroke(80);
+		scene.pg().pushStyle();
+		scene.pg().beginShape(LINES);
+		for (int i = -(int)printerX/2; i <= printerX/2; i+=100) {
+			vertex(i,printerY/2,0);
+			vertex(i,-printerY/2,0);
+
+		}
+		for (int i = -(int)printerY/2; i <= printerY/2; i+=100) {
+			vertex(printerX/2,i,0);
+			vertex(-printerX/2,i,0);
+		}
+		scene.pg().endShape();
+		scene.pg().popStyle();
 
 	}
 
+	public void keyPressed(){
+		if (keyCode == VK_SPACE) {
+			if (mode == sliced) {
+				mode = full;
+			}
+			else if (mode == full) {
+				mode = sliced;
+			}
+		}
+	}
 	/**
 	 *
 	 * @param pointA
@@ -437,97 +436,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	 *
 	 */
 
-	public void mouseWheel(MouseEvent event) {
-		System.out.println("scrollyscroll");
-		float e = event.getCount();
-		if (e > 0) {
-			scaleImg += e * 0.5;
-		} else {
-			scaleImg += -e * 0.5;
-		}
-
-		redraw();
-	}
-
-	public void mousePressed() {
-		locked = true;
-		System.out.println("mouse pressed");
-		xOffset = mouseX - bx;
-		yOffset = mouseY - by;
-		redraw();
-	}
-
-	public void mouseDragged() {
-		System.out.println("mouse dragged");
-		if (locked) {
-			bx = mouseX - xOffset;
-			by = mouseY - yOffset;
-			System.out.println("bx=" + bx + "by = " + by);
-		}
-		redraw();
-	}
-
-	public void mouseReleased() {
-		System.out.println("mouse released at" + yOffset + "," + xOffset);
-		locked = false;
-		redraw();
-	}
-
-	// public void keyPressed() {
-	//
-	// if (key == CODED) {
-	// if (keyCode == UP) {
-	// xRotation += ROTATION_STEP;
-	// } else if (keyCode == RIGHT) {
-	// zRotation -= ROTATION_STEP;
-	// }
-	// else if (keyCode == DOWN) {
-	// xRotation -= ROTATION_STEP;
-	// } else if (keyCode == LEFT) {
-	// zRotation += ROTATION_STEP;
-	// }
-	//
-	// }
-	//
-	// redraw();
-	// }
-
-	/**
-	 *
-	 */
-	// public void mouseWheel(MouseEvent event) {
-	// float e = event.getCount();
-	// if(e > 0)
-	// scale = scale / ZOOM_STEP;
-	// else
-	// scale = scale * ZOOM_STEP;
-	//
-	// redraw();
-	// }
-
-	/**
-	 *
-	 */
-	// public void mousePressed(){
-	// if(mouseX >= 20 && mouseX <= 70 && mouseY >= (height - 70) && mouseY <=
-	// (height - 20)){
-	// changeAutoRotate();
-	// }
-	// }
-	//
-	// /**
-	// *
-	// */
-	// public void changeAutoRotate(){
-	// if(autoRotate){
-	// autoRotate = false;
-	// }
-	// else{
-	// autoRotate = true;
-	// }
-	// redraw();
-	// }
-
 	@Override
 	public void update(Observable o, Object arg) {
 		redraw();
@@ -587,7 +495,5 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 
 	private static boolean visible = false;
-
 	private static boolean initialized = false;
-
 }

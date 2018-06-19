@@ -1,14 +1,6 @@
 package meshIneBits.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -59,11 +51,13 @@ import meshIneBits.gui.utilities.RibbonTab;
 import meshIneBits.gui.utilities.TabContainerSeparator;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view2d.Controller;
+import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.gui.view3d.ProcessingView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.XmlTool;
+import sun.applet.Main;
 
 /**
  * All tasks are placed here.
@@ -157,7 +151,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 			this.setFocusable(false);
 			this.setBorder(null);
 			this.setContentAreaFilled(false);
-
 			// Setting up
 			ImageIcon icon = new ImageIcon(
 					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage()
@@ -167,7 +160,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 			ImageIcon selectedIcon = new ImageIcon(
 					new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png"))
 							.getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
-
 			filePopup = new FileMenuPopUp();
 
 			// Actions listener

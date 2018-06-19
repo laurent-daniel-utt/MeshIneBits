@@ -21,6 +21,7 @@ import remixlab.dandelion.geom.Vec;
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
+	private Vector3 position;
 
 	/**
 	 * Read all the triangles of the STL file, whether it's an Ascii or a Binary
@@ -33,6 +34,7 @@ public class Model {
 	 */
 	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
+		position = new Vector3(0,0,0);
 
 		if (filename.toLowerCase().endsWith(".stl")) {
 			char[] buf = new char[5];
@@ -297,24 +299,11 @@ public class Model {
 		}
 	}
 
-	public Vector3 getMinZ() {
-		Vector3 ret = new Vector3();
-		ret.x = Double.MAX_VALUE;
-		ret.y = Double.MAX_VALUE;
-		ret.z = Double.MAX_VALUE;
-		for (Triangle t : triangles) {
-			for (int i = 0; i < 3; i++) {
-				if (ret.x > t.point[i].x) {
-					ret.x = t.point[i].x;
-				}
-				if (ret.y > t.point[i].y) {
-					ret.y = t.point[i].y;
-				}
-				if (ret.z > t.point[i].z) {
-					ret.z = t.point[i].z;
-				}
-			}
-		}
-		return ret;
+	public Vector3 getPos(){
+		return position;
+	}
+
+	public void setPos(Vector3 pos){
+		position = pos;
 	}
 }
