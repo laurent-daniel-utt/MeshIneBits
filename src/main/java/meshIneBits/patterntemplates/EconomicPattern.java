@@ -1,16 +1,28 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /**
  * 
  */
 package meshIneBits.patterntemplates;
-
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
@@ -23,6 +35,15 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A pattern which tries optimization not by displacing paved bits but rather

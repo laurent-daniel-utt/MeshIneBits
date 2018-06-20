@@ -1,41 +1,54 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /**
- * 
+ *
  */
 package meshIneBits.gui.view2d;
-
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.gui.SubWindow;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.Objects;
+
 /**
  * @author Quoc Nhat Han TRAN
- *
  */
 public class Window extends JFrame implements SubWindow {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private Wrapper viewWrapper;
-	
+
+	Wrapper viewWrapper;
+
 	public Window() {
+		this.setIconImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png"))).getImage());
 		this.setTitle("MeshIneBits - 2D View");
-		this.setSize(new Dimension(720, 500));
+		this.setSize(new Dimension(1080, 720));
 		viewWrapper = new Wrapper();
 		this.setContentPane(viewWrapper);
-	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#open()
-	 */
-	@Override
-	public void open() {
-		this.setVisible(true);
 	}
 
 	/* (non-Javadoc)
@@ -50,31 +63,8 @@ public class Window extends JFrame implements SubWindow {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#refresh()
-	 */
 	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-
+	public void setCurrentPart(GeneratedPart currentPart) {
+		viewWrapper.getController().setCurrentPart(currentPart);
 	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#setPart(meshIneBits.GeneratedPart)
-	 */
-	@Override
-	public void setPart(GeneratedPart part) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#getPart()
-	 */
-	@Override
-	public void getPart() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

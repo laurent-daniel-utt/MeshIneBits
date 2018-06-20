@@ -1,3 +1,24 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits.gui.view3d;
 
 import java.awt.geom.Area;
@@ -13,7 +34,6 @@ import java.util.Vector;
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
@@ -98,6 +118,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
 			win.removeWindowListener(wl);
 		}
+		
 		win.setDefaultCloseOperation(WindowClosingMode.DISPOSE_ON_CLOSE);
 
 		win.addWindowListener(new WindowAdapter() {
@@ -443,55 +464,16 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 
 	@Override
-	public void open() {
-		// TODO Auto-generated method stub
-		if (!initialized) {
-			ProcessingView.startProcessingView(null);
-			visible = true;
-			initialized = true;
-		} else {
-			setVisible(true);
-		}
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		setVisible(false);
-	}
-
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-		redraw();
-	}
-
-	@Override
-	public void setPart(GeneratedPart part) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void getPart() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void toggle() {
 		// TODO Auto-generated method stub
-		if (visible) {
-			hide();
-		} else {
-			open();
-		}
+
 	}
 
-	private void setVisible(boolean b) {
-		// TODO Auto-generated method stub
-		currentInstance.getSurface().setVisible(b);
-		visible = b;
+	@Override
+	public void setCurrentPart(GeneratedPart currentPart) {
+    	curVO = Controller.getInstance();
+		curVO.addObserver(this);
+		curVO.setCurrentPart(currentPart);
 	}
 
 	private static boolean visible = false;

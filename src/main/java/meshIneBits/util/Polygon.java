@@ -1,7 +1,32 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits.util;
 
+import meshIneBits.config.CraftConfig;
+
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -12,6 +37,10 @@ public class Polygon implements Iterable<Segment2D> {
 
 	private Segment2D last = null;
 	private boolean enclosed = false;
+	/**
+	 * Cache of path2D
+	 */
+	private Path2D _path2D = null;
 
 	public Polygon() {
 	}
@@ -29,6 +58,47 @@ public class Polygon implements Iterable<Segment2D> {
 			}
 			last = s;
 		}
+	}
+
+	/**
+	 * Sort and connect segments. Remove isolated ones.
+	 *
+	 * @param segments maybe in disorder and not connecting.
+	 * @return the first closed polygon. <tt>null</tt> if no closed polygon
+	 * found
+	 */
+	public static Polygon extractFrom(List<Segment2D> segments) {
+		while (!segments.isEmpty()) {
+			Vector<Segment2D> sortedSegments = new Vector<>(segments.size());
+			sortedSegments.add(segments.get(0));
+			// Reconnect the segments
+			boolean open = false;
+			while (sortedSegments.lastElement().getNext() != sortedSegments.firstElement()) {
+				Segment2D lastSegment = sortedSegments.lastElement();
+				boolean foundNext = false;
+				for (int i = 0; i < segments.size(); i++) {
+					Segment2D nextSegment = segments.get(i);
+					if (nextSegment.start.asGoodAsEqual(lastSegment.end)) {
+						if (i != 0) sortedSegments.add(nextSegment);
+						// In case of returning to the starter,
+						// We do not need to add
+						lastSegment.setNext(nextSegment);
+						foundNext = true;
+						break;
+					}
+				}
+				// In case this polygon is open
+				if (!foundNext) {
+					open = true;
+					break;
+				}
+			}
+			// Check closeness
+			if (open) segments.removeAll(sortedSegments);
+			else return new Polygon(sortedSegments.firstElement());
+		}
+		// If no closed polygon found
+		return null;
 	}
 
 	public void addEnd(Segment2D s) {
@@ -108,11 +178,7 @@ public class Polygon implements Iterable<Segment2D> {
 	}
 
 	public boolean contains(Segment2D s) {
-		if (this.toPath2D().contains(s.getMidPoint().x, s.getMidPoint().y)) {
-			return true;
-		} else {
-			return false;
-		}
+		return this.toPath2D().contains(s.getMidPoint().x, s.getMidPoint().y);
 	}
 
 	/**
@@ -120,11 +186,21 @@ public class Polygon implements Iterable<Segment2D> {
 	 * java.awt.geom.Path2D.contains.
 	 */
 	public boolean contains(Vector2 point) {
-		if (this.toPath2D().contains(point.x, point.y)) {
-			return true;
-		} else {
-			return false;
-		}
+		return this.toPath2D().contains(point.x, point.y);
+	}
+
+	/**
+	 * @param point a point on surface
+	 * @return <tt>true</tt> if approx point intersects with polygon's border
+	 * @see CraftConfig#errorAccepted
+	 */
+	public boolean approximatelyContains(Vector2 point) {
+		Path2D path2D = this.toPath2D(); // Update the contour
+		// Use a rectangle instead of circle
+		Rectangle2D.Double r = new Rectangle2D.Double();
+		double d = Math.pow(10, -CraftConfig.errorAccepted);
+		r.setRect(point.x - d, point.y - d, 2 * d, 2 * d);
+		return path2D.intersects(r);
 	}
 
 	public boolean empty() {
@@ -190,6 +266,9 @@ public class Polygon implements Iterable<Segment2D> {
 	 * Convert polygon to Path2D. Used to generate area.
 	 */
 	public Path2D toPath2D() {
+		if (_path2D != null)
+			return _path2D;
+		// If not created
 		Vector<Double> x = new Vector<Double>();
 		Vector<Double> y = new Vector<Double>();
 		for (Segment2D s : this) {
@@ -197,14 +276,16 @@ public class Polygon implements Iterable<Segment2D> {
 			y.add(s.start.y);
 		}
 
-		Path2D path = new Path2D.Double();
-		path.moveTo(x.get(0), y.get(0));
-		for (int i = 1; i < x.size(); ++i) {
-			path.lineTo(x.get(i), y.get(i));
+		_path2D = new Path2D.Double();
+		_path2D.moveTo(x.get(0), y.get(0));
+		for (int i = 1; i < x.size(); i++) {
+			_path2D.lineTo(x.get(i), y.get(i));
 		}
-		path.closePath();
+		_path2D.closePath();
 
-		return path;
+		_path2D.setWindingRule(Path2D.WIND_EVEN_ODD);
+
+		return _path2D;
 	}
 
 	private class Segment2DIterator implements Iterator<Segment2D> {
@@ -230,4 +311,35 @@ public class Polygon implements Iterable<Segment2D> {
 		}
 	}
 
+	/**
+	 * Check if this polygon contains entirely the other
+	 *
+	 * @param other non intersecting with this
+	 * @return <tt>true</tt> if all other's vertices stay inside this
+	 */
+	public boolean contains(Polygon other) {
+		// Each time we check the starting point of each segment
+		for (Segment2D nextSegment : other) {
+			if (!this.contains(nextSegment.start))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Check if this polygon contains entirely the other using approximate
+	 * check
+	 *
+	 * @param other non intersecting with this
+	 * @return <tt>true</tt> if all other's vertices stay inside this
+	 * @see #approximatelyContains(Vector2)
+	 */
+	public boolean approximatelyContains(Polygon other) {
+		// Each time we check the starting point of each segment
+		for (Segment2D nextSegment : other) {
+			if (!this.approximatelyContains(nextSegment.start))
+				return false;
+		}
+		return true;
+	}
 }

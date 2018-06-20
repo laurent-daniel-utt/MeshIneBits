@@ -1,11 +1,32 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits;
 
-import java.awt.BasicStroke;
-import java.awt.Shape;
+//import java.awt.BasicStroke;
+//import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
+//import java.awt.geom.Path2D;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -13,7 +34,7 @@ import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
-import meshIneBits.util.Segment2D;
+//import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 /**
@@ -49,11 +70,11 @@ public class Pattern implements Cloneable {
 
 		// Each pattern can have a rotation, usually linked to the layer number
 		transfoMatrix.rotate(rotation.x, rotation.y);
-//		// Rotation of the whole patternTemplate
-//		transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x,
-//				Vector2.getEquivalentVector(CraftConfig.rotation).y);
-//		// Translation of the whole patternTemplate
-//		transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset);
+		// // Rotation of the whole patternTemplate
+		// transfoMatrix.rotate(Vector2.getEquivalentVector(CraftConfig.rotation).x,
+		// Vector2.getEquivalentVector(CraftConfig.rotation).y);
+		// // Translation of the whole patternTemplate
+		// transfoMatrix.translate(CraftConfig.xOffset, CraftConfig.yOffset);
 
 		try {
 			inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
@@ -106,21 +127,24 @@ public class Pattern implements Cloneable {
 		Area sliceArea = AreaTool.getAreaFrom(slice);
 		sliceArea.transform(inverseTransfoMatrix);
 		// 0.1f is the smaller stroke possible
-		Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);
-		Area cutLine = new Area(str);
-		Area cutLineClone;
+		// Shape str = new BasicStroke(0.1f).createStrokedShape(sliceArea);
+		// Area cutLine = new Area(str);
+		// Area cutLineClone;
 		Vector<Vector2> keys = new Vector<Vector2>(mapBits.keySet());
 		for (Vector2 key : keys) {
+			Bit2D bit = mapBits.get(key);
 			Area bitArea = new Area();
-			bitArea.add(mapBits.get(key).getArea());
-			cutLineClone = (Area) cutLine.clone();
-			cutLineClone.intersect(bitArea);
+			bitArea.add(bit.getArea());
+			// cutLineClone = (Area) cutLine.clone();
+			// cutLineClone.intersect(bitArea);
 			bitArea.intersect(sliceArea);
 			if (bitArea.isEmpty()) {
 				mapBits.remove(key);
-			} else if (!cutLineClone.isEmpty()) {
-				mapBits.get(key).updateBoundaries(bitArea);
-				setCutPath(cutLineClone, bitArea, key);
+				continue;
+			} else {
+				bit.updateBoundaries(bitArea);
+				// setCutPath(cutLineClone, bitArea, key);
+				bit.calcCutPath();
 			}
 		}
 	}
@@ -138,8 +162,8 @@ public class Pattern implements Cloneable {
 	}
 
 	/**
-	 * Move the chosen bit in the wanted direction. Note: not exactly "moving",
-	 * but rather "removing" then "adding" new one
+	 * Move the chosen bit in the wanted direction. Note: not exactly "moving", but
+	 * rather "removing" then "adding" new one
 	 * 
 	 * @param key
 	 *            the key of the bit we want to move
@@ -166,48 +190,49 @@ public class Pattern implements Cloneable {
 		mapBits.remove(key);
 	}
 
-	private void setCutPath(Area cutLineStroke, Area bitArea, Vector2 key) {
-		Vector<Vector<Segment2D>> edges = AreaTool.getSegmentsFrom(bitArea);
-
-		Vector<Segment2D> cutLine = new Vector<Segment2D>();
-
-		for (Vector<Segment2D> polygon : edges) {
-			for (Segment2D edge : polygon) {
-				// System.out.println(edge);
-				if (cutLineStroke.contains(edge.getMidPoint().x, edge.getMidPoint().y)) {
-					cutLine.add(edge);
-				}
-			}
-		}
-
-		Vector<Path2D> cutPaths = new Vector<Path2D>();
-
-		if (cutLine.isEmpty()) {
-			return;
-		} else if (cutLine.size() == 1) {
-			Path2D cutPath2D = new Path2D.Double();
-			cutPath2D.moveTo(cutLine.get(0).start.x, cutLine.get(0).start.y);
-			cutPath2D.lineTo(cutLine.get(0).end.x, cutLine.get(0).end.y);
-			cutPaths.addElement(cutPath2D);
-			mapBits.get(key).setCutPath(cutPaths);
-			return;
-		}
-
-		Vector<Vector<Segment2D>> cutLines = Segment2D.segregateSegments(cutLine);
-
-		for (Vector<Segment2D> pathLine : cutLines) {
-			Path2D cutPath2D = new Path2D.Double();
-			cutPath2D.moveTo(pathLine.get(0).start.x, pathLine.get(0).start.y);
-			for (int i = 1; i < pathLine.size(); i++) {
-				cutPath2D.lineTo(pathLine.get(i).start.x, pathLine.get(i).start.y);
-			}
-			cutPath2D.lineTo(pathLine.get(pathLine.size() - 1).end.x, pathLine.get(pathLine.size() - 1).end.y);
-			cutPaths.add(cutPath2D);
-		}
-
-		mapBits.get(key).setCutPath(cutPaths);
-
-	}
+	// private void setCutPath(Area cutLineStroke, Area bitArea, Vector2 key) {
+	// Vector<Vector<Segment2D>> edges = AreaTool.getSegmentsFrom(bitArea);
+	//
+	// Vector<Segment2D> cutLine = new Vector<Segment2D>();
+	//
+	// for (Vector<Segment2D> polygon : edges) {
+	// for (Segment2D edge : polygon) {
+	// // System.out.println(edge);
+	// if (cutLineStroke.contains(edge.getMidPoint().x, edge.getMidPoint().y)) {
+	// cutLine.add(edge);
+	// }
+	// }
+	// }
+	//
+	// Vector<Path2D> cutPaths = new Vector<Path2D>();
+	//
+	// if (cutLine.isEmpty()) {
+	// return;
+	// } else if (cutLine.size() == 1) {
+	// Path2D cutPath2D = new Path2D.Double();
+	// cutPath2D.moveTo(cutLine.get(0).start.x, cutLine.get(0).start.y);
+	// cutPath2D.lineTo(cutLine.get(0).end.x, cutLine.get(0).end.y);
+	// cutPaths.addElement(cutPath2D);
+	// mapBits.get(key).setCutPath(cutPaths);
+	// return;
+	// }
+	//
+	// Vector<Vector<Segment2D>> cutLines = Segment2D.segregateSegments(cutLine);
+	//
+	// for (Vector<Segment2D> pathLine : cutLines) {
+	// Path2D cutPath2D = new Path2D.Double();
+	// cutPath2D.moveTo(pathLine.get(0).start.x, pathLine.get(0).start.y);
+	// for (int i = 1; i < pathLine.size(); i++) {
+	// cutPath2D.lineTo(pathLine.get(i).start.x, pathLine.get(i).start.y);
+	// }
+	// cutPath2D.lineTo(pathLine.get(pathLine.size() - 1).end.x,
+	// pathLine.get(pathLine.size() - 1).end.y);
+	// cutPaths.add(cutPath2D);
+	// }
+	//
+	// mapBits.get(key).setCutPath(cutPaths);
+	//
+	// }
 
 	public void setMapBits(Vector<Bit2D> bits) {
 		mapBits = new Hashtable<Vector2, Bit2D>();

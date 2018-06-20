@@ -12,6 +12,8 @@ apply plugin: 'java'
 apply plugin: 'application'
 // Apply the eclipse plugin to import project on other machines
 apply plugin: 'eclipse'
+// Apply the IDEA plugin to import project on other machines
+apply plugin: 'idea'
 // JUnit 5
 apply plugin: 'org.junit.platform.gradle.plugin'
 
@@ -21,9 +23,9 @@ applicationName = 'MeshIneBits'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-	// Use 'jcenter' for resolving your dependencies.
-	// You can declare any Maven/Ivy/file repository here.
-	jcenter()
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
 }
 
 sourceCompatibility = 1.8
@@ -33,43 +35,41 @@ dependencies {
 	compile 'org.processing:core:3.3.5'
 	compile 'org.jogamp.jogl:jogl-all:2.3.2'
 	compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
-	compile files('libs/proscene.jar' , 'libs/controlP5.jar')
+    compile 'org.json:json:20180130'
+    compile files('libs/proscene.jar' , 'libs/controlP5.jar')
 
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6hf"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-i586"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-amd64"
-	runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-i586"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6hf"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-i586"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-amd64"
+    runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-i586"
 
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-amd64"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
-	runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-amd64"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
 
-	testCompile('org.junit.jupiter:junit-jupiter-api:5.1.0',
-			'org.junit.jupiter:junit-jupiter-params:5.1.0')
-	testRuntime('org.junit.jupiter:junit-jupiter-engine:5.1.0',
-			'org.junit.platform:junit-platform-launcher:1.1.0')
+    testCompile('org.junit.jupiter:junit-jupiter-api:5.1.0',
+            'org.junit.jupiter:junit-jupiter-params:5.1.0')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.1.0',
+            'org.junit.platform:junit-platform-launcher:1.1.0')
 }
 
 eclipse {
-	project.natures 'org.eclipse.buildship.core.gradleprojectnature'
-	classpath {
-		file {
-			defaultOutputDir = file('bin/main')
-			whenMerged {
-				//change output folder for tests
-				def testsrc = entries.find { it.path == 'src/test/java' }
-				testsrc.output = "bin/test"
-
-				def testres = entries.find { it.path == 'src/test/resources' }
-				testres.output = "bin/test"
+    project.natures 'org.eclipse.buildship.core.gradleprojectnature'
+    classpath {
+        file {
+            defaultOutputDir = file("bin/main")
+            whenMerged {
+                //change output folder for tests
+                def testSource = entries.find { it.path == 'src/test/java' }
+                testSource.output = "bin/test"
 
 				// Remove local ref for libs
 				entries.removeAll{ it.kind == "lib" }
@@ -78,13 +78,15 @@ eclipse {
 	}
 }
 
+tasks.idea.dependsOn(cleanIdea)
+
 buildscript {
-	repositories { mavenCentral() }
-	dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0' }
+    repositories { mavenCentral() }
+    dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0' }
 }
 
 jar {
-	baseName = applicationName
-	version = '0.2.0'
-	manifest { attributes  'Main-Class' : mainClassName }
+    baseName = applicationName
+    version = '0.2.0'
+    manifest { attributes 'Main-Class': mainClassName }
 }

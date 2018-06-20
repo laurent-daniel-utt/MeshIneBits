@@ -19,30 +19,56 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
-package meshIneBits.config;
+package meshIneBits.gui.view3d;
 
-import java.util.HashMap;
+import meshIneBits.GeneratedPart;
 
-import meshIneBits.config.patternParameter.PatternParameter;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
- * This class is to declare all parameters which are customizable by users. All
- * for the sake of saving configurations.
- * 
- * @author NHATHAN
- *
+ * Observe {@link GeneratedPart} and
  */
-public class PatternConfig extends HashMap<String, PatternParameter> {
+public class Controller extends Observable implements Observer {
+
+	private GeneratedPart part;
+
+	private static Controller instance;
+
+	public static Controller getInstance() {
+		if (instance == null)
+			instance = new Controller();
+		return instance;
+	}
+
+	private Controller() {
+	}
+
+	GeneratedPart getCurrentPart() {
+		return part;
+	}
 
 	/**
-	 * 
+	 * @param part <tt>null</tt> to delete the current mesh
 	 */
-	private static final long serialVersionUID = -2295740737265238707L;
+	void setCurrentPart(GeneratedPart part) {
+		if (part != null) {
+			this.part = part;
+			part.addObserver(this);
+		} else
+			this.part = null;
 
-	public void add(PatternParameter paramConf) {
-		this.put(paramConf.getCodename(), paramConf);
+		setChanged();
+		notifyObservers();
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+
+	}
+
+	int getCurrentLayerNumber() {
+		// TODO Implement toolbox in 3D view
+		return part.getLayers().size() - 1;
 	}
 }

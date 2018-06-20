@@ -1,8 +1,25 @@
-package meshIneBits;
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+package meshIneBits;
 
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
@@ -11,6 +28,10 @@ import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Optimizer;
 import meshIneBits.util.Segment2D;
+
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 /**
  * This object is the equivalent of the part which will be printed
@@ -36,7 +57,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	 */
 	public void buildBits2D() {
 
-		if ((t == null) || ((t != null) && !t.isAlive())) {
+		if (t == null || !t.isAlive()) {
 			setPatternTemplate();
 
 			this.layers.clear();
@@ -131,7 +152,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 		buildLayers();
 		detectIrregularBits();
 		setChanged();
-		notifyObservers();
+		notifyObservers(Events.PAVED);
 	}
 
 	private void detectIrregularBits() {
@@ -174,7 +195,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 			sliced = true;
 			setSkirtRadius();
 			setChanged();
-			notifyObservers();
+			notifyObservers(Events.SLICED);
 		}
 	}
 
@@ -183,5 +204,9 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	 */
 	public Optimizer getOptimizer() {
 		return optimizer;
+	}
+
+	public enum Events {
+		MODEL_LOADED, SLICED, PAVED, AUTO_OPTIMIZED
 	}
 }

@@ -1,14 +1,31 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits.util;
 
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
-import java.util.Vector;
-
 import meshIneBits.config.CraftConfig;
+
+import java.awt.geom.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AreaTool {
 
@@ -16,11 +33,12 @@ public class AreaTool {
 	 * Returns the barycenter of an area
 	 *
 	 * @param area
-	 * @return Barycenter
+	 * @return Barycenter. <tt>null</tt> if area is empty
 	 */
 	public static Vector2 compute2DPolygonCentroid(Area area) {
 
 		Vector<Segment2D> segments = getLargestPolygon(area);
+		if (segments == null) return null;
 
 		Vector<Vector2> vertices = new Vector<Vector2>();
 		for (Segment2D s : segments) {
@@ -83,10 +101,11 @@ public class AreaTool {
 	 * boundary when there is a/some hole(s) in it)
 	 *
 	 * @param area
-	 * @return outside boundaries
+	 * @return outside boundaries. <tt>null</tt> if area is empty
 	 */
 	public static Vector<Segment2D> getLargestPolygon(Area area) {
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+		if (segments.isEmpty()) return null;
 		Vector<Double> boundLength = new Vector<Double>();
 		for (Vector<Segment2D> poly : segments) {
 			double length = 0;
@@ -123,6 +142,7 @@ public class AreaTool {
 	/**
 	 * @param areas
 	 * @return All the constraint areas that do not contain any others
+	 * @see #getContinuousSurfacesFrom(Shape2D)
 	 */
 	public static Vector<Area> getLevel0AreasFrom(Vector<Area> areas) {
 
@@ -134,7 +154,7 @@ public class AreaTool {
 		// We fill the vector with null values, it cannot have more levels than
 		// areas
 		for (@SuppressWarnings("unused")
-		Area a : areas) {
+				Area a : areas) {
 			areasByLevel.add(null);
 		}
 
@@ -146,7 +166,7 @@ public class AreaTool {
 		int levelMax = 0;
 		for (Area currentArea : areas) {
 			int levelCurrentArea = 0; // If level is even this area is filled,
-										// if it's odd this area is a hole
+			// if it's odd this area is a hole
 			for (Area otherArea : areas) {
 				if (!currentArea.equals(otherArea)) {
 					Area currentAreaClone = (Area) currentArea.clone();
@@ -178,18 +198,132 @@ public class AreaTool {
 			}
 		}
 
-		for (Area level0Area : areasByLevel.get(0)) {
-			for (int level = 1; level <= levelMax; level++) {
-				for (Area higherLevelArea : areasByLevel.get(level)) {
-					if ((level % 2) != 0) {
-						level0Area.subtract(higherLevelArea);
-					} else {
-						level0Area.add(higherLevelArea);
-					}
+//		for (Area level0Area : areasByLevel.get(0)) {
+//			for (int level = 1; level <= levelMax; level++) {
+//				for (Area higherLevelArea : areasByLevel.get(level)) {
+//					if ((level % 2) != 0) {
+//						level0Area.subtract(higherLevelArea);
+//					} else {
+//						level0Area.add(higherLevelArea);
+//					}
+//				}
+//			}
+//		}
+
+		Vector<Area> surfaces = new Vector<>();
+
+		for (int i = 0; i <= levelMax; i = i + 2) {
+			if (i + 1 > levelMax || areasByLevel.get(i + 1).isEmpty()) {
+				surfaces.addAll(areasByLevel.get(i));
+				continue;
+			}
+			Area hole = new Area();
+			areasByLevel.get(i + 1).forEach(hole::add);
+			// Reconstruct even level area
+			areasByLevel.get(i).forEach(area -> {
+				area.subtract(hole);
+				if (!area.isEmpty()) surfaces.add(area);
+			});
+		}
+
+//		return areasByLevel.get(0);
+		return surfaces;
+	}
+
+	/**
+	 * Get separated areas from a {@link Shape2D}.
+	 *
+	 * @param shape supposedly contains non self-intersected and non
+	 *              inter-intersected polygons
+	 * @return list of continuous area. Empty if no area
+	 * @see #getContinuousSurfacesFrom(List)
+	 * @since 0.3
+	 */
+	public static List<Area> getContinuousSurfacesFrom(Shape2D shape) {
+		return getContinuousSurfacesFrom(shape.polygons);
+	}
+
+	/**
+	 * Get separated areas extract from border-defining polygons. Use approx
+	 * check of polygon
+	 *
+	 * @param polygons border of areas. Not self-intersected and non
+	 *                 inter-intersected.
+	 * @return list of continuous area. Empty if no polygons
+	 * @since 0.3
+	 * @see CraftConfig#errorAccepted
+	 */
+	public static List<Area> getContinuousSurfacesFrom(List<Polygon> polygons) {
+		Map<Polygon, Integer> ranking = new HashMap<>();
+		for (Polygon newPolygon : polygons) {
+			List<Polygon> containingPolygons = new Vector<>();
+			List<Polygon> containedPolygons = new Vector<>();
+			for (Polygon polygon : ranking.keySet()) {
+				if (polygon.approximatelyContains(newPolygon)) {
+					// Check the keys containing the new polygon
+					containingPolygons.add(polygon);
+				} else if (newPolygon.approximatelyContains(polygon)) {
+					// Check if it contains old polygons
+					containedPolygons.add(polygon);
 				}
 			}
+			// Calculate the level of new polygon
+			ranking.put(newPolygon, 0);
+			containingPolygons.stream()
+					.mapToInt(ranking::get).max()
+					.ifPresent(l -> ranking.put(newPolygon, l + 1));
+			// Promote level of contained polygons
+			containedPolygons.forEach((Polygon p)
+					-> ranking.put(p, ranking.get(p) + 1));
 		}
-		return areasByLevel.get(0);
+		// Regroup into level
+		List<List<Polygon>> classing = new Vector<>();
+		polygons.forEach(polygon -> classing.add(new Vector<>()));
+		ranking.keySet().forEach((Polygon p) -> {
+			int r = ranking.get(p);
+			if (classing.get(r) == null)
+				classing.set(r, new Vector<>());
+			else
+				classing.get(r).add(p);
+		});
+		// Calculate areas
+		// Even level polygons will be the outer border,
+		// minus the holes which are the next odd level polygons
+		List<Area> surfaces = new Vector<>();
+		for (int i = 0; i < classing.size(); i++) {
+			assert classing.get(i) != null;
+			if (i % 2 != 0) continue;
+			// Prepare the big hole
+			Area hole = new Area();
+			if (i + 1 < classing.size())
+				classing.get(i + 1).forEach((Polygon p)
+						-> hole.add(AreaTool.getAreaFrom(p)));
+			// Dig the polygon in even level
+			for (Polygon p : classing.get(i)) {
+				Area newSurface = AreaTool.getAreaFrom(p);
+				newSurface.subtract(hole);
+				if (!newSurface.isEmpty())
+					surfaces.add(newSurface);
+			}
+		}
+		return surfaces;
+	}
+
+	/**
+	 * Dissect an area into single continuous areas
+	 *
+	 * @param area of bit or of slice
+	 * @return list of areas not in union with others
+	 * @see #getContinuousSurfacesFrom(List)
+	 * @since 0.3
+	 */
+	public static List<Area> getContinuousSurfacesFrom(Area area) {
+		Vector<Vector<Segment2D>> polygonsSegmented = getSegmentsFrom(area);
+		List<Polygon> polygons = polygonsSegmented.stream()
+				.map(Polygon::extractFrom)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		return getContinuousSurfacesFrom(polygons);
 	}
 
 	/**
@@ -198,14 +332,15 @@ public class AreaTool {
 	 * around for the sucker cup to work properly. It returns null if this bit
 	 * cannot be lifted.
 	 *
-	 * @param area
-	 * @param minRadius
-	 * @return liftPoint
+	 * @param area      surface of bit
+	 * @param minRadius half of {@link CraftConfig#suckerDiameter}
+	 * @return liftPoint. <tt>null</tt> if area is empty
 	 */
 	public static Vector2 getLiftPoint(Area area, double minRadius) {
 
 		// We check if the barycenter would be ok
 		Vector2 barycenter = AreaTool.compute2DPolygonCentroid(area);
+		if (barycenter == null) return null;
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
 		if (area.contains(barycenter.x, barycenter.y)) {
 			// To be sure every other
@@ -293,9 +428,9 @@ public class AreaTool {
 	}
 
 	/**
-	 * It converts the outline of an area into a vector of segment2D. Taken from
-	 * <a href=
-	 * "http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area">this
+	 * It converts the outline of an area into a vector of segment2D. Taken
+	 * from
+	 * <a href= "http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area">this
 	 * link</a>.
 	 */
 	public static Vector<Vector<Segment2D>> getSegmentsFrom(Area area) {
@@ -309,7 +444,7 @@ public class AreaTool {
 			// Because the Area is composed of straight lines
 			int type = pi.currentSegment(coords);
 			// We record a double array of {segment type, x coord, y coord}
-			double[] pathIteratorCoords = { type, coords[0], coords[1] };
+			double[] pathIteratorCoords = {type, coords[0], coords[1]};
 			areaPoints.add(pathIteratorCoords);
 			if (type == PathIterator.SEG_MOVETO) {
 				polygonCount++;
@@ -332,7 +467,7 @@ public class AreaTool {
 
 			// We need a default value in case we've reached the end of the
 			// ArrayList
-			double[] nextElement = { -1, -1, -1 };
+			double[] nextElement = {-1, -1, -1};
 			if (i < (areaPoints.size() - 1)) {
 				nextElement = areaPoints.get(i + 1);
 			}
@@ -340,7 +475,7 @@ public class AreaTool {
 			// Make the lines
 			if (currentElement[0] == PathIterator.SEG_MOVETO) {
 				start = currentElement; // Record where the polygon started to
-										// close it later
+				// close it later
 				if (!polygons.get(currentPolygonIndex).isEmpty()) {
 					currentPolygonIndex++;
 					if (currentPolygonIndex >= polygonCount) {

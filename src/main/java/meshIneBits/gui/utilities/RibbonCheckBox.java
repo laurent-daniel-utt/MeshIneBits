@@ -19,23 +19,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.config;
+package meshIneBits.gui.utilities;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.swing.*;
+import java.awt.*;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Setting {
-	public double step() default 1;
+/**
+ * Options of viewing.
+ */
+public class RibbonCheckBox extends JCheckBox {
 
-	public String title() default "";
+	private static final long serialVersionUID = 9143671052675167109L;
 
-	public String description() default "";
-
-	public double minValue() default Double.MIN_VALUE;
-
-	public double maxValue() default Double.MAX_VALUE;
+	public RibbonCheckBox(String label) {
+		super(label);
+		// Visual options
+		this.setBackground(Color.WHITE);
+		this.setFocusable(false);
+	}
 }

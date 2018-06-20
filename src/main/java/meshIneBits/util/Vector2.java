@@ -1,10 +1,31 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits.util;
+
+import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
-
-import meshIneBits.config.CraftConfig;
 
 /**
  * Vector2 represent a point in a 2D space
@@ -15,7 +36,7 @@ public class Vector2 {
 	public static double dist2(Vector2 v, Vector2 w) {
 		return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
 	}
-	
+
 	public static double dist(Vector2 v, Vector2 w) {
 		return Math.sqrt(dist2(v, w));
 	}
@@ -77,14 +98,16 @@ public class Vector2 {
 
 	/**
 	 * Value between 0 - 180
+	 * 
 	 * @return The angle between Ox and vector.
 	 */
 	public double getEquivalentAngle() {
 		return (Math.atan(y / x) * 180) / Math.PI;
 	}
-	
+
 	/**
 	 * Value between 0 - 360
+	 * 
 	 * @return The angle between Ox and vector.
 	 */
 	public double getEquivalentAngle2() {
@@ -127,17 +150,26 @@ public class Vector2 {
 		return false;
 	}
 
-	public boolean isOnSegment(Segment2D s) {
-		double x1 = s.start.x;
-		double y1 = s.start.y;
-		double x2 = s.end.x;
-		double y2 = s.end.y;
+	/**
+	 * Check the linearity, using approximate triangular inequality
+	 * <tt>c <= a + b <= c + 10^(-{@link CraftConfig#errorAccepted error})</tt>.
+	 * 
+	 * @param segment
+	 *            <tt>c</tt> in inequality above
+	 * @return
+	 * @see CraftConfig#errorAccepted
+	 */
+	public boolean isOnSegment(Segment2D segment) {
+		double x1 = segment.start.x;
+		double y1 = segment.start.y;
+		double x2 = segment.end.x;
+		double y2 = segment.end.y;
 
 		double AB = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
 		double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
 		double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
 
-		if (AB == (AP + PB)) {
+		if (AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted)) {
 			return true;
 		} else {
 			return false;
@@ -152,10 +184,10 @@ public class Vector2 {
 	}
 
 	/**
-	 * Returns a normalized vector with a length of 1, having the same direction
-	 * as the origonal vector. Note: if the length is smaller than
-	 * 10^({@link meshIneBits.config.CraftConfig#errorAccepted -errorAccepted})
-	 * then the returned result will 0.
+	 * Returns a normalized vector with a length of 1, having the same direction as
+	 * the origonal vector. Note: if the length is smaller than
+	 * 10^({@link meshIneBits.config.CraftConfig#errorAccepted -errorAccepted}) then
+	 * the returned result will 0.
 	 */
 	public Vector2 normal() {
 		double d = vSize();
@@ -203,7 +235,8 @@ public class Vector2 {
 	}
 
 	/**
-	 * @return a new vector with x and y rounded following {@link CraftConfig#errorAccepted}
+	 * @return a new vector with x and y rounded following
+	 *         {@link CraftConfig#errorAccepted}
 	 */
 	public Vector2 getRounded() {
 		return new Vector2(Rounder.round(x, CraftConfig.errorAccepted), Rounder.round(y, CraftConfig.errorAccepted));
@@ -217,8 +250,7 @@ public class Vector2 {
 	 */
 	public static class Tools {
 		/**
-		 * Check if 2 points P1, P2 are on different sides in comparison to the
-		 * line
+		 * Check if 2 points P1, P2 are on different sides in comparison to the line
 		 * 
 		 * @param p1
 		 * @param p2
@@ -256,8 +288,8 @@ public class Vector2 {
 		}
 
 		/**
-		 * Find the vector whose origin is point p, moving perpendicularly away
-		 * from (origin, v) and length is 1
+		 * Find the vector whose origin is point p, moving perpendicularly away from
+		 * (origin, v) and length is 1
 		 * 
 		 * @param o
 		 *            origin of departure of v
@@ -265,8 +297,7 @@ public class Vector2 {
 		 *            vector of direction departing from origin
 		 * @param p
 		 *            point of depart
-		 * @return null if p is on the line passing by o with v as directing
-		 *         vector
+		 * @return null if p is on the line passing by o with v as directing vector
 		 */
 		public static Vector2 getCentrifugalVector(Vector2 o, Vector2 v, Vector2 p) {
 			Vector2 v2 = v.getCWAngularRotated();
