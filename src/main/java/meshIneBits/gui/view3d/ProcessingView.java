@@ -109,6 +109,14 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 				visible = false;
 			}
 		});
+
+		win.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowResized(WindowEvent e) {
+				super.windowResized(e);
+				surface.setSize(win.getWidth(),win.getHeight());
+			}
+		});
 	}
 
 	/**

@@ -14,6 +14,7 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 
+import com.jogamp.newt.opengl.GLWindow;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
 import meshIneBits.gui.view2d.Controller;
@@ -65,6 +66,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	private InteractiveFrame frame;
 	private ControlP5 cp5;
 	private Textlabel txt;
+	private Textlabel modelSize;
 	private Textarea tooltipGrav;
 	private Textarea tooltipReset;
 	private Textarea tooltipCamera;
@@ -77,9 +79,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	/**
 	 *
 	 */
-	public static void startProcessingModelView(){
+	public  static void startProcessingModelView(){
 		if (currentInstance == null){
-			PApplet.main("meshIneBits.gui.view3d.ProcessingModelView");
+			//PApplet.main("meshIneBits.gui.view3d.ProcessingModelView");
+			String[] a = { "3D View" };
+			PApplet.runSketch(a, new ProcessingModelView());
 		}
 	}
 
@@ -113,6 +117,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 */
 	private void setCloseOperation(){
 		//Removing close listeners
+
 		com.jogamp.newt.opengl.GLWindow win = ((com.jogamp.newt.opengl.GLWindow) surface.getNative());
 		for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()){
 			win.removeWindowListener(wl);
@@ -130,25 +135,33 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				visible = false;
 			}
 		});
+
+		win.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowResized(WindowEvent e) {
+				super.windowResized(e);
+				surface.setSize(win.getWidth(),win.getHeight());
+			}
+		});
 	}
 
 	/**
 	 *
 	 */
 	public void setup(){
-
-		this.surface.setResizable(true);
-		this.surface.setTitle("MeshIneBits - Model view");
+		surface.setResizable(true);
 		controller = Controller.getInstance();
 		controller.addObserver(this);
 		try{
 			MODEL = controller.getModel();
 		} catch (Exception e){
-			System.out.print(" Model loading failed");
+			System.out.print("Model loading failed");
 		}
 
-        borders = new boolean[6];                            // each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
-		for (int i = 0; i < 6; i++){ borders[i] = false;}    // borders[0] =  xmin border / borders[1] = xmax border ...
+		// each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
+		// borders[0] =  xmin border / borders[1] = xmax border ...
+        borders = new boolean[6];
+		for (int i = 0; i < 6; i++){ borders[i] = false;}
 
 		scene = new Scene(this);
 		scene.eye().setPosition(new Vec(0, 1, 1));
@@ -158,6 +171,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		scene.toggleGridVisualHint();
 		scene.disableKeyboardAgent();
 
+		setCloseOperation();
 		buildModel();
 		cp5 = new ControlP5(this);
 		createButtons(cp5);
@@ -165,9 +179,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		df = new DecimalFormat("#.##");
 		df.setRoundingMode(RoundingMode.CEILING);
 
-		setCloseOperation();
+
 		frame = new InteractiveFrame(scene,shape);
 		frame.setMotionBinding(WHEEL_ID, null);
+		frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
+		frame.setGrabsInputThreshold(scene.radius()/4);
 	}
 
 	private void buildModel(){
@@ -198,7 +214,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 
 		face.endShape(CLOSE);
-
 		face.setStroke(false);
 		face.setFill(MODEL_COLOR);
 
@@ -210,7 +225,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	public void keyPressed(){
 		if (keyCode == VK_SPACE){
-			//this.surface.setSize(1280,720);
+			//this.surface.setSize(700,400);
 		}
 	}
 
@@ -222,6 +237,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		mouseConstraints();
 		scene.drawFrames();
 		scene.beginScreenDrawing();
+		modelSize.setPosition(((GLWindow) surface.getNative()).getWidth() - 100,10);
+		txt.setPosition(((GLWindow) surface.getNative()).getHeight() - 100, ((GLWindow) surface.getNative()).getHeight() - 50);
 		txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
 		cp5.draw();
 		displayTooltips();
@@ -335,12 +352,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				.hideScrollbar();
 		tooltipApply.getValueLabel().getStyle().setMargin(1,0,0,5);
 
-		txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)").setPosition(570,350)
+		txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)").setPosition(((GLWindow) surface.getNative()).getWidth() - 100,((GLWindow) surface.getNative()).getHeight() - 50)
 				.setSize(80,40).setColor(255);
 
-		cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
-				.setPosition(570,10).setColor(255);
-
+		modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
+				.setPosition(((GLWindow) surface.getNative()).getWidth() - 100,10).setColor(255);
 		cp5.setAutoDraw(false);
 	}
 
@@ -376,14 +392,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
-	void myDelay(int ms)
-	{
-		try
-		{
-			Thread.sleep(ms);
-		}
-		catch(Exception e){}
-	}
 
 	private void rotateShape(float angleX, float angleY, float angleZ){
 		Quat r = new Quat();
