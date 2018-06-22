@@ -24,6 +24,8 @@ package meshIneBits.gui.view2d;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
+import meshIneBits.Model;
+import meshIneBits.gui.MainWindow;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -53,6 +55,7 @@ class Controller extends Observable implements Observer {
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;
 	private boolean showIrregularBits = false;
+	private Model model = null;
 
 	public static Controller getInstance() {
 		if (instance == null) {
@@ -106,6 +109,8 @@ class Controller extends Observable implements Observer {
 	double getZoom() {
 		return zoom;
 	}
+
+	public Model getModel(){ return model; }
 
 	public void setLayer(int nbrLayer) {
 		if (part == null) {

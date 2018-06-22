@@ -22,6 +22,7 @@
 package meshIneBits.gui.view3d;
 
 import meshIneBits.GeneratedPart;
+import meshIneBits.Model;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -34,6 +35,7 @@ public class Controller extends Observable implements Observer {
 	private GeneratedPart part;
 
 	private static Controller instance;
+	private Model model;
 
 	public static Controller getInstance() {
 		if (instance == null)
@@ -70,5 +72,15 @@ public class Controller extends Observable implements Observer {
 	int getCurrentLayerNumber() {
 		// TODO Implement toolbox in 3D view
 		return part.getLayers().size() - 1;
+	}
+
+	Model getModel() {
+		return model;
+	}
+
+	void setModel(Model m) {
+		model = m;
+		setChanged();
+		notifyObservers();
 	}
 }

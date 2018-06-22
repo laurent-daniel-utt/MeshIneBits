@@ -31,6 +31,9 @@ import java.util.Vector;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
+import remixlab.dandelion.geom.Rotation;
+import remixlab.dandelion.geom.Vec;
+
 
 /**
  * A model is the full set of triangle of the existing 3D mesh to pattern. Model
@@ -39,6 +42,7 @@ import meshIneBits.util.Vector3;
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
+	private Vector3 position;
 
 	/**
 	 * Read all the triangles of the STL file, whether it's an Ascii or a Binary
@@ -51,6 +55,7 @@ public class Model {
 	 */
 	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
+		position = new Vector3(0,0,0);
 
 		if (filename.toLowerCase().endsWith(".stl")) {
 			char[] buf = new char[5];
@@ -139,6 +144,7 @@ public class Model {
 		}
 		return ret;
 	}
+
 
 	public Vector<Triangle> getTriangles() {
 		return triangles;
@@ -290,11 +296,35 @@ public class Model {
 	/**
 	 * TODO
 	 * Rotate all triangles
-	 * @param rotateX
-	 * @param rotateZ
 	 */
-	public void rotate() {
-		// TODO 
-		
+	public void rotate(Rotation rot) {
+		for (Triangle t : triangles){
+            rotateTriangle(t,rot);
+        }
+	}
+	private void rotateTriangle(Triangle t, Rotation rot){
+	     for ( Vector3 p : t.point){
+	         Vec v = rot.rotate(new Vec((float)p.x,(float)p.y,(float)p.z));
+	         p.x = v.x();
+	         p.y = v.y();
+	         p.z = v.z();
+
+         }
+	}
+
+	public void translate(Vector3 trans){
+		for (Triangle t : triangles) {
+			for (int i = 0; i < 3; i++) {
+				t.point[i].addToSelf(trans);
+			}
+		}
+	}
+
+	public Vector3 getPos(){
+		return position;
+	}
+
+	public void setPos(Vector3 pos){
+		position = pos;
 	}
 }
