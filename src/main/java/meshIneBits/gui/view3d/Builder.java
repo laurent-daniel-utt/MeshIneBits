@@ -4,7 +4,6 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view2d.Controller;
 import meshIneBits.util.*;
 import processing.core.PApplet;
 import processing.core.PShape;

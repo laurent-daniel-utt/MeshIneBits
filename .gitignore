@@ -11,3 +11,4 @@ bin/
 .idea/
 out/
 local.properties
+data/config.json
