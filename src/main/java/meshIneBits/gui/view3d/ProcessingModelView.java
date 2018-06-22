@@ -27,14 +27,15 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Vector;
 
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 
+import com.jogamp.newt.opengl.GLWindow;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
 import meshIneBits.util.Logger;
@@ -57,18 +58,16 @@ import controlP5.*;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static remixlab.proscene.MouseAgent.WHEEL_ID;
 
-
 /**
- * 
+ *
  * @author Nicolas
  *
  */
 public class ProcessingModelView extends PApplet implements Observer, SubWindow {
 
 	private final int BACKGROUND_COLOR = color(150, 150, 150);
-	private final int MODEL_COLOR = color(219, 100, 50);
-	private int height = 400;
-	private int width = 700;
+	private int height = 450;
+	private int width = 800;
 	private float printerX;
 	private float printerY;
 	private float printerZ;
@@ -76,33 +75,45 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	private static boolean visible = false;
 	private static boolean initialized = false;
 
+	private Builder builder;
 	private static ProcessingModelView currentInstance = null;
 	private static Model MODEL;
 	private static Controller controller = null;
+	private enum Mode { full, sliced };
+	private Mode mode = Mode.full;
 
 	private PShape shape;
+	private HashMap<Position,PShape> shapeMap = null;
 	private Scene scene;
 	private InteractiveFrame frame;
 	private ControlP5 cp5;
 	private Textlabel txt;
+	private Textlabel modelSize;
 	private Textarea tooltipGrav;
 	private Textarea tooltipReset;
 	private Textarea tooltipCamera;
 	private Textarea tooltipApply;
+	private Button gravity;
+	private Button reset;
+	private Button camera;
+	private Button apply;
+	private Toggle toggleModel;
+	private Toggle toggleBits;
 
 	private DecimalFormat df;
 
-    private boolean[] borders;
+	private boolean[] borders;
+	private boolean generated = false;
 
 	/**
 	 *
 	 */
-	public static void startProcessingModelView(){
+	public  static void startProcessingModelView(){
 		if (currentInstance == null){
-			PApplet.main("meshIneBits.gui.view3d.ProcessingModelView");
+			String[] a = { "3D View" };
+			PApplet.runSketch(a, new ProcessingModelView());
 		}
 	}
-
 	/**
 	 *
 	 */
@@ -111,14 +122,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 			currentInstance.destroyGLWindow();
 		}
 	}
-
 	/**
 	 *
 	 */
 	private void destroyGLWindow(){
 		((com.jogamp.newt.opengl.GLWindow) surface.getNative()).destroy();
 	}
-
 	/**
 	 *
 	 */
@@ -127,12 +136,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		currentInstance = this;
 		size(width, height, P3D);
 	}
-
 	/**
 	 *
 	 */
 	private void setCloseOperation(){
 		//Removing close listeners
+
 		com.jogamp.newt.opengl.GLWindow win = ((com.jogamp.newt.opengl.GLWindow) surface.getNative());
 		for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()){
 			win.removeWindowListener(wl);
@@ -148,6 +157,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				MODEL = null;
 				initialized = false;
 				visible = false;
+			}
+		});
+
+		win.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowResized(WindowEvent e) {
+				super.windowResized(e);
+				surface.setSize(win.getWidth(),win.getHeight());
 			}
 		});
 	}
@@ -167,11 +184,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		try{
 			MODEL = controller.getModel();
 		} catch (Exception e){
-			System.out.print(" Model loading failed");
+			System.out.print("Model loading failed");
 		}
 
-        borders = new boolean[6];                            // each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
-		for (int i = 0; i < 6; i++){ borders[i] = false;}    // borders[0] =  xmin border / borders[1] = xmax border ...
+		// each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
+		// borders[0] =  xmin border / borders[1] = xmax border ...
+		borders = new boolean[6];
+		for (int i = 0; i < 6; i++){ borders[i] = false;}
 
 		scene = new Scene(this);
 		scene.eye().setPosition(new Vec(0, 1, 1));
@@ -181,71 +200,34 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		scene.toggleGridVisualHint();
 		scene.disableKeyboardAgent();
 
-		buildModel();
+		builder = new Builder(this);
+		setCloseOperation();
+		shape = createShape(GROUP);
+		builder.buildShape(MODEL, shape);
 		cp5 = new ControlP5(this);
 		createButtons(cp5);
 
 		df = new DecimalFormat("#.##");
 		df.setRoundingMode(RoundingMode.CEILING);
 
-		setCloseOperation();
+
 		frame = new InteractiveFrame(scene,shape);
 		frame.setMotionBinding(WHEEL_ID, null);
-	}
-
-	private void buildModel(){
-		Logger.updateStatus("Start building STL model");
-
-		Vector<Triangle> stlTriangles = MODEL.getTriangles();
-
-		shapeMode(CORNER);
-		shape = createShape(GROUP);
-
-		for (Triangle t : stlTriangles){
-			shape.addChild(getPShapeFromTriangle(t));
-		}
-
-		Logger.updateStatus("STL model built.");
-	}
-
-	/**
-	 *
-	 *
-	 */
-	private PShape getPShapeFromTriangle(Triangle t){
-		PShape face = createShape();
-		face.beginShape();
-
-		for (Vector3 p : t.point){
-			face.vertex((float) p.x, (float) p.y, (float) p.z);
-		}
-
-		face.endShape(CLOSE);
-
-		face.setStroke(false);
-		face.setFill(MODEL_COLOR);
-
-		return face;
-	}
-	/**
-	 *
-	 */
-
-	public void keyPressed(){
-		if (keyCode == VK_SPACE){
-			//this.surface.setSize(1280,720);
-		}
+		frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
+		frame.setGrabsInputThreshold(scene.radius()/4);
+		frame.setRotationSensitivity(2);
 	}
 
 	public void draw(){
 		background(BACKGROUND_COLOR);
 		lights();
 		ambientLight(255,255,255);
+		smooth();
 		drawWorkspace();
 		mouseConstraints();
 		scene.drawFrames();
 		scene.beginScreenDrawing();
-		txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
+		updateButtons();
 		cp5.draw();
 		displayTooltips();
 		scene.endScreenDrawing();
@@ -274,14 +256,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 			}
 			br.close();
 			file.close();
-
 		}
 		catch(Exception e){
 			System.out.println("Error :" + e.getMessage());
 		}
 		pushMatrix();
 		noFill();
-
 		stroke(255,255,0);
 		translate(0,0,printerZ/2);
 		box(printerX,printerY,printerZ);
@@ -304,6 +284,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	}
 
 	private void createButtons(ControlP5 cp5){
+		GLWindow win = ((GLWindow) surface.getNative());
+
 		cp5.addTextfield("RotationX").setPosition(20,40).setSize(30,20)
 				.setInputFilter(0).setColorBackground(color(255,250))
 				.setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
@@ -329,15 +311,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				.setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
 
 
-		cp5.addButton("ApplyGravity").setPosition(20,250).setSize(80,20).setColorLabel(255);
-		cp5.addButton("Reset").setPosition(20,280).setSize(80,20).setColorLabel(255);
-		cp5.addButton("CenterCamera").setPosition(20,310).setSize(80,20).setColorLabel(255);
-		cp5.addButton("Apply").setPosition(20,340).setSize(80,20).setColorLabel(255);
+		gravity = cp5.addButton("ApplyGravity").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
+		reset = cp5.addButton("Reset").setPosition(20,280).setSize(80,20).setColorLabel(255);
+		camera = cp5.addButton("CenterCamera").setPosition(20,310).setSize(80,20).setColorLabel(255);
+		apply = cp5.addButton("Apply").setPosition(20,340).setSize(80,20).setColorLabel(255);
 
 		tooltipGrav =  cp5.addTextarea("tooltipGrav").setPosition(100,250).setText("Pose le modèle").setSize(90,18)
-					.setColorBackground(color(220))
-					.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
-					.hideScrollbar();
+				.setColorBackground(color(220))
+				.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
+				.hideScrollbar();
 		tooltipGrav.getValueLabel().getStyle().setMargin(1,0,0,5);
 
 		tooltipReset =  cp5.addTextarea("tooltipReset").setPosition(100,280).setText("Remise à zero").setSize(85,18)
@@ -358,14 +340,37 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				.hideScrollbar();
 		tooltipApply.getValueLabel().getStyle().setMargin(1,0,0,5);
 
-		txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)").setPosition(570,350)
+		txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)").setPosition(win.getWidth() - 100,win.getHeight() - 50)
 				.setSize(80,40).setColor(255);
 
-		cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
-				.setPosition(570,10).setColor(255);
+		modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
+				.setPosition(win.getWidth() - 100,10).setColor(255);
+
+		toggleModel = cp5.addToggle("Model").setPosition(20, 210).setSize(15,15)
+					.setColorBackground(color(255,250)).toggle();
+
+		toggleBits = cp5.addToggle("Bits").setPosition(60, 210).setSize(15,15)
+					.setColorBackground(color(255,250));
+
 
 		cp5.setAutoDraw(false);
 	}
+
+	private void updateButtons() {
+		GLWindow win = ((GLWindow) surface.getNative());
+		modelSize.setPosition(win.getWidth() - 100,10);
+		txt.setPosition(win.getWidth() - 100, win.getHeight() - 50);
+		txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
+/*
+		gravity.setPosition(20, win.getHeight() - 150);
+		reset.setPosition(20, win.getHeight() - 120);
+		camera.setPosition(20, win.getHeight() - 90);
+		apply.setPosition(20, win.getHeight() - 60);
+
+		toggleModel.setPosition(20, win.getHeight() - 190);
+		toggleBits.setPosition(60, win.getHeight() - 190);*/
+	}
+
 
 	private void displayTooltips(){
 		tooltipGrav.hide();
@@ -399,14 +404,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
-	void myDelay(int ms)
-	{
-		try
-		{
-			Thread.sleep(ms);
-		}
-		catch(Exception e){}
-	}
 
 	private void rotateShape(float angleX, float angleY, float angleZ){
 		Quat r = new Quat();
@@ -420,34 +417,34 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		applyGravity();
 	}
 
-    private void translateShape(float transX, float transY, float transZ){
-        boolean checkIn = checkShapeInWorkspace();
-        frame.translate(transX, transY, transZ);
-        if (!checkIn) {
-            if (borders[0]){
-                print(borders[0]);
-                frame.setPosition(-printerX / 2 + shape.getWidth() / 2, frame.position().y(), frame.position().z());
-            }
-            if (borders[1]) {
-                frame.setPosition(printerX / 2 - shape.getWidth() / 2, frame.position().y(), frame.position().z());
-            }
-            if (borders[2]){
-                frame.setPosition(frame.position().x(),- printerY/2 + shape.getHeight()/2,frame.position().z());
-            }
-            if (borders[3]){
-                frame.setPosition(frame.position().x(),printerY/2 - shape.getHeight()/2,frame.position().z());
-            }
-            if (borders[4]){
-                frame.setPosition(frame.position().x(),frame.position().y(),0);
-            }
-            if(borders[5]){
-                frame.setPosition(frame.position().x(),frame.position().y(),printerZ - shape.getDepth());
-            }
-        }
-        //applyTranslation(MODEL);
-    }
+	private void translateShape(float transX, float transY, float transZ){
+		boolean checkIn = checkShapeInWorkspace();
+		frame.translate(transX, transY, transZ);
+		if (!checkIn) {
+			if (borders[0]){
+				print(borders[0]);
+				frame.setPosition(-printerX / 2 + shape.getWidth() / 2, frame.position().y(), frame.position().z());
+			}
+			if (borders[1]) {
+				frame.setPosition(printerX / 2 - shape.getWidth() / 2, frame.position().y(), frame.position().z());
+			}
+			if (borders[2]){
+				frame.setPosition(frame.position().x(),- printerY/2 + shape.getHeight()/2,frame.position().z());
+			}
+			if (borders[3]){
+				frame.setPosition(frame.position().x(),printerY/2 - shape.getHeight()/2,frame.position().z());
+			}
+			if (borders[4]){
+				frame.setPosition(frame.position().x(),frame.position().y(),0);
+			}
+			if(borders[5]){
+				frame.setPosition(frame.position().x(),frame.position().y(),printerZ - shape.getDepth());
+			}
+		}
+		//applyTranslation(MODEL);
+	}
 
-    public void applyRotation(Model m){
+	public void applyRotation(Model m){
 		Rotation r = frame.orientation();
 		m.rotate(r);
 	}
@@ -464,7 +461,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < 3; j++){
 				Vec vertex = new Vec(shape.getChild(i).getVertex(j).x,shape.getChild(i).getVertex(j).y, shape.getChild(i).getVertex(j).z);
-                Vec v = frame.inverseCoordinatesOf(vertex);
+				Vec v = frame.inverseCoordinatesOf(vertex);
 				if (minz > v.z()){
 					minz = v.z();
 				}
@@ -482,74 +479,75 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	private void resetModel(){
 		MODEL.rotate(frame.rotation().inverse());
+		MODEL.setPos(new Vector3(0,0,0));
 		frame.setPosition(new Vec(0,0,0));
 		frame.rotate(frame.rotation().inverse());
 	}
 
-    private boolean checkShapeInWorkspace(){
-        for (int i = 0; i < 6; i++) { borders[i] = false;}
-        float minX = -printerX/2;
-        float maxX = printerX/2;
-        float minY = -printerY/2;
-        float maxY = printerY/2;
-        float minZ = 0;
-        float maxZ = printerZ;
-        Vec pos = frame.position();
-        Vec minPos = new Vec(pos.x() - shape.getWidth()/2,pos.y() - shape.getHeight()/2, pos.z());
-        Vec maxPos = new Vec(pos.x() + shape.getWidth()/2,pos.y() + shape.getHeight()/2,pos.z() + shape.getDepth());
-        boolean inWorkspace = true;
-        if (minPos.x() < minX){
-            inWorkspace = false;
-            borders[0] = true;
-        }
-        if (maxPos.x() >= maxX){
-            inWorkspace = false;
-            borders[1] = true;
-        }
-        if (minPos.y() < minY){
-            inWorkspace = false;
-            borders[2] = true;
-        }
-        if (maxPos.y() >= maxY){
-            inWorkspace = false;
-            borders[3] = true;
-        }
-        if (minPos.z() < minZ){
-            inWorkspace = false;
-            borders[4] = true;
-        }
-        if (maxPos.z() >= maxZ){
-            inWorkspace = false;
-            borders[5] = true;
-        }
-        return inWorkspace;
-    }
+	private boolean checkShapeInWorkspace(){
+		for (int i = 0; i < 6; i++) { borders[i] = false;}
+		float minX = -printerX/2;
+		float maxX = printerX/2;
+		float minY = -printerY/2;
+		float maxY = printerY/2;
+		float minZ = 0;
+		float maxZ = printerZ;
+		Vec pos = frame.position();
+		Vec minPos = new Vec(pos.x() - shape.getWidth()/2,pos.y() - shape.getHeight()/2, pos.z());
+		Vec maxPos = new Vec(pos.x() + shape.getWidth()/2,pos.y() + shape.getHeight()/2,pos.z() + shape.getDepth());
+		boolean inWorkspace = true;
+		if (minPos.x() < minX){
+			inWorkspace = false;
+			borders[0] = true;
+		}
+		if (maxPos.x() >= maxX){
+			inWorkspace = false;
+			borders[1] = true;
+		}
+		if (minPos.y() < minY){
+			inWorkspace = false;
+			borders[2] = true;
+		}
+		if (maxPos.y() >= maxY){
+			inWorkspace = false;
+			borders[3] = true;
+		}
+		if (minPos.z() < minZ){
+			inWorkspace = false;
+			borders[4] = true;
+		}
+		if (maxPos.z() >= maxZ){
+			inWorkspace = false;
+			borders[5] = true;
+		}
+		return inWorkspace;
+	}
 
-    private void mouseConstraints(){
-        boolean checkIn = checkShapeInWorkspace();
-        if (!checkIn) {
-            if (borders[0]) {
-                frame.setPosition(-printerX / 2 + shape.getWidth() / 2, frame.position().y(), frame.position().z());
-            }
-            if (borders[1]) {
-                frame.setPosition(printerX / 2 - shape.getWidth() / 2, frame.position().y(), frame.position().z());
-            }
-            if (borders[2]) {
-                frame.setPosition(frame.position().x(), -printerY / 2 + shape.getHeight() / 2, frame.position().z());
-            }
-            if (borders[3]){
-                frame.setPosition(frame.position().x(),printerY/2 - shape.getHeight()/2,frame.position().z());
-            }
-            if (borders[4]){
-                frame.setPosition(frame.position().x(),frame.position().y(),0);
-            }
-            if (borders[5]){
-                frame.setPosition(frame.position().x(),frame.position().y(),printerZ - shape.getDepth());
-            }
-        }
-    }
+	private void mouseConstraints(){
+		boolean checkIn = checkShapeInWorkspace();
+		if (!checkIn) {
+			if (borders[0]) {
+				frame.setPosition(-printerX / 2 + shape.getWidth() / 2, frame.position().y(), frame.position().z());
+			}
+			if (borders[1]) {
+				frame.setPosition(printerX / 2 - shape.getWidth() / 2, frame.position().y(), frame.position().z());
+			}
+			if (borders[2]) {
+				frame.setPosition(frame.position().x(), -printerY / 2 + shape.getHeight() / 2, frame.position().z());
+			}
+			if (borders[3]){
+				frame.setPosition(frame.position().x(),printerY/2 - shape.getHeight()/2,frame.position().z());
+			}
+			if (borders[4]){
+				frame.setPosition(frame.position().x(),frame.position().y(),0);
+			}
+			if (borders[5]){
+				frame.setPosition(frame.position().x(),frame.position().y(),printerZ - shape.getDepth());
+			}
+		}
+	}
 
-    private void centerCamera(){
+	private void centerCamera(){
 		float y = scene.eye().position().y();
 		float z = scene.eye().position().z();
 		scene.eye().setPosition(new Vec(frame.position().x(), y, z));
@@ -593,7 +591,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	public void ApplyGravity(float theValue) {
 		applyGravity();
-
 	}
 
 	public void CenterCamera(float theValue){
@@ -601,15 +598,38 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	}
 
 	public void Apply(float theValue){
-			applyGravity();
-			applyTranslation(MODEL);
-			applyRotation(MODEL);
+		applyGravity();
+		applyTranslation(MODEL);
+		applyRotation(MODEL);
 	}
 
-    @Override
-    public void update(Observable o, Object arg){
+	public void Model(boolean flag){
+		if (flag == false){
+			shape.setVisible(false);
+		}
+		else {
+			shape.setVisible(true);
+		}
+	}
 
-    }
+	/*public void Bits(boolean flag) {
+		if (flag) {
+			for (int i = 0; i < shapeMap.size(); i++) {
+				shapeMap.get(i).setVisible(true);
+				println("true");
+			}
+		} else {
+			for (int i = 0; i < shapeMap.size(); i++) {
+				shapeMap.get(i).setVisible(false);
+				println("false");
+			}
+		}
+	}*/
+
+	@Override
+	public void update(Observable o, Object arg){
+
+	}
 
 	public void open(){
 		// TODO Auto-generated method stub
@@ -650,5 +670,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	public void setModel(Model m) {
 		controller.setModel(m);
 	}
-}
 
+	public void keyPressed(){
+		if (keyCode == VK_SPACE) {
+			if (mode == Mode.sliced) {
+				mode = Mode.full;
+			}
+			else if (mode == Mode.full) {
+				mode = Mode.sliced;
+			}
+		}
+	}
+
+}
