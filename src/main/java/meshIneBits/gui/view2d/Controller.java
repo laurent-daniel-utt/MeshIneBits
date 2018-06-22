@@ -112,11 +112,6 @@ class Controller extends Observable implements Observer {
 
 	public Model getModel(){ return model; }
 
-	public void setModel(Model m){
-		model = m;
-		setChanged();
-		notifyObservers();
-	}
 	public void setLayer(int nbrLayer) {
 		if (part == null) {
 			return;

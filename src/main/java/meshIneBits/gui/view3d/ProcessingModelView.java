@@ -37,7 +37,6 @@ import com.jogamp.newt.event.WindowEvent;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
-import meshIneBits.gui.view2d.Controller;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
@@ -153,6 +152,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		});
 	}
 
+	public ProcessingModelView() {
+		controller = Controller.getInstance();
+		controller.addObserver(this);
+	}
+
 	/**
 	 *
 	 */
@@ -160,8 +164,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		this.surface.setResizable(true);
 		this.surface.setTitle("MeshIneBits - Model view");
-		controller = Controller.getInstance();
-		controller.addObserver(this);
 		try{
 			MODEL = controller.getModel();
 		} catch (Exception e){
@@ -620,28 +622,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
-	@Override
 	public void hide(){
 		// TODO Auto-generated method stub
 		setVisible(false);
-	}
-
-	@Override
-	public void refresh(){
-		// TODO Auto-generated method stub
-		redraw();
-	}
-
-	@Override
-	public void setPart(GeneratedPart part){
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void getPart(){
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -653,11 +636,19 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
+	@Override
+	public void setCurrentPart(GeneratedPart currentPart) {
+		controller.setCurrentPart(currentPart);
+	}
+
 	private void setVisible(boolean b){
 		// TODO Auto-generated method stub
 		currentInstance.getSurface().setVisible(b);
 		visible = b;
 	}
 
+	public void setModel(Model m) {
+		controller.setModel(m);
+	}
 }
 

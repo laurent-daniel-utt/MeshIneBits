@@ -39,7 +39,6 @@ import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.gui.view2d.Controller;
 import meshIneBits.util.*;
 import processing.core.PApplet;
 import processing.core.PShape;
@@ -109,6 +108,11 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		currentInstance = this;
 	}
 
+	public ProcessingView() {
+		curVO = Controller.getInstance();
+		curVO.addObserver(this);
+	}
+
 	/**
 	 *
 	 */
@@ -126,8 +130,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 				curVO.deleteObserver(currentInstance);
 				dispose();
 				currentInstance = null;
-				initialized = false;
-				visible = false;
 			}
 		});
 	}
@@ -471,11 +473,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 	@Override
 	public void setCurrentPart(GeneratedPart currentPart) {
-    	curVO = Controller.getInstance();
-		curVO.addObserver(this);
+		System.out.println("Processing view, setting current part" + currentPart);
 		curVO.setCurrentPart(currentPart);
 	}
-
-	private static boolean visible = false;
-	private static boolean initialized = false;
 }

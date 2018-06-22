@@ -22,6 +22,7 @@
 package meshIneBits.gui;
 
 import meshIneBits.gui.view2d.Window;
+import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.gui.view3d.ProcessingView;
 
 import javax.swing.*;
@@ -41,7 +42,7 @@ public class MainWindow extends JFrame {
 	private Toolbar toolbar;
 	private SubWindow view2DWindow;
 	private SubWindow view3DWindow;
-	private SubWindow modelWindow;
+	private ProcessingModelView modelWindow;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -98,5 +99,5 @@ public class MainWindow extends JFrame {
 		return view3DWindow;
 	}
 
-	public SubWindow getModelView() { return modelWindow; }
+	ProcessingModelView getModelView() { return modelWindow; }
 }
