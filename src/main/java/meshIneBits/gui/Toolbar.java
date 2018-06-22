@@ -953,7 +953,6 @@ public class Toolbar extends JTabbedPane implements Observer {
 					Toolbar.this.view2DController.getCurrentPart().buildBits2D();
 					CraftConfigLoader.saveConfig(null);
 					computeTemplateBtn.setEnabled(true);
-					//MainWindow.getInstance().get3DView().toggle();
 				}
 			});
 		}

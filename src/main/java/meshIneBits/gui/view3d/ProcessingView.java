@@ -29,8 +29,6 @@ import remixlab.proscene.Scene;
 import remixlab.dandelion.geom.Vec;
 
 import static java.awt.event.KeyEvent.VK_SPACE;
-import static meshIneBits.gui.view3d.ProcessingView.Mode.full;
-import static meshIneBits.gui.view3d.ProcessingView.Mode.sliced;
 import static remixlab.proscene.MouseAgent.WHEEL_ID;
 
 /**
@@ -53,8 +51,8 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	private Scene scene;
 
 	public static ProcessingView currentInstance = null;
-	public enum Mode { full, sliced };
-	public Mode mode = sliced ;
+	private enum Mode { full, sliced };
+	private Mode mode = Mode.sliced ;
 
 	/**
 	 *
@@ -138,12 +136,12 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		scene.disableKeyboardAgent();
 		scene.toggleGridVisualHint();
 
-		buildModel();
+		buildBits();
 	}
 	/**
 	 *
 	 */
-	private void buildModel() {
+	private void buildBits() {
 
 		Logger.updateStatus("Start building 3D model");
 
@@ -253,10 +251,10 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 		int lNumber = curVO.getCurrentLayerNumber();
 		float zLayer = 0;
-		if (mode == sliced){
+		if (mode == Mode.sliced){
 			zLayer = lNumber * (bitThickness + layersOffSet);
 		}
-		else if (mode == full){
+		else if (mode == Mode.full){
 			zLayer = (int) (curVO.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
 		}
 
@@ -331,11 +329,11 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 	public void keyPressed(){
 		if (keyCode == VK_SPACE) {
-			if (mode == sliced) {
-				mode = full;
+			if (mode == Mode.sliced) {
+				mode = Mode.full;
 			}
-			else if (mode == full) {
-				mode = sliced;
+			else if (mode == Mode.full) {
+				mode = Mode.sliced;
 			}
 		}
 	}
