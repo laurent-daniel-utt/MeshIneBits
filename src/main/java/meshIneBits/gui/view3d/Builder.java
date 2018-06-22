@@ -20,10 +20,12 @@ public class Builder extends PApplet implements Observer {
     private final int MODEL_COLOR = color(219, 100, 50);
     private final int BIT_COLOR = color(219, 100, 50);
     private Controller controller;
+    private ProcessingModelView modelView;
 
 
-    public Builder() {
+    public Builder(ProcessingModelView modelView) {
         controller = Controller.getInstance();
+        this.modelView = modelView;
     }
 
     public void buildShape(Model model, PShape shape){
@@ -40,7 +42,7 @@ public class Builder extends PApplet implements Observer {
 
     private PShape getPShapeFromTriangle(Triangle t){
 
-        PShape face = createShape();
+        PShape face = modelView.createShape();
         face.setStroke(false);
         face.setFill(MODEL_COLOR);
         face.beginShape();

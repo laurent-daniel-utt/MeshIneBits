@@ -172,7 +172,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		scene.toggleGridVisualHint();
 		scene.disableKeyboardAgent();
 
-		builder = new Builder();
+		builder = new Builder(this);
 		setCloseOperation();
 		shape = createShape(GROUP);
 		builder.buildShape(MODEL, shape);
@@ -198,14 +198,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		drawWorkspace();
 		mouseConstraints();
 		scene.drawFrames();
-		/*if (!generated){
-			if (controller.getCurrentPart() != null && controller.getCurrentPart().isGenerated()){
-				buildBits();
-				generated = true;
-				drawBits();
-			}
-		}*/
-
 		scene.beginScreenDrawing();
 		updateButtons();
 		cp5.draw();
@@ -330,7 +322,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 					.setColorBackground(color(255,250)).toggle();
 
 		toggleBits = cp5.addToggle("Bits").setPosition(60, 210).setSize(15,15)
-					.setColorBackground(color(255,250)).hide();
+					.setColorBackground(color(255,250));
 
 
 		cp5.setAutoDraw(false);
@@ -349,7 +341,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		toggleModel.setPosition(20, win.getHeight() - 190);
 		toggleBits.setPosition(60, win.getHeight() - 190);*/
-		if (controller.getCurrentPart() != null && controller.getCurrentPart().isGenerated()){toggleBits.show();}
 	}
 
 
