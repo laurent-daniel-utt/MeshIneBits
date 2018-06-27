@@ -47,8 +47,8 @@ import processing.opengl.PJOGL;
 import remixlab.proscene.Scene;
 import remixlab.dandelion.geom.Vec;
 
+import static java.awt.event.KeyEvent.VK_E;
 import static java.awt.event.KeyEvent.VK_SPACE;
-import static remixlab.proscene.MouseAgent.WHEEL_ID;
 
 /**
  * The 3D view of model loaded
@@ -268,7 +268,11 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	public void draw() {
 		background(BACKGROUND_COLOR);
 		lights();
+		drawWorkspace();
+		drawBits();
+	}
 
+	private void drawBits(){
 		float bitThickness = (float) CraftConfig.bitThickness;
 		float layersOffSet = (float) CraftConfig.layersOffset;
 
@@ -282,7 +286,6 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 		}
 
 		Vector3 v = curVO.getModel().getPos();
-		drawWorkspace();
 		for (Position p : shapeMap.keySet()) {
 			pushMatrix();
 			translate((float)v.x, (float)v.y, 0);

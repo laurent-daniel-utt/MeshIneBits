@@ -31,6 +31,8 @@ import java.util.Vector;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
+import remixlab.dandelion.geom.Quat;
+import remixlab.dandelion.geom.Rot;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
@@ -43,6 +45,7 @@ import remixlab.dandelion.geom.Vec;
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
 	private Vector3 position;
+	private Rotation rot = null;
 
 	/**
 	 * Read all the triangles of the STL file, whether it's an Ascii or a Binary
@@ -56,6 +59,7 @@ public class Model {
 	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
 		position = new Vector3(0,0,0);
+		rot = new Quat(0,0,0,0);
 
 		if (filename.toLowerCase().endsWith(".stl")) {
 			char[] buf = new char[5];
@@ -297,9 +301,13 @@ public class Model {
 	 * TODO
 	 * Rotate all triangles
 	 */
-	public void rotate(Rotation rot) {
-		for (Triangle t : triangles){
-            rotateTriangle(t,rot);
+	public void rotate(Rotation r) {
+		if (rot != r){
+			rot = r;
+			for (Triangle t : triangles){
+				rotateTriangle(t,rot);
+			}
+
         }
 	}
 	private void rotateTriangle(Triangle t, Rotation rot){

@@ -31,11 +31,10 @@ public class Builder extends PApplet implements Observer {
         Logger.updateStatus("Start building STL model");
 
         Vector<Triangle> stlTriangles = model.getTriangles();
-
+        modelView.shapeMode(CORNER);
         for (Triangle t : stlTriangles){
             shape.addChild(getPShapeFromTriangle(t));
         }
-
         Logger.updateStatus("STL model built.");
     }
 
@@ -48,15 +47,15 @@ public class Builder extends PApplet implements Observer {
         for (Vector3 p : t.point){
             face.vertex((float) p.x, (float) p.y, (float) p.z);
         }
-
         face.endShape(CLOSE);
 
         return face;
     }
 
-    public void buildBits(HashMap<Position,PShape> shapeMap) {
+    public void buildBits(HashMap<Position, PShape> shapeMap) {
 
         Logger.updateStatus("Start building 3D model");
+
         Vector<Layer> layers = controller.getCurrentPart().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
         float layersOffSet = (float) CraftConfig.layersOffset;
@@ -72,9 +71,13 @@ public class Builder extends PApplet implements Observer {
                 bitCount++;
                 Bit3D curBit = curLayer.getBit3D(curBitKey);
                 PShape bitPShape;
+                // if(curBit.getCutPaths() == null)
+                // bitPShape = uncutBitPShape;
+                // else
+                modelView.fill(BIT_COLOR);
+                modelView.stroke(68);
                 bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
                 if (bitPShape != null) {
-                    bitPShape.setFill(BIT_COLOR);
                     Vector2 curBitCenter = curBit.getOrigin();
                     float curBitCenterX = (float) curBitCenter.x;
                     float curBitCenterY = (float) curBitCenter.y;
@@ -85,9 +88,9 @@ public class Builder extends PApplet implements Observer {
                 }
             }
         }
-
         Logger.updateStatus("3D model built : " + bitCount + " bits generated.");
     }
+
     /**
      *
      * @param extrudeDepth
@@ -147,7 +150,7 @@ public class Builder extends PApplet implements Observer {
     }
 
     private PShape getFaceExtrude(int[] pointA, int[] pointB, int z) {
-        PShape face = createShape();
+        PShape face = modelView.createShape();
         face.beginShape();
         face.vertex(pointA[0], pointA[1], pointA[2] + z);
         face.vertex(pointB[0], pointB[1], pointB[2] + z);
@@ -166,7 +169,7 @@ public class Builder extends PApplet implements Observer {
      */
     private PShape getSideExtrude(PolygonPointsList poly, int z) {
 
-        PShape side = createShape(GROUP);
+        PShape side = modelView.createShape(GROUP);
 
         int length = poly.getLength();
         int[] pointA = poly.getNextPoint();
@@ -192,7 +195,7 @@ public class Builder extends PApplet implements Observer {
         int length;
         int[] point;
 
-        PShape myShape = createShape();
+        PShape myShape = modelView.createShape();
         myShape.beginShape();
         // Exterior path
         length = poly[0].getLength();
@@ -222,7 +225,7 @@ public class Builder extends PApplet implements Observer {
      */
     private PShape extrude(PolygonPointsList[] poly, int z) {
 
-        PShape extrudedObject = createShape(GROUP);
+        PShape extrudedObject = modelView.createShape(GROUP);
 
         PShape exterior = getSideExtrude(poly[0], z);
         extrudedObject.addChild(exterior);
