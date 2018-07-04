@@ -30,12 +30,14 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-
 import com.jogamp.newt.opengl.GLWindow;
+
+import javafx.util.Pair;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
@@ -44,9 +46,7 @@ import meshIneBits.gui.SubWindow;
 
 import processing.core.PApplet;
 import processing.core.PShape;
-import processing.core.PVector;
 import processing.opengl.PJOGL;
-
 
 import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Rotation;
@@ -56,13 +56,15 @@ import remixlab.dandelion.geom.Vec;
 
 import controlP5.*;
 
-import static java.awt.event.KeyEvent.VK_E;
-import static java.awt.event.KeyEvent.VK_SPACE;
-import static remixlab.proscene.MouseAgent.WHEEL_ID;
+import static remixlab.bias.BogusEvent.CTRL;
+import static remixlab.proscene.MouseAgent.*;
 
 /**
  *
  * @author Nicolas
+ *
+ * 3D view + GUI
+ * Use Builder to creates Meshes
  *
  */
 public class ProcessingModelView extends PApplet implements Observer, SubWindow {
@@ -85,7 +87,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	Mode mode = Mode.full;
 
 	private PShape shape;
-	private HashMap<Position,PShape> shapeMap = null;
+	private Vector<Pair<Position, PShape>> shapeMap = null;
 	private Scene scene;
 	private InteractiveFrame frame;
 	private ControlP5 cp5;
@@ -95,10 +97,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	private Textarea tooltipReset;
 	private Textarea tooltipCamera;
 	private Textarea tooltipApply;
-	private Button gravity;
-	private Button reset;
-	private Button camera;
-	private Button apply;
 	private Toggle toggleBits;
 
 	private DecimalFormat df;
@@ -187,7 +185,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		} catch (Exception e){
 			System.out.print("Model loading failed");
 		}
-
 		// each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
 		// borders[0] =  xmin border / borders[1] = xmax border ...
 		borders = new boolean[6];
@@ -198,13 +195,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		scene.eye().lookAt(scene.eye().sceneCenter());
 		scene.setRadius(2500);
 		scene.showAll();
-		scene.toggleGridVisualHint();
 		scene.disableKeyboardAgent();
-		//scene.setPickingVisualHint(true);
 
 		builder = new Builder(this);
 		setCloseOperation();
-		shapeMap = new HashMap<Position, PShape>();
+		shapeMap = new Vector<Pair<Position, PShape>>();
 		shape = createShape(GROUP);
 		builder.buildShape(MODEL, shape);
 		cp5 = new ControlP5(this);
@@ -213,14 +208,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		df.setRoundingMode(RoundingMode.CEILING);
 
 		frame = new InteractiveFrame(scene,shape);
-		frame.setMotionBinding(WHEEL_ID, null);
-		frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
-		frame.setGrabsInputThreshold(scene.radius()/5);
-		frame.setRotationSensitivity(2);
-
+		customFrameBindings(frame);
 		applyGravity();
 
 		createButtons(cp5);
+	}
+
+	private void customFrameBindings(InteractiveFrame frame){
+		frame.removeBindings();
+		frame.setHighlightingMode(InteractiveFrame.HighlightingMode.NONE);
+		frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
+		frame.setGrabsInputThreshold(scene.radius()/3);
+		frame.setRotationSensitivity(3);
+
+		frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
+		frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
 	}
 
 	public void draw(){
@@ -240,32 +242,39 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
+	/*
+	 * Draw 3D Bits
+	 *
+	 */
 
-	private  void drawBits(HashMap<Position, PShape> shapeMap){
+	private  void drawBits(Vector<Pair<Position, PShape>> shapeMap){
 		float bitThickness = (float) CraftConfig.bitThickness;
 		float layersOffSet = (float) CraftConfig.layersOffset;
 
 		float zLayer = (int) (controller.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
 
 		Vector3 v = controller.getModel().getPos();
-		Quat r = (Quat)frame.rotation();
-		for (Position p : shapeMap.keySet()) {
+		for (int i = 0; i < shapeMap.size(); i++) {
 			pushMatrix();
 			translate((float)v.x, (float)v.y, (float)v.z);
-			translate(sin(r.eulerAngles().y()) * shape.depth/2,  - sin(r.eulerAngles().x()) * shape.depth/2, 0);
-			float[] t = p.getTranslation();
+			float[] t = shapeMap.get(i).getKey().getTranslation();
 			translate(t[0], t[1], t[2]);
-			rotateZ(radians(p.getRotation()));
+			rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 
-			PShape s = shapeMap.get(p);
+			PShape s = shapeMap.get(i).getValue();
 
-			/*if (t[2] <= zLayer) {
+			if (t[2] <= zLayer) {
 				shape(s);
-			}*/
+			}
 			shape(s);
 			popMatrix();
 		}
 	}
+
+	/*
+	 *  Display the printer workspace
+	 *
+	 */
 
 	private void drawWorkspace() {
 		try {
@@ -273,20 +282,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 			FileInputStream file = new FileInputStream(filename);
 			BufferedReader br = new BufferedReader(new InputStreamReader(file));
 			String strline;
-			int linenumber = 0;
 			while ((strline = br.readLine()) != null){
-				linenumber++;
-				br.skip(3);
-				if (linenumber == 3){
-					printerX = Float.valueOf(strline);
+				if (strline.startsWith("x")){
+					printerX = Float.valueOf(strline.substring(3));
 				}
-				else if (linenumber == 4){
-					printerY = Float.valueOf(strline);
+				else if (strline.startsWith("y")){
+					printerY = Float.valueOf(strline.substring(3));
 				}
-				else if (linenumber == 5){
-					printerZ = Float.valueOf(strline);
+				else if (strline.startsWith("z")){
+					printerZ = Float.valueOf(strline.substring(3));
 				}
-
 			}
 			br.close();
 			file.close();
@@ -317,6 +322,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	}
 
+	/*
+	 *  GUI - Buttons + tooltips
+	 *
+	 */
+
 	private void createButtons(ControlP5 cp5){
 		GLWindow win = ((GLWindow) surface.getNative());
 
@@ -344,10 +354,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				.setColorBackground(color(255,250))
 				.setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
 
-		gravity = cp5.addButton("ApplyGravity").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
-		reset = cp5.addButton("Reset").setPosition(20,280).setSize(80,20).setColorLabel(255);
-		camera = cp5.addButton("CenterCamera").setPosition(20,310).setSize(80,20).setColorLabel(255);
-		apply = cp5.addButton("Apply").setPosition(20,340).setSize(80,20).setColorLabel(255);
+		Button gravity = cp5.addButton("ApplyGravity").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
+		cp5.addButton("Reset").setPosition(20,280).setSize(80,20).setColorLabel(255);
+		cp5.addButton("CenterCamera").setPosition(20,310).setSize(80,20).setColorLabel(255);
+		cp5.addButton("Apply").setPosition(20,340).setSize(80,20).setColorLabel(255);
+
+		int color = gravity.getColor().getBackground();
 
 		tooltipGrav =  cp5.addTextarea("tooltipGrav").setPosition(100,250).setText("Pose le modèle").setSize(90,18)
 				.setColorBackground(color(220))
@@ -379,11 +391,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
 				.setPosition(win.getWidth() - 100,10).setColor(255);
 
-		 cp5.addToggle("Model").setPosition(20, 180).setSize(10,10)
-					.setColorBackground(color(255,250)).setColorActive(gravity.getColor().getBackground()).toggle();
+		cp5.addToggle("Model").setPosition(20, 220).setSize(10,10)
+					.setColorBackground(color(255,250)).setColorActive(color).setColorForeground(color + 50).toggle();
 
-		toggleBits = cp5.addToggle("Bits").setPosition(20, 210).setSize(10,10)
-					.setColorBackground(color(255,250)).setColorActive(gravity.getColor().getBackground());
+		toggleBits = cp5.addToggle("Bits").setPosition(60, 220).setSize(10,10)
+					.setColorBackground(color(255,250)).setColorActive(color).setColorForeground(color + 50);
+
+		cp5.addSlider("M").setRange(0,100).setPosition(20,180).setSize(70, 10).setValue(100)
+				.setColorForeground(color+50).setColorActive(color + 40);
+		cp5.addSlider("B").setRange(0,100).setPosition(20,195).setSize(70, 10).setValue(100)
+				.setColorForeground(color+50).setColorActive(color + 40);
 
 		cp5.setAutoDraw(false);
 	}
@@ -401,6 +418,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		toggleModel.setPosition(20, win.getHeight() - 190);
 		toggleBits.setPosition(60, win.getHeight() - 190);*/
+		if (mouseX < 100){
+			scene.disableMotionAgent();
+		}
+		else{
+			scene.enableMotionAgent();
+		}
 	}
 
 	private void displayTooltips(){
@@ -436,6 +459,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
+	/*
+	 * Rotate the shape
+	 *
+	 */
 	private void rotateShape(float angleX, float angleY, float angleZ){
 		Quat r = new Quat();
 		float angXRad = (float)Math.toRadians((double)angleX);
@@ -448,6 +475,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		applyGravity();
 	}
 
+	/*
+	 *	Move the shape
+	 *
+	 */
 	private void translateShape(float transX, float transY, float transZ){
 		frame.translate(transX, transY, transZ);
 		boolean checkIn = checkShapeInWorkspace();
@@ -474,6 +505,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		//applyTranslation();
 	}
 
+	/**
+	 *	Return minimum x, y, and z of the shape
+	 *
+	 */
+
 	public Vector3 getMinShape() {
 		double minx = Double.MAX_VALUE;
 		double miny = Double.MAX_VALUE;
@@ -496,6 +532,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 		return new Vector3(minx,miny,minz);
 	}
+
+	/**
+	 *
+	 * Return maximum x, y, and z of the shape
+	 */
 
 	private Vector3 getMaxShape() {
 		double maxx = - printerX;
@@ -520,14 +561,20 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		return new Vector3(maxx,maxy,maxz);
 	}
 
+	/*
+	 * 	Apply modifications of the shape to the model
+	 *
+	 */
+
 	private void applyRotation(){
 		Rotation r = frame.rotation();
 		MODEL.rotate(r);
 	}
 
 	private void applyTranslation(){
+		Quat r = (Quat)frame.rotation();
 		Vec trans = frame.position();
-		Vector3 v = new Vector3(trans.x(), trans.y(),0);
+		Vector3 v = new Vector3(trans.x() + sin(r.eulerAngles().y()) * shape.depth/2, trans.y() + - sin(r.eulerAngles().x()) * shape.depth/2,0);
 		MODEL.setPos(v);
 	}
 
@@ -538,6 +585,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
+	/*
+	 *	Reset the orientation and the position of the shape
+	 *
+	 */
 	private void resetModel(){
 		MODEL.rotate(frame.rotation().inverse());
 		MODEL.setPos(new Vector3(0,0,0));
@@ -546,6 +597,18 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		applyGravity();
 	}
 
+	/*
+	 *  Move camera to center the shape
+	 */
+	private void centerCamera(){
+		scene.eye().setPosition(new Vec(frame.position().x(),3000,3000));
+		scene.eye().lookAt(frame.position());
+	}
+
+	/**
+	 *	Check if the model is in the workspace
+	 *  Return true if in the workspace
+	 */
 	private boolean checkShapeInWorkspace(){
 		for (int i = 0; i < 6; i++) { borders[i] = false;}
 		float minX = -printerX/2;
@@ -608,11 +671,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
-	private void centerCamera(){
-		scene.eye().setPosition(new Vec(frame.position().x(),3000,3000));
-		scene.eye().lookAt(frame.position());
-	}
-
+	/**
+	 *  Listeners for GUI
+	 */
 	public void RotationX(String theValue){
 		float angle = Float.valueOf(theValue);
 		rotateShape(angle,0,0);
@@ -670,9 +731,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 			frame.removeMotionBindings();
 		}
 		else {
-			frame.setDefaultMouseBindings();
-			frame.setMotionBinding(WHEEL_ID, null);
 			shape.setVisible(true);
+			customFrameBindings(frame);
 		}
 	}
 
@@ -683,16 +743,28 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				built = true;
 			}
 			if (built){
-				for (Position p : shapeMap.keySet()) {
-					shapeMap.get(p).setVisible(true);
+				for (int i = 0; i < shapeMap.size(); i++) {
+					shapeMap.get(i).getValue().setVisible(true);
 				}
 			}
 		} else {
 			if (built) {
-				for (Position p : shapeMap.keySet()) {
-					shapeMap.get(p).setVisible(false);
+				for (int i = 0; i < shapeMap.size(); i++) {
+					shapeMap.get(i).getValue().setVisible(false);
 				}
 			}
+		}
+	}
+
+	public void M (int value){
+		value *= 255./100.;
+		shape.setFill(color(219, 100, 50, value));
+	}
+
+	public void B (int value){
+		value *= 255./100.;
+		for (Pair<Position, PShape> p : shapeMap){
+			p.getValue().setFill(color(19, 100, 50, value));
 		}
 	}
 
@@ -738,7 +810,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	public void setModel(Model m) {
 		controller.setModel(m);
 	}
-
+/*
 	public void keyPressed(){
 		if (keyCode == VK_SPACE) {
 			if (mode == Mode.sliced) {
@@ -754,5 +826,5 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		}
 	}
-
+*/
 }

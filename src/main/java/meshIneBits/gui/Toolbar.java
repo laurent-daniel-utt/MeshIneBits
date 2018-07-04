@@ -504,8 +504,10 @@ public class Toolbar extends JTabbedPane implements Observer {
             add(viewsCont);
             ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
             ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
+            ButtonIcon _demo = new ButtonIcon("Toggle demo", "gears.png");
             viewsCont.add(_2D);
             viewsCont.add(_3D);
+            viewsCont.add(_demo);
 
             _2D.addActionListener(new ActionListener() {
 
@@ -522,6 +524,15 @@ public class Toolbar extends JTabbedPane implements Observer {
                 public void actionPerformed(ActionEvent e) {
                     // Show up the 3D view
                     MainWindow.getInstance().get3DView().toggle();
+                }
+            });
+
+            _demo.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Show up the demo
+                    MainWindow.getInstance().getDemoView().toggle();
                 }
             });
         }

@@ -1,14 +1,9 @@
 /* Specifications of the printer used */
- *
- * Size of the printer */
- */
-
+/* Size of the printer */
 x: 8000
 y: 4000
 z: 2000
-
 /* Other parameters */
-
-workingWidth: 500
-margin: 100
-nbBits: 50
+500
+50
+/*End of parameters*/

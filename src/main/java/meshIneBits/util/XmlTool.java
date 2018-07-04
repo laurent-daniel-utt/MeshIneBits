@@ -21,29 +21,40 @@
 
 package meshIneBits.util;
 
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.io.PrintWriter;
+import java.awt.geom.Point2D;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Vector;
 
+import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
+
+import javax.annotation.processing.SupportedSourceVersion;
 
 public class XmlTool {
 
 	private GeneratedPart part;
 	private PrintWriter writer;
 	private Path filePath;
+	private double effectiveWidth;
+	private int nbBits;
+	private int remainingBits;
+	private double currentPos;
 
 	public XmlTool(GeneratedPart part, Path fileLocation) {
 		this.part = part;
 		this.filePath = fileLocation;
 		setFileToXml();
+		getPrinterParameters();
 	}
 
 	public String getNameFromFileLocation() {
@@ -63,6 +74,36 @@ public class XmlTool {
 			return false;
 		}
 	}
+
+	private void getPrinterParameters(){
+		float workingWidth = 0;
+		float margin = 0;
+		try {
+			File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+			FileInputStream file = new FileInputStream(filename);
+			BufferedReader br = new BufferedReader(new InputStreamReader(file));
+			String strline;
+			while ((strline = br.readLine()) != null){
+				if (strline.startsWith("workingWidth")){
+					workingWidth = Float.valueOf(strline.substring(14));
+				}
+				else if (strline.startsWith("margin")){
+					margin = Float.valueOf(strline.substring(8));
+				}
+				else if (strline.startsWith("nbBits")){
+					nbBits = Integer.valueOf(strline.substring(8));
+				}
+			}
+			br.close();
+			file.close();
+		}
+		catch(Exception e){
+			System.out.println("Error :" + e.getMessage());
+		}
+		effectiveWidth = workingWidth - margin;
+		remainingBits = nbBits;
+	}
+
 
 	private void setFileToXml() {
 		String fileName = filePath.getFileName().toString();
@@ -85,6 +126,32 @@ public class XmlTool {
 		writer.println("		<height>" + (((part.getLayers().size() + CraftConfig.layersOffset) * CraftConfig.bitThickness) - CraftConfig.layersOffset) + "</height>");
 		writer.println("		<radius>" + part.getSkirtRadius() + "</radius>");
 		writer.println("	</partSkirt>");
+
+	}
+
+	private void moveWorkingSpace(Bit3D bit, int id){
+		if (remainingBits == 0){
+			writer.println("		<return>");
+			writer.println("		</return>");
+			remainingBits = nbBits;
+		}
+		for (int i = 0; i < bit.getDepositPoints().size(); i++) {
+			if (bit.getDepositPoints().get(i) != null) {
+				if (id == 0) {
+					writer.println("		<goTo>");
+					currentPos = bit.getDepositPoints().get(i).x + effectiveWidth / 2;
+					writer.println("			<x>" + currentPos + "</x>");
+					writer.println("		</goTo>");
+				} else {
+					if (Math.abs(bit.getDepositPoints().get(i).x - currentPos) > effectiveWidth / 2) {
+						currentPos += effectiveWidth;
+						writer.println("		<goTo>");
+						writer.println("			<x>" + currentPos + "</x>");
+						writer.println("		</goTo>");
+					}
+				}
+			}
+		}
 	}
 
 	private void writeBit(Bit3D bit, int id) {
@@ -141,14 +208,17 @@ public class XmlTool {
 			writer.println("						<y>" + point[2] + "</y>");
 			writer.println("					</lineTo>");
 		}
-
 	}
 
 	private void writeLayer(Layer layer) {
+		Vector<Pair<Bit3D,Vector2>> Bits3DKeys = layer.sortBits();
 		writer.println("	<layer>");
 		writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
-		for (int i = 0; i < layer.getBits3dKeys().size(); i++) {
-			writeBit(layer.getBit3D(layer.getBits3dKeys().get(i)), i);
+		for (int i = 0; i < Bits3DKeys.size(); i++) {
+			Bit3D bit = Bits3DKeys.get(i).getKey();
+			moveWorkingSpace(bit,i);
+			writeBit(bit, i);
+			remainingBits -= 1;
 		}
 		writer.println("	</layer>");
 	}

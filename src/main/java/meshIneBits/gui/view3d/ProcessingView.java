@@ -47,7 +47,6 @@ import processing.opengl.PJOGL;
 import remixlab.proscene.Scene;
 import remixlab.dandelion.geom.Vec;
 
-import static java.awt.event.KeyEvent.VK_E;
 import static java.awt.event.KeyEvent.VK_SPACE;
 
 /**
@@ -303,7 +302,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 	private void drawWorkspace() {
 		try {
-			File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+			File filename = new File(this.getClass().getClassLoader().getResource("meshIneBits/config/PrinterConfig.txt").getPath());
 			FileInputStream file = new FileInputStream(filename);
 			BufferedReader br = new BufferedReader(new InputStreamReader(file));
 			String strline;

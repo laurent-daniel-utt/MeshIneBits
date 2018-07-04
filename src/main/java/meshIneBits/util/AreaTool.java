@@ -35,6 +35,7 @@ public class AreaTool {
 	 * @param area
 	 * @return Barycenter. <tt>null</tt> if area is empty
 	 */
+
 	public static Vector2 compute2DPolygonCentroid(Area area) {
 
 		Vector<Segment2D> segments = getLargestPolygon(area);
@@ -69,6 +70,7 @@ public class AreaTool {
 		}
 
 		signedArea *= 0.5;
+
 		centroidX /= (6.0 * signedArea);
 		centroidY /= (6.0 * signedArea);
 

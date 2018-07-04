@@ -23,6 +23,7 @@ package meshIneBits.gui;
 
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
+import meshIneBits.gui.view3d.ProcessingModelView;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -59,6 +60,7 @@ public class MainController extends Observable implements Observer {
         if (o == currentPart) {
             MainWindow.getInstance().get2DView().setCurrentPart(currentPart);
             MainWindow.getInstance().get3DView().setCurrentPart(currentPart);
+            MainWindow.getInstance().getDemoView().setCurrentPart(currentPart);
         }
     }
 
@@ -68,7 +70,7 @@ public class MainController extends Observable implements Observer {
 
     void setModel(Model m) {
         model = m;
-        MainWindow.getInstance().getModelView().setModel(m);
+        ((ProcessingModelView)MainWindow.getInstance().getModelView()).setModel(m);
     }
 
     Model getModel() {
