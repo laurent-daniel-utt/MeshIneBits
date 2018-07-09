@@ -44,8 +44,7 @@ import remixlab.dandelion.geom.Vec;
  */
 public class Model {
 	private Vector<Triangle> triangles = new Vector<Triangle>();
-	private Vector3 position;
-	private Rotation rot = null;
+	private Vector3 position = new Vector3(0,0,0);
 
 	/**
 	 * Read all the triangles of the STL file, whether it's an Ascii or a Binary
@@ -58,8 +57,6 @@ public class Model {
 	 */
 	public Model(String filename) throws Exception {
 		Logger.updateStatus("Loading: " + filename);
-		position = new Vector3(0,0,0);
-		rot = new Quat(0,0,0,0);
 
 		if (filename.toLowerCase().endsWith(".stl")) {
 			char[] buf = new char[5];
@@ -158,7 +155,7 @@ public class Model {
 	 * Translate all the triangle adding value of a {@link Vector3}
 	 * @param translate {@link Vector3}
 	 */
-	private void move(Vector3 translate) {
+	public void move(Vector3 translate) {
 		for (Triangle t : triangles) {
 			for (int i = 0; i < 3; i++) {
 				t.point[i].addToSelf(translate);
@@ -302,37 +299,30 @@ public class Model {
 	 * Rotate all triangles
 	 */
 	public void rotate(Rotation r) {
-		if (rot != r){
-			rot = r;
-			for (Triangle t : triangles){
-				rotateTriangle(t,rot);
+		for (Triangle t : triangles) {
+				rotateTriangle(t, r);
 			}
-
-        }
 	}
+
 	private void rotateTriangle(Triangle t, Rotation rot){
 	     for ( Vector3 p : t.point){
 	         Vec v = rot.rotate(new Vec((float)p.x,(float)p.y,(float)p.z));
 	         p.x = v.x();
 	         p.y = v.y();
 	         p.z = v.z();
-
          }
 	}
 
 	public void translate(Vector3 trans){
-		for (Triangle t : triangles) {
-			for (int i = 0; i < 3; i++) {
-				t.point[i].addToSelf(trans);
-			}
-		}
+		position.x += trans.x;
+		position.y += trans.y;
+		position.z += trans.z;
 	}
 
-	public Vector3 getPos(){
-		return position;
+	public Vector3 getPos(){ return position;}
+
+	public void setPos(Vector3 t){
+		position = t;
 	}
 
-	public void setPos(Vector3 pos){
-		position = pos;
-	}
 }

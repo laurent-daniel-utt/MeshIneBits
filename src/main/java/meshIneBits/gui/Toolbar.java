@@ -197,6 +197,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                         Model m;
                         try {
                             m = new Model(filename);
+                            m.center();
                         } catch (Exception e1) {
                             e1.printStackTrace();
                             Logger.error("Failed to load model");
@@ -471,7 +472,6 @@ public class Toolbar extends JTabbedPane implements Observer {
                             Model m;
                             try {
                                 m = controller.getModel();
-                                m.center();
                             } catch (Exception e1) {
                                 e1.printStackTrace();
                                 Logger.error("Failed to load model");
@@ -504,7 +504,7 @@ public class Toolbar extends JTabbedPane implements Observer {
             add(viewsCont);
             ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
             ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
-            ButtonIcon _demo = new ButtonIcon("Toggle demo", "gears.png");
+            ButtonIcon _demo = new ButtonIcon("Demo", "gears.png");
             viewsCont.add(_2D);
             viewsCont.add(_3D);
             viewsCont.add(_demo);

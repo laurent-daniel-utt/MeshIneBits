@@ -23,6 +23,7 @@ package meshIneBits.patterntemplates;
 
 import java.util.Vector;
 
+import javafx.util.Pair;
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;

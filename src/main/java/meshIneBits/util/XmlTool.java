@@ -212,10 +212,19 @@ public class XmlTool {
 
 	private void writeLayer(Layer layer) {
 		Vector<Pair<Bit3D,Vector2>> Bits3DKeys = layer.sortBits();
+		Vector3 modelTranslation = part.getModel().getPos();
 		writer.println("	<layer>");
 		writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
 		for (int i = 0; i < Bits3DKeys.size(); i++) {
 			Bit3D bit = Bits3DKeys.get(i).getKey();
+			// translating the bits - they are generated at the origin of the world coordinate system;
+			for (int j = 0; j < bit.getLiftPoints().size(); j++){
+				if (bit.getLiftPoints().get(j) != null){
+					double oldX = bit.getDepositPoints().get(j).x;
+					double oldY = bit.getDepositPoints().get(j).y;
+					bit.getDepositPoints().set(j, new Vector2( oldX + modelTranslation.x, oldY + modelTranslation.y));
+				}
+			}
 			moveWorkingSpace(bit,i);
 			writeBit(bit, i);
 			remainingBits -= 1;

@@ -24,6 +24,7 @@ package meshIneBits.patterntemplates;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javafx.util.Pair;
 import meshIneBits.Bit2D;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Layer;
@@ -446,7 +447,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	/**
 	 * To check if the second input bit is directly in front of the first one.
 	 * 
-	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D, Pattern) checkAdjacence}
+	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D) checkAdjacence}
 	 * before this.
 	 * 
 	 * @param bit1

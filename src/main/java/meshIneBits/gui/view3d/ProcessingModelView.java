@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -40,7 +39,6 @@ import com.jogamp.newt.opengl.GLWindow;
 import javafx.util.Pair;
 import meshIneBits.GeneratedPart;
 import meshIneBits.Model;
-import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector3;
 import meshIneBits.gui.SubWindow;
 
@@ -49,13 +47,13 @@ import processing.core.PShape;
 import processing.opengl.PJOGL;
 
 import remixlab.dandelion.geom.Quat;
-import remixlab.dandelion.geom.Rotation;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 import remixlab.dandelion.geom.Vec;
 
 import controlP5.*;
 
+import static java.awt.event.KeyEvent.VK_SPACE;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
 
@@ -83,8 +81,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	private static ProcessingModelView currentInstance = null;
 	private static Model MODEL;
 	private static Controller controller = null;
-	private enum Mode { full, sliced };
-	Mode mode = Mode.full;
 
 	private PShape shape;
 	private Vector<Pair<Position, PShape>> shapeMap = null;
@@ -104,6 +100,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	private boolean[] borders;
 	private boolean hidden = false;
 	private boolean built = false;
+	private boolean applied = false;
 
 	/**
 	 *
@@ -196,6 +193,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		scene.setRadius(2500);
 		scene.showAll();
 		scene.disableKeyboardAgent();
+		scene.toggleGridVisualHint();
 
 		builder = new Builder(this);
 		setCloseOperation();
@@ -232,14 +230,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		drawWorkspace();
 		mouseConstraints();
 		scene.drawFrames();
+		if (built) {
+			drawBits(shapeMap);
+		}
 		scene.beginScreenDrawing();
 		updateButtons();
 		cp5.draw();
 		displayTooltips();
 		scene.endScreenDrawing();
-		if (built) {
-			drawBits(shapeMap);
-		}
 	}
 
 	/*
@@ -247,12 +245,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 *
 	 */
 
-	private  void drawBits(Vector<Pair<Position, PShape>> shapeMap){
-		float bitThickness = (float) CraftConfig.bitThickness;
-		float layersOffSet = (float) CraftConfig.layersOffset;
-
-		float zLayer = (int) (controller.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
-
+	private void drawBits(Vector<Pair<Position, PShape>> shapeMap) {
 		Vector3 v = controller.getModel().getPos();
 		for (int i = 0; i < shapeMap.size(); i++) {
 			pushMatrix();
@@ -262,10 +255,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 			rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 
 			PShape s = shapeMap.get(i).getValue();
-
-			if (t[2] <= zLayer) {
-				shape(s);
-			}
 			shape(s);
 			popMatrix();
 		}
@@ -464,14 +453,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 *
 	 */
 	private void rotateShape(float angleX, float angleY, float angleZ){
+		applied = false;
 		Quat r = new Quat();
 		float angXRad = (float)Math.toRadians((double)angleX);
 		float angYRad = (float)Math.toRadians((double)angleY);
 		float angZRad = (float)Math.toRadians((double)angleZ);
-
 		r.fromEulerAngles(angXRad,angYRad,angZRad);
 		frame.rotate(r);
-		//applyRotation();
 		applyGravity();
 	}
 
@@ -480,6 +468,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 *
 	 */
 	private void translateShape(float transX, float transY, float transZ){
+		applied = false;
 		frame.translate(transX, transY, transZ);
 		boolean checkIn = checkShapeInWorkspace();
 		if (!checkIn) {
@@ -502,7 +491,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 				frame.translate(0,0,(printerZ - (float)getMaxShape().z));
 			}
 		}
-		//applyTranslation();
 	}
 
 	/**
@@ -567,15 +555,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 */
 
 	private void applyRotation(){
-		Rotation r = frame.rotation();
-		MODEL.rotate(r);
+		MODEL.rotate(frame.rotation());
 	}
 
 	private void applyTranslation(){
-		Quat r = (Quat)frame.rotation();
-		Vec trans = frame.position();
-		Vector3 v = new Vector3(trans.x() + sin(r.eulerAngles().y()) * shape.depth/2, trans.y() + - sin(r.eulerAngles().x()) * shape.depth/2,0);
-		MODEL.setPos(v);
+		MODEL.setPos(new Vector3(frame.position().x(), frame.position().y(), 0));
+		MODEL.move(new Vector3(0, 0, - MODEL.getMin().z));
+
 	}
 
 	private void applyGravity(){
@@ -709,6 +695,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		centerCamera();
 		built = false;
 		toggleBits.setState(false);
+		applied = false;
+
 	}
 
 	public void ApplyGravity(float theValue) {
@@ -720,9 +708,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	}
 
 	public void Apply(float theValue){
-		applyGravity();
-		applyTranslation();
-		applyRotation();
+		if (!applied) {
+			applyRotation();
+			applyGravity();
+			applyTranslation();
+			applied = true;
+		}
 	}
 
 	public void Model(boolean flag){
@@ -810,21 +801,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	public void setModel(Model m) {
 		controller.setModel(m);
 	}
-/*
-	public void keyPressed(){
-		if (keyCode == VK_SPACE) {
-			if (mode == Mode.sliced) {
-				mode = Mode.full;
-				println("Affichage du modèle entier");
-			}
-			else if (mode == Mode.full) {
-				mode = Mode.sliced;
-				println("Affichage des layer choisies");
-			}
-		}
-		if (keyCode == VK_E){
 
-		}
-	}
-*/
+
 }

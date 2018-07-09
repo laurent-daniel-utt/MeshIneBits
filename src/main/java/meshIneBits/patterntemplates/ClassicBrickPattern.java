@@ -43,7 +43,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 	private double bitsOffset;
 	private double skirtRadius;
 
-	public double getSkirtRadius() {
+	public  double getSkirtRadius() {
 		return skirtRadius;
 	}
 

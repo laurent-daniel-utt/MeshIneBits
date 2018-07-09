@@ -49,7 +49,7 @@ import java.util.Vector;
 public class demoView extends PApplet implements Observer, SubWindow {
 
     private final int BACKGROUND_COLOR = color(150, 150, 150);
-    private final int framerate = 60;
+    private final int framerate = 30;
     private static demoView currentInstance = null;
     private static Controller controller = null;
     private static boolean initialized = false;
@@ -65,8 +65,6 @@ public class demoView extends PApplet implements Observer, SubWindow {
     private static Vector<Pair<Position,PShape>> shapeMap = null;
     private boolean start = false;
     private int n;
-    private Textlabel FPS;
-
 
     public  static void startdemoView(){
         if (currentInstance == null){
@@ -157,8 +155,6 @@ public class demoView extends PApplet implements Observer, SubWindow {
         cp5 = new ControlP5(this);
         cp5.addButton("Play").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
         cp5.addButton("Stop").setPosition(20, 280).setSize(80, 20).setColorLabel(255);
-        FPS = cp5.addTextlabel("FPS").setText("frameRate : " + frameRate).setPosition(10,10)
-                .setSize(80,40).setColor(255);
         cp5.setAutoDraw(false);
 
         n = 0;
@@ -169,37 +165,31 @@ public class demoView extends PApplet implements Observer, SubWindow {
         lights();
         ambientLight(255,255,255);
         drawWorkspace();
-        scene.beginScreenDrawing();
-        cp5.draw();
-        FPS.setText("frameRate : " + frameRate);
-        scene.endScreenDrawing();
         drawBits(shapeMap, n);
         if (start){
             n++;
         }
+        scene.beginScreenDrawing();
+        cp5.draw();
+        scene.endScreenDrawing();
     }
 
     private  void drawBits(Vector<Pair<Position, PShape>> shapeMap, int n){
-        float bitThickness = (float) CraftConfig.bitThickness;
-        float layersOffSet = (float) CraftConfig.layersOffset;
 
-        float zLayer = (int) (controller.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
-
-        Vector3 v = controller.getModel().getPos();
         int j = 0;
         for (int i = 0; i < shapeMap.size(); i++) {
             if (j < n) {
                 pushMatrix();
-                translate((float) v.x, (float) v.y, (float) v.z);
                 float[] t = shapeMap.get(i).getKey().getTranslation();
                 translate(t[0], t[1], t[2]);
+                translate((float)controller.getCurrentPart().getModel().getPos().x,
+                          (float)controller.getCurrentPart().getModel().getPos().y,
+                          (float)controller.getCurrentPart().getModel().getPos().z);
+
                 rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 
                 PShape s = shapeMap.get(i).getValue();
 
-                if (t[2] <= zLayer) {
-                    shape(s);
-                }
                 shape(s);
                 popMatrix();
                 j++;
@@ -267,6 +257,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     }
 
     public void Stop(float theValue) {
+        start = false;
         n = 0;
     }
 

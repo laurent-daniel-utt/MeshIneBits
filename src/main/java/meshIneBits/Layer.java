@@ -57,6 +57,9 @@ public class Layer extends Observable{
 		rebuild();
 	}
 
+	/* Sort bits according to their X position
+		Used for XML writing
+	 */
 	public Vector<Pair<Bit3D, Vector2>> sortBits() {
 		Vector<Pair<Bit3D, Vector2>> keySet = new Vector<Pair<Bit3D, Vector2>>();
 		for (Vector2 key : mapBits3D.keySet()) {
@@ -68,14 +71,11 @@ public class Layer extends Observable{
 		}
 		Collections.sort(keySet, new Comparator<Pair<Bit3D,Vector2>>() {
 			public int compare(Pair<Bit3D,Vector2> v1, Pair<Bit3D,Vector2> v2) {
-				if (v1.getValue().x > v2.getValue().x){
-					return 1;
-				}
-				else if (v1.getValue().x < v2.getValue().x){
-					return -1;
+				if (Double.compare(v1.getValue().x, v2.getValue().x) == 0){
+					return Double.compare(v1.getValue().y, v2.getValue().y);
 				}
 				else {
-					return 0;
+					return Double.compare(v1.getValue().x, v2.getValue().x);
 				}
 			}
 		});
@@ -158,7 +158,7 @@ public class Layer extends Observable{
 	}
 
 	public Vector<Vector2> getBits3dKeys() {
-		return new Vector<Vector2>(mapBits3D.keySet());
+		return new Vector<>(mapBits3D.keySet());
 	}
 
 	public int getLayerNumber() {

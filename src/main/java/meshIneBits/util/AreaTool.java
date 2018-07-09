@@ -23,6 +23,7 @@ package meshIneBits.util;
 
 import meshIneBits.config.CraftConfig;
 
+import javax.annotation.processing.SupportedSourceVersion;
 import java.awt.geom.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +35,8 @@ public class AreaTool {
 	 *
 	 * @param area
 	 * @return Barycenter. <tt>null</tt> if area is empty
-	 */
+	 * */
+
 
 	public static Vector2 compute2DPolygonCentroid(Area area) {
 
@@ -43,8 +45,8 @@ public class AreaTool {
 
 		Vector<Vector2> vertices = new Vector<Vector2>();
 		for (Segment2D s : segments) {
-			vertices.add(s.start);
-			vertices.addElement(s.end);
+				vertices.add(s.start);
+				vertices.addElement(s.end);
 		}
 
 		double centroidX = 0;
@@ -68,7 +70,6 @@ public class AreaTool {
 			centroidX += (x0 + x1) * a;
 			centroidY += (y0 + y1) * a;
 		}
-
 		signedArea *= 0.5;
 
 		centroidX /= (6.0 * signedArea);
@@ -76,6 +77,7 @@ public class AreaTool {
 
 		return new Vector2(centroidX, centroidY);
 	}
+
 
 	/**
 	 * @param poly
