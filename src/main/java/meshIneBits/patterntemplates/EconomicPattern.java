@@ -20,7 +20,7 @@
  */
 
 /**
- * 
+ *
  */
 package meshIneBits.patterntemplates;
 
@@ -51,7 +51,7 @@ import java.util.Vector;
  * to complete. Note that this pattern does not always return a result because
  * once it can not fill a separated zone of the generated part, that whole layer
  * will end up failed.
- * 
+ *
  * @author NHATHAN
  *
  */
@@ -98,7 +98,7 @@ public class EconomicPattern extends PatternTemplate {
 	/**
 	 * This will try to pave bits into the layer in the best way possible. The
 	 * process should be executed consequently.
-	 * 
+	 *
 	 * @return -1 if the task failed
 	 */
 	@Override
@@ -195,9 +195,9 @@ public class EconomicPattern extends PatternTemplate {
 
 	/**
 	 * Trying to fill a given area by bits following the predefined algorithm.
-	 * 
+	 *
 	 * Note: Only fill from top to bottom.
-	 * 
+	 *
 	 * @param zone
 	 *            a constraint surface without any other one inside or outside.
 	 * @return <tt>null</tt> if no solution found
@@ -315,9 +315,9 @@ public class EconomicPattern extends PatternTemplate {
 
 	/**
 	 * Trying to fill a horizontal line by bits.
-	 * 
+	 *
 	 * Note: Only fill from left to right.
-	 * 
+	 *
 	 * @param band
 	 *            whose height is {@link CraftConfig#bitWidth} or a half of it
 	 * @param bandHeight
@@ -438,7 +438,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
@@ -456,7 +456,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
@@ -527,7 +527,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	/**
 	 * Calculate all possible flips for <tt>area</tt>, keeping the same boundary
-	 * 
+	 *
 	 * @param area
 	 * @return a table of 4 possible flips
 	 */

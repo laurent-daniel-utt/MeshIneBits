@@ -31,8 +31,6 @@ import java.util.Vector;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
-import remixlab.dandelion.geom.Quat;
-import remixlab.dandelion.geom.Rot;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
