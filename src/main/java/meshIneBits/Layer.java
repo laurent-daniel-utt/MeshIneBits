@@ -21,15 +21,14 @@
 
 package meshIneBits;
 
+import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
-import java.util.Hashtable;
-import java.util.Observable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A layer contains all the bit 3D for a given Z. These bits are organized
@@ -38,7 +37,7 @@ import java.util.Vector;
  * {@link #referentialPattern} determines the position and orientation of the
  * bits. It is then cloned and shaped to fit the linked {@link Slice}.
  */
-public class Layer extends Observable {
+public class Layer extends Observable{
 
 	private int layerNumber;
 	private Vector<Slice> slices;
@@ -56,6 +55,31 @@ public class Layer extends Observable {
 		setSliceToSelect(CraftConfig.defaultSliceToSelect);
 
 		rebuild();
+	}
+
+	/* Sort bits according to their X position
+		Used for XML writing
+	 */
+	public Vector<Pair<Bit3D, Vector2>> sortBits() {
+		Vector<Pair<Bit3D, Vector2>> keySet = new Vector<Pair<Bit3D, Vector2>>();
+		for (Vector2 key : mapBits3D.keySet()) {
+			for (Vector2 pos : mapBits3D.get(key).getDepositPoints()) {
+				if (pos != null){
+					keySet.add(new Pair<Bit3D, Vector2>(mapBits3D.get(key),pos));
+				}
+			}
+		}
+		Collections.sort(keySet, new Comparator<Pair<Bit3D,Vector2>>() {
+			public int compare(Pair<Bit3D,Vector2> v1, Pair<Bit3D,Vector2> v2) {
+				if (Double.compare(v1.getValue().x, v2.getValue().x) == 0){
+					return Double.compare(v1.getValue().y, v2.getValue().y);
+				}
+				else {
+					return Double.compare(v1.getValue().x, v2.getValue().x);
+				}
+			}
+		});
+		return keySet;
 	}
 
 	/**
@@ -125,6 +149,7 @@ public class Layer extends Observable {
 			}
 
 			bitsToInclude.clear();
+
 		}
 	}
 
@@ -133,7 +158,7 @@ public class Layer extends Observable {
 	}
 
 	public Vector<Vector2> getBits3dKeys() {
-		return new Vector<Vector2>(mapBits3D.keySet());
+		return new Vector<>(mapBits3D.keySet());
 	}
 
 	public int getLayerNumber() {

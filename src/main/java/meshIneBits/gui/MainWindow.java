@@ -24,6 +24,7 @@ package meshIneBits.gui;
 import meshIneBits.gui.view2d.Window;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.gui.view3d.ProcessingView;
+import meshIneBits.gui.view3d.demoView;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
@@ -42,7 +43,8 @@ public class MainWindow extends JFrame {
 	private Toolbar toolbar;
 	private SubWindow view2DWindow;
 	private SubWindow view3DWindow;
-	private ProcessingModelView modelWindow;
+	private SubWindow modelWindow;
+	private SubWindow demoWindow;
 
 	public static MainWindow getInstance() {
 		if (instance == null) {
@@ -79,6 +81,7 @@ public class MainWindow extends JFrame {
 		view2DWindow = new Window();
 		view3DWindow = new ProcessingView();
 		modelWindow = new ProcessingModelView();
+		demoWindow = new demoView();
 
 		content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -99,5 +102,8 @@ public class MainWindow extends JFrame {
 		return view3DWindow;
 	}
 
-	ProcessingModelView getModelView() { return modelWindow; }
+	SubWindow getModelView() { return modelWindow; }
+
+	SubWindow getDemoView() { return demoWindow; }
+
 }

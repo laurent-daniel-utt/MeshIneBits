@@ -1,5 +1,6 @@
 package meshIneBits.gui.view3d;
 
+import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Model;
@@ -14,49 +15,53 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
+/*
+* Used by ProcessingModelView to create displayable PShape of Model and 3Dbits
+*
+ */
+
 public class Builder extends PApplet implements Observer {
 
     private final int MODEL_COLOR = color(219, 100, 50);
-    private final int BIT_COLOR = color(219, 100, 50);
+    private final int BIT_COLOR = color(19, 100, 50);
     private Controller controller;
-    private ProcessingModelView modelView;
+    private PApplet pApplet;
 
 
-    public Builder(ProcessingModelView modelView) {
+    public Builder(PApplet pApplet) {
         controller = Controller.getInstance();
-        this.modelView = modelView;
+        this.pApplet = pApplet;
     }
 
     public void buildShape(Model model, PShape shape){
         Logger.updateStatus("Start building STL model");
 
         Vector<Triangle> stlTriangles = model.getTriangles();
-
+        pApplet.shapeMode(CORNER);
         for (Triangle t : stlTriangles){
             shape.addChild(getPShapeFromTriangle(t));
         }
-
         Logger.updateStatus("STL model built.");
     }
 
     private PShape getPShapeFromTriangle(Triangle t){
 
-        PShape face = modelView.createShape();
+        PShape face = pApplet.createShape();
         face.setStroke(false);
         face.setFill(MODEL_COLOR);
         face.beginShape();
         for (Vector3 p : t.point){
             face.vertex((float) p.x, (float) p.y, (float) p.z);
         }
-
         face.endShape(CLOSE);
 
         return face;
     }
 
-    public void buildBits(HashMap<Position,PShape> shapeMap) {
+    public void buildBits(Vector<Pair<Position, PShape>> shapeMap) {
 
         Logger.updateStatus("Start building 3D model");
+
         Vector<Layer> layers = controller.getCurrentPart().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
         float layersOffSet = (float) CraftConfig.layersOffset;
@@ -67,27 +72,29 @@ public class Builder extends PApplet implements Observer {
         int bitCount = 0;
 
         for (Layer curLayer : layers) {
+            Vector<Pair<Bit3D, Vector2>> sortedBits = curLayer.sortBits();
             zLayer = curLayer.getLayerNumber() * (bitThickness + layersOffSet);
-            for (Vector2 curBitKey : curLayer.getBits3dKeys()) {
+            for (int i = 0; i < sortedBits.size(); i++) {
                 bitCount++;
-                Bit3D curBit = curLayer.getBit3D(curBitKey);
+                Bit3D curBit = sortedBits.get(i).getKey();
                 PShape bitPShape;
+                pApplet.fill(BIT_COLOR);
+                pApplet.noStroke();
                 bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
                 if (bitPShape != null) {
-                    bitPShape.setFill(BIT_COLOR);
                     Vector2 curBitCenter = curBit.getOrigin();
                     float curBitCenterX = (float) curBitCenter.x;
                     float curBitCenterY = (float) curBitCenter.y;
                     float[] translation = { curBitCenterX, curBitCenterY, zLayer };
                     float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
                     Position curBitPosition = new Position(translation, rotation);
-                    shapeMap.put(curBitPosition, bitPShape);
+                    shapeMap.add(new Pair<>(curBitPosition, bitPShape));
                 }
             }
         }
-
         Logger.updateStatus("3D model built : " + bitCount + " bits generated.");
     }
+
     /**
      *
      * @param extrudeDepth
@@ -147,7 +154,7 @@ public class Builder extends PApplet implements Observer {
     }
 
     private PShape getFaceExtrude(int[] pointA, int[] pointB, int z) {
-        PShape face = createShape();
+        PShape face = pApplet.createShape();
         face.beginShape();
         face.vertex(pointA[0], pointA[1], pointA[2] + z);
         face.vertex(pointB[0], pointB[1], pointB[2] + z);
@@ -166,7 +173,7 @@ public class Builder extends PApplet implements Observer {
      */
     private PShape getSideExtrude(PolygonPointsList poly, int z) {
 
-        PShape side = createShape(GROUP);
+        PShape side = pApplet.createShape(GROUP);
 
         int length = poly.getLength();
         int[] pointA = poly.getNextPoint();
@@ -192,7 +199,7 @@ public class Builder extends PApplet implements Observer {
         int length;
         int[] point;
 
-        PShape myShape = createShape();
+        PShape myShape = pApplet.createShape();
         myShape.beginShape();
         // Exterior path
         length = poly[0].getLength();
@@ -222,7 +229,7 @@ public class Builder extends PApplet implements Observer {
      */
     private PShape extrude(PolygonPointsList[] poly, int z) {
 
-        PShape extrudedObject = createShape(GROUP);
+        PShape extrudedObject = pApplet.createShape(GROUP);
 
         PShape exterior = getSideExtrude(poly[0], z);
         extrudedObject.addChild(exterior);

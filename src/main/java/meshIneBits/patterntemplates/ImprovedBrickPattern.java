@@ -125,6 +125,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 		}
 	}
 
+
 	@Override
 	public int optimize(Layer actualState) {
 		Logger.updateStatus("Optimizing layer " + actualState.getLayerNumber());
@@ -153,6 +154,14 @@ public class ImprovedBrickPattern extends PatternTemplate {
 			if (localDirectionToMove != null && irBitKeyToMove != null) {
 				Bit2D initialStateOfBitToMove = selectedPattern.getBit(irBitKeyToMove);
 				Vector2 newPos = this.pushBit(selectedPattern, irBitKeyToMove, localDirectionToMove);
+				double lengthToReduce;
+				if (localDirectionToMove.x == 0){
+					lengthToReduce = bitsLengthSpace;
+				}
+				else{
+					lengthToReduce = bitsWidthSpace;
+				}
+				reduceBit(newPos,selectedPattern,localDirectionToMove, lengthToReduce);
 				Logger.updateStatus("Moved bit at " + irBitKeyToMove + " in direction "
 						+ localDirectionToMove.getTransformed(selectedPattern.getAffineTransform()) + " to " + newPos);
 				// Re-validate
@@ -248,7 +257,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 		Vector2 coveringBitKey = actualState.addBit(movedBit);
 		coveringBitKey = this.pushBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite());
 		// Maintaining a gap between covering bit and the newly moved bit
-		this.moveBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite(), paddle);
+		//this.moveBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite(), paddle);
 	}
 
 	/**
@@ -301,6 +310,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 			verticalDisplacement = CraftConfig.bitWidth / 2;
 			horizontalDisplacement = CraftConfig.bitLength / 2;
 			additionalVerticalDisplacement = bitsLengthSpace / 2;
+
 		} else {
 			// If we push right or left
 			verticalDisplacement = CraftConfig.bitLength / 2;
@@ -337,15 +347,15 @@ public class ImprovedBrickPattern extends PatternTemplate {
 						// horizontally move
 						.add(centrifugalVector.mul(horizontalDisplacement))
 						// vertically move backward
-						.add(localDirectionToPush.getOpposite().mul(additionalVerticalDisplacement));
+						.add(centrifugalVector.mul(additionalVerticalDisplacement*2));
 				// Add the "petit" covering bit
 				// First, we add it as a full bit
 				Vector2 coveringBitKey = actualState.addBit(new Bit2D(coveringBitOrigin, bit.getOrientation()));
 				// Then reform
 				coveringBitKey = this.reduceBit(coveringBitKey, actualState, localDirectionToPush.getOpposite(),
-						verticalDisplacement);
+						verticalDisplacement + additionalVerticalDisplacement*2);
 				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector.getOpposite(),
-						horizontalDisplacement);
+						horizontalDisplacement + additionalVerticalDisplacement*2);
 			} else {
 				// The actually considered bit has been modified
 				// (not in full form)
@@ -418,7 +428,6 @@ public class ImprovedBrickPattern extends PatternTemplate {
 		// The orientation of 2 bits is always (1, 0).
 		Vector2 x = bit1.getOrientation().normal(), y = x.getCWAngularRotated(),
 				dist = bit2.getCenter().sub(bit1.getCenter());
-
 		double length1 = bit1.getLength(), width1 = bit1.getWidth(), length2 = bit2.getLength(),
 				width2 = bit2.getWidth();
 
@@ -446,7 +455,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	/**
 	 * To check if the second input bit is directly in front of the first one.
 	 * 
-	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D, Pattern) checkAdjacence}
+	 * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D) checkAdjacence}
 	 * before this.
 	 * 
 	 * @param bit1
@@ -569,7 +578,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				"The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 5.0, 1.0));
 		// diffRotation
 		config.add(new DoubleParam("diffRotation", "Differential rotation",
-				"Rotation of a layer in comparison to the previous one (in degrees °)", 90.0, 360.0, 0.0, 0.1));
+				"Rotation of a layer in comparison to the previous one (in degrees °)", 0.0, 360.0, 90.0, 0.1));
 		// diffxOffset
 		config.add(new DoubleParam("diffxOffset", "Differential X offset",
 				"Offset in the X-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
@@ -578,7 +587,6 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				"Offset in the Y-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
 
 	}
-
 	@Override
 	public boolean ready(GeneratedPart generatedPart) {
 		// Setting the skirtRadius and starting/ending points
