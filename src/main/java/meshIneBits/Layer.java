@@ -47,11 +47,11 @@ public class Layer extends Observable{
 	private Hashtable<Vector2, Bit3D> mapBits3D;
 	private int sliceToSelect;
 
-	public Layer(Vector<Slice> slices, int layerNumber, GeneratedPart generatedPart) {
+	public Layer(Vector<Slice> slices, int layerNumber, Mesh mesh) {
 		this.slices = slices;
 		this.layerNumber = layerNumber;
-		this.patternTemplate = generatedPart.getPatternTemplate();
-		this.referentialPattern = generatedPart.getPatternTemplate().createPattern(layerNumber);
+		this.patternTemplate = mesh.getPatternTemplate();
+		this.referentialPattern = mesh.getPatternTemplate().createPattern(layerNumber);
 		setSliceToSelect(CraftConfig.defaultSliceToSelect);
 
 		rebuild();

@@ -22,7 +22,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.MainController;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 /**
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
- * Layer} of the {@link GeneratedPart}. It observes {@link Controller}
+ * Layer} of the {@link Mesh}. It observes {@link Controller}
  */
 class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
 
@@ -155,7 +155,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			GeneratedPart part = controller.getCurrentPart();
+			Mesh part = controller.getCurrentPart();
 
 			if ((part != null) && part.isGenerated()) {
 				// Get the clicked point in the right coordinate system
@@ -275,7 +275,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		updateDrawScale();
 
 		Graphics2D g2d = (Graphics2D) g;
-		GeneratedPart currentPart = controller.getCurrentPart();
+		Mesh currentPart = controller.getCurrentPart();
 
 		// If part is only sliced (layers not generated yet), draw the slices
 		if ((currentPart != null) && !currentPart.isGenerated()) {
@@ -331,14 +331,14 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		g2d.draw(a);
 	}
 
-	private void paintSlices(GeneratedPart currentPart, Graphics2D g2d) {
+	private void paintSlices(Mesh currentPart, Graphics2D g2d) {
 		Slice slice = currentPart.getSlices().get(controller.getCurrentSliceNumber());
 		for (Polygon p : slice) {
 			drawModelPath2D(g2d, p.toPath2D());
 		}
 	}
 
-	private void paintSlicesInTheSameLayer(GeneratedPart currentPart, Layer layer, Graphics2D g2d) {
+	private void paintSlicesInTheSameLayer(Mesh currentPart, Layer layer, Graphics2D g2d) {
 		g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
 		for (int i = 0; i < layer.getSlices().size(); i++) {
@@ -360,7 +360,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		}
 	}
 
-	private void paintBits(GeneratedPart currentPart, Layer layer, Graphics2D g2d) {
+	private void paintBits(Mesh currentPart, Layer layer, Graphics2D g2d) {
 		Vector<Vector2> bitKeys = layer.getBits3dKeys();
 		// Get all the irregular bits (bitKey in fact) in this layer
 		Vector<Vector2> irregularBitsOfThisLayer = currentPart.getOptimizer()

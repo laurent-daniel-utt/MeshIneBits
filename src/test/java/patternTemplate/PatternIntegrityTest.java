@@ -21,7 +21,7 @@
 
 package patternTemplate;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Model;
 import meshIneBits.patterntemplates.PatternTemplate;
@@ -50,7 +50,7 @@ public abstract class PatternIntegrityTest {
 
 	private Model model;
 
-	GeneratedPart part;
+	Mesh part;
 
 	/**
 	 * Subclass can change this depending on size of test sample and algorithm
@@ -74,7 +74,7 @@ public abstract class PatternIntegrityTest {
 	 */
 	private void slicePart() {
 		logger.info("Slicer starts");
-		part = new GeneratedPart(model);
+		part = new Mesh(model);
 		waitSlicerDone();
 		checkSlicedPart();
 		logger.info("Slicer finishes");

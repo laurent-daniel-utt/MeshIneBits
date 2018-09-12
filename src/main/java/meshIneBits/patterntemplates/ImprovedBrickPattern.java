@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
@@ -588,9 +588,9 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
 	}
 	@Override
-	public boolean ready(GeneratedPart generatedPart) {
+	public boolean ready(Mesh mesh) {
 		// Setting the skirtRadius and starting/ending points
-		this.skirtRadius = generatedPart.getSkirtRadius();
+		this.skirtRadius = mesh.getSkirtRadius();
 		double maxiSide = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
 		this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
 		this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);

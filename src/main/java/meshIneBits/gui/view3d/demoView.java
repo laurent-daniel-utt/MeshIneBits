@@ -26,12 +26,9 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 
 import controlP5.ControlP5;
-import controlP5.Textlabel;
 import javafx.util.Pair;
-import meshIneBits.GeneratedPart;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.Mesh;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.opengl.PJOGL;
@@ -290,7 +287,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     }
 
     @Override
-    public void setCurrentPart(GeneratedPart currentPart) {
+    public void setCurrentPart(Mesh currentPart) {
         controller.setCurrentPart(currentPart);
     }
 

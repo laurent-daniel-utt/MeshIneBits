@@ -24,7 +24,7 @@
  */
 package meshIneBits.gui.view2d;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.gui.SubWindow;
 
 import javax.swing.*;
@@ -64,7 +64,7 @@ public class Window extends JFrame implements SubWindow {
 	}
 
 	@Override
-	public void setCurrentPart(GeneratedPart currentPart) {
+	public void setCurrentPart(Mesh currentPart) {
 		viewWrapper.getController().setCurrentPart(currentPart);
 	}
 }

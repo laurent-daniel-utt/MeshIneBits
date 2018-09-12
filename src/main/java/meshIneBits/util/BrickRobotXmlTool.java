@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 
@@ -37,13 +37,13 @@ import meshIneBits.config.CraftConfig;
  */
 public class BrickRobotXmlTool {
 	
-	GeneratedPart part;
+	Mesh part;
 	PrintWriter writer;
 	Path filePath;
 	StringBuffer xmlCode;
 	static final double SAFETY_MARGIN = 20; //offset to avoid hitting the other bits of the layer
 
-	public BrickRobotXmlTool(GeneratedPart part, Path fileLocation) {
+	public BrickRobotXmlTool(Mesh part, Path fileLocation) {
 		this.part = part;
 		this.filePath = fileLocation;
 		setFileToXml();

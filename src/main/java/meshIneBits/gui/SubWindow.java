@@ -24,7 +24,7 @@
  */
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 
 /**
  * @author Quoc Nhat Han TRAN
@@ -39,5 +39,5 @@ public interface SubWindow {
 	 */
 	void toggle();
 
-	void setCurrentPart(GeneratedPart currentPart);
+	void setCurrentPart(Mesh currentPart);
 }

@@ -35,7 +35,7 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
@@ -480,7 +480,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 
 	@Override
-	public void setCurrentPart(GeneratedPart currentPart) {
+	public void setCurrentPart(Mesh currentPart) {
 		System.out.println("Processing view, setting current part" + currentPart);
 		curVO.setCurrentPart(currentPart);
 	}

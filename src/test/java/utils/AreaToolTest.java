@@ -21,7 +21,7 @@
 
 package utils;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -54,7 +54,7 @@ class AreaToolTest {
 
 	private Model model;
 
-	private GeneratedPart part;
+	private Mesh part;
 
 	private static int TIME_LIMIT = 60;
 
@@ -79,7 +79,7 @@ class AreaToolTest {
 	 */
 	private void slicePart() {
 		logger.info("Slicer starts");
-		part = new GeneratedPart(model);
+		part = new Mesh(model);
 		waitSlicerDone();
 		logger.info("Slicer finishes");
 	}

@@ -21,12 +21,8 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.Bit2D;
-import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
-import meshIneBits.Model;
-import meshIneBits.gui.MainWindow;
-import meshIneBits.Layer;
+import meshIneBits.*;
+import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
@@ -38,14 +34,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * The controller, linking 2D views and part (so-called {@link GeneratedPart}).
- * It observes the {@link GeneratedPart} and its {@link meshIneBits.Layer
+ * The controller, linking 2D views and part (so-called {@link Mesh}).
+ * It observes the {@link Mesh} and its {@link meshIneBits.Layer
  * Layers}. Observed by {@link Core} and {@link Wrapper}. A singleton.
  */
 class Controller extends Observable implements Observer {
 
 	static private Controller instance;
-	private GeneratedPart part = null;
+	private Mesh part = null;
 	private int layerNumber = 0;
 	private int sliceNumber = 0;
 	private Set<Vector2> selectedBitKeys = new HashSet<>();
@@ -72,7 +68,7 @@ class Controller extends Observable implements Observer {
 		return layerNumber;
 	}
 
-	GeneratedPart getCurrentPart() {
+	Mesh getCurrentPart() {
 		return part;
 	}
 
@@ -136,7 +132,7 @@ class Controller extends Observable implements Observer {
 	 *
 	 * @param part <tt>null</tt> to reset
 	 */
-	void setCurrentPart(GeneratedPart part) {
+	void setCurrentPart(Mesh part) {
 		if (part != null) {
 			this.part = part;
 			part.addObserver(this);

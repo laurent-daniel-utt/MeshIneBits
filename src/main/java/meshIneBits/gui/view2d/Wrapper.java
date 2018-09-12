@@ -21,7 +21,7 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.gui.MainWindow;
 import meshIneBits.gui.utilities.ButtonIcon;
@@ -130,7 +130,7 @@ class Wrapper extends JPanel implements Observer {
 	}
 
 	private void buildLayerSelector() {
-		GeneratedPart part = controller.getCurrentPart();
+		Mesh part = controller.getCurrentPart();
 
 		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
 		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
@@ -152,7 +152,7 @@ class Wrapper extends JPanel implements Observer {
 	}
 
 	private void buildSliceSelector() {
-		GeneratedPart part = controller.getCurrentPart();
+		Mesh part = controller.getCurrentPart();
 
 		sliceSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
 		sliceSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
@@ -217,7 +217,7 @@ class Wrapper extends JPanel implements Observer {
 		if (arg != null) {
 			switch ((Controller.Component) arg) {
 				case PART:
-					GeneratedPart part = controller.getCurrentPart();
+					Mesh part = controller.getCurrentPart();
 					if (part != null && (part.isGenerated() || part.isSliced())) {
 						init();
 						repaint();
@@ -332,7 +332,7 @@ class Wrapper extends JPanel implements Observer {
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
-			GeneratedPart part = controller.getCurrentPart();
+			Mesh part = controller.getCurrentPart();
 			Layer layer = part.getLayers().get(controller.getCurrentLayerNumber());
 
 			if (controller.getSelectedBitKeys().isEmpty()) {
@@ -382,7 +382,7 @@ class Wrapper extends JPanel implements Observer {
 			currentLayerBtn.addActionListener(e -> {
 				currentLayerBtn.setEnabled(false);
 				currentMeshBtn.setEnabled(false);
-				GeneratedPart currentPart = controller.getCurrentPart();
+				Mesh currentPart = controller.getCurrentPart();
 				Layer currentLayer = currentPart.getLayers().get(controller.getCurrentLayerNumber());
 				currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
 				currentLayerBtn.setEnabled(true);
@@ -392,7 +392,7 @@ class Wrapper extends JPanel implements Observer {
 			currentMeshBtn.addActionListener(e -> {
 				currentLayerBtn.setEnabled(true);
 				currentMeshBtn.setEnabled(true);
-				GeneratedPart currentPart = controller.getCurrentPart();
+				Mesh currentPart = controller.getCurrentPart();
 				currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
 				currentLayerBtn.setEnabled(true);
 				currentMeshBtn.setEnabled(true);

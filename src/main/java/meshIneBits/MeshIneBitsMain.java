@@ -21,21 +21,16 @@
 
 package meshIneBits;
 
-import java.io.File;
-
-import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.MainWindow;
-import meshIneBits.gui.view3d.ProcessingModelView;
-import meshIneBits.util.Logger;
 
 /**
  * Main class. Call {@link #main(String[])} to start MeshIneBits. Will first
  * load the configuration and then initialize the GUI. Then wait for
- * {@link #sliceModel(String)} to be called to create a {@link GeneratedPart}.
+ * {@link #sliceModel(String)} to be called to create a {@link Mesh}.
  * 
  * @see CraftConfigLoader
- * @see GeneratedPart
+ * @see Mesh
  */
 public class MeshIneBitsMain {
 	/**

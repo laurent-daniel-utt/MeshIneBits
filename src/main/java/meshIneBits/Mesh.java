@@ -35,7 +35,7 @@ import java.util.Vector;
  * This object is the equivalent of the part which will be printed
  *
  */
-public class GeneratedPart extends Observable implements Runnable, Observer {
+public class Mesh extends Observable implements Runnable, Observer {
 	private Vector<Layer> layers = new Vector<Layer>();
 	private Vector<Slice> slices = new Vector<Slice>();
 	private PatternTemplate patternTemplate;
@@ -46,7 +46,7 @@ public class GeneratedPart extends Observable implements Runnable, Observer {
 	private Optimizer optimizer;
 	private Model model;
 
-	public GeneratedPart(Model model) {
+	public Mesh(Model model) {
 		slicer = new SliceTool(this, model);
 		slicer.sliceModel();
 		this.model = model;

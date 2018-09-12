@@ -21,7 +21,7 @@
 
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -245,7 +245,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     int returnVal = fc.showSaveDialog(null);
 
-                    GeneratedPart part = controller.getCurrentPart();
+                    Mesh part = controller.getCurrentPart();
                     if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
                         XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
                         xt.writeXmlCode();
@@ -406,7 +406,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 
             autoOptimizeGPartBtn.addActionListener(e -> {
                 autoOptimizeGPartBtn.setEnabled(true);
-                GeneratedPart currentPart = controller.getCurrentPart();
+                Mesh currentPart = controller.getCurrentPart();
                 currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
                 autoOptimizeGPartBtn.setEnabled(true);
             });
@@ -477,7 +477,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                                 Logger.error("Failed to load model");
                                 return;
                             }
-                            GeneratedPart part = new GeneratedPart(m);
+                            Mesh part = new Mesh(m);
                             controller.setCurrentPart(part);
                         } catch (Exception e1) {
                             e1.printStackTrace();

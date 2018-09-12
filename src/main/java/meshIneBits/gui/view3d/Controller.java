@@ -21,18 +21,18 @@
 
 package meshIneBits.gui.view3d;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 
 import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Observe {@link GeneratedPart} and
+ * Observe {@link Mesh} and
  */
 public class Controller extends Observable implements Observer {
 
-	private GeneratedPart part;
+	private Mesh part;
 
 	private static Controller instance;
 	private Model model;
@@ -46,14 +46,14 @@ public class Controller extends Observable implements Observer {
 	private Controller() {
 	}
 
-	GeneratedPart getCurrentPart() {
+	Mesh getCurrentPart() {
 		return part;
 	}
 
 	/**
 	 * @param part <tt>null</tt> to delete the current mesh
 	 */
-	void setCurrentPart(GeneratedPart part) {
+	void setCurrentPart(Mesh part) {
 		if (part != null) {
 			this.part = part;
 			part.addObserver(this);

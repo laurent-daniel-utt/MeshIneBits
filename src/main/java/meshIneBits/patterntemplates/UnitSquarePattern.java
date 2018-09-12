@@ -22,7 +22,7 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
@@ -136,7 +136,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * meshIneBits.patterntemplates.PatternTemplate#ready(meshIneBits.GeneratedPart)
+	 * meshIneBits.patterntemplates.PatternTemplate#ready(meshIneBits.Mesh)
 	 */
 
 	/**
@@ -145,7 +145,7 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * @return <tt>false</tt>
 	 */
 	@Override
-	public boolean ready(GeneratedPart generatedPart) {
+	public boolean ready(Mesh mesh) {
 		return true;
 	}
 

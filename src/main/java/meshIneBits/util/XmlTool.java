@@ -21,28 +21,23 @@
 
 package meshIneBits.util;
 
-import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Vector;
 
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 
-import javax.annotation.processing.SupportedSourceVersion;
-
 public class XmlTool {
 
-	private GeneratedPart part;
+	private Mesh part;
 	private PrintWriter writer;
 	private Path filePath;
 	private double effectiveWidth;
@@ -50,7 +45,7 @@ public class XmlTool {
 	private int remainingBits;
 	private double currentPos;
 
-	public XmlTool(GeneratedPart part, Path fileLocation) {
+	public XmlTool(Mesh part, Path fileLocation) {
 		this.part = part;
 		this.filePath = fileLocation;
 		setFileToXml();

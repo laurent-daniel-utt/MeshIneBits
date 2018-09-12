@@ -25,7 +25,7 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.CraftConfig;
@@ -582,7 +582,7 @@ public class EconomicPattern extends PatternTemplate {
 	 * This does nothing in particular.
 	 */
 	@Override
-	public boolean ready(GeneratedPart generatedPart) {
+	public boolean ready(Mesh mesh) {
 		return true;
 	}
 

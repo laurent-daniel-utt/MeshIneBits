@@ -30,7 +30,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 
@@ -63,7 +63,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 
 	/**
 	 * Basic constructor, used in the running of
-	 * {@link meshIneBits.GeneratedPart GeneratedPart}
+	 * {@link Mesh Mesh}
 	 * 
 	 * @param layers
 	 */
@@ -76,13 +76,13 @@ public class Optimizer extends Observable implements Observer, Runnable {
 
 	/**
 	 * Automatically optimize all whole generated part
-	 * @param generatedPart TODO
+	 * @param mesh TODO
 	 * 
 	 */
-	public void automaticallyOptimizeGeneratedPart(GeneratedPart generatedPart) {
+	public void automaticallyOptimizeGeneratedPart(Mesh mesh) {
 		if (threadForAutoOptimizingGeneratedPart == null
 				|| (threadForAutoOptimizingGeneratedPart != null & !threadForAutoOptimizingGeneratedPart.isAlive())) {
-			target = generatedPart;
+			target = mesh;
 			threadForAutoOptimizingGeneratedPart = new Thread(this);
 			threadForAutoOptimizingGeneratedPart.start();
 		}
@@ -194,7 +194,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 		if (target != null){
 			if (target instanceof Layer){
 				optimizeLayer((Layer) target);
-			} else if (target instanceof GeneratedPart){
+			} else if (target instanceof Mesh){
 				optimizeGeneratedPart();
 			}
 			setChanged();

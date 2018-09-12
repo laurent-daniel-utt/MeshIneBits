@@ -37,7 +37,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 
 import javafx.util.Pair;
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.util.Vector3;
 import meshIneBits.gui.SubWindow;
@@ -53,7 +53,6 @@ import remixlab.dandelion.geom.Vec;
 
 import controlP5.*;
 
-import static java.awt.event.KeyEvent.VK_SPACE;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
 
@@ -788,7 +787,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	}
 
 	@Override
-	public void setCurrentPart(GeneratedPart currentPart) {
+	public void setCurrentPart(Mesh currentPart) {
 		controller.setCurrentPart(currentPart);
 	}
 

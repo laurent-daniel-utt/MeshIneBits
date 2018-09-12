@@ -24,7 +24,7 @@ package meshIneBits.slicer;
 import java.util.Observable;
 import java.util.Vector;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
@@ -47,15 +47,15 @@ import meshIneBits.util.Vector3;
 public class SliceTool extends Observable implements Runnable {
 	private Model model;
 	private Thread t;
-	private GeneratedPart part;
+	private Mesh part;
 	private Vector<Slice> slices = new Vector<Slice>();
 
 	/**
-	 * SliceTool register itself to a {@link GeneratedPart}, which is udpated when the slicing is finished.
-	 * @param part {@link GeneratedPart} that will collect the slices when slicing is finished.
+	 * SliceTool register itself to a {@link Mesh}, which is udpated when the slicing is finished.
+	 * @param part {@link Mesh} that will collect the slices when slicing is finished.
 	 * @param model {@link Model} to slice.
 	 */
-	public SliceTool(GeneratedPart part, Model model) {
+	public SliceTool(Mesh part, Model model) {
 		this.part = part;
 		addObserver(part);
 		this.model = model;

@@ -21,7 +21,7 @@
 
 package meshIneBits.patterntemplates;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Layer;
 import meshIneBits.Pattern;
 import meshIneBits.config.PatternConfig;
@@ -77,11 +77,11 @@ public abstract class PatternTemplate {
 	/**
 	 * Calculate private parameters, after slicing and before generating bits.
 	 * 
-	 * @param generatedPart
+	 * @param mesh
 	 *            the current part in workplace
 	 * @return <tt>false</tt> if the preparation fails
 	 */
-	public abstract boolean ready(GeneratedPart generatedPart);
+	public abstract boolean ready(Mesh mesh);
 
 	/**
 	 * Construct the layer based on this pattern. This constructor is similar to

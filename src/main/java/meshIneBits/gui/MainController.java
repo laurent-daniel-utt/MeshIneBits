@@ -21,7 +21,7 @@
 
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.ProcessingModelView;
 
@@ -29,13 +29,13 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Observe {@link GeneratedPart} and observed by {@link Toolbar}
+ * Observe {@link Mesh} and observed by {@link Toolbar}
  */
 
 public class MainController extends Observable implements Observer {
 
     static private MainController instance;
-    private GeneratedPart currentPart;
+    private Mesh currentPart;
     private Model model;
 
     private MainController() {
@@ -48,7 +48,7 @@ public class MainController extends Observable implements Observer {
         return instance;
     }
 
-    void setCurrentPart(GeneratedPart gp) {
+    void setCurrentPart(Mesh gp) {
         currentPart = gp;
         if (gp != null)
             currentPart.addObserver(this);
@@ -64,7 +64,7 @@ public class MainController extends Observable implements Observer {
         }
     }
 
-    public GeneratedPart getCurrentPart() {
+    public Mesh getCurrentPart() {
         return currentPart;
     }
 
