@@ -33,256 +33,247 @@ import java.util.Vector;
 
 /**
  * This object is the equivalent of the piece which will be printed
- *
  */
-public class Mesh extends Observable implements Runnable, Observer {
-	private Vector<Layer> layers = new Vector<Layer>();
-	private Vector<Slice> slices = new Vector<Slice>();
-	private PatternTemplate patternTemplate;
-	private double skirtRadius;
-	private Thread t = null;
-	private SliceTool slicer;
-	private boolean sliced = false;
-	private Optimizer optimizer;
-	private Model model;
+public class Mesh extends Observable implements Observer {
+    private Vector<Layer> layers = new Vector<>();
+    private Vector<Slice> slices = new Vector<>();
+    private PatternTemplate patternTemplate;
+    private double skirtRadius;
+    private Thread t = null;
+    private SliceTool slicer;
+    private boolean sliced = false;
+    private Optimizer optimizer;
+    private Model model;
 
-	/**
-	 * Update the current state of mesh and notify observers with that state
-	 * @param state a value from predefined list
-	 */
-	private void setState(MeshEvents state) {
-		setChanged();
-		notifyObservers(state);
-	}
+    /**
+     * Update the current state of mesh and notify observers with that state
+     *
+     * @param state a value from predefined list
+     */
+    private void setState(MeshEvents state) {
+        setChanged();
+        notifyObservers(state);
+    }
 
-	public Mesh(Model model) {
-		slicer = new SliceTool(this);
-		slicer.sliceModel();
-		this.model = model;
-	}
+    public Mesh(Model model) {
+        slicer = new SliceTool(this);
+        slicer.sliceModel();
+        this.model = model;
+    }
 
-	/**
-	 * Set the new mesh to ready
-	 */
-	public Mesh() {
-		setState(MeshEvents.READY);
-	}
+    /**
+     * Set the new mesh to ready
+     */
+    public Mesh() {
+        setState(MeshEvents.READY);
+    }
 
-	/**
-	 * Register a model given a path
-	 * @param filepath model file to load
-	 */
-	public void importModel(String filepath) throws Exception {
-		this.model = new Model(filepath);
-		this.model.center();
-		setState(MeshEvents.IMPORTED);
-		slicer = new SliceTool(this);
-	}
+    /**
+     * Register a model given a path
+     *
+     * @param filepath model file to load
+     */
+    public void importModel(String filepath) throws Exception {
+        this.model = new Model(filepath);
+        this.model.center();
+        setState(MeshEvents.IMPORTED);
+        slicer = new SliceTool(this);
+    }
 
-	/**
-	 * Start slicing the registered model
-	 */
-	public void slice() {
-		setState(MeshEvents.SLICING);
-		double zMin = this.model.getMin().z;
-		if (zMin != 0) this.model.center(); // recenter before slicing
-		slicer.sliceModel();
-		// MeshEvents.SLICED will be sent in update() after receiving
-		// signal from slicer
-	}
+    /**
+     * Start slicing the registered model
+     */
+    public void slice() {
+        setState(MeshEvents.SLICING);
+        double zMin = this.model.getMin().z;
+        if (zMin != 0) this.model.center(); // recenter before slicing
+        slicer.sliceModel();
+        // MeshEvents.SLICED will be sent in update() after receiving
+        // signal from slicer
+    }
 
-	/**
-	 * Given a certain template, pave the whole mesh
-	 * @param template an automatic builder
-	 */
-	public void pave(PatternTemplate template) {
-		setState(MeshEvents.PAVING);
-		// TODO pave mesh
-		// MeshEvents.PAVED will be sent in update() after receiving
-		// enough signals from layers
-	}
+    /**
+     * Given a certain template, pave the whole mesh sequentially
+     *
+     * @param template an automatic builder
+     */
+    public void pave(PatternTemplate template) {
+        // TODO pave mesh
+        if (t == null || !t.isAlive()) {
+            // MeshEvents.PAVED will be sent in update() after receiving
+            // enough signals from layers
+            Logger.updateStatus("Ready to generate bits");
+            template.ready(this);
+            // Remove all current layers
+            this.layers.clear();
+            // New worker
+            PavingWorker pavingWorker = new PavingWorker(template);
+            pavingWorker.addObserver(this);
+            t = new Thread(pavingWorker);
+            t.start();
+        }
+    }
 
-	/**
-	 * Start the auto optimizer embedded in each template of each layer
-	 * if presenting
-	 */
-	public void optimize() {
-		setState(MeshEvents.OPTIMIZING);
-		// TODO call optimizer of each layer
-		// MeshEvents.OPTIMIZED will be sent in update() after receiving
-		// enough signals from layers
-	}
+    // TODO parallel pavement
 
-	/**
-	 * Calculate glue points and/or areas between layers
-	 */
-	public void glue() {
-		setState(MeshEvents.GLUING);
-		// TODO run glue inserting in each layer
-		// MeshEvents.GLUED will be sent in update() after receiving
-		// enough signals from layers
-	}
+    /**
+     * Start the auto optimizer embedded in each template of each layer
+     * if presenting
+     */
+    public void optimize() {
+        setState(MeshEvents.OPTIMIZING);
+        // TODO call optimizer of each layer
+        // MeshEvents.OPTIMIZED will be sent in update() after receiving
+        // enough signals from layers
+    }
 
-	public void export() {
-		// TODO export instructions
-	}
+    /**
+     * Calculate glue points and/or areas between layers
+     */
+    public void glue() {
+        setState(MeshEvents.GLUING);
+        // TODO run glue inserting in each layer
+        // MeshEvents.GLUED will be sent in update() after receiving
+        // enough signals from layers
+    }
 
-	/**
-	 * Start the process of generating bits
-	 */
-	public void buildBits2D() {
+    public void export() {
+        // TODO export instructions
+    }
 
-		if (t == null || !t.isAlive()) {
-			setPatternTemplate();
+    public Vector<Layer> getLayers() {
+        if (!isGenerated()) {
+            try {
+                throw new Exception("Part not generated!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return this.layers;
+    }
 
-			this.layers.clear();
+    PatternTemplate getPatternTemplate() {
+        return patternTemplate;
+    }
 
-			t = new Thread(this);
-			t.start();
-		}
-	}
+    public double getSkirtRadius() {
+        return skirtRadius;
+    }
 
+    public Vector<Slice> getSlices() {
+        if (!sliced) {
+            try {
+                throw new Exception("Mesh not sliced!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
-	private void buildLayers() {
-		@SuppressWarnings("unchecked")
-		Vector<Slice> slicesCopy = (Vector<Slice>) slices.clone();
-		double bitThickness = CraftConfig.bitThickness;
-		double sliceHeight = CraftConfig.sliceHeight;
-		double layersOffSet = CraftConfig.layersOffset;
-		double z = (CraftConfig.firstSliceHeightPercent * sliceHeight) / 100;
-		int layerNumber = 0;
-		int progress = 0;
-		int progressGoal = slicesCopy.size();
-		double zBitBottom = 0;
-		double zBitRoof = bitThickness;
+        return slices;
+    }
 
-		Logger.updateStatus("Generating Layers");
-		while (!slicesCopy.isEmpty()) {
-			Vector<Slice> includedSlices = new Vector<Slice>();
-			while ((z <= zBitRoof) && !slicesCopy.isEmpty()) {
-				if (z >= zBitBottom) {
-					includedSlices.add(slicesCopy.get(0));
-				}
-				slicesCopy.remove(0);
-				z = z + sliceHeight;
-				progress++;
-				Logger.setProgress(progress, progressGoal);
-			}
-			if (!includedSlices.isEmpty()) {
-				layers.add(new Layer(includedSlices, layerNumber, this));
-				layerNumber++;
-			}
-			zBitBottom = zBitRoof + layersOffSet;
-			zBitRoof = zBitBottom + bitThickness;
-		}
-		Logger.updateStatus("Layer count: " + layerNumber);
-	}
+    public boolean isGenerated() {
+        return !layers.isEmpty();
+    }
 
+    public boolean isSliced() {
+        return sliced;
+    }
 
-	public Vector<Layer> getLayers() {
-		if (!isGenerated()) {
-			try {
-				throw new Exception("Part not generated!");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return this.layers;
-	}
+    private void detectIrregularBits() {
+        optimizer = new Optimizer(layers);
+        optimizer.detectIrregularBits();
+    }
 
-	public PatternTemplate getPatternTemplate() {
-		return patternTemplate;
-	}
+    private void setPatternTemplate() {
+        patternTemplate = CraftConfig.templateChoice;
+        patternTemplate.ready(this);
+    }
 
-	public double getSkirtRadius() {
-		return skirtRadius;
-	}
+    /**
+     * skirtRadius is the radius of the cylinder that fully contains the part.
+     */
 
-	public Vector<Slice> getSlices() {
-		if (!sliced) {
-			try {
-				throw new Exception("Part not sliced!");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+    private void setSkirtRadius() {
 
-		return slices;
-	}
+        double radius = 0;
 
-	public boolean isGenerated() {
-		if (!layers.isEmpty()) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        for (Slice s : slices) {
+            for (Segment2D segment : s.getSegmentList()) {
+                if (segment.start.vSize2() > radius) {
+                    radius = segment.start.vSize2();
+                }
+                if (segment.end.vSize2() > radius) {
+                    radius = segment.end.vSize2();
+                }
+            }
+        }
+        skirtRadius = Math.sqrt(radius);
+        Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
+    }
 
-	public boolean isSliced() {
-		return sliced;
-	}
+    public Model getModel() {
+        return model;
+    }
 
-	@Override
-	public void run() {
-		buildLayers();
-		detectIrregularBits();
-		setChanged();
-		notifyObservers(MeshEvents.PAVED);
-	}
+    @Override
+    public void update(Observable o, Object arg) {
+        if ((o == slicer) && (arg == MeshEvents.SLICED)) {
+            // Slice job has been done
+            this.slices = slicer.getSlices();
+            sliced = true;
+            setSkirtRadius();
+            setState(MeshEvents.SLICED);
+        }
+        if (arg == MeshEvents.PAVED) {
+            // In sequential pavement, we only need one signal at the end
+            setState(MeshEvents.PAVED);
+            // TODO In parallel pavement, we need to collect all signals
+        }
+    }
 
-	private void detectIrregularBits() {
-		optimizer = new Optimizer(layers);
-		optimizer.detectIrregularBits();
-	}
+    /**
+     * @return the optimizer
+     */
+    public Optimizer getOptimizer() {
+        return optimizer;
+    }
 
-	private void setPatternTemplate() {
-		patternTemplate = CraftConfig.templateChoice;
-		patternTemplate.ready(this);
-		Logger.updateStatus("Prepared for generating bits.");
-	}
+    /**
+     * In charge of paving one or multiple layers
+     */
+    private class PavingWorker extends Observable implements Runnable {
 
-	/**
-	 * skirtRadius is the radius of the cylinder that fully contains the part.
-	 */
+        private PatternTemplate patternTemplate;
 
-	private void setSkirtRadius() {
+        /**
+         * Pave the layer following a certain template
+         *
+         * @param patternTemplate how we want to pave a layer
+         */
+        PavingWorker(PatternTemplate patternTemplate) {
+            this.patternTemplate = patternTemplate;
+        }
 
-		double radius = 0;
+        @Override
+        public void run() {
+            setChanged();
+            notifyObservers(MeshEvents.PAVING);
+            buildLayers();
+            detectIrregularBits();
+            setChanged();
+            notifyObservers(MeshEvents.PAVED);
+        }
 
-		for (Slice s : slices) {
-			for (Segment2D segment : s.getSegmentList()) {
-				if (segment.start.vSize2() > radius) {
-					radius = segment.start.vSize2();
-				}
-				if (segment.end.vSize2() > radius) {
-					radius = segment.end.vSize2();
-				}
-			}
-		}
-		skirtRadius = Math.sqrt(radius);
-		Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
-	}
-	public Model getModel(){
-		return model;
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		if ((o == slicer) && (arg == MeshEvents.SLICED)) {
-			// Slice job has been done
-			this.slices = slicer.getSlices();
-			sliced = true;
-			setSkirtRadius();
-			setChanged();
-			notifyObservers(MeshEvents.SLICED);
-		}
-	}
-
-	/**
-	 * @return the optimizer
-	 */
-	public Optimizer getOptimizer() {
-		return optimizer;
-	}
-
+        /**
+         * Construct layers from slices then pave them
+         */
+        private void buildLayers() {
+            Logger.updateStatus("Generating Layers");
+            for (int i = 0; i < slices.size(); i++) {
+                layers.add(new Layer(i, slices.get(i), patternTemplate));
+            }
+            Logger.updateStatus(layers.size() + " layers have been generated and paved");
+        }
+    }
 }

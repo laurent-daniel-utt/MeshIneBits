@@ -129,7 +129,7 @@ public abstract class PatternIntegrityTest {
 	 */
 	private void generateLayers() {
 		logger.info("Generator starts");
-		part.buildBits2D();
+		part.pave(pattern);
 		waitGeneratorDone();
 		checkGeneratedPart();
 		logger.info("Generator finishes");

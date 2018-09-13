@@ -68,7 +68,7 @@ class Toolbar extends JTabbedPane implements Observer {
         return setupAnnotations;
     }
 
-    public Toolbar() {
+    Toolbar() {
         // Add the tab
         FileTab = new JPanel();
         SlicerTab = new SlicerTab();
@@ -517,10 +517,6 @@ class Toolbar extends JTabbedPane implements Observer {
         private JButton computeTemplateBtn;
         private PatternParametersContainer patternParametersContainer;
 
-        public JButton getComputeTemplateBtn() {
-            return computeTemplateBtn;
-        }
-
         TemplateTab() {
             super();
 
@@ -576,8 +572,8 @@ class Toolbar extends JTabbedPane implements Observer {
 
             computeTemplateBtn.addActionListener(e -> {
                 computeTemplateBtn.setEnabled(false);
-                controller.getCurrentMesh().buildBits2D();
                 CraftConfigLoader.saveConfig(null);
+                controller.getCurrentMesh().pave(CraftConfig.templateChoice);
                 computeTemplateBtn.setEnabled(true);
             });
         }
@@ -615,13 +611,11 @@ class Toolbar extends JTabbedPane implements Observer {
             }
 
             String descriptiveText(PatternTemplate template) {
-                StringBuilder str = new StringBuilder();
-                str.append("<html><div>");
-                str.append("<p><strong>" + template.getCommonName() + "</strong></p>");
-                str.append("<p>" + template.getDescription() + "</p>");
-                str.append("<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>");
-                str.append("</div></html>");
-                return str.toString();
+                return "<html><div>" +
+                        "<p><strong>" + template.getCommonName() + "</strong></p>" +
+                        "<p>" + template.getDescription() + "</p>" +
+                        "<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>" +
+                        "</div></html>";
             }
 
             /**
@@ -643,7 +637,7 @@ class Toolbar extends JTabbedPane implements Observer {
                     // Load all templates we have
                     // TODO
                     // Load all saved templates
-                    CraftConfig.templatesLoaded = new Vector<PatternTemplate>(
+                    CraftConfig.templatesLoaded = new Vector<>(
                             Arrays.asList(CraftConfig.templatesPreloaded));
                     for (PatternTemplate template : CraftConfig.templatesLoaded) {
                         this.addNewTemplate(template);
@@ -711,7 +705,7 @@ class Toolbar extends JTabbedPane implements Observer {
              * parameters from the given <tt>config</tt> (input will be filtered
              * by attribute's name, type)
              *
-             * @param config
+             * @param config new configuration
              */
             void setupPatternParameters(PatternConfig config) {
                 this.removeAll();
@@ -742,9 +736,7 @@ class Toolbar extends JTabbedPane implements Observer {
             for (Field field : fieldList) {
                 result.put(field.getName(), field.getAnnotation(Setting.class));
             }
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SecurityException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return result;

@@ -41,6 +41,7 @@ public class Layer extends Observable{
 
 	private int layerNumber;
 	private Vector<Slice> slices;
+	private Slice horizontalSlice;
 	private Pattern referentialPattern;
 	private PatternTemplate patternTemplate;
 	private Vector<Pattern> patterns = new Vector<Pattern>();
@@ -57,9 +58,16 @@ public class Layer extends Observable{
 		rebuild();
 	}
 
+	public Layer(int layerNumber, Slice horizontalSlice, PatternTemplate patternTemplate) {
+		this.layerNumber = layerNumber;
+		this.horizontalSlice = horizontalSlice;
+		this.patternTemplate = patternTemplate;
+		// TODO create layer from one slice
+	}
+
 	/* Sort bits according to their X position
-		Used for XML writing
-	 */
+            Used for XML writing
+         */
 	public Vector<Pair<Bit3D, Vector2>> sortBits() {
 		Vector<Pair<Bit3D, Vector2>> keySet = new Vector<Pair<Bit3D, Vector2>>();
 		for (Vector2 key : mapBits3D.keySet()) {

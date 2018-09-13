@@ -88,7 +88,7 @@ public class SliceTool extends Observable implements Runnable {
         int n = 0;
         int totalProgress = model.getTriangles().size() + sliceCount;
         for (Triangle t : model.getTriangles()) {
-            Logger.setProgress(n++, totalProgress);
+            Logger.setProgress(++n, totalProgress);
 
             // Finding zMin between 3 vertices
             double zMin = t.point[0].z;
@@ -120,7 +120,7 @@ public class SliceTool extends Observable implements Runnable {
 
         Logger.updateStatus("Optimizing slices");
         for (int i = 0; i < sliceCount; i++) {
-            Logger.setProgress(n++, totalProgress);
+            Logger.setProgress(++n, totalProgress);
             slices.get(i).optimize();
         }
 

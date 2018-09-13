@@ -109,7 +109,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 
 	@Override
 	public String getDescription() {
-		return "The simplest patterne: a grid with a rotation of 90° 1 layer on 2. "
+		return "The simplest pattern: a grid with a rotation of 90° 1 layer on 2. "
 				+ "There is no auto-optimization implemented in this class.";
 	}
 
