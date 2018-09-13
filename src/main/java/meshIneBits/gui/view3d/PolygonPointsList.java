@@ -28,7 +28,7 @@ import java.util.Vector;
  * @author Nicolas
  *
  */
-public class PolygonPointsList {
+class PolygonPointsList {
 	
 	private Vector<int[]> points;
 	private int curPosition = -1;

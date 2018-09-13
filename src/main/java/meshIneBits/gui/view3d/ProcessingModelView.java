@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -104,7 +105,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	/**
 	 *
 	 */
-	public  static void startProcessingModelView(){
+	private static void startProcessingModelView(){
 		if (currentInstance == null){
 			PApplet.main("meshIneBits.gui.view3d.ProcessingModelView");
 		}
@@ -127,7 +128,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 *
 	 */
 	public void settings(){
-		PJOGL.setIcon(this.getClass().getClassLoader().getResource("resources/icon.png").getPath());
+		PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
 		currentInstance = this;
 		size(width, height, P3D);
 	}
@@ -266,7 +267,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	private void drawWorkspace() {
 		try {
-			File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+			File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
 			FileInputStream file = new FileInputStream(filename);
 			BufferedReader br = new BufferedReader(new InputStreamReader(file));
 			String strline;
@@ -497,7 +498,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	 *
 	 */
 
-	public Vector3 getMinShape() {
+	private Vector3 getMinShape() {
 		double minx = Double.MAX_VALUE;
 		double miny = Double.MAX_VALUE;
 		double minz = Double.MAX_VALUE;
@@ -761,7 +762,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	@Override
 	public void update(Observable o, Object arg){}
 
-	public void open(){
+	private void open(){
 		// TODO Auto-generated method stub
 		if (!initialized){
 			ProcessingModelView.startProcessingModelView();
@@ -772,7 +773,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 		}
 	}
 
-	public void hide(){
+	private void hide(){
 		// TODO Auto-generated method stub
 		setVisible(false);
 	}
@@ -787,8 +788,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 	}
 
 	@Override
-	public void setCurrentPart(Mesh currentPart) {
-		controller.setCurrentPart(currentPart);
+	public void setCurrentMesh(Mesh mesh) {
+		controller.setCurrentPart(mesh);
 	}
 
 	private void setVisible(boolean b){

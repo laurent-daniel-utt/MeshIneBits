@@ -38,11 +38,11 @@ import java.util.Vector;
  * <br><img src="./doc-files/polygone.png" alt="">
  */
 public class Shape2D implements Iterable<Polygon> {
-	protected Vector<Segment2D> segmentList = new Vector<Segment2D>();
-	protected Vector<Polygon> polygons = new Vector<Polygon>();
-	protected AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
+	private Vector<Segment2D> segmentList = new Vector<Segment2D>();
+	Vector<Polygon> polygons = new Vector<Polygon>();
+	private AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
 
-	public Shape2D() {
+	protected Shape2D() {
 
 	}
 
@@ -161,34 +161,18 @@ public class Shape2D implements Iterable<Polygon> {
 				}
 				addModelPolygon(poly);
 			} else {
-				if (!manifoldErrorReported) {
-					Logger.warning("Object not manifold");
+                Logger.warning("Object not manifold");
 
-					for (Segment2D s : segmentList) {
-						System.out.println(s);
+                for (Segment2D s : segmentList) {
+                    System.out.println(s);
 
-					}
-					throw new RuntimeException();
+                }
+                throw new RuntimeException();
 
-				}
-
-				manifoldErrorReported = true;
-				for (Segment2D s = start; s != null; s = s.getNext()) {
-					tmpSet.remove(s);
-					if (s.getNext() == start) {
-						break;
-					}
-				}
-				for (Segment2D s = start; s != null; s = s.getPrev()) {
-					tmpSet.remove(s);
-					if (s.getPrev() == start) {
-						break;
-					}
-				}
-			}
+            }
 		}
 
-		return manifoldErrorReported;
+		return false;
 	}
 
 	private void removeModelSegment(Segment2D segment) {

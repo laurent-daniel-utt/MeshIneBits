@@ -72,13 +72,7 @@ public class Checkbox extends Renderer {
 		// Checkbox
 		checkbox = new JCheckBox();
 		checkbox.setSelected(config.getCurrentValue());
-		checkbox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				config.setCurrentValue(checkbox.isSelected());
-			}
-		});
+		checkbox.addActionListener(e -> config.setCurrentValue(checkbox.isSelected()));
 		this.add(checkbox, BorderLayout.EAST);
 	}
 }

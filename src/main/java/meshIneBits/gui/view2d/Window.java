@@ -41,7 +41,7 @@ public class Window extends JFrame implements SubWindow {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	Wrapper viewWrapper;
+	private Wrapper viewWrapper;
 
 	public Window() {
 		this.setIconImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png"))).getImage());
@@ -64,7 +64,7 @@ public class Window extends JFrame implements SubWindow {
 	}
 
 	@Override
-	public void setCurrentPart(Mesh currentPart) {
-		viewWrapper.getController().setCurrentPart(currentPart);
+	public void setCurrentMesh(Mesh mesh) {
+		viewWrapper.getController().setCurrentPart(mesh);
 	}
 }

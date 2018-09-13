@@ -185,7 +185,7 @@ public class Polygon implements Iterable<Segment2D> {
 	 * Check if a point is inside the polygon. Uses boolean
 	 * java.awt.geom.Path2D.contains.
 	 */
-	public boolean contains(Vector2 point) {
+    private boolean contains(Vector2 point) {
 		return this.toPath2D().contains(point.x, point.y);
 	}
 
@@ -194,7 +194,7 @@ public class Polygon implements Iterable<Segment2D> {
 	 * @return <tt>true</tt> if approx point intersects with polygon's border
 	 * @see CraftConfig#errorAccepted
 	 */
-	public boolean approximatelyContains(Vector2 point) {
+    private boolean approximatelyContains(Vector2 point) {
 		Path2D path2D = this.toPath2D(); // Update the contour
 		// Use a rectangle instead of circle
 		Rectangle2D.Double r = new Rectangle2D.Double();
@@ -291,7 +291,7 @@ public class Polygon implements Iterable<Segment2D> {
 	private class Segment2DIterator implements Iterator<Segment2D> {
 		private Segment2D next;
 
-		public Segment2DIterator() {
+		Segment2DIterator() {
 			this.next = first;
 		}
 

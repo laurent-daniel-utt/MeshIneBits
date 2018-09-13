@@ -34,7 +34,7 @@ public class AABBTree<T extends AABBrect> {
 		private Stack<TreeNode> stack;
 		private T ret;
 
-		public Tree2Diterator(AABBrect area) {
+		Tree2Diterator(AABBrect area) {
 			this.area = area;
 			stack = new Stack<TreeNode>();
 			if (root != null) {
@@ -81,7 +81,7 @@ public class AABBTree<T extends AABBrect> {
 	public class Tree2Dquery implements Iterable<T> {
 		private AABBrect area;
 
-		public Tree2Dquery(AABBrect area) {
+		Tree2Dquery(AABBrect area) {
 			this.area = area;
 		}
 
@@ -92,12 +92,13 @@ public class AABBTree<T extends AABBrect> {
 	}
 
 	class TreeNode {
-		public TreeNode parent;
-		public TreeNode child1, child2;
-		public AABBrect aabb;
-		public int height;
+		TreeNode parent;
+		TreeNode child1;
+        TreeNode child2;
+		AABBrect aabb;
+		int height;
 
-		public TreeNode(AABBrect aabb) {
+		TreeNode(AABBrect aabb) {
 			this.aabb = aabb;
 			if (aabb.node != null) {
 				throw new RuntimeException();
@@ -105,7 +106,7 @@ public class AABBTree<T extends AABBrect> {
 			aabb.node = this;
 		}
 
-		public boolean isLeaf() {
+		boolean isLeaf() {
 			return child1 == null;
 		}
 	}

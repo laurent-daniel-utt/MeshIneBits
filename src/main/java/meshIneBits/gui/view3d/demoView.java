@@ -39,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -63,7 +64,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     private boolean start = false;
     private int n;
 
-    public  static void startdemoView(){
+    private static void startdemoView(){
         if (currentInstance == null){
             PApplet.main("meshIneBits.gui.view3d.demoView");
         }
@@ -86,7 +87,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
      *
      */
     public void settings(){
-        PJOGL.setIcon(this.getClass().getClassLoader().getResource("resources/icon.png").getPath());
+        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
         currentInstance = this;
         size(width, height, P3D);
     }
@@ -200,7 +201,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
      */
     private void drawWorkspace() {
         try {
-            File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
             FileInputStream file = new FileInputStream(filename);
             BufferedReader br = new BufferedReader(new InputStreamReader(file));
             String strline;
@@ -261,7 +262,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     @Override
     public void update(Observable o, Object arg){}
 
-    public void open(){
+    private void open(){
         // TODO Auto-generated method stub
         if (!initialized){
            demoView.startdemoView();
@@ -272,7 +273,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         }
     }
 
-    public void hide(){
+    private void hide(){
         // TODO Auto-generated method stub
         setVisible(false);
     }
@@ -287,8 +288,8 @@ public class demoView extends PApplet implements Observer, SubWindow {
     }
 
     @Override
-    public void setCurrentPart(Mesh currentPart) {
-        controller.setCurrentPart(currentPart);
+    public void setCurrentMesh(Mesh mesh) {
+        controller.setCurrentPart(mesh);
     }
 
     private void setVisible(boolean b){

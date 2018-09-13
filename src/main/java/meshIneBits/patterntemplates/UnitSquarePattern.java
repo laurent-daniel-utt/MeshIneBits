@@ -436,14 +436,14 @@ public class UnitSquarePattern extends PatternTemplate {
 		/**
 		 * @return comparator under this strategy
 		 */
-		public Comparator<Puzzle> _c() {
+        Comparator<Puzzle> _c() {
 			return comparator;
 		}
 
 		/**
 		 * @return description
 		 */
-		public String _d() {
+        String _d() {
 			return description;
 		}
 	}
@@ -1917,7 +1917,7 @@ public class UnitSquarePattern extends PatternTemplate {
 			 * @param puzzle a piece
 			 * @return neighborhood
 			 */
-			public Set<Puzzle> of(Puzzle puzzle) {
+            Set<Puzzle> of(Puzzle puzzle) {
 				return this.get(puzzle);
 			}
 		}

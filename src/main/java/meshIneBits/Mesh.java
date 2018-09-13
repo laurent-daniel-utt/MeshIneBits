@@ -32,7 +32,7 @@ import java.util.Observer;
 import java.util.Vector;
 
 /**
- * This object is the equivalent of the part which will be printed
+ * This object is the equivalent of the piece which will be printed
  *
  */
 public class Mesh extends Observable implements Runnable, Observer {
@@ -46,10 +46,85 @@ public class Mesh extends Observable implements Runnable, Observer {
 	private Optimizer optimizer;
 	private Model model;
 
+	/**
+	 * Update the current state of mesh and notify observers with that state
+	 * @param state a value from predefined list
+	 */
+	private void setState(MeshEvents state) {
+		setChanged();
+		notifyObservers(state);
+	}
+
 	public Mesh(Model model) {
-		slicer = new SliceTool(this, model);
+		slicer = new SliceTool(this);
 		slicer.sliceModel();
 		this.model = model;
+	}
+
+	/**
+	 * Set the new mesh to ready
+	 */
+	public Mesh() {
+		setState(MeshEvents.READY);
+	}
+
+	/**
+	 * Register a model given a path
+	 * @param filepath model file to load
+	 */
+	public void importModel(String filepath) throws Exception {
+		this.model = new Model(filepath);
+		this.model.center();
+		setState(MeshEvents.IMPORTED);
+		slicer = new SliceTool(this);
+	}
+
+	/**
+	 * Start slicing the registered model
+	 */
+	public void slice() {
+		setState(MeshEvents.SLICING);
+		double zMin = this.model.getMin().z;
+		if (zMin != 0) this.model.center(); // recenter before slicing
+		slicer.sliceModel();
+		// MeshEvents.SLICED will be sent in update() after receiving
+		// signal from slicer
+	}
+
+	/**
+	 * Given a certain template, pave the whole mesh
+	 * @param template an automatic builder
+	 */
+	public void pave(PatternTemplate template) {
+		setState(MeshEvents.PAVING);
+		// TODO pave mesh
+		// MeshEvents.PAVED will be sent in update() after receiving
+		// enough signals from layers
+	}
+
+	/**
+	 * Start the auto optimizer embedded in each template of each layer
+	 * if presenting
+	 */
+	public void optimize() {
+		setState(MeshEvents.OPTIMIZING);
+		// TODO call optimizer of each layer
+		// MeshEvents.OPTIMIZED will be sent in update() after receiving
+		// enough signals from layers
+	}
+
+	/**
+	 * Calculate glue points and/or areas between layers
+	 */
+	public void glue() {
+		setState(MeshEvents.GLUING);
+		// TODO run glue inserting in each layer
+		// MeshEvents.GLUED will be sent in update() after receiving
+		// enough signals from layers
+	}
+
+	public void export() {
+		// TODO export instructions
 	}
 
 	/**
@@ -152,7 +227,7 @@ public class Mesh extends Observable implements Runnable, Observer {
 		buildLayers();
 		detectIrregularBits();
 		setChanged();
-		notifyObservers(Events.PAVED);
+		notifyObservers(MeshEvents.PAVED);
 	}
 
 	private void detectIrregularBits() {
@@ -187,82 +262,19 @@ public class Mesh extends Observable implements Runnable, Observer {
 		skirtRadius = Math.sqrt(radius);
 		Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
 	}
-	/*
-	private void setSkirtRadius() {
-
-		double radius = 0;
-		Vector2 center = centerOfSkirtRadius();
-
-		for (Slice s : slices) {
-			for (Segment2D segment : s.getSegmentList()) {
-				Vector2 tmp1 = new Vector2(Math.abs(segment.start.x - center.x), Math.abs(segment.start.y - center.y));
-				Vector2 tmp2 = new Vector2(Math.abs(segment.end.x - center.x), Math.abs(segment.end.y - center.y));
-				if (tmp1.vSize2() > radius) {
-					radius = tmp1.vSize2();
-				}
-				if (tmp2.vSize2() > radius) {
-					radius = tmp2.vSize2();
-				}
-			}
-		}
-		skirtRadius = new Pair<Vector2, Double>(center, Math.sqrt(radius));
-		Logger.updateStatus("Skirt's radius: " + ((int) (double)skirtRadius.getValue() + 1) + " mm");
-	}
-
-	// the center of the skirtradius is the average center of the slices of the model
-	private Vector2 centerOfSkirtRadius(){
-
-		Vector<Vector2> centers = new Vector<Vector2>(slices.size());
-		int i = 0;
-		for (Slice s : slices) {
-			double centroidX = 0;
-			double centroidY = 0;
-			double signedArea = 0.0;
-			double x0 = 0.0; // Current vertex X
-			double y0 = 0.0; // Current vertex Y
-			double x1 = 0.0; // Next vertex X
-			double y1 = 0.0; // Next vertex Y
-			double a = 0.0; // Partial signed area
-			for (Segment2D segment : s.getSegmentList()) {
-				x0 = segment.start.x;
-				y0 = segment.start.y;
-				x1 = segment.end.x;
-				y1 = segment.end.y;
-				a = (x0 * y1) - (x1 * y0);
-				signedArea += a;
-				centroidX += (x0 + x1) * a;
-				centroidY += (y0 + y1) * a;
-			}
-			signedArea *= 0.5;
-
-			centroidX /= (6.0 * signedArea);
-			centroidY /= (6.0 * signedArea);
-			centers.add(i, new Vector2(centroidX, centroidY));
-			i++;
-		}
-
-		double cX = 0.0;
-		double cY = 0.0;
-		for (Vector2 v : centers){
-			cX += v.x;
-			cY += v.y;
-		}
-
-		return new Vector2(cX / centers.size(),cY / centers.size());
-	}
-*/
 	public Model getModel(){
 		return model;
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if ((o == slicer) && (arg == this)) {
+		if ((o == slicer) && (arg == MeshEvents.SLICED)) {
+			// Slice job has been done
 			this.slices = slicer.getSlices();
 			sliced = true;
 			setSkirtRadius();
 			setChanged();
-			notifyObservers(Events.SLICED);
+			notifyObservers(MeshEvents.SLICED);
 		}
 	}
 
@@ -273,7 +285,4 @@ public class Mesh extends Observable implements Runnable, Observer {
 		return optimizer;
 	}
 
-	public enum Events {
-		MODEL_LOADED, SLICED, PAVED, AUTO_OPTIMIZED
-	}
 }

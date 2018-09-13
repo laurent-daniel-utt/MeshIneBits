@@ -43,6 +43,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -129,7 +130,7 @@ public class EconomicPattern extends PatternTemplate {
 			//
 			// Pave bits into each lv0 area
 			// Receive the map of keys
-			for (Area area : lv0Areas) {
+			for (Area area : Objects.requireNonNull(lv0Areas)) {
 				// System.out.println("Area:" + area.getBounds2D());
 				Rectangle2D.Double bound = (Double) area.getBounds2D();
 				double anchorX = bound.x + bound.width / 2, anchorY = bound.y + bound.height / 2;

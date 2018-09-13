@@ -74,17 +74,13 @@ public class LabeledListReceiver extends Renderer {
 		btnName.setToolTipText(generateToolTipText());
 		JButton btnChangeValue = new JButton("Modify");
 		this.add(btnChangeValue, BorderLayout.EAST);
-		btnChangeValue.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String s = (String) JOptionPane.showInputDialog(null, msgInstruction, convertToString());
-				if (s != null) {
-					// Just change the value in case
-					// user hits Ok button
-					LabeledListReceiver.this.dlconfig.setCurrentValue(parseToList(s));
-					btnName.setToolTipText(generateToolTipText());
-				}
+		btnChangeValue.addActionListener(e -> {
+			String s = (String) JOptionPane.showInputDialog(null, msgInstruction, convertToString());
+			if (s != null) {
+				// Just change the value in case
+				// user hits Ok button
+				LabeledListReceiver.this.dlconfig.setCurrentValue(parseToList(s));
+				btnName.setToolTipText(generateToolTipText());
 			}
 		});
 	}

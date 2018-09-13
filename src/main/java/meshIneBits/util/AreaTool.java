@@ -38,7 +38,7 @@ public class AreaTool {
 	 * */
 
 
-	public static Vector2 compute2DPolygonCentroid(Area area) {
+	private static Vector2 compute2DPolygonCentroid(Area area) {
 
 		Vector<Segment2D> segments = getLargestPolygon(area);
 		if (segments == null) return null;
@@ -94,7 +94,7 @@ public class AreaTool {
 	public static Area getAreaFrom(Shape2D shape) {
 		Area resultArea = new Area();
 		Vector<Area> areas = getLevel0AreasFrom(shape);
-		for (Area a : areas) {
+		for (Area a : Objects.requireNonNull(areas)) {
 			resultArea.add(a);
 		}
 		return resultArea;
@@ -148,7 +148,7 @@ public class AreaTool {
 	 * @return All the constraint areas that do not contain any others
 	 * @see #getContinuousSurfacesFrom(Shape2D)
 	 */
-	public static Vector<Area> getLevel0AreasFrom(Vector<Area> areas) {
+	private static Vector<Area> getLevel0AreasFrom(Vector<Area> areas) {
 
 		if (areas.isEmpty()) {
 			return null;
@@ -257,7 +257,7 @@ public class AreaTool {
 	 * @since 0.3
 	 * @see CraftConfig#errorAccepted
 	 */
-	public static List<Area> getContinuousSurfacesFrom(List<Polygon> polygons) {
+	private static List<Area> getContinuousSurfacesFrom(List<Polygon> polygons) {
 		Map<Polygon, Integer> ranking = new HashMap<>();
 		for (Polygon newPolygon : polygons) {
 			List<Polygon> containingPolygons = new Vector<>();

@@ -140,8 +140,8 @@ public class Bit2D implements Cloneable {
 	 * @param areas
 	 *            set of non intersected areas
 	 */
-	public Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix,
-			AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
+    private Bit2D(Vector2 origin, Vector2 orientation, double length, double width, AffineTransform transfoMatrix,
+                  AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
 		this.origin = origin;
 		this.orientation = orientation;
 		this.length = length;
@@ -229,7 +229,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw areas
 	 */
-	public Vector<Area> getClonedRawAreas() {
+    private Vector<Area> getClonedRawAreas() {
 		Vector<Area> clonedAreas = new Vector<Area>();
 		for (Area a : areas) {
 			clonedAreas.add((Area) a.clone());
@@ -240,7 +240,7 @@ public class Bit2D implements Cloneable {
 	/**
 	 * @return clone of raw cut paths
 	 */
-	public Vector<Path2D> getClonedRawCutPaths() {
+    private Vector<Path2D> getClonedRawCutPaths() {
 		if (cutPaths != null) {
 			Vector<Path2D> clonedCutPaths = new Vector<Path2D>();
 			for (Path2D p : cutPaths) {

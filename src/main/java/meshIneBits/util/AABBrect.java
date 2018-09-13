@@ -37,7 +37,7 @@ public class AABBrect {
 		upperBound = p2;
 	}
 
-	public AABBrect(Vector2 p1, Vector2 p2, double extend) {
+	AABBrect(Vector2 p1, Vector2 p2, double extend) {
 		lowerBound = new Vector2(Math.min(p1.x, p2.x) - extend, Math.min(p1.y, p2.y) - extend);
 		upperBound = new Vector2(Math.max(p1.x, p2.x) + extend, Math.max(p1.y, p2.y) + extend);
 	}
@@ -77,7 +77,7 @@ public class AABBrect {
 		return true;
 	}
 
-	public void updateAABB(Vector2 p1, Vector2 p2, double extend) {
+	void updateAABB(Vector2 p1, Vector2 p2, double extend) {
 		if (node != null) {
 			throw new UnsupportedOperationException("Update on AABBrect while in a AABBTree");
 		}

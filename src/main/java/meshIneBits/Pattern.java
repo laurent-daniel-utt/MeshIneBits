@@ -50,8 +50,8 @@ public class Pattern implements Cloneable {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 
-	public Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transfoMatrix,
-			AffineTransform inverseTransfoMatrix) {
+	private Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transfoMatrix,
+					AffineTransform inverseTransfoMatrix) {
 		this.rotation = rotation;
 		this.mapBits = mapBits;
 		this.transfoMatrix = transfoMatrix;
@@ -234,7 +234,7 @@ public class Pattern implements Cloneable {
 	//
 	// }
 
-	public void setMapBits(Vector<Bit2D> bits) {
+	private void setMapBits(Vector<Bit2D> bits) {
 		mapBits = new Hashtable<Vector2, Bit2D>();
 		for (Bit2D bit : bits) {
 			addBit(bit);

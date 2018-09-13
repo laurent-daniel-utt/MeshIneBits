@@ -27,6 +27,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Vector;
 
 import javafx.util.Pair;
@@ -52,7 +53,7 @@ public class XmlTool {
 		getPrinterParameters();
 	}
 
-	public String getNameFromFileLocation() {
+	private String getNameFromFileLocation() {
 		return filePath.getFileName().toString().split("[.]")[0];
 	}
 
@@ -74,7 +75,7 @@ public class XmlTool {
 		float workingWidth = 0;
 		float margin = 0;
 		try {
-			File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+			File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
 			FileInputStream file = new FileInputStream(filename);
 			BufferedReader br = new BufferedReader(new InputStreamReader(file));
 			String strline;
@@ -183,7 +184,7 @@ public class XmlTool {
 		for (double[] point : points) {
 			if ((point[0] == PathIterator.SEG_LINETO) && waitingForMoveTo) {
 				pointsToAdd.add(point);
-			} else if ((point[0] == PathIterator.SEG_LINETO) && !waitingForMoveTo) {
+			} else if (point[0] == PathIterator.SEG_LINETO) {
 				writer.println("				<lineTo>");
 				writer.println("					<x>" + point[1] + "</x>");
 				writer.println("					<y>" + point[2] + "</y>");

@@ -39,5 +39,5 @@ public interface SubWindow {
 	 */
 	void toggle();
 
-	void setCurrentPart(Mesh currentPart);
+	void setCurrentMesh(Mesh mesh);
 }

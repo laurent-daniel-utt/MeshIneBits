@@ -80,8 +80,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	 * 
 	 */
 	public void automaticallyOptimizeGeneratedPart(Mesh mesh) {
-		if (threadForAutoOptimizingGeneratedPart == null
-				|| (threadForAutoOptimizingGeneratedPart != null & !threadForAutoOptimizingGeneratedPart.isAlive())) {
+		if (threadForAutoOptimizingGeneratedPart == null || !threadForAutoOptimizingGeneratedPart.isAlive()) {
 			target = mesh;
 			threadForAutoOptimizingGeneratedPart = new Thread(this);
 			threadForAutoOptimizingGeneratedPart.start();
@@ -118,8 +117,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	 * @param layer
 	 */
 	public void automaticallyOptimizeLayer(Layer layer) {
-		if (threadForAutoOptimizingLayer == null
-				|| (threadForAutoOptimizingLayer != null & !threadForAutoOptimizingLayer.isAlive())) {
+		if (threadForAutoOptimizingLayer == null || !threadForAutoOptimizingLayer.isAlive()) {
 			target = layer;
 			threadForAutoOptimizingLayer = new Thread(this);
 			threadForAutoOptimizingLayer.start();

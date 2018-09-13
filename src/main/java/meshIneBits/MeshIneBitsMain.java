@@ -26,8 +26,7 @@ import meshIneBits.gui.MainWindow;
 
 /**
  * Main class. Call {@link #main(String[])} to start MeshIneBits. Will first
- * load the configuration and then initialize the GUI. Then wait for
- * {@link #sliceModel(String)} to be called to create a {@link Mesh}.
+ * load the configuration and then initialize the GUI.
  * 
  * @see CraftConfigLoader
  * @see Mesh

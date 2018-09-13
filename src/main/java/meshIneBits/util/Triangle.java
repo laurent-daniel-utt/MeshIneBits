@@ -35,17 +35,17 @@ public class Triangle {
 		Segment2D ret = null;
 
 		if ((point[0].z < layerZ) && (point[1].z >= layerZ) && (point[2].z >= layerZ)) {
-			ret = setSegment(ret, layerZ, point[0], point[2], point[1]);
+			ret = setSegment(null, layerZ, point[0], point[2], point[1]);
 		} else if ((point[0].z > layerZ) && (point[1].z <= layerZ) && (point[2].z <= layerZ)) {
-			ret = setSegment(ret, layerZ, point[0], point[1], point[2]);
+			ret = setSegment(null, layerZ, point[0], point[1], point[2]);
 		} else if ((point[1].z < layerZ) && (point[0].z >= layerZ) && (point[2].z >= layerZ)) {
-			ret = setSegment(ret, layerZ, point[1], point[0], point[2]);
+			ret = setSegment(null, layerZ, point[1], point[0], point[2]);
 		} else if ((point[1].z > layerZ) && (point[0].z <= layerZ) && (point[2].z <= layerZ)) {
-			ret = setSegment(ret, layerZ, point[1], point[2], point[0]);
+			ret = setSegment(null, layerZ, point[1], point[2], point[0]);
 		} else if ((point[2].z < layerZ) && (point[1].z >= layerZ) && (point[0].z >= layerZ)) {
-			ret = setSegment(ret, layerZ, point[2], point[1], point[0]);
+			ret = setSegment(null, layerZ, point[2], point[1], point[0]);
 		} else if ((point[2].z > layerZ) && (point[1].z <= layerZ) && (point[0].z <= layerZ)) {
-			ret = setSegment(ret, layerZ, point[2], point[0], point[1]);
+			ret = setSegment(null, layerZ, point[2], point[0], point[1]);
 		} else {
 			// Logger.error("Cannot handle triangle:\n" + point[0] + "\n" + point[1] + "\n" +
 			// point[2] + "\non Z: " + layerZ);

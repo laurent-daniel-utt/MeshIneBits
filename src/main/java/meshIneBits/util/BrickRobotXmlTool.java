@@ -35,13 +35,13 @@ import meshIneBits.config.CraftConfig;
  * A try to generate an XML file compatible with the BrickRobot machine, but it doesn't work because we can't handle complex path to position the bits
  *
  */
-public class BrickRobotXmlTool {
+class BrickRobotXmlTool {
 	
-	Mesh part;
-	PrintWriter writer;
-	Path filePath;
+	private Mesh part;
+	private PrintWriter writer;
+	private Path filePath;
 	StringBuffer xmlCode;
-	static final double SAFETY_MARGIN = 20; //offset to avoid hitting the other bits of the layer
+	private static final double SAFETY_MARGIN = 20; //offset to avoid hitting the other bits of the layer
 
 	public BrickRobotXmlTool(Mesh part, Path fileLocation) {
 		this.part = part;

@@ -26,7 +26,7 @@ package meshIneBits.gui.view3d;
  * @author Nicolas
  *
  */
-public class Position {
+class Position {
 	
 	private float[] translation;
 	private float rotation;

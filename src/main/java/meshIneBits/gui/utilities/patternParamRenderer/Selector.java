@@ -75,13 +75,9 @@ public class Selector extends Renderer {
 		// Choices
 		options = new JComboBox<String>((String[]) config.getChoices().toArray());
 		options.setSelectedItem(config.getDefaultValue());
-		options.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Update config
-				config.setCurrentValue(options.getSelectedItem());
-			}
+		options.addActionListener(e -> {
+			// Update config
+			config.setCurrentValue(options.getSelectedItem());
 		});
 		this.add(options, BorderLayout.EAST);
 	}

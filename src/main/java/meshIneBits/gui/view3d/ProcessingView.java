@@ -26,10 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
 
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
@@ -68,7 +65,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 	private Scene scene;
 
-	public static ProcessingView currentInstance = null;
+	private static ProcessingView currentInstance = null;
 	private enum Mode { full, sliced };
 	private Mode mode = Mode.sliced ;
 
@@ -101,7 +98,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	 */
 	public void settings() {
 		size(640, 360, P3D);
-		PJOGL.setIcon(this.getClass().getClassLoader().getResource("resources/icon.png").getPath());
+		PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
 		currentInstance = this;
 	}
 
@@ -302,7 +299,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 	private void drawWorkspace() {
 		try {
-			File filename = new File(this.getClass().getClassLoader().getResource("meshIneBits/config/PrinterConfig.txt").getPath());
+			File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("meshIneBits/config/PrinterConfig.txt")).getPath());
 			FileInputStream file = new FileInputStream(filename);
 			BufferedReader br = new BufferedReader(new InputStreamReader(file));
 			String strline;
@@ -480,8 +477,8 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 	}
 
 	@Override
-	public void setCurrentPart(Mesh currentPart) {
-		System.out.println("Processing view, setting current part" + currentPart);
-		curVO.setCurrentPart(currentPart);
+	public void setCurrentMesh(Mesh mesh) {
+		System.out.println("Processing view, setting current part" + mesh);
+		curVO.setCurrentPart(mesh);
 	}
 }

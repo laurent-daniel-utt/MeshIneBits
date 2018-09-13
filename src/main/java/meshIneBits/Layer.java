@@ -69,14 +69,12 @@ public class Layer extends Observable{
 				}
 			}
 		}
-		Collections.sort(keySet, new Comparator<Pair<Bit3D,Vector2>>() {
-			public int compare(Pair<Bit3D,Vector2> v1, Pair<Bit3D,Vector2> v2) {
-				if (Double.compare(v1.getValue().x, v2.getValue().x) == 0){
-					return Double.compare(v1.getValue().y, v2.getValue().y);
-				}
-				else {
-					return Double.compare(v1.getValue().x, v2.getValue().x);
-				}
+		Collections.sort(keySet, (v1, v2) -> {
+			if (Double.compare(v1.getValue().x, v2.getValue().x) == 0){
+				return Double.compare(v1.getValue().y, v2.getValue().y);
+			}
+			else {
+				return Double.compare(v1.getValue().x, v2.getValue().x);
 			}
 		});
 		return keySet;
@@ -165,7 +163,7 @@ public class Layer extends Observable{
 		return layerNumber;
 	}
 
-	public Vector2 getNewOrientation(Bit2D bit) {
+	private Vector2 getNewOrientation(Bit2D bit) {
 		AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
 //		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
 		return bit.getOrientation().getTransformed(patternAffTrans);
@@ -232,7 +230,7 @@ public class Layer extends Observable{
 	 * 
 	 * @param key
 	 */
-	public void removeBit(Vector2 key) {
+	private void removeBit(Vector2 key) {
 		referentialPattern.removeBit(key);
 		rebuild();
 	}

@@ -33,7 +33,7 @@ public abstract class RibbonTab extends JPanel {
 
 	private static final long serialVersionUID = 5540398663631111329L;
 
-	public RibbonTab() {
+	protected RibbonTab() {
 		// Visual options
 		FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
 		layout.setAlignOnBaseline(true);

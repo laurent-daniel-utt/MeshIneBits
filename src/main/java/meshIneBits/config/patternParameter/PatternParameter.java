@@ -40,9 +40,9 @@ public abstract class PatternParameter implements Serializable {
 	 * 
 	 */
 	static final long serialVersionUID = -1032848466522000185L;
-	protected String title;
-	protected String codename;
-	protected String description;
+	String title;
+	String codename;
+	String description;
 
 	/**
 	 * Type of current value depends on sub class

@@ -22,6 +22,7 @@
 package meshIneBits.patterntemplates;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Vector;
 
 import meshIneBits.Bit2D;
@@ -345,7 +346,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				// If the actually considered bit is full
 				coveringBitOrigin = bit.getOrigin()
 						// horizontally move
-						.add(centrifugalVector.mul(horizontalDisplacement))
+						.add(Objects.requireNonNull(centrifugalVector).mul(horizontalDisplacement))
 						// vertically move backward
 						.add(centrifugalVector.mul(additionalVerticalDisplacement*2));
 				// Add the "petit" covering bit
@@ -364,7 +365,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				// which has just been reduced to none
 				Vector2 coveringBitKey = actualState.addBit(bit);
 				// Then reform
-				coveringBitKey = this.reduceBit(coveringBitKey, actualState, centrifugalVector, horizontalDisplacement);
+				coveringBitKey = this.reduceBit(coveringBitKey, actualState, Objects.requireNonNull(centrifugalVector), horizontalDisplacement);
 			}
 		}
 

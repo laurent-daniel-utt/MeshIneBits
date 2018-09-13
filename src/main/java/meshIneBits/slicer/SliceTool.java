@@ -25,6 +25,7 @@ import java.util.Observable;
 import java.util.Vector;
 
 import meshIneBits.Mesh;
+import meshIneBits.MeshEvents;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
@@ -42,95 +43,97 @@ import meshIneBits.util.Vector3;
  * {@link Segment2D} (class representing in a plane since it admits only Coordinates in
  * x and y). Each segment is then recorded in the {@link Slice} object. At the end of
  * {@link #sliceModel()} we get a collection of slices composed of segments that form
- * the outline of the part.
+ * the outline of the mesh.
  */
 public class SliceTool extends Observable implements Runnable {
-	private Model model;
-	private Thread t;
-	private Mesh part;
-	private Vector<Slice> slices = new Vector<Slice>();
+    private Model model;
+    private Thread t;
+    private Mesh mesh;
+    private Vector<Slice> slices = new Vector<Slice>();
 
-	/**
-	 * SliceTool register itself to a {@link Mesh}, which is udpated when the slicing is finished.
-	 * @param part {@link Mesh} that will collect the slices when slicing is finished.
-	 * @param model {@link Model} to slice.
-	 */
-	public SliceTool(Mesh part, Model model) {
-		this.part = part;
-		addObserver(part);
-		this.model = model;
-	}
+    /**
+     * SliceTool register itself to a {@link Mesh}, which is updated when the slicing is finished.
+     *
+     * @param mesh {@link Mesh} that will collect the slices when slicing is finished.
+     */
+    public SliceTool(Mesh mesh) {
+        this.mesh = mesh;
+        addObserver(mesh);
+        this.model = mesh.getModel();
+    }
 
-	/**
-	 * @return {@link Vector} of {@link Slice}
-	 */
-	public Vector<Slice> getSlices() {
-		return slices;
-	}
+    /**
+     * @return {@link Vector} of {@link Slice}
+     */
+    public Vector<Slice> getSlices() {
+        return slices;
+    }
 
-	/**
-	 * Slicing algorithm.
-	 */
-	@Override
-	public void run() {
-		double sliceHeight = CraftConfig.sliceHeight;
-		Vector3 modelMax = model.getMax();
-		double firstSliceHeight = (CraftConfig.firstSliceHeightPercent) / 100.0;
-		int sliceCount = (int) ((modelMax.z / sliceHeight) + firstSliceHeight);
+    /**
+     * Slicing algorithm. One slice per layer, and each slice stays right at
+     * the middle of layer
+     */
+    @Override
+    public void run() {
+        Logger.updateStatus("Slicing slices");
+        Vector3 modelMax = model.getMax();
+        double sliceDistance = CraftConfig.bitThickness + CraftConfig.layersOffset;
+        double firstSliceHeight = CraftConfig.firstSliceHeightPercent / 100 * CraftConfig.bitThickness; // right at the middle
+        int sliceCount = (int) (Math.floor((modelMax.z - firstSliceHeight) / sliceDistance) + 1);
 
-		int firstSlice = 0;
-		int lastSlice = sliceCount;
+        for (int i = 0; i < sliceCount; i++) {
+            slices.add(new Slice());
+        }
 
-		Logger.updateStatus("Slicing slices");
+        int n = 0;
+        int totalProgress = model.getTriangles().size() + sliceCount;
+        for (Triangle t : model.getTriangles()) {
+            Logger.setProgress(n++, totalProgress);
 
-		for (int i = firstSlice; i < lastSlice; i++) {
-			slices.add(new Slice());
-		}
-		int n = 0;
-		for (Triangle t : model.getTriangles()) {
-			Logger.setProgress(n++, model.getTriangles().size());
+            // Finding zMin between 3 vertices
+            double zMin = t.point[0].z;
+            if (t.point[1].z < zMin) {
+                zMin = t.point[1].z;
+            }
+            if (t.point[2].z < zMin) {
+                zMin = t.point[2].z;
+            }
 
-			double zMin = t.point[0].z;
-			double zMax = t.point[0].z;
-			if (t.point[1].z < zMin) {
-				zMin = t.point[1].z;
-			}
-			if (t.point[2].z < zMin) {
-				zMin = t.point[2].z;
-			}
-			if (t.point[1].z > zMax) {
-				zMax = t.point[1].z;
-			}
-			if (t.point[2].z > zMax) {
-				zMax = t.point[2].z;
-			}
-			for (int i = (int) ((zMin / sliceHeight) + firstSliceHeight); i <= (int) ((zMax / sliceHeight) + firstSliceHeight); i++) {
-				if ((i >= firstSlice) && (i < lastSlice)) {
-					double sliceZ = ((i) + firstSliceHeight) * sliceHeight;
-					Segment2D s = t.project2D(sliceZ);
-					if (s != null) {
-						slices.get(i - firstSlice).addModelSegment(s);
-					}
-				}
-			}
-		}
+            // Finding zMax between 3 vertices
+            double zMax = t.point[0].z;
+            if (t.point[1].z > zMax) {
+                zMax = t.point[1].z;
+            }
+            if (t.point[2].z > zMax) {
+                zMax = t.point[2].z;
+            }
 
-		Logger.updateStatus("Optimizing slices");
-		for (int i = 0; i < slices.size(); i++) {
-			Logger.setProgress(i, slices.size() - 1);
-			slices.get(i).optimize();
-		}
+            // Project each segment on slices
+            int inf = (int) Math.floor((zMin - firstSliceHeight) / sliceDistance); // index of lowest floor above zMin
+            int sup = (int) Math.floor((zMax - firstSliceHeight) / sliceDistance); // index of highest floor under zMax
+            for (int i = inf; i <= sup; i++) {
+                double sliceZ = i * sliceDistance + firstSliceHeight;
+                Segment2D s = t.project2D(sliceZ);
+                if (s != null) slices.get(i).addModelSegment(s);
+            }
+        }
 
-		Logger.updateStatus("Slice count: " + slices.size());
-		setChanged();
-		notifyObservers(part);
-	}
+        Logger.updateStatus("Optimizing slices");
+        for (int i = 0; i < sliceCount; i++) {
+            Logger.setProgress(n++, totalProgress);
+            slices.get(i).optimize();
+        }
 
-	/**
-	 * Start the slicing in a thread.
-	 */
-	public void sliceModel() {
-		t = new Thread(this);
-		t.start();
-	}
+        Logger.updateStatus("Number of slices: " + slices.size());
+        setChanged();
+        notifyObservers(MeshEvents.SLICED);
+    }
+
+    /**
+     * Start the slicing in a thread.
+     */
+    public void sliceModel() {
+        t = new Thread(this);
+        t.start();
+    }
 }

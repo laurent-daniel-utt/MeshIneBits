@@ -35,7 +35,7 @@ import java.util.Observer;
 public class MainController extends Observable implements Observer {
 
     static private MainController instance;
-    private Mesh currentPart;
+    private Mesh currentMesh;
     private Model model;
 
     private MainController() {
@@ -48,29 +48,37 @@ public class MainController extends Observable implements Observer {
         return instance;
     }
 
-    void setCurrentPart(Mesh gp) {
-        currentPart = gp;
-        if (gp != null)
-            currentPart.addObserver(this);
+    /**
+     * @param newMesh <tt>null</tt> to clear the current mesh
+     */
+    void setCurrentMesh(Mesh newMesh) {
+        currentMesh = newMesh;
+        if (newMesh != null)
+            currentMesh.addObserver(this);
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (arg == null) return;
-        if (o == currentPart) {
-            MainWindow.getInstance().get2DView().setCurrentPart(currentPart);
-            MainWindow.getInstance().get3DView().setCurrentPart(currentPart);
-            MainWindow.getInstance().getDemoView().setCurrentPart(currentPart);
+        if (o == currentMesh) {
+            MainWindow.getInstance().get2DView().setCurrentMesh(currentMesh);
+            MainWindow.getInstance().get3DView().setCurrentMesh(currentMesh);
+            MainWindow.getInstance().getDemoView().setCurrentMesh(currentMesh);
         }
     }
 
-    public Mesh getCurrentPart() {
-        return currentPart;
+    public Mesh getCurrentMesh() {
+        return currentMesh;
     }
 
-    void setModel(Model m) {
-        model = m;
-        ((ProcessingModelView)MainWindow.getInstance().getModelView()).setModel(m);
+    /**
+     * Call this method to attach model to Model View
+     * after {@link #currentMesh} has loaded the model successfully
+     */
+    void setModel() {
+        model = currentMesh.getModel();
+        ((ProcessingModelView) MainWindow.getInstance().getModelView())
+                .setModel(model);
     }
 
     Model getModel() {

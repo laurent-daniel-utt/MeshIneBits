@@ -47,7 +47,7 @@ public class Vector3 {
 		return new Vector3((y * v.z) - (z * v.y), (z * v.x) - (x * v.z), (x * v.y) - (y * v.x));
 	}
 
-	public Vector3 div(double f) {
+	private Vector3 div(double f) {
 		return new Vector3(x / f, y / f, z / f);
 	}
 
@@ -74,7 +74,7 @@ public class Vector3 {
 	/**
 	 * Return the size (length) of the vector
 	 */
-	public double vSize() {
+    private double vSize() {
 		return Math.sqrt((x * x) + (y * y) + (z * z));
 	}
 

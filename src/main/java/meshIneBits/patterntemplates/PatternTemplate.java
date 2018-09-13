@@ -35,13 +35,13 @@ public abstract class PatternTemplate {
 	/**
 	 * Contains all customizable special parameters of the pattern template
 	 */
-	protected PatternConfig config = new PatternConfig();
+    PatternConfig config = new PatternConfig();
 
 	/**
 	 * Prepare own parameters (use {@link PatternTemplate#initiateConfig()}
 	 * 
 	 */
-	public PatternTemplate() {
+    PatternTemplate() {
 		super();
 		initiateConfig();
 	}
@@ -72,7 +72,7 @@ public abstract class PatternTemplate {
 	/**
 	 * Initialize the special configurations if no predefined configuration found.
 	 */
-	public abstract void initiateConfig();
+	protected abstract void initiateConfig();
 
 	/**
 	 * Calculate private parameters, after slicing and before generating bits.

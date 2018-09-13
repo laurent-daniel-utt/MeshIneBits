@@ -108,7 +108,7 @@ public class DoubleParam extends PatternParameter {
 	 *            if negative, {@link #step} will be the opposite value
 	 */
 	private void setStep(Double s) {
-		if (Double.isInfinite(s) || Double.isNaN(s) || s == null || s == 0) {
+		if (Double.isInfinite(s) || Double.isNaN(s) || s == 0) {
 			this.step = 1.0;
 		} else {
 			this.step = (s < 0 ? -s : s);
@@ -169,7 +169,7 @@ public class DoubleParam extends PatternParameter {
 	 */
 	private double filter(Double d) {
 		// Check extreme
-		if (Double.isInfinite(d) || Double.isNaN(d) || d == null) {
+		if (Double.isInfinite(d) || Double.isNaN(d)) {
 			return 0.0;
 		}
 		// Check in range

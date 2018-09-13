@@ -39,11 +39,11 @@ public class LabeledSpinner extends Renderer {
 
 	private JLabel lblName;
 
-	public JSpinner getSpinner() {
+	private JSpinner getSpinner() {
 		return spinner;
 	}
 
-	public JLabel getTitle() {
+	private JLabel getTitle() {
 		return lblName;
 	}
 
@@ -71,15 +71,11 @@ public class LabeledSpinner extends Renderer {
 
 			spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
 					parameters.step()));
-			spinner.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					try {
-						attribute.setDouble(null, (double) spinner.getValue());
-					} catch (IllegalArgumentException | IllegalAccessException e1) {
-						e1.printStackTrace();
-					}
+			spinner.addChangeListener(e -> {
+				try {
+					attribute.setDouble(null, (double) spinner.getValue());
+				} catch (IllegalArgumentException | IllegalAccessException e1) {
+					e1.printStackTrace();
 				}
 			});
 			this.add(spinner, BorderLayout.EAST);

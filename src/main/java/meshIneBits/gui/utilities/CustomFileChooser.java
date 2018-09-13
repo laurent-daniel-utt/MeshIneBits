@@ -24,6 +24,7 @@ package meshIneBits.gui.utilities;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.util.Objects;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -40,7 +41,7 @@ public class CustomFileChooser extends JFileChooser {
 	protected JDialog createDialog(Component parent) throws HeadlessException {
 		JDialog dialog = super.createDialog(parent);
 		ImageIcon icon = new ImageIcon(
-				new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "icon.png")).getImage()
+				new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "icon.png"))).getImage()
 						.getScaledInstance(24, 24, Image.SCALE_REPLICATE));
 		dialog.setIconImage(icon.getImage());
 		return dialog;

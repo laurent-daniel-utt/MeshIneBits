@@ -20,7 +20,7 @@ import java.util.Vector;
 *
  */
 
-public class Builder extends PApplet implements Observer {
+class Builder extends PApplet implements Observer {
 
     private final int MODEL_COLOR = color(219, 100, 50);
     private final int BIT_COLOR = color(19, 100, 50);

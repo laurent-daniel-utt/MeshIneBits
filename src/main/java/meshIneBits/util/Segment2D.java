@@ -110,7 +110,7 @@ public class Segment2D extends AABBrect {
 	/**
 	 * Return the position of the point at a given ratio
 	 */
-	public Vector2 getPointAtRatio(double ratio) {
+    private Vector2 getPointAtRatio(double ratio) {
 		return new Vector2(this.start.x + ((this.end.x - this.start.x) * ratio),
 				this.start.y + ((this.end.y - this.start.y) * ratio));
 	}
@@ -173,7 +173,7 @@ public class Segment2D extends AABBrect {
 	 * @return
 	 * @see {@link Vector2#isOnSegment(Segment2D)}
 	 */
-	public boolean contains(Vector2 point) {
+    private boolean contains(Vector2 point) {
 		return point.isOnSegment(this);
 	}
 

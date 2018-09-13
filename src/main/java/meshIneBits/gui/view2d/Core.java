@@ -55,7 +55,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	Core() {
 		// Setting up for easier use later
 		controller = Controller.getInstance();
-		controller.setCurrentPart(MainController.getInstance().getCurrentPart());
+		controller.setCurrentPart(MainController.getInstance().getCurrentMesh());
 
 		// Actions listener
 		addMouseMotionListener(this);

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Objects;
 import java.util.Vector;
 
 import meshIneBits.util.Logger;
@@ -161,60 +162,6 @@ public class Model {
 		}
 	}
 
-	//	/**
-	//	 * Read obj files. ONLY TRIANGLES
-	//	 * TODO: delete or make compatible with other than triangles
-	//	 */
-	//	private void readObj(String filename) throws IOException
-	//	{
-	//		BufferedReader br = new BufferedReader(new FileReader(filename));
-	//		String line;
-	//
-	//		int triangleCount = 0;
-	//		triangles = new Vector<Triangle>();
-	//		Vector<Vector3> vertex = new Vector<Vector3>();
-	//		Vector<Vector3> faces = new Vector<Vector3>();
-	//
-	//		// Read the file
-	//		while ((line = br.readLine()) != null)
-	//		{
-	//			line = line.trim();
-	//
-	//			// Find all the vertex
-	//			if (line.startsWith("v "))
-	//			{
-	//				String[] parts = line.split(" ");
-	//				vertex.add(new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3])));
-	//			}
-	//
-	//			// Find all the faces
-	//			else if (line.startsWith("f "))
-	//			{
-	//				String[] parts = line.split(" ");
-	//				if (parts.length == 4) // Check if f line contains 4 parts, which means it's triangle
-	//				{
-	//					faces.add(new Vector3(Integer.parseInt(parts[1].split("/")[0]), Integer.parseInt(parts[2].split("/")[0]), Integer.parseInt(parts[3].split("/")[0])));
-	//					triangleCount++;
-	//				}
-	//				else // Else faces are not triangles, can be a quad or polygon
-	//				{
-	//					new RuntimeException("Mesh must be a triangle mesh");
-	//				}
-	//			}
-	//		}
-	//		br.close();
-	//
-	//		// Create triangle from faces
-	//		for (int i = 0; i < triangleCount; i++) {
-	//			Triangle t = new Triangle();
-	//			t.point[0] = vertex.get((int) faces.get(i).x -1); // "-1" because index of Vector start at 0, but not the index of the vertex in OBJ format
-	//			t.point[1] = vertex.get((int) faces.get(i).y -1);
-	//			t.point[2] = vertex.get((int) faces.get(i).z -1);
-	//
-	//			triangles.add(t);
-	//		}
-	//	}
-
 	/**
 	 * Convert ascii STL file to a {@link Vector} of {@link Triangle}.
 	 * @param filename
@@ -239,7 +186,7 @@ public class Model {
 				nextTri.point[i] = new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
 				i++;
 				if (i == 3) {
-					if ((normal.vSize2() > 0.1) && (nextTri.getNormal().dot(normal) < 0.5)) {
+					if ((Objects.requireNonNull(normal).vSize2() > 0.1) && (nextTri.getNormal().dot(normal) < 0.5)) {
 						// Triangle winding order and normal don't point in the same direction...
 						// Flip the triangle?
 					}
