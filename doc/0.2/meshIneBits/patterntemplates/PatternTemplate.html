@@ -138,7 +138,7 @@ extends java.lang.Object</pre>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../meshIneBits/config/PatternConfig.html" title="class in meshIneBits.config">PatternConfig</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#config">config</a></span></code>
-<div class="block">Contains all customizable special parameters of the pattern template</div>
+<div class="block">Contains all customizable special parameters of the pavement template</div>
 </td>
 </tr>
 </table>
@@ -183,7 +183,7 @@ extends java.lang.Object</pre>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#createPattern-int-">createPattern</a></span>(int&nbsp;layerNumber)</code>
-<div class="block">Construct the layer based on this pattern</div>
+<div class="block">Construct the layer based on this pavement</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -215,7 +215,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection)</code>
 <div class="block">Move the bit by the minimum distance automatically calculated.</div>
@@ -223,11 +223,11 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection,
        double&nbsp;distance)</code>
-<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>moveBit(Pattern, Vector2, Vector2)</code></a> except the
+<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>moveBit(Pattern, Vector2, Vector2)</code></a> except the
  distance is free to decide.</div>
 </td>
 </tr>
@@ -272,7 +272,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>config</h4>
 <pre>protected&nbsp;<a href="../../meshIneBits/config/PatternConfig.html" title="class in meshIneBits.config">PatternConfig</a> config</pre>
-<div class="block">Contains all customizable special parameters of the pattern template</div>
+<div class="block">Contains all customizable special parameters of the pavement template</div>
 </li>
 </ul>
 </li>
@@ -351,12 +351,12 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>createPattern</h4>
 <pre>public abstract&nbsp;<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;createPattern(int&nbsp;layerNumber)</pre>
-<div class="block">Construct the layer based on this pattern</div>
+<div class="block">Construct the layer based on this pavement</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>layerNumber</code> - an integer not negative</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>a bit-filled pattern</dd>
+<dd>a bit-filled pavement</dd>
 </dl>
 </li>
 </ul>
@@ -377,7 +377,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">
+<a name="moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -388,11 +388,11 @@ extends java.lang.Object</pre>
                                 <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection)</pre>
 <div class="block">Move the bit by the minimum distance automatically calculated.
  
- The distance depends on the chosen pattern. Realize the move on the input
- pattern.</div>
+ The distance depends on the chosen pavement. Realize the move on the input
+ pavement.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actualState</code> - the actual state of layer which is paved by this pattern
+<dd><code>actualState</code> - the actual state of layer which is paved by this pavement
             template</dd>
 <dd><code>bitKey</code> - the transformed origin of bit</dd>
 <dd><code>localDirection</code> - the direction in the coordinate system of bit</dd>
@@ -401,7 +401,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">
+<a name="moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -411,11 +411,11 @@ extends java.lang.Object</pre>
                                 <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
                                 <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection,
                                 double&nbsp;distance)</pre>
-<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>moveBit(Pattern, Vector2, Vector2)</code></a> except the
+<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>moveBit(Pattern, Vector2, Vector2)</code></a> except the
  distance is free to decide.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actualState</code> - the actual state of layer which is paved by this pattern
+<dd><code>actualState</code> - the actual state of layer which is paved by this pavement
             template</dd>
 <dd><code>bitKey</code> - the transformed origin of bit</dd>
 <dd><code>localDirection</code> - the direction in the coordinate system of bit</dd>

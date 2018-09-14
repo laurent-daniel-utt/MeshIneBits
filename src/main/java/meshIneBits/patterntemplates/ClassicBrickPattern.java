@@ -26,7 +26,7 @@ import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
@@ -47,7 +47,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 		return skirtRadius;
 	}
 
-	public Pattern pave(Layer layer) {
+	public Pavement pave(Layer layer) {
 		// Setup parameters
 		bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
 		// Start
@@ -68,7 +68,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 		if (layer.getLayerNumber() % 2 == 0) {
 			rotation = new Vector2(0, 1);
 		}
-		return new Pattern(bits, rotation);
+		return new Pavement(bits, rotation);
 	}
 
 	/*
@@ -82,7 +82,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
 		double distance = 0;
 		if (localDirection.x == 0) {// up or down
 			distance = CraftConfig.bitWidth / 2;
@@ -93,13 +93,13 @@ public class ClassicBrickPattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
 	@Override
 	public String getCommonName() {
-		return "Classic Brick Pattern";
+		return "Classic Brick Pavement";
 	}
 
 	@Override

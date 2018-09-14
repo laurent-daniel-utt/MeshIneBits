@@ -32,7 +32,7 @@ import java.util.Vector;
 
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 
 /**
  * For automatic optimization. It will observe the changes in layers
@@ -147,8 +147,8 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	 */
 	public void detectIrregularBits() {
 		for (Layer layer : layers) {
-			Pattern pattern = layer.getSelectedPattern();
-			Vector<Vector2> irregularBitsInThisPattern = DetectorTool.detectIrregularBits(pattern);
+			Pavement pavement = layer.getSelectedPattern();
+			Vector<Vector2> irregularBitsInThisPattern = DetectorTool.detectIrregularBits(pavement);
 			irregularBits.put(layer.getLayerNumber(), irregularBitsInThisPattern);
 		}
 	}

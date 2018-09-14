@@ -26,7 +26,7 @@ import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.Vector2;
@@ -41,7 +41,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 	private double skirtRadius;
 	private double bitsOffset;
 
-	public Pattern pave(Layer layer) {
+	public Pavement pave(Layer layer) {
 		// Setup parameters
 		bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
 		// Start
@@ -74,7 +74,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 				bits.add(new Bit2D(originBit, orientationBit));
 			}
 		}
-		return new Pattern(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
+		return new Pavement(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
 		double distance = 0;
 		if (localDirection.x == 0) {// up or down
 			distance = CraftConfig.bitWidth / 2;
@@ -95,7 +95,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 

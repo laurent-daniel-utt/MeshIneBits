@@ -28,7 +28,7 @@ import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
@@ -37,7 +37,7 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 /**
- * Pattern improved from classic pattern
+ * Pavement improved from classic pattern
  * {@link meshIneBits.patterntemplates.ClassicBrickPattern ClassicBrickPattern}.
  * 
  * @author NHATHAN
@@ -54,7 +54,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	private double diffyOffset;
 	private double diffRotation;
 
-	public Pattern pave(Layer layer) {
+	public Pavement pave(Layer layer) {
 		int layerNumber = layer.getLayerNumber();
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		// Setup parameters
@@ -99,7 +99,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
 		// Rotation for this layer
 		Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
-		return new Pattern(bits, customizedRotation);
+		return new Pavement(bits, customizedRotation);
 	}
 
 	/**
@@ -134,10 +134,10 @@ public class ImprovedBrickPattern extends PatternTemplate {
 		// this boolean to check that if we'd tried all possibilities
 		boolean allFail = false;
 		while (!allFail) {
-			Pattern selectedPattern = actualState.getSelectedPattern();
+			Pavement selectedPavement = actualState.getSelectedPattern();
 			Slice selectedBoundary = actualState.getSelectedSlice();
 			Vector2 localDirectionToMove = null, irBitKeyToMove = null;
-			Vector<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(selectedPattern);
+			Vector<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(selectedPavement);
 			// We will find the first irregular bit that we can resolve
 			for (Iterator<Vector2> irBitKeyIterator = irregularBitKeys.iterator(); irBitKeyIterator.hasNext();) {
 				Vector2 irBitKey = (Vector2) irBitKeyIterator.next();
@@ -146,7 +146,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				// If there is at least one way to reduce the number of
 				// irregular bits in the pattern,
 				// we choose that direction and apply on the pattern
-				localDirectionToMove = attemptToSolve(selectedPattern, selectedBoundary, irBitKey);
+				localDirectionToMove = attemptToSolve(selectedPavement, selectedBoundary, irBitKey);
 				if (localDirectionToMove != null) {
 					irBitKeyToMove = irBitKey;
 					break;
@@ -154,8 +154,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 			}
 			// If we have at least one chance to move
 			if (localDirectionToMove != null && irBitKeyToMove != null) {
-				Bit2D initialStateOfBitToMove = selectedPattern.getBit(irBitKeyToMove);
-				Vector2 newPos = this.pushBit(selectedPattern, irBitKeyToMove, localDirectionToMove);
+				Bit2D initialStateOfBitToMove = selectedPavement.getBit(irBitKeyToMove);
+				Vector2 newPos = this.pushBit(selectedPavement, irBitKeyToMove, localDirectionToMove);
 				double lengthToReduce;
 				if (localDirectionToMove.x == 0){
 					lengthToReduce = bitsLengthSpace;
@@ -163,17 +163,17 @@ public class ImprovedBrickPattern extends PatternTemplate {
 				else{
 					lengthToReduce = bitsWidthSpace;
 				}
-				reduceBit(newPos,selectedPattern,localDirectionToMove, lengthToReduce);
+				reduceBit(newPos, selectedPavement,localDirectionToMove, lengthToReduce);
 				Logger.updateStatus("Moved bit at " + irBitKeyToMove + " in direction "
-						+ localDirectionToMove.getTransformed(selectedPattern.getAffineTransform()) + " to " + newPos);
+						+ localDirectionToMove.getTransformed(selectedPavement.getAffineTransform()) + " to " + newPos);
 				// Re-validate
-				selectedPattern.computeBits(selectedBoundary);
+				selectedPavement.computeBits(selectedBoundary);
 				// Try to recover the gap left behind
-				this.cover(selectedPattern, initialStateOfBitToMove, localDirectionToMove);
+				this.cover(selectedPavement, initialStateOfBitToMove, localDirectionToMove);
 				// Re-validate
-				selectedPattern.computeBits(selectedBoundary);
+				selectedPavement.computeBits(selectedBoundary);
 				// Apply the changes on whole layer
-				actualState.setReferentialPattern(selectedPattern);
+				actualState.setReferentialPavement(selectedPavement);
 				actualState.rebuild();
 			} else {
 				// Else if we don't have anyway to solve
@@ -194,20 +194,20 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 * bits, we will follow that way. Note: we also try to cover what we left behind
 	 * by a full bit.
 	 * 
-	 * @param pattern
-	 *            the selected pattern in the layer. This method will work on its
+	 * @param pavement
+	 *            the selected pavement in the layer. This method will work on its
 	 *            clone
 	 * @param boundary
 	 *            used to re-validate the attempt
 	 * @param irBitKey
 	 *            the key of the bit to try
 	 * @return the first direction which reduce the total number of irregular bits
-	 *         in the pattern. Null if no way to get better state. Calculated in
+	 *         in the pavement. Null if no way to get better state. Calculated in
 	 *         local coordinate system of input b.it
 	 */
-	private Vector2 attemptToSolve(Pattern pattern, Slice boundary, Vector2 irBitKey) {
+	private Vector2 attemptToSolve(Pavement pavement, Slice boundary, Vector2 irBitKey) {
 		// Initial number of irregularities
-		int initialIrregularities = DetectorTool.detectIrregularBits(pattern).size();
+		int initialIrregularities = DetectorTool.detectIrregularBits(pavement).size();
 		Vector2[] localDirectionsForTrying = { new Vector2(1, 0), // right
 				new Vector2(-1, 0), // left
 				new Vector2(0, 1), // up
@@ -215,23 +215,23 @@ public class ImprovedBrickPattern extends PatternTemplate {
 		};
 		for (int i = 0; i < localDirectionsForTrying.length; i++) {
 			Vector2 localDirectionToTry = localDirectionsForTrying[i];
-			// We need to conserve pattern
+			// We need to conserve pavement
 			// So we work on a clone
-			Pattern clonedPattern = pattern.clone();
-			Bit2D initialBit = clonedPattern.getBit(irBitKey);
-			Vector2 newOrigin = this.pushBit(clonedPattern, irBitKey, localDirectionToTry);
+			Pavement clonedPavement = pavement.clone();
+			Bit2D initialBit = clonedPavement.getBit(irBitKey);
+			Vector2 newOrigin = this.pushBit(clonedPavement, irBitKey, localDirectionToTry);
 			// Rebuild the boundary
-			clonedPattern.computeBits(boundary);
+			clonedPavement.computeBits(boundary);
 			// Check that we did not push the bit into the air
-			if (clonedPattern.getBit(newOrigin) == null) {
+			if (clonedPavement.getBit(newOrigin) == null) {
 				continue;
 			}
 			// We cover what we left behind
-			this.cover(clonedPattern, initialBit, localDirectionToTry);
+			this.cover(clonedPavement, initialBit, localDirectionToTry);
 			// Rebuild the boundary
-			clonedPattern.computeBits(boundary);
+			clonedPavement.computeBits(boundary);
 			// Re-validate
-			if (initialIrregularities > DetectorTool.detectIrregularBits(clonedPattern).size()) {
+			if (initialIrregularities > DetectorTool.detectIrregularBits(clonedPavement).size()) {
 				return localDirectionToTry;
 			}
 		}
@@ -249,7 +249,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 *            in which we move the bit. Calculated in the local coordinate
 	 *            system of bit.
 	 */
-	private void cover(Pattern actualState, Bit2D movedBit, Vector2 localDirectionOfMove) {
+	private void cover(Pavement actualState, Bit2D movedBit, Vector2 localDirectionOfMove) {
 		double paddle = 0;
 		if (localDirectionOfMove.x == 0) {
 			paddle = bitsLengthSpace / 2;
@@ -277,7 +277,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 *            (0, 1), (0, -1).
 	 * @return new origin of bit after being pushed into the given direction
 	 */
-	private Vector2 pushBit(Pattern actualState, Vector2 keyOfBitToMove, Vector2 localDirectionToPush) {
+	private Vector2 pushBit(Pavement actualState, Vector2 keyOfBitToMove, Vector2 localDirectionToPush) {
 		// Detect the side of bit staying in that direction
 		Bit2D bitToPush = actualState.getBit(keyOfBitToMove);
 
@@ -390,8 +390,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	 *            in millimeter. If greater than sides, the bit will be removed.
 	 * @return origin of reduced bit. Null if bit is removed.
 	 */
-	private Vector2 reduceBit(Vector2 bitKey, Pattern actualState, Vector2 localDirectionToReduce,
-			double lengthToReduce) {
+	private Vector2 reduceBit(Vector2 bitKey, Pavement actualState, Vector2 localDirectionToReduce,
+							  double lengthToReduce) {
 		Bit2D initialBit = actualState.getBit(bitKey);
 		double actualLength = 0, newPercentageWidth = 100, newPercentageLength = 100;
 		if (localDirectionToReduce.x == 0) {
@@ -531,7 +531,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
 		// audit to control the movement
 		// We should have here an audit to control the movement (not to overlap
 		// other bits)
@@ -546,13 +546,13 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	}
 
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
 	@Override
 	public String getCommonName() {
-		return "Improved Brick Pattern";
+		return "Improved Brick Pavement";
 	}
 
 	@Override
@@ -562,7 +562,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
 	@Override
 	public String getDescription() {
-		return "A pattern improved from classic Brick Pattern with much more flexibility.";
+		return "A pattern improved from classic Brick Pavement with much more flexibility.";
 	}
 
 	@Override

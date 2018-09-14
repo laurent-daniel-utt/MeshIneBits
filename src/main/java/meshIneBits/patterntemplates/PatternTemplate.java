@@ -23,7 +23,7 @@ package meshIneBits.patterntemplates;
 
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
@@ -92,7 +92,7 @@ public abstract class PatternTemplate {
 	 * @return a bit-filled surface
 	 * @since 0.4
 	 */
-	public abstract Pattern pave(Layer layer);
+	public abstract Pavement pave(Layer layer);
 
 	/**
 	 * Auto-optimization. Also a constructor who considers completely the layer's
@@ -119,10 +119,10 @@ public abstract class PatternTemplate {
 	 *            the direction in the coordinate system of bit
 	 * @return the new origin of the moved bit
 	 */
-	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection);
+	public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection);
 
 	/**
-	 * Similar to {@link #moveBit(Pattern, Vector2, Vector2)} except the distance is
+	 * Similar to {@link #moveBit(Pavement, Vector2, Vector2)} except the distance is
 	 * free to decide.
 	 * 
 	 * @param actualState
@@ -134,9 +134,9 @@ public abstract class PatternTemplate {
 	 * @param distance
 	 *            an positive real number (in double precision)
 	 * @return the new origin of the moved bit
-	 * @see PatternTemplate#moveBit(Pattern, Vector2, Vector2)
+	 * @see PatternTemplate#moveBit(Pavement, Vector2, Vector2)
 	 */
-	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance);
+	public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 
 	/**
 	 * @return the full name of icon representation the template

@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 /**
  * A layer contains all the bit 3D for a given Z. These bits are organized
  * following a {@link PatternTemplate}. In order to build the 3D bits, it has to
- * start by building a {@link Pattern} for each slice. The
- * {@link #referentialPattern} determines the position and orientation of the
+ * start by building a {@link Pavement} for each slice. The
+ * {@link #referentialPavement} determines the position and orientation of the
  * bits. It is then cloned and shaped to fit the linked {@link Slice}.
  */
 public class Layer extends Observable {
@@ -44,10 +44,10 @@ public class Layer extends Observable {
     private int layerNumber;
     private Vector<Slice> slices;
     private Slice horizontalSection;
-    private Pattern flatPavement;
-    private Pattern referentialPattern;
+    private Pavement flatPavement;
+    private Pavement referentialPavement;
     private PatternTemplate patternTemplate;
-    private Vector<Pattern> patterns = new Vector<>();
+    private Vector<Pavement> pavements = new Vector<>();
     private Map<Vector2, Bit3D> mapBits3D;
     private int sliceToSelect;
 
@@ -63,7 +63,7 @@ public class Layer extends Observable {
         this.slices = slices;
         this.layerNumber = layerNumber;
         this.patternTemplate = mesh.getPatternTemplate();
-        this.referentialPattern = mesh.getPatternTemplate().pave(this);
+        this.referentialPavement = mesh.getPatternTemplate().pave(this);
         setSliceToSelect(CraftConfig.defaultSliceToSelect);
 
         rebuild();
@@ -110,7 +110,7 @@ public class Layer extends Observable {
 
     /**
      * Add a bit to the {@link #flatPavement} and call {@link #rebuild}
-     * which will reconstruct all the {@link Pattern} taking in account this new
+     * which will reconstruct all the {@link Pavement} taking in account this new
      * bit.
      *
      * @param bit target
@@ -130,10 +130,10 @@ public class Layer extends Observable {
      * @deprecated
      */
     private void buildPatterns() {
-        patterns.clear();
+        pavements.clear();
         for (Slice s : slices) {
-            patterns.add(referentialPattern.clone());
-            patterns.lastElement().computeBits(s);
+            pavements.add(referentialPavement.clone());
+            pavements.lastElement().computeBits(s);
         }
     }
 
@@ -148,7 +148,7 @@ public class Layer extends Observable {
 
     /**
      * Build the {@link Bit3D} from all the {@link Bit2D} contained in the
-     * {@link Pattern}.
+     * {@link Pavement}.
      *
      * @deprecated
      */
@@ -156,10 +156,10 @@ public class Layer extends Observable {
         mapBits3D = new Hashtable<>();
         Vector<Bit2D> bitsToInclude = new Vector<>();
 
-        for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
-            for (Pattern pattern : patterns) {
-                if (pattern.getBitsKeys().contains(bitKey)) {
-                    bitsToInclude.add(pattern.getBit(bitKey));
+        for (Vector2 bitKey : referentialPavement.getBitsKeys()) {
+            for (Pavement pavement : pavements) {
+                if (pavement.getBitsKeys().contains(bitKey)) {
+                    bitsToInclude.add(pavement.getBit(bitKey));
                 } else {
                     bitsToInclude.add(null);
                 }
@@ -224,7 +224,7 @@ public class Layer extends Observable {
      * @deprecated
      */
     private Vector2 getNewOrientation(Bit2D bit) {
-        AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
+        AffineTransform patternAffTrans = (AffineTransform) referentialPavement.getAffineTransform().clone();
 //		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
         return bit.getOrientation().getTransformed(patternAffTrans);
     }
@@ -233,8 +233,8 @@ public class Layer extends Observable {
      * @return all possible pavements basing on boundaries
      * @deprecated
      */
-    public Vector<Pattern> getPatterns() {
-        return this.patterns;
+    public Vector<Pavement> getPavements() {
+        return this.pavements;
     }
 
     /**
@@ -257,8 +257,8 @@ public class Layer extends Observable {
      * @return the selected pattern
      * @deprecated
      */
-    public Pattern getSelectedPattern() {
-        return this.patterns.get(sliceToSelect);
+    public Pavement getSelectedPattern() {
+        return this.pavements.get(sliceToSelect);
     }
 
     /**
@@ -364,11 +364,11 @@ public class Layer extends Observable {
     }
 
     /**
-     * @param referentialPattern base pavement
+     * @param referentialPavement base pavement
      * @deprecated
      */
-    public void setReferentialPattern(Pattern referentialPattern) {
-        this.referentialPattern = referentialPattern;
+    public void setReferentialPavement(Pavement referentialPavement) {
+        this.referentialPavement = referentialPavement;
     }
 
     /**
@@ -376,7 +376,7 @@ public class Layer extends Observable {
      *
      * @param newFlatPavement new base pavement
      */
-    public void setFlatPavement(Pattern newFlatPavement) {
+    public void setFlatPavement(Pavement newFlatPavement) {
         this.flatPavement = newFlatPavement;
     }
 }

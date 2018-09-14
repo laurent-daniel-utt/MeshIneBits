@@ -83,13 +83,13 @@ public class CraftConfig {
     )
     public static double bitLength = 120.0;
 
-    // Pattern choices
+    // Pavement choices
 
     /**
      * @deprecated As of release of 0.2, replaced by {@link #templateChoice}
      */
-    @Setting(title = "Pattern number",
-            description = "Pattern template you want to apply",
+    @Setting(title = "Pavement number",
+            description = "Pavement template you want to apply",
             minValue = 1, maxValue = 4
     )
     public static int patternNumber = 2;

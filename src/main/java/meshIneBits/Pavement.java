@@ -21,8 +21,6 @@
 
 package meshIneBits;
 
-//import java.awt.BasicStroke;
-//import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
@@ -41,7 +39,7 @@ import meshIneBits.util.Vector2;
  * Build by a {@link PatternTemplate}. Contains a set of {@link Bit2D}.
  *
  */
-public class Pattern implements Cloneable {
+public class Pavement implements Cloneable {
 	private Vector2 rotation;
 	/**
 	 * The key is the origin of bit in coordinate system of global object.
@@ -50,8 +48,8 @@ public class Pattern implements Cloneable {
 	private AffineTransform transfoMatrix = new AffineTransform();
 	private AffineTransform inverseTransfoMatrix;
 
-	private Pattern(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transfoMatrix,
-					AffineTransform inverseTransfoMatrix) {
+	private Pavement(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transfoMatrix,
+					 AffineTransform inverseTransfoMatrix) {
 		this.rotation = rotation;
 		this.mapBits = mapBits;
 		this.transfoMatrix = transfoMatrix;
@@ -64,7 +62,7 @@ public class Pattern implements Cloneable {
 	 * @param rotation
 	 */
 
-	public Pattern(Vector<Bit2D> bits, Vector2 rotation) {
+	public Pavement(Vector<Bit2D> bits, Vector2 rotation) {
 
 		this.rotation = rotation;
 
@@ -107,14 +105,14 @@ public class Pattern implements Cloneable {
 	}
 
 	@Override
-	public Pattern clone() {
+	public Pavement clone() {
 
 		Hashtable<Vector2, Bit2D> clonedMapBits = new Hashtable<Vector2, Bit2D>();
 		for (Vector2 key : this.getBitsKeys()) {
 			clonedMapBits.put(key, mapBits.get(key).clone());
 		}
 
-		return new Pattern(clonedMapBits, rotation, transfoMatrix, inverseTransfoMatrix);
+		return new Pavement(clonedMapBits, rotation, transfoMatrix, inverseTransfoMatrix);
 	}
 
 	/**

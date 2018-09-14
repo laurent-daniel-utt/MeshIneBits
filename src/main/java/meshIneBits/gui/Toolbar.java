@@ -219,7 +219,7 @@ class Toolbar extends JTabbedPane implements Observer {
                         PatternConfig loadedConf = CraftConfigLoader.loadPatternConfig(patternConfigFile);
                         if (loadedConf != null) {
                             TemplateTab.patternParametersContainer.setupPatternParameters(loadedConf);
-                            Logger.updateStatus("Pattern configuration loaded.");
+                            Logger.updateStatus("Pavement configuration loaded.");
                         }
                     }
                 });
@@ -531,11 +531,11 @@ class Toolbar extends JTabbedPane implements Observer {
             bitsCont.add(bitWidthSpinner);
             bitsCont.add(bitLengthSpinner);
 
-            // Pattern choice
-            GalleryContainer patternGallery = new GalleryContainer("Pattern");
+            // Pavement choice
+            GalleryContainer patternGallery = new GalleryContainer("Pavement");
 
             // Template options
-            patternParametersContainer = new PatternParametersContainer("Pattern parameters");
+            patternParametersContainer = new PatternParametersContainer("Pavement parameters");
             patternParametersContainer.setupPatternParameters();
 
             // Computing options

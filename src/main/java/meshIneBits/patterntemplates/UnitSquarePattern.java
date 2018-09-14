@@ -24,7 +24,7 @@ package meshIneBits.patterntemplates;
 import meshIneBits.Bit2D;
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -161,8 +161,8 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * @param layer target to pave
 	 */
 	@Override
-	public Pattern pave(Layer layer) {
-		return new Pattern(new Vector<>(), new Vector2(1, 0));
+	public Pavement pave(Layer layer) {
+		return new Pavement(new Vector<>(), new Vector2(1, 0));
 	}
 
 	/*
@@ -209,8 +209,8 @@ public class UnitSquarePattern extends PatternTemplate {
 				return -1;
 			}
 		}
-		Pattern thisPattern = new Pattern(overallPavement, new Vector2(1, 0));
-		actualState.setReferentialPattern(thisPattern);
+		Pavement thisPavement = new Pavement(overallPavement, new Vector2(1, 0));
+		actualState.setReferentialPavement(thisPavement);
 		actualState.rebuild();
 		return 0;
 	}
@@ -229,11 +229,11 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pavement,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
 	 */
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
 		double distance = 0;
 		if (localDirection.x == 0) {// up or down
 			distance = CraftConfig.bitWidth / 2;
@@ -247,11 +247,11 @@ public class UnitSquarePattern extends PatternTemplate {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pavement,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
 	 */
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
@@ -262,7 +262,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
 	@Override
 	public String getCommonName() {
-		return "Unit Square Pattern";
+		return "Unit Square Pavement";
 	}
 
 	@Override

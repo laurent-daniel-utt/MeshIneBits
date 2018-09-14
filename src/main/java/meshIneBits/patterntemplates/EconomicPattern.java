@@ -27,7 +27,7 @@ package meshIneBits.patterntemplates;
 import meshIneBits.Bit2D;
 import meshIneBits.Mesh;
 import meshIneBits.Layer;
-import meshIneBits.Pattern;
+import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleListParam;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -92,9 +92,9 @@ public class EconomicPattern extends PatternTemplate {
 	 * @param layer target
 	 */
 	@Override
-	public Pattern pave(Layer layer) {
+	public Pavement pave(Layer layer) {
 		layersRotations.add((double) layer.getLayerNumber());
-		return new Pattern(new Vector<Bit2D>(), new Vector2(1, 0));
+		return new Pavement(new Vector<Bit2D>(), new Vector2(1, 0));
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class EconomicPattern extends PatternTemplate {
 	@Override
 	public int optimize(Layer actualState) {
 		// Reset the state
-		actualState.setReferentialPattern(new Pattern(new Vector<Bit2D>(), new Vector2(1, 0)));
+		actualState.setReferentialPavement(new Pavement(new Vector<Bit2D>(), new Vector2(1, 0)));
 		// Prepare parameters
 		this.setupTrialLengthOffsets();
 		this.setupTrialHeightOffsets();
@@ -186,7 +186,7 @@ public class EconomicPattern extends PatternTemplate {
 		}
 		// Recreate the referential pattern for this layer
 		if (!overallPavement.isEmpty()) {
-			actualState.setReferentialPattern(new Pattern(overallPavement, new Vector2(1, 0)));
+			actualState.setReferentialPavement(new Pavement(overallPavement, new Vector2(1, 0)));
 			layersRotations.set(actualState.getLayerNumber(), thisLayerRotation);
 			actualState.rebuild();
 			return 0;
@@ -442,11 +442,11 @@ public class EconomicPattern extends PatternTemplate {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pavement,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2)
 	 */
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
 		double distance = 0;
 		if (localDirection.x == 0) {// up or down
 			distance = CraftConfig.bitWidth / 2;
@@ -460,11 +460,11 @@ public class EconomicPattern extends PatternTemplate {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pattern,
+	 * meshIneBits.patterntemplates.PatternTemplate#moveBit(meshIneBits.Pavement,
 	 * meshIneBits.util.Vector2, meshIneBits.util.Vector2, double)
 	 */
 	@Override
-	public Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
+	public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
 		return actualState.moveBit(bitKey, localDirection, distance);
 	}
 
@@ -558,7 +558,7 @@ public class EconomicPattern extends PatternTemplate {
 
 	@Override
 	public String getCommonName() {
-		return "Economic Pattern";
+		return "Economic Pavement";
 	}
 
 	@Override

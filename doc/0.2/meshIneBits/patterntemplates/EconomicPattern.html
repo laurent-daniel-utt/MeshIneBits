@@ -116,9 +116,9 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">EconomicPattern</span>
 extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title="class in meshIneBits.patterntemplates">PatternTemplate</a></pre>
-<div class="block">A pattern which tries optimization not by displacing paved bits but rather
+<div class="block">A pavement which tries optimization not by displacing paved bits but rather
  right from the phase of paving. Therefore, it requires auto-optimization task
- to complete. Note that this pattern does not always return a result because
+ to complete. Note that this pavement does not always return a result because
  once it can not fill a separated zone of the generated part, that whole layer
  will end up failed.</div>
 <dl>
@@ -206,7 +206,7 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/EconomicPattern.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/EconomicPattern.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection)</code>
 <div class="block">Move the bit by the minimum distance automatically calculated.</div>
@@ -214,11 +214,11 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/EconomicPattern.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../meshIneBits/patterntemplates/EconomicPattern.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></span>(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection,
        double&nbsp;distance)</code>
-<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>PatternTemplate.moveBit(Pattern, Vector2, Vector2)</code></a> except the
+<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>PatternTemplate.moveBit(Pattern, Vector2, Vector2)</code></a> except the
  distance is free to decide.</div>
 </td>
 </tr>
@@ -295,7 +295,7 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>layerNumber</code> - an integer not negative</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>a bit-filled pattern</dd>
+<dd>a bit-filled pavement</dd>
 </dl>
 </li>
 </ul>
@@ -318,7 +318,7 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 </dl>
 </li>
 </ul>
-<a name="moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">
+<a name="moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -327,16 +327,16 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 <pre>public&nbsp;<a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;moveBit(<a href="../../meshIneBits/Pattern.html" title="class in meshIneBits">Pattern</a>&nbsp;actualState,
                        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
                        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">PatternTemplate</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">PatternTemplate</a></code></span></div>
 <div class="block">Move the bit by the minimum distance automatically calculated.
  
- The distance depends on the chosen pattern. Realize the move on the input
- pattern.</div>
+ The distance depends on the chosen pavement. Realize the move on the input
+ pavement.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></code>&nbsp;in class&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title="class in meshIneBits.patterntemplates">PatternTemplate</a></code></dd>
+<dd><code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-">moveBit</a></code>&nbsp;in class&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title="class in meshIneBits.patterntemplates">PatternTemplate</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actualState</code> - the actual state of layer which is paved by this pattern
+<dd><code>actualState</code> - the actual state of layer which is paved by this pavement
             template</dd>
 <dd><code>bitKey</code> - the transformed origin of bit</dd>
 <dd><code>localDirection</code> - the direction in the coordinate system of bit</dd>
@@ -345,7 +345,7 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
 </dl>
 </li>
 </ul>
-<a name="moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">
+<a name="moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -355,14 +355,14 @@ extends <a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title=
                        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;bitKey,
                        <a href="../../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;localDirection,
                        double&nbsp;distance)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">PatternTemplate</a></code></span></div>
-<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>PatternTemplate.moveBit(Pattern, Vector2, Vector2)</code></a> except the
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">PatternTemplate</a></code></span></div>
+<div class="block">Similar to <a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-"><code>PatternTemplate.moveBit(Pattern, Vector2, Vector2)</code></a> except the
  distance is free to decide.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pattern-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></code>&nbsp;in class&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title="class in meshIneBits.patterntemplates">PatternTemplate</a></code></dd>
+<dd><code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html#moveBit-meshIneBits.Pavement-meshIneBits.util.Vector2-meshIneBits.util.Vector2-double-">moveBit</a></code>&nbsp;in class&nbsp;<code><a href="../../meshIneBits/patterntemplates/PatternTemplate.html" title="class in meshIneBits.patterntemplates">PatternTemplate</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>actualState</code> - the actual state of layer which is paved by this pattern
+<dd><code>actualState</code> - the actual state of layer which is paved by this pavement
             template</dd>
 <dd><code>bitKey</code> - the transformed origin of bit</dd>
 <dd><code>localDirection</code> - the direction in the coordinate system of bit</dd>
