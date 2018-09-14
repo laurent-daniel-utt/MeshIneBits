@@ -54,7 +54,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
 	private double diffyOffset;
 	private double diffRotation;
 
-	public Pattern createPattern(int layerNumber) {
+	public Pattern pave(Layer layer) {
+		int layerNumber = layer.getLayerNumber();
 		Vector<Bit2D> bits = new Vector<Bit2D>();
 		// Setup parameters
 		bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();

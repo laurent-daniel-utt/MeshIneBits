@@ -28,7 +28,7 @@ import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
 /**
- * This is a factory paving the layers. Use {@link #createPattern(int)} to pave.
+ * This is a factory paving the layers. Use {@link #pave(Layer)} to pave.
  */
 public abstract class PatternTemplate {
 
@@ -86,12 +86,13 @@ public abstract class PatternTemplate {
 	/**
 	 * Construct the layer based on this pattern. This constructor is similar to
 	 * make cake: apply a mould onto flour.
-	 * 
-	 * @param layerNumber
-	 *            an integer not negative
-	 * @return a bit-filled pattern
+	 *
+	 *
+	 * @param layer target to fill {@link meshIneBits.Bit2D} in
+	 * @return a bit-filled surface
+	 * @since 0.4
 	 */
-	public abstract Pattern createPattern(int layerNumber);
+	public abstract Pattern pave(Layer layer);
 
 	/**
 	 * Auto-optimization. Also a constructor who considers completely the layer's
@@ -107,7 +108,8 @@ public abstract class PatternTemplate {
 	 * Move the bit by the minimum distance automatically calculated.
 	 * 
 	 * The distance depends on the chosen pattern. Realize the move on the input
-	 * pattern.
+	 * pattern. Do not use {@link Layer#moveBit(Vector2, Vector2)} here to
+	 * avoid infinite loop
 	 * 
 	 * @param actualState
 	 *            the actual state of layer which is paved by this pattern template
@@ -132,7 +134,7 @@ public abstract class PatternTemplate {
 	 * @param distance
 	 *            an positive real number (in double precision)
 	 * @return the new origin of the moved bit
-	 * @see {@link PatternTemplate#moveBit(Pattern, Vector2, Vector2)}
+	 * @see PatternTemplate#moveBit(Pattern, Vector2, Vector2)
 	 */
 	public abstract Vector2 moveBit(Pattern actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 

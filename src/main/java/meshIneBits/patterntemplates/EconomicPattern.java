@@ -89,10 +89,11 @@ public class EconomicPattern extends PatternTemplate {
 	/**
 	 * This constructor will only leave a blank space. The real job is done in
 	 * {@link #optimize(Layer)}
+	 * @param layer target
 	 */
 	@Override
-	public Pattern createPattern(int layerNumber) {
-		layersRotations.add(layerNumber, null);
+	public Pattern pave(Layer layer) {
+		layersRotations.add((double) layer.getLayerNumber());
 		return new Pattern(new Vector<Bit2D>(), new Vector2(1, 0));
 	}
 

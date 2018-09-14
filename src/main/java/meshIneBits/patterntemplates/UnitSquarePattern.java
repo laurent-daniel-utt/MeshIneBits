@@ -158,9 +158,10 @@ public class UnitSquarePattern extends PatternTemplate {
 	/**
 	 * This constructor will only leave a blank space. The real job is done in
 	 * {@link #optimize(Layer)}
+	 * @param layer target to pave
 	 */
 	@Override
-	public Pattern createPattern(int layerNumber) {
+	public Pattern pave(Layer layer) {
 		return new Pattern(new Vector<>(), new Vector2(1, 0));
 	}
 

@@ -47,7 +47,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 		return skirtRadius;
 	}
 
-	public Pattern createPattern(int layerNumber) {
+	public Pattern pave(Layer layer) {
 		// Setup parameters
 		bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
 		// Start
@@ -65,7 +65,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 		}
 		// in this pattern 1 layer on 2 has a 90° rotation
 		Vector2 rotation = new Vector2(1, 0);
-		if (layerNumber % 2 == 0) {
+		if (layer.getLayerNumber() % 2 == 0) {
 			rotation = new Vector2(0, 1);
 		}
 		return new Pattern(bits, rotation);

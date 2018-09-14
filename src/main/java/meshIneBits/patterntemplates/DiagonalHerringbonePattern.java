@@ -41,7 +41,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 	private double skirtRadius;
 	private double bitsOffset;
 
-	public Pattern createPattern(int layerNumber) {
+	public Pattern pave(Layer layer) {
 		// Setup parameters
 		bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
 		// Start
@@ -53,7 +53,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 				Vector2 originBit;
 				Vector2 orientationBit;
 				double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-				if (layerNumber % 2 == 0) {
+				if (layer.getLayerNumber() % 2 == 0) {
 					layerOffSet = yOffSet;
 				}
 				originBit = new Vector2(i, j + layerOffSet);
@@ -66,7 +66,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 				Vector2 originBit;
 				Vector2 orientationBit;
 				double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-				if (layerNumber % 2 == 0) {
+				if (layer.getLayerNumber() % 2 == 0) {
 					layerOffSet = yOffSet;
 				}
 				originBit = new Vector2(i, j + layerOffSet);

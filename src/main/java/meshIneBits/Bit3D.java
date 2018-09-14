@@ -26,6 +26,7 @@ import java.awt.geom.Path2D;
 import java.util.Vector;
 
 import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
@@ -47,7 +48,7 @@ public class Bit3D {
 	/**
 	 * 2 reasons to have all the included bit2D in parameter : - It is the Bit3D
 	 * itself which determines if it can be build or not, therefore it needs all
-	 * the informations to do so. - The next improvement will be a 3D laser cut
+	 * the information to do so. - The next improvement will be a 3D laser cut
 	 * of the bits, in that scenario every bit2D are necessary to determine the
 	 * 3D shape of the bit
 	 * 
@@ -59,7 +60,7 @@ public class Bit3D {
 	 * @param sliceToSelect
 	 * @throws Exception
 	 */
-	public Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
+	Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
 
 		double maxNumberOfbit2D = bits2D.size();
 		double nbrActualBit2D = 0;
@@ -97,6 +98,16 @@ public class Bit3D {
 		}
 	}
 
+	/**
+	 * Construct bit 3D from horizontal section
+	 *
+	 * @param baseBit     horizontal section of bit
+	 * @param layerBorder layer's boundary
+	 */
+	Bit3D(Bit2D baseBit, Slice layerBorder) {
+		// TODO construct bit 3D from a horizontal section within border of layer
+	}
+
 	private Vector2 computeLiftPoint(Area subBit) {
 		return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
 	}
@@ -105,7 +116,7 @@ public class Bit3D {
 	 * Calculate the lift point, which is the best position to grip
 	 * the bit by vacuuming.
 	 */
-	public void computeLiftPoints() {
+	void computeLiftPoints() {
 		for (Area subBit : bit2dToExtrude.getRawAreas()) {
 			Vector2 liftPoint = computeLiftPoint(subBit);
 			liftPoints.add(liftPoint);
@@ -120,7 +131,7 @@ public class Bit3D {
 		}
 	}
 
-	public Bit2D getBit2dToExtrude() {
+	Bit2D getBit2dToExtrude() {
 		return bit2dToExtrude;
 	}
 

@@ -29,6 +29,8 @@ import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * A layer contains all the bit 3D for a given Z. These bits are organized
@@ -37,265 +39,344 @@ import java.util.*;
  * {@link #referentialPattern} determines the position and orientation of the
  * bits. It is then cloned and shaped to fit the linked {@link Slice}.
  */
-public class Layer extends Observable{
+public class Layer extends Observable {
 
-	private int layerNumber;
-	private Vector<Slice> slices;
-	private Slice horizontalSlice;
-	private Pattern referentialPattern;
-	private PatternTemplate patternTemplate;
-	private Vector<Pattern> patterns = new Vector<Pattern>();
-	private Hashtable<Vector2, Bit3D> mapBits3D;
-	private int sliceToSelect;
+    private int layerNumber;
+    private Vector<Slice> slices;
+    private Slice horizontalSection;
+    private Pattern flatPavement;
+    private Pattern referentialPattern;
+    private PatternTemplate patternTemplate;
+    private Vector<Pattern> patterns = new Vector<>();
+    private Map<Vector2, Bit3D> mapBits3D;
+    private int sliceToSelect;
 
-	public Layer(Vector<Slice> slices, int layerNumber, Mesh mesh) {
-		this.slices = slices;
-		this.layerNumber = layerNumber;
-		this.patternTemplate = mesh.getPatternTemplate();
-		this.referentialPattern = mesh.getPatternTemplate().createPattern(layerNumber);
-		setSliceToSelect(CraftConfig.defaultSliceToSelect);
+    /**
+     * Constructor for multiple slices
+     *
+     * @param slices      possibilities of border
+     * @param layerNumber index
+     * @param mesh        object to print
+     * @deprecated
+     */
+    public Layer(Vector<Slice> slices, int layerNumber, Mesh mesh) {
+        this.slices = slices;
+        this.layerNumber = layerNumber;
+        this.patternTemplate = mesh.getPatternTemplate();
+        this.referentialPattern = mesh.getPatternTemplate().pave(this);
+        setSliceToSelect(CraftConfig.defaultSliceToSelect);
 
-		rebuild();
-	}
+        rebuild();
+    }
 
-	public Layer(int layerNumber, Slice horizontalSlice, PatternTemplate patternTemplate) {
-		this.layerNumber = layerNumber;
-		this.horizontalSlice = horizontalSlice;
-		this.patternTemplate = patternTemplate;
-		// TODO create layer from one slice
-	}
+    /**
+     * Construct new layer given a slice and a parameterized pattern
+     *
+     * @param layerNumber       index of layer
+     * @param horizontalSection projection of mesh onto certain altitude
+     * @param patternTemplate   algorithm of flat pavement
+     * @since 0.4
+     */
+    public Layer(int layerNumber, Slice horizontalSection, PatternTemplate patternTemplate) {
+        this.layerNumber = layerNumber;
+        this.horizontalSection = horizontalSection;
+        this.patternTemplate = patternTemplate;
+        this.flatPavement = patternTemplate.pave(this);
+        rebuild();
+    }
 
-	/* Sort bits according to their X position
-            Used for XML writing
-         */
-	public Vector<Pair<Bit3D, Vector2>> sortBits() {
-		Vector<Pair<Bit3D, Vector2>> keySet = new Vector<Pair<Bit3D, Vector2>>();
-		for (Vector2 key : mapBits3D.keySet()) {
-			for (Vector2 pos : mapBits3D.get(key).getDepositPoints()) {
-				if (pos != null){
-					keySet.add(new Pair<Bit3D, Vector2>(mapBits3D.get(key),pos));
-				}
-			}
-		}
-		Collections.sort(keySet, (v1, v2) -> {
-			if (Double.compare(v1.getValue().x, v2.getValue().x) == 0){
-				return Double.compare(v1.getValue().y, v2.getValue().y);
-			}
-			else {
-				return Double.compare(v1.getValue().x, v2.getValue().x);
-			}
-		});
-		return keySet;
-	}
+    /**
+     * Sort bits according to their X position
+     * Used for XML writing
+     */
+    public Vector<Pair<Bit3D, Vector2>> sortBits() {
+        Vector<Pair<Bit3D, Vector2>> keySet = new Vector<>();
+        for (Vector2 key : mapBits3D.keySet()) {
+            for (Vector2 pos : mapBits3D.get(key).getDepositPoints()) {
+                if (pos != null) {
+                    keySet.add(new Pair<>(mapBits3D.get(key), pos));
+                }
+            }
+        }
+        keySet.sort((v1, v2) -> {
+            if (Double.compare(v1.getValue().x, v2.getValue().x) == 0) {
+                return Double.compare(v1.getValue().y, v2.getValue().y);
+            } else {
+                return Double.compare(v1.getValue().x, v2.getValue().x);
+            }
+        });
+        return keySet;
+    }
 
-	/**
-	 * Add a bit to the {@link #referentialPattern} and call {@link #rebuild}
-	 * which will rebuild all the {@link Pattern} taking in account this new
-	 * bit.
-	 * 
-	 * @param bit
-	 * @return the key of the newly inserted bit
-	 */
-	public Vector2 addBit(Bit2D bit) {
-		Vector2 newKey = referentialPattern.addBit(bit);
-		rebuild();
-		if (this.getBit3D(newKey) == null) {
-			return null;
-		} else {
-			return newKey;
-		}
-	}
+    /**
+     * Add a bit to the {@link #flatPavement} and call {@link #rebuild}
+     * which will reconstruct all the {@link Pattern} taking in account this new
+     * bit.
+     *
+     * @param bit target
+     * @return the key of the newly inserted bit. <tt>null</tt> if out of bound
+     */
+    public Vector2 addBit(Bit2D bit) {
+        Vector2 newKey = flatPavement.addBit(bit);
+        rebuild();
+        if (this.getBit3D(newKey) == null) {
+            return null;
+        } else {
+            return newKey;
+        }
+    }
 
-	private void buildPatterns() {
-		patterns.clear();
-		for (Slice s : slices) {
-			patterns.add(referentialPattern.clone());
-			patterns.lastElement().computeBits(s);
-		}
-	}
+    /**
+     * @deprecated
+     */
+    private void buildPatterns() {
+        patterns.clear();
+        for (Slice s : slices) {
+            patterns.add(referentialPattern.clone());
+            patterns.lastElement().computeBits(s);
+        }
+    }
 
-	private void computeLiftPoints() {
-		for (Vector2 key : getBits3dKeys()) {
-			mapBits3D.get(key).computeLiftPoints();
-		}
-	}
+    /**
+     * Computer lift points after extruding 3D bits
+     */
+    private void computeLiftPoints() {
+        for (Vector2 key : getBits3dKeys()) {
+            mapBits3D.get(key).computeLiftPoints();
+        }
+    }
 
-	/**
-	 * Build the {@link Bit3D} from all the {@link Bit2D} contained in the
-	 * {@link Pattern}.
-	 */
-	private void generateBits3D() {
-		mapBits3D = new Hashtable<Vector2, Bit3D>();
-		Vector<Bit2D> bitsToInclude = new Vector<Bit2D>();
+    /**
+     * Build the {@link Bit3D} from all the {@link Bit2D} contained in the
+     * {@link Pattern}.
+     *
+     * @deprecated
+     */
+    private void generateBits3D() {
+        mapBits3D = new Hashtable<>();
+        Vector<Bit2D> bitsToInclude = new Vector<>();
 
-		for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
-			for (Pattern pattern : patterns) {
-				if (pattern.getBitsKeys().contains(bitKey)) {
-					bitsToInclude.add(pattern.getBit(bitKey));
-				} else {
-					bitsToInclude.add(null);
-				}
-			}
+        for (Vector2 bitKey : referentialPattern.getBitsKeys()) {
+            for (Pattern pattern : patterns) {
+                if (pattern.getBitsKeys().contains(bitKey)) {
+                    bitsToInclude.add(pattern.getBit(bitKey));
+                } else {
+                    bitsToInclude.add(null);
+                }
+            }
 
-			for (int i = 0; i < bitsToInclude.size(); i++) {
-				if (bitsToInclude.get(i) != null) {
-					Bit3D newBit;
-					try {
-						newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)),
-								sliceToSelect);
-						mapBits3D.put(bitKey, newBit);
-					} catch (Exception e) {
-						if ((e.getMessage() != "This bit does not contain enough bit 2D in it")
-								&& (e.getMessage() != "The slice to select does not exist in that bit")) {
-							e.printStackTrace();
-						}
-					}
-					break;
-				}
-			}
+            for (int i = 0; i < bitsToInclude.size(); i++) {
+                if (bitsToInclude.get(i) != null) {
+                    Bit3D newBit;
+                    try {
+                        newBit = new Bit3D(bitsToInclude, bitKey, getNewOrientation(bitsToInclude.get(i)),
+                                sliceToSelect);
+                        mapBits3D.put(bitKey, newBit);
+                    } catch (Exception e) {
+                        if ((e.getMessage() != "This bit does not contain enough bit 2D in it")
+                                && (e.getMessage() != "The slice to select does not exist in that bit")) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                }
+            }
 
-			bitsToInclude.clear();
+            bitsToInclude.clear();
 
-		}
-	}
+        }
+    }
 
-	public Bit3D getBit3D(Vector2 key) {
-		return mapBits3D.get(key);
-	}
+    /**
+     * Inflate 2D paved bits into 3D shapes
+     *
+     * @since 0.4
+     */
+    private void extrudeBitsTo3D() {
+        mapBits3D = flatPavement.getBitsKeys().parallelStream()
+                .collect(Collectors.toConcurrentMap(key -> key,
+                        key -> new Bit3D(flatPavement.getBit((Vector2) key), horizontalSection)
+                        , (u, v) -> u, ConcurrentHashMap::new));
+    }
 
-	public Vector<Vector2> getBits3dKeys() {
-		return new Vector<>(mapBits3D.keySet());
-	}
+    /**
+     * @param key bit origin in 2D plan
+     * @return extruded version of bit 2D
+     */
+    public Bit3D getBit3D(Vector2 key) {
+        return mapBits3D.get(key);
+    }
 
-	public int getLayerNumber() {
-		return layerNumber;
-	}
+    public Vector<Vector2> getBits3dKeys() {
+        return new Vector<>(mapBits3D.keySet());
+    }
 
-	private Vector2 getNewOrientation(Bit2D bit) {
-		AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
+    /**
+     * @return index of layer
+     */
+    public int getLayerNumber() {
+        return layerNumber;
+    }
+
+    /**
+     * @param bit inside pavement
+     * @return orientation in layer's coordinate system
+     * @deprecated
+     */
+    private Vector2 getNewOrientation(Bit2D bit) {
+        AffineTransform patternAffTrans = (AffineTransform) referentialPattern.getAffineTransform().clone();
 //		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
-		return bit.getOrientation().getTransformed(patternAffTrans);
-	}
+        return bit.getOrientation().getTransformed(patternAffTrans);
+    }
 
-	public Vector<Pattern> getPatterns() {
-		return this.patterns;
-	}
+    /**
+     * @return all possible pavements basing on boundaries
+     * @deprecated
+     */
+    public Vector<Pattern> getPatterns() {
+        return this.patterns;
+    }
 
-	public Vector<Slice> getSlices() {
-		return this.slices;
-	}
+    /**
+     * @return all possible boundaries
+     * @deprecated
+     */
+    public Vector<Slice> getSlices() {
+        return this.slices;
+    }
 
-	/**
-	 * @return the index of selected slice
-	 */
-	public int getSliceToSelect() {
-		return sliceToSelect;
-	}
+    /**
+     * @return the index of selected slice
+     * @deprecated
+     */
+    public int getSliceToSelect() {
+        return sliceToSelect;
+    }
 
-	/**
-	 * @return the selected pattern
-	 */
-	public Pattern getSelectedPattern() {
-		return this.patterns.get(sliceToSelect);
-	}
+    /**
+     * @return the selected pattern
+     * @deprecated
+     */
+    public Pattern getSelectedPattern() {
+        return this.patterns.get(sliceToSelect);
+    }
 
-	/**
-	 * @return the slice corresponding to the selected pattern
-	 */
-	public Slice getSelectedSlice() {
-		return this.slices.elementAt(sliceToSelect);
-	}
+    /**
+     * @return the slice corresponding to the selected pattern
+     * @deprecated
+     */
+    public Slice getSelectedSlice() {
+        return this.slices.elementAt(sliceToSelect);
+    }
 
-	/**
-	 * Move a bit. The distance of displacement will be determined in dependence
-	 * on the pattern template.
-	 * 
-	 * @param bitKey
-	 * @param direction
-	 *            the direction in local coordinate system of the bit
-	 * @return the new origin of the moved bit
-	 */
-	public Vector2 moveBit(Vector2 bitKey, Vector2 direction) {
-		Vector2 newCoor = patternTemplate.moveBit(referentialPattern, bitKey, direction);
-		rebuild();
-		return newCoor;
-	}
+    /**
+     * Move a bit. The distance of displacement will be determined in dependence
+     * on the pattern template. Not use in quick succession because after each
+     * move, the layer will be recalculated, slowing the process
+     *
+     * @param bitKey    origin of bit
+     * @param direction the direction in local coordinate system of the bit
+     * @return the new origin of the moved bit
+     */
+    public Vector2 moveBit(Vector2 bitKey, Vector2 direction) {
+        Vector2 newCoordinate = patternTemplate.moveBit(flatPavement, bitKey, direction);
+        rebuild();
+        return newCoordinate;
+    }
 
-	/**
-	 * Rebuild the whole layer. To be called after every changes made on this
-	 * layer
-	 */
-	public void rebuild() {
-		buildPatterns();
-		generateBits3D();
-		computeLiftPoints();
-		setChanged();
-		notifyObservers();
-	}
+    /**
+     * Rebuild the whole layer. To be called after every changes made on this
+     * layer
+     */
+    public void rebuild() {
+//		buildPatterns();
+//      generateBits3D();
+        extrudeBitsTo3D();
+        computeLiftPoints();
+        setChanged();
+        notifyObservers();
+    }
 
-	/**
-	 * Remove a bit
-	 * 
-	 * @param key
-	 */
-	private void removeBit(Vector2 key) {
-		referentialPattern.removeBit(key);
-		rebuild();
-	}
+    /**
+     * Remove a bit. Not use in quick succession because after each
+     * move, the layer will be recalculated, slowing the process
+     *
+     * @param key origin of bit in 2D plan
+     */
+    private void removeBit(Vector2 key) {
+        flatPavement.removeBit(key);
+        rebuild();
+    }
 
-	/**
-	 * Scale a bit
-	 * 
-	 * @param bit
-	 * @param percentageLength
-	 * @param percentageWidth
-	 * @return the key of the replaced bit. If <tt>percentageLength</tt> or
-	 *         <tt>percentageWidth</tt> is 0, the bit will be removed instead.
-	 */
-	public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
-		Bit2D modelBit = bit.getBit2dToExtrude();
-		removeBit(bit.getOrigin());
-		if (percentageLength != 0 && percentageWidth != 0) {
-			Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
-			return addBit(newBit);
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Scale a bit
+     *
+     * @param bit              extruded bit
+     * @param percentageLength 0 to 100
+     * @param percentageWidth  0 to 100
+     * @return the key of the replaced bit. If <tt>percentageLength</tt> or
+     * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
+     */
+    public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
+        Bit2D modelBit = bit.getBit2dToExtrude();
+        removeBit(bit.getOrigin());
+        if (percentageLength != 0 && percentageWidth != 0) {
+            Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
+            return addBit(newBit);
+        } else {
+            return null;
+        }
+    }
 
-	/**
-	 * Only for default slice to select
-	 * 
-	 * @param percentageOfHeight
-	 */
-	private void setSliceToSelect(double percentageOfHeight) {
-		sliceToSelect = (int) Math.round((percentageOfHeight / 100) * (slices.size() - 1));
-	}
+    /**
+     * Only for default slice to select
+     *
+     * @param percentageOfHeight >0 and <=100
+     * @deprecated
+     */
+    private void setSliceToSelect(double percentageOfHeight) {
+        sliceToSelect = (int) Math.round((percentageOfHeight / 100) * (slices.size() - 1));
+    }
 
-	public void setSliceToSelect(int sliceNbr) {
-		if ((sliceNbr >= 0) && (sliceNbr < slices.size())) {
-			sliceToSelect = sliceNbr;
-			rebuild();
-		}
-	}
+    /**
+     * @param sliceNbr index
+     * @deprecated
+     */
+    public void setSliceToSelect(int sliceNbr) {
+        if ((sliceNbr >= 0) && (sliceNbr < slices.size())) {
+            sliceToSelect = sliceNbr;
+            rebuild();
+        }
+    }
 
-	/**
-	 * @return the patternTemplate
-	 */
-	public PatternTemplate getPatternTemplate() {
-		return patternTemplate;
-	}
+    /**
+     * @return the patternTemplate
+     */
+    public PatternTemplate getPatternTemplate() {
+        return patternTemplate;
+    }
 
-	/**
-	 * @param patternTemplate
-	 *            the patternTemplate to set
-	 */
-	public void setPatternTemplate(PatternTemplate patternTemplate) {
-		this.patternTemplate = patternTemplate;
-	}
+    /**
+     * @param patternTemplate the patternTemplate to set
+     */
+    public void setPatternTemplate(PatternTemplate patternTemplate) {
+        this.patternTemplate = patternTemplate;
+    }
 
-	public void setReferentialPattern(Pattern referentialPattern) {
-		this.referentialPattern = referentialPattern;
-	}
+    /**
+     * @param referentialPattern base pavement
+     * @deprecated
+     */
+    public void setReferentialPattern(Pattern referentialPattern) {
+        this.referentialPattern = referentialPattern;
+    }
 
+    /**
+     * Change the whole current pavement
+     *
+     * @param newFlatPavement new base pavement
+     */
+    public void setFlatPavement(Pattern newFlatPavement) {
+        this.flatPavement = newFlatPavement;
+    }
 }
