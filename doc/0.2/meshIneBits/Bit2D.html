@@ -167,8 +167,8 @@ implements java.lang.Cloneable</pre>
      <a href="../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;orientation,
      double&nbsp;length,
      double&nbsp;width,
-     java.awt.geom.AffineTransform&nbsp;transfoMatrix,
-     java.awt.geom.AffineTransform&nbsp;inverseTransfoMatrix,
+    java.awt.geom.AffineTransform&nbsp;transformMatrix,
+    java.awt.geom.AffineTransform&nbsp;inverseTransformMatrix,
      java.util.Vector&lt;java.awt.geom.Path2D&gt;&nbsp;cutPaths,
      java.util.Vector&lt;java.awt.geom.Area&gt;&nbsp;areas)</code>
 <div class="block">Constructor for cloning</div>
@@ -366,8 +366,8 @@ implements java.lang.Cloneable</pre>
              <a href="../meshIneBits/util/Vector2.html" title="class in meshIneBits.util">Vector2</a>&nbsp;orientation,
              double&nbsp;length,
              double&nbsp;width,
-             java.awt.geom.AffineTransform&nbsp;transfoMatrix,
-             java.awt.geom.AffineTransform&nbsp;inverseTransfoMatrix,
+             java.awt.geom.AffineTransform&nbsp;transformMatrix,
+             java.awt.geom.AffineTransform&nbsp;inverseTransformMatrix,
              java.util.Vector&lt;java.awt.geom.Path2D&gt;&nbsp;cutPaths,
              java.util.Vector&lt;java.awt.geom.Area&gt;&nbsp;areas)</pre>
 <div class="block">Constructor for cloning</div>
@@ -377,8 +377,8 @@ implements java.lang.Cloneable</pre>
 <dd><code>orientation</code> - rotation of the bit</dd>
 <dd><code>length</code> - length of the bit</dd>
 <dd><code>width</code> - width of the bit</dd>
-<dd><code>transfoMatrix</code> - transformation to be applied</dd>
-<dd><code>inverseTransfoMatrix</code> - inversion of <tt>transfoMatrix</tt></dd>
+    <dd><code>transformMatrix</code> - transformation to be applied</dd>
+    <dd><code>inverseTransformMatrix</code> - inversion of <tt>transformMatrix</tt></dd>
 <dd><code>cutPaths</code> - where to cut this bit</dd>
 <dd><code>areas</code> - set of non intersected areas</dd>
 </dl>
@@ -415,7 +415,7 @@ implements java.lang.Cloneable</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the union of all surfaces making this bit transformed by
-         <tt>transfoMatrix</tt></dd>
+    <tt>transformMatrix</tt></dd>
 </dl>
 </li>
 </ul>
@@ -635,7 +635,7 @@ implements java.lang.Cloneable</pre>
 <dd><code>transformation</code> - a combination of affine transformation</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a new bit with same geometric with initial one transformed by
-         <tt>transfoMatrix</tt></dd>
+    <tt>transformMatrix</tt></dd>
 </dl>
 </li>
 </ul>

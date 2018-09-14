@@ -173,8 +173,8 @@ public class Layer extends Observable {
                                 sliceToSelect);
                         mapBits3D.put(bitKey, newBit);
                     } catch (Exception e) {
-                        if ((e.getMessage() != "This bit does not contain enough bit 2D in it")
-                                && (e.getMessage() != "The slice to select does not exist in that bit")) {
+                        if ((!e.getMessage().equals("This bit does not contain enough bit 2D in it"))
+                                && (!e.getMessage().equals("The slice to select does not exist in that bit"))) {
                             e.printStackTrace();
                         }
                     }
@@ -255,18 +255,34 @@ public class Layer extends Observable {
 
     /**
      * @return the selected pattern
-     * @deprecated
+     * @deprecated replaced by {@link #getFlatPavement()}
      */
     public Pavement getSelectedPattern() {
         return this.pavements.get(sliceToSelect);
     }
 
     /**
+     * @return current pavement
+     * @since 0.4
+     */
+    public Pavement getFlatPavement() {
+        return flatPavement;
+    }
+
+    /**
      * @return the slice corresponding to the selected pattern
-     * @deprecated
+     * @deprecated replaced by {@link #getHorizontalSection()}
      */
     public Slice getSelectedSlice() {
         return this.slices.elementAt(sliceToSelect);
+    }
+
+    /**
+     * @return the boundary of layer
+     * @since 0.4
+     */
+    public Slice getHorizontalSection() {
+        return horizontalSection;
     }
 
     /**
