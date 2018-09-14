@@ -38,8 +38,8 @@ public class Segment2D extends AABBrect {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Vector<Vector<Segment2D>> segregateSegments(Vector<Segment2D> segments) {
-		Vector<Vector<Segment2D>> segregateSegments = new Vector<Vector<Segment2D>>();
-		Vector<Segment2D> currentLine = new Vector<Segment2D>();
+		Vector<Vector<Segment2D>> segregateSegments = new Vector<>();
+		Vector<Segment2D> currentLine = new Vector<>();
 
 		Segment2D nextSegment;
 

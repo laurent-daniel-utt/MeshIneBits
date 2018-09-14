@@ -197,7 +197,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		builder = new Builder(this);
 		setCloseOperation();
-		shapeMap = new Vector<Pair<Position, PShape>>();
+		shapeMap = new Vector<>();
 		shape = createShape(GROUP);
 		builder.buildShape(MODEL, shape);
 		cp5 = new ControlP5(this);

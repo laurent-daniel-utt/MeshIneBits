@@ -129,6 +129,7 @@ public class Layer extends Observable {
     /**
      * @deprecated
      */
+    @SuppressWarnings("unused")
     private void buildPatterns() {
         pavements.clear();
         for (Slice s : slices) {
@@ -152,6 +153,7 @@ public class Layer extends Observable {
      *
      * @deprecated
      */
+    @SuppressWarnings("unused")
     private void generateBits3D() {
         mapBits3D = new Hashtable<>();
         Vector<Bit2D> bitsToInclude = new Vector<>();

@@ -49,7 +49,7 @@ public class SliceTool extends Observable implements Runnable {
     private Model model;
     private Thread t;
     private Mesh mesh;
-    private Vector<Slice> slices = new Vector<Slice>();
+    private Vector<Slice> slices = new Vector<>();
 
     /**
      * SliceTool register itself to a {@link Mesh}, which is updated when the slicing is finished.

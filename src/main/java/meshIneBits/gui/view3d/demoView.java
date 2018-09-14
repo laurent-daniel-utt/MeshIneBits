@@ -141,7 +141,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         scene.setRadius(2500);
         scene.showAll();
         scene.disableKeyboardAgent();
-        shapeMap = new Vector<Pair<Position, PShape>>();
+        shapeMap = new Vector<>();
         builder = new Builder(this);
         try {
             builder.buildBits(shapeMap);

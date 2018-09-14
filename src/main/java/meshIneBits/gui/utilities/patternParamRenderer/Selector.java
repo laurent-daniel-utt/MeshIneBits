@@ -73,7 +73,7 @@ public class Selector extends Renderer {
 		this.add(lblName, BorderLayout.WEST);
 		
 		// Choices
-		options = new JComboBox<String>((String[]) config.getChoices().toArray());
+		options = new JComboBox<>((String[]) config.getChoices().toArray());
 		options.setSelectedItem(config.getDefaultValue());
 		options.addActionListener(e -> {
 			// Update config

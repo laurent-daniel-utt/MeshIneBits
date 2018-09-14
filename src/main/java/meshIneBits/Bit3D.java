@@ -32,7 +32,7 @@ import meshIneBits.util.Vector2;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
- * extrusion of a {@link Bit2D} : the {@link bit2dToExtrude}
+ * extrusion of a {@link Bit2D}
  *
  */
 public class Bit3D {
@@ -42,8 +42,8 @@ public class Bit3D {
 							// general coordinate system
 	private Vector2 orientation; // Rotation around its local origin point
 	private Bit2D bit2dToExtrude;
-	private Vector<Vector2> liftPoints = new Vector<Vector2>();
-	private Vector<Vector2> depositPoints = new Vector<Vector2>();
+	private Vector<Vector2> liftPoints = new Vector<>();
+	private Vector<Vector2> depositPoints = new Vector<>();
 
 	/**
 	 * 2 reasons to have all the included bit2D in parameter : - It is the Bit3D
@@ -54,11 +54,11 @@ public class Bit3D {
 	 * 
 	 * Refer to the report for an explanation on the parameter sliceToSelect.
 	 * 
-	 * @param bits2D
-	 * @param origin
-	 * @param orientation
-	 * @param sliceToSelect
-	 * @throws Exception
+	 * @param bits2D all horizontal sections
+	 * @param origin on selected slice
+	 * @param orientation in its own coordinate system
+	 * @param sliceToSelect representative slice to build
+	 * @throws Exception when not enough slices or out of boundary
 	 */
 	Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
 

@@ -185,15 +185,9 @@ public class Mesh extends Observable implements Observer {
         optimizer.detectIrregularBits();
     }
 
-    private void setPatternTemplate() {
-        patternTemplate = CraftConfig.templateChoice;
-        patternTemplate.ready(this);
-    }
-
     /**
      * skirtRadius is the radius of the cylinder that fully contains the part.
      */
-
     private void setSkirtRadius() {
 
         double radius = 0;

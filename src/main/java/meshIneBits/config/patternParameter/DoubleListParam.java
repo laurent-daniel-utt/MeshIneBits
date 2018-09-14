@@ -188,7 +188,7 @@ public class DoubleListParam extends PatternParameter {
 	 *            {@link #filter(Double)}
 	 */
 	private void setDefault(List<Double> l) {
-		this.defaultValue = new ArrayList<Double>();
+		this.defaultValue = new ArrayList<>();
 		for (Double d : l) {
 			this.defaultValue.add(filter(d));
 		}

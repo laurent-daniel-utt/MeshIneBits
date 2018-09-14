@@ -43,12 +43,12 @@ public class EconomicPatternIntegrityTest extends PatternIntegrityTest {
 	}
 
 	@Override
-	protected void checkSlicedPart() {
+    void checkSlicedPart() {
 		// Nothing to check
 	}
 
 	@Override
-	protected void checkGeneratedPart() {
+    void checkGeneratedPart() {
 		for (Layer layer : part.getLayers()) {
 			// Assure each layer is empty
 			assertEquals(0, layer.getSelectedPattern().getBitsKeys().size(),

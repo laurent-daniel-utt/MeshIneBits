@@ -107,7 +107,7 @@ class Builder extends PApplet implements Observer {
         Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - CraftConfig.bitLength, cornerUpRight.y);
         Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.bitLength, cornerDownRight.y);
 
-        Vector<int[]> pointList = new Vector<int[]>();
+        Vector<int[]> pointList = new Vector<>();
         pointList.add(new int[] { (int) cornerUpRight.x, (int) cornerUpRight.y, 0 });
         pointList.add(new int[] { (int) cornerDownRight.x, (int) cornerDownRight.y, 0 });
         pointList.add(new int[] { (int) cornerDownLeft.x, (int) cornerDownLeft.y, 0 });
@@ -136,7 +136,7 @@ class Builder extends PApplet implements Observer {
         if (segmentList == null)
             return null;
 
-        Vector<int[]> pointList = new Vector<int[]>();
+        Vector<int[]> pointList = new Vector<>();
         for (Segment2D s : segmentList) {
             pointList.add(new int[] { (int) Math.round(s.start.x), (int) Math.round(s.start.y), 0 });
             pointList.add(new int[] { (int) Math.round(s.end.x), (int) Math.round(s.end.y), 0 });

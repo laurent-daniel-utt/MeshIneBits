@@ -171,7 +171,7 @@ public class XmlTool {
 
 	private void writeCutPaths(Path2D p) {
 
-		Vector<double[]> points = new Vector<double[]>();
+		Vector<double[]> points = new Vector<>();
 		for (PathIterator pi = p.getPathIterator(null); !pi.isDone(); pi.next()) {
 			double[] coords = new double[6];
 			int type = pi.currentSegment(coords);
@@ -180,7 +180,7 @@ public class XmlTool {
 		}
 
 		boolean waitingForMoveTo = true;
-		Vector<double[]> pointsToAdd = new Vector<double[]>();
+		Vector<double[]> pointsToAdd = new Vector<>();
 		for (double[] point : points) {
 			if ((point[0] == PathIterator.SEG_LINETO) && waitingForMoveTo) {
 				pointsToAdd.add(point);

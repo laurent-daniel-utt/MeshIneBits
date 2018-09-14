@@ -59,7 +59,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	 * is the number of layer and the corresponding value is all irregular bits
 	 * in the layer's selected slice.
 	 */
-	private HashMap<Integer, Vector<Vector2>> irregularBits = new HashMap<Integer, Vector<Vector2>>();
+	private HashMap<Integer, Vector<Vector2>> irregularBits = new HashMap<>();
 
 	/**
 	 * Basic constructor, used in the running of
@@ -90,7 +90,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
 	private void optimizeGeneratedPart() {
 		int progressGoal = layers.size();
 		int irregularitiesRest = 0;
-		ArrayList<Integer> unsolvedLayers = new ArrayList<Integer>();
+		ArrayList<Integer> unsolvedLayers = new ArrayList<>();
 		Logger.updateStatus("Optimizing the generated part.");
 		for (int j = 0; j < layers.size(); j++) {
 			Logger.setProgress(j + 1, progressGoal);

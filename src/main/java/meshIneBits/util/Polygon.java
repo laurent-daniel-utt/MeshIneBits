@@ -269,8 +269,8 @@ public class Polygon implements Iterable<Segment2D> {
 		if (_path2D != null)
 			return _path2D;
 		// If not created
-		Vector<Double> x = new Vector<Double>();
-		Vector<Double> y = new Vector<Double>();
+		Vector<Double> x = new Vector<>();
+		Vector<Double> y = new Vector<>();
 		for (Segment2D s : this) {
 			x.add(s.start.x);
 			y.add(s.start.y);

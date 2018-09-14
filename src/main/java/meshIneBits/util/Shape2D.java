@@ -38,9 +38,9 @@ import java.util.Vector;
  * <br><img src="./doc-files/polygone.png" alt="">
  */
 public class Shape2D implements Iterable<Polygon> {
-	private Vector<Segment2D> segmentList = new Vector<Segment2D>();
-	Vector<Polygon> polygons = new Vector<Polygon>();
-	private AABBTree<Segment2D> segmentTree = new AABBTree<Segment2D>(); // The Tree2D allows a fast query of all objects in an area.
+	private Vector<Segment2D> segmentList = new Vector<>();
+	Vector<Polygon> polygons = new Vector<>();
+	private AABBTree<Segment2D> segmentTree = new AABBTree<>(); // The Tree2D allows a fast query of all objects in an area.
 
 	protected Shape2D() {
 
@@ -140,7 +140,7 @@ public class Shape2D implements Iterable<Polygon> {
 		}
 
 		boolean manifoldErrorReported = false;
-		HashSet<Segment2D> tmpSet = new HashSet<Segment2D>(segmentList);
+		HashSet<Segment2D> tmpSet = new HashSet<>(segmentList);
 		while (tmpSet.size() > 0) {
 			Segment2D start = tmpSet.iterator().next();
 			boolean manifold = false;

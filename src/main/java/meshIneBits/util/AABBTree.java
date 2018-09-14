@@ -36,7 +36,7 @@ public class AABBTree<T extends AABBrect> {
 
 		Tree2Diterator(AABBrect area) {
 			this.area = area;
-			stack = new Stack<TreeNode>();
+			stack = new Stack<>();
 			if (root != null) {
 				stack.add(root);
 			}

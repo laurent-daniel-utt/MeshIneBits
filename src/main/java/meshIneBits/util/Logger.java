@@ -36,7 +36,7 @@ import java.util.logging.SimpleFormatter;
  */
 public class Logger {
 	
-	private static HashSet<LoggingInterface> loggers = new HashSet<LoggingInterface>();
+	private static HashSet<LoggingInterface> loggers = new HashSet<>();
 
 	public static void error(String error) {
 		System.err.println(error);

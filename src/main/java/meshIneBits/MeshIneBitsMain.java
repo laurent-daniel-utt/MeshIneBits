@@ -31,7 +31,7 @@ import meshIneBits.gui.MainWindow;
  * @see CraftConfigLoader
  * @see Mesh
  */
-public class MeshIneBitsMain {
+class MeshIneBitsMain {
 	/**
 	 * The Main method is the entry point of the program.
 	 * 

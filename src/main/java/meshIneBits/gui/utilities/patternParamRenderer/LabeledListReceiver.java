@@ -112,9 +112,9 @@ public class LabeledListReceiver extends Renderer {
 
 	private List<Double> parseToList(String s) {
 		if (s == null)
-			return new ArrayList<Double>();
+			return new ArrayList<>();
 		String[] values = s.split(delimiter, 0);
-		ArrayList<Double> list = new ArrayList<Double>();
+		ArrayList<Double> list = new ArrayList<>();
 		for (int i = 0; i < values.length; i++) {
 			try {
 				list.add(Double.valueOf(values[i]));

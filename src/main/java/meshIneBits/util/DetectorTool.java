@@ -44,7 +44,7 @@ public class DetectorTool {
 	 * @return all irregular bits in the given layer
 	 */
 	public static Vector<Vector2> detectIrregularBits(Pavement pavement) {
-		Vector<Vector2> result = new Vector<Vector2>();
+		Vector<Vector2> result = new Vector<>();
 		for (Vector2 bitKey : pavement.getBitsKeys()) {
 			Bit2D bit = pavement.getBit(bitKey);
 			if (checkIrregular(bit)) {

@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Quoc Nhat Han TRAN
  *
  */
-public abstract class PatternIntegrityTest {
+abstract class PatternIntegrityTest {
 	/**
 	 * Initialize this logger when subclass
 	 */

@@ -43,7 +43,7 @@ public class AreaTool {
 		Vector<Segment2D> segments = getLargestPolygon(area);
 		if (segments == null) return null;
 
-		Vector<Vector2> vertices = new Vector<Vector2>();
+		Vector<Vector2> vertices = new Vector<>();
 		for (Segment2D s : segments) {
 				vertices.add(s.start);
 				vertices.addElement(s.end);
@@ -110,7 +110,7 @@ public class AreaTool {
 	public static Vector<Segment2D> getLargestPolygon(Area area) {
 		Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
 		if (segments.isEmpty()) return null;
-		Vector<Double> boundLength = new Vector<Double>();
+		Vector<Double> boundLength = new Vector<>();
 		for (Vector<Segment2D> poly : segments) {
 			double length = 0;
 			for (Segment2D s : poly) {
@@ -132,7 +132,7 @@ public class AreaTool {
 	 * @return All the constraint areas that do not contain any others
 	 */
 	public static Vector<Area> getLevel0AreasFrom(Shape2D shape) {
-		Vector<Area> areas = new Vector<Area>();
+		Vector<Area> areas = new Vector<>();
 		for (Polygon p : shape) {
 			areas.add(getAreaFrom(p));
 		}
@@ -154,7 +154,7 @@ public class AreaTool {
 			return null;
 		}
 
-		Vector<Vector<Area>> areasByLevel = new Vector<Vector<Area>>();
+		Vector<Vector<Area>> areasByLevel = new Vector<>();
 		// We fill the vector with null values, it cannot have more levels than
 		// areas
 		for (@SuppressWarnings("unused")
@@ -192,7 +192,7 @@ public class AreaTool {
 			if (areasByLevel.get(levelCurrentArea) == null) {
 				for (int i = 0; i <= levelCurrentArea; i++) {
 					if (areasByLevel.get(i) == null) {
-						areasByLevel.set(i, new Vector<Area>());
+						areasByLevel.set(i, new Vector<>());
 					}
 				}
 			}
@@ -372,7 +372,7 @@ public class AreaTool {
 		double startY = bounds.getMinY();
 		double endX = bounds.getMaxX();
 		double endY = bounds.getMaxY();
-		Vector<Vector2> points = new Vector<Vector2>();
+		Vector<Vector2> points = new Vector<>();
 		for (double x = startX; x <= endX; x += stepX) {
 			for (double y = startY; y <= endY; y += stepY) {
 				Vector2 point = new Vector2(x, y);
@@ -388,8 +388,8 @@ public class AreaTool {
 
 		// We sort the points by their distance from the barycenter, the smaller
 		// distances on top
-		Vector<Double> distances = new Vector<Double>();
-		Vector<Vector2> sortedPoints = new Vector<Vector2>();
+		Vector<Double> distances = new Vector<>();
+		Vector<Vector2> sortedPoints = new Vector<>();
 		distances.add(Math.sqrt(Vector2.dist2(new Vector2(points.get(0).x, points.get(0).y), barycenter)));
 		sortedPoints.add(points.get(0));
 		for (int j = 1; j < points.size(); j++) {
@@ -438,7 +438,7 @@ public class AreaTool {
 	 * link</a>.
 	 */
 	public static Vector<Vector<Segment2D>> getSegmentsFrom(Area area) {
-		Vector<double[]> areaPoints = new Vector<double[]>();
+		Vector<double[]> areaPoints = new Vector<>();
 
 		double[] coords = new double[6];
 		int polygonCount = 0;
@@ -457,10 +457,10 @@ public class AreaTool {
 
 		double[] start = new double[3]; // To record where each polygon starts
 
-		Vector<Vector<Segment2D>> polygons = new Vector<Vector<Segment2D>>(polygonCount);
+		Vector<Vector<Segment2D>> polygons = new Vector<>(polygonCount);
 
 		for (int i = 0; i < polygonCount; i++) {
-			polygons.add(new Vector<Segment2D>());
+			polygons.add(new Vector<>());
 		}
 		int currentPolygonIndex = 0;
 
@@ -529,7 +529,7 @@ public class AreaTool {
 	public static Vector<Area> segregateArea(Area area) {
 
 		Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(area);
-		Vector<Area> segregatedAreas = new Vector<Area>();
+		Vector<Area> segregatedAreas = new Vector<>();
 
 		for (Vector<Segment2D> pathLine : polygons) {
 			Path2D path2D = new Path2D.Double();
