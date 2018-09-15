@@ -40,12 +40,12 @@ public class ClassicPatternIntegrityTest extends PatternIntegrityTest {
 	}
 
 	@Override
-    void checkSlicedPart() {
+	protected void checkSlicedPart() {
 		// Nothing to check
 	}
 
 	@Override
-    void checkGeneratedPart() {
+	protected void checkGeneratedPart() {
 	}
 
 }

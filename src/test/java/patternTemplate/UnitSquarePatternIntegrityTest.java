@@ -48,12 +48,12 @@ public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 	}
 
 	@Override
-    void checkSlicedPart() {
+	protected void checkSlicedPart() {
 		// Nothing to check
 	}
 
 	@Override
-    void checkGeneratedPart() {
+	protected void checkGeneratedPart() {
 		for (Layer layer : part.getLayers()) {
 			// Assure each layer is empty
 			assertEquals(0, layer.getSelectedPattern().getBitsKeys().size(),
