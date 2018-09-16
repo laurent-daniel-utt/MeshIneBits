@@ -38,7 +38,7 @@ import meshIneBits.patterntemplates.EconomicPattern;
  * NOTE: Do not auto format this file. Manual format keeps it readable!
  */
 public class CraftConfig {
-    public static final String VERSION = "Dev-Prerelease";
+    static final String VERSION = "Dev-Prerelease";
 
     // Slicer options
 
@@ -51,8 +51,14 @@ public class CraftConfig {
     )
     public static double sliceHeight = 2;
 
+    @Setting(title = "Space between layers",
+            description = "The vertical gap between each layers (in mm)",
+            step = 0.01, minValue = 0.01, maxValue = 100.0
+    )
+    public static double layersOffset = 0.25;
+
     @Setting(title = "First slice height",
-            description = "Starting height of the first slice in the model (in %). 50% is the default.",
+            description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
             minValue = 1.0, maxValue = 99.0
     )
     public static double firstSliceHeightPercent = 50;
@@ -152,22 +158,19 @@ public class CraftConfig {
 
     // Layer computation
 
-    @Setting(title = "Space between layers",
-            description = "The vertical gap between each layers (in mm)",
-            minValue = 1.0, maxValue = 100.0
-    )
-    public static double layersOffset = 1;
 
     @Setting(title = "Min % of slices in a bit3D",
             description = "Minimum percentage of number slices in a bit3D (%)",
             minValue = 1.0, maxValue = 100.0
     )
+    @Deprecated
     public static double minPercentageOfSlices = 50.0;
 
     @Setting(title = "Default slice to select",
             description = "Default slice to select (in % of bit height) in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
             minValue = 0.0, maxValue = 100.0
     )
+    @Deprecated
     public static double defaultSliceToSelect = 50.0;
 
     @Setting(title = "Suction cup diameter",

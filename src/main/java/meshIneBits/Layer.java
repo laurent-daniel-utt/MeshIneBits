@@ -197,7 +197,11 @@ public class Layer extends Observable {
     private void extrudeBitsTo3D() {
         mapBits3D = flatPavement.getBitsKeys().parallelStream()
                 .collect(Collectors.toConcurrentMap(key -> key,
-                        key -> new Bit3D(flatPavement.getBit((Vector2) key), horizontalSection)
+                        key -> {
+                            Bit2D bit2D = flatPavement.getBit(key);
+                            return new Bit3D(bit2D, key,
+                                    bit2D.getOrientation().getTransformed(flatPavement.getAffineTransform()));
+                        }
                         , (u, v) -> u, ConcurrentHashMap::new));
     }
 

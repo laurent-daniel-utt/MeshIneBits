@@ -428,10 +428,13 @@ class Toolbar extends JTabbedPane implements Observer {
 
             // Slicer section
             OptionsContainer slicerCont = new OptionsContainer("Slicer options");
-            LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
+            // LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
+            // slicerCont.add(sliceHeightSpinner);
+            LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
+                    setupAnnotations.get("layersOffset"));
+            slicerCont.add(layersOffsetSpinner);
             LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("firstSliceHeightPercent",
                     setupAnnotations.get("firstSliceHeightPercent"));
-            slicerCont.add(sliceHeightSpinner);
             slicerCont.add(firstSliceHeightPercentSpinner);
 
             add(slicerCont);
@@ -543,17 +546,15 @@ class Toolbar extends JTabbedPane implements Observer {
             computeCont.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
             computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
             computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-            LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
-                    setupAnnotations.get("layersOffset"));
-            LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
-                    setupAnnotations.get("minPercentageOfSlices"));
-            LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
-                    setupAnnotations.get("defaultSliceToSelect"));
+
+            //LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
+            //        setupAnnotations.get("minPercentageOfSlices"));
+            //computeCont.add(minPercentageOfSlicesSpinner);
+            //LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
+            //        setupAnnotations.get("defaultSliceToSelect"));
+            //computeCont.add(defaultSliceToSelectSpinner);
             LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter",
                     setupAnnotations.get("suckerDiameter"));
-            computeCont.add(layersOffsetSpinner);
-            computeCont.add(minPercentageOfSlicesSpinner);
-            computeCont.add(defaultSliceToSelectSpinner);
             computeCont.add(suctionCupDiameter);
             computeCont.add(new JLabel()); // dummy
             computeCont.add(computeTemplateBtn);

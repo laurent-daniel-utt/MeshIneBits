@@ -47,8 +47,6 @@ import meshIneBits.util.Vector3;
  */
 public class SliceTool extends Observable implements Runnable {
     private Model model;
-    private Thread t;
-    private Mesh mesh;
     private Vector<Slice> slices = new Vector<>();
 
     /**
@@ -57,7 +55,6 @@ public class SliceTool extends Observable implements Runnable {
      * @param mesh {@link Mesh} that will collect the slices when slicing is finished.
      */
     public SliceTool(Mesh mesh) {
-        this.mesh = mesh;
         addObserver(mesh);
         this.model = mesh.getModel();
     }
@@ -133,7 +130,7 @@ public class SliceTool extends Observable implements Runnable {
      * Start the slicing in a thread.
      */
     public void sliceModel() {
-        t = new Thread(this);
+        Thread t = new Thread(this);
         t.start();
     }
 }

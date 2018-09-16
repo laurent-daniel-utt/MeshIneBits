@@ -266,6 +266,7 @@ public class Mesh extends Observable implements Observer {
         private void buildLayers() {
             Logger.updateStatus("Generating Layers");
             for (int i = 0; i < slices.size(); i++) {
+                // TODO where is the altitude of layer?
                 layers.add(new Layer(i, slices.get(i), patternTemplate));
             }
             Logger.updateStatus(layers.size() + " layers have been generated and paved");
