@@ -35,6 +35,7 @@ import meshIneBits.Pavement;
  * Manager of automatic optimization. It will observe the changes in layers
  *
  * @author NHATHAN
+ * @deprecated
  */
 public class Optimizer extends Observable implements Observer, Runnable {
 
@@ -143,6 +144,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
      * Construct the set of all irregular bits. Considerate only ones of the
      * selected slices.
      */
+    @SuppressWarnings("unused")
     public void detectIrregularBits() {
         for (Layer layer : layers) {
             Pavement pavement = layer.getSelectedPattern();
@@ -155,6 +157,7 @@ public class Optimizer extends Observable implements Observer, Runnable {
      * @param layerNum index of layer
      * @return all the irregular bit in the given layer
      */
+    @SuppressWarnings("unused")
     public Vector<Vector2> getIrregularBitKeysAtLayer(int layerNum) {
         return irregularBits.get(layerNum);
     }

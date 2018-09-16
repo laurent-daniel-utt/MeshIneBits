@@ -146,7 +146,7 @@ abstract class PatternIntegrityTest {
 	private void waitGeneratorDone() {
 		int timeElapsed = 0;
 		while (timeElapsed < TIME_LIMIT) {
-			if (part.isGenerated())
+            if (part.isPaved())
 				break;
 			// If generator still not done
 			timeElapsed++;
@@ -156,7 +156,7 @@ abstract class PatternIntegrityTest {
 				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
-		if (timeElapsed >= TIME_LIMIT && !part.isGenerated())
+        if (timeElapsed >= TIME_LIMIT && !part.isPaved())
 			fail("Cannot wait until part is completely generated");
 	}
 

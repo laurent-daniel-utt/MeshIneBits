@@ -24,11 +24,11 @@ package meshIneBits;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Optimizer;
-import meshIneBits.util.Segment2D;
+import meshIneBits.util.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * This object is the equivalent of the piece which will be printed
@@ -37,16 +37,18 @@ public class Mesh extends Observable implements Observer {
     private Vector<Layer> layers = new Vector<>();
     private Vector<Slice> slices = new Vector<>();
     @Deprecated
-    private PatternTemplate patternTemplate;
+    private PatternTemplate patternTemplate = null;
     private double skirtRadius;
-    private Thread t = null;
     private SliceTool slicer;
     private boolean sliced = false;
-    private Optimizer optimizer;
+    @Deprecated
+    private Optimizer optimizer = null;
     private Model model;
     private MeshEvents state;
-    private LayerOptimizer layerOptimizer;
-    private MeshOptimizer meshOptimizer;
+    /**
+     * Regroup of irregularities by index of layers and keys of bits
+     */
+    private Map<Layer, List<Vector2>> irregularBits;
 
     /**
      * Update the current state of mesh and notify observers with that state
@@ -144,7 +146,7 @@ public class Mesh extends Observable implements Observer {
         setState(MeshEvents.OPTIMIZING_MESH);
         // MeshEvents.OPTIMIZED_MESH will be sent in update() after receiving
         // enough signals from layers
-        meshOptimizer = new MeshOptimizer();
+        MeshOptimizer meshOptimizer = new MeshOptimizer();
         Thread t = new Thread(meshOptimizer);
         t.start();
     }
@@ -158,7 +160,7 @@ public class Mesh extends Observable implements Observer {
         optimizationSafetyCheck();
 
         setState(MeshEvents.OPTIMIZING_LAYER);
-        layerOptimizer = new LayerOptimizer(layer);
+        LayerOptimizer layerOptimizer = new LayerOptimizer(layer);
         // MeshEvents.OPTIMIZED_LAYER will be sent after completed the task
         Thread t = new Thread(layerOptimizer);
         t.start();
@@ -226,8 +228,22 @@ public class Mesh extends Observable implements Observer {
     }
 
     private void detectIrregularBits() {
-        optimizer = new Optimizer(layers);
-        optimizer.detectIrregularBits();
+//        optimizer = new Optimizer(layers);
+//        optimizer.detectIrregularBits();
+        irregularBits = layers.parallelStream().collect(Collectors.toConcurrentMap(
+                layer -> layer,
+                layer -> DetectorTool.detectIrregularBits(layer.getFlatPavement()),
+                (u, v) -> u,
+                ConcurrentHashMap::new
+        ));
+    }
+
+    /**
+     * @param layer target
+     * @return keys of irregularities in layer
+     */
+    public List<Vector2> getIrregularBitKeysOf(Layer layer) {
+        return irregularBits.get(layer);
     }
 
     /**
@@ -285,10 +301,12 @@ public class Mesh extends Observable implements Observer {
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
+                    setState(MeshEvents.OPTIMIZED_MESH);
                     break;
                 case OPTIMIZING_MESH:
                     break;
                 case OPTIMIZED_MESH:
+                    setState(MeshEvents.OPTIMIZED_MESH);
                     break;
                 case GLUING:
                     break;
@@ -300,6 +318,7 @@ public class Mesh extends Observable implements Observer {
 
     /**
      * @return the optimizer
+     * @deprecated
      */
     public Optimizer getOptimizer() {
         return optimizer;
@@ -357,10 +376,6 @@ public class Mesh extends Observable implements Observer {
 
         public Layer getLayer() {
             return layer;
-        }
-
-        public int getIrregularitiesRest() {
-            return irregularitiesRest;
         }
 
         @Override

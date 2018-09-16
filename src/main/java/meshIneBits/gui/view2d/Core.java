@@ -35,6 +35,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -360,11 +361,10 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		}
 	}
 
-	private void paintBits(Mesh currentPart, Layer layer, Graphics2D g2d) {
+    private void paintBits(Mesh mesh, Layer layer, Graphics2D g2d) {
 		Vector<Vector2> bitKeys = layer.getBits3dKeys();
 		// Get all the irregular bits (bitKey in fact) in this layer
-		Vector<Vector2> irregularBitsOfThisLayer = currentPart.getOptimizer()
-				.getIrregularBitKeysAtLayer(controller.getCurrentLayerNumber());
+        List<Vector2> irregularBitsOfThisLayer = mesh.getIrregularBitKeysOf(layer);
 
 		for (Vector2 b : bitKeys) { // Draw each bits
 			Bit3D bit = layer.getBit3D(b);
