@@ -98,7 +98,6 @@ public class Mesh extends Observable implements Observer {
      * @param template an automatic builder
      */
     public void pave(PatternTemplate template) {
-        // TODO pave mesh
         if (t == null || !t.isAlive()) {
             // MeshEvents.PAVED will be sent in update() after receiving
             // enough signals from layers

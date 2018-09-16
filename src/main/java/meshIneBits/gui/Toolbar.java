@@ -22,7 +22,6 @@
 package meshIneBits.gui;
 
 import meshIneBits.Mesh;
-import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
@@ -58,26 +57,20 @@ class Toolbar extends JTabbedPane implements Observer {
     private MainController controller;
     private File file = null;
     private File patternConfigFile = null;
-    private JPanel FileTab;
     private SlicerTab SlicerTab;
     private TemplateTab TemplateTab;
-    private ReviewTab ReviewTab;
     private HashMap<String, Setting> setupAnnotations = loadAnnotations();
-
-    public HashMap<String, Setting> getSetupAnnotations() {
-        return setupAnnotations;
-    }
 
     Toolbar() {
         // Add the tab
-        FileTab = new JPanel();
+        JPanel fileTab = new JPanel();
         SlicerTab = new SlicerTab();
         TemplateTab = new TemplateTab();
-        ReviewTab = new ReviewTab();
-        addTab("File", FileTab);
+        Toolbar.ReviewTab reviewTab = new ReviewTab();
+        addTab("File", fileTab);
         addTab("Slicer", new JScrollPane(SlicerTab));
         addTab("Template", new JScrollPane(TemplateTab));
-        addTab("Review", new JScrollPane(ReviewTab));
+        addTab("Review", new JScrollPane(reviewTab));
 
         // Add the menu button
         FileMenuButton fileMenuBtn = new FileMenuButton();
@@ -443,7 +436,6 @@ class Toolbar extends JTabbedPane implements Observer {
             OptionsContainer computeCont = new OptionsContainer("Compute");
             computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
             computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-            // computeSlicesBtn.setEnabled(false);
             fileSelectedLabel = new JLabel("No file selected");
             computeCont.add(fileSelectedLabel);
             computeCont.add(computeSlicesBtn);
@@ -535,10 +527,10 @@ class Toolbar extends JTabbedPane implements Observer {
             bitsCont.add(bitLengthSpinner);
 
             // Pavement choice
-            GalleryContainer patternGallery = new GalleryContainer("Pavement");
+            GalleryContainer patternGallery = new GalleryContainer("Pattern");
 
             // Template options
-            patternParametersContainer = new PatternParametersContainer("Pavement parameters");
+            patternParametersContainer = new PatternParametersContainer("Pattern parameters");
             patternParametersContainer.setupPatternParameters();
 
             // Computing options
