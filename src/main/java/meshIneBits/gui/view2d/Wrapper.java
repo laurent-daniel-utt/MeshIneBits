@@ -130,7 +130,7 @@ class Wrapper extends JPanel implements Observer {
 	}
 
 	private void buildLayerSelector() {
-		Mesh part = controller.getCurrentPart();
+		Mesh part = controller.getCurrentMesh();
 
 		layerSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getLayers().size() - 1, 0);
 		layerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getLayers().size() - 1, 1));
@@ -152,7 +152,7 @@ class Wrapper extends JPanel implements Observer {
 	}
 
 	private void buildSliceSelector() {
-		Mesh part = controller.getCurrentPart();
+		Mesh part = controller.getCurrentMesh();
 
 		sliceSlider = new JSlider(SwingConstants.VERTICAL, 0, part.getSlices().size() - 1, 0);
 		sliceSpinner = new JSpinner(new SpinnerNumberModel(0, 0, part.getSlices().size() - 1, 1));
@@ -180,7 +180,7 @@ class Wrapper extends JPanel implements Observer {
 		// Repaint
 		this.add(coreView, BorderLayout.CENTER);
 
-		if (controller.getCurrentPart().isGenerated()) {
+		if (controller.getCurrentMesh().isPaved()) {
 			buildLayerSelector();
 		} else {
 			buildSliceSelector();
@@ -217,8 +217,8 @@ class Wrapper extends JPanel implements Observer {
 		if (arg != null) {
 			switch ((Controller.Component) arg) {
 				case PART:
-					Mesh part = controller.getCurrentPart();
-					if (part != null && (part.isGenerated() || part.isSliced())) {
+					Mesh part = controller.getCurrentMesh();
+					if (part != null && (part.isPaved() || part.isSliced())) {
 						init();
 						repaint();
 						revalidate();
@@ -332,7 +332,7 @@ class Wrapper extends JPanel implements Observer {
 		}
 
 		private void replaceSelectedBit(double percentageLength, double percentageWidth) {
-			Mesh part = controller.getCurrentPart();
+			Mesh part = controller.getCurrentMesh();
 			Layer layer = part.getLayers().get(controller.getCurrentLayerNumber());
 
 			if (controller.getSelectedBitKeys().isEmpty()) {
@@ -382,18 +382,25 @@ class Wrapper extends JPanel implements Observer {
 			currentLayerBtn.addActionListener(e -> {
 				currentLayerBtn.setEnabled(false);
 				currentMeshBtn.setEnabled(false);
-				Mesh currentPart = controller.getCurrentPart();
-				Layer currentLayer = currentPart.getLayers().get(controller.getCurrentLayerNumber());
-				currentPart.getOptimizer().automaticallyOptimizeLayer(currentLayer);
+				Mesh mesh = controller.getCurrentMesh();
+				Layer currentLayer = mesh.getLayers().get(controller.getCurrentLayerNumber());
+				try {
+					mesh.optimize(currentLayer);
+				} catch (Exception e1) {
+					Logger.error(e1.getMessage());
+				}
 				currentLayerBtn.setEnabled(true);
 				currentMeshBtn.setEnabled(true);
 			});
 
 			currentMeshBtn.addActionListener(e -> {
-				currentLayerBtn.setEnabled(true);
-				currentMeshBtn.setEnabled(true);
-				Mesh currentPart = controller.getCurrentPart();
-				currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
+				currentLayerBtn.setEnabled(false);
+				currentMeshBtn.setEnabled(false);
+				try {
+					controller.getCurrentMesh().optimize();
+				} catch (Exception e1) {
+					Logger.error(e1.getMessage());
+				}
 				currentLayerBtn.setEnabled(true);
 				currentMeshBtn.setEnabled(true);
 			});

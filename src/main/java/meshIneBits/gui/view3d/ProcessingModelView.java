@@ -729,7 +729,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	public void Bits(boolean flag) {
 		if (flag) {
-			if (controller.getCurrentPart().isGenerated() && !built){
+            if (controller.getCurrentPart().isPaved() && !built) {
 				builder.buildBits(shapeMap);
 				built = true;
 			}

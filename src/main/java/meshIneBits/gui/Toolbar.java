@@ -236,7 +236,7 @@ class Toolbar extends JTabbedPane implements Observer {
                     int returnVal = fc.showSaveDialog(null);
 
                     Mesh part = controller.getCurrentMesh();
-                    if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
+                    if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isPaved()) {
                         XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
                         xt.writeXmlCode();
                     } else {
@@ -360,49 +360,6 @@ class Toolbar extends JTabbedPane implements Observer {
     }
 
     /**
-     * For reviewing result and auto-optimizing
-     */
-    private class ReviewTab extends RibbonTab {
-
-        private static final long serialVersionUID = -6062849183461607573L;
-
-        ReviewTab() {
-            super();
-
-            // For auto-optimizing
-            OptionsContainer autoOptimizeCont = new OptionsContainer("Auto-optimizing bits' distribution");
-            JButton autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
-            autoOptimizeGPartBtn.setToolTipText(
-                    "Try the best to eliminate all irregular bits in the current mesh");
-            autoOptimizeCont.add(autoOptimizeGPartBtn);
-
-            add(autoOptimizeCont);
-
-            // For 3d view
-            add(new TabContainerSeparator());
-            OptionsContainer processingViewCont = new OptionsContainer("3D view");
-            ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
-            processingViewCont.add(processingViewBtn);
-            add(processingViewCont);
-
-            /////////////////////////////////////////////
-            // Actions listener
-
-            // For auto-optimizing
-
-            autoOptimizeGPartBtn.addActionListener(e -> {
-                autoOptimizeGPartBtn.setEnabled(true);
-                Mesh currentPart = controller.getCurrentMesh();
-                currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
-                autoOptimizeGPartBtn.setEnabled(true);
-            });
-
-            // For 3D view
-            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView(null));
-        }
-    }
-
-    /**
      * For slicing object into multiple slices
      */
     private class SlicerTab extends RibbonTab {
@@ -448,7 +405,7 @@ class Toolbar extends JTabbedPane implements Observer {
             computeSlicesBtn.addActionListener(e -> {
                 if (controller.getCurrentMesh() == null) {
                     Logger.error("No mesh found in workspace");
-                    return ;
+                    return;
                 }
 
                 if (file != null) {
@@ -566,7 +523,11 @@ class Toolbar extends JTabbedPane implements Observer {
             computeTemplateBtn.addActionListener(e -> {
                 computeTemplateBtn.setEnabled(false);
                 CraftConfigLoader.saveConfig(null);
-                controller.getCurrentMesh().pave(CraftConfig.templateChoice);
+                try {
+                    controller.getCurrentMesh().pave(CraftConfig.templateChoice);
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
+                }
                 computeTemplateBtn.setEnabled(true);
             });
         }
@@ -715,6 +676,53 @@ class Toolbar extends JTabbedPane implements Observer {
 
         }
     }
+
+    /**
+     * For reviewing result and auto-optimizing
+     */
+    private class ReviewTab extends RibbonTab {
+
+        private static final long serialVersionUID = -6062849183461607573L;
+
+        ReviewTab() {
+            super();
+
+            // For auto-optimizing the whole mesh
+            OptionsContainer optimizeCont = new OptionsContainer("Optimizing pavement");
+            JButton optimizeMeshBtn = new ButtonIcon("Optimize this mesh", "cog.png");
+            optimizeMeshBtn.setToolTipText("Try the best to eliminate all irregular bits in the current mesh");
+            optimizeCont.add(optimizeMeshBtn);
+
+            add(optimizeCont);
+
+            // For 3d view
+            add(new TabContainerSeparator());
+            OptionsContainer processingViewCont = new OptionsContainer("3D view");
+            ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
+            processingViewCont.add(processingViewBtn);
+            add(processingViewCont);
+
+            /////////////////////////////////////////////
+            // Actions listener
+
+            // For auto-optimizing
+
+            optimizeMeshBtn.addActionListener(e -> {
+                optimizeMeshBtn.setEnabled(false);
+                Mesh currentMesh = controller.getCurrentMesh();
+                try {
+                    currentMesh.optimize();
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
+                }
+                optimizeMeshBtn.setEnabled(true);
+            });
+
+            // For 3D view
+            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView(null));
+        }
+    }
+
 
     /**
      * Get annotations for fields from {@link CraftConfig}

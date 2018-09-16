@@ -80,9 +80,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		int width = this.getWidth();
 		int height = this.getHeight();
 		if (width > height)
-			defaultZoom = height / (controller.getCurrentPart().getSkirtRadius() * 2);
+			defaultZoom = height / (controller.getCurrentMesh().getSkirtRadius() * 2);
 		else
-			defaultZoom = width / (controller.getCurrentPart().getSkirtRadius() * 2);
+			defaultZoom = width / (controller.getCurrentMesh().getSkirtRadius() * 2);
 	}
 
 	private void updateDrawScale() {
@@ -90,7 +90,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	}
 
 	private void clickOnBitControl(int id) {
-		Layer layer = controller.getCurrentPart().getLayers().get(controller.getCurrentLayerNumber());
+		Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
 		Vector2 direction = null;
 
 		// Every directions are in the bit's local coordinate system
@@ -155,9 +155,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			Mesh part = controller.getCurrentPart();
+			Mesh part = controller.getCurrentMesh();
 
-			if ((part != null) && part.isGenerated()) {
+			if ((part != null) && part.isPaved()) {
 				// Get the clicked point in the right coordinate system
 				Point2D.Double clickSpot = new Point2D.Double(
 						((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
@@ -168,7 +168,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 					return;
 				}
 
-				Layer layer = controller.getCurrentPart().getLayers().get(controller.getCurrentLayerNumber());
+				Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
 				Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
 				// Look if we hit a bit control (arrows)
@@ -275,15 +275,15 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		updateDrawScale();
 
 		Graphics2D g2d = (Graphics2D) g;
-		Mesh currentPart = controller.getCurrentPart();
+		Mesh currentPart = controller.getCurrentMesh();
 
 		// If part is only sliced (layers not generated yet), draw the slices
-		if ((currentPart != null) && !currentPart.isGenerated()) {
+		if ((currentPart != null) && !currentPart.isPaved()) {
 			paintSlices(currentPart, g2d);
 		}
 
 		// If layers are generated, draw the patterns
-		else if ((currentPart != null) && currentPart.isGenerated()) {
+		else if ((currentPart != null) && currentPart.isPaved()) {
 
 			// Draw previous layer
 			if (controller.showPreviousLayer() && (controller.getCurrentLayerNumber() > 0)) {
@@ -416,7 +416,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	 */
 	private void paintPreviousLayer(Graphics2D g2d) {
 
-		Layer previousLayer = controller.getCurrentPart().getLayers()
+		Layer previousLayer = controller.getCurrentMesh().getLayers()
 				.get(controller.getCurrentLayerNumber() - 1);
 		Vector<Vector2> previousBitKeys = previousLayer.getBits3dKeys();
 

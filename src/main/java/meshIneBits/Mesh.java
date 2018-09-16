@@ -21,15 +21,14 @@
 
 package meshIneBits;
 
-import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
-import meshIneBits.util.*;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Optimizer;
+import meshIneBits.util.Segment2D;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * This object is the equivalent of the piece which will be printed
@@ -37,6 +36,7 @@ import java.util.Vector;
 public class Mesh extends Observable implements Observer {
     private Vector<Layer> layers = new Vector<>();
     private Vector<Slice> slices = new Vector<>();
+    @Deprecated
     private PatternTemplate patternTemplate;
     private double skirtRadius;
     private Thread t = null;
@@ -44,6 +44,9 @@ public class Mesh extends Observable implements Observer {
     private boolean sliced = false;
     private Optimizer optimizer;
     private Model model;
+    private MeshEvents state;
+    private LayerOptimizer layerOptimizer;
+    private MeshOptimizer meshOptimizer;
 
     /**
      * Update the current state of mesh and notify observers with that state
@@ -51,10 +54,12 @@ public class Mesh extends Observable implements Observer {
      * @param state a value from predefined list
      */
     private void setState(MeshEvents state) {
+        this.state = state;
         setChanged();
         notifyObservers(state);
     }
 
+    @Deprecated
     public Mesh(Model model) {
         slicer = new SliceTool(this);
         slicer.sliceModel();
@@ -74,16 +79,21 @@ public class Mesh extends Observable implements Observer {
      * @param filepath model file to load
      */
     public void importModel(String filepath) throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+
+        setState(MeshEvents.IMPORTING);
         this.model = new Model(filepath);
         this.model.center();
-        setState(MeshEvents.IMPORTED);
         slicer = new SliceTool(this);
+        setState(MeshEvents.IMPORTED);
     }
 
     /**
      * Start slicing the registered model
      */
-    public void slice() {
+    public void slice() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+
         setState(MeshEvents.SLICING);
         double zMin = this.model.getMin().z;
         if (zMin != 0) this.model.center(); // recenter before slicing
@@ -97,33 +107,67 @@ public class Mesh extends Observable implements Observer {
      *
      * @param template an automatic builder
      */
-    public void pave(PatternTemplate template) {
-        if (t == null || !t.isAlive()) {
-            // MeshEvents.PAVED will be sent in update() after receiving
-            // enough signals from layers
-            Logger.updateStatus("Ready to generate bits");
-            template.ready(this);
-            // Remove all current layers
-            this.layers.clear();
-            // New worker
-            PavingWorker pavingWorker = new PavingWorker(template);
-            pavingWorker.addObserver(this);
-            t = new Thread(pavingWorker);
-            t.start();
-        }
+    public void pave(PatternTemplate template) throws Exception {
+        pavementSafetyCheck();
+
+        setState(MeshEvents.PAVING_MESH);
+        // MeshEvents.PAVED_MESH will be sent in update() after receiving
+        // enough signals from layers
+        Logger.updateStatus("Ready to generate bits");
+        template.ready(this);
+        // Remove all current layers
+        this.layers.clear();
+        // New worker
+        PavingWorker pavingWorker = new PavingWorker(template);
+        pavingWorker.addObserver(this);
+        Thread t = new Thread(pavingWorker);
+        t.start();
     }
 
+    // TODO pave a certain layer
+
     // TODO parallel pavement
+
+    private void pavementSafetyCheck() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (!isSliced())
+            throw new Exception("The mesh cannot be paved until it is sliced");
+    }
 
     /**
      * Start the auto optimizer embedded in each template of each layer
      * if presenting
      */
-    public void optimize() {
-        setState(MeshEvents.OPTIMIZING);
-        // TODO call optimizer of each layer
-        // MeshEvents.OPTIMIZED will be sent in update() after receiving
+    public void optimize() throws Exception {
+        optimizationSafetyCheck();
+
+        setState(MeshEvents.OPTIMIZING_MESH);
+        // MeshEvents.OPTIMIZED_MESH will be sent in update() after receiving
         // enough signals from layers
+        meshOptimizer = new MeshOptimizer();
+        Thread t = new Thread(meshOptimizer);
+        t.start();
+    }
+
+    /**
+     * Run the optimizing algorithm of the layer
+     *
+     * @param layer layer of optimization
+     */
+    public void optimize(Layer layer) throws Exception {
+        optimizationSafetyCheck();
+
+        setState(MeshEvents.OPTIMIZING_LAYER);
+        layerOptimizer = new LayerOptimizer(layer);
+        // MeshEvents.OPTIMIZED_LAYER will be sent after completed the task
+        Thread t = new Thread(layerOptimizer);
+        t.start();
+    }
+
+    private void optimizationSafetyCheck() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (!isPaved())
+            throw new Exception("The mesh cannot be auto optimized until it is fully paved.");
     }
 
     /**
@@ -141,9 +185,9 @@ public class Mesh extends Observable implements Observer {
     }
 
     public Vector<Layer> getLayers() {
-        if (!isGenerated()) {
+        if (!isPaved()) {
             try {
-                throw new Exception("Part not generated!");
+                throw new Exception("Mesh not paved!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -151,6 +195,7 @@ public class Mesh extends Observable implements Observer {
         return this.layers;
     }
 
+    @Deprecated
     PatternTemplate getPatternTemplate() {
         return patternTemplate;
     }
@@ -171,7 +216,8 @@ public class Mesh extends Observable implements Observer {
         return slices;
     }
 
-    public boolean isGenerated() {
+    public boolean isPaved() {
+        // TODO make a full check
         return !layers.isEmpty();
     }
 
@@ -211,17 +257,44 @@ public class Mesh extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if ((o == slicer) && (arg == MeshEvents.SLICED)) {
-            // Slice job has been done
-            this.slices = slicer.getSlices();
-            sliced = true;
-            setSkirtRadius();
-            setState(MeshEvents.SLICED);
-        }
-        if (arg == MeshEvents.PAVED) {
-            // In sequential pavement, we only need one signal at the end
-            setState(MeshEvents.PAVED);
-            // TODO In parallel pavement, we need to collect all signals
+        if (arg instanceof MeshEvents) {
+            switch ((MeshEvents) arg) {
+                case READY:
+                    break;
+                case IMPORTING:
+                    break;
+                case IMPORTED:
+                    break;
+                case SLICING:
+                    break;
+                case SLICED:
+                    // Slice job has been done
+                    // Slicer sends messages
+                    this.slices = slicer.getSlices();
+                    sliced = true;
+                    setSkirtRadius();
+                    setState(MeshEvents.SLICED);
+                    break;
+                case PAVING_MESH:
+                    break;
+                case PAVED_MESH:
+                    // In sequential pavement, we only need one signal at the end
+                    setState(MeshEvents.PAVED_MESH);
+                    // TODO In parallel pavement, we need to collect all signals
+                    break;
+                case OPTIMIZING_LAYER:
+                    break;
+                case OPTIMIZED_LAYER:
+                    break;
+                case OPTIMIZING_MESH:
+                    break;
+                case OPTIMIZED_MESH:
+                    break;
+                case GLUING:
+                    break;
+                case GLUED:
+                    break;
+            }
         }
     }
 
@@ -234,6 +307,7 @@ public class Mesh extends Observable implements Observer {
 
     /**
      * In charge of paving one or multiple layers
+     *
      * @since 0.3
      */
     private class PavingWorker extends Observable implements Runnable {
@@ -251,12 +325,9 @@ public class Mesh extends Observable implements Observer {
 
         @Override
         public void run() {
-            setChanged();
-            notifyObservers(MeshEvents.PAVING);
             buildLayers();
             detectIrregularBits();
-            setChanged();
-            notifyObservers(MeshEvents.PAVED);
+            setState(MeshEvents.PAVED_MESH);
         }
 
         /**
@@ -269,6 +340,88 @@ public class Mesh extends Observable implements Observer {
                 layers.add(new Layer(i, slices.get(i), patternTemplate));
             }
             Logger.updateStatus(layers.size() + " layers have been generated and paved");
+        }
+    }
+
+    /**
+     * Managing optimization of a layer, then reporting to {@link MeshOptimizer} or {@link Mesh}
+     */
+    private class LayerOptimizer extends Observable implements Runnable {
+
+        private Layer layer;
+        private int irregularitiesRest;
+
+        LayerOptimizer(Layer layer) {
+            this.layer = layer;
+        }
+
+        public Layer getLayer() {
+            return layer;
+        }
+
+        public int getIrregularitiesRest() {
+            return irregularitiesRest;
+        }
+
+        @Override
+        public void run() {
+            Logger.updateStatus("Auto-optimizing layer " + layer.getLayerNumber());
+            irregularitiesRest = layer.getPatternTemplate().optimize(layer);
+            if (irregularitiesRest <= 0) {
+                switch (irregularitiesRest) {
+                    case 0:
+                        Logger.updateStatus("Auto-optimization succeeded on layer " + layer.getLayerNumber());
+                        break;
+                    case -1:
+                        Logger.updateStatus("Auto-optimization failed on layer " + layer.getLayerNumber());
+                        break;
+                    case -2:
+                        Logger.updateStatus("No optimizing algorithm implemented on layer " + layer.getLayerNumber());
+                        break;
+                }
+            } else {
+                Logger.updateStatus("Auto-optimization for layer " + layer.getLayerNumber() + " done. " + irregularitiesRest + " unsolved irregularities.");
+            }
+            setChanged();
+            notifyObservers(MeshEvents.OPTIMIZED_LAYER);
+        }
+    }
+
+    /**
+     * Managing process of optimizing consequently all layers, then reporting to {@link Mesh}
+     */
+    private class MeshOptimizer extends Observable implements Runnable {
+        @Override
+        public void run() {
+            int progressGoal = layers.size();
+            int irregularitiesRest = 0;
+            ArrayList<Integer> unsolvedLayers = new ArrayList<>();
+            Logger.updateStatus("Optimizing the current mesh.");
+            for (int j = 0; j < layers.size(); j++) {
+                Logger.setProgress(j + 1, progressGoal);
+                int ir = layers.get(j).getPatternTemplate().optimize(layers.get(j));
+                if (ir > 0) {
+                    irregularitiesRest += ir;
+                } else if (ir < 0) {
+                    unsolvedLayers.add(layers.get(j).getLayerNumber());
+                }
+            }
+            Logger.updateStatus("Auto-optimization complete. Still has " + irregularitiesRest + " irregularities not solved yet.");
+            if (!unsolvedLayers.isEmpty()) {
+                StringBuilder str = new StringBuilder();
+                for (Integer integer : unsolvedLayers) {
+                    str.append(" ").append(integer);
+                }
+                Logger.updateStatus("Unsolvable layers: " + str.toString());
+            }
+            setChanged();
+            notifyObservers(MeshEvents.OPTIMIZED_MESH);
+        }
+    }
+
+    private class SimultaneousOperationsException extends Exception {
+        SimultaneousOperationsException() {
+            super("The mesh is undergoing an other task. Please wait until that task is done.");
         }
     }
 }

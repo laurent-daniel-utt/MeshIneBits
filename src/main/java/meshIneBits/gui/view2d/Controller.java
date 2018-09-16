@@ -68,7 +68,7 @@ class Controller extends Observable implements Observer {
 		return layerNumber;
 	}
 
-	Mesh getCurrentPart() {
+    Mesh getCurrentMesh() {
 		return part;
 	}
 
@@ -112,7 +112,7 @@ class Controller extends Observable implements Observer {
 		if (part == null) {
 			return;
 		}
-		if (!part.isGenerated()) {
+        if (!part.isPaved()) {
 			return;
 		}
 		if ((nbrLayer >= part.getLayers().size()) || (nbrLayer < 0)) {
@@ -161,7 +161,7 @@ class Controller extends Observable implements Observer {
 	 * @param bitKey in layer's coordinate system
 	 */
 	void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
-		if (part == null || !part.isGenerated()) {
+        if (part == null || !part.isPaved()) {
 			return;
 		}
 		if (!selectedBitKeys.add(bitKey))
@@ -296,7 +296,7 @@ class Controller extends Observable implements Observer {
 			0.0, 360.0, 0.0, 0.01);
 
 	void addNewBits(Point2D.Double position) {
-		if (part == null || !part.isGenerated() || position == null) return;
+        if (part == null || !part.isPaved() || position == null) return;
 		Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
 		Layer l = part.getLayers().get(layerNumber);
 		AffineTransform inv = new AffineTransform();

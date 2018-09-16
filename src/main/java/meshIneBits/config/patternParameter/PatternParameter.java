@@ -19,9 +19,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
 package meshIneBits.config.patternParameter;
 
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
