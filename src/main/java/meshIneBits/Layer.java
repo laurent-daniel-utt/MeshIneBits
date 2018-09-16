@@ -75,7 +75,7 @@ public class Layer extends Observable {
      * @param layerNumber       index of layer
      * @param horizontalSection projection of mesh onto certain altitude
      * @param patternTemplate   algorithm of flat pavement
-     * @since 0.4
+     * @since 0.3
      */
     public Layer(int layerNumber, Slice horizontalSection, PatternTemplate patternTemplate) {
         this.layerNumber = layerNumber;
@@ -192,7 +192,7 @@ public class Layer extends Observable {
     /**
      * Inflate 2D paved bits into 3D shapes
      *
-     * @since 0.4
+     * @since 0.3
      */
     private void extrudeBitsTo3D() {
         mapBits3D = flatPavement.getBitsKeys().parallelStream()
@@ -269,7 +269,7 @@ public class Layer extends Observable {
 
     /**
      * @return current pavement
-     * @since 0.4
+     * @since 0.3
      */
     public Pavement getFlatPavement() {
         return flatPavement;
@@ -285,7 +285,7 @@ public class Layer extends Observable {
 
     /**
      * @return the boundary of layer
-     * @since 0.4
+     * @since 0.3
      */
     public Slice getHorizontalSection() {
         return horizontalSection;

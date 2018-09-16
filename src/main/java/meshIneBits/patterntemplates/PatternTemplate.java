@@ -86,7 +86,7 @@ public abstract class PatternTemplate {
      *
      * @param layer target to fill {@link meshIneBits.Bit2D} in
      * @return schema to fill the given surface
-     * @since 0.4
+     * @since 0.3
      */
     public abstract Pavement pave(Layer layer);
 

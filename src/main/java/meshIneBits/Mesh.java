@@ -235,7 +235,7 @@ public class Mesh extends Observable implements Observer {
 
     /**
      * In charge of paving one or multiple layers
-     * @since 0.4
+     * @since 0.3
      */
     private class PavingWorker extends Observable implements Runnable {
 

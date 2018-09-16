@@ -57,7 +57,7 @@ public class Bit3D {
      * @param orientation   in its own coordinate system
      * @param sliceToSelect representative slice to build
      * @throws Exception when not enough slices or out of boundary
-     * @deprecated 0.4+
+     * @deprecated 0.3+
      */
     Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
 
