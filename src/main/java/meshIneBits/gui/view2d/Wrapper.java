@@ -279,8 +279,8 @@ class Wrapper extends JPanel implements Observer {
 	private class DisplayOptionsPane extends OptionsContainer {
 		DisplayOptionsPane() {
 			super("Display options");
-			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices");
-			slicesCheckBox.addActionListener(e -> controller.toggleShowSlice(slicesCheckBox.isSelected()));
+//			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices");
+//			slicesCheckBox.addActionListener(e -> controller.toggleShowSlice(slicesCheckBox.isSelected()));
 
 			JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show lift points");
 			liftPointsCheckBox.addActionListener(e -> controller.toggleShowLiftPoints(liftPointsCheckBox.isSelected()));
@@ -294,7 +294,7 @@ class Wrapper extends JPanel implements Observer {
 			JCheckBox irregularBitsCheckBox = new RibbonCheckBox("Show irregular bits");
 			irregularBitsCheckBox.addActionListener(e -> controller.toggleShowIrregularBits(irregularBitsCheckBox.isSelected()));
 
-			add(slicesCheckBox);
+//			add(slicesCheckBox);
 			add(liftPointsCheckBox);
 			add(previousLayerCheckBox);
 			add(cutPathsCheckBox);

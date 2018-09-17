@@ -46,7 +46,8 @@ class Controller extends Observable implements Observer {
 	private int sliceNumber = 0;
 	private Set<Vector2> selectedBitKeys = new HashSet<>();
 	private double zoom = 1;
-	private boolean showSlices = false;
+    @Deprecated
+    private boolean showSlices = false;
 	private boolean showLiftPoints = false;
 	private boolean showPreviousLayer = false;
 	private boolean showCutPaths = false;
@@ -206,9 +207,11 @@ class Controller extends Observable implements Observer {
 		return showPreviousLayer;
 	}
 
-	boolean showSlices() {
-		return showSlices;
-	}
+    @SuppressWarnings("unused")
+    @Deprecated
+    boolean showSlices() {
+        return showSlices;
+    }
 
 	void toggleShowCutPaths(boolean selected) {
 		this.showCutPaths = selected;
@@ -231,12 +234,14 @@ class Controller extends Observable implements Observer {
 		notifyObservers();
 	}
 
-	void toggleShowSlice(boolean selected) {
-		this.showSlices = selected;
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
+    void toggleShowSlice(boolean selected) {
+        this.showSlices = selected;
 
-		setChanged();
-		notifyObservers();
-	}
+        setChanged();
+        notifyObservers();
+    }
 
 	@Override
 	public void update(Observable o, Object arg) {

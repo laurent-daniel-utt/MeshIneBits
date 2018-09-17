@@ -124,8 +124,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	private void drawModelArea(Graphics2D g2d, Area area) {
 		AffineTransform tx1 = new AffineTransform();
 
-		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2),
-				(viewOffsetY * drawScale) + (this.getHeight() / 2));
+		tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
+				(viewOffsetY * drawScale) + (this.getHeight() >> 1));
 		tx1.scale(drawScale, drawScale);
 
 		area.transform(tx1);
@@ -276,15 +276,15 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		updateDrawScale();
 
 		Graphics2D g2d = (Graphics2D) g;
-		Mesh currentPart = controller.getCurrentMesh();
+		Mesh currentMesh = controller.getCurrentMesh();
 
 		// If part is only sliced (layers not generated yet), draw the slices
-		if ((currentPart != null) && !currentPart.isPaved()) {
-			paintSlices(currentPart, g2d);
+		if ((currentMesh != null) && !currentMesh.isPaved()) {
+			paintSlices(currentMesh, g2d);
 		}
 
 		// If layers are generated, draw the patterns
-		else if ((currentPart != null) && currentPart.isPaved()) {
+		else if ((currentMesh != null) && currentMesh.isPaved()) {
 
 			// Draw previous layer
 			if (controller.showPreviousLayer() && (controller.getCurrentLayerNumber() > 0)) {
@@ -292,13 +292,15 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 			}
 
 			// Draw bits
-			Layer currentLayer = currentPart.getLayers().get(controller.getCurrentLayerNumber());
-			paintBits(currentPart, currentLayer, g2d);
+			Layer currentLayer = currentMesh.getLayers().get(controller.getCurrentLayerNumber());
+			paintBits(currentMesh, currentLayer, g2d);
 
 			// Draw the slices contained in the layer
+/*
 			if (controller.showSlices()) {
-				paintSlicesInTheSameLayer(currentPart, currentLayer, g2d);
+				paintSlicesInTheSameLayer(currentLayer, g2d);
 			}
+*/
 
 			// Draw the controls of the selected bit
 			bitMovers.clear();
@@ -339,7 +341,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 		}
 	}
 
-	private void paintSlicesInTheSameLayer(Mesh currentPart, Layer layer, Graphics2D g2d) {
+	@SuppressWarnings("unused")
+	@Deprecated
+	private void paintSlicesInTheSameLayer(Layer layer, Graphics2D g2d) {
 		g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
 		for (int i = 0; i < layer.getSlices().size(); i++) {
@@ -412,7 +416,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 	/**
 	 * Draw the outline of the layer below the current showing one
 	 *
-	 * @param g2d
+	 * @param g2d graphic
 	 */
 	private void paintPreviousLayer(Graphics2D g2d) {
 
@@ -435,8 +439,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
 			AffineTransform tx1 = new AffineTransform();
 
-			tx1.translate((viewOffsetX * drawScale) + (this.getWidth() / 2),
-					(viewOffsetY * drawScale) + (this.getHeight() / 2));
+			tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
+					(viewOffsetY * drawScale) + (this.getHeight() >> 1));
 			tx1.scale(drawScale, drawScale);
 
 			area.transform(tx1);
