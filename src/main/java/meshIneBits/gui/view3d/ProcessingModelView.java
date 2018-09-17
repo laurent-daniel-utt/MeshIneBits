@@ -350,25 +350,25 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 		int color = gravity.getColor().getBackground();
 
-		tooltipGrav =  cp5.addTextarea("tooltipGrav").setPosition(100,250).setText("Pose le modèle").setSize(90,18)
+        tooltipGrav = cp5.addTextarea("tooltipGrav").setPosition(100, 250).setText("Set the model").setSize(90, 18)
 				.setColorBackground(color(220))
 				.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
 				.hideScrollbar();
 		tooltipGrav.getValueLabel().getStyle().setMargin(1,0,0,5);
 
-		tooltipReset =  cp5.addTextarea("tooltipReset").setPosition(100,280).setText("Remise à zero").setSize(85,18)
+        tooltipReset = cp5.addTextarea("tooltipReset").setPosition(100, 280).setText("Reset to zero").setSize(85, 18)
 				.setColorBackground(color(220))
 				.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
 				.hideScrollbar();
 		tooltipReset.getValueLabel().getStyle().setMargin(1,0,0,5);
 
-		tooltipCamera =  cp5.addTextarea("tooltipCamera").setPosition(100,310).setText("Centre le modèle").setSize(105,18)
+        tooltipCamera = cp5.addTextarea("tooltipCamera").setPosition(100, 310).setText("Center model").setSize(105, 18)
 				.setColorBackground(color(220))
 				.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
 				.hideScrollbar();
 		tooltipCamera.getValueLabel().getStyle().setMargin(1,0,0,5);
 
-		tooltipApply =  cp5.addTextarea("tooltipApply").setPosition(100,340).setText("Applique les modifications").setSize(145,18)
+        tooltipApply = cp5.addTextarea("tooltipApply").setPosition(100, 340).setText("Apply the modifications").setSize(145, 18)
 				.setColorBackground(color(220))
 				.setColor(color(50)).setFont(createFont("arial",10)).setLineHeight(12).hide()
 				.hideScrollbar();
