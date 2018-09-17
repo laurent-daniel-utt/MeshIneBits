@@ -67,9 +67,9 @@ public class Vector2 {
 
 	/**
 	 * Accelerating the comparison
-	 * 
-	 * @param v
-	 * @return
+	 *
+	 * @param v approximation
+	 * @return <tt>true</tt> if inferior to 10E({@link CraftConfig#errorAccepted errorAccepted})
 	 */
 	public boolean asGoodAsEqual(Vector2 v) {
 		return (Math.abs(x - v.x) + Math.abs(y - v.y)) < Math.pow(10, -CraftConfig.errorAccepted);
@@ -77,6 +77,7 @@ public class Vector2 {
 
 	/**
 	 * Return the vector mirrored on the Z axis
+	 * @return reflection
 	 */
 	public Vector2 crossZ() {
 		return new Vector2(y, -x);
@@ -84,6 +85,8 @@ public class Vector2 {
 
 	/**
 	 * Return the vector divided by a double
+	 * @param f scale not null
+	 * @return a scaled vector
 	 */
 	public Vector2 div(double f) {
 		return new Vector2(x / f, y / f);
@@ -91,6 +94,8 @@ public class Vector2 {
 
 	/**
 	 * Return the scalar of two vector
+	 * @param v can be identical to itself
+	 * @return scale product
 	 */
 	public double dot(Vector2 v) {
 		return (x * v.x) + (y * v.y);
@@ -152,11 +157,11 @@ public class Vector2 {
 
 	/**
 	 * Check the linearity, using approximate triangular inequality
-	 * <tt>c <= a + b <= c + 10^(-{@link CraftConfig#errorAccepted error})</tt>.
+	 * <tt>c &le; a + b &le; c + 10^(-{@link CraftConfig#errorAccepted error})</tt>.
 	 * 
 	 * @param segment
 	 *            <tt>c</tt> in inequality above
-	 * @return
+	 * @return <tt>true</tt> if close enough
 	 * @see CraftConfig#errorAccepted
 	 */
 	public boolean isOnSegment(Segment2D segment) {
@@ -178,6 +183,8 @@ public class Vector2 {
 
 	/**
 	 * Return the vector multiplied by a double
+	 * @param f nullable
+	 * @return scaled vector
 	 */
 	public Vector2 mul(double f) {
 		return new Vector2(x * f, y * f);
@@ -185,9 +192,10 @@ public class Vector2 {
 
 	/**
 	 * Returns a normalized vector with a length of 1, having the same direction as
-	 * the origonal vector. Note: if the length is smaller than
+	 * the original vector. Note: if the length is smaller than
 	 * 10^({@link meshIneBits.config.CraftConfig#errorAccepted -errorAccepted}) then
 	 * the returned result will 0.
+	 * @return normalized vector
 	 */
 	public Vector2 normal() {
 		double d = vSize();
@@ -208,6 +216,7 @@ public class Vector2 {
 
 	/**
 	 * Returns the length of the vector.
+	 * @return euclidean length
 	 */
 	public double vSize() {
 		return Math.sqrt((x * x) + (y * y));
@@ -215,6 +224,7 @@ public class Vector2 {
 
 	/**
 	 * Returns the squared length of the vector (faster then vSize())
+	 * @return euclidean norm
 	 */
 	public double vSize2() {
 		return (x * x) + (y * y);
@@ -251,11 +261,11 @@ public class Vector2 {
 	public static class Tools {
 		/**
 		 * Check if 2 points P1, P2 are on different sides in comparison to the line
-		 * 
-		 * @param p1
-		 * @param p2
-		 * @param line
-		 * @return
+		 *
+		 * @param p1 first point
+		 * @param p2 second point
+		 * @param line anywhere on same plan
+		 * @return <tt>true</tt> if directional product is negative
 		 */
 		static boolean checkOnDifferentSides(Vector2 p1, Vector2 p2, Segment2D line) {
 			// Construct the equation of the line
@@ -270,10 +280,10 @@ public class Vector2 {
 
 		/**
 		 * Calculate the distance from a point to the a line (or a segment)
-		 * 
-		 * @param point
-		 * @param line
-		 * @return
+		 *
+		 * @param point target
+		 * @param line not reduced to null
+		 * @return height from point to line
 		 */
 		public static double distanceFromPointToLine(Vector2 point, Segment2D line) {
 			Vector2 d = line.end.sub(line.start);// directional vector

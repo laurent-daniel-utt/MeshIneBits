@@ -35,6 +35,8 @@ public class Segment2D extends AABBrect {
 
 	/**
 	 * Sort segments by paths
+     * @param segments target
+     * @return disintegrating segments
 	 */
 	@SuppressWarnings("unchecked")
 	public static Vector<Vector<Segment2D>> segregateSegments(Vector<Segment2D> segments) {
@@ -146,6 +148,8 @@ public class Segment2D extends AABBrect {
 	/**
 	 * For large updates we need to fix the normal, and the AABB. Only call this
 	 * when the segment is not in a Tree2D
+     * @param start to rewrite starting point
+     * @param end to rewrite ending point
 	 */
 	public void update(Vector2 start, Vector2 end) {
 		this.start = start;
@@ -156,11 +160,12 @@ public class Segment2D extends AABBrect {
 
 	/**
 	 * Check if this segment contains a point (x,y).
-	 * 
-	 * @param x
-	 * @param y
-	 * @return
-	 * @see {@link Vector2#isOnSegment(Segment2D)}
+     *
+     * @param x absciss
+     * @param y coordinate
+     * @return <tt>true</tt> if the point is on the segment with an acceptable
+     * error
+     * @see Vector2#isOnSegment(Segment2D)
 	 */
 	public boolean contains(double x, double y) {
 		return (new Vector2(x, y)).isOnSegment(this);
@@ -168,10 +173,10 @@ public class Segment2D extends AABBrect {
 
 	/**
 	 * Check if this segment contains a point (x,y)
-	 * 
-	 * @param point
-	 * @return
-	 * @see {@link Vector2#isOnSegment(Segment2D)}
+     *
+     * @param point described in x, y
+     * @return <tt>true</tt> if close enough
+     * @see Vector2#isOnSegment(Segment2D)
 	 */
     private boolean contains(Vector2 point) {
 		return point.isOnSegment(this);
@@ -179,9 +184,9 @@ public class Segment2D extends AABBrect {
 
 	/**
 	 * Check if this segment is perpendicular another.
-	 * 
-	 * @param that
-	 * @return
+     *
+     * @param that an other segment
+     * @return <tt>true</tt> if vector product is zero
 	 */
 	public boolean isPerpendicularTo(Segment2D that) {
 		Vector2 v1 = this.end.sub(this.start);
@@ -191,9 +196,9 @@ public class Segment2D extends AABBrect {
 
 	/**
 	 * Check if a segment lies entirely (vertex included) in this
-	 * 
-	 * @param other
-	 * @return
+     *
+     * @param other a different segment to check
+     * @return <tt>true</tt> if two ends stay inside
 	 * @see #contains(Vector2)
 	 */
 	public boolean contains(Segment2D other) {

@@ -43,8 +43,8 @@ public abstract class PatternParameter implements Serializable {
 
 	/**
 	 * Type of current value depends on sub class
-	 * 
-	 * @return
+	 *
+	 * @return predictable type
 	 */
 	public abstract Object getCurrentValue();
 

@@ -58,8 +58,8 @@ public class LabeledListReceiver extends Renderer {
 
 	/**
 	 * Render {@link DoubleListParam}
-	 * 
-	 * @param config
+	 *
+	 * @param config predefined parameter
 	 */
 	public LabeledListReceiver(DoubleListParam config) {
 		this.dlconfig = config;

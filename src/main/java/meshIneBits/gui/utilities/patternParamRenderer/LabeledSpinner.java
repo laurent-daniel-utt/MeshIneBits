@@ -87,8 +87,8 @@ public class LabeledSpinner extends Renderer {
 
 	/**
 	 * This constructor is to render {@link DoubleParam}
-	 * 
-	 * @param config
+	 *
+	 * @param config predefined parameter
 	 */
 	public LabeledSpinner(DoubleParam config) {
 		// Visual options

@@ -659,6 +659,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
 	/**
 	 *  Listeners for GUI
+	 * @param theValue in float
 	 */
 	public void RotationX(String theValue){
 		float angle = Float.valueOf(theValue);

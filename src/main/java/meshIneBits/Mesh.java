@@ -79,6 +79,7 @@ public class Mesh extends Observable implements Observer {
      * Register a model given a path
      *
      * @param filepath model file to load
+     * @throws Exception when an other action is currently executing
      */
     public void importModel(String filepath) throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException();
@@ -92,6 +93,7 @@ public class Mesh extends Observable implements Observer {
 
     /**
      * Start slicing the registered model
+     * @throws Exception when an other action is currently executing
      */
     public void slice() throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException();
@@ -108,6 +110,7 @@ public class Mesh extends Observable implements Observer {
      * Given a certain template, pave the whole mesh sequentially
      *
      * @param template an automatic builder
+     * @throws Exception when an other action is currently executing
      */
     public void pave(PatternTemplate template) throws Exception {
         pavementSafetyCheck();
@@ -139,6 +142,7 @@ public class Mesh extends Observable implements Observer {
     /**
      * Start the auto optimizer embedded in each template of each layer
      * if presenting
+     * @throws Exception when an other action is currently executing
      */
     public void optimize() throws Exception {
         optimizationSafetyCheck();
@@ -155,6 +159,7 @@ public class Mesh extends Observable implements Observer {
      * Run the optimizing algorithm of the layer
      *
      * @param layer layer of optimization
+     * @throws Exception when an other action is currently executing
      */
     public void optimize(Layer layer) throws Exception {
         optimizationSafetyCheck();

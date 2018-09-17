@@ -26,7 +26,7 @@ import java.math.RoundingMode;
 
 /**
  * An utility to rounds a double to specified number of decimal places.
- * @see <a href="http://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places">This link</a>.
+ * @see <a href="http://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places">http://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places</a>
  */
 class Rounder {
 	public static double round(double value, int places) {

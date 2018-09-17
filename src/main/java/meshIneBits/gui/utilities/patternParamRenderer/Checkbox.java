@@ -50,7 +50,7 @@ public class Checkbox extends Renderer {
 	private BooleanParam config;
 
 	/**
-	 * @param config
+	 * @param config predefined parameter
 	 */
 	public Checkbox(BooleanParam config) {
 		super();

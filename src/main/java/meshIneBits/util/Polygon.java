@@ -164,6 +164,8 @@ public class Polygon implements Iterable<Segment2D> {
 
 	/**
 	 * Get the closest segment in this segment loop
+	 * @param p starting point
+	 * @return closest segment
 	 */
 	public Segment2D closestTo(Vector2 p) {
 		Segment2D best = first;
@@ -224,6 +226,7 @@ public class Polygon implements Iterable<Segment2D> {
 	 * removeEnd removes this segment from the segment list, and links up the
 	 * next segment to the previous. Removing 1 point in the polygon. The point
 	 * removed is the endpoint of this segment.
+	 * @param s target
 	 */
 	public void remove(Segment2D s) {
 		if (s == first) {
@@ -264,6 +267,7 @@ public class Polygon implements Iterable<Segment2D> {
 
 	/**
 	 * Convert polygon to Path2D. Used to generate area.
+	 * @return path in 2D
 	 */
 	public Path2D toPath2D() {
 		if (_path2D != null)

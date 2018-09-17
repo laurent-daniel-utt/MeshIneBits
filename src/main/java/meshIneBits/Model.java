@@ -245,8 +245,8 @@ public class Model {
     }
 
     /**
-     * TODO
      * Rotate all triangles
+     * @param r angle
      */
     public void rotate(Rotation r) {
         for (Triangle t : triangles) {

@@ -32,9 +32,9 @@ class Position {
 	private float rotation;
 	
 	/**
-	 * 
-	 * @param translation
-	 * @param rotation
+	 *
+	 * @param translation matrix 1x3
+	 * @param rotation in radian
 	 */
 	public Position(float[] translation, float rotation){
 		this.translation = translation;
@@ -42,16 +42,16 @@ class Position {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 *
+	 * @return matrix 1x3
 	 */
 	public float[] getTranslation(){
 		return translation;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 *
+	 * @return in radian
 	 */
 	public float getRotation(){
 		return rotation;

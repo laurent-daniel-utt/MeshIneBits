@@ -89,6 +89,7 @@ public class Layer extends Observable {
     /**
      * Sort bits according to their X position
      * Used for XML writing
+     * @return bits' list in order
      */
     public Vector<Pair<Bit3D, Vector2>> sortBits() {
         Vector<Pair<Bit3D, Vector2>> keySet = new Vector<>();

@@ -65,8 +65,8 @@ public class DetectorTool {
 	 * <li>Only one area per bit</li>
 	 * <li>Area is large enough to contain one lift point</li>
 	 * </ol>
-	 * 
-	 * @param bit
+	 *
+	 * @param bit target
 	 * @return <tt>true</tt> if this bit is irregular, <tt>false</tt> otherwise.
 	 */
 	public static boolean checkIrregular(Bit2D bit) {

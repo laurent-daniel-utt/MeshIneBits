@@ -50,7 +50,7 @@ public class Selector extends Renderer {
 	private OptionParam config;
 
 	/**
-	 * @param config
+	 * @param config predefined parameter
 	 */
 	public Selector(OptionParam config) {
 		super();

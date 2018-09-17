@@ -40,8 +40,8 @@ public class BooleanParam extends PatternParameter {
 	/**
 	 * @param name
 	 *            Should be unique among parameters of a pattern
-	 * @param title
-	 * @param description
+     * @param title to be shown on GUI
+     * @param description to be shown in tooltip on GUI
 	 * @param defaultValue
 	 *            which value this parameter should hold at first or when meet a
 	 *            wrong setting

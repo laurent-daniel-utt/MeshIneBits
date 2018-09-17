@@ -71,7 +71,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
 	/**
 	 *
-	 * @param args
+	 * @param args input from CLI
 	 */
 	public static void startProcessingView(String[] args) {
 		if (currentInstance == null)

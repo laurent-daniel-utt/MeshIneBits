@@ -59,7 +59,6 @@ import java.util.stream.Collectors;
  * least a zone, not a point).</li>
  * <li><b>ignored</b> if else.</li>
  * </ul>
- * </p>
  *
  * <p>
  * Then, we construct bits by grouping a number of unit squares. A bit is

@@ -80,7 +80,7 @@ public class AreaTool {
 
 
 	/**
-	 * @param poly
+	 * @param poly target to extract
 	 * @return the surface constraint in the given polygon
 	 */
 	public static Area getAreaFrom(Polygon poly) {
@@ -88,7 +88,7 @@ public class AreaTool {
 	}
 
 	/**
-	 * @param shape
+	 * @param shape target to extract
 	 * @return the surface defined by the shape
 	 */
 	public static Area getAreaFrom(Shape2D shape) {
@@ -104,7 +104,7 @@ public class AreaTool {
 	 * Returns the outside boundary of an area (an area can have more than one
 	 * boundary when there is a/some hole(s) in it)
 	 *
-	 * @param area
+	 * @param area target to extract
 	 * @return outside boundaries. <tt>null</tt> if area is empty
 	 */
 	public static Vector<Segment2D> getLargestPolygon(Area area) {
@@ -128,7 +128,7 @@ public class AreaTool {
 	}
 
 	/**
-	 * @param shape
+	 * @param shape target to extract
 	 * @return All the constraint areas that do not contain any others
 	 */
 	public static Vector<Area> getLevel0AreasFrom(Shape2D shape) {
@@ -436,6 +436,8 @@ public class AreaTool {
 	 * from
 	 * <a href= "http://stackoverflow.com/questions/8144156/using-pathiterator-to-return-all-line-segments-that-constrain-an-area">this
 	 * link</a>.
+	 * @param area target to extract
+	 * @return segmentation of border
 	 */
 	public static Vector<Vector<Segment2D>> getSegmentsFrom(Area area) {
 		Vector<double[]> areaPoints = new Vector<>();
@@ -523,7 +525,7 @@ public class AreaTool {
 	}
 
 	/**
-	 * @param area
+	 * @param area target to extract
 	 * @return the separated surfaces
 	 */
 	public static Vector<Area> segregateArea(Area area) {

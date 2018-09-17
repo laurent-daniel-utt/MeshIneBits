@@ -34,9 +34,9 @@ class PolygonPointsList {
 	private int curPosition = -1;
 	
 	/**
-	 * 
-	 * @param points
-	 * @throws Exception 
+	 *
+	 * @param points to be inserted
+	 * @throws Exception when not enough points to build polygon
 	 */
 	public PolygonPointsList(Vector<int[]> points) throws Exception{
 		if(points.size() < 3){

@@ -46,7 +46,7 @@ public class DoubleListParam extends PatternParameter {
 	private List<Double> currentValue;
 
 	/**
-	 * <tt>minValue<tt>, <tt>maxValue</tt> and <tt>step</tt> will be applied to each
+	 * <tt>minValue</tt>, <tt>maxValue</tt> and <tt>step</tt> will be applied to each
 	 * element of input list
 	 * 
 	 * @param name

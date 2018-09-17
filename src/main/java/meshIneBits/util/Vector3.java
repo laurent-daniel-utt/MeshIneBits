@@ -53,6 +53,8 @@ public class Vector3 {
 
 	/**
 	 * Return the scalar of two vector
+	 * @param v other one
+	 * @return scalar product
 	 */
 	public double dot(Vector3 v) {
 		return (x * v.x) + (y * v.y) + (z * v.z);
@@ -80,6 +82,7 @@ public class Vector3 {
 
 	/**
 	 * Return the squared size (length) of the vector
+	 * @return euclidean norm
 	 */
 	public double vSize2() {
 		return (x * x) + (y * y) + (z * z);

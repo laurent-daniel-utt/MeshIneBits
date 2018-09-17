@@ -96,7 +96,7 @@ public abstract class PatternTemplate {
      *
      * @param actualState the whole actual bits' placement in layer
      * @return <ul>
-     * <li>>0: the number of bits not solved yet</li>
+     * <li>&ge;0: the number of bits not solved yet</li>
      * <li>0: success</li>
      * <li>-1: failure</li>
      * <li>-2: not implemented</li>
