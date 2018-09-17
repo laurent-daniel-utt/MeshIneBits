@@ -22,13 +22,13 @@
 
 package meshIneBits;
 
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.util.Vector;
-
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.util.Vector;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by

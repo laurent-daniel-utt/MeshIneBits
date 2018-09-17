@@ -22,24 +22,22 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * The tab on panel
  */
 public abstract class RibbonTab extends JPanel {
 
-	private static final long serialVersionUID = 5540398663631111329L;
+    private static final long serialVersionUID = 5540398663631111329L;
 
-	protected RibbonTab() {
-		// Visual options
-		FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
-		layout.setAlignOnBaseline(true);
-		this.setLayout(layout);
-		this.setBackground(Color.WHITE);
-		this.setFocusable(false);
-	}
+    protected RibbonTab() {
+        // Visual options
+        FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
+        layout.setAlignOnBaseline(true);
+        this.setLayout(layout);
+        this.setBackground(Color.WHITE);
+        this.setFocusable(false);
+    }
 }

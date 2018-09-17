@@ -23,39 +23,34 @@
 package meshIneBits.gui.view3d;
 
 /**
- * 
  * @author Nicolas
- *
  */
 class Position {
-	
-	private float[] translation;
-	private float rotation;
-	
-	/**
-	 *
-	 * @param translation matrix 1x3
-	 * @param rotation in radian
-	 */
-	public Position(float[] translation, float rotation){
-		this.translation = translation;
-		this.rotation = rotation;
-	}
-	
-	/**
-	 *
-	 * @return matrix 1x3
-	 */
-	public float[] getTranslation(){
-		return translation;
-	}
-	
-	/**
-	 *
-	 * @return in radian
-	 */
-	public float getRotation(){
-		return rotation;
-	}
+
+    private float[] translation;
+    private float rotation;
+
+    /**
+     * @param translation matrix 1x3
+     * @param rotation    in radian
+     */
+    public Position(float[] translation, float rotation) {
+        this.translation = translation;
+        this.rotation = rotation;
+    }
+
+    /**
+     * @return matrix 1x3
+     */
+    public float[] getTranslation() {
+        return translation;
+    }
+
+    /**
+     * @return in radian
+     */
+    public float getRotation() {
+        return rotation;
+    }
 
 }

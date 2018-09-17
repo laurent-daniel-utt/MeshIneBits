@@ -29,7 +29,10 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -90,6 +93,7 @@ public class Layer extends Observable {
     /**
      * Sort bits according to their X position
      * Used for XML writing
+     *
      * @return bits' list in order
      */
     public Vector<Pair<Bit3D, Vector2>> sortBits() {

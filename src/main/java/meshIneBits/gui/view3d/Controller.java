@@ -33,55 +33,55 @@ import java.util.Observer;
  */
 public class Controller extends Observable implements Observer {
 
-	private Mesh part;
+    private Mesh part;
 
-	private static Controller instance;
-	private Model model;
+    private static Controller instance;
+    private Model model;
 
-	public static Controller getInstance() {
-		if (instance == null)
-			instance = new Controller();
-		return instance;
-	}
+    public static Controller getInstance() {
+        if (instance == null)
+            instance = new Controller();
+        return instance;
+    }
 
-	private Controller() {
-	}
+    private Controller() {
+    }
 
-	Mesh getCurrentPart() {
-		return part;
-	}
+    Mesh getCurrentPart() {
+        return part;
+    }
 
-	/**
-	 * @param part <tt>null</tt> to delete the current mesh
-	 */
-	void setCurrentPart(Mesh part) {
-		if (part != null) {
-			this.part = part;
-			part.addObserver(this);
-		} else
-			this.part = null;
+    /**
+     * @param part <tt>null</tt> to delete the current mesh
+     */
+    void setCurrentPart(Mesh part) {
+        if (part != null) {
+            this.part = part;
+            part.addObserver(this);
+        } else
+            this.part = null;
 
-		setChanged();
-		notifyObservers();
-	}
+        setChanged();
+        notifyObservers();
+    }
 
-	@Override
-	public void update(Observable o, Object arg) {
+    @Override
+    public void update(Observable o, Object arg) {
 
-	}
+    }
 
-	int getCurrentLayerNumber() {
-		// TODO Implement toolbox in 3D view
-		return part.getLayers().size() - 1;
-	}
+    int getCurrentLayerNumber() {
+        // TODO Implement toolbox in 3D view
+        return part.getLayers().size() - 1;
+    }
 
-	Model getModel() {
-		return model;
-	}
+    Model getModel() {
+        return model;
+    }
 
-	void setModel(Model m) {
-		model = m;
-		setChanged();
-		notifyObservers();
-	}
+    void setModel(Model m) {
+        model = m;
+        setChanged();
+        notifyObservers();
+    }
 }

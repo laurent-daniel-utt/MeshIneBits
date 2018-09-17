@@ -22,14 +22,9 @@
 
 package meshIneBits.config;
 
-import java.util.Vector;
+import meshIneBits.patterntemplates.*;
 
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.patterntemplates.UnitSquarePattern;
-import meshIneBits.patterntemplates.ClassicBrickPattern;
-import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
-import meshIneBits.patterntemplates.ImprovedBrickPattern;
-import meshIneBits.patterntemplates.EconomicPattern;
+import java.util.Vector;
 
 /**
  * The CraftConfig class contains the configurable

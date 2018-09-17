@@ -22,12 +22,9 @@
 
 package patternTemplate;
 
-import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.UnitSquarePattern;
 import org.junit.jupiter.api.BeforeEach;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 

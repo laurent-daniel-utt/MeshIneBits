@@ -28,22 +28,21 @@ import meshIneBits.gui.MainWindow;
 /**
  * Main class. Call {@link #main(String[])} to start MeshIneBits. Will first
  * load the configuration and then initialize the GUI.
- * 
+ *
  * @see CraftConfigLoader
  * @see Mesh
  */
 class MeshIneBitsMain {
-	/**
-	 * The Main method is the entry point of the program.
-	 * 
-	 * @param args
-	 *            Program start's arguments, not used yet.
-	 */
-	public static void main(String[] args) {
-		// Load the configuration
-		CraftConfigLoader.loadConfig(null);
+    /**
+     * The Main method is the entry point of the program.
+     *
+     * @param args Program start's arguments, not used yet.
+     */
+    public static void main(String[] args) {
+        // Load the configuration
+        CraftConfigLoader.loadConfig(null);
 
-		// Load the graphical interface
-		MainWindow.getInstance();
-	}
+        // Load the graphical interface
+        MainWindow.getInstance();
+    }
 }

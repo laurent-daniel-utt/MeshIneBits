@@ -22,19 +22,15 @@
 
 package meshIneBits;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.Objects;
-import java.util.Vector;
-
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
+
+import java.io.*;
+import java.util.Objects;
+import java.util.Vector;
 
 
 /**
@@ -247,6 +243,7 @@ public class Model {
 
     /**
      * Rotate all triangles
+     *
      * @param r angle
      */
     public void rotate(Rotation r) {

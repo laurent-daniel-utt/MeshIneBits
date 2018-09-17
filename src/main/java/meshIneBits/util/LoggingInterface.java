@@ -23,13 +23,13 @@
 package meshIneBits.util;
 
 public interface LoggingInterface {
-	void error(String error);
+    void error(String error);
 
-	void message(String message);
+    void message(String message);
 
-	void setProgress(int value, int max);
+    void setProgress(int value, int max);
 
-	void updateStatus(String status);
+    void updateStatus(String status);
 
-	void warning(String warning);
+    void warning(String warning);
 }

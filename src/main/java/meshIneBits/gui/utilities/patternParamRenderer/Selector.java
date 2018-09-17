@@ -22,61 +22,55 @@
 
 package meshIneBits.gui.utilities.patternParamRenderer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-
 import meshIneBits.config.patternParameter.OptionParam;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  * Renders {@link OptionParam}
- * 
- * @author Quoc Nhat Han TRAN
  *
+ * @author Quoc Nhat Han TRAN
  */
 public class Selector extends Renderer {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4913058735577067521L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4913058735577067521L;
 
-	private JLabel lblName;
-	private JComboBox<String> options;
-	private OptionParam config;
+    private JLabel lblName;
+    private JComboBox<String> options;
+    private OptionParam config;
 
-	/**
-	 * @param config predefined parameter
-	 */
-	public Selector(OptionParam config) {
-		super();
-		this.config = config;
-		this.initGUI();
-	}
+    /**
+     * @param config predefined parameter
+     */
+    public Selector(OptionParam config) {
+        super();
+        this.config = config;
+        this.initGUI();
+    }
 
-	private void initGUI() {
-		// Visual options
-		this.setLayout(new BorderLayout());
-		this.setBackground(Color.WHITE);
-		this.setBorder(new EmptyBorder(4, 0, 0, 0));
-		
-		// Label
-		lblName = new JLabel(config.getTitle());
-		lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
-		this.add(lblName, BorderLayout.WEST);
-		
-		// Choices
-		options = new JComboBox<>((String[]) config.getChoices().toArray());
-		options.setSelectedItem(config.getDefaultValue());
-		options.addActionListener(e -> {
-			// Update config
-			config.setCurrentValue(options.getSelectedItem());
-		});
-		this.add(options, BorderLayout.EAST);
-	}
+    private void initGUI() {
+        // Visual options
+        this.setLayout(new BorderLayout());
+        this.setBackground(Color.WHITE);
+        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+
+        // Label
+        lblName = new JLabel(config.getTitle());
+        lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
+        this.add(lblName, BorderLayout.WEST);
+
+        // Choices
+        options = new JComboBox<>((String[]) config.getChoices().toArray());
+        options.setSelectedItem(config.getDefaultValue());
+        options.addActionListener(e -> {
+            // Update config
+            config.setCurrentValue(options.getSelectedItem());
+        });
+        this.add(options, BorderLayout.EAST);
+    }
 }

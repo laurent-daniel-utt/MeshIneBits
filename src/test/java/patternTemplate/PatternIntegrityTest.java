@@ -22,8 +22,8 @@
 
 package patternTemplate;
 
-import meshIneBits.Mesh;
 import meshIneBits.Layer;
+import meshIneBits.Mesh;
 import meshIneBits.patterntemplates.PatternTemplate;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

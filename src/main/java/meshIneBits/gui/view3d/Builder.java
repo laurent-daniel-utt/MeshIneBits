@@ -32,14 +32,13 @@ import processing.core.PApplet;
 import processing.core.PShape;
 
 import java.awt.geom.Area;
-import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
 /*
-* Used by ProcessingModelView to create displayable PShape of Model and 3Dbits
-*
+ * Used by ProcessingModelView to create displayable PShape of Model and 3Dbits
+ *
  */
 
 class Builder extends PApplet implements Observer {
@@ -55,24 +54,24 @@ class Builder extends PApplet implements Observer {
         this.pApplet = pApplet;
     }
 
-    public void buildShape(Model model, PShape shape){
+    public void buildShape(Model model, PShape shape) {
         Logger.updateStatus("Start building STL model");
 
         Vector<Triangle> stlTriangles = model.getTriangles();
         pApplet.shapeMode(CORNER);
-        for (Triangle t : stlTriangles){
+        for (Triangle t : stlTriangles) {
             shape.addChild(getPShapeFromTriangle(t));
         }
         Logger.updateStatus("STL model built.");
     }
 
-    private PShape getPShapeFromTriangle(Triangle t){
+    private PShape getPShapeFromTriangle(Triangle t) {
 
         PShape face = pApplet.createShape();
         face.setStroke(false);
         face.setFill(MODEL_COLOR);
         face.beginShape();
-        for (Vector3 p : t.point){
+        for (Vector3 p : t.point) {
             face.vertex((float) p.x, (float) p.y, (float) p.z);
         }
         face.endShape(CLOSE);
@@ -107,7 +106,7 @@ class Builder extends PApplet implements Observer {
                     Vector2 curBitCenter = curBit.getOrigin();
                     float curBitCenterX = (float) curBitCenter.x;
                     float curBitCenterY = (float) curBitCenter.y;
-                    float[] translation = { curBitCenterX, curBitCenterY, zLayer };
+                    float[] translation = {curBitCenterX, curBitCenterY, zLayer};
                     float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
                     Position curBitPosition = new Position(translation, rotation);
                     shapeMap.add(new Pair<>(curBitPosition, bitPShape));
@@ -118,7 +117,6 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     *
      * @param extrudeDepth
      * @return
      */
@@ -130,10 +128,10 @@ class Builder extends PApplet implements Observer {
         Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.bitLength, cornerDownRight.y);
 
         Vector<int[]> pointList = new Vector<>();
-        pointList.add(new int[] { (int) cornerUpRight.x, (int) cornerUpRight.y, 0 });
-        pointList.add(new int[] { (int) cornerDownRight.x, (int) cornerDownRight.y, 0 });
-        pointList.add(new int[] { (int) cornerDownLeft.x, (int) cornerDownLeft.y, 0 });
-        pointList.add(new int[] { (int) cornerUpLeft.x, (int) cornerUpLeft.y, 0 });
+        pointList.add(new int[]{(int) cornerUpRight.x, (int) cornerUpRight.y, 0});
+        pointList.add(new int[]{(int) cornerDownRight.x, (int) cornerDownRight.y, 0});
+        pointList.add(new int[]{(int) cornerDownLeft.x, (int) cornerDownLeft.y, 0});
+        pointList.add(new int[]{(int) cornerUpLeft.x, (int) cornerUpLeft.y, 0});
 
         PolygonPointsList poly = null;
         try {
@@ -143,11 +141,10 @@ class Builder extends PApplet implements Observer {
             return null;
         }
 
-        return extrude(new PolygonPointsList[] { poly, null }, (int) extrudeDepth);
+        return extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
     }
 
     /**
-     *
      * @param bitArea
      * @param extrudeDepth
      * @return
@@ -160,8 +157,8 @@ class Builder extends PApplet implements Observer {
 
         Vector<int[]> pointList = new Vector<>();
         for (Segment2D s : segmentList) {
-            pointList.add(new int[] { (int) Math.round(s.start.x), (int) Math.round(s.start.y), 0 });
-            pointList.add(new int[] { (int) Math.round(s.end.x), (int) Math.round(s.end.y), 0 });
+            pointList.add(new int[]{(int) Math.round(s.start.x), (int) Math.round(s.start.y), 0});
+            pointList.add(new int[]{(int) Math.round(s.end.x), (int) Math.round(s.end.y), 0});
         }
 
         PolygonPointsList poly = null;
@@ -172,7 +169,7 @@ class Builder extends PApplet implements Observer {
             return null;
         }
 
-        return extrude(new PolygonPointsList[] { poly, null }, (int) extrudeDepth);
+        return extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
     }
 
     private PShape getFaceExtrude(int[] pointA, int[] pointB, int z) {
@@ -188,7 +185,6 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     *
      * @param poly
      * @param z
      * @return
@@ -211,7 +207,6 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     *
      * @param poly
      * @param z
      * @return
@@ -247,7 +242,6 @@ class Builder extends PApplet implements Observer {
 
     /**
      * Work only for shape on the xy plan
-     *
      */
     private PShape extrude(PolygonPointsList[] poly, int z) {
 

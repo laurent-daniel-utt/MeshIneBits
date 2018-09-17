@@ -30,12 +30,12 @@ import java.awt.*;
  */
 public class RibbonCheckBox extends JCheckBox {
 
-	private static final long serialVersionUID = 9143671052675167109L;
+    private static final long serialVersionUID = 9143671052675167109L;
 
-	public RibbonCheckBox(String label) {
-		super(label);
-		// Visual options
-		this.setBackground(Color.WHITE);
-		this.setFocusable(false);
-	}
+    public RibbonCheckBox(String label) {
+        super(label);
+        // Visual options
+        this.setBackground(Color.WHITE);
+        this.setFocusable(false);
+    }
 }

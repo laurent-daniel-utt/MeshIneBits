@@ -22,8 +22,8 @@
 
 package meshIneBits.patterntemplates;
 
-import meshIneBits.Mesh;
 import meshIneBits.Layer;
+import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;

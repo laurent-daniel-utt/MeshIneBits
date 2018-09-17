@@ -22,9 +22,6 @@
 
 package meshIneBits.slicer;
 
-import java.util.Observable;
-import java.util.Vector;
-
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
 import meshIneBits.Model;
@@ -33,6 +30,9 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
+
+import java.util.Observable;
+import java.util.Vector;
 
 /**
  * The slice tool slices the model into slices, it does so by going trough all

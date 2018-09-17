@@ -22,15 +22,11 @@
 
 package meshIneBits.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-
-import meshIneBits.Mesh;
 import meshIneBits.Layer;
+import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+
+import java.util.*;
 
 /**
  * Manager of automatic optimization. It will observe the changes in layers

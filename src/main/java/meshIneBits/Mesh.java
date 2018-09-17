@@ -94,6 +94,7 @@ public class Mesh extends Observable implements Observer {
 
     /**
      * Start slicing the registered model
+     *
      * @throws Exception when an other action is currently executing
      */
     public void slice() throws Exception {
@@ -143,6 +144,7 @@ public class Mesh extends Observable implements Observer {
     /**
      * Start the auto optimizer embedded in each template of each layer
      * if presenting
+     *
      * @throws Exception when an other action is currently executing
      */
     public void optimize() throws Exception {

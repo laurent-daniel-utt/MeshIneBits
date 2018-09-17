@@ -48,7 +48,6 @@ public class MainWindow extends JFrame {
     private SubWindow demoWindow;
 
     /**
-     *
      * @return the main GUI window
      */
     public static MainWindow getInstance() {
