@@ -301,7 +301,7 @@ class Controller extends Observable implements Observer {
 		Layer l = part.getLayers().get(layerNumber);
 		AffineTransform inv = new AffineTransform();
 		try {
-			inv = l.getSelectedPattern().getAffineTransform().createInverse();
+            inv = l.getFlatPavement().getAffineTransform().createInverse();
 		} catch (NoninvertibleTransformException e) {
 			// Ignore
 		}
