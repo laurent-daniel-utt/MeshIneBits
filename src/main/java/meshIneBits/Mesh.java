@@ -273,7 +273,6 @@ public class Mesh extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        Logger.message(o.toString() + arg.toString());
         if (arg instanceof MeshEvents) {
             switch ((MeshEvents) arg) {
                 case READY:
