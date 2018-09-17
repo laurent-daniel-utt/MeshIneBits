@@ -22,7 +22,6 @@
 package utils;
 
 import meshIneBits.Mesh;
-import meshIneBits.Model;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import org.json.JSONArray;
@@ -52,9 +51,7 @@ class AreaToolTest {
 	 */
 	private static Logger logger = meshIneBits.util.Logger.createSimpleInstanceFor(AreaToolTest.class);
 
-	private Model model;
-
-	private Mesh part;
+    private Mesh mesh;
 
 	private static int TIME_LIMIT = 60;
 
@@ -63,11 +60,13 @@ class AreaToolTest {
 	 *
 	 * @param modelFilename short name of model to load from stlModel folder
 	 */
-	private void setUpPart(String modelFilename) {
+    private void setUpMesh(String modelFilename) {
 		try {
+            mesh = new Mesh();
 			logger.info("Load " + modelFilename);
-			model = new Model(this.getClass().getResource("/stlModel/" + modelFilename).getPath());
-			model.center();
+            mesh.importModel(this.getClass().getResource("/stlModel/" + modelFilename).getPath());
+//			model = new Model();
+//			model.center();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Cannot properly load up model and slice." + e.getMessage(), e);
 			fail("Cannot properly load up model and slice", e);
@@ -77,9 +76,10 @@ class AreaToolTest {
 	/**
 	 * Slice a given model
 	 */
-	private void slicePart() {
+    private void sliceMesh() throws Exception {
 		logger.info("Slicer starts");
-		part = new Mesh(model);
+//		mesh = new Mesh(model);
+        mesh.slice();
 		waitSlicerDone();
 		logger.info("Slicer finishes");
 	}
@@ -92,9 +92,9 @@ class AreaToolTest {
 	private void waitSlicerDone() {
 		int timeElapsed = 0;
 		while (timeElapsed < TIME_LIMIT) {
-			if (part.isSliced())
+            if (mesh.isSliced())
 				break;
-			// If part has not been sliced yet
+            // If mesh has not been sliced yet
 			// Sleep a little
 			timeElapsed++;
 			try {
@@ -103,18 +103,19 @@ class AreaToolTest {
 				logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
-		if (timeElapsed >= TIME_LIMIT && !part.isSliced())
+        if (timeElapsed >= TIME_LIMIT && !mesh.isSliced())
 			fail("Cannot wait till the end of slicing");
 	}
 
 	@ParameterizedTest(name = "{index}. model={0}. slice={1}")
 	@MethodSource("areaSampleProvider")
+    @Disabled
 	void testGetContinuousSurfacesFrom(String modelFilename, int sliceNum,
-									   List<Point2D.Double> insidePoints,
-									   List<Point2D.Double> outsidePoints) {
-		setUpPart(modelFilename);
-		slicePart();
-		Slice s = part.getSlices().get(sliceNum);
+                                       List<Point2D.Double> insidePoints,
+                                       List<Point2D.Double> outsidePoints) throws Exception {
+        setUpMesh(modelFilename);
+        sliceMesh();
+        Slice s = mesh.getSlices().get(sliceNum);
 		Area unionArea = new Area();
 		AreaTool.getContinuousSurfacesFrom(s).forEach(unionArea::add);
 		logger.info("Model=" + modelFilename);
@@ -136,11 +137,11 @@ class AreaToolTest {
 	@MethodSource("areaSampleProvider")
 	@Disabled
 	void testGetLevel0AreasFrom(String modelFilename, int sliceNum,
-								List<Point2D.Double> insidePoints,
-								List<Point2D.Double> outsidePoints) {
-		setUpPart(modelFilename);
-		slicePart();
-		Slice s = part.getSlices().get(sliceNum);
+                                List<Point2D.Double> insidePoints,
+                                List<Point2D.Double> outsidePoints) throws Exception {
+        setUpMesh(modelFilename);
+        sliceMesh();
+        Slice s = mesh.getSlices().get(sliceNum);
 		Area unionArea = new Area();
 		List<Area> a = AreaTool.getLevel0AreasFrom(s);
 		if (a != null) a.forEach(unionArea::add);
