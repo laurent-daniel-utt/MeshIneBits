@@ -30,34 +30,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 
-	static {
-		logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
-	}
+    static {
+        logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
+    }
 
-	@BeforeEach
-	void setUp() {
-		pattern = new UnitSquarePattern();
-		UnitSquarePattern p = (UnitSquarePattern) pattern;
-		logger.info("applyQuickRegroup=true");
-		p.setApplyQuickRegroup(true);
-		logger.info("limitAction=10000");
-		p.setLimitAction(10000);
-		logger.info("cutDetails=true");
-		p.setCutDetails(true);
-		CraftConfig.templateChoice = pattern;
-	}
+    @BeforeEach
+    void setUp() {
+        pattern = new UnitSquarePattern();
+        UnitSquarePattern p = (UnitSquarePattern) pattern;
+        logger.info("applyQuickRegroup=true");
+        p.setApplyQuickRegroup(true);
+        logger.info("limitAction=10000");
+        p.setLimitAction(10000);
+        logger.info("cutDetails=true");
+        p.setCutDetails(true);
+        CraftConfig.templateChoice = pattern;
+    }
 
-	@Override
-	protected void checkSlicedPart() {
-		// Nothing to check
-	}
+    @Override
+    protected void checkSlicedPart() {
+        // Nothing to check
+    }
 
-	@Override
-	protected void checkGeneratedPart() {
-		for (Layer layer : part.getLayers()) {
-			// Assure each layer is empty
-			assertEquals(0, layer.getSelectedPattern().getBitsKeys().size(),
-					"Layer " + layer.getLayerNumber() + " should be empty");
-		}
-	}
+    @Override
+    protected void checkPavedMesh() {
+        for (Layer layer : mesh.getLayers()) {
+            // Assure each layer is empty
+            assertEquals(0, layer.getFlatPavement().getBitsKeys().size(),
+                    "Layer " + layer.getLayerNumber() + " should be empty");
+        }
+    }
 }

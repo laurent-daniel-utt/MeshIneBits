@@ -22,30 +22,29 @@
 package patternTemplate;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.patterntemplates.ImprovedBrickPattern;
+import meshIneBits.patterntemplates.ClassicBrickPattern;
 import org.junit.jupiter.api.BeforeEach;
 
 
+public class ClassicBrickPatternIntegrityTest extends PatternIntegrityTest {
 
-public class ImprovedClassicPatternIntegrityTest extends PatternIntegrityTest {
+    static {
+        logger = meshIneBits.util.Logger.createSimpleInstanceFor(ClassicBrickPatternIntegrityTest.class);
+    }
 
-	static {
-		logger = meshIneBits.util.Logger.createSimpleInstanceFor(ImprovedClassicPatternIntegrityTest.class);
-	}
+    @BeforeEach
+    void setUp() {
+        pattern = new ClassicBrickPattern();
+        CraftConfig.templateChoice = pattern;
+    }
 
-	@BeforeEach
-	void setUp() {
-		pattern = new ImprovedBrickPattern();
-		CraftConfig.templateChoice = pattern;
-	}
+    @Override
+    protected void checkSlicedPart() {
+        // Nothing to check
+    }
 
-	@Override
-	protected void checkSlicedPart() {
-		// Nothing to check
-	}
-
-	@Override
-	protected void checkGeneratedPart() {
-	}
+    @Override
+    protected void checkPavedMesh() {
+    }
 
 }

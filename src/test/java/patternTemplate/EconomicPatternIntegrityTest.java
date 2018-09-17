@@ -24,7 +24,6 @@ package patternTemplate;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.EconomicPattern;
-import meshIneBits.patterntemplates.ImprovedBrickPattern;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,28 +31,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EconomicPatternIntegrityTest extends PatternIntegrityTest {
 
-	static {
-		logger = meshIneBits.util.Logger.createSimpleInstanceFor(EconomicPatternIntegrityTest.class);
-	}
+    static {
+        logger = meshIneBits.util.Logger.createSimpleInstanceFor(EconomicPatternIntegrityTest.class);
+    }
 
-	@BeforeEach
-	void setUp() {
-		pattern = new EconomicPattern();
-		CraftConfig.templateChoice = pattern;
-	}
+    @BeforeEach
+    void setUp() {
+        pattern = new EconomicPattern();
+        CraftConfig.templateChoice = pattern;
+    }
 
-	@Override
-	protected void checkSlicedPart() {
-		// Nothing to check
-	}
+    @Override
+    protected void checkSlicedPart() {
+        // Nothing to check
+    }
 
-	@Override
-	protected void checkGeneratedPart() {
-		for (Layer layer : part.getLayers()) {
-			// Assure each layer is empty
-			assertEquals(0, layer.getSelectedPattern().getBitsKeys().size(),
-					"Layer " + layer.getLayerNumber() + " should be empty");
-		}
-	}
+    @Override
+    protected void checkPavedMesh() {
+        for (Layer layer : mesh.getLayers()) {
+            // Assure each layer is empty
+            assertEquals(0, layer.getFlatPavement().getBitsKeys().size(),
+                    "Layer " + layer.getLayerNumber() + " should be empty");
+        }
+    }
 
 }
