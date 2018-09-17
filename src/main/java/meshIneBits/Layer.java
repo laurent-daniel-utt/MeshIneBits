@@ -82,6 +82,7 @@ public class Layer extends Observable {
         this.horizontalSection = horizontalSection;
         this.patternTemplate = patternTemplate;
         this.flatPavement = patternTemplate.pave(this);
+        this.flatPavement.computeBits(horizontalSection);
         rebuild();
     }
 
