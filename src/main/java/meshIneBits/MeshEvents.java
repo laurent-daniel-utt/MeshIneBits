@@ -17,7 +17,7 @@ public enum MeshEvents {
 
     private boolean working;
     /**
-     * Indicate position of state in workflow
+     * Indicate the state in workflow
      */
     private int code;
 
