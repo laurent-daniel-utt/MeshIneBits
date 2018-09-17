@@ -40,7 +40,7 @@ public class Mesh extends Observable implements Observer {
     private PatternTemplate patternTemplate = null;
     private double skirtRadius;
     private SliceTool slicer;
-    private boolean sliced = false;
+    // private boolean sliced = false;
     @Deprecated
     private Optimizer optimizer = null;
     private Model model;
@@ -207,7 +207,7 @@ public class Mesh extends Observable implements Observer {
     }
 
     public Vector<Slice> getSlices() {
-        if (!sliced) {
+        if (!isSliced()) {
             try {
                 throw new Exception("Mesh not sliced!");
             } catch (Exception e) {
@@ -220,11 +220,11 @@ public class Mesh extends Observable implements Observer {
 
     public boolean isPaved() {
         // TODO make a full check
-        return !layers.isEmpty();
+        return state.getCode() >= MeshEvents.PAVED_MESH.getCode();
     }
 
     public boolean isSliced() {
-        return sliced;
+        return state.getCode() >= MeshEvents.SLICED.getCode();
     }
 
     private void detectIrregularBits() {
@@ -273,6 +273,7 @@ public class Mesh extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        Logger.message(o.toString() + arg.toString());
         if (arg instanceof MeshEvents) {
             switch ((MeshEvents) arg) {
                 case READY:
@@ -287,7 +288,7 @@ public class Mesh extends Observable implements Observer {
                     // Slice job has been done
                     // Slicer sends messages
                     this.slices = slicer.getSlices();
-                    sliced = true;
+                    // sliced = true;
                     setSkirtRadius();
                     setState(MeshEvents.SLICED);
                     break;
@@ -346,7 +347,8 @@ public class Mesh extends Observable implements Observer {
         public void run() {
             buildLayers();
             detectIrregularBits();
-            setState(MeshEvents.PAVED_MESH);
+            setChanged();
+            notifyObservers(MeshEvents.PAVED_MESH);
         }
 
         /**
@@ -436,7 +438,7 @@ public class Mesh extends Observable implements Observer {
 
     private class SimultaneousOperationsException extends Exception {
         SimultaneousOperationsException() {
-            super("The mesh is undergoing an other task. Please wait until that task is done.");
+            super("The mesh is undergoing an other task. " + state + ". Please wait until that task is done.");
         }
     }
 }
