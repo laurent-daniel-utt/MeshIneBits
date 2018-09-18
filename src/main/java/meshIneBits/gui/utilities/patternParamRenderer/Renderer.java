@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,26 +20,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
 package meshIneBits.gui.utilities.patternParamRenderer;
-
-import javax.swing.JPanel;
 
 import meshIneBits.config.patternParameter.PatternParameter;
 
+import javax.swing.*;
+
 /**
  * Responsible for rendering {@link PatternParameter}
- * 
- * @author Quoc Nhat Han TRAN
  *
+ * @author Quoc Nhat Han TRAN
  */
 public class Renderer extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
 }

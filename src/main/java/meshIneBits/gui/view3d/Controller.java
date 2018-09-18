@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,66 +22,66 @@
 
 package meshIneBits.gui.view3d;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 
 import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Observe {@link GeneratedPart} and
+ * Observe {@link Mesh} and
  */
 public class Controller extends Observable implements Observer {
 
-	private GeneratedPart part;
+    private Mesh part;
 
-	private static Controller instance;
-	private Model model;
+    private static Controller instance;
+    private Model model;
 
-	public static Controller getInstance() {
-		if (instance == null)
-			instance = new Controller();
-		return instance;
-	}
+    public static Controller getInstance() {
+        if (instance == null)
+            instance = new Controller();
+        return instance;
+    }
 
-	private Controller() {
-	}
+    private Controller() {
+    }
 
-	GeneratedPart getCurrentPart() {
-		return part;
-	}
+    Mesh getCurrentPart() {
+        return part;
+    }
 
-	/**
-	 * @param part <tt>null</tt> to delete the current mesh
-	 */
-	void setCurrentPart(GeneratedPart part) {
-		if (part != null) {
-			this.part = part;
-			part.addObserver(this);
-		} else
-			this.part = null;
+    /**
+     * @param part <tt>null</tt> to delete the current mesh
+     */
+    void setCurrentPart(Mesh part) {
+        if (part != null) {
+            this.part = part;
+            part.addObserver(this);
+        } else
+            this.part = null;
 
-		setChanged();
-		notifyObservers();
-	}
+        setChanged();
+        notifyObservers();
+    }
 
-	@Override
-	public void update(Observable o, Object arg) {
+    @Override
+    public void update(Observable o, Object arg) {
 
-	}
+    }
 
-	int getCurrentLayerNumber() {
-		// TODO Implement toolbox in 3D view
-		return part.getLayers().size() - 1;
-	}
+    int getCurrentLayerNumber() {
+        // TODO Implement toolbox in 3D view
+        return part.getLayers().size() - 1;
+    }
 
-	Model getModel() {
-		return model;
-	}
+    Model getModel() {
+        return model;
+    }
 
-	void setModel(Model m) {
-		model = m;
-		setChanged();
-		notifyObservers();
-	}
+    void setModel(Model m) {
+        model = m;
+        setChanged();
+        notifyObservers();
+    }
 }

@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,22 +22,20 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.Dimension;
-
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * A separating line between modules.
  */
 public class TabContainerSeparator extends JSeparator {
-	private static final long serialVersionUID = 7739612020735334296L;
+    private static final long serialVersionUID = 7739612020735334296L;
 
-	public TabContainerSeparator() {
-		// Visual options
-		this.setOrientation(SwingConstants.VERTICAL);
-		Dimension d = this.getPreferredSize();
-		d.height = 105;
-		this.setPreferredSize(d);
-	}
+    public TabContainerSeparator() {
+        // Visual options
+        this.setOrientation(SwingConstants.VERTICAL);
+        Dimension d = this.getPreferredSize();
+        d.height = 105;
+        this.setPreferredSize(d);
+    }
 }

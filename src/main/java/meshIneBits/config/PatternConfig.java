@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,30 +20,26 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
 package meshIneBits.config;
 
-import java.util.HashMap;
-
 import meshIneBits.config.patternParameter.PatternParameter;
+
+import java.util.HashMap;
 
 /**
  * This class is to declare all parameters which are customizable by users. All
  * for the sake of saving configurations.
- * 
- * @author NHATHAN
  *
+ * @author NHATHAN
  */
 public class PatternConfig extends HashMap<String, PatternParameter> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2295740737265238707L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2295740737265238707L;
 
-	public void add(PatternParameter paramConf) {
-		this.put(paramConf.getCodename(), paramConf);
-	}
+    public void add(PatternParameter paramConf) {
+        this.put(paramConf.getCodename(), paramConf);
+    }
 }

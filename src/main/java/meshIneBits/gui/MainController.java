@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.ProcessingModelView;
 
@@ -29,13 +30,13 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Observe {@link GeneratedPart} and observed by {@link Toolbar}
+ * Observe {@link Mesh} and observed by {@link Toolbar}
  */
 
 public class MainController extends Observable implements Observer {
 
     static private MainController instance;
-    private GeneratedPart currentPart;
+    private Mesh currentMesh;
     private Model model;
 
     private MainController() {
@@ -48,29 +49,37 @@ public class MainController extends Observable implements Observer {
         return instance;
     }
 
-    void setCurrentPart(GeneratedPart gp) {
-        currentPart = gp;
-        if (gp != null)
-            currentPart.addObserver(this);
+    /**
+     * @param newMesh <tt>null</tt> to clear the current mesh
+     */
+    void setCurrentMesh(Mesh newMesh) {
+        currentMesh = newMesh;
+        if (newMesh != null)
+            currentMesh.addObserver(this);
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (arg == null) return;
-        if (o == currentPart) {
-            MainWindow.getInstance().get2DView().setCurrentPart(currentPart);
-            MainWindow.getInstance().get3DView().setCurrentPart(currentPart);
-            MainWindow.getInstance().getDemoView().setCurrentPart(currentPart);
+        if (o == currentMesh) {
+            MainWindow.getInstance().get2DView().setCurrentMesh(currentMesh);
+            MainWindow.getInstance().get3DView().setCurrentMesh(currentMesh);
+            MainWindow.getInstance().getDemoView().setCurrentMesh(currentMesh);
         }
     }
 
-    public GeneratedPart getCurrentPart() {
-        return currentPart;
+    public Mesh getCurrentMesh() {
+        return currentMesh;
     }
 
-    void setModel(Model m) {
-        model = m;
-        ((ProcessingModelView)MainWindow.getInstance().getModelView()).setModel(m);
+    /**
+     * Call this method to attach model to Model View
+     * after {@link #currentMesh} has loaded the model successfully
+     */
+    void setModel() {
+        model = currentMesh.getModel();
+        ((ProcessingModelView) MainWindow.getInstance().getModelView())
+                .setModel(model);
     }
 
     Model getModel() {

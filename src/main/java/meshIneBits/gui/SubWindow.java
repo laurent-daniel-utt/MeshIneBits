@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,25 +20,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 
 /**
  * @author Quoc Nhat Han TRAN
- *
- *         Describe the view (2D or 3D) of the loaded model. Windows
- *         implementing this interface should have {@link javax.swing.WindowConstants#HIDE_ON_CLOSE}
- *         behavior.
+ * <p>
+ * Describe the view (2D or 3D) of the loaded model. Windows
+ * implementing this interface should have {@link javax.swing.WindowConstants#HIDE_ON_CLOSE}
+ * behavior.
  */
 public interface SubWindow {
-	/**
-	 * Switch visibility
-	 */
-	void toggle();
+    /**
+     * Switch visibility
+     */
+    void toggle();
 
-	void setCurrentPart(GeneratedPart currentPart);
+    void setCurrentMesh(Mesh mesh);
 }

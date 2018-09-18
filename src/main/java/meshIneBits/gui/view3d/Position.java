@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,39 +23,34 @@
 package meshIneBits.gui.view3d;
 
 /**
- * 
  * @author Nicolas
- *
  */
-public class Position {
-	
-	private float[] translation;
-	private float rotation;
-	
-	/**
-	 * 
-	 * @param translation
-	 * @param rotation
-	 */
-	public Position(float[] translation, float rotation){
-		this.translation = translation;
-		this.rotation = rotation;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public float[] getTranslation(){
-		return translation;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public float getRotation(){
-		return rotation;
-	}
+class Position {
+
+    private float[] translation;
+    private float rotation;
+
+    /**
+     * @param translation matrix 1x3
+     * @param rotation    in radian
+     */
+    public Position(float[] translation, float rotation) {
+        this.translation = translation;
+        this.rotation = rotation;
+    }
+
+    /**
+     * @return matrix 1x3
+     */
+    public float[] getTranslation() {
+        return translation;
+    }
+
+    /**
+     * @return in radian
+     */
+    public float getRotation() {
+        return rotation;
+    }
 
 }

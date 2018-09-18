@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +22,7 @@
 
 package meshIneBits.gui;
 
-import meshIneBits.GeneratedPart;
-import meshIneBits.Model;
+import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
@@ -53,31 +53,25 @@ import java.util.*;
 /**
  * All tasks are placed here.
  */
-public class Toolbar extends JTabbedPane implements Observer {
+class Toolbar extends JTabbedPane implements Observer {
     private static final long serialVersionUID = -1759701286071368808L;
     private MainController controller;
     private File file = null;
     private File patternConfigFile = null;
-    private JPanel FileTab;
     private SlicerTab SlicerTab;
     private TemplateTab TemplateTab;
-    private ReviewTab ReviewTab;
     private HashMap<String, Setting> setupAnnotations = loadAnnotations();
 
-    public HashMap<String, Setting> getSetupAnnotations() {
-        return setupAnnotations;
-    }
-
-    public Toolbar() {
+    Toolbar() {
         // Add the tab
-        FileTab = new JPanel();
+        JPanel fileTab = new JPanel();
         SlicerTab = new SlicerTab();
         TemplateTab = new TemplateTab();
-        ReviewTab = new ReviewTab();
-        addTab("File", FileTab);
+        Toolbar.ReviewTab reviewTab = new ReviewTab();
+        addTab("File", fileTab);
         addTab("Slicer", new JScrollPane(SlicerTab));
         addTab("Template", new JScrollPane(TemplateTab));
-        addTab("Review", new JScrollPane(ReviewTab));
+        addTab("Review", new JScrollPane(reviewTab));
 
         // Add the menu button
         FileMenuButton fileMenuBtn = new FileMenuButton();
@@ -109,34 +103,31 @@ public class Toolbar extends JTabbedPane implements Observer {
         private static final long serialVersionUID = 5613899244422633632L;
         private FileMenuPopUp filePopup;
 
-        public FileMenuButton() {
+        FileMenuButton() {
             // Visual options
             this.setFocusable(false);
             this.setBorder(null);
             this.setContentAreaFilled(false);
             // Setting up
             ImageIcon icon = new ImageIcon(
-                    new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "bars.png")).getImage()
+                    new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "bars.png"))).getImage()
                             .getScaledInstance(24, 24, Image.SCALE_REPLICATE));
             this.setIcon(icon);
 
             ImageIcon selectedIcon = new ImageIcon(
-                    new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png"))
+                    new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "blue-bars.png")))
                             .getImage().getScaledInstance(24, 24, Image.SCALE_REPLICATE));
             filePopup = new FileMenuPopUp();
 
             // Actions listener
-            this.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ev) {
-                    JToggleButton b = FileMenuButton.this;
-                    if (b.isSelected()) {
-                        filePopup.show(b, b.getLocationOnScreen().x, b.getLocationOnScreen().y);
-                        setIcon(selectedIcon);
-                    } else {
-                        filePopup.setVisible(false);
-                        setIcon(icon);
-                    }
+            this.addActionListener(ev -> {
+                JToggleButton b = FileMenuButton.this;
+                if (b.isSelected()) {
+                    filePopup.show(b, b.getLocationOnScreen().x, b.getLocationOnScreen().y);
+                    setIcon(selectedIcon);
+                } else {
+                    filePopup.setVisible(false);
+                    setIcon(icon);
                 }
             });
 
@@ -166,7 +157,7 @@ public class Toolbar extends JTabbedPane implements Observer {
         private class FileMenuPopUp extends JPopupMenu {
             private static final long serialVersionUID = 3631645660924751860L;
 
-            public FileMenuPopUp() {
+            FileMenuPopUp() {
                 // Setting up
                 JMenuItem openMenu = new FileMenuItem("Open Model", "file-o.png");
                 JMenuItem openPatternConfigMenu = new FileMenuItem("Load pattern configuration", "conf-o.png");
@@ -194,19 +185,19 @@ public class Toolbar extends JTabbedPane implements Observer {
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         file = fc.getSelectedFile();
                         String filename = file.toString();
-                        Model m;
+                        Mesh mesh = new Mesh();
+                        controller.setCurrentMesh(mesh); // reset
                         try {
-                            m = new Model(filename);
-                            m.center();
+                            mesh.importModel(filename);
                         } catch (Exception e1) {
                             e1.printStackTrace();
                             Logger.error("Failed to load model");
                             return;
                         }
-                        controller.setModel(m);
+                        controller.setModel();
                         MainWindow.getInstance().getModelView().toggle();
                         Logger.updateStatus("Ready to slice " + file.getName());
-                        Toolbar.this.SlicerTab.setReadyToSlice(true);
+                        Toolbar.this.SlicerTab.setReadyToSlice();
                     }
                 });
 
@@ -222,7 +213,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                         PatternConfig loadedConf = CraftConfigLoader.loadPatternConfig(patternConfigFile);
                         if (loadedConf != null) {
                             TemplateTab.patternParametersContainer.setupPatternParameters(loadedConf);
-                            Logger.updateStatus("Pattern configuration loaded.");
+                            Logger.updateStatus("Pavement configuration loaded.");
                         }
                     }
                 });
@@ -245,8 +236,8 @@ public class Toolbar extends JTabbedPane implements Observer {
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     int returnVal = fc.showSaveDialog(null);
 
-                    GeneratedPart part = controller.getCurrentPart();
-                    if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isGenerated()) {
+                    Mesh part = controller.getCurrentMesh();
+                    if ((returnVal == JFileChooser.APPROVE_OPTION) && (part != null) && part.isPaved()) {
                         XmlTool xt = new XmlTool(part, Paths.get(fc.getSelectedFile().getPath()));
                         xt.writeXmlCode();
                     } else {
@@ -261,7 +252,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 
                 private static final long serialVersionUID = 3576752233844578812L;
 
-                public FileMenuItem(String label, String iconName) {
+                FileMenuItem(String label, String iconName) {
                     super(label);
 
                     // Visual options
@@ -272,7 +263,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                     // Setting up
                     try {
                         ImageIcon icon = new ImageIcon(
-                                new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + iconName))
+                                new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + iconName)))
                                         .getImage().getScaledInstance(22, 22, Image.SCALE_DEFAULT));
                         this.setIcon(icon);
                     } catch (Exception e) {
@@ -284,8 +275,6 @@ public class Toolbar extends JTabbedPane implements Observer {
                         @Override
                         public void mouseClicked(MouseEvent e) {
                         }
-
-                        ;
 
                         @Override
                         public void mouseEntered(MouseEvent e) {
@@ -304,8 +293,6 @@ public class Toolbar extends JTabbedPane implements Observer {
                         @Override
                         public void mouseReleased(MouseEvent e) {
                         }
-
-                        ;
                     });
                 }
             }
@@ -313,11 +300,11 @@ public class Toolbar extends JTabbedPane implements Observer {
             private class AboutDialogWindow extends JDialog {
                 private static final long serialVersionUID = -3389839563563221684L;
 
-                public AboutDialogWindow(JFrame parent, String title, boolean modal) {
+                AboutDialogWindow(JFrame parent, String title, boolean modal) {
                     super(parent, title, modal);
 
                     // Visual options
-                    Image windowIcon = new ImageIcon(this.getClass().getClassLoader().getResource("resources/icon.png"))
+                    Image windowIcon = new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")))
                             .getImage();
                     this.setIconImage(windowIcon);
                     this.setSize(350, 160);
@@ -330,7 +317,7 @@ public class Toolbar extends JTabbedPane implements Observer {
 
                     JLabel bg = new JLabel("");
                     ImageIcon icon = new ImageIcon(
-                            new ImageIcon(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png"))
+                            new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")))
                                     .getImage().getScaledInstance(248, 42, Image.SCALE_SMOOTH));
                     bg.setIcon(icon);
                     bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
@@ -358,7 +345,7 @@ public class Toolbar extends JTabbedPane implements Observer {
                             Desktop dt = Desktop.getDesktop();
                             try {
                                 dt.open(new File(
-                                        this.getClass().getClassLoader().getResource("resources/help.pdf").getPath()));
+                                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/help.pdf")).getPath()));
                             } catch (IOException e1) {
                                 Logger.error("Failed to load help file");
                             }
@@ -374,49 +361,6 @@ public class Toolbar extends JTabbedPane implements Observer {
     }
 
     /**
-     * For reviewing result and auto-optimizing
-     */
-    private class ReviewTab extends RibbonTab {
-
-        private static final long serialVersionUID = -6062849183461607573L;
-
-        public ReviewTab() {
-            super();
-
-            // For auto-optimizing
-            OptionsContainer autoOptimizeCont = new OptionsContainer("Auto-optimizing bits' distribution");
-            JButton autoOptimizeGPartBtn = new ButtonIcon("Auto-optimize this generated part", "cog.png");
-            autoOptimizeGPartBtn.setToolTipText(
-                    "Try the best to eliminate all irregular bits in the current mesh");
-            autoOptimizeCont.add(autoOptimizeGPartBtn);
-
-            add(autoOptimizeCont);
-
-            // For 3d view
-            add(new TabContainerSeparator());
-            OptionsContainer processingViewCont = new OptionsContainer("3D view");
-            ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
-            processingViewCont.add(processingViewBtn);
-            add(processingViewCont);
-
-            /////////////////////////////////////////////
-            // Actions listener
-
-            // For auto-optimizing
-
-            autoOptimizeGPartBtn.addActionListener(e -> {
-                autoOptimizeGPartBtn.setEnabled(true);
-                GeneratedPart currentPart = controller.getCurrentPart();
-                currentPart.getOptimizer().automaticallyOptimizeGeneratedPart(currentPart);
-                autoOptimizeGPartBtn.setEnabled(true);
-            });
-
-            // For 3D view
-            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView(null));
-        }
-    }
-
-    /**
      * For slicing object into multiple slices
      */
     private class SlicerTab extends RibbonTab {
@@ -425,20 +369,23 @@ public class Toolbar extends JTabbedPane implements Observer {
         private JLabel fileSelectedLabel;
         private JButton computeSlicesBtn;
 
-        public void setReadyToSlice(boolean ready) {
+        void setReadyToSlice() {
             fileSelectedLabel.setText(file.getName());
             computeSlicesBtn.setEnabled(true);
         }
 
-        public SlicerTab() {
+        SlicerTab() {
             super();
 
             // Slicer section
             OptionsContainer slicerCont = new OptionsContainer("Slicer options");
-            LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
+            // LabeledSpinner sliceHeightSpinner = new LabeledSpinner("sliceHeight", setupAnnotations.get("sliceHeight"));
+            // slicerCont.add(sliceHeightSpinner);
+            LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
+                    setupAnnotations.get("layersOffset"));
+            slicerCont.add(layersOffsetSpinner);
             LabeledSpinner firstSliceHeightPercentSpinner = new LabeledSpinner("firstSliceHeightPercent",
                     setupAnnotations.get("firstSliceHeightPercent"));
-            slicerCont.add(sliceHeightSpinner);
             slicerCont.add(firstSliceHeightPercentSpinner);
 
             add(slicerCont);
@@ -447,7 +394,6 @@ public class Toolbar extends JTabbedPane implements Observer {
             OptionsContainer computeCont = new OptionsContainer("Compute");
             computeSlicesBtn = new ButtonIcon("Slice model", "gears.png");
             computeSlicesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-            // computeSlicesBtn.setEnabled(false);
             fileSelectedLabel = new JLabel("No file selected");
             computeCont.add(fileSelectedLabel);
             computeCont.add(computeSlicesBtn);
@@ -457,42 +403,30 @@ public class Toolbar extends JTabbedPane implements Observer {
 
             // Actions listener
 
-            computeSlicesBtn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+            computeSlicesBtn.addActionListener(e -> {
+                if (controller.getCurrentMesh() == null) {
+                    Logger.error("No mesh found in workspace");
+                    return;
+                }
 
-                    if (controller.getCurrentPart() != null) {
-                        controller.setCurrentPart(null);
-                    }
-
-                    if (file != null) {
-                        // Disable button to prevent further clicking
-                        computeSlicesBtn.setEnabled(false);
-                        try {
-                            Model m;
-                            try {
-                                m = controller.getModel();
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                                Logger.error("Failed to load model");
-                                return;
-                            }
-                            GeneratedPart part = new GeneratedPart(m);
-                            controller.setCurrentPart(part);
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                            StringBuilder sb = new StringBuilder();
-                            sb.append(e1.toString());
+                if (file != null) {
+                    // Disable button to prevent further clicking
+                    computeSlicesBtn.setEnabled(false);
+                    try {
+                        controller.getCurrentMesh().slice();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(e1.toString());
+                        sb.append("\n");
+                        for (StackTraceElement el : e1.getStackTrace()) {
+                            sb.append(el.toString());
                             sb.append("\n");
-                            for (StackTraceElement el: e1.getStackTrace()) {
-                                sb.append(el.toString());
-                                sb.append("\n");
-                            }
-                            JOptionPane.showMessageDialog(null, sb, "Exception", JOptionPane.ERROR_MESSAGE);
                         }
-                        // Re-enable the button
-                        computeSlicesBtn.setEnabled(true);
+                        JOptionPane.showMessageDialog(null, sb, "Exception", JOptionPane.ERROR_MESSAGE);
                     }
+                    // Re-enable the button
+                    computeSlicesBtn.setEnabled(true);
                 }
             });
 
@@ -509,31 +443,19 @@ public class Toolbar extends JTabbedPane implements Observer {
             viewsCont.add(_3D);
             viewsCont.add(_demo);
 
-            _2D.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Show up the 2D view
-                    MainWindow.getInstance().get2DView().toggle();
-                }
+            _2D.addActionListener(e -> {
+                // Show up the 2D view
+                MainWindow.getInstance().get2DView().toggle();
             });
 
-            _3D.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Show up the 3D view
-                    MainWindow.getInstance().get3DView().toggle();
-                }
+            _3D.addActionListener(e -> {
+                // Show up the 3D view
+                MainWindow.getInstance().get3DView().toggle();
             });
 
-            _demo.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Show up the demo
-                    MainWindow.getInstance().getDemoView().toggle();
-                }
+            _demo.addActionListener(e -> {
+                // Show up the demo
+                MainWindow.getInstance().getDemoView().toggle();
             });
         }
     }
@@ -548,11 +470,7 @@ public class Toolbar extends JTabbedPane implements Observer {
         private JButton computeTemplateBtn;
         private PatternParametersContainer patternParametersContainer;
 
-        public JButton getComputeTemplateBtn() {
-            return computeTemplateBtn;
-        }
-
-        public TemplateTab() {
+        TemplateTab() {
             super();
 
             // Setting up
@@ -566,7 +484,7 @@ public class Toolbar extends JTabbedPane implements Observer {
             bitsCont.add(bitWidthSpinner);
             bitsCont.add(bitLengthSpinner);
 
-            // Pattern choice
+            // Pavement choice
             GalleryContainer patternGallery = new GalleryContainer("Pattern");
 
             // Template options
@@ -578,17 +496,15 @@ public class Toolbar extends JTabbedPane implements Observer {
             computeCont.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
             computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
             computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
-            LabeledSpinner layersOffsetSpinner = new LabeledSpinner("layersOffset",
-                    setupAnnotations.get("layersOffset"));
-            LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
-                    setupAnnotations.get("minPercentageOfSlices"));
-            LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
-                    setupAnnotations.get("defaultSliceToSelect"));
+
+            //LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
+            //        setupAnnotations.get("minPercentageOfSlices"));
+            //computeCont.add(minPercentageOfSlicesSpinner);
+            //LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
+            //        setupAnnotations.get("defaultSliceToSelect"));
+            //computeCont.add(defaultSliceToSelectSpinner);
             LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter",
                     setupAnnotations.get("suckerDiameter"));
-            computeCont.add(layersOffsetSpinner);
-            computeCont.add(minPercentageOfSlicesSpinner);
-            computeCont.add(defaultSliceToSelectSpinner);
             computeCont.add(suctionCupDiameter);
             computeCont.add(new JLabel()); // dummy
             computeCont.add(computeTemplateBtn);
@@ -605,14 +521,15 @@ public class Toolbar extends JTabbedPane implements Observer {
 
             // Actions listener
 
-            computeTemplateBtn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    computeTemplateBtn.setEnabled(false);
-                    controller.getCurrentPart().buildBits2D();
-                    CraftConfigLoader.saveConfig(null);
-                    computeTemplateBtn.setEnabled(true);
+            computeTemplateBtn.addActionListener(e -> {
+                computeTemplateBtn.setEnabled(false);
+                CraftConfigLoader.saveConfig(null);
+                try {
+                    controller.getCurrentMesh().pave(CraftConfig.templateChoice);
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
                 }
+                computeTemplateBtn.setEnabled(true);
             });
         }
 
@@ -626,42 +543,34 @@ public class Toolbar extends JTabbedPane implements Observer {
             private JLabel templateChosen;
             private JPopupMenu templatesMenu;
 
-            public GalleryContainer(String title) {
+            GalleryContainer(String title) {
                 super(title);
                 // this.setLayout(new GridLayout(1, 2, 3, 3));
                 this.setLayout(new BorderLayout());
                 // For the chosen template
                 PatternTemplate defaultTemplate = CraftConfig.templateChoice;
                 ImageIcon image = new ImageIcon(
-                        this.getClass().getClassLoader().getResource("resources/" + defaultTemplate.getIconName()));
+                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + defaultTemplate.getIconName())));
                 ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
                 this.templateChosen = new JLabel(defaultTemplate.getCommonName(), icon, SwingConstants.CENTER);
                 this.templateChosen.setPreferredSize(new Dimension(150, 50));
                 this.templateChosen.setToolTipText(descriptiveText(defaultTemplate));
                 this.add(templateChosen, BorderLayout.CENTER);
                 // For the menu
-                image = new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "angle-down.png"));
+                image = new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "angle-down.png")));
                 icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
                 JButton choosingTemplateBtn = new JButton(icon);
                 this.add(choosingTemplateBtn, BorderLayout.SOUTH);
-                choosingTemplateBtn.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        templatesMenu.show(choosingTemplateBtn, 0, choosingTemplateBtn.getHeight());
-                    }
-                });
+                choosingTemplateBtn.addActionListener(e -> templatesMenu.show(choosingTemplateBtn, 0, choosingTemplateBtn.getHeight()));
                 this.templatesMenu = new TemplatesMenu(this);
             }
 
-            protected String descriptiveText(PatternTemplate template) {
-                StringBuilder str = new StringBuilder();
-                str.append("<html><div>");
-                str.append("<p><strong>" + template.getCommonName() + "</strong></p>");
-                str.append("<p>" + template.getDescription() + "</p>");
-                str.append("<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>");
-                str.append("</div></html>");
-                return str.toString();
+            String descriptiveText(PatternTemplate template) {
+                return "<html><div>" +
+                        "<p><strong>" + template.getCommonName() + "</strong></p>" +
+                        "<p>" + template.getDescription() + "</p>" +
+                        "<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>" +
+                        "</div></html>";
             }
 
             /**
@@ -677,15 +586,15 @@ public class Toolbar extends JTabbedPane implements Observer {
                 private static final long serialVersionUID = 4906068175556528411L;
                 private GalleryContainer parent;
 
-                public TemplatesMenu(GalleryContainer galleryContainer) {
+                TemplatesMenu(GalleryContainer galleryContainer) {
                     super("...");
                     this.parent = galleryContainer;
                     // Load all templates we have
                     // TODO
                     // Load all saved templates
-                    CraftConfig.templatesLoaded = new Vector<PatternTemplate>(
+                    CraftConfig.templatesLoaded = new Vector<>(
                             Arrays.asList(CraftConfig.templatesPreloaded));
-                    for (PatternTemplate template: CraftConfig.templatesLoaded) {
+                    for (PatternTemplate template : CraftConfig.templatesLoaded) {
                         this.addNewTemplate(template);
                     }
                     // A button to load external template
@@ -696,28 +605,25 @@ public class Toolbar extends JTabbedPane implements Observer {
                     // Implement function "add external pattern"
                 }
 
-                public void addNewTemplate(PatternTemplate template) {
+                void addNewTemplate(PatternTemplate template) {
                     JMenuItem newTemplate = new JMenuItem(template.getCommonName());
                     ImageIcon image = new ImageIcon(
-                            this.getClass().getClassLoader().getResource("resources/" + template.getIconName()));
+                            Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
                     ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
                     newTemplate.setIcon(icon);
                     this.add(newTemplate);
-                    newTemplate.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            parent.refreshTemplateChosen(template);
-                            CraftConfig.templateChoice = template;
-                            patternParametersContainer.setupPatternParameters();
-                        }
+                    newTemplate.addActionListener(e -> {
+                        parent.refreshTemplateChosen(template);
+                        CraftConfig.templateChoice = template;
+                        patternParametersContainer.setupPatternParameters();
                     });
                 }
             }
 
-            public void refreshTemplateChosen(PatternTemplate template) {
+            void refreshTemplateChosen(PatternTemplate template) {
                 this.templateChosen.setText(template.getCommonName());
                 ImageIcon image = new ImageIcon(
-                        this.getClass().getClassLoader().getResource("resources/" + template.getIconName()));
+                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
                 ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
                 this.templateChosen.setIcon(icon);
                 this.templateChosen.setToolTipText(descriptiveText(template));
@@ -734,7 +640,7 @@ public class Toolbar extends JTabbedPane implements Observer {
              */
             private static final long serialVersionUID = -5486094986597798629L;
 
-            public PatternParametersContainer(String title) {
+            PatternParametersContainer(String title) {
                 super(title);
             }
 
@@ -742,9 +648,9 @@ public class Toolbar extends JTabbedPane implements Observer {
              * Remove all loaded components in containers then load new
              * parameters from the currently chosen pattern.
              */
-            public void setupPatternParameters() {
+            void setupPatternParameters() {
                 this.removeAll();
-                for (PatternParameter paramConfig: CraftConfig.templateChoice.getPatternConfig().values()) {
+                for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
                     this.add(paramConfig.getRenderer());
                 }
             }
@@ -754,11 +660,11 @@ public class Toolbar extends JTabbedPane implements Observer {
              * parameters from the given <tt>config</tt> (input will be filtered
              * by attribute's name, type)
              *
-             * @param config
+             * @param config new configuration
              */
-            public void setupPatternParameters(PatternConfig config) {
+            void setupPatternParameters(PatternConfig config) {
                 this.removeAll();
-                for (PatternParameter param: CraftConfig.templateChoice.getPatternConfig().values()) {
+                for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
                     PatternParameter importParam = config.get(param.getCodename());
                     // Update current value
                     if (importParam != null) {
@@ -773,6 +679,53 @@ public class Toolbar extends JTabbedPane implements Observer {
     }
 
     /**
+     * For reviewing result and auto-optimizing
+     */
+    private class ReviewTab extends RibbonTab {
+
+        private static final long serialVersionUID = -6062849183461607573L;
+
+        ReviewTab() {
+            super();
+
+            // For auto-optimizing the whole mesh
+            OptionsContainer optimizeCont = new OptionsContainer("Optimizing pavement");
+            JButton optimizeMeshBtn = new ButtonIcon("Optimize this mesh", "cog.png");
+            optimizeMeshBtn.setToolTipText("Try the best to eliminate all irregular bits in the current mesh");
+            optimizeCont.add(optimizeMeshBtn);
+
+            add(optimizeCont);
+
+            // For 3d view
+            add(new TabContainerSeparator());
+            OptionsContainer processingViewCont = new OptionsContainer("3D view");
+            ButtonIcon processingViewBtn = new ButtonIcon("Open 3D view", "3D.png");
+            processingViewCont.add(processingViewBtn);
+            add(processingViewCont);
+
+            /////////////////////////////////////////////
+            // Actions listener
+
+            // For auto-optimizing
+
+            optimizeMeshBtn.addActionListener(e -> {
+                optimizeMeshBtn.setEnabled(false);
+                Mesh currentMesh = controller.getCurrentMesh();
+                try {
+                    currentMesh.optimize();
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
+                }
+                optimizeMeshBtn.setEnabled(true);
+            });
+
+            // For 3D view
+            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView(null));
+        }
+    }
+
+
+    /**
      * Get annotations for fields from {@link CraftConfig}
      *
      * @return names of attributes associated by their annotations
@@ -782,12 +735,10 @@ public class Toolbar extends JTabbedPane implements Observer {
         try {
             // Get all declared attributes
             Field[] fieldList = Class.forName("meshIneBits.config.CraftConfig").getDeclaredFields();
-            for (Field field: fieldList) {
+            for (Field field : fieldList) {
                 result.put(field.getName(), field.getAnnotation(Setting.class));
             }
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SecurityException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return result;

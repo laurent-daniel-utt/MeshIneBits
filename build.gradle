@@ -32,11 +32,11 @@ sourceCompatibility = 1.8
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-	compile 'org.processing:core:3.3.5'
-	compile 'org.jogamp.jogl:jogl-all:2.3.2'
-	compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
+    compile 'org.processing:core:3.3.5'
+    compile 'org.jogamp.jogl:jogl-all:2.3.2'
+    compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
     compile 'org.json:json:20180130'
-    compile files('libs/proscene.jar' , 'libs/controlP5.jar')
+    compile files('libs/proscene.jar', 'libs/controlP5.jar')
 
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
@@ -71,14 +71,28 @@ eclipse {
                 def testSource = entries.find { it.path == 'src/test/java' }
                 testSource.output = "bin/test"
 
-				// Remove local ref for libs
-				entries.removeAll{ it.kind == "lib" }
-			}
-			containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer' }
-	}
+                // Remove local ref for libs
+                entries.removeAll { it.kind == "lib" }
+            }
+            containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
+        }
+    }
 }
 
 tasks.idea.dependsOn(cleanIdea)
+
+idea {
+    module {
+        [".gradle", ".idea", "data", "doc", "out"].each {
+            excludeDirs += file(it)
+        }
+        iml {
+            beforeMerged { module ->
+                module.excludeFolders.clear()
+            }
+        }
+    }
+}
 
 buildscript {
     repositories { mavenCentral() }
@@ -87,6 +101,6 @@ buildscript {
 
 jar {
     baseName = applicationName
-    version = '0.2.0'
+    version = '0.3.0'
     manifest { attributes 'Main-Class': mainClassName }
 }

@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,24 +22,22 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * The tab on panel
  */
 public abstract class RibbonTab extends JPanel {
 
-	private static final long serialVersionUID = 5540398663631111329L;
+    private static final long serialVersionUID = 5540398663631111329L;
 
-	public RibbonTab() {
-		// Visual options
-		FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
-		layout.setAlignOnBaseline(true);
-		this.setLayout(layout);
-		this.setBackground(Color.WHITE);
-		this.setFocusable(false);
-	}
+    protected RibbonTab() {
+        // Visual options
+        FlowLayout layout = new FlowLayout(FlowLayout.LEFT, 10, 0);
+        layout.setAlignOnBaseline(true);
+        this.setLayout(layout);
+        this.setBackground(Color.WHITE);
+        this.setFocusable(false);
+    }
 }

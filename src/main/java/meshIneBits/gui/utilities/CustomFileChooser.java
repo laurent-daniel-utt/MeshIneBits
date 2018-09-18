@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,28 +22,24 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.Component;
-import java.awt.HeadlessException;
-import java.awt.Image;
-
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
+import javax.swing.*;
+import java.awt.*;
+import java.util.Objects;
 
 public class CustomFileChooser extends JFileChooser {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9019431933537011834L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 9019431933537011834L;
 
-	@Override
-	protected JDialog createDialog(Component parent) throws HeadlessException {
-		JDialog dialog = super.createDialog(parent);
-		ImageIcon icon = new ImageIcon(
-				new ImageIcon(this.getClass().getClassLoader().getResource("resources/" + "icon.png")).getImage()
-						.getScaledInstance(24, 24, Image.SCALE_REPLICATE));
-		dialog.setIconImage(icon.getImage());
-		return dialog;
-	}
+    @Override
+    protected JDialog createDialog(Component parent) throws HeadlessException {
+        JDialog dialog = super.createDialog(parent);
+        ImageIcon icon = new ImageIcon(
+                new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "icon.png"))).getImage()
+                        .getScaledInstance(24, 24, Image.SCALE_REPLICATE));
+        dialog.setIconImage(icon.getImage());
+        return dialog;
+    }
 }

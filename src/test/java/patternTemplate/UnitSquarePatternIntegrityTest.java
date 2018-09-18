@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,43 +22,41 @@
 
 package patternTemplate;
 
-import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.UnitSquarePattern;
 import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 
-	static {
-		logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
-	}
+    static {
+        logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
+    }
 
-	@BeforeEach
-	void setUp() {
-		pattern = new UnitSquarePattern();
-		UnitSquarePattern p = (UnitSquarePattern) pattern;
-		logger.info("applyQuickRegroup=true");
-		p.setApplyQuickRegroup(true);
-		logger.info("limitAction=10000");
-		p.setLimitAction(10000);
-		logger.info("cutDetails=true");
-		p.setCutDetails(true);
-		CraftConfig.templateChoice = pattern;
-	}
+    @BeforeEach
+    void setUp() {
+        pattern = new UnitSquarePattern();
+        UnitSquarePattern p = (UnitSquarePattern) pattern;
+        logger.info("applyQuickRegroup=true");
+        p.setApplyQuickRegroup(true);
+        logger.info("limitAction=10000");
+        p.setLimitAction(10000);
+        logger.info("cutDetails=true");
+        p.setCutDetails(true);
+        CraftConfig.templateChoice = pattern;
+    }
 
-	@Override
-	protected void checkSlicedPart() {
-		// Nothing to check
-	}
+    @Override
+    protected void checkSlicedPart() {
+        // Nothing to check
+    }
 
-	@Override
-	protected void checkGeneratedPart() {
-		for (Layer layer : part.getLayers()) {
-			// Assure each layer is empty
-			assertEquals(0, layer.getSelectedPattern().getBitsKeys().size(),
-					"Layer " + layer.getLayerNumber() + " should be empty");
-		}
-	}
+    @Override
+    protected void checkPavedMesh() {
+//        for (Layer layer : mesh.getLayers()) {
+//            // Assure each layer is empty
+//            assertEquals(0, layer.getFlatPavement().getBitsKeys().size(),
+//                    "Layer " + layer.getLayerNumber() + " should be empty");
+//        }
+        // Nothing to check
+    }
 }

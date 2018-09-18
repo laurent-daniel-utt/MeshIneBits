@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +30,12 @@ import java.awt.*;
  */
 public class RibbonCheckBox extends JCheckBox {
 
-	private static final long serialVersionUID = 9143671052675167109L;
+    private static final long serialVersionUID = 9143671052675167109L;
 
-	public RibbonCheckBox(String label) {
-		super(label);
-		// Visual options
-		this.setBackground(Color.WHITE);
-		this.setFocusable(false);
-	}
+    public RibbonCheckBox(String label) {
+        super(label);
+        // Visual options
+        this.setBackground(Color.WHITE);
+        this.setFocusable(false);
+    }
 }

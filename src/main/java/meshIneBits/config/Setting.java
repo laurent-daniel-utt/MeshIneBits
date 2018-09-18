@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,13 +30,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Setting {
-	public double step() default 1;
+    public double step() default 1;
 
-	public String title() default "";
+    public String title() default "";
 
-	public String description() default "";
+    public String description() default "";
 
-	public double minValue() default Double.MIN_VALUE;
+    public double minValue() default Double.MIN_VALUE;
 
-	public double maxValue() default Double.MAX_VALUE;
+    public double maxValue() default Double.MAX_VALUE;
 }

@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +20,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * 
- */
 package meshIneBits.config.patternParameter;
 
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
@@ -30,64 +28,62 @@ import java.io.Serializable;
 
 /**
  * Describe a parameter of pattern <br>
- * 
- * @author NHATHAN
  *
+ * @author NHATHAN
  */
 public abstract class PatternParameter implements Serializable {
 
-	/**
-	 * 
-	 */
-	static final long serialVersionUID = -1032848466522000185L;
-	protected String title;
-	protected String codename;
-	protected String description;
+    /**
+     *
+     */
+    static final long serialVersionUID = -1032848466522000185L;
+    String title;
+    String codename;
+    String description;
 
-	/**
-	 * Type of current value depends on sub class
-	 * 
-	 * @return
-	 */
-	public abstract Object getCurrentValue();
+    /**
+     * Type of current value depends on sub class
+     *
+     * @return predictable type
+     */
+    public abstract Object getCurrentValue();
 
-	/**
-	 * This method will be use by interfaces on each change event
-	 * 
-	 * @param newValue
-	 *            will be filtered before affecting, in the same way of
-	 *            <tt>defaultValue</tt>
-	 */
-	public abstract void setCurrentValue(Object newValue);
+    /**
+     * This method will be use by interfaces on each change event
+     *
+     * @param newValue will be filtered before affecting, in the same way of
+     *                 <tt>defaultValue</tt>
+     */
+    public abstract void setCurrentValue(Object newValue);
 
-	/**
-	 * @return name of parameters. Should be different among parameters.
-	 */
-	public String getCodename() {
-		return codename;
-	}
+    /**
+     * @return name of parameters. Should be different among parameters.
+     */
+    public String getCodename() {
+        return codename;
+    }
 
-	/**
-	 * @return human-readable name
-	 */
-	public String getTitle() {
-		return title;
-	}
+    /**
+     * @return human-readable name
+     */
+    public String getTitle() {
+        return title;
+    }
 
-	/**
-	 * @return what it is and how to use
-	 */
-	public String getDescription() {
-		return description;
-	}
+    /**
+     * @return what it is and how to use
+     */
+    public String getDescription() {
+        return description;
+    }
 
-	/**
-	 * @return encoded string
-	 */
-	public abstract String toString();
+    /**
+     * @return encoded string
+     */
+    public abstract String toString();
 
-	/**
-	 * @return gui of parameter
-	 */
-	public abstract Renderer getRenderer();
+    /**
+     * @return gui of parameter
+     */
+    public abstract Renderer getRenderer();
 }

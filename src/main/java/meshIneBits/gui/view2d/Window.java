@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +20,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- *
- */
 package meshIneBits.gui.view2d;
 
-import meshIneBits.GeneratedPart;
+import meshIneBits.Mesh;
 import meshIneBits.gui.SubWindow;
 
 import javax.swing.*;
@@ -36,35 +34,35 @@ import java.util.Objects;
  */
 public class Window extends JFrame implements SubWindow {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	Wrapper viewWrapper;
+    private Wrapper viewWrapper;
 
-	public Window() {
-		this.setIconImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png"))).getImage());
-		this.setTitle("MeshIneBits - 2D View");
-		this.setSize(new Dimension(1080, 720));
-		viewWrapper = new Wrapper();
-		this.setContentPane(viewWrapper);
-	}
+    public Window() {
+        this.setIconImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png"))).getImage());
+        this.setTitle("MeshIneBits - 2D View");
+        this.setSize(new Dimension(1080, 720));
+        viewWrapper = new Wrapper();
+        this.setContentPane(viewWrapper);
+    }
 
-	/* (non-Javadoc)
-	 * @see meshIneBits.gui.SubWindow#toggle()
-	 */
-	@Override
-	public void toggle() {
-		if (this.isShowing()) {
-			this.setVisible(false);
-		} else {
-			this.setVisible(true);
-		}
-	}
+    /* (non-Javadoc)
+     * @see meshIneBits.gui.SubWindow#toggle()
+     */
+    @Override
+    public void toggle() {
+        if (this.isShowing()) {
+            this.setVisible(false);
+        } else {
+            this.setVisible(true);
+        }
+    }
 
-	@Override
-	public void setCurrentPart(GeneratedPart currentPart) {
-		viewWrapper.getController().setCurrentPart(currentPart);
-	}
+    @Override
+    public void setCurrentMesh(Mesh mesh) {
+        viewWrapper.getController().setCurrentPart(mesh);
+    }
 }

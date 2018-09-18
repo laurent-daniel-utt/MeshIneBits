@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +25,10 @@ package meshIneBits.gui.view3d;
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-
 import controlP5.ControlP5;
-import controlP5.Textlabel;
 import javafx.util.Pair;
-import meshIneBits.GeneratedPart;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.Mesh;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.opengl.PJOGL;
@@ -42,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -62,45 +60,49 @@ public class demoView extends PApplet implements Observer, SubWindow {
     private float printerY;
     private float printerZ;
     private ControlP5 cp5;
-    private static Vector<Pair<Position,PShape>> shapeMap = null;
+    private static Vector<Pair<Position, PShape>> shapeMap = null;
     private boolean start = false;
     private int n;
 
-    public  static void startdemoView(){
-        if (currentInstance == null){
+    private static void startdemoView() {
+        if (currentInstance == null) {
             PApplet.main("meshIneBits.gui.view3d.demoView");
         }
     }
+
     /**
      *
      */
-    public static void closeProcessingModelView(){
+    public static void closeProcessingModelView() {
         if (currentInstance != null) {
             currentInstance.destroyGLWindow();
         }
     }
+
     /**
      *
      */
-    private void destroyGLWindow(){
+    private void destroyGLWindow() {
         ((com.jogamp.newt.opengl.GLWindow) surface.getNative()).destroy();
     }
+
     /**
      *
      */
-    public void settings(){
-        PJOGL.setIcon(this.getClass().getClassLoader().getResource("resources/icon.png").getPath());
+    public void settings() {
+        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
         currentInstance = this;
         size(width, height, P3D);
     }
+
     /**
      *
      */
-    private void setCloseOperation(){
+    private void setCloseOperation() {
         //Removing close listeners
 
         com.jogamp.newt.opengl.GLWindow win = ((com.jogamp.newt.opengl.GLWindow) surface.getNative());
-        for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()){
+        for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
             win.removeWindowListener(wl);
         }
 
@@ -120,7 +122,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
             @Override
             public void windowResized(WindowEvent e) {
                 super.windowResized(e);
-                surface.setSize(win.getWidth(),win.getHeight());
+                surface.setSize(win.getWidth(), win.getHeight());
             }
         });
     }
@@ -129,6 +131,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         controller = Controller.getInstance();
         controller.addObserver(this);
     }
+
     /**
      *
      */
@@ -143,12 +146,11 @@ public class demoView extends PApplet implements Observer, SubWindow {
         scene.setRadius(2500);
         scene.showAll();
         scene.disableKeyboardAgent();
-        shapeMap = new Vector<Pair<Position, PShape>>();
+        shapeMap = new Vector<>();
         builder = new Builder(this);
         try {
             builder.buildBits(shapeMap);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             println("Mesh not generated yet");
         }
         setCloseOperation();
@@ -160,13 +162,13 @@ public class demoView extends PApplet implements Observer, SubWindow {
         n = 0;
     }
 
-    public void draw(){
+    public void draw() {
         background(BACKGROUND_COLOR);
         lights();
-        ambientLight(255,255,255);
+        ambientLight(255, 255, 255);
         drawWorkspace();
         drawBits(shapeMap, n);
-        if (start){
+        if (start) {
             n++;
         }
         scene.beginScreenDrawing();
@@ -174,7 +176,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         scene.endScreenDrawing();
     }
 
-    private  void drawBits(Vector<Pair<Position, PShape>> shapeMap, int n){
+    private void drawBits(Vector<Pair<Position, PShape>> shapeMap, int n) {
 
         int j = 0;
         for (int i = 0; i < shapeMap.size(); i++) {
@@ -182,9 +184,9 @@ public class demoView extends PApplet implements Observer, SubWindow {
                 pushMatrix();
                 float[] t = shapeMap.get(i).getKey().getTranslation();
                 translate(t[0], t[1], t[2]);
-                translate((float)controller.getCurrentPart().getModel().getPos().x,
-                          (float)controller.getCurrentPart().getModel().getPos().y,
-                          (float)controller.getCurrentPart().getModel().getPos().z);
+                translate((float) controller.getCurrentPart().getModel().getPos().x,
+                        (float) controller.getCurrentPart().getModel().getPos().y,
+                        (float) controller.getCurrentPart().getModel().getPos().z);
 
                 rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 
@@ -203,54 +205,50 @@ public class demoView extends PApplet implements Observer, SubWindow {
      */
     private void drawWorkspace() {
         try {
-            File filename = new File(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt").getPath());
+            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
             FileInputStream file = new FileInputStream(filename);
             BufferedReader br = new BufferedReader(new InputStreamReader(file));
             String strline;
-            while ((strline = br.readLine()) != null){
-                if (strline.startsWith("x")){
+            while ((strline = br.readLine()) != null) {
+                if (strline.startsWith("x")) {
                     printerX = Float.valueOf(strline.substring(3));
-                }
-                else if (strline.startsWith("y")){
+                } else if (strline.startsWith("y")) {
                     printerY = Float.valueOf(strline.substring(3));
-                }
-                else if (strline.startsWith("z")){
+                } else if (strline.startsWith("z")) {
                     printerZ = Float.valueOf(strline.substring(3));
                 }
             }
             br.close();
             file.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Error :" + e.getMessage());
         }
         pushMatrix();
         noFill();
-        stroke(255,255,0);
-        translate(0,0,printerZ/2);
-        box(printerX,printerY,printerZ);
+        stroke(255, 255, 0);
+        translate(0, 0, printerZ / 2);
+        box(printerX, printerY, printerZ);
         popMatrix();
         stroke(80);
         scene.pg().pushStyle();
         scene.pg().beginShape(LINES);
-        for (int i = -(int)printerX/2; i <= printerX/2; i+=100) {
-            vertex(i,printerY/2,0);
-            vertex(i,-printerY/2,0);
+        for (int i = -(int) printerX / 2; i <= printerX / 2; i += 100) {
+            vertex(i, printerY / 2, 0);
+            vertex(i, -printerY / 2, 0);
 
         }
-        for (int i = -(int)printerY/2; i <= printerY/2; i+=100) {
-            vertex(printerX/2,i,0);
-            vertex(-printerX/2,i,0);
+        for (int i = -(int) printerY / 2; i <= printerY / 2; i += 100) {
+            vertex(printerX / 2, i, 0);
+            vertex(-printerX / 2, i, 0);
         }
         scene.pg().endShape();
         scene.pg().popStyle();
     }
 
     public void Play(float theValue) {
-        if (start){
+        if (start) {
             start = false;
-        }
-        else{
+        } else {
             start = true;
         }
 
@@ -262,39 +260,40 @@ public class demoView extends PApplet implements Observer, SubWindow {
     }
 
     @Override
-    public void update(Observable o, Object arg){}
+    public void update(Observable o, Object arg) {
+    }
 
-    public void open(){
+    private void open() {
         // TODO Auto-generated method stub
-        if (!initialized){
-           demoView.startdemoView();
+        if (!initialized) {
+            demoView.startdemoView();
             visible = true;
             initialized = true;
-        } else{
+        } else {
             setVisible(true);
         }
     }
 
-    public void hide(){
+    private void hide() {
         // TODO Auto-generated method stub
         setVisible(false);
     }
 
     @Override
-    public void toggle(){
-        if (visible){
+    public void toggle() {
+        if (visible) {
             hide();
-        } else{
+        } else {
             open();
         }
     }
 
     @Override
-    public void setCurrentPart(GeneratedPart currentPart) {
-        controller.setCurrentPart(currentPart);
+    public void setCurrentMesh(Mesh mesh) {
+        controller.setCurrentPart(mesh);
     }
 
-    private void setVisible(boolean b){
+    private void setVisible(boolean b) {
         // TODO Auto-generated method stub
         currentInstance.getSurface().setVisible(b);
         visible = b;
