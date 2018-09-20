@@ -100,7 +100,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Diagonal Herringbone";
+        return "Diagonal Herringbone Pattern";
     }
 
     @Override

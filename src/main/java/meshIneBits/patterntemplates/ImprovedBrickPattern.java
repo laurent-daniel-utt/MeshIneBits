@@ -37,7 +37,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 /**
- * Pavement improved from classic pattern
+ * Pattern improved from classic pattern
  * {@link meshIneBits.patterntemplates.ClassicBrickPattern ClassicBrickPattern}.
  *
  * @author NHATHAN
@@ -522,7 +522,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Improved Brick Pavement";
+        return "Improved Brick Pattern";
     }
 
     @Override
@@ -532,7 +532,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
     @Override
     public String getDescription() {
-        return "A pattern improved from classic Brick Pavement with much more flexibility.";
+        return "A pattern improved from Classic Brick Pattern with much more flexibility.";
     }
 
     @Override

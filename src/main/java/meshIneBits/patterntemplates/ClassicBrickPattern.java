@@ -90,7 +90,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Classic Brick Pavement";
+        return "Classic Brick Pattern";
     }
 
     @Override

@@ -528,7 +528,7 @@ public class EconomicPattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Economic Pavement";
+        return "Economic Pattern";
     }
 
     @Override

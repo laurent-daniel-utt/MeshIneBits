@@ -221,7 +221,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Unit Square Pavement";
+        return "Unit Square Pattern";
     }
 
     @Override
