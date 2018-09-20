@@ -281,7 +281,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
         // If part is only sliced (layers not generated yet), draw the slices
         if ((currentMesh != null) && !currentMesh.isPaved()) {
-            paintSlices(currentMesh, g2d);
+            paintSlice(currentMesh, g2d);
         }
 
         // If layers are generated, draw the patterns
@@ -302,6 +302,11 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 				paintSlicesInTheSameLayer(currentLayer, g2d);
 			}
 */
+
+            // Draw the border of layer
+            if (controller.showSlice()) {
+                paintSlice(currentMesh, g2d);
+            }
 
             // Draw the controls of the selected bit
             bitMovers.clear();
@@ -335,8 +340,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         g2d.draw(a);
     }
 
-    private void paintSlices(Mesh currentPart, Graphics2D g2d) {
-        Slice slice = currentPart.getSlices().get(controller.getCurrentSliceNumber());
+    private void paintSlice(Mesh mesh, Graphics2D g2d) {
+        Slice slice = mesh.getSlices().get(controller.getCurrentSliceNumber());
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
         }

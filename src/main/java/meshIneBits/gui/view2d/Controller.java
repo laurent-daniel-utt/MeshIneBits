@@ -48,12 +48,14 @@ class Controller extends Observable implements Observer {
     private double zoom = 1;
     @Deprecated
     private boolean showSlices = false;
+    private boolean showSlice = false;
+
     private boolean showLiftPoints = false;
+
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private Model model = null;
-
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -67,6 +69,14 @@ class Controller extends Observable implements Observer {
 
     int getCurrentLayerNumber() {
         return layerNumber;
+    }
+
+    public boolean showSlice() {
+        return showSlice;
+    }
+
+    public void setShowSlice(boolean showSlice) {
+        this.showSlice = showSlice;
     }
 
     Mesh getCurrentMesh() {
@@ -238,8 +248,15 @@ class Controller extends Observable implements Observer {
 
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    void toggleShowSlice(boolean selected) {
+    void toggleShowSlices(boolean selected) {
         this.showSlices = selected;
+
+        setChanged();
+        notifyObservers();
+    }
+
+    void toggleShowSlice(boolean selected) {
+        this.showSlice = selected;
 
         setChanged();
         notifyObservers();

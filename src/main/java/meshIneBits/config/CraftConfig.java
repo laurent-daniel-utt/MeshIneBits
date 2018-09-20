@@ -100,6 +100,7 @@ public class CraftConfig {
      */
     public static PatternTemplate[] templatesPreloaded = {
             new ClassicBrickPattern(),
+            new ManualPattern(),
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
