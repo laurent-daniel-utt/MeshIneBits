@@ -26,6 +26,9 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.UnitSquarePattern;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
+
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 
     static {
@@ -43,6 +46,11 @@ public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
         logger.info("cutDetails=true");
         p.setCutDetails(true);
         CraftConfig.templateChoice = pattern;
+        // Reduce the logger's verbalism
+        UnitSquarePattern.LOGGER.setLevel(Level.INFO);
+        for (Handler handler : UnitSquarePattern.LOGGER.getHandlers()) {
+            handler.setLevel(Level.INFO);
+        }
     }
 
     @Override
