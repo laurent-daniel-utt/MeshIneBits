@@ -71,12 +71,8 @@ class Controller extends Observable implements Observer {
         return layerNumber;
     }
 
-    public boolean showSlice() {
+    boolean showSlice() {
         return showSlice;
-    }
-
-    public void setShowSlice(boolean showSlice) {
-        this.showSlice = showSlice;
     }
 
     Mesh getCurrentMesh() {
@@ -143,12 +139,12 @@ class Controller extends Observable implements Observer {
      * Put a generated mesh under observation of this controller. Also signify
      * {@link Core} and {@link Wrapper} to repaint.
      *
-     * @param part <tt>null</tt> to reset
+     * @param mesh <tt>null</tt> to reset
      */
-    void setCurrentMesh(Mesh part) {
-        if (part != null) {
-            this.mesh = part;
-            part.addObserver(this);
+    void setCurrentMesh(Mesh mesh) {
+        if (mesh != null) {
+            this.mesh = mesh;
+            mesh.addObserver(this);
 
             setLayer(0);
             reset();
