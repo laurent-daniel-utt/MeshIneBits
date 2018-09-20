@@ -28,6 +28,7 @@ import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.MainController;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
 
@@ -110,7 +111,6 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 break;
         }
         // Move all selected bits
-        final Vector2 finalDirection = direction;
         controller.setSelectedBitKeys(layer.moveBits(controller.getSelectedBits(), direction));
     }
 
@@ -303,7 +303,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             // Draw the border of layer
             if (controller.showSlice()) {
-                g2d.setColor(Color.BLUE);
+                g2d.setColor(Color.BLACK);
                 g2d.setStroke(new BasicStroke(1.0f));
                 paintSlice(currentMesh, g2d);
             }
