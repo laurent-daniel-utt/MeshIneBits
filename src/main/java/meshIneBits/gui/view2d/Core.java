@@ -277,6 +277,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
         // If mesh is only sliced (layers not generated yet), draw the slices
         if ((currentMesh != null) && !currentMesh.isPaved()) {
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(1.0f));
             paintSlice(currentMesh, g2d);
         }
 
@@ -301,6 +303,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             // Draw the border of layer
             if (controller.showSlice()) {
+                g2d.setColor(Color.BLUE);
+                g2d.setStroke(new BasicStroke(1.0f));
                 paintSlice(currentMesh, g2d);
             }
 
