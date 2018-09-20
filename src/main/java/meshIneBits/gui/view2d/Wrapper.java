@@ -307,6 +307,7 @@ class Wrapper extends JPanel implements Observer {
         }
     }
 
+    @SuppressWarnings("unused")
     @Deprecated
     private class SliceSelectorPane extends OptionsContainer {
         SliceSelectorPane() {

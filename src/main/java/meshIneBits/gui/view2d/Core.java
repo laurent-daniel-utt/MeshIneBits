@@ -37,7 +37,6 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
@@ -57,7 +56,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     Core() {
         // Setting up for easier use later
         controller = Controller.getInstance();
-        controller.setCurrentPart(MainController.getInstance().getCurrentMesh());
+        controller.setCurrentMesh(MainController.getInstance().getCurrentMesh());
 
         // Actions listener
         addMouseMotionListener(this);
@@ -112,10 +111,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         }
         // Move all selected bits
         final Vector2 finalDirection = direction;
-        Set<Vector2> newCoordinates = controller.getSelectedBits().stream()
-                .map(bit2D -> layer.moveBit(bit2D.getOrigin(), finalDirection))
-                .collect(Collectors.toSet());
-        controller.setSelectedBitKeys(newCoordinates);
+        controller.setSelectedBitKeys(layer.moveBits(controller.getSelectedBits(), direction));
     }
 
     private void paintBitControls(Bit3D bit, Graphics2D g2d) {
@@ -157,9 +153,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     @Override
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            Mesh part = controller.getCurrentMesh();
+            Mesh mesh = controller.getCurrentMesh();
 
-            if ((part != null) && part.isPaved()) {
+            if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
                 Point2D.Double clickSpot = new Point2D.Double(
                         ((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
@@ -279,7 +275,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         Graphics2D g2d = (Graphics2D) g;
         Mesh currentMesh = controller.getCurrentMesh();
 
-        // If part is only sliced (layers not generated yet), draw the slices
+        // If mesh is only sliced (layers not generated yet), draw the slices
         if ((currentMesh != null) && !currentMesh.isPaved()) {
             paintSlice(currentMesh, g2d);
         }

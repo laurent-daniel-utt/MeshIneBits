@@ -29,10 +29,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -40,7 +37,7 @@ import java.util.stream.Collectors;
  * A layer contains all the bit 3D for a given Z. These bits are organized
  * following a {@link PatternTemplate}. In order to build the 3D bits, it has to
  * start by building a {@link Pavement} for each slice. The
- * {@link #referentialPavement} determines the position and orientation of the
+ * {@link #flatPavement} determines the position and orientation of the
  * bits. It is then cloned and shaped to fit the linked {@link Slice}.
  */
 public class Layer extends Observable {
@@ -49,6 +46,7 @@ public class Layer extends Observable {
     private Vector<Slice> slices;
     private Slice horizontalSection;
     private Pavement flatPavement;
+    @Deprecated
     private Pavement referentialPavement;
     private PatternTemplate patternTemplate;
     private Vector<Pavement> pavements = new Vector<>();
@@ -314,12 +312,31 @@ public class Layer extends Observable {
     }
 
     /**
+     * Move multiple bits at once.
+     *
+     * @param bits      chosen bits
+     * @param direction chosen way
+     * @return list of new origins' position
+     */
+    public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
+        Set<Vector2> newPositions = bits.stream()
+                .map(bit -> patternTemplate.moveBit(flatPavement, bit.getOrigin(), direction))
+                .collect(Collectors.toSet());
+        rebuild();
+        // Some new positions may be out of border
+        return newPositions.stream()
+                .filter(pos -> this.getBit3D(pos) != null)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Rebuild the whole layer. To be called after every changes made on this
      * layer
      */
     public void rebuild() {
 //		buildPatterns();
 //      generateBits3D();
+        flatPavement.computeBits(horizontalSection);
         extrudeBitsTo3D();
         computeLiftPoints();
         setChanged();
