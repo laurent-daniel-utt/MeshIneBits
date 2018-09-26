@@ -103,7 +103,7 @@ public class UnitSquarePattern extends PatternTemplate {
     private static final String INCREMENTAL_ROTATION = "incrementalRotation";
     private static final String CUT_DETAILS = "cutDetails";
 
-    private static final java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
+    public static final java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
 
     @Override
     public void initiateConfig() {
@@ -144,7 +144,7 @@ public class UnitSquarePattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Logger.updateStatus("Paving layer " + layer.getLayerNumber());
-        LOGGER.info("Paving layer " + layer.getLayerNumber());
+        LOGGER.config("Paving layer " + layer.getLayerNumber());
         // Calculate size of unit square
         this.calcUnitSizeAndLimits();
         // Update the choice on applying quick regroup
@@ -168,18 +168,19 @@ public class UnitSquarePattern extends PatternTemplate {
             // Generate the corresponding matrix
             UnitMatrix matrix = new UnitMatrix(zone);
             if (matrix.resolve()) {
-                LOGGER.info("Solution found for " + zone);
+                LOGGER.config("Solution found for " + zone);
                 // Re-transform bits
                 Set<Bit2D> biasedBits = matrix.exportBits();
                 Set<Bit2D> trueBits = biasedBits.stream().map(bit -> bit.createTransformedBit(inv)).collect(Collectors.toSet());
                 overallPavement.addAll(trueBits);
-                LOGGER.info(matrix.pToString());
+                LOGGER.config(matrix.pToString());
             } else {
                 LOGGER.warning("Pavement of layer " + layer.getLayerNumber() + " failed.");
                 Logger.updateStatus("Pavement of layer " + layer.getLayerNumber() + " failed.");
                 return new Pavement(new Vector<>(), new Vector2(1, 0));
             }
         }
+        LOGGER.info("Paved layer " + layer.getLayerNumber());
         return new Pavement(overallPavement, new Vector2(1, 0));
     }
 

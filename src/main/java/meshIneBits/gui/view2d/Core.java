@@ -37,7 +37,6 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
@@ -57,7 +56,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     Core() {
         // Setting up for easier use later
         controller = Controller.getInstance();
-        controller.setCurrentPart(MainController.getInstance().getCurrentMesh());
+        controller.setCurrentMesh(MainController.getInstance().getCurrentMesh());
 
         // Actions listener
         addMouseMotionListener(this);
@@ -111,11 +110,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 break;
         }
         // Move all selected bits
-        final Vector2 finalDirection = direction;
-        Set<Vector2> newCoordinates = controller.getSelectedBits().stream()
-                .map(bit2D -> layer.moveBit(bit2D.getOrigin(), finalDirection))
-                .collect(Collectors.toSet());
-        controller.setSelectedBitKeys(newCoordinates);
+        controller.setSelectedBitKeys(layer.moveBits(controller.getSelectedBits(), direction));
     }
 
     private void paintBitControls(Bit3D bit, Graphics2D g2d) {
@@ -157,9 +152,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     @Override
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            Mesh part = controller.getCurrentMesh();
+            Mesh mesh = controller.getCurrentMesh();
 
-            if ((part != null) && part.isPaved()) {
+            if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
                 Point2D.Double clickSpot = new Point2D.Double(
                         ((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
@@ -278,14 +273,17 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
         Graphics2D g2d = (Graphics2D) g;
         Mesh currentMesh = controller.getCurrentMesh();
+        if (currentMesh == null) return;
 
-        // If part is only sliced (layers not generated yet), draw the slices
-        if ((currentMesh != null) && !currentMesh.isPaved()) {
-            paintSlices(currentMesh, g2d);
+        // If mesh is only sliced (layers not generated yet), draw the slices
+        if (!currentMesh.isPaved()) {
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(1.0f));
+            paintSlice(currentMesh, g2d);
         }
 
-        // If layers are generated, draw the patterns
-        else if ((currentMesh != null) && currentMesh.isPaved()) {
+        // If layers are generated, draw the pavements
+        else {
 
             // Draw previous layer
             if (controller.showPreviousLayer() && (controller.getCurrentLayerNumber() > 0)) {
@@ -302,6 +300,13 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 				paintSlicesInTheSameLayer(currentLayer, g2d);
 			}
 */
+
+            // Draw the border of layer
+            if (controller.showSlice()) {
+                g2d.setColor(Color.RED);
+                g2d.setStroke(new BasicStroke(1.0f));
+                paintLayerBorder(currentMesh, g2d);
+            }
 
             // Draw the controls of the selected bit
             bitMovers.clear();
@@ -335,8 +340,17 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         g2d.draw(a);
     }
 
-    private void paintSlices(Mesh currentPart, Graphics2D g2d) {
-        Slice slice = currentPart.getSlices().get(controller.getCurrentSliceNumber());
+    private void paintSlice(Mesh mesh, Graphics2D g2d) {
+        Slice slice = mesh.getSlices().get(controller.getCurrentSliceNumber());
+        for (Polygon p : slice) {
+            drawModelPath2D(g2d, p.toPath2D());
+        }
+    }
+
+    private void paintLayerBorder(Mesh mesh, Graphics2D g2d) {
+        Slice slice = mesh.getLayers()
+                .get(controller.getCurrentLayerNumber())
+                .getHorizontalSection();
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
         }

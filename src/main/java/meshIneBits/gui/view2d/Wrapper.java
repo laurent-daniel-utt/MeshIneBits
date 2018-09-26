@@ -197,7 +197,7 @@ class Wrapper extends JPanel implements Observer {
 
         // Build internal components
         toolbox.add(new DisplayOptionsPane());
-        toolbox.add(new SliceSelectorPane());
+//        toolbox.add(new SliceSelectorPane());
         toolbox.add(new BitModifierPane());
         toolbox.add(new BitAdderPane());
         toolbox.add(new AutoOptimizerPane());
@@ -283,6 +283,9 @@ class Wrapper extends JPanel implements Observer {
 //			JCheckBox slicesCheckBox = new RibbonCheckBox("Show slices");
 //			slicesCheckBox.addActionListener(e -> controller.toggleShowSlice(slicesCheckBox.isSelected()));
 
+            JCheckBox sliceCheckBox = new RibbonCheckBox("Show slice");
+            sliceCheckBox.addActionListener(e -> controller.toggleShowSlice(sliceCheckBox.isSelected()));
+
             JCheckBox liftPointsCheckBox = new RibbonCheckBox("Show lift points");
             liftPointsCheckBox.addActionListener(e -> controller.toggleShowLiftPoints(liftPointsCheckBox.isSelected()));
 
@@ -296,6 +299,7 @@ class Wrapper extends JPanel implements Observer {
             irregularBitsCheckBox.addActionListener(e -> controller.toggleShowIrregularBits(irregularBitsCheckBox.isSelected()));
 
 //			add(slicesCheckBox);
+            add(sliceCheckBox);
             add(liftPointsCheckBox);
             add(previousLayerCheckBox);
             add(cutPathsCheckBox);
@@ -303,6 +307,8 @@ class Wrapper extends JPanel implements Observer {
         }
     }
 
+    @SuppressWarnings("unused")
+    @Deprecated
     private class SliceSelectorPane extends OptionsContainer {
         SliceSelectorPane() {
             super("Select slice");
