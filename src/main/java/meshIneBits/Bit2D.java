@@ -27,10 +27,14 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Vector;
 
@@ -46,13 +50,13 @@ public class Bit2D implements Cloneable, Serializable {
      * In the pattern coordinate system without rotation or translation of whole
      * object.
      */
-    private final Vector2 origin;
+    private Vector2 origin;
     private Vector2 orientation;
     private double length;
     private double width;
     private AffineTransform transfoMatrix = new AffineTransform();
     private AffineTransform inverseTransfoMatrix;
-    private Vector<Path2D> cutPaths = null;
+    private Vector<Path2D> cutPaths = new Vector<>();
 
     /**
      * A bit should only have one area
@@ -481,5 +485,45 @@ public class Bit2D implements Cloneable, Serializable {
                 this.cutPaths.add(cutPath2D);
             }
         }
+    }
+
+    /**
+     * In charge of serializing the object, especially {@link #areas}
+     *
+     * @param oos stream of writing
+     * @throws IOException if error of writing
+     */
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        // Write normal fields
+        oos.writeObject(origin);
+        oos.writeObject(orientation);
+        oos.writeDouble(length);
+        oos.writeDouble(width);
+        oos.writeObject(cutPaths);
+        oos.writeObject(transfoMatrix);
+        oos.writeObject(inverseTransfoMatrix);
+        // Special writing for areas
+        oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
+                .createTransformedShape(this.getArea()));
+    }
+
+    /**
+     * In charge of reading the object, especially {@link #areas}
+     *
+     * @param ois stream of reading
+     * @throws IOException if error of reading or mismatching class
+     */
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.origin = (Vector2) ois.readObject();
+        this.orientation = (Vector2) ois.readObject();
+        this.length = ois.readDouble();
+        this.width = ois.readDouble();
+        //noinspection unchecked
+        this.cutPaths = (Vector<Path2D>) ois.readObject();
+        this.transfoMatrix = (AffineTransform) ois.readObject();
+        this.inverseTransfoMatrix = (AffineTransform) ois.readObject();
+        this.areas = new Vector<>();
+        Shape s = (Shape) ois.readObject();
+        this.updateBoundaries(new Area(s));
     }
 }

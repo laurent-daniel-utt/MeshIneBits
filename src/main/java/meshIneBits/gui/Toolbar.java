@@ -45,9 +45,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.*;
@@ -163,7 +161,7 @@ class Toolbar extends JTabbedPane implements Observer {
                 // Setting up
                 JMenuItem openModelMenu = new FileMenuItem("Open Model", "file-o.png");
                 JMenuItem saveMeshMenu = new FileMenuItem("Save Mesh", "model-save.png");
-                JMenuItem openMeshMenu = new FileMenuItem("Load Mesh", "model-open.png");
+                JMenuItem openMeshMenu = new FileMenuItem("Open Mesh", "model-open.png");
                 JMenuItem openPatternConfigMenu = new FileMenuItem("Load pattern configuration", "conf-o.png");
                 JMenuItem savePatternConfigMenu = new FileMenuItem("Save pattern configuration", "conf-save.png");
                 JMenuItem exportMenu = new FileMenuItem("Export XML", "file-code-o.png");
@@ -184,7 +182,7 @@ class Toolbar extends JTabbedPane implements Observer {
                 // Actions listener
                 openModelMenu.addActionListener(e -> {
                     final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter(CraftConfigLoader.PATTERN_CONFIG_EXTENSION + " files", "stl"));
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
                     fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(null);
 
@@ -218,7 +216,7 @@ class Toolbar extends JTabbedPane implements Observer {
                         }
                         try {
                             controller.saveMesh(f);
-                            Logger.updateStatus("Mesh saved at " + f.getName());
+                            Logger.updateStatus("Saved the mesh at " + f.getName());
                         } catch (IOException e1) {
                             e1.printStackTrace();
                             Logger.error("Failed to save the mesh");
@@ -228,15 +226,18 @@ class Toolbar extends JTabbedPane implements Observer {
 
                 openMeshMenu.addActionListener(e -> {
                     final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter(CraftConfigLoader.MESH_EXTENSION + " files", "stl"));
+                    String meshExt = CraftConfigLoader.MESH_EXTENSION;
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
                     fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(null);
-
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
                         try {
+                            Logger.updateStatus("Opening the mesh");
                             controller.openMesh(f);
-                            Logger.updateStatus("Mesh loaded");
+                            Logger.updateStatus("Opened the mesh");
+                            controller.setModel();
+                            MainWindow.getInstance().getModelView().toggle();
                         } catch (Exception e1) {
                             e1.printStackTrace();
                             Logger.error("Failed to load mesh");
