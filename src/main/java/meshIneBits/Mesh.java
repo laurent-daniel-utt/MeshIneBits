@@ -27,6 +27,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -34,16 +35,16 @@ import java.util.stream.Collectors;
 /**
  * This object is the equivalent of the piece which will be printed
  */
-public class Mesh extends Observable implements Observer {
+public class Mesh extends Observable implements Observer, Serializable {
     private Vector<Layer> layers = new Vector<>();
     private Vector<Slice> slices = new Vector<>();
     @Deprecated
-    private PatternTemplate patternTemplate = null;
+    private transient PatternTemplate patternTemplate = null;
     private double skirtRadius;
-    private SliceTool slicer;
+    private transient SliceTool slicer;
     // private boolean sliced = false;
     @Deprecated
-    private Optimizer optimizer = null;
+    private transient Optimizer optimizer = null;
     private Model model;
     private MeshEvents state;
     /**

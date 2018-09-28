@@ -22,7 +22,9 @@
 
 package meshIneBits;
 
-public enum MeshEvents {
+import java.io.Serializable;
+
+public enum MeshEvents implements Serializable {
     READY(false, 0),
     IMPORTING(true, 100),
     IMPORTED(false, 101),

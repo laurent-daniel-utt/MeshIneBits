@@ -22,10 +22,12 @@
 
 package meshIneBits.util;
 
+import java.io.Serializable;
+
 /**
  * Vector3 represents a point in 3D space.
  */
-public class Vector3 {
+public class Vector3 implements Serializable {
     public double x, y, z;
 
     public Vector3() {

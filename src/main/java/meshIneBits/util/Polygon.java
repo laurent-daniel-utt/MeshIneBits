@@ -26,6 +26,7 @@ import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -33,7 +34,7 @@ import java.util.Vector;
 /**
  * A polygon is an enclosed set of Segment2D.
  */
-public class Polygon implements Iterable<Segment2D> {
+public class Polygon implements Iterable<Segment2D>, Serializable {
     private Segment2D first = null;
 
     private Segment2D last = null;

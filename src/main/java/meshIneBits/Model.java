@@ -38,7 +38,7 @@ import java.util.Vector;
  * is created from a
  * <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL file</a>.
  */
-public class Model {
+public class Model implements Serializable {
     private Vector<Triangle> triangles = new Vector<>();
     private Vector3 position = new Vector3(0, 0, 0);
 

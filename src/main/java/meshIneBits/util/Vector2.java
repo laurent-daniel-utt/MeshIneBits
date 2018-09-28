@@ -26,12 +26,13 @@ import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * Vector2 represent a point in a 2D space
  */
-public class Vector2 {
+public class Vector2 implements Serializable {
     public final double x, y;
 
     public static double dist2(Vector2 v, Vector2 w) {

@@ -29,6 +29,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -40,14 +41,14 @@ import java.util.stream.Collectors;
  * {@link #flatPavement} determines the position and orientation of the
  * bits. It is then cloned and shaped to fit the linked {@link Slice}.
  */
-public class Layer extends Observable {
+public class Layer extends Observable implements Serializable {
 
     private int layerNumber;
     private Vector<Slice> slices;
     private Slice horizontalSection;
     private Pavement flatPavement;
     @Deprecated
-    private Pavement referentialPavement;
+    private transient Pavement referentialPavement;
     private PatternTemplate patternTemplate;
     private Vector<Pavement> pavements = new Vector<>();
     private Map<Vector2, Bit3D> mapBits3D;

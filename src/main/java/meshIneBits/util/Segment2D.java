@@ -22,12 +22,13 @@
 
 package meshIneBits.util;
 
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * Segment2D represents a line in 2D space.
  */
-public class Segment2D extends AABBrect {
+public class Segment2D extends AABBrect implements Serializable {
     public Vector2 start;
 
     public Vector2 end;

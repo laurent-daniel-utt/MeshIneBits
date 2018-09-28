@@ -38,6 +38,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -103,7 +104,7 @@ public class UnitSquarePattern extends PatternTemplate {
     private static final String INCREMENTAL_ROTATION = "incrementalRotation";
     private static final String CUT_DETAILS = "cutDetails";
 
-    public static final java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
+    public static final transient java.util.logging.Logger LOGGER = Logger.createSimpleInstanceFor(UnitSquarePattern.class);
 
     @Override
     public void initiateConfig() {
@@ -350,7 +351,7 @@ public class UnitSquarePattern extends PatternTemplate {
     /**
      * Useful comparators for puzzles
      */
-    private enum Strategy {
+    private enum Strategy implements Serializable {
         NATURAL("Largest > Top-most > Left-most", (p1, p2) -> {
             // Largest
             if (p1.size() > p2.size())

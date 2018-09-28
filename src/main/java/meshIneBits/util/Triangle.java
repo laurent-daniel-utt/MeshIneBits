@@ -22,10 +22,12 @@
 
 package meshIneBits.util;
 
+import java.io.Serializable;
+
 /**
  * The triangle class represents a 3D triangle in a 3D model
  */
-public class Triangle {
+public class Triangle implements Serializable {
     public Vector3[] point = new Vector3[3];
 
     public Vector3 getNormal() {

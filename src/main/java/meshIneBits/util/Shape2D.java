@@ -24,6 +24,7 @@ package meshIneBits.util;
 
 import meshIneBits.config.CraftConfig;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
@@ -38,7 +39,7 @@ import java.util.Vector;
  * example a piece is hollow, pierced, with a hanse ...
  * <br><img src="./doc-files/polygone.png" alt="">
  */
-public class Shape2D implements Iterable<Polygon> {
+public class Shape2D implements Iterable<Polygon>, Serializable {
     private Vector<Segment2D> segmentList = new Vector<>();
     Vector<Polygon> polygons = new Vector<>();
     private AABBTree<Segment2D> segmentTree = new AABBTree<>(); // The Tree2D allows a fast query of all objects in an area.

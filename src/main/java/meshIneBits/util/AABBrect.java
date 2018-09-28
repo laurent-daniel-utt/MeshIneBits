@@ -22,7 +22,9 @@
 
 package meshIneBits.util;
 
-public class AABBrect {
+import java.io.Serializable;
+
+public class AABBrect implements Serializable {
     private Vector2 lowerBound, upperBound;
 
     @SuppressWarnings({"rawtypes"})

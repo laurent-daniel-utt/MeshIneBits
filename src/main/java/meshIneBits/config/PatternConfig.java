@@ -24,6 +24,7 @@ package meshIneBits.config;
 
 import meshIneBits.config.patternParameter.PatternParameter;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -32,7 +33,7 @@ import java.util.HashMap;
  *
  * @author NHATHAN
  */
-public class PatternConfig extends HashMap<String, PatternParameter> {
+public class PatternConfig extends HashMap<String, PatternParameter> implements Serializable {
 
     /**
      *

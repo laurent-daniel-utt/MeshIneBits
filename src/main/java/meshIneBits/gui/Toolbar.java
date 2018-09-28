@@ -45,7 +45,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.*;
@@ -159,13 +161,17 @@ class Toolbar extends JTabbedPane implements Observer {
 
             FileMenuPopUp() {
                 // Setting up
-                JMenuItem openMenu = new FileMenuItem("Open Model", "file-o.png");
+                JMenuItem openModelMenu = new FileMenuItem("Open Model", "file-o.png");
+                JMenuItem saveMeshMenu = new FileMenuItem("Save Mesh", "model-save.png");
+                JMenuItem openMeshMenu = new FileMenuItem("Load Mesh", "model-open.png");
                 JMenuItem openPatternConfigMenu = new FileMenuItem("Load pattern configuration", "conf-o.png");
                 JMenuItem savePatternConfigMenu = new FileMenuItem("Save pattern configuration", "conf-save.png");
                 JMenuItem exportMenu = new FileMenuItem("Export XML", "file-code-o.png");
                 JMenuItem aboutMenu = new FileMenuItem("About", "info-circle.png");
 
-                add(openMenu);
+                add(openModelMenu);
+                add(saveMeshMenu);
+                add(openMeshMenu);
                 addSeparator();
                 add(openPatternConfigMenu);
                 add(savePatternConfigMenu);
@@ -173,12 +179,12 @@ class Toolbar extends JTabbedPane implements Observer {
                 addSeparator();
                 add(aboutMenu);
 
-                openMenu.setRolloverEnabled(true);
+                openModelMenu.setRolloverEnabled(true);
 
                 // Actions listener
-                openMenu.addActionListener(e -> {
+                openModelMenu.addActionListener(e -> {
                     final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(CraftConfigLoader.PATTERN_CONFIG_EXTENSION + " files", "stl"));
                     fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(null);
 
@@ -198,6 +204,43 @@ class Toolbar extends JTabbedPane implements Observer {
                         MainWindow.getInstance().getModelView().toggle();
                         Logger.updateStatus("Ready to slice " + file.getName());
                         Toolbar.this.SlicerTab.setReadyToSlice();
+                    }
+                });
+
+                saveMeshMenu.addActionListener(e -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    String ext = CraftConfigLoader.MESH_EXTENSION;
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+                    if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                        File f = fc.getSelectedFile();
+                        if (!f.getName().endsWith("." + ext)) {
+                            f = new File(f.getPath() + "." + ext);
+                        }
+                        try {
+                            controller.saveMesh(f);
+                            Logger.updateStatus("Mesh saved at " + f.getName());
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                            Logger.error("Failed to save the mesh");
+                        }
+                    }
+                });
+
+                openMeshMenu.addActionListener(e -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(CraftConfigLoader.MESH_EXTENSION + " files", "stl"));
+                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    int returnVal = fc.showOpenDialog(null);
+
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        File f = fc.getSelectedFile();
+                        try {
+                            controller.openMesh(f);
+                            Logger.updateStatus("Mesh loaded");
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                            Logger.error("Failed to load mesh");
+                        }
                     }
                 });
 

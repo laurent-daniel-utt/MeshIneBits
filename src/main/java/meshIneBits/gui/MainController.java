@@ -26,6 +26,7 @@ import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.ProcessingModelView;
 
+import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -84,5 +85,30 @@ public class MainController extends Observable implements Observer {
 
     Model getModel() {
         return model;
+    }
+
+    /**
+     * Save the current mesh on disk
+     *
+     * @param f indicate location to save
+     * @throws IOException when file not found or error on writing
+     */
+    void saveMesh(File f) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
+            oos.writeObject(currentMesh);
+            oos.flush();
+        }
+    }
+
+    /**
+     * Restore a mesh into working space
+     *
+     * @param f location of saved mesh
+     * @throws IOException when file not found, error on reading or not the same class
+     */
+    void openMesh(File f) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            currentMesh = (Mesh) ois.readObject();
+        }
     }
 }

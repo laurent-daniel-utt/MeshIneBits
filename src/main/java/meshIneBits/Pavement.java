@@ -31,6 +31,7 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -38,7 +39,7 @@ import java.util.Vector;
  * Build by a {@link PatternTemplate} or manually.
  * Contains a set of {@link Bit2D}.
  */
-public class Pavement implements Cloneable {
+public class Pavement implements Cloneable, Serializable {
     private Vector2 rotation;
     /**
      * The key is the origin of bit in coordinate system of global object.

@@ -28,15 +28,16 @@ import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
  * extrusion of a {@link Bit2D}
  */
-public class Bit3D {
+public class Bit3D implements Serializable {
 
-    private Vector<Path2D> cutPaths = null; // In the local coordinate system
+    private Vector<Path2D> cutPaths; // In the local coordinate system
     private Vector2 origin; // Position of the center of the full bit in the
     // general coordinate system
     private Vector2 orientation; // Rotation around its local origin point

@@ -22,6 +22,7 @@
 
 package meshIneBits.util;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -29,7 +30,7 @@ import java.util.Stack;
  * The Tree2D stores a binary AABB tree. AABB are rectangle 2D 'objects' The
  * Tree2D allows a fast query of all objects in an area.
  */
-public class AABBTree<T extends AABBrect> {
+public class AABBTree<T extends AABBrect> implements Serializable {
     private class Tree2Diterator implements Iterator<T> {
         private AABBrect area;
         private Stack<TreeNode> stack;
@@ -92,7 +93,7 @@ public class AABBTree<T extends AABBrect> {
         }
     }
 
-    class TreeNode {
+    class TreeNode implements Serializable {
         TreeNode parent;
         TreeNode child1;
         TreeNode child2;

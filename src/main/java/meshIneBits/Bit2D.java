@@ -31,6 +31,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -40,7 +41,7 @@ import java.util.Vector;
  *
  * @see Bit3D
  */
-public class Bit2D implements Cloneable {
+public class Bit2D implements Cloneable, Serializable {
     /**
      * In the pattern coordinate system without rotation or translation of whole
      * object.

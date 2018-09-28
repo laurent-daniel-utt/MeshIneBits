@@ -28,10 +28,12 @@ import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
+import java.io.Serializable;
+
 /**
  * This is a factory paving the layers. Use {@link #pave(Layer)} to pave.
  */
-public abstract class PatternTemplate {
+public abstract class PatternTemplate implements Serializable {
 
     /**
      * Contains all customizable special parameters of the pattern template
