@@ -34,26 +34,28 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * The controller, linking 2D views and part (so-called {@link Mesh}).
+ * The controller, linking 2D views and mesh (so-called {@link Mesh}).
  * It observes the {@link Mesh} and its {@link meshIneBits.Layer
  * Layers}. Observed by {@link Core} and {@link Wrapper}. A singleton.
  */
 class Controller extends Observable implements Observer {
 
     static private Controller instance;
-    private Mesh part = null;
+    private Mesh mesh = null;
     private int layerNumber = 0;
     private int sliceNumber = 0;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
     @Deprecated
     private boolean showSlices = false;
+    private boolean showSlice = false;
+
     private boolean showLiftPoints = false;
+
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private Model model = null;
-
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -69,8 +71,12 @@ class Controller extends Observable implements Observer {
         return layerNumber;
     }
 
+    boolean showSlice() {
+        return showSlice;
+    }
+
     Mesh getCurrentMesh() {
-        return part;
+        return mesh;
     }
 
     int getCurrentSliceNumber() {
@@ -97,7 +103,7 @@ class Controller extends Observable implements Observer {
     }
 
     Set<Bit3D> getSelectedBits() {
-        Layer currentLayer = part.getLayers().get(layerNumber);
+        Layer currentLayer = mesh.getLayers().get(layerNumber);
         return selectedBitKeys.stream()
                 .map(currentLayer::getBit3D)
                 .collect(Collectors.toSet());
@@ -112,17 +118,17 @@ class Controller extends Observable implements Observer {
     }
 
     public void setLayer(int nbrLayer) {
-        if (part == null) {
+        if (mesh == null) {
             return;
         }
-        if (!part.isPaved()) {
+        if (!mesh.isPaved()) {
             return;
         }
-        if ((nbrLayer >= part.getLayers().size()) || (nbrLayer < 0)) {
+        if ((nbrLayer >= mesh.getLayers().size()) || (nbrLayer < 0)) {
             return;
         }
         layerNumber = nbrLayer;
-        part.getLayers().get(layerNumber).addObserver(this);
+        mesh.getLayers().get(layerNumber).addObserver(this);
         reset();
 
         setChanged();
@@ -130,20 +136,20 @@ class Controller extends Observable implements Observer {
     }
 
     /**
-     * Put a generated part under observation of this controller. Also signify
+     * Put a generated mesh under observation of this controller. Also signify
      * {@link Core} and {@link Wrapper} to repaint.
      *
-     * @param part <tt>null</tt> to reset
+     * @param mesh <tt>null</tt> to reset
      */
-    void setCurrentPart(Mesh part) {
-        if (part != null) {
-            this.part = part;
-            part.addObserver(this);
+    void setCurrentMesh(Mesh mesh) {
+        if (mesh != null) {
+            this.mesh = mesh;
+            mesh.addObserver(this);
 
             setLayer(0);
             reset();
         } else
-            this.part = null;
+            this.mesh = null;
 
         setChanged();
         notifyObservers(Component.PART);
@@ -164,7 +170,7 @@ class Controller extends Observable implements Observer {
      * @param bitKey in layer's coordinate system
      */
     void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
-        if (part == null || !part.isPaved()) {
+        if (mesh == null || !mesh.isPaved()) {
             return;
         }
         if (!selectedBitKeys.add(bitKey))
@@ -175,10 +181,10 @@ class Controller extends Observable implements Observer {
     }
 
     public void setSlice(int nbrSlice) {
-        if (part == null) {
+        if (mesh == null) {
             return;
         }
-        if ((nbrSlice >= part.getSlices().size()) || (nbrSlice < 0)) {
+        if ((nbrSlice >= mesh.getSlices().size()) || (nbrSlice < 0)) {
             return;
         }
         sliceNumber = nbrSlice;
@@ -188,7 +194,7 @@ class Controller extends Observable implements Observer {
     }
 
     void setZoom(double zoomValue) {
-        if (part == null) {
+        if (mesh == null) {
             return;
         }
         zoom = zoomValue < Wrapper.MIN_ZOOM_VALUE ? 0.5 : zoomValue;
@@ -238,8 +244,15 @@ class Controller extends Observable implements Observer {
 
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    void toggleShowSlice(boolean selected) {
+    void toggleShowSlices(boolean selected) {
         this.showSlices = selected;
+
+        setChanged();
+        notifyObservers();
+    }
+
+    void toggleShowSlice(boolean selected) {
+        this.showSlice = selected;
 
         setChanged();
         notifyObservers();
@@ -247,9 +260,9 @@ class Controller extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o == this.part) {
-            this.setCurrentPart(part);
-        } else if (o == this.part.getLayers().get(layerNumber)) {
+        if (o == this.mesh) {
+            this.setCurrentMesh(mesh);
+        } else if (o == this.mesh.getLayers().get(layerNumber)) {
             setChanged();
             notifyObservers(Component.LAYER);
         }
@@ -303,9 +316,10 @@ class Controller extends Observable implements Observer {
             0.0, 360.0, 0.0, 0.01);
 
     void addNewBits(Point2D.Double position) {
-        if (part == null || !part.isPaved() || position == null) return;
+        Layer l = mesh.getLayers().get(layerNumber);
+        if (mesh == null || l.getFlatPavement() == null || position == null)
+            return;
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
-        Layer l = part.getLayers().get(layerNumber);
         AffineTransform inv = new AffineTransform();
         try {
             inv = l.getFlatPavement().getAffineTransform().createInverse();

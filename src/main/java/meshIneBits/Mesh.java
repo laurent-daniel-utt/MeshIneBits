@@ -88,7 +88,12 @@ public class Mesh extends Observable implements Observer {
         setState(MeshEvents.IMPORTING);
         this.model = new Model(filepath);
         this.model.center();
-        slicer = new SliceTool(this);
+
+        // Crash all slices and layers
+        slices.clear();
+        layers.clear();
+
+        // Signal to update
         setState(MeshEvents.IMPORTED);
     }
 
@@ -101,8 +106,13 @@ public class Mesh extends Observable implements Observer {
         if (state.isWorking()) throw new SimultaneousOperationsException();
 
         setState(MeshEvents.SLICING);
+        // clean before executing
+        slices.clear();
+        layers.clear();
+        // start
         double zMin = this.model.getMin().z;
         if (zMin != 0) this.model.center(); // recenter before slicing
+        slicer = new SliceTool(this);
         slicer.sliceModel();
         // MeshEvents.SLICED will be sent in update() after receiving
         // signal from slicer
@@ -123,7 +133,7 @@ public class Mesh extends Observable implements Observer {
         Logger.updateStatus("Ready to generate bits");
         template.ready(this);
         // Remove all current layers
-        this.layers.clear();
+        layers.clear();
         // New worker
         PavingWorker pavingWorker = new PavingWorker(template);
         pavingWorker.addObserver(this);
@@ -222,7 +232,6 @@ public class Mesh extends Observable implements Observer {
                 e.printStackTrace();
             }
         }
-
         return slices;
     }
 

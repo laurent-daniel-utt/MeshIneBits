@@ -63,6 +63,6 @@ public class Window extends JFrame implements SubWindow {
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        viewWrapper.getController().setCurrentPart(mesh);
+        viewWrapper.getController().setCurrentMesh(mesh);
     }
 }
