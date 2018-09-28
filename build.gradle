@@ -101,7 +101,7 @@ buildscript {
 
 jar {
     baseName = applicationName
-    version = '0.3.0'
+    version = '0.3.1'
     manifest { attributes 'Main-Class': mainClassName }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
