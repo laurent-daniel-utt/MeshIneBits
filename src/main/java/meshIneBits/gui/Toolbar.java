@@ -123,7 +123,7 @@ class Toolbar extends JTabbedPane implements Observer {
             this.addActionListener(ev -> {
                 JToggleButton b = FileMenuButton.this;
                 if (b.isSelected()) {
-                    filePopup.show(b, b.getLocationOnScreen().x, b.getLocationOnScreen().y);
+                    filePopup.show(b, b.getMousePosition().x, b.getMousePosition().y);
                     setIcon(selectedIcon);
                 } else {
                     filePopup.setVisible(false);
