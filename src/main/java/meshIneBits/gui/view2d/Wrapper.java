@@ -175,20 +175,25 @@ class Wrapper extends JPanel implements Observer {
     }
 
     private void init() {
-        // remove old components
-        this.removeAll();
+        Mesh mesh = controller.getCurrentMesh();
+        if (mesh != null && (mesh.isPaved() || mesh.isSliced())) {
+            // remove old components
+            this.removeAll();
 
-        // Repaint
-        this.add(coreView, BorderLayout.CENTER);
+            // Repaint
+            this.add(coreView, BorderLayout.CENTER);
 
-        if (controller.getCurrentMesh().isPaved()) {
-            buildLayerSelector();
+            if (controller.getCurrentMesh().isPaved()) {
+                buildLayerSelector();
+            } else {
+                buildSliceSelector();
+            }
+
+            buildZoomer();
+            buildToolbox();
         } else {
-            buildSliceSelector();
+            noPart();
         }
-
-        buildZoomer();
-        buildToolbox();
     }
 
     private void buildToolbox() {
@@ -217,14 +222,8 @@ class Wrapper extends JPanel implements Observer {
     public void update(Observable o, Object arg) {
         if (arg != null) {
             switch ((Controller.Component) arg) {
-                case PART:
-                    Mesh part = controller.getCurrentMesh();
-                    if (part != null && (part.isPaved() || part.isSliced())) {
-                        init();
-                        repaint();
-                        revalidate();
-                    } else
-                        noPart();
+                case MESH:
+                    init();
                     break;
                 case LAYER:
                     updateLayerChoice(controller.getCurrentLayerNumber());

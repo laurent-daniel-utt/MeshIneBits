@@ -109,6 +109,7 @@ public class MainController extends Observable implements Observer {
     void openMesh(File f) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             currentMesh = (Mesh) ois.readObject();
+            currentMesh.addObserver(this);
         }
     }
 }

@@ -152,7 +152,7 @@ class Controller extends Observable implements Observer {
             this.mesh = null;
 
         setChanged();
-        notifyObservers(Component.PART);
+        notifyObservers(Component.MESH);
     }
 
     /**
@@ -270,7 +270,7 @@ class Controller extends Observable implements Observer {
 
 
     public enum Component {
-        PART, LAYER, SELECTED_BIT, ZOOM, SLICE
+        MESH, LAYER, SELECTED_BIT, ZOOM, SLICE
     }
 
     boolean showIrregularBits() {
