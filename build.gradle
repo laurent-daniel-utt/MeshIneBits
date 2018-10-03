@@ -20,6 +20,7 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 // Define the entry point
 mainClassName = 'meshIneBits.MeshIneBitsMain'
 applicationName = 'MeshIneBits'
+def actualVersion = '0.3.2'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -35,7 +36,7 @@ dependencies {
     compile 'org.processing:core:3.3.5'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
     compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
-    compile 'org.json:json:20180130'
+    testCompile 'org.json:json:20180130'
     compile files('libs/proscene.jar', 'libs/controlP5.jar')
 
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
@@ -51,7 +52,7 @@ dependencies {
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
-    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
+    // runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
 
@@ -72,7 +73,7 @@ eclipse {
                 testSource.output = "bin/test"
 
                 // Remove local ref for libs
-                entries.removeAll { it.kind == "lib" }
+                // entries.removeAll { it.kind == "lib" }
             }
             containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
         }
@@ -101,7 +102,7 @@ buildscript {
 
 jar {
     baseName = applicationName
-    version = '0.3.1'
+    version = actualVersion
     manifest { attributes 'Main-Class': mainClassName }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
