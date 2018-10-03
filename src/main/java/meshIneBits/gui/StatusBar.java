@@ -55,7 +55,7 @@ public class StatusBar extends JPanel implements LoggingInterface {
 
     @Override
     public void error(String error) {
-        statusLabel.setText("ERROR :" + error);
+        statusLabel.setText("ERROR: " + error);
     }
 
     @Override
@@ -82,5 +82,6 @@ public class StatusBar extends JPanel implements LoggingInterface {
 
     @Override
     public void warning(String warning) {
+        statusLabel.setText("WARNING: " + warning);
     }
 }

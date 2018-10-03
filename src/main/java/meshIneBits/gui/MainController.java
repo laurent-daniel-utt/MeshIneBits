@@ -23,8 +23,10 @@
 package meshIneBits.gui;
 
 import meshIneBits.Mesh;
+import meshIneBits.MeshEvents;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.ProcessingModelView;
+import meshIneBits.util.Logger;
 
 import java.io.*;
 import java.util.Observable;
@@ -39,6 +41,7 @@ public class MainController extends Observable implements Observer {
     static private MainController instance;
     private Mesh currentMesh;
     private Model model;
+    private MeshOpener meshOpener;
 
     private MainController() {
 
@@ -59,13 +62,28 @@ public class MainController extends Observable implements Observer {
             currentMesh.addObserver(this);
     }
 
+    private void setMeshForWindows() {
+        MainWindow.getInstance().get2DView().setCurrentMesh(currentMesh);
+        MainWindow.getInstance().get3DView().setCurrentMesh(currentMesh);
+        MainWindow.getInstance().getDemoView().setCurrentMesh(currentMesh);
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (arg == null) return;
         if (o == currentMesh) {
-            MainWindow.getInstance().get2DView().setCurrentMesh(currentMesh);
-            MainWindow.getInstance().get3DView().setCurrentMesh(currentMesh);
-            MainWindow.getInstance().getDemoView().setCurrentMesh(currentMesh);
+            setMeshForWindows();
+        } else if (o == meshOpener) {
+            MeshEvents ev = (MeshEvents) arg;
+            if (ev == MeshEvents.OPENED) {
+                // Reopened from save
+                setMeshForWindows();
+                setModel();
+                MainWindow.getInstance().getModelView().toggle();
+                Logger.updateStatus("Mesh has been loaded into workspace.");
+            } else if (ev == MeshEvents.OPEN_FAILED) {
+                Logger.error("Unable to open the mesh.");
+            }
         }
     }
 
@@ -103,13 +121,38 @@ public class MainController extends Observable implements Observer {
     /**
      * Restore a mesh into working space
      *
-     * @param f location of saved mesh
-     * @throws IOException when file not found, error on reading or not the same class
+     * @param file location of saved mesh
      */
-    void openMesh(File f) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
-            currentMesh = (Mesh) ois.readObject();
-            currentMesh.addObserver(this);
+    void openMesh(File file) {
+        if (meshOpener != null) {
+            Logger.error("Currently opening another mesh. Please wait until the task finishes.");
+            return;
+        }
+        meshOpener = new MeshOpener(file);
+        meshOpener.addObserver(this);
+        (new Thread(meshOpener)).start();
+    }
+
+    private class MeshOpener extends Observable implements Runnable {
+
+        private final File file;
+
+        MeshOpener(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                setCurrentMesh((Mesh) ois.readObject());
+                // notify main window
+                setChanged();
+                notifyObservers(MeshEvents.OPENED);
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+                setChanged();
+                notifyObservers(MeshEvents.OPEN_FAILED);
+            }
         }
     }
 }

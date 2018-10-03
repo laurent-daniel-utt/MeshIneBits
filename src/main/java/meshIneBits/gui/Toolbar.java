@@ -234,10 +234,7 @@ class Toolbar extends JTabbedPane implements Observer {
                         File f = fc.getSelectedFile();
                         try {
                             Logger.updateStatus("Opening the mesh");
-                            controller.openMesh(f);
-                            Logger.updateStatus("Opened the mesh");
-                            controller.setModel();
-                            MainWindow.getInstance().getModelView().toggle();
+                            controller.openMesh(f); // asynchronous task
                         } catch (Exception e1) {
                             e1.printStackTrace();
                             Logger.error("Failed to load mesh");
@@ -483,9 +480,11 @@ class Toolbar extends JTabbedPane implements Observer {
             ButtonIcon _2D = new ButtonIcon("Toggle 2D view", "gears.png");
             ButtonIcon _3D = new ButtonIcon("Toggle 3D view", "gears.png");
             ButtonIcon _demo = new ButtonIcon("Demo", "gears.png");
+            ButtonIcon _model = new ButtonIcon("Model View", "gears.png");
             viewsCont.add(_2D);
             viewsCont.add(_3D);
             viewsCont.add(_demo);
+            viewsCont.add(_model);
 
             _2D.addActionListener(e -> {
                 // Show up the 2D view
@@ -501,6 +500,8 @@ class Toolbar extends JTabbedPane implements Observer {
                 // Show up the demo
                 MainWindow.getInstance().getDemoView().toggle();
             });
+
+            _model.addActionListener(e -> MainWindow.getInstance().getModelView().toggle());
         }
     }
 
@@ -764,7 +765,7 @@ class Toolbar extends JTabbedPane implements Observer {
             });
 
             // For 3D view
-            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView(null));
+            processingViewBtn.addActionListener(e -> ProcessingView.startProcessingView());
         }
     }
 

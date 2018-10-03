@@ -53,7 +53,7 @@ import static java.awt.event.KeyEvent.VK_SPACE;
  */
 public class ProcessingView extends PApplet implements Observer, SubWindow {
 
-    private Controller curVO = null;
+    private Controller curVO;
     private HashMap<Position, PShape> shapeMap;
 
     private final int BACKGROUND_COLOR = color(150, 150, 150);
@@ -65,18 +65,17 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     private Scene scene;
 
     private static ProcessingView currentInstance = null;
+    private static boolean visible;
+    private static boolean initialized;
 
     private enum Mode {full, sliced}
 
     ;
     private Mode mode = Mode.sliced;
 
-    /**
-     * @param args input from CLI
-     */
-    public static void startProcessingView(String[] args) {
+    public static void startProcessingView() {
         if (currentInstance == null)
-            PApplet.main("meshIneBits.gui.view3d.ProcessingView");
+            PApplet.main(ProcessingView.class.getCanonicalName());
     }
 
     /**
@@ -465,13 +464,36 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
     @Override
     public void toggle() {
-        // TODO Auto-generated method stub
+        if (visible) {
+            hide();
+        } else {
+            open();
+        }
+    }
 
+    private void open() {
+        if (!initialized) {
+            ProcessingView.startProcessingView();
+            visible = true;
+            initialized = true;
+        } else {
+            setVisible(true);
+        }
+    }
+
+    private void hide() {
+        setVisible(false);
+    }
+
+
+    private void setVisible(boolean b) {
+        currentInstance.getSurface().setVisible(b);
+        visible = b;
     }
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
         System.out.println("Processing view, setting current part" + mesh);
-        curVO.setCurrentPart(mesh);
+        curVO.setMesh(mesh);
     }
 }

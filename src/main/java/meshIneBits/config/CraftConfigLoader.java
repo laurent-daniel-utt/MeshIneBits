@@ -33,7 +33,7 @@ public class CraftConfigLoader {
      ***************************/
 
     public final static String PATTERN_CONFIG_EXTENSION = "mpconf";
-    public static final String MESH_EXTENSION = ".mesh";
+    public static final String MESH_EXTENSION = "mesh";
 
     /**
      * Loads the configuration from a file, use 'null' for the default config

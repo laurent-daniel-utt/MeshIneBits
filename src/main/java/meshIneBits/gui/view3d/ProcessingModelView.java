@@ -31,6 +31,7 @@ import javafx.util.Pair;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.SubWindow;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
@@ -75,7 +76,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
-    private static Model MODEL;
+    private static Model model;
     private static Controller controller = null;
 
     private PShape shape;
@@ -103,7 +104,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      */
     private static void startProcessingModelView() {
         if (currentInstance == null) {
-            PApplet.main("meshIneBits.gui.view3d.ProcessingModelView");
+            PApplet.main(ProcessingModelView.class.getCanonicalName());
         }
     }
 
@@ -150,7 +151,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 controller.deleteObserver(currentInstance);
                 dispose();
                 currentInstance = null;
-                MODEL = null;
+                model = null;
                 initialized = false;
                 visible = false;
             }
@@ -177,10 +178,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         this.surface.setResizable(true);
         this.surface.setTitle("MeshIneBits - Model view");
-        try {
-            MODEL = controller.getModel();
-        } catch (Exception e) {
-            System.out.print("Model loading failed");
+        if (model == null) {
+            model = controller.getModel();
         }
         // each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
         // borders[0] =  xmin border / borders[1] = xmax border ...
@@ -201,7 +200,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         setCloseOperation();
         shapeMap = new Vector<>();
         shape = createShape(GROUP);
-        builder.buildShape(MODEL, shape);
+        builder.buildShape(model, shape);
         cp5 = new ControlP5(this);
 
         df = new DecimalFormat("#.##");
@@ -551,12 +550,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      */
 
     private void applyRotation() {
-        MODEL.rotate(frame.rotation());
+        model.rotate(frame.rotation());
     }
 
     private void applyTranslation() {
-        MODEL.setPos(new Vector3(frame.position().x(), frame.position().y(), 0));
-        MODEL.move(new Vector3(0, 0, -MODEL.getMin().z));
+        model.setPos(new Vector3(frame.position().x(), frame.position().y(), 0));
+        model.move(new Vector3(0, 0, -model.getMin().z));
 
     }
 
@@ -572,8 +571,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     private void resetModel() {
-        MODEL.rotate(frame.rotation().inverse());
-        MODEL.setPos(new Vector3(0, 0, 0));
+        model.rotate(frame.rotation().inverse());
+        model.setPos(new Vector3(0, 0, 0));
         frame.setPosition(new Vec(0, 0, 0));
         frame.rotate(frame.rotation().inverse());
         applyGravity();
@@ -763,7 +762,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     private void open() {
-        // TODO Auto-generated method stub
         if (!initialized) {
             ProcessingModelView.startProcessingModelView();
             visible = true;
@@ -774,12 +772,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     private void hide() {
-        // TODO Auto-generated method stub
         setVisible(false);
     }
 
     @Override
     public void toggle() {
+        if (model == null) {
+            Logger.error("No model has been loaded.");
+            return;
+        }
         if (visible) {
             hide();
         } else {
@@ -789,18 +790,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        controller.setCurrentPart(mesh);
+        controller.setMesh(mesh);
     }
 
     private void setVisible(boolean b) {
-        // TODO Auto-generated method stub
         currentInstance.getSurface().setVisible(b);
         visible = b;
     }
 
     public void setModel(Model m) {
         controller.setModel(m);
+        model = m;
     }
-
-
 }

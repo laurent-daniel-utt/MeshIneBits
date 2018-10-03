@@ -54,7 +54,7 @@ public class Controller extends Observable implements Observer {
     /**
      * @param part <tt>null</tt> to delete the current mesh
      */
-    void setCurrentPart(Mesh part) {
+    void setMesh(Mesh part) {
         if (part != null) {
             this.part = part;
             part.addObserver(this);

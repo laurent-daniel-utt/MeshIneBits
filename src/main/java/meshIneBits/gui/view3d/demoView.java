@@ -290,7 +290,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        controller.setCurrentPart(mesh);
+        controller.setMesh(mesh);
     }
 
     private void setVisible(boolean b) {
