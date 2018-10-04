@@ -33,6 +33,7 @@ import meshIneBits.gui.SubWindow;
 import meshIneBits.util.*;
 import processing.core.PApplet;
 import processing.core.PShape;
+import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
@@ -76,7 +77,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
     public void settings() {
         size(640, 360, P3D);
-//        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
+        PJOGL.setIcon("resources/icon.png");
         currentInstance = this;
     }
 

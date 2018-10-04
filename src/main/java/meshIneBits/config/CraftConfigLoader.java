@@ -47,7 +47,7 @@ public class CraftConfigLoader {
             Logger.updateStatus("Loading: " + filename);
         }
 
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(filename));
         } catch (FileNotFoundException e) {
@@ -78,7 +78,7 @@ public class CraftConfigLoader {
 
     private static void setField(String key, String value) {
         Class<?> c = CraftConfig.class;
-        Field f = null;
+        Field f;
         try {
             f = c.getField(key);
             if (f == null)
@@ -101,16 +101,12 @@ public class CraftConfigLoader {
             } else if (f.getType() == Boolean.TYPE) {
                 f.setBoolean(null, Boolean.parseBoolean(value));
             } else if (f.getType() == String.class) {
-                f.set(null, value.toString().replace("\\n", "\n"));
-            } else {
-                // throw new RuntimeException("Unknown config type: " +
-                // f.getType());
+                f.set(null, value.replace("\\n", "\n"));
             }
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
+            // throw new RuntimeException("Unknown config type: " +
+            // f.getType());
+
+        } catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
             e.printStackTrace();
         } catch (NoSuchFieldException e) {
             Logger.warning("Found: " + key + " in the configuration, but I don't know this setting");
@@ -140,9 +136,7 @@ public class CraftConfigLoader {
                     continue;
                 try {
                     bw.write(f.getName() + "=" + f.get(null).toString().replace("\n", "\\n") + "\n");
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
@@ -198,5 +192,27 @@ public class CraftConfigLoader {
             Logger.message(e.getMessage());
         }
         return result;
+    }
+
+    /**
+     * Load printer config into {@link CraftConfig}
+     */
+    public static void loadPrinterConfig() {
+        try (InputStream in = CraftConfigLoader.class.getClassLoader().getResourceAsStream("resources/PrinterConfig.txt")) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strline;
+            while ((strline = br.readLine()) != null) {
+                if (strline.startsWith("x")) {
+                    CraftConfig.printerX = Float.valueOf(strline.substring(3));
+                } else if (strline.startsWith("y")) {
+                    CraftConfig.printerY = Float.valueOf(strline.substring(3));
+                } else if (strline.startsWith("z")) {
+                    CraftConfig.printerZ = Float.valueOf(strline.substring(3));
+                }
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

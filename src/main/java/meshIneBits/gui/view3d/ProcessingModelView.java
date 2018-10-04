@@ -30,20 +30,19 @@ import controlP5.*;
 import javafx.util.Pair;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.SubWindow;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
+import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Observable;
@@ -98,11 +97,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     public void settings() {
-        // PJOGL.setIcon(Objects.requireNonNull(ProcessingModelView.class.getResource("resources/icon.png")).getPath());
         currentInstance = this;
-        int initialHeight = 450;
-        int initialWidth = 800;
-        size(initialWidth, initialHeight, P3D);
+        size(800, 450, P3D);
+        PJOGL.setIcon("resources/icon.png");
     }
 
     private void setCloseOperation() {
@@ -140,7 +137,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     public void setup() {
-
         this.surface.setResizable(true);
         this.surface.setTitle("MeshIneBits - Model view");
         if (model == null) {
@@ -177,6 +173,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         applyGravity();
 
         createButtons(cp5);
+
+        // Setup workspace
+        CraftConfigLoader.loadPrinterConfig();
+        printerX = CraftConfig.printerX;
+        printerY = CraftConfig.printerY;
+        printerZ = CraftConfig.printerZ;
     }
 
     private void customFrameBindings(InteractiveFrame frame) {
@@ -231,28 +233,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *  Display the printer workspace
      *
      */
-
-    @SuppressWarnings("ConstantConditions")
     private void drawWorkspace() {
-        try {
-            File filename = new File((this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
-            FileInputStream file = new FileInputStream(filename);
-            BufferedReader br = new BufferedReader(new InputStreamReader(file));
-            String strline;
-            while ((strline = br.readLine()) != null) {
-                if (strline.startsWith("x")) {
-                    printerX = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("y")) {
-                    printerY = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("z")) {
-                    printerZ = Float.valueOf(strline.substring(3));
-                }
-            }
-            br.close();
-            file.close();
-        } catch (Exception e) {
-            System.out.println("Error :" + e.getMessage());
-        }
         pushMatrix();
         noFill();
         stroke(255, 255, 0);

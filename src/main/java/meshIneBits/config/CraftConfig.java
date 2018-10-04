@@ -193,4 +193,15 @@ public class CraftConfig {
             description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation")
     public static int errorAccepted = 5;
 
+    @Setting(title = "Printer X",
+            description = "Length of printer in mm")
+    public static float printerX = 8000f;
+
+    @Setting(title = "Printer Y",
+            description = "Width of printer in mm")
+    public static float printerY = 4000f;
+
+    @Setting(title = "Printer Z",
+            description = "Height of printer in mm")
+    public static float printerZ = 2000f;
 }
