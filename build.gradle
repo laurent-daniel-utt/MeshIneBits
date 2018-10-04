@@ -16,6 +16,8 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 // JUnit 5
 apply plugin: 'org.junit.platform.gradle.plugin'
+// In order to bundle dependencies
+apply plugin: 'com.github.johnrengelman.shadow'
 
 // Define the entry point
 mainClassName = 'meshIneBits.MeshIneBitsMain'
@@ -27,6 +29,7 @@ repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    // mavenCentral()
 }
 
 sourceCompatibility = 1.8
@@ -52,7 +55,7 @@ dependencies {
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
-    // runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
+    runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-solaris-i586"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
     runtime "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
 
@@ -96,15 +99,28 @@ idea {
 }
 
 buildscript {
-    repositories { mavenCentral() }
-    dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0' }
+    repositories {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+        }
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.1'
+    }
 }
 
 jar {
     baseName = applicationName
     version = actualVersion
     manifest { attributes 'Main-Class': mainClassName }
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+}
+
+shadowJar {
+    baseName = applicationName
+    classifier = null
+    appendix = null
+    version = actualVersion
 }
