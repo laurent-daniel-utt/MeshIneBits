@@ -33,7 +33,6 @@ import meshIneBits.gui.SubWindow;
 import meshIneBits.util.*;
 import processing.core.PApplet;
 import processing.core.PShape;
-import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
@@ -65,12 +64,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     private Scene scene;
 
     private static ProcessingView currentInstance = null;
-    private static boolean visible;
-    private static boolean initialized;
 
     private enum Mode {full, sliced}
 
-    ;
     private Mode mode = Mode.sliced;
 
     public static void startProcessingView() {
@@ -78,27 +74,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
             PApplet.main(ProcessingView.class.getCanonicalName());
     }
 
-    /**
-     *
-     */
-    public static void closeProcessingView() {
-        if (currentInstance != null)
-            currentInstance.destroyGLWindow();
-    }
-
-    /**
-     *
-     */
-    private void destroyGLWindow() {
-        ((com.jogamp.newt.opengl.GLWindow) surface.getNative()).destroy();
-    }
-
-    /**
-     *
-     */
     public void settings() {
         size(640, 360, P3D);
-        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
+//        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
         currentInstance = this;
     }
 
@@ -166,11 +144,11 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
         Logger.updateStatus("Start building 3D model");
 
         shapeMap = new HashMap<>();
-        Vector<Layer> layers = curVO.getCurrentPart().getLayers();
+        Vector<Layer> layers = curVO.getCurrentMesh().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
         float layersOffSet = (float) CraftConfig.layersOffset;
 
-        PShape uncutBitPShape = getUncutBitPShape(bitThickness);
+        getUncutBitPShape(bitThickness);
 
         float zLayer;
         int bitCount = 0;
@@ -202,10 +180,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     }
 
     /**
-     * @param extrudeDepth
-     * @return
+     * @param extrudeDepth thickness
      */
-    private PShape getUncutBitPShape(float extrudeDepth) {
+    private void getUncutBitPShape(float extrudeDepth) {
 
         Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + CraftConfig.bitWidth);
@@ -218,21 +195,21 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
         pointList.add(new int[]{(int) cornerDownLeft.x, (int) cornerDownLeft.y, 0});
         pointList.add(new int[]{(int) cornerUpLeft.x, (int) cornerUpLeft.y, 0});
 
-        PolygonPointsList poly = null;
+        PolygonPointsList poly;
         try {
             poly = new PolygonPointsList(pointList);
         } catch (Exception e) {
             System.out.println("Polygon point list exception");
-            return null;
+            return;
         }
 
-        return extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
+        extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
     }
 
     /**
-     * @param bitArea
-     * @param extrudeDepth
-     * @return
+     * @param bitArea horizontal section
+     * @param extrudeDepth thickness
+     * @return 3D presentation of <tt>bitArea</tt>
      */
     private PShape getBitPShapeFrom(Area bitArea, float extrudeDepth) {
 
@@ -246,7 +223,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
             pointList.add(new int[]{(int) Math.round(s.end.x), (int) Math.round(s.end.y), 0});
         }
 
-        PolygonPointsList poly = null;
+        PolygonPointsList poly;
         try {
             poly = new PolygonPointsList(pointList);
         } catch (Exception e) {
@@ -276,7 +253,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
         if (mode == Mode.sliced) {
             zLayer = lNumber * (bitThickness + layersOffSet);
         } else if (mode == Mode.full) {
-            zLayer = (int) (curVO.getCurrentPart().getLayers().size() * (bitThickness + layersOffSet));
+            zLayer = (int) (curVO.getCurrentMesh().getLayers().size() * (bitThickness + layersOffSet));
         }
 
         Vector3 v = curVO.getModel().getPos();
@@ -296,6 +273,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void drawWorkspace() {
         try {
             File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("meshIneBits/config/PrinterConfig.txt")).getPath());
@@ -356,10 +334,10 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     }
 
     /**
-     * @param pointA
-     * @param pointB
-     * @param z
-     * @return
+     * @param pointA starting point
+     * @param pointB ending point
+     * @param z thickness
+     * @return side wall
      */
     private PShape getFaceExtrude(int[] pointA, int[] pointB, int z) {
         PShape face = createShape();
@@ -374,9 +352,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     }
 
     /**
-     * @param poly
-     * @param z
-     * @return
+     * @param poly horizontal section
+     * @param z thickness
+     * @return 3D presentation
      */
     private PShape getSideExtrude(PolygonPointsList poly, int z) {
 
@@ -396,9 +374,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     }
 
     /**
-     * @param poly
-     * @param z
-     * @return
+     * @param poly horizontal section
+     * @param z thickness
+     * @return 3D presentation
      */
     private PShape getPShape(PolygonPointsList[] poly, int z) {
 
@@ -452,48 +430,19 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
         return extrudedObject;
     }
 
-    /**
-     *
-     */
-
     @Override
     public void update(Observable o, Object arg) {
         redraw();
-
     }
 
     @Override
     public void toggle() {
-        if (visible) {
-            hide();
-        } else {
-            open();
-        }
-    }
-
-    private void open() {
-        if (!initialized) {
-            ProcessingView.startProcessingView();
-            visible = true;
-            initialized = true;
-        } else {
-            setVisible(true);
-        }
-    }
-
-    private void hide() {
-        setVisible(false);
-    }
-
-
-    private void setVisible(boolean b) {
-        currentInstance.getSurface().setVisible(b);
-        visible = b;
+        ProcessingView.startProcessingView();
     }
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        System.out.println("Processing view, setting current part" + mesh);
+        Logger.message("Processing view, setting current part" + mesh);
         curVO.setMesh(mesh);
     }
 }

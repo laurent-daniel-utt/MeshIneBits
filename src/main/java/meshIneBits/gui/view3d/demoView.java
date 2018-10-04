@@ -184,9 +184,9 @@ public class demoView extends PApplet implements Observer, SubWindow {
                 pushMatrix();
                 float[] t = shapeMap.get(i).getKey().getTranslation();
                 translate(t[0], t[1], t[2]);
-                translate((float) controller.getCurrentPart().getModel().getPos().x,
-                        (float) controller.getCurrentPart().getModel().getPos().y,
-                        (float) controller.getCurrentPart().getModel().getPos().z);
+                translate((float) controller.getCurrentMesh().getModel().getPos().x,
+                        (float) controller.getCurrentMesh().getModel().getPos().y,
+                        (float) controller.getCurrentMesh().getModel().getPos().z);
 
                 rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 

@@ -486,20 +486,11 @@ class Toolbar extends JTabbedPane implements Observer {
             viewsCont.add(_demo);
             viewsCont.add(_model);
 
-            _2D.addActionListener(e -> {
-                // Show up the 2D view
-                MainWindow.getInstance().get2DView().toggle();
-            });
+            _2D.addActionListener(e -> MainWindow.getInstance().get2DView().toggle());
 
-            _3D.addActionListener(e -> {
-                // Show up the 3D view
-                MainWindow.getInstance().get3DView().toggle();
-            });
+            _3D.addActionListener(e -> MainWindow.getInstance().get3DView().toggle());
 
-            _demo.addActionListener(e -> {
-                // Show up the demo
-                MainWindow.getInstance().getDemoView().toggle();
-            });
+            _demo.addActionListener(e -> MainWindow.getInstance().getDemoView().toggle());
 
             _model.addActionListener(e -> MainWindow.getInstance().getModelView().toggle());
         }

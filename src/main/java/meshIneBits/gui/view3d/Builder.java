@@ -49,12 +49,12 @@ class Builder extends PApplet implements Observer {
     private PApplet pApplet;
 
 
-    public Builder(PApplet pApplet) {
+    Builder(PApplet pApplet) {
         controller = Controller.getInstance();
         this.pApplet = pApplet;
     }
 
-    public void buildShape(Model model, PShape shape) {
+    void buildShape(Model model, PShape shape) {
         Logger.updateStatus("Start building STL model");
 
         Vector<Triangle> stlTriangles = model.getTriangles();
@@ -79,15 +79,15 @@ class Builder extends PApplet implements Observer {
         return face;
     }
 
-    public void buildBits(Vector<Pair<Position, PShape>> shapeMap) {
+    void buildBits(Vector<Pair<Position, PShape>> shapeMap) {
 
         Logger.updateStatus("Start building 3D model");
 
-        Vector<Layer> layers = controller.getCurrentPart().getLayers();
+        Vector<Layer> layers = controller.getCurrentMesh().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
         float layersOffSet = (float) CraftConfig.layersOffset;
 
-        PShape uncutBitPShape = getUncutBitPShape(bitThickness);
+        getUncutBitPShape(bitThickness);
 
         float zLayer;
         int bitCount = 0;
@@ -95,9 +95,9 @@ class Builder extends PApplet implements Observer {
         for (Layer curLayer : layers) {
             Vector<Pair<Bit3D, Vector2>> sortedBits = curLayer.sortBits();
             zLayer = curLayer.getLayerNumber() * (bitThickness + layersOffSet);
-            for (int i = 0; i < sortedBits.size(); i++) {
+            for (Pair<Bit3D, Vector2> sortedBit : sortedBits) {
                 bitCount++;
-                Bit3D curBit = sortedBits.get(i).getKey();
+                Bit3D curBit = sortedBit.getKey();
                 PShape bitPShape;
                 pApplet.fill(BIT_COLOR);
                 pApplet.noStroke();
@@ -117,10 +117,9 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     * @param extrudeDepth
-     * @return
+     * @param extrudeDepth thickness
      */
-    private PShape getUncutBitPShape(float extrudeDepth) {
+    private void getUncutBitPShape(float extrudeDepth) {
 
         Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + CraftConfig.bitWidth);
@@ -133,21 +132,21 @@ class Builder extends PApplet implements Observer {
         pointList.add(new int[]{(int) cornerDownLeft.x, (int) cornerDownLeft.y, 0});
         pointList.add(new int[]{(int) cornerUpLeft.x, (int) cornerUpLeft.y, 0});
 
-        PolygonPointsList poly = null;
+        PolygonPointsList poly;
         try {
             poly = new PolygonPointsList(pointList);
         } catch (Exception e) {
-            System.out.println("Polygon point list exception");
-            return null;
+            Logger.error("Polygon point list exception");
+            return;
         }
 
-        return extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
+        extrude(new PolygonPointsList[]{poly, null}, (int) extrudeDepth);
     }
 
     /**
-     * @param bitArea
-     * @param extrudeDepth
-     * @return
+     * @param bitArea      horizontal section
+     * @param extrudeDepth thickness
+     * @return part of rectangular parallelepiped
      */
     private PShape getBitPShapeFrom(Area bitArea, float extrudeDepth) {
 
@@ -161,7 +160,7 @@ class Builder extends PApplet implements Observer {
             pointList.add(new int[]{(int) Math.round(s.end.x), (int) Math.round(s.end.y), 0});
         }
 
-        PolygonPointsList poly = null;
+        PolygonPointsList poly;
         try {
             poly = new PolygonPointsList(pointList);
         } catch (Exception e) {
@@ -185,9 +184,9 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     * @param poly
-     * @param z
-     * @return
+     * @param poly horizontal boundary
+     * @param z    thickness
+     * @return side wall
      */
     private PShape getSideExtrude(PolygonPointsList poly, int z) {
 
@@ -207,9 +206,9 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     * @param poly
-     * @param z
-     * @return
+     * @param poly horizontal boundary
+     * @param z    thickness
+     * @return 3D presentation of bit
      */
     private PShape getPShape(PolygonPointsList[] poly, int z) {
 

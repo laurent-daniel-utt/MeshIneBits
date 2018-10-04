@@ -35,7 +35,6 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
-import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
@@ -47,7 +46,6 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -57,7 +55,7 @@ import static remixlab.proscene.MouseAgent.LEFT_CLICK_ID;
 import static remixlab.proscene.MouseAgent.RIGHT_CLICK_ID;
 
 /**
- * @author Nicolas
+ * @author Vallon BENJAMIN
  * <p>
  * 3D view + GUI
  * Use Builder to creates Meshes
@@ -65,14 +63,9 @@ import static remixlab.proscene.MouseAgent.RIGHT_CLICK_ID;
 public class ProcessingModelView extends PApplet implements Observer, SubWindow {
 
     private final int BACKGROUND_COLOR = color(150, 150, 150);
-    private int height = 450;
-    private int width = 800;
     private float printerX;
     private float printerY;
     private float printerZ;
-
-    private static boolean visible = false;
-    private static boolean initialized = false;
 
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
@@ -86,7 +79,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private ControlP5 cp5;
     private Textlabel txt;
     private Textlabel modelSize;
-    private Textarea tooltipGrav;
+    private Textarea tooltipGravity;
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
     private Textarea tooltipApply;
@@ -95,51 +88,26 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private DecimalFormat df;
 
     private boolean[] borders;
-    private boolean hidden = false;
     private boolean built = false;
     private boolean applied = false;
 
-    /**
-     *
-     */
     private static void startProcessingModelView() {
         if (currentInstance == null) {
             PApplet.main(ProcessingModelView.class.getCanonicalName());
         }
     }
 
-    /**
-     *
-     */
-    public static void closeProcessingModelView() {
-        if (currentInstance != null) {
-            currentInstance.destroyGLWindow();
-        }
-    }
-
-    /**
-     *
-     */
-    private void destroyGLWindow() {
-        ((com.jogamp.newt.opengl.GLWindow) surface.getNative()).destroy();
-    }
-
-    /**
-     *
-     */
     public void settings() {
-        PJOGL.setIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")).getPath());
+        // PJOGL.setIcon(Objects.requireNonNull(ProcessingModelView.class.getResource("resources/icon.png")).getPath());
         currentInstance = this;
-        size(width, height, P3D);
+        int initialHeight = 450;
+        int initialWidth = 800;
+        size(initialWidth, initialHeight, P3D);
     }
 
-    /**
-     *
-     */
     private void setCloseOperation() {
         //Removing close listeners
-
-        com.jogamp.newt.opengl.GLWindow win = ((com.jogamp.newt.opengl.GLWindow) surface.getNative());
+        com.jogamp.newt.opengl.GLWindow win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
         for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
             win.removeWindowListener(wl);
         }
@@ -149,11 +117,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         win.addWindowListener(new WindowAdapter() {
             public void windowDestroyed(WindowEvent e) {
                 controller.deleteObserver(currentInstance);
-                dispose();
                 currentInstance = null;
-                model = null;
-                initialized = false;
-                visible = false;
+                dispose();
             }
         });
 
@@ -181,7 +146,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (model == null) {
             model = controller.getModel();
         }
-        // each bool corresponds to 1 face of the workspace. is true if the the shape is crossing the associate face.
+        // each bool corresponds to 1 face of the workspace.
+        // is true if the the shape is crossing the associated face.
         // borders[0] =  xmin border / borders[1] = xmax border ...
         borders = new boolean[6];
         for (int i = 0; i < 6; i++) {
@@ -248,14 +214,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     private void drawBits(Vector<Pair<Position, PShape>> shapeMap) {
         Vector3 v = controller.getModel().getPos();
-        for (int i = 0; i < shapeMap.size(); i++) {
+        for (Pair<Position, PShape> aShapeMap : shapeMap) {
             pushMatrix();
             translate((float) v.x, (float) v.y, (float) v.z);
-            float[] t = shapeMap.get(i).getKey().getTranslation();
+            float[] t = aShapeMap.getKey().getTranslation();
             translate(t[0], t[1], t[2]);
-            rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
+            rotateZ(radians(aShapeMap.getKey().getRotation()));
 
-            PShape s = shapeMap.get(i).getValue();
+            PShape s = aShapeMap.getValue();
             shape(s);
             popMatrix();
         }
@@ -266,9 +232,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
 
+    @SuppressWarnings("ConstantConditions")
     private void drawWorkspace() {
         try {
-            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
+            File filename = new File((this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
             FileInputStream file = new FileInputStream(filename);
             BufferedReader br = new BufferedReader(new InputStreamReader(file));
             String strline;
@@ -348,11 +315,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         int color = gravity.getColor().getBackground();
 
-        tooltipGrav = cp5.addTextarea("tooltipGrav").setPosition(100, 250).setText("Set the model").setSize(90, 18)
+        tooltipGravity = cp5.addTextarea("tooltipGravity").setPosition(100, 250).setText("Set the model").setSize(90, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
-        tooltipGrav.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+        tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipReset = cp5.addTextarea("tooltipReset").setPosition(100, 280).setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
@@ -413,34 +380,32 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     private void displayTooltips() {
-        tooltipGrav.hide();
+        tooltipGravity.hide();
         tooltipReset.hide();
         tooltipCamera.hide();
         tooltipApply.hide();
-        tooltipGrav.setPosition(mouseX + 20, mouseY - 20);
+        tooltipGravity.setPosition(mouseX + 20, mouseY - 20);
         tooltipReset.setPosition(mouseX + 20, mouseY - 20);
         tooltipCamera.setPosition(mouseX + 20, mouseY - 20);
         tooltipApply.setPosition(mouseX + 20, mouseY - 20);
-        if (!hidden) {
-            if ((mouseX > 20) && (mouseX < 100) && (mouseY > 250) && (mouseY < 270)) {
-                if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
-                    tooltipGrav.show();
-                }
+        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 250) && (mouseY < 270)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipGravity.show();
             }
-            if ((mouseX > 20) && (mouseX < 100) && (mouseY > 280) && (mouseY < 300)) {
-                if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
-                    tooltipReset.show();
-                }
+        }
+        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 280) && (mouseY < 300)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipReset.show();
             }
-            if ((mouseX > 20) && (mouseX < 100) && (mouseY > 310) && (mouseY < 330)) {
-                if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
-                    tooltipCamera.show();
-                }
+        }
+        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 310) && (mouseY < 330)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipCamera.show();
             }
-            if ((mouseX > 20) && (mouseX < 100) && (mouseY > 340) && (mouseY < 360)) {
-                if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
-                    tooltipApply.show();
-                }
+        }
+        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 340) && (mouseY < 360)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipApply.show();
             }
         }
     }
@@ -560,9 +525,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     private void applyGravity() {
-        float minz = (float) getMinShape().z;
-        if (minz != 0) {
-            frame.translate(0, 0, -minz);
+        float minZ = (float) getMinShape().z;
+        if (minZ != 0) {
+            frame.translate(0, 0, -minZ);
         }
     }
 
@@ -588,7 +553,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     /**
      * Check if the model is in the workspace
-     * Return true if in the workspace
+     *
+     * @return true if in the workspace
      */
     private boolean checkShapeInWorkspace() {
         for (int i = 0; i < 6; i++) {
@@ -600,8 +566,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         float maxY = printerY / 2;
         float minZ = 0;
         float maxZ = printerZ;
-        Vec minPos = new Vec((float) getMinShape().x, (float) getMinShape().y, (float) getMinShape().z);
-        Vec maxPos = new Vec((float) getMaxShape().x, (float) getMaxShape().y, (float) getMaxShape().z);
+        Vector3 vMin = getMinShape();
+        Vec minPos = new Vec((float) vMin.x, (float) vMin.y, (float) vMin.z);
+        Vector3 vMax = getMaxShape();
+        Vec maxPos = new Vec((float) vMax.x, (float) vMax.y, (float) vMax.z);
         boolean inWorkspace = true;
         if (minPos.x() < minX) {
             inWorkspace = false;
@@ -659,36 +627,43 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      * @param theValue in float
      */
+    @SuppressWarnings("unused")
     public void RotationX(String theValue) {
         float angle = Float.valueOf(theValue);
         rotateShape(angle, 0, 0);
     }
 
+    @SuppressWarnings("unused")
     public void RotationY(String theValue) {
         float angle = Float.valueOf(theValue);
         rotateShape(0, angle, 0);
     }
 
+    @SuppressWarnings("unused")
     public void RotationZ(String theValue) {
         float angle = Float.valueOf(theValue);
         rotateShape(0, 0, angle);
     }
 
+    @SuppressWarnings("unused")
     public void PositionX(String theValue) {
         float pos = Float.valueOf(theValue);
         translateShape(pos, 0, 0);
     }
 
+    @SuppressWarnings("unused")
     public void PositionY(String theValue) {
         float pos = Float.valueOf(theValue);
         translateShape(0, pos, 0);
     }
 
+    @SuppressWarnings("unused")
     public void PositionZ(String theValue) {
         float pos = Float.valueOf(theValue);
         translateShape(0, 0, pos);
     }
 
+    @SuppressWarnings("unused")
     public void Reset(float theValue) {
         resetModel();
         centerCamera();
@@ -698,14 +673,17 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     }
 
+    @SuppressWarnings("unused")
     public void ApplyGravity(float theValue) {
         applyGravity();
     }
 
+    @SuppressWarnings("unused")
     public void CenterCamera(float theValue) {
         centerCamera();
     }
 
+    @SuppressWarnings("unused")
     public void Apply(float theValue) {
         if (!applied) {
             applyRotation();
@@ -716,7 +694,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     public void Model(boolean flag) {
-        if (flag == false) {
+        if (!flag) {
             shape.setVisible(false);
             frame.removeMotionBindings();
         } else {
@@ -727,29 +705,31 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     public void Bits(boolean flag) {
         if (flag) {
-            if (controller.getCurrentPart().isPaved() && !built) {
+            if (controller.getCurrentMesh().isPaved() && !built) {
                 builder.buildBits(shapeMap);
                 built = true;
             }
             if (built) {
-                for (int i = 0; i < shapeMap.size(); i++) {
-                    shapeMap.get(i).getValue().setVisible(true);
+                for (Pair<Position, PShape> aShapeMap : shapeMap) {
+                    aShapeMap.getValue().setVisible(true);
                 }
             }
         } else {
             if (built) {
-                for (int i = 0; i < shapeMap.size(); i++) {
-                    shapeMap.get(i).getValue().setVisible(false);
+                for (Pair<Position, PShape> aShapeMap : shapeMap) {
+                    aShapeMap.getValue().setVisible(false);
                 }
             }
         }
     }
 
+    @SuppressWarnings("unused")
     public void M(int value) {
         value *= 255. / 100.;
         shape.setFill(color(219, 100, 50, value));
     }
 
+    @SuppressWarnings("unused")
     public void B(int value) {
         value *= 255. / 100.;
         for (Pair<Position, PShape> p : shapeMap) {
@@ -759,20 +739,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     @Override
     public void update(Observable o, Object arg) {
-    }
-
-    private void open() {
-        if (!initialized) {
-            ProcessingModelView.startProcessingModelView();
-            visible = true;
-            initialized = true;
-        } else {
-            setVisible(true);
-        }
-    }
-
-    private void hide() {
-        setVisible(false);
+        redraw();
     }
 
     @Override
@@ -781,21 +748,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             Logger.error("No model has been loaded.");
             return;
         }
-        if (visible) {
-            hide();
-        } else {
-            open();
-        }
+        ProcessingModelView.startProcessingModelView();
+        // Keep opening
     }
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
         controller.setMesh(mesh);
-    }
-
-    private void setVisible(boolean b) {
-        currentInstance.getSurface().setVisible(b);
-        visible = b;
     }
 
     public void setModel(Model m) {

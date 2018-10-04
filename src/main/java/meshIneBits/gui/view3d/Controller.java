@@ -33,7 +33,7 @@ import java.util.Observer;
  */
 public class Controller extends Observable implements Observer {
 
-    private Mesh part;
+    private Mesh mesh;
 
     private static Controller instance;
     private Model model;
@@ -47,19 +47,19 @@ public class Controller extends Observable implements Observer {
     private Controller() {
     }
 
-    Mesh getCurrentPart() {
-        return part;
+    Mesh getCurrentMesh() {
+        return mesh;
     }
 
     /**
-     * @param part <tt>null</tt> to delete the current mesh
+     * @param mesh <tt>null</tt> to delete the current mesh
      */
-    void setMesh(Mesh part) {
-        if (part != null) {
-            this.part = part;
-            part.addObserver(this);
+    void setMesh(Mesh mesh) {
+        if (mesh != null) {
+            this.mesh = mesh;
+            mesh.addObserver(this);
         } else
-            this.part = null;
+            this.mesh = null;
 
         setChanged();
         notifyObservers();
@@ -72,7 +72,7 @@ public class Controller extends Observable implements Observer {
 
     int getCurrentLayerNumber() {
         // TODO Implement toolbox in 3D view
-        return part.getLayers().size() - 1;
+        return mesh.getLayers().size() - 1;
     }
 
     Model getModel() {
