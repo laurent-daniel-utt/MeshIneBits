@@ -177,4 +177,23 @@ public class Pavement implements Cloneable, Serializable {
     public void removeBit(Vector2 key) {
         mapBits.remove(key);
     }
+
+    /**
+     * Rotate a bit around its center
+     *
+     * @param bitKey  of target bit
+     * @param degrees negative to rotate counter-clockwise
+     * @return original bit key. <tt>null</tt> if no such key in pavement
+     */
+    Vector2 rotateBit(Vector2 bitKey, double degrees) {
+        Bit2D bitToRotate = mapBits.get(bitKey);
+        if (bitToRotate == null) return null;
+        removeBit(bitKey);
+        Vector2 newOrientation = bitToRotate.getOrientation()
+                .add(Vector2.getEquivalentVector(degrees));
+        return addBit(new Bit2D(bitToRotate.getOrigin(),
+                newOrientation,
+                bitToRotate.getLength(),
+                bitToRotate.getWidth()));
+    }
 }

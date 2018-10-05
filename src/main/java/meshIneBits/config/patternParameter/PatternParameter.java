@@ -24,6 +24,8 @@ package meshIneBits.config.patternParameter;
 
 import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 /**
@@ -40,6 +42,7 @@ public abstract class PatternParameter implements Serializable {
     String title;
     String codename;
     String description;
+    PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     /**
      * Type of current value depends on sub class
@@ -86,4 +89,12 @@ public abstract class PatternParameter implements Serializable {
      * @return gui of parameter
      */
     public abstract Renderer getRenderer();
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        changes.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changes.removePropertyChangeListener(l);
+    }
 }

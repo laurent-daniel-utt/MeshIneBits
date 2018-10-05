@@ -26,6 +26,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.MainController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
@@ -42,7 +43,7 @@ import java.util.List;
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
  * Layer} of the {@link Mesh}. It observes {@link Controller}
  */
-class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
+class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener, Observer {
 
     private static final long serialVersionUID = 1L;
     private double viewOffsetX, viewOffsetY;
@@ -52,6 +53,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     private boolean rightClickPressed = false;
     private double defaultZoom = 1;
     private double drawScale = 1;
+    private boolean onControl;
 
     Core() {
         // Setting up for easier use later
@@ -62,6 +64,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         addMouseMotionListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
+        addKeyListener(this);
         setFocusable(true);
         setupKeyBindings();
     }
@@ -91,7 +94,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     }
 
     private void clickOnBitControl(int id) {
-        Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
+        Layer layer = controller.getLayer();
         Vector2 direction = null;
 
         // Every directions are in the bit's local coordinate system
@@ -165,7 +168,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                     return;
                 }
 
-                Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
+                Layer layer = controller.getLayer();
                 Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
                 // Look if we hit a bit control (arrows)
@@ -241,25 +244,29 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         if (!rightClickPressed) {
-            // Zoom on the view
-            int notches = e.getWheelRotation();
-            double zoom = controller.getZoom();
-            if (notches > 0) {
-                zoom = zoom / 1.25;
+            double notches = e.getPreciseWheelRotation();
+            if (!onControl) {
+                // Zoom on the view
+                double zoom = controller.getZoom();
+                if (notches > 0) {
+                    zoom = zoom / 1.25;
+                } else {
+                    zoom = zoom * 1.25;
+                }
+                controller.setZoom(zoom);
             } else {
-                zoom = zoom * 1.25;
+                // Rotate the bit preview
+                if (controller.isOnAddingBits()) {
+                    controller.incrementBitsOrientationParamBy(notches * WorkspaceConfig.rotationSpeed);
+                }
+                // Rotate the selected bits
+                if (controller.getSelectedBitKeys().size() > 0) {
+                    controller.rotateSelectedBitsBy(notches * WorkspaceConfig.rotationSpeed);
+                }
             }
-            controller.setZoom(zoom);
         } else {
             // Navigate through layers when right click pressed
-            int notches = e.getWheelRotation();
-            int layer = controller.getCurrentLayerNumber();
-            if (notches > 0) {
-                layer -= Math.abs(notches);
-            } else {
-                layer += Math.abs(notches);
-            }
-            controller.setLayer(layer);
+            controller.setLayer(controller.getCurrentLayerNumber() + e.getWheelRotation());
         }
     }
 
@@ -291,7 +298,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             }
 
             // Draw bits
-            Layer currentLayer = currentMesh.getLayers().get(controller.getCurrentLayerNumber());
+            Layer currentLayer = controller.getLayer();
             paintBits(currentMesh, currentLayer, g2d);
 
             // Draw the slices contained in the layer
@@ -305,7 +312,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             if (controller.showSlice()) {
                 g2d.setColor(Color.RED);
                 g2d.setStroke(new BasicStroke(1.0f));
-                paintLayerBorder(currentMesh, g2d);
+                paintLayerBorder(g2d);
             }
 
             // Draw the controls of the selected bit
@@ -347,10 +354,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         }
     }
 
-    private void paintLayerBorder(Mesh mesh, Graphics2D g2d) {
-        Slice slice = mesh.getLayers()
-                .get(controller.getCurrentLayerNumber())
-                .getHorizontalSection();
+    private void paintLayerBorder(Graphics2D g2d) {
+        Slice slice = controller.getLayer().getHorizontalSection();
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
         }
@@ -468,6 +473,21 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     public void update(Observable o, Object arg) {
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        onControl = e.isControlDown();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        onControl = false;
     }
 
     private class TriangleShape extends Path2D.Double {

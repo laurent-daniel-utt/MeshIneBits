@@ -83,7 +83,7 @@ public class DoubleParam extends PatternParameter {
     }
 
     /**
-     * @param d
+     * @param d default value
      * @see #filter(Double)
      */
     private void setDefault(Double d) {
@@ -112,7 +112,6 @@ public class DoubleParam extends PatternParameter {
     private void setMin(Double minValue) {
         if (Double.isInfinite(minValue) || Double.isNaN(minValue)) {
             this.minValue = Double.MIN_VALUE;
-            return;
         } else
             this.minValue = minValue;
     }
@@ -144,7 +143,7 @@ public class DoubleParam extends PatternParameter {
      * Filter an input value after setting up {@link #minValue}, {@link #maxValue},
      * {@link #step}
      *
-     * @param d
+     * @param d input value
      * @return Round up by {@link #step}
      * <ul>
      * <li><tt>0.0</tt> if {@link Double#isInfinite()} or
@@ -159,10 +158,10 @@ public class DoubleParam extends PatternParameter {
             return 0.0;
         }
         // Check in range
-        if (d.doubleValue() < this.minValue) {
+        if (d < this.minValue) {
             return this.minValue;
         }
-        if (d.doubleValue() > this.maxValue) {
+        if (d > this.maxValue) {
             return this.maxValue;
         }
         // Round up
@@ -234,5 +233,16 @@ public class DoubleParam extends PatternParameter {
     @Override
     public Renderer getRenderer() {
         return new LabeledSpinner(this);
+    }
+
+    /**
+     * @param amount positive to increment {@link #currentValue} or
+     *               negative to decrement. Can not trespass {@link #maxValue}
+     *               and {@link #minValue}
+     */
+    public void incrementBy(double amount) {
+        double oldValue = currentValue;
+        currentValue = filter(currentValue + amount);
+        changes.firePropertyChange("currentValue", oldValue, currentValue);
     }
 }

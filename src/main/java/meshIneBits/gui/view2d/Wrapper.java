@@ -338,8 +338,7 @@ class Wrapper extends JPanel implements Observer {
         }
 
         private void replaceSelectedBit(double percentageLength, double percentageWidth) {
-            Mesh part = controller.getCurrentMesh();
-            Layer layer = part.getLayers().get(controller.getCurrentLayerNumber());
+            Layer layer = controller.getLayer();
 
             if (controller.getSelectedBitKeys().isEmpty()) {
                 Logger.warning("There is no bit selected");
@@ -389,7 +388,7 @@ class Wrapper extends JPanel implements Observer {
                 currentLayerBtn.setEnabled(false);
                 currentMeshBtn.setEnabled(false);
                 Mesh mesh = controller.getCurrentMesh();
-                Layer currentLayer = mesh.getLayers().get(controller.getCurrentLayerNumber());
+                Layer currentLayer = controller.getLayer();
                 try {
                     mesh.optimize(currentLayer);
                 } catch (Exception e1) {

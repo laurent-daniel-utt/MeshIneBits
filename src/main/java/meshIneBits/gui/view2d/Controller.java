@@ -43,6 +43,7 @@ class Controller extends Observable implements Observer {
     static private Controller instance;
     private Mesh mesh = null;
     private int layerNumber = 0;
+    private Layer currentLayer = null;
     private int sliceNumber = 0;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
@@ -56,6 +57,9 @@ class Controller extends Observable implements Observer {
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private Model model = null;
+    private boolean onAddingBits = false;
+
+
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -103,7 +107,6 @@ class Controller extends Observable implements Observer {
     }
 
     Set<Bit3D> getSelectedBits() {
-        Layer currentLayer = mesh.getLayers().get(layerNumber);
         return selectedBitKeys.stream()
                 .map(currentLayer::getBit3D)
                 .collect(Collectors.toSet());
@@ -128,11 +131,16 @@ class Controller extends Observable implements Observer {
             return;
         }
         layerNumber = nbrLayer;
-        mesh.getLayers().get(layerNumber).addObserver(this);
+        currentLayer = mesh.getLayers().get(layerNumber);
+        currentLayer.addObserver(this);
         reset();
 
         setChanged();
         notifyObservers(Component.LAYER);
+    }
+
+    public Layer getLayer() {
+        return currentLayer;
     }
 
     /**
@@ -268,6 +276,19 @@ class Controller extends Observable implements Observer {
         }
     }
 
+    void incrementBitsOrientationParamBy(double notches) {
+        newBitsOrientationParam.incrementBy(notches);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * @param notches rotation in degree
+     */
+    void rotateSelectedBitsBy(double notches) {
+        setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, notches));
+    }
+
 
     public enum Component {
         MESH, LAYER, SELECTED_BIT, ZOOM, SLICE
@@ -283,8 +304,6 @@ class Controller extends Observable implements Observer {
         setChanged();
         notifyObservers();
     }
-
-    private boolean onAddingBits = false;
 
     boolean isOnAddingBits() {
         return onAddingBits;
@@ -313,7 +332,7 @@ class Controller extends Observable implements Observer {
             "newBitOrientation",
             "Bit orientation",
             "Angle of bits in respect to that of layer",
-            0.0, 360.0, 0.0, 0.01);
+            -180.0, 180.0, 0.0, 0.01);
 
     void addNewBits(Point2D.Double position) {
         Layer l = mesh.getLayers().get(layerNumber);

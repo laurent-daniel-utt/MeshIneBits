@@ -426,4 +426,22 @@ public class Layer extends Observable implements Serializable {
     public void setFlatPavement(Pavement newFlatPavement) {
         this.flatPavement = newFlatPavement;
     }
+
+    /**
+     * Rotate multiple bits around their center
+     *
+     * @param bitKeys in surface
+     * @param degrees in degrees
+     * @return images after rotation
+     */
+    public Set<Vector2> rotateBits(Set<Vector2> bitKeys, double degrees) {
+        Set<Vector2> newPositions = bitKeys.stream()
+                .map(bitKey -> flatPavement.rotateBit(bitKey, degrees))
+                .collect(Collectors.toSet());
+        rebuild();
+        // Some new positions may be out of border
+        return newPositions.stream()
+                .filter(pos -> this.getBit3D(pos) != null)
+                .collect(Collectors.toSet());
+    }
 }
