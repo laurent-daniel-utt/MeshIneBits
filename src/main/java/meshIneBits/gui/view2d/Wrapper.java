@@ -30,7 +30,6 @@ import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.gui.utilities.RibbonCheckBox;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -38,7 +37,6 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -318,35 +316,35 @@ class Wrapper extends JPanel implements Observer {
     private class BitModifierPane extends OptionsContainer {
         BitModifierPane() {
             super("Modify bit");
-            JButton replaceBitBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
-            JButton replaceBitBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
-            JButton replaceBitBtn3 = new ButtonIcon("", "cut-quart.png", true, 80, 25);
+            JButton cutLengthBtn1 = new ButtonIcon("", "cut-length.png", true, 80, 25);
+            JButton cutWidthBtn2 = new ButtonIcon("", "cut-width.png", true, 80, 25);
+            JButton cutQuartBtn3 = new ButtonIcon("", "cut-quart.png", true, 80, 25);
             JButton deleteBitBtn = new ButtonIcon("", "delete-bit.png", true, 80, 25);
-            JButton replaceByFullBitBtn = new ButtonIcon("", "full-bit.png", true, 80, 25);
-            add(replaceBitBtn1);
-            add(replaceBitBtn2);
-            add(replaceBitBtn3);
+            JButton scaleFullBitBtn = new ButtonIcon("", "full-bit.png", true, 80, 25);
+            add(cutLengthBtn1);
+            add(cutWidthBtn2);
+            add(cutQuartBtn3);
             add(deleteBitBtn);
-            add(replaceByFullBitBtn);
+            add(scaleFullBitBtn);
 
             // Action listener
-            replaceBitBtn1.addActionListener(e -> replaceSelectedBit(100, 50));
-            replaceBitBtn2.addActionListener(e -> replaceSelectedBit(50, 100));
-            replaceBitBtn3.addActionListener(e -> replaceSelectedBit(50, 50));
-            deleteBitBtn.addActionListener(e -> replaceSelectedBit(0, 0));
-            replaceByFullBitBtn.addActionListener(e -> replaceSelectedBit(100, 100));
+            cutLengthBtn1.addActionListener(e -> scaleSelectedBit(100, 50));
+            cutWidthBtn2.addActionListener(e -> scaleSelectedBit(50, 100));
+            cutQuartBtn3.addActionListener(e -> scaleSelectedBit(50, 50));
+            deleteBitBtn.addActionListener(e -> scaleSelectedBit(0, 0));
+            scaleFullBitBtn.addActionListener(e -> scaleSelectedBit(100, 100));
         }
 
-        private void replaceSelectedBit(double percentageLength, double percentageWidth) {
+        private void scaleSelectedBit(double percentageLength, double percentageWidth) {
             Layer layer = controller.getLayer();
 
             if (controller.getSelectedBitKeys().isEmpty()) {
                 Logger.warning("There is no bit selected");
             } else {
-                Set<Vector2> newSelectedBitKeys = controller.getSelectedBits().stream()
-                        .map(bit -> layer.replaceBit(bit, percentageLength, percentageWidth))
-                        .collect(Collectors.toSet());
-                controller.setSelectedBitKeys(newSelectedBitKeys);
+                controller.setSelectedBitKeys(controller.getSelectedBits()
+                        .stream()
+                        .map(bit -> layer.scaleBit(bit, percentageLength, percentageWidth))
+                        .collect(Collectors.toSet()));
             }
         }
     }

@@ -364,7 +364,7 @@ public class Layer extends Observable implements Serializable {
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
      */
-    public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
+    public Vector2 scaleBit(Bit3D bit, double percentageLength, double percentageWidth) {
         Bit2D modelBit = bit.getBit2dToExtrude();
         removeBit(bit.getOrigin());
         if (percentageLength != 0 && percentageWidth != 0) {
