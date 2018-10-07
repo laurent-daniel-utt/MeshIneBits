@@ -342,9 +342,11 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         affineTransform.scale(drawScale, drawScale);
         a.transform(affineTransform);
 
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(Color.BLUE.darker());
         g2d.setStroke(new BasicStroke(1.0f));
         g2d.draw(a);
+        g2d.setColor(new Color(164, 180, 200, 100));
+        g2d.fill(a);
     }
 
     private void paintSlice(Mesh mesh, Graphics2D g2d) {

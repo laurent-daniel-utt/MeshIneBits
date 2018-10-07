@@ -50,15 +50,31 @@ class Controller extends Observable implements Observer {
     @Deprecated
     private boolean showSlices = false;
     private boolean showSlice = false;
-
     private boolean showLiftPoints = false;
-
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private Model model = null;
     private boolean onAddingBits = false;
 
+    // New bit config
+    final DoubleParam newBitsLengthParam = new DoubleParam(
+            "newBitLength",
+            "Bit length",
+            "Length of bits to add",
+            1.0, CraftConfig.bitLength,
+            CraftConfig.bitLength, 1.0);
+    final DoubleParam newBitsWidthParam = new DoubleParam(
+            "newBitWidth",
+            "Bit width",
+            "Length of bits to add",
+            1.0, CraftConfig.bitWidth,
+            CraftConfig.bitWidth, 1.0);
+    final DoubleParam newBitsOrientationParam = new DoubleParam(
+            "newBitOrientation",
+            "Bit orientation",
+            "Angle of bits in respect to that of layer",
+            -180.0, 180.0, 0.0, 0.01);
 
     public static Controller getInstance() {
         if (instance == null) {
@@ -315,33 +331,13 @@ class Controller extends Observable implements Observer {
         notifyObservers();
     }
 
-    // New bit config
-    final DoubleParam newBitsLengthParam = new DoubleParam(
-            "newBitLength",
-            "Bit length",
-            "Length of bits to add",
-            1.0, CraftConfig.bitLength,
-            CraftConfig.bitLength, 1.0);
-    final DoubleParam newBitsWidthParam = new DoubleParam(
-            "newBitWidth",
-            "Bit width",
-            "Length of bits to add",
-            1.0, CraftConfig.bitWidth,
-            CraftConfig.bitWidth, 1.0);
-    final DoubleParam newBitsOrientationParam = new DoubleParam(
-            "newBitOrientation",
-            "Bit orientation",
-            "Angle of bits in respect to that of layer",
-            -180.0, 180.0, 0.0, 0.01);
-
     void addNewBits(Point2D.Double position) {
-        Layer l = mesh.getLayers().get(layerNumber);
-        if (mesh == null || l.getFlatPavement() == null || position == null)
+        if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         AffineTransform inv = new AffineTransform();
         try {
-            inv = l.getFlatPavement().getAffineTransform().createInverse();
+            inv = currentLayer.getFlatPavement().getAffineTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             // Ignore
         }
@@ -349,7 +345,7 @@ class Controller extends Observable implements Observer {
         finalInv.transform(position, position);
         Vector2 origin = new Vector2(position.x, position.y);
         // Add
-        l.addBit(new Bit2D(origin, lOrientation,
+        currentLayer.addBit(new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue()));
     }
