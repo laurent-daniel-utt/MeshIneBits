@@ -165,9 +165,6 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                     return;
                 }
 
-                Layer layer = controller.getLayer();
-                Vector<Vector2> bitKeys = layer.getBits3dKeys();
-
                 // Look if we hit a bit control (arrows)
                 for (BitControls controls : bitMovers.values()) {
                     for (int i = 0; i < controls.size(); i++) {
@@ -180,18 +177,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 }
 
                 // Look for a bit which contains the clicked spot
-                for (Vector2 bitKey : bitKeys) {
-                    Bit3D bit = layer.getBit3D(bitKey);
-                    Area area = bit.getRawArea();
-                    AffineTransform affTrans = new AffineTransform();
-                    affTrans.translate(bitKey.x, bitKey.y);
-                    affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-                    area.transform(affTrans);
-                    if (area.contains(clickSpot)) {
-                        controller.addOrRemoveSelectedBitKeys(bitKey);
-                        break;
-                    }
-                }
+                controller.addOrRemoveSelectedBitKeys(controller.findBitAt(clickSpot));
             }
         }
     }

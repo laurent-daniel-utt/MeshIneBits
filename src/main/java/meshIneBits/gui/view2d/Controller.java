@@ -203,7 +203,7 @@ class Controller extends Observable implements Observer {
      * @param bitKey in layer's coordinate system
      */
     void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
-        if (mesh == null || !mesh.isPaved()) {
+        if (mesh == null || !mesh.isPaved() || bitKey == null) {
             return;
         }
         if (!selectedBitKeys.add(bitKey))
@@ -383,5 +383,19 @@ class Controller extends Observable implements Observer {
         currentLayer.addBit(new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue()));
+    }
+
+    /**
+     * @param position real position (not zoomed or translated)
+     * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
+     */
+    Vector2 findBitAt(Point2D.Double position) {
+        inverseRealToPavement.transform(position, position);
+        Pavement flatPavement = currentLayer.getFlatPavement();
+        for (Vector2 key : flatPavement.getBitsKeys()) {
+            if (flatPavement.getBit(key).getArea().contains(position))
+                return key;
+        }
+        return null;
     }
 }
