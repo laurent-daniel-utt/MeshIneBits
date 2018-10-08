@@ -75,7 +75,7 @@ class Controller extends Observable implements Observer {
             "Bit orientation",
             "Angle of bits in respect to that of layer",
             -180.0, 180.0, 0.0, 0.01);
-    Area availableArea;
+    private Area availableArea;
     private AffineTransform inverseRealToPavement;
 
     public static Controller getInstance() {
@@ -323,7 +323,6 @@ class Controller extends Observable implements Observer {
     }
 
     boolean checkIrregularityAt(Point2D.Double currentSpot) {
-        System.out.println("currentSpot = " + currentSpot);
         Rectangle2D.Double r = new Rectangle2D.Double(
                 -CraftConfig.bitLength / 2,
                 -CraftConfig.bitWidth / 2,
@@ -339,9 +338,7 @@ class Controller extends Observable implements Observer {
         a.transform(affineTransform);
         // Intersect
         a.intersect(availableArea);
-        boolean irregular = DetectorTool.checkIrregular(a);
-        System.out.println("irregular = " + irregular);
-        return irregular;
+        return DetectorTool.checkIrregular(a);
     }
 
 
