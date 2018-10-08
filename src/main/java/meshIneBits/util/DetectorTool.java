@@ -24,7 +24,9 @@ package meshIneBits.util;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Pavement;
+import meshIneBits.config.CraftConfig;
 
+import java.awt.geom.Area;
 import java.util.Vector;
 
 /**
@@ -50,17 +52,8 @@ public class DetectorTool {
         return result;
     }
 
-    // /**
-    // * Detect if <tt>bit</tt> is irregular by comparing the number of lift
-    // * points on <tt>bit</tt> and its separated areas' one (each separated area
-    // * has no more than 1 lift point).
-    // *
-    // * @param bit
-    // * @return <tt>true</tt> if those 2 numbers are different
-    // */
-
     /**
-     * Check if a bit is regular.
+     * Check if a bit is irregular.
      * <ol>
      * <li>Only one area per bit</li>
      * <li>Area is large enough to contain one lift point</li>
@@ -75,8 +68,19 @@ public class DetectorTool {
         // return (numLiftPoints != numLevel0Areas);
         if (bit.getRawAreas().size() != 1)
             return true;
-        if (bit.computeLiftPoint() == null)
-            return true;
-        return false;
+        return bit.computeLiftPoint() == null;
+    }
+
+    /**
+     * Check if an area is irregular
+     *
+     * @param area closed zone
+     * @return <tt>true</tt> if the surface has more than 1 continuous surface,
+     * or no possible lift point or <tt>area</tt> is <tt>null</tt> or empty
+     */
+    public static boolean checkIrregular(Area area) {
+        if (area == null || area.isEmpty()) return true;
+        if (AreaTool.segregateArea(area).size() > 1) return true;
+        return AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2) == null;
     }
 }

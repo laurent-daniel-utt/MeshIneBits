@@ -159,12 +159,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
-                Point2D.Double clickSpot = new Point2D.Double(
-                        ((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
-                        ((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
-
+                Point2D.Double clickSpot = viewToReal(e.getX(), e.getY());
                 if (controller.isOnAddingBits()) {
-                    controller.addNewBits(clickSpot);
+                    controller.addNewBitAt(clickSpot);
                     return;
                 }
 
@@ -334,6 +331,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 controller.newBitsLengthParam.getCurrentValue(),
                 controller.newBitsWidthParam.getCurrentValue());
         Area a = new Area(r);
+        // Transform into current view
         AffineTransform affineTransform = new AffineTransform();
         affineTransform.translate(oldX, oldY);
         Vector2 lOrientation = Vector2.getEquivalentVector(
@@ -342,11 +340,27 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         affineTransform.scale(drawScale, drawScale);
         a.transform(affineTransform);
 
-        g2d.setColor(Color.BLUE.darker());
-        g2d.setStroke(new BasicStroke(1.0f));
-        g2d.draw(a);
-        g2d.setColor(new Color(164, 180, 200, 100));
-        g2d.fill(a);
+        // Change color based on irregularity
+        Point2D.Double currentSpot = viewToReal(oldX, oldY);
+        if (!controller.checkIrregularityAt(currentSpot)) {
+            g2d.setColor(Color.BLUE.darker());
+            g2d.setStroke(new BasicStroke(1.0f));
+            g2d.draw(a);
+            g2d.setColor(new Color(164, 180, 200, 100));
+            g2d.fill(a);
+        } else {
+            g2d.setColor(Color.RED.darker().darker());
+            g2d.setStroke(new BasicStroke(1.0f));
+            g2d.draw(a);
+            g2d.setColor(new Color(250, 0, 100, 100));
+            g2d.fill(a);
+        }
+    }
+
+    private Point2D.Double viewToReal(double x, double y) {
+        return new Point2D.Double(
+                ((x - (this.getWidth() >> 1)) / drawScale) - viewOffsetX,
+                ((y - (this.getHeight() >> 1)) / drawScale) - viewOffsetY);
     }
 
     private void paintSlice(Mesh mesh, Graphics2D g2d) {

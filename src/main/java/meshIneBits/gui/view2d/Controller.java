@@ -25,11 +25,11 @@ package meshIneBits.gui.view2d;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,6 +75,8 @@ class Controller extends Observable implements Observer {
             "Bit orientation",
             "Angle of bits in respect to that of layer",
             -180.0, 180.0, 0.0, 0.01);
+    Area availableArea;
+    private AffineTransform inverseRealToPavement;
 
     public static Controller getInstance() {
         if (instance == null) {
@@ -149,6 +151,13 @@ class Controller extends Observable implements Observer {
         layerNumber = nbrLayer;
         currentLayer = mesh.getLayers().get(layerNumber);
         currentLayer.addObserver(this);
+        inverseRealToPavement = new AffineTransform();
+        try {
+            inverseRealToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
+        } catch (NoninvertibleTransformException e) {
+            inverseRealToPavement = AffineTransform.getScaleInstance(1, 1);
+        }
+        updateAvailableArea();
         reset();
 
         setChanged();
@@ -286,10 +295,18 @@ class Controller extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o == this.mesh) {
             this.setCurrentMesh(mesh);
-        } else if (o == this.mesh.getLayers().get(layerNumber)) {
+        } else if (o == currentLayer) {
+            updateAvailableArea();
             setChanged();
             notifyObservers(Component.LAYER);
         }
+    }
+
+    private void updateAvailableArea() {
+        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
+        Pavement pavement = currentLayer.getFlatPavement();
+        pavement.getBitsKeys()
+                .forEach(key -> availableArea.subtract(pavement.getBit(key).getArea()));
     }
 
     void incrementBitsOrientationParamBy(double notches) {
@@ -303,6 +320,28 @@ class Controller extends Observable implements Observer {
      */
     void rotateSelectedBitsBy(double notches) {
         setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, notches));
+    }
+
+    boolean checkIrregularityAt(Point2D.Double currentSpot) {
+        System.out.println("currentSpot = " + currentSpot);
+        Rectangle2D.Double r = new Rectangle2D.Double(
+                -CraftConfig.bitLength / 2,
+                -CraftConfig.bitWidth / 2,
+                newBitsLengthParam.getCurrentValue(),
+                newBitsWidthParam.getCurrentValue());
+        Area a = new Area(r);
+        // Rotate
+        AffineTransform affineTransform = new AffineTransform(inverseRealToPavement);
+        affineTransform.translate(currentSpot.x, currentSpot.y);
+        Vector2 lOrientation = Vector2.getEquivalentVector(
+                newBitsOrientationParam.getCurrentValue());
+        affineTransform.rotate(lOrientation.x, lOrientation.y);
+        a.transform(affineTransform);
+        // Intersect
+        a.intersect(availableArea);
+        boolean irregular = DetectorTool.checkIrregular(a);
+        System.out.println("irregular = " + irregular);
+        return irregular;
     }
 
 
@@ -331,18 +370,14 @@ class Controller extends Observable implements Observer {
         notifyObservers();
     }
 
-    void addNewBits(Point2D.Double position) {
+    /**
+     * @param position real position (not zoomed or translated)
+     */
+    void addNewBitAt(Point2D.Double position) {
         if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
+        inverseRealToPavement.transform(position, position);
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
-        AffineTransform inv = new AffineTransform();
-        try {
-            inv = currentLayer.getFlatPavement().getAffineTransform().createInverse();
-        } catch (NoninvertibleTransformException e) {
-            // Ignore
-        }
-        final AffineTransform finalInv = inv;
-        finalInv.transform(position, position);
         Vector2 origin = new Vector2(position.x, position.y);
         // Add
         currentLayer.addBit(new Bit2D(origin, lOrientation,
