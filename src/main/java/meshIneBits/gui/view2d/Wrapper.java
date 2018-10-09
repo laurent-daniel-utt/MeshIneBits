@@ -37,7 +37,6 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.stream.Collectors;
 
 /**
  * The panel wrapping 2D representation with view orienting tools. Exported from
@@ -328,24 +327,11 @@ class Wrapper extends JPanel implements Observer {
             add(scaleFullBitBtn);
 
             // Action listener
-            cutLengthBtn1.addActionListener(e -> scaleSelectedBit(100, 50));
-            cutWidthBtn2.addActionListener(e -> scaleSelectedBit(50, 100));
-            cutQuartBtn3.addActionListener(e -> scaleSelectedBit(50, 50));
-            deleteBitBtn.addActionListener(e -> scaleSelectedBit(0, 0));
-            scaleFullBitBtn.addActionListener(e -> scaleSelectedBit(100, 100));
-        }
-
-        private void scaleSelectedBit(double percentageLength, double percentageWidth) {
-            Layer layer = controller.getLayer();
-
-            if (controller.getSelectedBitKeys().isEmpty()) {
-                Logger.warning("There is no bit selected");
-            } else {
-                controller.setSelectedBitKeys(controller.getSelectedBits()
-                        .stream()
-                        .map(bit -> layer.scaleBit(bit, percentageLength, percentageWidth))
-                        .collect(Collectors.toSet()));
-            }
+            cutLengthBtn1.addActionListener(e -> controller.scaleSelectedBit(100, 50));
+            cutWidthBtn2.addActionListener(e -> controller.scaleSelectedBit(50, 100));
+            cutQuartBtn3.addActionListener(e -> controller.scaleSelectedBit(50, 50));
+            deleteBitBtn.addActionListener(e -> controller.scaleSelectedBit(0, 0));
+            scaleFullBitBtn.addActionListener(e -> controller.scaleSelectedBit(100, 100));
         }
     }
 
