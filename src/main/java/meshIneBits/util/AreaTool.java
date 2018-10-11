@@ -331,7 +331,7 @@ public class AreaTool {
      * @param area target
      * @return boundary polygons
      */
-    private static List<Polygon> getPolygonsFrom(Area area) {
+    public static List<Polygon> getPolygonsFrom(Area area) {
         return getSegmentsFrom(area).stream()
                 .map(Polygon::extractFrom)
                 .filter(Objects::nonNull)
@@ -573,14 +573,17 @@ public class AreaTool {
     }
 
     /**
-     * Expand / Shrink polygon given its area
+     * Expand / Shrink polygon given its area. For fast computing, we only
+     * check approximately. So if an edge is too close to another ( &lt; 2 * 10^
+     * {@link CraftConfig#errorAccepted -errorAccepted}), some unpredictable
+     * behaviors will occur.
      *
      * @param polygon boundary of area
      * @param area    to determine interior
      * @param width   in mm. Positive to expand, negative to shrink
      * @return transformed polygon. <tt>null</tt> if invalid border
      */
-    private static Polygon expand(Polygon polygon, Area area, Double width) {
+    public static Polygon expand(Polygon polygon, Area area, Double width) {
         Iterator<Segment2D> pi = polygon.iterator();
         // Init
         Segment2D first = pi.next(),
@@ -619,23 +622,22 @@ public class AreaTool {
         // Calculate perpendicular normal vector
         Vector2 n = segment.getNormal();
         // Choose right direction
-        Vector2 testDirection = n.mul(2 * Math.pow(10, -CraftConfig.errorAccepted));
+        double length = 2 * Math.pow(10, -CraftConfig.errorAccepted);
+        Vector2 translatedMidpoint = segment.getMidPoint().add(n.mul(length));
         double directionalCoefficient;
-        if (area.contains(testDirection.x, testDirection.y)) {
-            // We are moving inward
-            if (width < 0)
-                // If to shrink
+        if (width > 0) {
+            // To expand
+            if (!area.contains(translatedMidpoint.x, translatedMidpoint.y))
+                // If area does not contain the translated midpoint
                 directionalCoefficient = 1;
             else
-                // If to expand
                 directionalCoefficient = -1;
         } else {
-            // We are moving outward
-            if (width > 0)
-                // If to expand
+            // To shrink
+            if (area.contains(translatedMidpoint.x, translatedMidpoint.y))
+                // If area contains the translated midpoint
                 directionalCoefficient = 1;
             else
-                // If to shrink
                 directionalCoefficient = -1;
         }
         Vector2 distance = n.mul(directionalCoefficient * width);
