@@ -26,7 +26,7 @@ import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
-import meshIneBits.util.DetectorTool;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.*;
@@ -76,7 +76,12 @@ class Controller extends Observable implements Observer {
             "Angle of bits in respect to that of layer",
             -180.0, 180.0, 0.0, 0.01);
     private Area availableArea;
-    private AffineTransform inverseRealToPavement;
+    private AffineTransform realToPavement;
+    final DoubleParam safeguardSpaceParam = new DoubleParam(
+            "safeguardSpace",
+            "Space around bit",
+            "In order to keep bits not overlapping or grazing each other",
+            1.0, 10.0, 3.0, 0.01);
 
     public static Controller getInstance() {
         if (instance == null) {
@@ -151,11 +156,11 @@ class Controller extends Observable implements Observer {
         layerNumber = nbrLayer;
         currentLayer = mesh.getLayers().get(layerNumber);
         currentLayer.addObserver(this);
-        inverseRealToPavement = new AffineTransform();
+        realToPavement = new AffineTransform();
         try {
-            inverseRealToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
+            realToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
-            inverseRealToPavement = AffineTransform.getScaleInstance(1, 1);
+            realToPavement = AffineTransform.getScaleInstance(1, 1);
         }
         updateAvailableArea();
         reset();
@@ -306,7 +311,9 @@ class Controller extends Observable implements Observer {
         availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
         Pavement pavement = currentLayer.getFlatPavement();
         pavement.getBitsKeys()
-                .forEach(key -> availableArea.subtract(pavement.getBit(key).getArea()));
+                .forEach(key -> availableArea.subtract(
+                        AreaTool.expand(pavement.getBit(key).getArea(),
+                                safeguardSpaceParam.getCurrentValue())));
     }
 
     void incrementBitsOrientationParamBy(double notches) {
@@ -322,7 +329,7 @@ class Controller extends Observable implements Observer {
         setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, notches));
     }
 
-    boolean checkIrregularityAt(Point2D.Double currentSpot) {
+    Area getAvailableBitAreaAt(Point2D.Double spot) {
         Rectangle2D.Double r = new Rectangle2D.Double(
                 -CraftConfig.bitLength / 2,
                 -CraftConfig.bitWidth / 2,
@@ -330,17 +337,16 @@ class Controller extends Observable implements Observer {
                 newBitsWidthParam.getCurrentValue());
         Area a = new Area(r);
         // Rotate
-        AffineTransform affineTransform = new AffineTransform(inverseRealToPavement);
-        affineTransform.translate(currentSpot.x, currentSpot.y);
+        AffineTransform affineTransform = new AffineTransform(realToPavement);
+        affineTransform.translate(spot.x, spot.y);
         Vector2 lOrientation = Vector2.getEquivalentVector(
                 newBitsOrientationParam.getCurrentValue());
         affineTransform.rotate(lOrientation.x, lOrientation.y);
         a.transform(affineTransform);
         // Intersect
         a.intersect(availableArea);
-        return DetectorTool.checkIrregular(a);
+        return a;
     }
-
 
     public enum Component {
         MESH, LAYER, SELECTED_BIT, ZOOM, SLICE
@@ -373,7 +379,7 @@ class Controller extends Observable implements Observer {
     void addNewBitAt(Point2D.Double position) {
         if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
-        inverseRealToPavement.transform(position, position);
+        realToPavement.transform(position, position);
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
         // Add
@@ -387,12 +393,22 @@ class Controller extends Observable implements Observer {
      * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
      */
     Vector2 findBitAt(Point2D.Double position) {
-        inverseRealToPavement.transform(position, position);
+        realToPavement.transform(position, position);
         Pavement flatPavement = currentLayer.getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
             if (flatPavement.getBit(key).getArea().contains(position))
                 return key;
         }
         return null;
+    }
+
+    void scaleSelectedBit(double percentageLength, double percentageWidth) {
+        if (this.getSelectedBitKeys().isEmpty()) {
+            Logger.warning("There is no bit selected");
+        } else {
+            setSelectedBitKeys(getSelectedBits().stream()
+                    .map(bit -> currentLayer.scaleBit(bit, percentageLength, percentageWidth))
+                    .collect(Collectors.toSet()));
+        }
     }
 }

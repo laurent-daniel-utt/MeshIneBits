@@ -29,6 +29,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.MainController;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
 
@@ -54,6 +55,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     private double defaultZoom = 1;
     private double drawScale = 1;
     private boolean onControl;
+    private AffineTransform realToView;
+    private AffineTransform viewToReal;
 
     Core() {
         // Setting up for easier use later
@@ -121,35 +124,22 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     }
 
     private void drawModelArea(Graphics2D g2d, Area area) {
-        AffineTransform tx1 = new AffineTransform();
-
-        tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
-                (viewOffsetY * drawScale) + (this.getHeight() >> 1));
-        tx1.scale(drawScale, drawScale);
-
-        area.transform(tx1);
+        area.transform(realToView);
 
         g2d.fill(area);
         g2d.draw(area);
     }
 
-    private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-
-        g.drawOval(
-                ((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2))
-                        - (int) ((radius * drawScale) / 2),
-                ((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2))
-                        - (int) ((radius * drawScale) / 2),
-                (int) (radius * drawScale), (int) (radius * drawScale));
+    private void drawModelCircle(Graphics2D g2d, Vector2 center, int radius) {
+        Ellipse2D liftPoint = new Ellipse2D.Double(
+                center.x - (radius >> 1),
+                center.y - (radius >> 1),
+                radius, radius);
+        g2d.draw(realToView.createTransformedShape(liftPoint));
     }
 
     private void drawModelPath2D(Graphics2D g2d, Path2D path) {
-        AffineTransform tx1 = new AffineTransform();
-
-        tx1.translate((viewOffsetX * drawScale) + ((double) this.getWidth() / 2),
-                (viewOffsetY * drawScale) + ((double) this.getHeight() / 2));
-        tx1.scale(drawScale, drawScale);
-        g2d.draw(path.createTransformedShape(tx1));
+        g2d.draw(path.createTransformedShape(realToView));
     }
 
     @Override
@@ -159,7 +149,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
-                Point2D.Double clickSpot = viewToReal(e.getX(), e.getY());
+                Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+                calculateAffineTransformViewToReal().transform(clickSpot, clickSpot);
                 if (controller.isOnAddingBits()) {
                     controller.addNewBitAt(clickSpot);
                     return;
@@ -261,6 +252,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         setDefaultZoom();
         updateDrawScale();
 
+        realToView = calculateAffineTransformRealToView();
+        viewToReal = calculateAffineTransformViewToReal();
+
         Graphics2D g2d = (Graphics2D) g;
         Mesh currentMesh = controller.getCurrentMesh();
         if (currentMesh == null) return;
@@ -316,7 +310,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 -CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2,
                 controller.newBitsLengthParam.getCurrentValue(),
                 controller.newBitsWidthParam.getCurrentValue());
-        Area a = new Area(r);
+        Area bitBorder = new Area(r);
         // Transform into current view
         AffineTransform affineTransform = new AffineTransform();
         affineTransform.translate(oldX, oldY);
@@ -324,29 +318,48 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 controller.newBitsOrientationParam.getCurrentValue());
         affineTransform.rotate(lOrientation.x, lOrientation.y);
         affineTransform.scale(drawScale, drawScale);
-        a.transform(affineTransform);
+        bitBorder.transform(affineTransform);
 
+        Point2D.Double realSpot = new Point2D.Double(oldX, oldY);
+        viewToReal.transform(realSpot, realSpot);
+        Area availableBitArea = controller.getAvailableBitAreaAt(realSpot); // in real pos
+        boolean irregular = DetectorTool.checkIrregular(availableBitArea);
+        // Fit into view
+        availableBitArea.transform(realToView);
         // Change color based on irregularity
-        Point2D.Double currentSpot = viewToReal(oldX, oldY);
-        if (!controller.checkIrregularityAt(currentSpot)) {
+        if (!irregular) {
+            // Draw border
             g2d.setColor(Color.BLUE.darker());
-            g2d.setStroke(new BasicStroke(1.0f));
-            g2d.draw(a);
+            g2d.setStroke(new BasicStroke(1.1f));
+            g2d.draw(bitBorder);
+            // Draw internal area
             g2d.setColor(new Color(164, 180, 200, 100));
-            g2d.fill(a);
+            g2d.fill(availableBitArea);
         } else {
-            g2d.setColor(Color.RED.darker().darker());
-            g2d.setStroke(new BasicStroke(1.0f));
-            g2d.draw(a);
+            // Draw border
+            g2d.setColor(Color.RED.darker());
+            g2d.setStroke(new BasicStroke(1.1f));
+            g2d.draw(bitBorder);
+            // Draw internal area
             g2d.setColor(new Color(250, 0, 100, 100));
-            g2d.fill(a);
+            g2d.fill(availableBitArea);
         }
     }
 
-    private Point2D.Double viewToReal(double x, double y) {
-        return new Point2D.Double(
-                ((x - (this.getWidth() >> 1)) / drawScale) - viewOffsetX,
-                ((y - (this.getHeight() >> 1)) / drawScale) - viewOffsetY);
+    private AffineTransform calculateAffineTransformViewToReal() {
+        AffineTransform a = new AffineTransform();
+        a.translate(-viewOffsetX, -viewOffsetY);
+        a.scale(1 / drawScale, 1 / drawScale);
+        a.translate(-this.getWidth() >> 1, -this.getHeight() >> 1);
+        return a;
+    }
+
+    private AffineTransform calculateAffineTransformRealToView() {
+        AffineTransform a = new AffineTransform();
+        a.translate(this.getWidth() >> 1, this.getHeight() >> 1);
+        a.scale(drawScale, drawScale);
+        a.translate(viewOffsetX, viewOffsetY);
+        return a;
     }
 
     private void paintSlice(Mesh mesh, Graphics2D g2d) {
@@ -459,13 +472,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             area.transform(affTrans);
 
-            AffineTransform tx1 = new AffineTransform();
-
-            tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
-                    (viewOffsetY * drawScale) + (this.getHeight() >> 1));
-            tx1.scale(drawScale, drawScale);
-
-            area.transform(tx1);
+            area.transform(realToView);
 
             g2d.draw(area);
         }
@@ -550,20 +557,13 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             areas.add(rightArrow);
             this.add(rightArrow);
 
-            double landscapeWidth = Core.this.getWidth();
-            double landscapeHeight = Core.this.getHeight();
-
             for (Area area : areas) {
                 affTrans = new AffineTransform();
                 affTrans.translate(bit.getOrigin().x, bit.getOrigin().y);
                 affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
                 area.transform(affTrans);
 
-                affTrans = new AffineTransform();
-                affTrans.translate(viewOffsetX * drawScale + landscapeWidth / 2,
-                        viewOffsetY * drawScale + landscapeHeight / 2);
-                affTrans.scale(drawScale, drawScale);
-                area.transform(affTrans);
+                area.transform(realToView);
 
                 g2d.setColor(new Color(94, 125, 215));
                 if (!area.equals(overlapBit)) {

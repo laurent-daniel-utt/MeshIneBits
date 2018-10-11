@@ -209,4 +209,23 @@ public class Segment2D extends AABBrect implements Serializable {
         return this.contains(other.start) && this.contains(other.end);
     }
 
+    public Vector2 getDirectionalVector() {
+        return end.sub(start).normal();
+    }
+
+    /**
+     * Calculate the intersection
+     *
+     * @param that target
+     * @return <tt>null</tt> if 2 segments are parallel (even overlapped)
+     */
+    Vector2 intersect(Segment2D that) {
+        Vector2 n = this.getDirectionalVector(), m = that.getDirectionalVector();
+        if (n.v(m) == 0) return null;// If parallel
+        return this.start.add(
+                n.mul(
+                        m.v(that.start.sub(this.start)) / m.v(n)
+                )
+        );
+    }
 }

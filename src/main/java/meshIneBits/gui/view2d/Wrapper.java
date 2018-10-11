@@ -344,6 +344,7 @@ class Wrapper extends JPanel implements Observer {
             add(newBitsWidthSpinner);
             LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(controller.newBitsOrientationParam);
             add(newBitsOrientationSpinner);
+            add(controller.safeguardSpaceParam.getRenderer());
             JButton chooseOriginsBtn = new JButton("Start");
             add(chooseOriginsBtn);
             JButton cancelChoosingOriginsBtn = new JButton("Cancel");
