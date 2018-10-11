@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
@@ -82,6 +83,13 @@ class Controller extends Observable implements Observer {
             "Space around bit",
             "In order to keep bits not overlapping or grazing each other",
             1.0, 10.0, 3.0, 0.01);
+    final BooleanParam autocropParam = new BooleanParam(
+            "autocrop",
+            "Auto crop",
+            "Cut the new bit while preserving space around bits",
+            true
+    );
+    private Area bitAreaPreview;
 
     public static Controller getInstance() {
         if (instance == null) {
@@ -345,6 +353,8 @@ class Controller extends Observable implements Observer {
         a.transform(affineTransform);
         // Intersect
         a.intersect(availableArea);
+        // Cache
+        bitAreaPreview = (Area) a.clone();
         return a;
     }
 
@@ -380,12 +390,16 @@ class Controller extends Observable implements Observer {
         if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
         realToPavement.transform(position, position);
+        bitAreaPreview.transform(realToPavement);
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
         // Add
-        currentLayer.addBit(new Bit2D(origin, lOrientation,
+        Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
-                newBitsWidthParam.getCurrentValue()));
+                newBitsWidthParam.getCurrentValue());
+        if (autocropParam.getCurrentValue())
+            newBit.updateBoundaries(bitAreaPreview);
+        currentLayer.addBit(newBit);
     }
 
     /**

@@ -150,7 +150,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
                 Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
-                calculateAffineTransformViewToReal().transform(clickSpot, clickSpot);
+                viewToReal.transform(clickSpot, clickSpot);
                 if (controller.isOnAddingBits()) {
                     controller.addNewBitAt(clickSpot);
                     return;
