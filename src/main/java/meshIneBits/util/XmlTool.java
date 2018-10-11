@@ -105,7 +105,7 @@ public class XmlTool {
             fileName = fileName.split("[.]")[0];
         }
         fileName = fileName + "." + "xml";
-        filePath = Paths.get(filePath.getParent().toString() + "\\" + fileName);
+        filePath = Paths.get(filePath.getParent().toString() + File.separator + fileName);
     }
 
     private void startFile() {
