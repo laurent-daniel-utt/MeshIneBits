@@ -358,6 +358,12 @@ class Controller extends Observable implements Observer {
         return a;
     }
 
+    void deleteSelectedBits() {
+        currentLayer.removeBits(selectedBitKeys, false);
+        selectedBitKeys.clear();
+        currentLayer.rebuild();
+    }
+
     public enum Component {
         MESH, LAYER, SELECTED_BIT, ZOOM, SLICE
     }

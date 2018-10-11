@@ -174,6 +174,11 @@ public class Pavement implements Cloneable, Serializable {
         return addBit(new Bit2D(newCenter, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
     }
 
+    /**
+     * Unregister a bit
+     *
+     * @param key origin of bit in pavement coordinate system
+     */
     public void removeBit(Vector2 key) {
         mapBits.remove(key);
     }

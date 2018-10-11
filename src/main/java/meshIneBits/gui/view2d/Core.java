@@ -81,6 +81,14 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 controller.reset();
             }
         });
+        // Delete selected bits when pressing Del
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "DEL");
+        getActionMap().put("DEL", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.deleteSelectedBits();
+            }
+        });
     }
 
     private void setDefaultZoom() {
