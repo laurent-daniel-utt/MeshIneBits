@@ -33,7 +33,7 @@ public class AreaTool {
     /**
      * Returns the barycenter of an area
      *
-     * @param area
+     * @param area target
      * @return Barycenter. <tt>null</tt> if area is empty
      */
 
@@ -52,11 +52,11 @@ public class AreaTool {
         double centroidX = 0;
         double centroidY = 0;
         double signedArea = 0.0;
-        double x0 = 0.0; // Current vertex X
-        double y0 = 0.0; // Current vertex Y
-        double x1 = 0.0; // Next vertex X
-        double y1 = 0.0; // Next vertex Y
-        double a = 0.0; // Partial signed area
+        double x0; // Current vertex X
+        double y0; // Current vertex Y
+        double x1; // Next vertex X
+        double y1; // Next vertex Y
+        double a; // Partial signed area
         int vertexCount = vertices.size();
 
         // For all vertices
@@ -144,7 +144,7 @@ public class AreaTool {
     }
 
     /**
-     * @param areas
+     * @param areas targets
      * @return All the constraint areas that do not contain any others
      * @see #getContinuousSurfacesFrom(Shape2D)
      */
@@ -322,12 +322,20 @@ public class AreaTool {
      * @since 0.3
      */
     public static List<Area> getContinuousSurfacesFrom(Area area) {
-        Vector<Vector<Segment2D>> polygonsSegmented = getSegmentsFrom(area);
-        List<Polygon> polygons = polygonsSegmented.stream()
+        return getContinuousSurfacesFrom(getPolygonsFrom(area));
+    }
+
+    /**
+     * Reconstruct border of area into polygons
+     *
+     * @param area target
+     * @return boundary polygons
+     */
+    public static List<Polygon> getPolygonsFrom(Area area) {
+        return getSegmentsFrom(area).stream()
                 .map(Polygon::extractFrom)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        return getContinuousSurfacesFrom(polygons);
     }
 
     /**
@@ -509,13 +517,7 @@ public class AreaTool {
         Iterator<Vector<Segment2D>> itrPolygons = polygons.iterator();
         while (itrPolygons.hasNext()) {
             Vector<Segment2D> polygon = itrPolygons.next();
-            Iterator<Segment2D> itr = polygon.iterator();
-            while (itr.hasNext()) {
-                Segment2D s = itr.next();
-                if (s.start.asGoodAsEqual(s.end)) {
-                    itr.remove();
-                }
-            }
+            polygon.removeIf(s -> s.start.asGoodAsEqual(s.end));
             if (polygon.isEmpty()) {
                 itrPolygons.remove();
             }
@@ -549,4 +551,99 @@ public class AreaTool {
         return AreaTool.getLevel0AreasFrom(segregatedAreas);
     }
 
+    /**
+     * Expand <tt>area</tt> by a certain width
+     *
+     * @param area  target. Should not be <tt>null</tt> or empty
+     * @param width in mm. Positive to enlarge, negative to shrink
+     * @return <tt>null</tt> if <tt>area</tt> is <tt>null</tt> or empty
+     */
+    public static Area expand(Area area, Double width) {
+        if (area == null || area.isEmpty())
+            return null;
+        if (width == 0) return area;
+
+        // Each polygon is a set of unordered segments
+        List<Polygon> inflatedPolygons = getPolygonsFrom(area).stream()
+                .map(p -> expand(p, area, width))
+                .collect(Collectors.toList());
+        Area finalArea = new Area();
+        getContinuousSurfacesFrom(inflatedPolygons).forEach(finalArea::add);
+        return finalArea;
+    }
+
+    /**
+     * Expand / Shrink polygon given its area. For fast computing, we only
+     * check approximately. So if an edge is too close to another ( &lt; 2 * 10^
+     * {@link CraftConfig#errorAccepted -errorAccepted}), some unpredictable
+     * behaviors will occur.
+     *
+     * @param polygon boundary of area
+     * @param area    to determine interior
+     * @param width   in mm. Positive to expand, negative to shrink
+     * @return transformed polygon. <tt>null</tt> if invalid border
+     */
+    public static Polygon expand(Polygon polygon, Area area, Double width) {
+        Iterator<Segment2D> pi = polygon.iterator();
+        // Init
+        Segment2D first = pi.next(),
+                firstTranslated = translateOutward(first, area, width),
+                currentTranslatedSegment = firstTranslated;
+        // Continue
+        while (pi.hasNext()) {
+            Segment2D segment2D = pi.next(),
+                    newTranslatedSegment = translateOutward(segment2D, area, width);
+            // Concat to last segment
+            // By extending to the intersection point between last segment and this
+            Vector2 intersection = currentTranslatedSegment.intersect(newTranslatedSegment);
+            if (intersection == null)
+                // Some kind of irregularity
+                return null;
+            else {
+                currentTranslatedSegment.end = intersection;
+                newTranslatedSegment.start = intersection;
+                currentTranslatedSegment.setNext(newTranslatedSegment);
+                currentTranslatedSegment = newTranslatedSegment;
+            }
+        }
+        // Close polygon
+        Vector2 intersection = currentTranslatedSegment.intersect(firstTranslated);
+        if (intersection == null)
+            return null;
+        else {
+            currentTranslatedSegment.end = intersection;
+            firstTranslated.start = intersection;
+            currentTranslatedSegment.setNext(firstTranslated);
+        }
+        return new Polygon(firstTranslated);
+    }
+
+    private static Segment2D translateOutward(Segment2D segment, Area area, Double width) {
+        // Calculate perpendicular normal vector
+        Vector2 n = segment.getNormal();
+        // Choose right direction
+        double length = 2 * Math.pow(10, -CraftConfig.errorAccepted);
+        Vector2 translatedMidpoint = segment.getMidPoint().add(n.mul(length));
+        double directionalCoefficient;
+        if (width > 0) {
+            // To expand
+            if (!area.contains(translatedMidpoint.x, translatedMidpoint.y))
+                // If area does not contain the translated midpoint
+                directionalCoefficient = 1;
+            else
+                directionalCoefficient = -1;
+        } else {
+            // To shrink
+            if (area.contains(translatedMidpoint.x, translatedMidpoint.y))
+                // If area contains the translated midpoint
+                directionalCoefficient = 1;
+            else
+                directionalCoefficient = -1;
+        }
+        Vector2 distance = n.mul(directionalCoefficient * width);
+        return new Segment2D(
+                segment.start.add(distance),
+                segment.end.add(distance)
+        );
+    }
 }

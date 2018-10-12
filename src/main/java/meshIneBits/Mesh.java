@@ -36,6 +36,9 @@ import java.util.stream.Collectors;
  * This object is the equivalent of the piece which will be printed
  */
 public class Mesh extends Observable implements Observer, Serializable {
+
+    private static final long serialVersionUID = 20180000400L;
+
     private Vector<Layer> layers = new Vector<>();
     private Vector<Slice> slices = new Vector<>();
     @Deprecated

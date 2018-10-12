@@ -79,7 +79,7 @@ public class MainController extends Observable implements Observer {
                 // Reopened from save
                 setMeshForWindows();
                 setModel();
-                MainWindow.getInstance().getModelView().toggle();
+//                MainWindow.getInstance().getModelView().toggle();
                 Logger.updateStatus("Mesh has been loaded into workspace.");
             } else if (ev == MeshEvents.OPEN_FAILED) {
                 Logger.error("Unable to open the mesh.");

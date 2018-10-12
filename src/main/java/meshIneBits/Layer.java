@@ -345,14 +345,29 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Remove a bit. Not use in quick succession because after each
-     * move, the layer will be recalculated, slowing the process
+     * Remove a bit
      *
-     * @param key origin of bit in 2D plan
+     * @param key     origin of bit in 2D plan
+     * @param rebuild need to rebuild whole layer
      */
-    private void removeBit(Vector2 key) {
+    public void removeBit(Vector2 key, boolean rebuild) {
         flatPavement.removeBit(key);
-        rebuild();
+        if (rebuild) {
+            rebuild();
+        }
+    }
+
+    /**
+     * Remove multiple bits
+     *
+     * @param keys    origin of bit in layer coordinate system
+     * @param rebuild need to rebuild whole layer
+     */
+    public void removeBits(Collection<Vector2> keys, boolean rebuild) {
+        keys.forEach(flatPavement::removeBit);
+        if (rebuild) {
+            rebuild();
+        }
     }
 
     /**
@@ -364,9 +379,9 @@ public class Layer extends Observable implements Serializable {
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
      */
-    public Vector2 replaceBit(Bit3D bit, double percentageLength, double percentageWidth) {
+    public Vector2 scaleBit(Bit3D bit, double percentageLength, double percentageWidth) {
         Bit2D modelBit = bit.getBit2dToExtrude();
-        removeBit(bit.getOrigin());
+        removeBit(bit.getOrigin(), false);
         if (percentageLength != 0 && percentageWidth != 0) {
             Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
             return addBit(newBit);
@@ -425,5 +440,23 @@ public class Layer extends Observable implements Serializable {
      */
     public void setFlatPavement(Pavement newFlatPavement) {
         this.flatPavement = newFlatPavement;
+    }
+
+    /**
+     * Rotate multiple bits around their center
+     *
+     * @param bitKeys in surface
+     * @param degrees in degrees
+     * @return images after rotation
+     */
+    public Set<Vector2> rotateBits(Set<Vector2> bitKeys, double degrees) {
+        Set<Vector2> newPositions = bitKeys.stream()
+                .map(bitKey -> flatPavement.rotateBit(bitKey, degrees))
+                .collect(Collectors.toSet());
+        rebuild();
+        // Some new positions may be out of border
+        return newPositions.stream()
+                .filter(pos -> this.getBit3D(pos) != null)
+                .collect(Collectors.toSet());
     }
 }

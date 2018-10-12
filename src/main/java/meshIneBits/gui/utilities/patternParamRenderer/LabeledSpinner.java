@@ -28,9 +28,11 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 
-public class LabeledSpinner extends Renderer {
+public class LabeledSpinner extends Renderer implements PropertyChangeListener {
 
     private static final long serialVersionUID = 6726754934854914029L;
 
@@ -62,7 +64,7 @@ public class LabeledSpinner extends Renderer {
         lblName.setToolTipText(parameters.description());
         this.add(lblName, BorderLayout.WEST);
         final Field attribute;
-        double defaultValue = 0;
+        double defaultValue;
         try {
             attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
             attribute.setAccessible(true);
@@ -104,5 +106,13 @@ public class LabeledSpinner extends Renderer {
                 config.getMaxValue(), config.getStep()));
         spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
         this.add(spinner, BorderLayout.EAST);
+        config.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("currentValue")) {
+            spinner.setValue(evt.getNewValue());
+        }
     }
 }

@@ -351,4 +351,12 @@ public class Polygon implements Iterable<Segment2D>, Serializable {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        forEach(segment2D -> str.append(segment2D.start).append(" -> "));
+        str.delete(str.lastIndexOf(" -> "), str.length() - 1);
+        return "Polygon{" + str.toString() + "}";
+    }
 }

@@ -26,8 +26,10 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.MainController;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
 
@@ -42,7 +44,7 @@ import java.util.List;
  * A panel resided inside of {@link Wrapper} to show {@link Slice} or {@link
  * Layer} of the {@link Mesh}. It observes {@link Controller}
  */
-class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, Observer {
+class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener, Observer {
 
     private static final long serialVersionUID = 1L;
     private double viewOffsetX, viewOffsetY;
@@ -52,6 +54,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     private boolean rightClickPressed = false;
     private double defaultZoom = 1;
     private double drawScale = 1;
+    private boolean onControl;
+    private AffineTransform realToView;
+    private AffineTransform viewToReal;
 
     Core() {
         // Setting up for easier use later
@@ -62,6 +67,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         addMouseMotionListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
+        addKeyListener(this);
         setFocusable(true);
         setupKeyBindings();
     }
@@ -73,6 +79,14 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.reset();
+            }
+        });
+        // Delete selected bits when pressing Del
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "DEL");
+        getActionMap().put("DEL", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.deleteSelectedBits();
             }
         });
     }
@@ -91,7 +105,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     }
 
     private void clickOnBitControl(int id) {
-        Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
+        Layer layer = controller.getLayer();
         Vector2 direction = null;
 
         // Every directions are in the bit's local coordinate system
@@ -118,35 +132,22 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     }
 
     private void drawModelArea(Graphics2D g2d, Area area) {
-        AffineTransform tx1 = new AffineTransform();
-
-        tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
-                (viewOffsetY * drawScale) + (this.getHeight() >> 1));
-        tx1.scale(drawScale, drawScale);
-
-        area.transform(tx1);
+        area.transform(realToView);
 
         g2d.fill(area);
         g2d.draw(area);
     }
 
-    private void drawModelCircle(Graphics g, Vector2 center, int radius) {
-
-        g.drawOval(
-                ((int) ((center.x + viewOffsetX) * drawScale) + (this.getWidth() / 2))
-                        - (int) ((radius * drawScale) / 2),
-                ((int) ((center.y + viewOffsetY) * drawScale) + (this.getHeight() / 2))
-                        - (int) ((radius * drawScale) / 2),
-                (int) (radius * drawScale), (int) (radius * drawScale));
+    private void drawModelCircle(Graphics2D g2d, Vector2 center, int radius) {
+        Ellipse2D liftPoint = new Ellipse2D.Double(
+                center.x - (radius >> 1),
+                center.y - (radius >> 1),
+                radius, radius);
+        g2d.draw(realToView.createTransformedShape(liftPoint));
     }
 
     private void drawModelPath2D(Graphics2D g2d, Path2D path) {
-        AffineTransform tx1 = new AffineTransform();
-
-        tx1.translate((viewOffsetX * drawScale) + ((double) this.getWidth() / 2),
-                (viewOffsetY * drawScale) + ((double) this.getHeight() / 2));
-        tx1.scale(drawScale, drawScale);
-        g2d.draw(path.createTransformedShape(tx1));
+        g2d.draw(path.createTransformedShape(realToView));
     }
 
     @Override
@@ -156,17 +157,12 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             if ((mesh != null) && mesh.isPaved()) {
                 // Get the clicked point in the right coordinate system
-                Point2D.Double clickSpot = new Point2D.Double(
-                        ((((double) e.getX()) - ((double) this.getWidth() / 2)) / drawScale) - viewOffsetX,
-                        ((((double) e.getY()) - ((double) this.getHeight() / 2)) / drawScale) - viewOffsetY);
-
+                Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+                viewToReal.transform(clickSpot, clickSpot);
                 if (controller.isOnAddingBits()) {
-                    controller.addNewBits(clickSpot);
+                    controller.addNewBitAt(clickSpot);
                     return;
                 }
-
-                Layer layer = controller.getCurrentMesh().getLayers().get(controller.getCurrentLayerNumber());
-                Vector<Vector2> bitKeys = layer.getBits3dKeys();
 
                 // Look if we hit a bit control (arrows)
                 for (BitControls controls : bitMovers.values()) {
@@ -180,18 +176,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 }
 
                 // Look for a bit which contains the clicked spot
-                for (Vector2 bitKey : bitKeys) {
-                    Bit3D bit = layer.getBit3D(bitKey);
-                    Area area = bit.getRawArea();
-                    AffineTransform affTrans = new AffineTransform();
-                    affTrans.translate(bitKey.x, bitKey.y);
-                    affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-                    area.transform(affTrans);
-                    if (area.contains(clickSpot)) {
-                        controller.addOrRemoveSelectedBitKeys(bitKey);
-                        break;
-                    }
-                }
+                controller.addOrRemoveSelectedBitKeys(controller.findBitAt(clickSpot));
             }
         }
     }
@@ -241,25 +226,29 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         if (!rightClickPressed) {
-            // Zoom on the view
-            int notches = e.getWheelRotation();
-            double zoom = controller.getZoom();
-            if (notches > 0) {
-                zoom = zoom / 1.25;
+            double notches = e.getPreciseWheelRotation();
+            if (!onControl) {
+                // Zoom on the view
+                double zoom = controller.getZoom();
+                if (notches > 0) {
+                    zoom = zoom / 1.25;
+                } else {
+                    zoom = zoom * 1.25;
+                }
+                controller.setZoom(zoom);
             } else {
-                zoom = zoom * 1.25;
+                // Rotate the bit preview
+                if (controller.isOnAddingBits()) {
+                    controller.incrementBitsOrientationParamBy(notches * WorkspaceConfig.rotationSpeed);
+                }
+                // Rotate the selected bits
+                if (controller.getSelectedBitKeys().size() > 0) {
+                    controller.rotateSelectedBitsBy(notches * WorkspaceConfig.rotationSpeed);
+                }
             }
-            controller.setZoom(zoom);
         } else {
             // Navigate through layers when right click pressed
-            int notches = e.getWheelRotation();
-            int layer = controller.getCurrentLayerNumber();
-            if (notches > 0) {
-                layer -= Math.abs(notches);
-            } else {
-                layer += Math.abs(notches);
-            }
-            controller.setLayer(layer);
+            controller.setLayer(controller.getCurrentLayerNumber() + e.getWheelRotation());
         }
     }
 
@@ -270,6 +259,9 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
         setDefaultZoom();
         updateDrawScale();
+
+        realToView = calculateAffineTransformRealToView();
+        viewToReal = calculateAffineTransformViewToReal();
 
         Graphics2D g2d = (Graphics2D) g;
         Mesh currentMesh = controller.getCurrentMesh();
@@ -291,7 +283,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             }
 
             // Draw bits
-            Layer currentLayer = currentMesh.getLayers().get(controller.getCurrentLayerNumber());
+            Layer currentLayer = controller.getLayer();
             paintBits(currentMesh, currentLayer, g2d);
 
             // Draw the slices contained in the layer
@@ -305,7 +297,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             if (controller.showSlice()) {
                 g2d.setColor(Color.RED);
                 g2d.setStroke(new BasicStroke(1.0f));
-                paintLayerBorder(currentMesh, g2d);
+                paintLayerBorder(g2d);
             }
 
             // Draw the controls of the selected bit
@@ -326,18 +318,56 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
                 -CraftConfig.bitLength / 2, -CraftConfig.bitWidth / 2,
                 controller.newBitsLengthParam.getCurrentValue(),
                 controller.newBitsWidthParam.getCurrentValue());
-        Area a = new Area(r);
+        Area bitBorder = new Area(r);
+        // Transform into current view
         AffineTransform affineTransform = new AffineTransform();
         affineTransform.translate(oldX, oldY);
         Vector2 lOrientation = Vector2.getEquivalentVector(
                 controller.newBitsOrientationParam.getCurrentValue());
         affineTransform.rotate(lOrientation.x, lOrientation.y);
         affineTransform.scale(drawScale, drawScale);
-        a.transform(affineTransform);
+        bitBorder.transform(affineTransform);
 
-        g2d.setColor(Color.BLUE);
-        g2d.setStroke(new BasicStroke(1.0f));
-        g2d.draw(a);
+        Point2D.Double realSpot = new Point2D.Double(oldX, oldY);
+        viewToReal.transform(realSpot, realSpot);
+        Area availableBitArea = controller.getAvailableBitAreaAt(realSpot); // in real pos
+        boolean irregular = DetectorTool.checkIrregular(availableBitArea);
+        // Fit into view
+        availableBitArea.transform(realToView);
+        // Change color based on irregularity
+        if (!irregular) {
+            // Draw border
+            g2d.setColor(Color.BLUE.darker());
+            g2d.setStroke(new BasicStroke(1.1f));
+            g2d.draw(bitBorder);
+            // Draw internal area
+            g2d.setColor(new Color(164, 180, 200, 100));
+            g2d.fill(availableBitArea);
+        } else {
+            // Draw border
+            g2d.setColor(Color.RED.darker());
+            g2d.setStroke(new BasicStroke(1.1f));
+            g2d.draw(bitBorder);
+            // Draw internal area
+            g2d.setColor(new Color(250, 0, 100, 100));
+            g2d.fill(availableBitArea);
+        }
+    }
+
+    private AffineTransform calculateAffineTransformViewToReal() {
+        AffineTransform a = new AffineTransform();
+        a.translate(-viewOffsetX, -viewOffsetY);
+        a.scale(1 / drawScale, 1 / drawScale);
+        a.translate(-this.getWidth() >> 1, -this.getHeight() >> 1);
+        return a;
+    }
+
+    private AffineTransform calculateAffineTransformRealToView() {
+        AffineTransform a = new AffineTransform();
+        a.translate(this.getWidth() >> 1, this.getHeight() >> 1);
+        a.scale(drawScale, drawScale);
+        a.translate(viewOffsetX, viewOffsetY);
+        return a;
     }
 
     private void paintSlice(Mesh mesh, Graphics2D g2d) {
@@ -347,10 +377,8 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
         }
     }
 
-    private void paintLayerBorder(Mesh mesh, Graphics2D g2d) {
-        Slice slice = mesh.getLayers()
-                .get(controller.getCurrentLayerNumber())
-                .getHorizontalSection();
+    private void paintLayerBorder(Graphics2D g2d) {
+        Slice slice = controller.getLayer().getHorizontalSection();
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
         }
@@ -452,13 +480,7 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
 
             area.transform(affTrans);
 
-            AffineTransform tx1 = new AffineTransform();
-
-            tx1.translate((viewOffsetX * drawScale) + (this.getWidth() >> 1),
-                    (viewOffsetY * drawScale) + (this.getHeight() >> 1));
-            tx1.scale(drawScale, drawScale);
-
-            area.transform(tx1);
+            area.transform(realToView);
 
             g2d.draw(area);
         }
@@ -468,6 +490,21 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
     public void update(Observable o, Object arg) {
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        onControl = e.isControlDown();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        onControl = false;
     }
 
     private class TriangleShape extends Path2D.Double {
@@ -528,20 +565,13 @@ class Core extends JPanel implements MouseMotionListener, MouseListener, MouseWh
             areas.add(rightArrow);
             this.add(rightArrow);
 
-            double landscapeWidth = Core.this.getWidth();
-            double landscapeHeight = Core.this.getHeight();
-
             for (Area area : areas) {
                 affTrans = new AffineTransform();
                 affTrans.translate(bit.getOrigin().x, bit.getOrigin().y);
                 affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
                 area.transform(affTrans);
 
-                affTrans = new AffineTransform();
-                affTrans.translate(viewOffsetX * drawScale + landscapeWidth / 2,
-                        viewOffsetY * drawScale + landscapeHeight / 2);
-                affTrans.scale(drawScale, drawScale);
-                area.transform(affTrans);
+                area.transform(realToView);
 
                 g2d.setColor(new Color(94, 125, 215));
                 if (!area.equals(overlapBit)) {

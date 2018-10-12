@@ -261,6 +261,16 @@ public class Vector2 implements Serializable {
     }
 
     /**
+     * <code>(a,b) v (c,d) = ad - bc</code>
+     *
+     * @param that other vector
+     * @return mimic vector product
+     */
+    public Double v(Vector2 that) {
+        return x * that.y - y * that.x;
+    }
+
+    /**
      * Special tools for vectors.
      *
      * @author NHATHAN

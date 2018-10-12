@@ -24,12 +24,13 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,19 +44,53 @@ class Controller extends Observable implements Observer {
     static private Controller instance;
     private Mesh mesh = null;
     private int layerNumber = 0;
+    private Layer currentLayer = null;
     private int sliceNumber = 0;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
     @Deprecated
     private boolean showSlices = false;
     private boolean showSlice = false;
-
     private boolean showLiftPoints = false;
-
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private Model model = null;
+    private boolean onAddingBits = false;
+
+    // New bit config
+    final DoubleParam newBitsLengthParam = new DoubleParam(
+            "newBitLength",
+            "Bit length",
+            "Length of bits to add",
+            1.0, CraftConfig.bitLength,
+            CraftConfig.bitLength, 1.0);
+    final DoubleParam newBitsWidthParam = new DoubleParam(
+            "newBitWidth",
+            "Bit width",
+            "Length of bits to add",
+            1.0, CraftConfig.bitWidth,
+            CraftConfig.bitWidth, 1.0);
+    final DoubleParam newBitsOrientationParam = new DoubleParam(
+            "newBitOrientation",
+            "Bit orientation",
+            "Angle of bits in respect to that of layer",
+            -180.0, 180.0, 0.0, 0.01);
+    private Area availableArea;
+    private AffineTransform realToPavement;
+    final DoubleParam safeguardSpaceParam = new DoubleParam(
+            "safeguardSpace",
+            "Space around bit",
+            "In order to keep bits not overlapping or grazing each other",
+            1.0, 10.0, 3.0, 0.01);
+    final BooleanParam autocropParam = new BooleanParam(
+            "autocrop",
+            "Auto crop",
+            "Cut the new bit while preserving space around bits",
+            true
+    );
+    private Area bitAreaPreview;
+
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -103,7 +138,6 @@ class Controller extends Observable implements Observer {
     }
 
     Set<Bit3D> getSelectedBits() {
-        Layer currentLayer = mesh.getLayers().get(layerNumber);
         return selectedBitKeys.stream()
                 .map(currentLayer::getBit3D)
                 .collect(Collectors.toSet());
@@ -128,11 +162,23 @@ class Controller extends Observable implements Observer {
             return;
         }
         layerNumber = nbrLayer;
-        mesh.getLayers().get(layerNumber).addObserver(this);
+        currentLayer = mesh.getLayers().get(layerNumber);
+        currentLayer.addObserver(this);
+        realToPavement = new AffineTransform();
+        try {
+            realToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
+        } catch (NoninvertibleTransformException e) {
+            realToPavement = AffineTransform.getScaleInstance(1, 1);
+        }
+        updateAvailableArea();
         reset();
 
         setChanged();
         notifyObservers(Component.LAYER);
+    }
+
+    public Layer getLayer() {
+        return currentLayer;
     }
 
     /**
@@ -170,7 +216,7 @@ class Controller extends Observable implements Observer {
      * @param bitKey in layer's coordinate system
      */
     void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
-        if (mesh == null || !mesh.isPaved()) {
+        if (mesh == null || !mesh.isPaved() || bitKey == null) {
             return;
         }
         if (!selectedBitKeys.add(bitKey))
@@ -262,12 +308,61 @@ class Controller extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o == this.mesh) {
             this.setCurrentMesh(mesh);
-        } else if (o == this.mesh.getLayers().get(layerNumber)) {
+        } else if (o == currentLayer) {
+            updateAvailableArea();
             setChanged();
             notifyObservers(Component.LAYER);
         }
     }
 
+    private void updateAvailableArea() {
+        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
+        Pavement pavement = currentLayer.getFlatPavement();
+        pavement.getBitsKeys()
+                .forEach(key -> availableArea.subtract(
+                        AreaTool.expand(pavement.getBit(key).getArea(),
+                                safeguardSpaceParam.getCurrentValue())));
+    }
+
+    void incrementBitsOrientationParamBy(double notches) {
+        newBitsOrientationParam.incrementBy(notches);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * @param notches rotation in degree
+     */
+    void rotateSelectedBitsBy(double notches) {
+        setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, notches));
+    }
+
+    Area getAvailableBitAreaAt(Point2D.Double spot) {
+        Rectangle2D.Double r = new Rectangle2D.Double(
+                -CraftConfig.bitLength / 2,
+                -CraftConfig.bitWidth / 2,
+                newBitsLengthParam.getCurrentValue(),
+                newBitsWidthParam.getCurrentValue());
+        Area a = new Area(r);
+        // Rotate
+        AffineTransform affineTransform = new AffineTransform(realToPavement);
+        affineTransform.translate(spot.x, spot.y);
+        Vector2 lOrientation = Vector2.getEquivalentVector(
+                newBitsOrientationParam.getCurrentValue());
+        affineTransform.rotate(lOrientation.x, lOrientation.y);
+        a.transform(affineTransform);
+        // Intersect
+        a.intersect(availableArea);
+        // Cache
+        bitAreaPreview = (Area) a.clone();
+        return a;
+    }
+
+    void deleteSelectedBits() {
+        currentLayer.removeBits(selectedBitKeys, false);
+        selectedBitKeys.clear();
+        currentLayer.rebuild();
+    }
 
     public enum Component {
         MESH, LAYER, SELECTED_BIT, ZOOM, SLICE
@@ -284,8 +379,6 @@ class Controller extends Observable implements Observer {
         notifyObservers();
     }
 
-    private boolean onAddingBits = false;
-
     boolean isOnAddingBits() {
         return onAddingBits;
     }
@@ -296,42 +389,46 @@ class Controller extends Observable implements Observer {
         notifyObservers();
     }
 
-    // New bit config
-    final DoubleParam newBitsLengthParam = new DoubleParam(
-            "newBitLength",
-            "Bit length",
-            "Length of bits to add",
-            1.0, CraftConfig.bitLength,
-            CraftConfig.bitLength, 1.0);
-    final DoubleParam newBitsWidthParam = new DoubleParam(
-            "newBitWidth",
-            "Bit width",
-            "Length of bits to add",
-            1.0, CraftConfig.bitWidth,
-            CraftConfig.bitWidth, 1.0);
-    final DoubleParam newBitsOrientationParam = new DoubleParam(
-            "newBitOrientation",
-            "Bit orientation",
-            "Angle of bits in respect to that of layer",
-            0.0, 360.0, 0.0, 0.01);
-
-    void addNewBits(Point2D.Double position) {
-        Layer l = mesh.getLayers().get(layerNumber);
-        if (mesh == null || l.getFlatPavement() == null || position == null)
+    /**
+     * @param position real position (not zoomed or translated)
+     */
+    void addNewBitAt(Point2D.Double position) {
+        if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
+        realToPavement.transform(position, position);
+        bitAreaPreview.transform(realToPavement);
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
-        AffineTransform inv = new AffineTransform();
-        try {
-            inv = l.getFlatPavement().getAffineTransform().createInverse();
-        } catch (NoninvertibleTransformException e) {
-            // Ignore
-        }
-        final AffineTransform finalInv = inv;
-        finalInv.transform(position, position);
         Vector2 origin = new Vector2(position.x, position.y);
         // Add
-        l.addBit(new Bit2D(origin, lOrientation,
+        Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
-                newBitsWidthParam.getCurrentValue()));
+                newBitsWidthParam.getCurrentValue());
+        if (autocropParam.getCurrentValue())
+            newBit.updateBoundaries(bitAreaPreview);
+        currentLayer.addBit(newBit);
+    }
+
+    /**
+     * @param position real position (not zoomed or translated)
+     * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
+     */
+    Vector2 findBitAt(Point2D.Double position) {
+        realToPavement.transform(position, position);
+        Pavement flatPavement = currentLayer.getFlatPavement();
+        for (Vector2 key : flatPavement.getBitsKeys()) {
+            if (flatPavement.getBit(key).getArea().contains(position))
+                return key;
+        }
+        return null;
+    }
+
+    void scaleSelectedBit(double percentageLength, double percentageWidth) {
+        if (this.getSelectedBitKeys().isEmpty()) {
+            Logger.warning("There is no bit selected");
+        } else {
+            setSelectedBitKeys(getSelectedBits().stream()
+                    .map(bit -> currentLayer.scaleBit(bit, percentageLength, percentageWidth))
+                    .collect(Collectors.toSet()));
+        }
     }
 }
