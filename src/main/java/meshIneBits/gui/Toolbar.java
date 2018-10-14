@@ -27,11 +27,9 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.config.Setting;
-import meshIneBits.config.patternParameter.PatternParameter;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view3d.ProcessingView;
-import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -524,8 +522,7 @@ class Toolbar extends JTabbedPane implements Observer {
             GalleryContainer patternGallery = new GalleryContainer("Pattern");
 
             // Template options
-            patternParametersContainer = new PatternParametersContainer("Pattern parameters");
-            patternParametersContainer.setupPatternParameters();
+            patternParametersContainer = new PatternParametersContainer("Pattern parameters", patternGallery);
 
             // Computing options
             OptionsContainer computeCont = new OptionsContainer("Compute");
@@ -533,12 +530,6 @@ class Toolbar extends JTabbedPane implements Observer {
             computeTemplateBtn = new ButtonIcon("Generate layers", "cog.png");
             computeTemplateBtn.setHorizontalAlignment(SwingConstants.CENTER);
 
-            //LabeledSpinner minPercentageOfSlicesSpinner = new LabeledSpinner("minPercentageOfSlices",
-            //        setupAnnotations.get("minPercentageOfSlices"));
-            //computeCont.add(minPercentageOfSlicesSpinner);
-            //LabeledSpinner defaultSliceToSelectSpinner = new LabeledSpinner("defaultSliceToSelect",
-            //        setupAnnotations.get("defaultSliceToSelect"));
-            //computeCont.add(defaultSliceToSelectSpinner);
             LabeledSpinner suctionCupDiameter = new LabeledSpinner("suckerDiameter",
                     setupAnnotations.get("suckerDiameter"));
             computeCont.add(suctionCupDiameter);
@@ -569,149 +560,6 @@ class Toolbar extends JTabbedPane implements Observer {
             });
         }
 
-        private class GalleryContainer extends OptionsContainer {
-
-            private static final long serialVersionUID = 5081506030712556983L;
-
-            /**
-             * For the display
-             */
-            private JLabel templateChosen;
-            private JPopupMenu templatesMenu;
-
-            GalleryContainer(String title) {
-                super(title);
-                // this.setLayout(new GridLayout(1, 2, 3, 3));
-                this.setLayout(new BorderLayout());
-                // For the chosen template
-                PatternTemplate defaultTemplate = CraftConfig.templateChoice;
-                ImageIcon image = new ImageIcon(
-                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + defaultTemplate.getIconName())));
-                ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-                this.templateChosen = new JLabel(defaultTemplate.getCommonName(), icon, SwingConstants.CENTER);
-                this.templateChosen.setPreferredSize(new Dimension(150, 50));
-                this.templateChosen.setToolTipText(descriptiveText(defaultTemplate));
-                this.add(templateChosen, BorderLayout.CENTER);
-                // For the menu
-                image = new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "angle-down.png")));
-                icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
-                JButton choosingTemplateBtn = new JButton(icon);
-                this.add(choosingTemplateBtn, BorderLayout.SOUTH);
-                choosingTemplateBtn.addActionListener(e -> templatesMenu.show(choosingTemplateBtn, 0, choosingTemplateBtn.getHeight()));
-                this.templatesMenu = new TemplatesMenu(this);
-            }
-
-            String descriptiveText(PatternTemplate template) {
-                return "<html><div>" +
-                        "<p><strong>" + template.getCommonName() + "</strong></p>" +
-                        "<p>" + template.getDescription() + "</p>" +
-                        "<p><strong>How-To-Use</strong><br/>" + template.getHowToUse() + "</p>" +
-                        "</div></html>";
-            }
-
-            /**
-             * All the available templates for choosing
-             *
-             * @author NHATHAN
-             */
-            private class TemplatesMenu extends JPopupMenu {
-
-                /**
-                 *
-                 */
-                private static final long serialVersionUID = 4906068175556528411L;
-                private GalleryContainer parent;
-
-                TemplatesMenu(GalleryContainer galleryContainer) {
-                    super("...");
-                    this.parent = galleryContainer;
-                    // Load all templates we have
-                    // TODO
-                    // Load all saved templates
-                    CraftConfig.templatesLoaded = new Vector<>(
-                            Arrays.asList(CraftConfig.templatesPreloaded));
-                    for (PatternTemplate template : CraftConfig.templatesLoaded) {
-                        this.addNewTemplate(template);
-                    }
-                    // A button to load external template
-                    this.addSeparator();
-                    JMenuItem loadExternalTemplateBtn = new JMenuItem("More...");
-                    this.add(loadExternalTemplateBtn);
-                    // TODO
-                    // Implement function "add external pattern"
-                }
-
-                void addNewTemplate(PatternTemplate template) {
-                    JMenuItem newTemplate = new JMenuItem(template.getCommonName());
-                    ImageIcon image = new ImageIcon(
-                            Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
-                    ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
-                    newTemplate.setIcon(icon);
-                    this.add(newTemplate);
-                    newTemplate.addActionListener(e -> {
-                        parent.refreshTemplateChosen(template);
-                        CraftConfig.templateChoice = template;
-                        patternParametersContainer.setupPatternParameters();
-                    });
-                }
-            }
-
-            void refreshTemplateChosen(PatternTemplate template) {
-                this.templateChosen.setText(template.getCommonName());
-                ImageIcon image = new ImageIcon(
-                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
-                ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-                this.templateChosen.setIcon(icon);
-                this.templateChosen.setToolTipText(descriptiveText(template));
-            }
-        }
-
-        /**
-         * Contains specialized parameters for the chosen pattern
-         */
-        private class PatternParametersContainer extends OptionsContainer {
-
-            /**
-             *
-             */
-            private static final long serialVersionUID = -5486094986597798629L;
-
-            PatternParametersContainer(String title) {
-                super(title);
-            }
-
-            /**
-             * Remove all loaded components in containers then load new
-             * parameters from the currently chosen pattern.
-             */
-            void setupPatternParameters() {
-                this.removeAll();
-                for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
-                    this.add(paramConfig.getRenderer());
-                }
-            }
-
-            /**
-             * Remove all loaded components in containers then load new
-             * parameters from the given <tt>config</tt> (input will be filtered
-             * by attribute's name, type)
-             *
-             * @param config new configuration
-             */
-            void setupPatternParameters(PatternConfig config) {
-                this.removeAll();
-                for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
-                    PatternParameter importParam = config.get(param.getCodename());
-                    // Update current value
-                    if (importParam != null) {
-                        param.setCurrentValue(importParam.getCurrentValue());
-                    }
-                    // Then show
-                    this.add(param.getRenderer());
-                }
-            }
-
-        }
     }
 
     /**
