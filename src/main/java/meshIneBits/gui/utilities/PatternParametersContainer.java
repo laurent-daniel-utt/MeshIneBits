@@ -20,24 +20,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui;
+package meshIneBits.gui.utilities;
 
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.config.patternParameter.PatternParameter;
-import meshIneBits.gui.utilities.OptionsContainer;
 
 /**
  * Contains specialized parameters for the chosen pattern
  */
-class PatternParametersContainer extends OptionsContainer {
+public class PatternParametersContainer extends OptionsContainer {
 
     /**
      *
      */
     private static final long serialVersionUID = -5486094986597798629L;
 
-    PatternParametersContainer(String title, GalleryContainer galleryContainer) {
+    public PatternParametersContainer(String title, GalleryContainer galleryContainer) {
         super(title);
         galleryContainer.setParameterPanel(this);
         setupPatternParameters();
@@ -61,7 +60,7 @@ class PatternParametersContainer extends OptionsContainer {
      *
      * @param config new configuration
      */
-    void setupPatternParameters(PatternConfig config) {
+    public void setupPatternParameters(PatternConfig config) {
         this.removeAll();
         for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
             PatternParameter importParam = config.get(param.getCodename());

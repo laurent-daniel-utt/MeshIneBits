@@ -20,10 +20,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui;
+package meshIneBits.gui.utilities;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.utilities.OptionsContainer;
 import meshIneBits.patterntemplates.PatternTemplate;
 
 import javax.swing.*;
@@ -32,7 +31,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Vector;
 
-class GalleryContainer extends OptionsContainer {
+public class GalleryContainer extends OptionsContainer {
 
     private static final long serialVersionUID = 5081506030712556983L;
 
@@ -43,7 +42,7 @@ class GalleryContainer extends OptionsContainer {
     private JPopupMenu templatesMenu;
     private PatternParametersContainer parameterPanel;
 
-    GalleryContainer(String title) {
+    public GalleryContainer(String title) {
         super(title);
         this.setLayout(new BorderLayout());
         // For the chosen template
