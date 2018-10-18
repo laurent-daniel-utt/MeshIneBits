@@ -38,16 +38,18 @@ public class GalleryContainer extends OptionsContainer {
     /**
      * For the display
      */
-    private JLabel templateChosen = new JLabel();
+    private JLabel chosenTemplateLabel = new JLabel();
     private JPopupMenu templatesMenu;
     private PatternParametersContainer parameterPanel;
+    private PatternTemplate chosenTemplate;
 
     public GalleryContainer(String title) {
         super(title);
         this.setLayout(new BorderLayout());
         // For the chosen template
-        setGlobalTemplate(CraftConfig.templateChoice);
-        this.add(templateChosen, BorderLayout.CENTER);
+        setChosenTemplate(CraftConfig.templateChoice);
+        setChosenTemplateLabel(chosenTemplate);
+        this.add(chosenTemplateLabel, BorderLayout.CENTER);
         // For the menu
         ImageIcon image = new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "angle-down.png")));
         ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
@@ -55,6 +57,14 @@ public class GalleryContainer extends OptionsContainer {
         this.add(choosingTemplateBtn, BorderLayout.SOUTH);
         choosingTemplateBtn.addActionListener(e -> templatesMenu.show(choosingTemplateBtn, 0, choosingTemplateBtn.getHeight()));
         this.templatesMenu = new TemplatesMenu();
+    }
+
+    public PatternTemplate getChosenTemplate() {
+        return chosenTemplate;
+    }
+
+    public void setChosenTemplate(PatternTemplate chosenTemplate) {
+        this.chosenTemplate = chosenTemplate;
     }
 
     private String descriptiveText(PatternTemplate template) {
@@ -78,23 +88,14 @@ public class GalleryContainer extends OptionsContainer {
 
         TemplatesMenu() {
             super("...");
-            // Load all templates we have
-            // TODO
-            // Load all saved templates
             CraftConfig.templatesLoaded = new Vector<>(
                     Arrays.asList(CraftConfig.templatesPreloaded));
             for (PatternTemplate template : CraftConfig.templatesLoaded) {
-                this.resetTemplate(template);
+                this.addChoice(template);
             }
-            // A button to load external template
-            this.addSeparator();
-            JMenuItem loadExternalTemplateBtn = new JMenuItem("More...");
-            this.add(loadExternalTemplateBtn);
-            // TODO
-            // Implement function "add external pattern"
         }
 
-        void resetTemplate(PatternTemplate template) {
+        void addChoice(PatternTemplate template) {
             JMenuItem newChoice = new JMenuItem(template.getCommonName());
             ImageIcon image = new ImageIcon(
                     Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
@@ -102,19 +103,19 @@ public class GalleryContainer extends OptionsContainer {
             newChoice.setIcon(icon);
             this.add(newChoice);
             newChoice.addActionListener(e -> {
-                setGlobalTemplate(template);
-                CraftConfig.templateChoice = template;
+                setChosenTemplate(template);
+                setChosenTemplateLabel(chosenTemplate);
                 parameterPanel.setupPatternParameters();
             });
         }
     }
 
-    private void setGlobalTemplate(PatternTemplate template) {
-        this.templateChosen.setText(template.getCommonName());
+    private void setChosenTemplateLabel(PatternTemplate template) {
+        this.chosenTemplateLabel.setText(template.getCommonName());
         ImageIcon image = new ImageIcon(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + template.getIconName())));
         ImageIcon icon = new ImageIcon(image.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-        this.templateChosen.setIcon(icon);
-        this.templateChosen.setToolTipText(descriptiveText(template));
+        this.chosenTemplateLabel.setIcon(icon);
+        this.chosenTemplateLabel.setToolTipText(descriptiveText(template));
     }
 }

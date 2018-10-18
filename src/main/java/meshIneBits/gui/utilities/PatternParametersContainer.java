@@ -22,7 +22,6 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.config.CraftConfig;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.config.patternParameter.PatternParameter;
 
@@ -36,8 +35,11 @@ public class PatternParametersContainer extends OptionsContainer {
      */
     private static final long serialVersionUID = -5486094986597798629L;
 
+    private GalleryContainer galleryContainer;
+
     public PatternParametersContainer(String title, GalleryContainer galleryContainer) {
         super(title);
+        this.galleryContainer = galleryContainer;
         galleryContainer.setParameterPanel(this);
         setupPatternParameters();
     }
@@ -48,7 +50,7 @@ public class PatternParametersContainer extends OptionsContainer {
      */
     void setupPatternParameters() {
         this.removeAll();
-        for (PatternParameter paramConfig : CraftConfig.templateChoice.getPatternConfig().values()) {
+        for (PatternParameter paramConfig : galleryContainer.getChosenTemplate().getPatternConfig().values()) {
             this.add(paramConfig.getRenderer());
         }
     }
@@ -62,7 +64,7 @@ public class PatternParametersContainer extends OptionsContainer {
      */
     public void setupPatternParameters(PatternConfig config) {
         this.removeAll();
-        for (PatternParameter param : CraftConfig.templateChoice.getPatternConfig().values()) {
+        for (PatternParameter param : galleryContainer.getChosenTemplate().getPatternConfig().values()) {
             PatternParameter importParam = config.get(param.getCodename());
             // Update current value
             if (importParam != null) {
