@@ -33,7 +33,7 @@ import java.io.Serializable;
 /**
  * This is a factory paving the layers. Use {@link #pave(Layer)} to pave.
  */
-public abstract class PatternTemplate implements Serializable {
+public abstract class PatternTemplate implements Serializable, Cloneable {
 
     /**
      * Contains all customizable special parameters of the pattern template
@@ -164,5 +164,13 @@ public abstract class PatternTemplate implements Serializable {
 
     public PatternConfig getPatternConfig() {
         return config;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        PatternTemplate patternTemplate;
+        patternTemplate = (PatternTemplate) super.clone();
+        patternTemplate.config = (PatternConfig) config.clone();
+        return patternTemplate;
     }
 }
