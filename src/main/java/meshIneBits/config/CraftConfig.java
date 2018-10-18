@@ -99,8 +99,8 @@ public class CraftConfig {
      * The provided templates
      */
     public static PatternTemplate[] templatesPreloaded = {
-            new ClassicBrickPattern(),
             new ManualPattern(),
+            new ClassicBrickPattern(),
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
