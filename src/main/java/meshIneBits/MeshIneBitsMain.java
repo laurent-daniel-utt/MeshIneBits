@@ -23,7 +23,7 @@
 package meshIneBits;
 
 import meshIneBits.config.CraftConfigLoader;
-import meshIneBits.gui.MainWindow;
+import meshIneBits.gui.MeshWindow;
 
 /**
  * Main class. Call {@link #main(String[])} to start MeshIneBits. Will first
@@ -43,6 +43,8 @@ class MeshIneBitsMain {
         CraftConfigLoader.loadConfig(null);
 
         // Load the graphical interface
-        MainWindow.getInstance();
+//        MainWindow.getInstance();
+
+        new MeshWindow();
     }
 }
