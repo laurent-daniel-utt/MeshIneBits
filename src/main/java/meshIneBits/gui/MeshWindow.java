@@ -22,20 +22,22 @@
 
 package meshIneBits.gui;
 
+import meshIneBits.gui.utilities.ButtonIcon;
+
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
 
 public class MeshWindow extends JFrame {
 
     private JMenuBar menuBar = new JMenuBar();
-    private JToolBar toolBar = new JToolBar();
-    private InputMap inputMap;
+    private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
 
     public MeshWindow() throws HeadlessException {
-        this.setIconImage(IconLoader.get("resources/icon.png").getImage());
+        this.setIconImage(IconLoader.get("icon.png").getImage());
 
         // Visual options
         try {
@@ -56,118 +58,208 @@ public class MeshWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        initActions();
-
-        initMenuBar();
+        init();
         setJMenuBar(menuBar);
-
-        initToolbar();
         add(toolBar, BorderLayout.NORTH);
 
         setVisible(true);
     }
 
-    private void initActions() {
-        inputMap = this.getRootPane().getInputMap();
+    private void init() {
+        InputMap inputMap = this.getRootPane().getInputMap();
         actionMap = this.getRootPane().getActionMap();
+        Vector<MeshAction> meshActionList = new Vector<>();
 
-        inputMap.put(KeyStroke.getKeyStroke("control O"), "openMesh");
-        actionMap.put("openMesh", new AbstractAction() {
+        /* Actions */
+        MeshAction newMesh = new MeshAction(
+                "newMesh",
+                "New Mesh",
+                "mesh-new.png",
+                "New Mesh",
+                "control N"
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO New mesh
+            }
+        };
+        meshActionList.add(newMesh);
+
+        MeshAction openMesh = new MeshAction(
+                "openMesh",
+                "Open Mesh",
+                "mesh-open.png",
+                "Reload a project into workspace",
+                "control O"
+        ) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO Open mesh
                 System.out.println("Opening mesh");
             }
-        });
+        };
+        meshActionList.add(openMesh);
 
-        inputMap.put(KeyStroke.getKeyStroke("control S"), "saveMesh");
-        actionMap.put("saveMesh", new AbstractAction() {
+        MeshAction saveMesh = new MeshAction(
+                "saveMesh",
+                "Save Mesh",
+                "mesh-save.png",
+                "Save the current project",
+                "control S"
+        ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Save mesh
-                System.out.println("Saving mesh");
+                // TODO
             }
-        });
-    }
+        };
+        meshActionList.add(saveMesh);
 
-    private void initMenuBar() {
-        /* File */
-        JMenu fileMenu = new JMenu("File");
-        menuBar.add(fileMenu);
-        addActionMenuItem(fileMenu,
-                "New Mesh",
-                "newMesh",
-                "control N",
-                "resources/mesh-new.png");
-        addActionMenuItem(fileMenu,
-                "Open Mesh",
-                "openMesh",
-                "control O",
-                "resources/mesh-open.png");
-        addActionMenuItem(fileMenu,
-                "Save Mesh",
-                "saveMesh",
-                "control S",
-                "resources/mesh-save.png");
-        fileMenu.addSeparator();
-        addActionMenuItem(fileMenu,
-                "Open Pattern Config",
+        MeshAction openPatternConfig = new MeshAction(
                 "openPatternConfig",
-                "",
-                "resources/pconf-open.png");
-        addActionMenuItem(fileMenu,
-                "Save Pattern Config",
+                "Open Pattern Config",
+                "pconf-open.png",
+                "Open a set of predefined pattern parameters",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(openPatternConfig);
+
+        MeshAction savePatternConfig = new MeshAction(
                 "savePatternConfig",
-                "",
-                "resources/pconf-save.png");
-        fileMenu.addSeparator();
-        addActionMenuItem(fileMenu,
-                "Hyper Parameters",
-                "openHyperParameter",
-                "",
-                "resources/gears.png");
-        fileMenu.addSeparator();
-        addActionMenuItem(fileMenu,
-                "Exit",
+                "Save Pattern Config",
+                "pconf-save.png",
+                "Save the current set of pattern parameters",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(savePatternConfig);
+
+        MeshAction configure = new MeshAction(
+                "configure",
+                "Configuration",
+                "gears.png",
+                "Configure hyper parameters of printer and workspace",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(configure);
+
+        MeshAction exit = new MeshAction(
                 "exit",
+                "Exit",
                 "",
-                "");
+                "Exit program",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(exit);
 
-        /* Help */
-        JMenu helpMenu = new JMenu("Help");
-        menuBar.add(helpMenu);
-        addActionMenuItem(helpMenu,
-                "Manual",
+        MeshAction manual = new MeshAction(
                 "openManual",
-                "",
-                "resources/manual.png");
-        addActionMenuItem(helpMenu,
-                "Website",
-                "openWebsite",
-                "",
-                "resources/website.png");
-        addActionMenuItem(helpMenu,
-                "About",
+                "Manual",
+                "manual.png",
+                "Open manual file",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(manual);
+
+        MeshAction about = new MeshAction(
                 "about",
-                "",
-                "resources/info-circle.png");
+                "About",
+                "info-circle.png",
+                "General information about software",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(about);
+
+        // Register to global listener
+        meshActionList.forEach(meshAction -> {
+            inputMap.put(meshAction.acceleratorKey, meshAction.uuid);
+            actionMap.put(meshAction.uuid, meshAction);
+        });
+
+
+        /* Menu Bar */
+        /* File */
+        JMenu fileMenu = new MeshActionMenu("File");
+        menuBar.add(fileMenu);
+        fileMenu.add(newMesh);
+        fileMenu.add(openMesh);
+        fileMenu.add(saveMesh);
+        fileMenu.addSeparator();
+        fileMenu.add(openPatternConfig);
+        fileMenu.add(savePatternConfig);
+        fileMenu.addSeparator();
+        fileMenu.add(configure);
+        fileMenu.addSeparator();
+        fileMenu.add(exit);
+
+        JMenu helpMenu = new MeshActionMenu("Help");
+        menuBar.add(helpMenu);
+        helpMenu.add(manual);
+        helpMenu.addSeparator();
+        helpMenu.add(about);
+
+        /* Toolbar */
+        toolBar.setLayout(new BoxLayout(toolBar, BoxLayout.LINE_AXIS));
+        toolBar.setFloatable(false);
+        toolBar.add(newMesh);
+        toolBar.add(openMesh);
+        toolBar.add(saveMesh);
+        toolBar.addSeparator();
+        toolBar.add(openPatternConfig);
+        toolBar.add(savePatternConfig);
+        toolBar.addSeparator();
+        toolBar.add(configure);
     }
 
-    private void addActionMenuItem(JMenu menu, String text,
-                                   String actionText,
-                                   String keyCombo,
-                                   String iconFilepath) {
-        JMenuItem jMenuItem = new JMenuItem(actionMap.get(actionText));
-        jMenuItem.setMargin(new Insets(1, 1, 1, 2));
-        menu.add(jMenuItem);
-        if (keyCombo != null && !keyCombo.equals(""))
-            jMenuItem.setAccelerator(KeyStroke.getKeyStroke(keyCombo));
-        jMenuItem.setText(text);
-        if (iconFilepath != null && !iconFilepath.equals(""))
-            jMenuItem.setIcon(IconLoader.get(iconFilepath, 22, 22));
+    private class MeshActionMenuItem extends JMenuItem {
+        MeshActionMenuItem(Action a) {
+            super(a);
+            setMargin(new Insets(1, 1, 1, 2));
+        }
     }
 
-    private void initToolbar() {
+    private class MeshActionMenu extends JMenu {
+        public MeshActionMenu(String name) {
+            super(name);
+        }
 
+        @Override
+        public JMenuItem add(Action a) {
+            return super.add(new MeshActionMenuItem(a));
+        }
+    }
+
+    private class MeshActionToolbar extends JToolBar {
+        public void add(MeshAction a) {
+            add(new ButtonIcon(a));
+        }
     }
 }

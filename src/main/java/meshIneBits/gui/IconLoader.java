@@ -26,7 +26,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-class IconLoader {
+public class IconLoader {
     private static int defaultScaleAlgorithm = Image.SCALE_DEFAULT;
     private static int defaultWidth = 24;
     private static int defaultHeight = 24;
@@ -37,24 +37,24 @@ class IconLoader {
      * @param filename relative path
      * @return scaled icon
      */
-    static ImageIcon get(String filename) {
+    public static ImageIcon get(String filename) {
         return get(filename, defaultWidth, defaultHeight);
     }
 
     /**
      * Get icon from file
      *
-     * @param filename relative path
+     * @param iconName relative path
      * @param width    0 to get original image
      * @param height   0 to get original image
      * @return scaled icon
      */
-    static ImageIcon get(String filename, int width, int height) {
+    public static ImageIcon get(String iconName, int width, int height) {
         ImageIcon imageIcon = new ImageIcon(
                 Objects.requireNonNull(
                         IconLoader.class
                                 .getClassLoader()
-                                .getResource(filename)));
+                                .getResource("resources/" + iconName)));
         if (width == 0 || height == 0) return imageIcon;
         Image image = imageIcon.getImage();
         return new ImageIcon(image.getScaledInstance(width, height, defaultScaleAlgorithm));
