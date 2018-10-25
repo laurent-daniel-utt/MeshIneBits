@@ -37,6 +37,11 @@ public class MeshWindow extends JFrame {
     private ActionMap actionMap;
     private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
     private Vector<MeshAction> meshActionList = new Vector<>();
+    private JPanel utilityParametersPanel = new JPanel();
+    private JPanel core = new JPanel();
+    private JPanel zoomer = new JPanel();
+    private JPanel selector = new JPanel();
+    private StatusBar statusBar = new StatusBar();
 
     public MeshWindow() throws HeadlessException {
         this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
@@ -58,12 +63,77 @@ public class MeshWindow extends JFrame {
         setSize(1280, 720);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
 
         init();
         setJMenuBar(menuBar);
-        add(toolBar, BorderLayout.NORTH);
-        add(utilitiesBox, BorderLayout.WEST);
+
+        // Grid Bag Layout
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+
+        // Toolbar
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridheight = 1;
+        c.gridwidth = 3;
+        c.weightx = 1;
+        c.weighty = 0;
+        add(toolBar, c);
+
+        // Utilities box
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridheight = 3;
+        c.gridwidth = 1;
+        c.weightx = 0;
+        c.weighty = 1;
+        add(utilitiesBox, c);
+
+        // Utility parameter panel
+        c.gridx = 1;
+        c.gridy = 1;
+        c.gridheight = 1;
+        c.gridwidth = 2;
+        c.weightx = 1;
+        c.weighty = 0;
+        add(utilityParametersPanel, c);
+
+        // Core
+        c.gridx = 1;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 1;
+        c.weighty = 1;
+        add(core, c);
+
+        // Selector
+        c.gridx = 2;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 0;
+        c.weighty = 1;
+        add(selector, c);
+
+        // Zoomer
+        c.gridx = 1;
+        c.gridy = 3;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        c.weightx = 1;
+        c.weighty = 0;
+        add(zoomer, c);
+
+        // Status bar
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 3;
+        c.gridheight = 1;
+        c.weightx = 1;
+        c.weighty = 0;
+        add(statusBar, c);
 
         setVisible(true);
     }
