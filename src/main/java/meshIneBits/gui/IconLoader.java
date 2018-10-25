@@ -27,7 +27,7 @@ import java.awt.*;
 import java.util.Objects;
 
 public class IconLoader {
-    private static int defaultScaleAlgorithm = Image.SCALE_FAST;
+    private static int defaultScaleAlgorithm = Image.SCALE_AREA_AVERAGING;
     private static int defaultWidth = 36;
     private static int defaultHeight = 36;
 
