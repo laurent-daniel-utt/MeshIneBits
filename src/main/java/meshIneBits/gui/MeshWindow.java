@@ -35,9 +35,11 @@ public class MeshWindow extends JFrame {
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
+    private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
+    private Vector<MeshAction> meshActionList = new Vector<>();
 
     public MeshWindow() throws HeadlessException {
-        this.setIconImage(IconLoader.get("icon.png").getImage());
+        this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
 
         // Visual options
         try {
@@ -61,6 +63,7 @@ public class MeshWindow extends JFrame {
         init();
         setJMenuBar(menuBar);
         add(toolBar, BorderLayout.NORTH);
+        add(utilitiesBox, BorderLayout.WEST);
 
         setVisible(true);
     }
@@ -68,7 +71,6 @@ public class MeshWindow extends JFrame {
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap();
         actionMap = this.getRootPane().getActionMap();
-        Vector<MeshAction> meshActionList = new Vector<>();
 
         /* Actions */
         MeshAction newMesh = new MeshAction(
@@ -198,6 +200,202 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(about);
 
+        MeshAction view3D = new MeshAction(
+                "view3D",
+                "3D View",
+                "view-3D.png",
+                "Open the 3D view of mesh",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(view3D);
+
+        MeshAction sliceMesh = new MeshAction(
+                "sliceMesh",
+                "Slice Mesh",
+                "mesh-slice.png",
+                "Slice the mesh",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(sliceMesh);
+
+        MeshAction paveMesh = new MeshAction(
+                "paveMesh",
+                "Pave Mesh",
+                "mesh-pave.png",
+                "Pave the whole mesh with an unique pattern",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(paveMesh);
+
+        MeshAction paveLayer = new MeshAction(
+                "paveLayer",
+                "Pave Layer",
+                "layer-pave.png",
+                "Pave the current layer",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(paveLayer);
+
+        MeshAction paveRegion = new MeshAction(
+                "paveRegion",
+                "Pave Region",
+                "layer-region.png",
+                "Choose and pave a region",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(paveRegion);
+
+        MeshAction paveFill = new MeshAction(
+                "paveFill",
+                "Fill",
+                "layer-fill.png",
+                "Fill the left space with pattern",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(paveFill);
+
+        MeshAction optimizeMesh = new MeshAction(
+                "optimizeMesh",
+                "Optimize Mesh",
+                "mesh-optimize.png",
+                "Optimize all layers",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(optimizeMesh);
+
+        MeshAction optimizeLayer = new MeshAction(
+                "optimizeLayer",
+                "Optimize Layer",
+                "layer-optimize.png",
+                "Optimize the current layer",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(optimizeLayer);
+
+        MeshAction halfLengthBit = new MeshAction(
+                "halfLengthBit",
+                "Half Width",
+                "bit-half-length.png",
+                "Cut bit half in length",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(halfLengthBit);
+
+        MeshAction halfWidthBit = new MeshAction(
+                "halfWidthBit",
+                "Half Length",
+                "bit-half-width.png",
+                "Cut bit half in width",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(halfWidthBit);
+
+        MeshAction quartBit = new MeshAction(
+                "quartBit",
+                "1/4 Bit",
+                "bit-quart.png",
+                "Cut bit half in width and length",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(quartBit);
+
+        MeshAction deleteBit = new MeshAction(
+                "deleteBit",
+                "Delete Bit",
+                "bit-delete.png",
+                "Remove chosen bit(s)",
+                "DELETE"
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(deleteBit);
+
+        MeshAction restoreBit = new MeshAction(
+                "restoreBit",
+                "Restore Bit",
+                "bit-restore.png",
+                "Restore to full bit",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(restoreBit);
+
+        MeshAction newBit = new MeshAction(
+                "newBit",
+                "New Bit",
+                "bit-new.png",
+                "Create new bit",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(newBit);
+
         // Register to global listener
         meshActionList.forEach(meshAction -> {
             inputMap.put(meshAction.acceleratorKey, meshAction.uuid);
@@ -228,15 +426,40 @@ public class MeshWindow extends JFrame {
 
         /* Toolbar */
         toolBar.setLayout(new BoxLayout(toolBar, BoxLayout.LINE_AXIS));
+        toolBar.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.BLACK));
         toolBar.setFloatable(false);
         toolBar.add(newMesh);
         toolBar.add(openMesh);
         toolBar.add(saveMesh);
         toolBar.addSeparator();
+        toolBar.add(sliceMesh);
+        toolBar.add(paveMesh);
+        toolBar.add(optimizeMesh);
+        toolBar.addSeparator();
         toolBar.add(openPatternConfig);
         toolBar.add(savePatternConfig);
-        toolBar.addSeparator();
         toolBar.add(configure);
+        toolBar.addSeparator();
+        toolBar.add(view3D);
+
+        /* UtilitiesBox */
+        utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));
+        utilitiesBox.setFloatable(false);
+        utilitiesBox.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
+        utilitiesBox.add(paveLayer);
+        utilitiesBox.add(paveRegion);
+        utilitiesBox.add(paveFill);
+        utilitiesBox.add(optimizeLayer);
+        JSeparator horizontalSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+        horizontalSeparator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        utilitiesBox.add(horizontalSeparator);
+        utilitiesBox.add(newBit);
+        utilitiesBox.add(halfLengthBit);
+        utilitiesBox.add(halfWidthBit);
+        utilitiesBox.add(quartBit);
+        utilitiesBox.add(deleteBit);
+        utilitiesBox.add(restoreBit);
+
     }
 
     private class MeshActionMenuItem extends JMenuItem {
@@ -247,7 +470,7 @@ public class MeshWindow extends JFrame {
     }
 
     private class MeshActionMenu extends JMenu {
-        public MeshActionMenu(String name) {
+        MeshActionMenu(String name) {
             super(name);
         }
 

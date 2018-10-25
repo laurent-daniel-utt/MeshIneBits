@@ -27,9 +27,9 @@ import java.awt.*;
 import java.util.Objects;
 
 public class IconLoader {
-    private static int defaultScaleAlgorithm = Image.SCALE_DEFAULT;
-    private static int defaultWidth = 24;
-    private static int defaultHeight = 24;
+    private static int defaultScaleAlgorithm = Image.SCALE_FAST;
+    private static int defaultWidth = 36;
+    private static int defaultHeight = 36;
 
     /**
      * Get icon with default width and height
@@ -56,7 +56,21 @@ public class IconLoader {
                                 .getClassLoader()
                                 .getResource("resources/" + iconName)));
         if (width == 0 || height == 0) return imageIcon;
+        // Fit image into cadre
+        int originalWidth = imageIcon.getIconWidth(),
+                originalHeight = imageIcon.getIconHeight(),
+                newWidth = originalWidth,
+                newHeight = originalHeight;
+        if (originalWidth > width) {
+            newWidth = width;
+            newHeight = newWidth * originalHeight / originalWidth;
+        }
+        if (newHeight > height) {
+            newHeight = height;
+            newWidth = originalWidth * height / originalHeight;
+        }
+        // Scale
         Image image = imageIcon.getImage();
-        return new ImageIcon(image.getScaledInstance(width, height, defaultScaleAlgorithm));
+        return new ImageIcon(image.getScaledInstance(newWidth, newHeight, defaultScaleAlgorithm));
     }
 }
