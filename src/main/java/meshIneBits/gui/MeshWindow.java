@@ -23,6 +23,7 @@
 package meshIneBits.gui;
 
 import meshIneBits.gui.utilities.ButtonIcon;
+import meshIneBits.gui.utilities.ToggleIcon;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
@@ -312,6 +313,20 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(paveMesh);
 
+        MeshAction exportMeshXML = new MeshAction(
+                "exportMeshXML",
+                "Export XML",
+                "mesh-export-xml.png",
+                "Export printing instructions",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(exportMeshXML);
+
         MeshAction paveLayer = new MeshAction(
                 "paveLayer",
                 "Pave Layer",
@@ -325,6 +340,20 @@ public class MeshWindow extends JFrame {
             }
         };
         meshActionList.add(paveLayer);
+
+        MeshAction selectRegion = new MeshAction(
+                "selectRegion",
+                "Select Region",
+                "region-select.png",
+                "Select a region",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(selectRegion);
 
         MeshAction paveRegion = new MeshAction(
                 "paveRegion",
@@ -466,6 +495,62 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(newBit);
 
+        MeshAction toggleLayerBorder = new MeshAction(
+                "toggleLayerBorder",
+                "Show/Hide Layer Border",
+                "layer-border-toggle.png",
+                "Show or hide boundary of layer",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(toggleLayerBorder);
+
+        MeshAction toggleIrregularBit = new MeshAction(
+                "toggleIrregularBit",
+                "Show/Hide Irregular Bit",
+                "bit-irregular-toggle.png",
+                "Show or hide non realizable bits",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(toggleIrregularBit);
+
+        MeshAction toggleCutPaths = new MeshAction(
+                "toggleCutPaths",
+                "Show/Hide Cut Paths",
+                "bit-cutpath-toggle.png",
+                "Show or hide cut path of bit",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(toggleCutPaths);
+
+        MeshAction toggleLiftPoint = new MeshAction(
+                "toggleLiftPoints",
+                "Show/Hide Lift Points",
+                "bit-liftpoint-toggle.png",
+                "Show or hide lift point of bit",
+                ""
+        ) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        };
+        meshActionList.add(toggleLiftPoint);
+
         // Register to global listener
         meshActionList.forEach(meshAction -> {
             inputMap.put(meshAction.acceleratorKey, meshAction.uuid);
@@ -480,6 +565,7 @@ public class MeshWindow extends JFrame {
         fileMenu.add(newMesh);
         fileMenu.add(openMesh);
         fileMenu.add(saveMesh);
+        fileMenu.add(exportMeshXML);
         fileMenu.addSeparator();
         fileMenu.add(openPatternConfig);
         fileMenu.add(savePatternConfig);
@@ -501,6 +587,7 @@ public class MeshWindow extends JFrame {
         toolBar.add(newMesh);
         toolBar.add(openMesh);
         toolBar.add(saveMesh);
+        toolBar.add(exportMeshXML);
         toolBar.addSeparator();
         toolBar.add(sliceMesh);
         toolBar.add(paveMesh);
@@ -511,12 +598,18 @@ public class MeshWindow extends JFrame {
         toolBar.add(configure);
         toolBar.addSeparator();
         toolBar.add(view3D);
+        toolBar.addSeparator();
+        toolBar.addToggleButton(toggleLayerBorder);
+        toolBar.addToggleButton(toggleLiftPoint);
+        toolBar.addToggleButton(toggleCutPaths);
+        toolBar.addToggleButton(toggleIrregularBit);
 
         /* UtilitiesBox */
         utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));
         utilitiesBox.setFloatable(false);
         utilitiesBox.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
         utilitiesBox.add(paveLayer);
+        utilitiesBox.add(selectRegion);
         utilitiesBox.add(paveRegion);
         utilitiesBox.add(paveFill);
         utilitiesBox.add(optimizeLayer);
@@ -553,6 +646,10 @@ public class MeshWindow extends JFrame {
     private class MeshActionToolbar extends JToolBar {
         public void add(MeshAction a) {
             add(new ButtonIcon(a));
+        }
+
+        public void addToggleButton(MeshAction meshAction) {
+            add(new ToggleIcon(meshAction));
         }
     }
 }
