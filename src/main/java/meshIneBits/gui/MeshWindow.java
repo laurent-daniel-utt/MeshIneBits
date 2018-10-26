@@ -565,7 +565,6 @@ public class MeshWindow extends JFrame {
         fileMenu.add(newMesh);
         fileMenu.add(openMesh);
         fileMenu.add(saveMesh);
-        fileMenu.add(exportMeshXML);
         fileMenu.addSeparator();
         fileMenu.add(openPatternConfig);
         fileMenu.add(savePatternConfig);
@@ -587,11 +586,11 @@ public class MeshWindow extends JFrame {
         toolBar.add(newMesh);
         toolBar.add(openMesh);
         toolBar.add(saveMesh);
-        toolBar.add(exportMeshXML);
         toolBar.addSeparator();
         toolBar.add(sliceMesh);
         toolBar.add(paveMesh);
         toolBar.add(optimizeMesh);
+        toolBar.add(exportMeshXML);
         toolBar.addSeparator();
         toolBar.add(openPatternConfig);
         toolBar.add(savePatternConfig);
