@@ -55,8 +55,10 @@ public class MeshController implements Observer {
                 case READY:
                     break;
                 case IMPORTING:
+                    Logger.updateStatus("Importing model");
                     break;
                 case IMPORTED:
+                    Logger.updateStatus("Model imported. Mesh ready to slice.");
                     break;
                 case SLICING:
                     break;
@@ -134,11 +136,46 @@ public class MeshController implements Observer {
         (new Thread(meshXMLExporter)).start();
     }
 
-    private class MeshSaver extends Observable implements Runnable {
-        private final File file;
+    public void newMesh(File file) throws SimultaneousOperationsException {
+        if (mesh != null && mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        MeshCreator meshCreator = new MeshCreator(file);
+        meshCreator.addObserver(this);
+        (new Thread(meshCreator)).start();
+    }
 
-        MeshSaver(File file) {
+    private abstract class MeshOperator extends Observable implements Runnable {
+        final File file;
+
+        MeshOperator(File file) {
             this.file = file;
+        }
+    }
+
+    private class MeshCreator extends MeshOperator {
+
+        MeshCreator(File file) {
+            super(file);
+        }
+
+        @Override
+        public void run() {
+            mesh = new Mesh();
+            mesh.addObserver(MeshController.this);
+            setChanged();
+            notifyObservers(MeshEvents.READY);
+            String filename = file.toString();
+            try {
+                mesh.importModel(filename); // sync task
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class MeshSaver extends MeshOperator {
+        MeshSaver(File file) {
+            super(file);
         }
 
         @Override
@@ -157,12 +194,10 @@ public class MeshController implements Observer {
         }
     }
 
-    private class MeshOpener extends Observable implements Runnable {
-
-        private final File file;
+    private class MeshOpener extends MeshOperator {
 
         MeshOpener(File file) {
-            this.file = file;
+            super(file);
         }
 
         @Override
@@ -180,12 +215,10 @@ public class MeshController implements Observer {
         }
     }
 
-    private class MeshXMLExporter extends Observable implements Runnable {
-
-        private final File file;
+    private class MeshXMLExporter extends MeshOperator {
 
         MeshXMLExporter(File file) {
-            this.file = file;
+            super(file);
         }
 
         @Override

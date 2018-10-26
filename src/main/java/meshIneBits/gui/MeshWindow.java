@@ -163,7 +163,19 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO New mesh
+                final JFileChooser fc = new CustomFileChooser();
+                fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+                fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                int returnVal = fc.showOpenDialog(MeshWindow.this);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        meshController.newMesh(fc.getSelectedFile());
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        Logger.error("Failed to create new mesh. " + e1.getMessage());
+                    }
+                }
             }
         };
         meshActionList.add(newMesh);
@@ -181,7 +193,7 @@ public class MeshWindow extends JFrame {
                 String meshExt = CraftConfigLoader.MESH_EXTENSION;
                 fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
                 fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
-                int returnVal = fc.showOpenDialog(null);
+                int returnVal = fc.showOpenDialog(MeshWindow.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File f = fc.getSelectedFile();
                     try {
@@ -208,7 +220,7 @@ public class MeshWindow extends JFrame {
                 final JFileChooser fc = new CustomFileChooser();
                 String ext = CraftConfigLoader.MESH_EXTENSION;
                 fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-                if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
                     File f = fc.getSelectedFile();
                     if (!f.getName().endsWith("." + ext)) {
                         f = new File(f.getPath() + "." + ext);
@@ -375,7 +387,7 @@ public class MeshWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser fc = new CustomFileChooser();
                 fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-                int returnVal = fc.showSaveDialog(null);
+                int returnVal = fc.showSaveDialog(MeshWindow.this);
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     Logger.updateStatus("Exporting XML at " + fc.getSelectedFile().getName());
