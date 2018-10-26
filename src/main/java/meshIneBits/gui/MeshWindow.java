@@ -288,7 +288,7 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                System.exit(0);
             }
         };
         meshActionList.add(exit);
