@@ -42,7 +42,6 @@ public class MeshWindow extends JFrame {
     private JPanel core = new JPanel();
     private JPanel zoomer = new JPanel();
     private JPanel selector = new JPanel();
-    private StatusBar statusBar = new StatusBar();
 
     public MeshWindow() throws HeadlessException {
         this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
@@ -134,7 +133,7 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.weightx = 1;
         c.weighty = 0;
-        add(statusBar, c);
+        add(new StatusBar(), c);
 
         setVisible(true);
     }
