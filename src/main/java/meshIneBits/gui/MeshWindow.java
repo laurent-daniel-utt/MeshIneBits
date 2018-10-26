@@ -22,13 +22,20 @@
 
 package meshIneBits.gui;
 
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.ButtonIcon;
+import meshIneBits.gui.utilities.CustomFileChooser;
 import meshIneBits.gui.utilities.ToggleIcon;
+import meshIneBits.gui.view3d.ProcessingModelView;
+import meshIneBits.util.Logger;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.Vector;
 
 public class MeshWindow extends JFrame {
@@ -42,7 +49,9 @@ public class MeshWindow extends JFrame {
     private JPanel core = new JPanel();
     private JPanel zoomer = new JPanel();
     private JPanel selector = new JPanel();
-    private MeshController meshController = new MeshController();
+    private MeshController meshController = new MeshController(this);
+
+    private ProcessingModelView view3DWindow = new ProcessingModelView();
 
     public MeshWindow() throws HeadlessException {
         this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
@@ -167,8 +176,21 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Open mesh
-                System.out.println("Opening mesh");
+                final JFileChooser fc = new CustomFileChooser();
+                String meshExt = CraftConfigLoader.MESH_EXTENSION;
+                fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
+                fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                int returnVal = fc.showOpenDialog(null);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File f = fc.getSelectedFile();
+                    try {
+                        Logger.updateStatus("Opening the mesh " + f.getName());
+                        meshController.openMesh(f); // asynchronous task
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        Logger.error("Failed to load mesh. " + e1.getMessage());
+                    }
+                }
             }
         };
         meshActionList.add(openMesh);
@@ -624,7 +646,12 @@ public class MeshWindow extends JFrame {
 
     }
 
+    public ProcessingModelView getView3DWindow() {
+        return view3DWindow;
+    }
+
     private class MeshActionMenuItem extends JMenuItem {
+
         MeshActionMenuItem(Action a) {
             super(a);
             setMargin(new Insets(1, 1, 1, 2));

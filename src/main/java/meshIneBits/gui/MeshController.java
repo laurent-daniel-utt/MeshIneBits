@@ -24,6 +24,7 @@ package meshIneBits.gui;
 
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
+import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 
 import java.io.*;
@@ -35,7 +36,12 @@ import java.util.Observer;
  */
 public class MeshController implements Observer {
 
+    private final MeshWindow meshWindow;
     private Mesh mesh;
+
+    MeshController(MeshWindow meshWindow) {
+        this.meshWindow = meshWindow;
+    }
 
     public void setMesh(Mesh mesh) {
         this.mesh = mesh;
@@ -72,8 +78,10 @@ public class MeshController implements Observer {
                 case GLUED:
                     break;
                 case OPENED:
+                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
                     break;
                 case OPEN_FAILED:
+                    Logger.error("Failed to open the mesh");
                     break;
                 case SAVED:
                     break;

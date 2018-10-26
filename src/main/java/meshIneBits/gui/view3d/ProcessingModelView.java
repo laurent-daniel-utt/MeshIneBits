@@ -736,6 +736,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     @Override
     public void setCurrentMesh(Mesh mesh) {
         controller.setMesh(mesh);
+        model = mesh.getModel();
+        controller.setModel(model);
     }
 
     public void setModel(Model m) {
