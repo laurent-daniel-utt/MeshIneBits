@@ -86,6 +86,7 @@ public class MeshController implements Observer {
                 case SAVED:
                     break;
                 case SAVE_FAILED:
+                    Logger.error("Failed to save the mesh");
                     break;
             }
     }

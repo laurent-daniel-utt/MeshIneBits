@@ -204,7 +204,22 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                final JFileChooser fc = new CustomFileChooser();
+                String ext = CraftConfigLoader.MESH_EXTENSION;
+                fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+                if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    File f = fc.getSelectedFile();
+                    if (!f.getName().endsWith("." + ext)) {
+                        f = new File(f.getPath() + "." + ext);
+                    }
+                    try {
+                        Logger.updateStatus("Saving the mesh at " + f.getName());
+                        meshController.saveMesh(f);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        Logger.error("Failed to save mesh. " + e1.getMessage());
+                    }
+                }
             }
         };
         meshActionList.add(saveMesh);
