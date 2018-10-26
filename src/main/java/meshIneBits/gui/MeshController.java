@@ -100,7 +100,7 @@ public class MeshController implements Observer {
      * @param file location of saved mesh
      */
     void openMesh(File file) throws SimultaneousOperationsException {
-        if (mesh.getState().isWorking())
+        if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
@@ -112,7 +112,9 @@ public class MeshController implements Observer {
      *
      * @param file location to save
      */
-    void saveMesh(File file) throws SimultaneousOperationsException {
+    void saveMesh(File file) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshSaver meshSaver = new MeshSaver(file);
@@ -121,6 +123,8 @@ public class MeshController implements Observer {
     }
 
     public void exportXML(File file) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         if (mesh.getState().getCode() < MeshEvents.PAVED_MESH.getCode())
