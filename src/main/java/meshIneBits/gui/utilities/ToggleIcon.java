@@ -26,13 +26,12 @@ import meshIneBits.gui.MeshAction;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import java.awt.event.MouseEvent;
 
 public class ToggleIcon extends JToggleButton {
     private boolean on = false;
-    private final Border offBorder = new EmptyBorder(3, 3, 3, 3);
-    private final Border onBorder = BorderFactory.createRaisedBevelBorder();
+    private final Border onBorder = BorderFactory.createLoweredBevelBorder();
+    private final Border offBorder = BorderFactory.createRaisedBevelBorder();
 
     public ToggleIcon(MeshAction meshAction) {
         super(meshAction);
