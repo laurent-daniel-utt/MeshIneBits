@@ -372,7 +372,18 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                final JFileChooser fc = new CustomFileChooser();
+                fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+                int returnVal = fc.showSaveDialog(null);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    Logger.updateStatus("Exporting XML at " + fc.getSelectedFile().getName());
+                    try {
+                        meshController.exportXML(fc.getSelectedFile()); // async task
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         };
         meshActionList.add(exportMeshXML);

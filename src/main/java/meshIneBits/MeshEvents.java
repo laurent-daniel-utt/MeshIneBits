@@ -41,7 +41,8 @@ public enum MeshEvents implements Serializable {
     OPENED(false, 1),
     OPEN_FAILED(false, 2),
     SAVED(false, 50),
-    SAVE_FAILED(false, 51);
+    SAVE_FAILED(false, 51),
+    EXPORTED(false, 900);
 
     private boolean working;
     /**

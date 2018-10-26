@@ -26,6 +26,7 @@ import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
+import meshIneBits.util.XmlTool;
 
 import java.io.*;
 import java.util.Observable;
@@ -88,6 +89,8 @@ public class MeshController implements Observer {
                 case SAVE_FAILED:
                     Logger.error("Failed to save the mesh");
                     break;
+                case EXPORTED:
+                    break;
             }
     }
 
@@ -115,6 +118,16 @@ public class MeshController implements Observer {
         MeshSaver meshSaver = new MeshSaver(file);
         meshSaver.addObserver(this);
         (new Thread(meshSaver)).start();
+    }
+
+    public void exportXML(File file) throws Exception {
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        if (mesh.getState().getCode() < MeshEvents.PAVED_MESH.getCode())
+            throw new Exception("Mesh unpaved");
+        MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
+        meshXMLExporter.addObserver(this);
+        (new Thread(meshXMLExporter)).start();
     }
 
     private class MeshSaver extends Observable implements Runnable {
@@ -160,6 +173,23 @@ public class MeshController implements Observer {
                 setChanged();
                 notifyObservers(MeshEvents.OPEN_FAILED);
             }
+        }
+    }
+
+    private class MeshXMLExporter extends Observable implements Runnable {
+
+        private final File file;
+
+        MeshXMLExporter(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            XmlTool xt = new XmlTool(mesh, file.toPath());
+            xt.writeXmlCode();
+            setChanged();
+            notifyObservers(MeshEvents.EXPORTED);
         }
     }
 }
