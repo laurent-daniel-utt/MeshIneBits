@@ -49,9 +49,9 @@ public class MeshWindow extends JFrame {
     private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
     private Vector<MeshAction> meshActionList = new Vector<>();
     private JPanel utilityParametersPanel = new JPanel();
-    private JPanel core = new JPanel();
-    private JPanel zoomer = new JPanel();
-    private JPanel selector = new JPanel();
+    private JPanel core = new MeshWindowCore();
+    private JPanel zoomer = new MeshWindowZoomer();
+    private JPanel selector = new MeshWindowSliceSelector();
     private MeshController meshController = new MeshController(this);
 
     private ProcessingModelView view3DWindow = new ProcessingModelView();
@@ -715,7 +715,7 @@ public class MeshWindow extends JFrame {
 
     }
 
-    public ProcessingModelView getView3DWindow() {
+    ProcessingModelView getView3DWindow() {
         return view3DWindow;
     }
 
@@ -746,5 +746,11 @@ public class MeshWindow extends JFrame {
         public void addToggleButton(MeshAction meshAction) {
             add(new ToggleIcon(meshAction));
         }
+    }
+
+    private class MeshWindowZoomer extends JPanel {
+    }
+
+    private class MeshWindowSliceSelector extends JPanel {
     }
 }
