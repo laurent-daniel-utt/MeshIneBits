@@ -24,6 +24,7 @@ package meshIneBits.gui;
 
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
+import meshIneBits.gui.utilities.AboutDialogWindow;
 import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
 import meshIneBits.gui.utilities.ToggleIcon;
@@ -316,7 +317,7 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                new AboutDialogWindow(null, "About MeshIneBits", true);
             }
         };
         meshActionList.add(about);
@@ -629,7 +630,7 @@ public class MeshWindow extends JFrame {
         fileMenu.addSeparator();
 //        fileMenu.add(openPatternConfig);
 //        fileMenu.add(savePatternConfig);
-        fileMenu.addSeparator();
+//        fileMenu.addSeparator();
         fileMenu.add(configure);
         fileMenu.addSeparator();
         fileMenu.add(exit);

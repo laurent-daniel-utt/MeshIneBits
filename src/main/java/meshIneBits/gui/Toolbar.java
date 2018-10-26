@@ -38,8 +38,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -333,65 +331,6 @@ class Toolbar extends JTabbedPane implements Observer {
                         public void mouseReleased(MouseEvent e) {
                         }
                     });
-                }
-            }
-
-            private class AboutDialogWindow extends JDialog {
-                private static final long serialVersionUID = -3389839563563221684L;
-
-                AboutDialogWindow(JFrame parent, String title, boolean modal) {
-                    super(parent, title, modal);
-
-                    // Visual options
-                    Image windowIcon = new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/icon.png")))
-                            .getImage();
-                    this.setIconImage(windowIcon);
-                    this.setSize(350, 160);
-                    this.setLocationRelativeTo(null);
-                    this.setResizable(false);
-
-                    // Setting up the dialog
-                    JPanel jp = new JPanel();
-                    jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
-
-                    JLabel bg = new JLabel("");
-                    ImageIcon icon = new ImageIcon(
-                            new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/MeshIneBits.png")))
-                                    .getImage().getScaledInstance(248, 42, Image.SCALE_SMOOTH));
-                    bg.setIcon(icon);
-                    bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
-                    bg.setForeground(new Color(0, 0, 0, 8));
-                    bg.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                    JLabel copyrightLabel = new JLabel("Copyright© 2016 Thibault Cassard & Nicolas Gouju.");
-                    copyrightLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                    JButton helpFileBtn = new JButton("Open help file (PDF format)");
-                    helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                    jp.add(new JLabel(" "));
-                    jp.add(bg);
-                    jp.add(copyrightLabel);
-                    jp.add(new JLabel(" "));
-                    jp.add(helpFileBtn);
-                    AboutDialogWindow.this.getContentPane().add(jp, BorderLayout.CENTER);
-
-                    // Actions listener
-                    helpFileBtn.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            AboutDialogWindow.this.dispose();
-                            Desktop dt = Desktop.getDesktop();
-                            try {
-                                dt.open(new File(
-                                        Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/help.pdf")).getPath()));
-                            } catch (IOException e1) {
-                                Logger.error("Failed to load help file");
-                            }
-                        }
-                    });
-
-                    this.setVisible(true);
                 }
             }
 
