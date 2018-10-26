@@ -97,9 +97,9 @@ public class MeshController implements Observer {
      * @param file location of saved mesh
      */
     void openMesh(File file) throws SimultaneousOperationsException {
-        MeshOpener meshOpener = new MeshOpener(file);
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
         (new Thread(meshOpener)).start();
     }
@@ -110,9 +110,9 @@ public class MeshController implements Observer {
      * @param file location to save
      */
     void saveMesh(File file) throws SimultaneousOperationsException {
-        MeshSaver meshSaver = new MeshSaver(file);
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        MeshSaver meshSaver = new MeshSaver(file);
         meshSaver.addObserver(this);
         (new Thread(meshSaver)).start();
     }
