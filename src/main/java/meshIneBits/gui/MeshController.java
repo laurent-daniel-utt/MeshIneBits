@@ -59,6 +59,7 @@ public class MeshController implements Observer {
                     break;
                 case IMPORTED:
                     Logger.updateStatus("Model imported. Mesh ready to slice.");
+                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
                     break;
                 case SLICING:
                     break;

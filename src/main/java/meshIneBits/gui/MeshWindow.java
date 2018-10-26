@@ -355,7 +355,7 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                view3DWindow.toggle();
             }
         };
         meshActionList.add(view3D);
