@@ -125,7 +125,7 @@ public class MeshController implements Observer {
         (new Thread(meshSaver)).start();
     }
 
-    public void exportXML(File file) throws Exception {
+    void exportXML(File file) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
@@ -137,7 +137,7 @@ public class MeshController implements Observer {
         (new Thread(meshXMLExporter)).start();
     }
 
-    public void newMesh(File file) throws SimultaneousOperationsException {
+    void newMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshCreator meshCreator = new MeshCreator(file);
@@ -145,11 +145,27 @@ public class MeshController implements Observer {
         (new Thread(meshCreator)).start();
     }
 
+    void sliceMesh() throws Exception {
+        if (mesh == null) throw new Exception("Mesh not found");
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        MeshSlicer meshSlicer = new MeshSlicer();
+        meshSlicer.addObserver(this);
+        (new Thread(meshSlicer)).start();
+    }
+
+    /**
+     * Convenient class to run async tasks
+     */
     private abstract class MeshOperator extends Observable implements Runnable {
         final File file;
 
         MeshOperator(File file) {
             this.file = file;
+        }
+
+        MeshOperator() {
+            file = null;
         }
     }
 
@@ -165,11 +181,29 @@ public class MeshController implements Observer {
             mesh.addObserver(MeshController.this);
             setChanged();
             notifyObservers(MeshEvents.READY);
+            assert file != null;
             String filename = file.toString();
             try {
                 mesh.importModel(filename); // sync task
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private class MeshSlicer extends MeshOperator {
+
+        MeshSlicer() {
+            super();
+        }
+
+        @Override
+        public void run() {
+            try {
+                mesh.slice();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Logger.error("Unable to slice mesh. " + e.getMessage());
             }
         }
     }
@@ -181,6 +215,7 @@ public class MeshController implements Observer {
 
         @Override
         public void run() {
+            assert file != null;
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
                 oos.writeObject(mesh);
                 oos.flush();
@@ -203,6 +238,7 @@ public class MeshController implements Observer {
 
         @Override
         public void run() {
+            assert file != null;
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 setMesh((Mesh) ois.readObject());
                 // notify main window
@@ -224,6 +260,7 @@ public class MeshController implements Observer {
 
         @Override
         public void run() {
+            assert file != null;
             XmlTool xt = new XmlTool(mesh, file.toPath());
             xt.writeXmlCode();
             setChanged();

@@ -369,7 +369,12 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                try {
+                    meshController.sliceMesh();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    Logger.error("Failed to slice mesh. " + e1.getMessage());
+                }
             }
         };
         meshActionList.add(sliceMesh);
