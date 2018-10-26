@@ -20,45 +20,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits;
+package meshIneBits.util;
 
-import java.io.Serializable;
+import meshIneBits.Mesh;
 
-public enum MeshEvents implements Serializable {
-    READY(false, 0),
-    IMPORTING(true, 100),
-    IMPORTED(false, 101),
-    SLICING(true, 200),
-    SLICED(false, 201),
-    PAVING_MESH(true, 300),
-    PAVED_MESH(false, 301),
-    OPTIMIZING_LAYER(true, 400),
-    OPTIMIZED_LAYER(false, 401),
-    OPTIMIZING_MESH(true, 500),
-    OPTIMIZED_MESH(false, 501),
-    GLUING(true, 600),
-    GLUED(false, 601),
-    OPENED(false, 1),
-    OPEN_FAILED(false, 2),
-    SAVED(false, 50),
-    SAVE_FAILED(false, 51);
-
-    private boolean working;
-    /**
-     * Indicate the state in workflow
-     */
-    private int code;
-
-    MeshEvents(boolean working, int code) {
-        this.working = working;
-        this.code = code;
-    }
-
-    public boolean isWorking() {
-        return working;
-    }
-
-    public int getCode() {
-        return code;
+public class SimultaneousOperationsException extends Exception {
+    public SimultaneousOperationsException(Mesh mesh) {
+        super("The mesh is undergoing an other task. " + mesh.getState()
+                + ". Please wait until that task is done.");
     }
 }

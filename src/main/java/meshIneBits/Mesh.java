@@ -87,7 +87,7 @@ public class Mesh extends Observable implements Observer, Serializable {
      * @throws Exception when an other action is currently executing
      */
     public void importModel(String filepath) throws Exception {
-        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
 
         setState(MeshEvents.IMPORTING);
         this.model = new Model(filepath);
@@ -107,7 +107,7 @@ public class Mesh extends Observable implements Observer, Serializable {
      * @throws Exception when an other action is currently executing
      */
     public void slice() throws Exception {
-        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
 
         setState(MeshEvents.SLICING);
         // clean before executing
@@ -150,7 +150,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     // TODO parallel pavement
 
     private void pavementSafetyCheck() throws Exception {
-        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
         if (!isSliced())
             throw new Exception("The mesh cannot be paved until it is sliced");
     }
@@ -189,7 +189,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     private void optimizationSafetyCheck() throws Exception {
-        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
         if (!isPaved())
             throw new Exception("The mesh cannot be auto optimized until it is fully paved.");
     }
@@ -345,6 +345,10 @@ public class Mesh extends Observable implements Observer, Serializable {
         return optimizer;
     }
 
+    public MeshEvents getState() {
+        return state;
+    }
+
     /**
      * In charge of paving one or multiple layers
      *
@@ -456,9 +460,4 @@ public class Mesh extends Observable implements Observer, Serializable {
         }
     }
 
-    private class SimultaneousOperationsException extends Exception {
-        SimultaneousOperationsException() {
-            super("The mesh is undergoing an other task. " + state + ". Please wait until that task is done.");
-        }
-    }
 }

@@ -42,6 +42,7 @@ public class MeshWindow extends JFrame {
     private JPanel core = new JPanel();
     private JPanel zoomer = new JPanel();
     private JPanel selector = new JPanel();
+    private MeshController meshController = new MeshController();
 
     public MeshWindow() throws HeadlessException {
         this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
