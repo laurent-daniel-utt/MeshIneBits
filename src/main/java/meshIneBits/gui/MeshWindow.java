@@ -37,6 +37,8 @@ import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Vector;
 
 public class MeshWindow extends JFrame {
@@ -315,7 +317,17 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                Desktop dt = Desktop.getDesktop();
+                try {
+                    dt.open(new File(
+                            Objects.requireNonNull(
+                                    MeshWindow.this.getClass()
+                                            .getClassLoader()
+                                            .getResource("resources/help.pdf"))
+                                    .getPath()));
+                } catch (IOException e1) {
+                    Logger.error("Failed to load help file");
+                }
             }
         };
         meshActionList.add(manual);
@@ -329,7 +341,7 @@ public class MeshWindow extends JFrame {
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AboutDialogWindow(null, "About MeshIneBits", true);
+                new AboutDialogWindow(MeshWindow.this, "About MeshIneBits", true);
             }
         };
         meshActionList.add(about);
