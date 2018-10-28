@@ -325,7 +325,7 @@ class Controller extends Observable implements Observer {
     }
 
     void incrementBitsOrientationParamBy(double notches) {
-        newBitsOrientationParam.incrementBy(notches);
+        newBitsOrientationParam.incrementBy(notches, true);
         setChanged();
         notifyObservers();
     }

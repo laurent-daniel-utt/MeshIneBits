@@ -22,12 +22,13 @@
 
 package meshIneBits.gui;
 
+import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.AboutDialogWindow;
-import meshIneBits.gui.utilities.ButtonIcon;
 import meshIneBits.gui.utilities.CustomFileChooser;
-import meshIneBits.gui.utilities.ToggleIcon;
+import meshIneBits.gui.utilities.MeshActionMenu;
+import meshIneBits.gui.utilities.MeshActionToolbar;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.util.Logger;
 
@@ -43,15 +44,16 @@ import java.util.Vector;
 
 public class MeshWindow extends JFrame {
 
+    private final GridBagConstraints selectorGBC;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
     private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
     private Vector<MeshAction> meshActionList = new Vector<>();
     private JPanel utilityParametersPanel = new JPanel();
-    private JPanel core = new MeshWindowCore();
-    private JPanel zoomer = new MeshWindowZoomer();
-    private JPanel selector = new MeshWindowSliceSelector();
+    private JPanel core;
+    private MeshWindowZoomer zoomer;
+    private JPanel selector = new JPanel();
     private MeshController meshController = new MeshController(this);
 
     private ProcessingModelView view3DWindow = new ProcessingModelView();
@@ -119,16 +121,18 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.weightx = 1;
         c.weighty = 1;
+        core = new MeshWindowCore(meshController, this);
         add(core, c);
 
         // Selector
-        c.gridx = 2;
-        c.gridy = 2;
-        c.gridwidth = 1;
-        c.gridheight = 1;
-        c.weightx = 0;
-        c.weighty = 1;
-        add(selector, c);
+        selectorGBC = new GridBagConstraints();
+        selectorGBC.gridx = 2;
+        selectorGBC.gridy = 2;
+        selectorGBC.gridwidth = 1;
+        selectorGBC.gridheight = 1;
+        selectorGBC.weightx = 0;
+        selectorGBC.weighty = 1;
+        add(selector, selectorGBC);
 
         // Zoomer
         c.gridx = 1;
@@ -137,6 +141,7 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.weightx = 1;
         c.weighty = 0;
+        zoomer = new MeshWindowZoomer(meshController);
         add(zoomer, c);
 
         // Status bar
@@ -719,38 +724,24 @@ public class MeshWindow extends JFrame {
         return view3DWindow;
     }
 
-    private class MeshActionMenuItem extends JMenuItem {
+    /**
+     * When {@link Mesh} is {@link meshIneBits.MeshEvents#SLICED} but still not
+     * {@link meshIneBits.MeshEvents#PAVED_MESH}
+     */
+    void initSliceView() {
+        // Init zoomer
+        // Show
+        zoomer.setVisible(true);
 
-        MeshActionMenuItem(Action a) {
-            super(a);
-            setMargin(new Insets(1, 1, 1, 2));
-        }
-    }
-
-    private class MeshActionMenu extends JMenu {
-        MeshActionMenu(String name) {
-            super(name);
-        }
-
-        @Override
-        public JMenuItem add(Action a) {
-            return super.add(new MeshActionMenuItem(a));
-        }
-    }
-
-    private class MeshActionToolbar extends JToolBar {
-        public void add(MeshAction a) {
-            add(new ButtonIcon(a));
+        // Init slice selector
+        if (!(selector instanceof MeshWindowSliceSelector) // Null or not slice selector
+                || !((MeshWindowSliceSelector) selector).getMesh().equals(meshController.getMesh())) // Not point to same mesh
+        {
+            selector = new MeshWindowSliceSelector(meshController);
+            add(selector, selectorGBC);
         }
 
-        public void addToggleButton(MeshAction meshAction) {
-            add(new ToggleIcon(meshAction));
-        }
-    }
-
-    private class MeshWindowZoomer extends JPanel {
-    }
-
-    private class MeshWindowSliceSelector extends JPanel {
+        // Init core
+        // Controller will handle initialisation of core
     }
 }

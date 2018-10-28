@@ -22,9 +22,46 @@
 
 package meshIneBits.config;
 
+import java.awt.*;
+
 public class WorkspaceConfig {
     /**
      * Increase rotation when scrolling mouse wheel
      */
-    public static final int rotationSpeed = 5;
+    public static int rotationSpeed = 5;
+    /**
+     * Faster/Slower zooming. <tt>1</tt> means to never zoom
+     */
+    public static double zoomSpeed = 1.25;
+    /**
+     * Slice boundary
+     */
+    public static Color sliceColor = Color.BLACK;
+    /**
+     * Previous layer
+     */
+    public static Color previousLayerColor = Color.DARK_GRAY;
+    public static Stroke sliceStroke = new BasicStroke(1.0f);
+    /**
+     * Realisable bit
+     */
+    public static Color regularBitColor = new Color(164, 180, 200, 200);
+    /**
+     * Irrealisable bit
+     */
+    public static Color irregularBitColor = new Color(255, 0, 0, 100);
+    public static Color cutpathColor = Color.BLUE.darker();
+    public static Stroke cutpathStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+    public static Color liftpointColor = Color.RED;
+    public static Stroke liftpointStroke = new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+    public static Color layerBorderColor = Color.RED;
+    public static Stroke layerBorderStroke = new BasicStroke(1.0f);
+    public static Color bitControlColor = new Color(94, 125, 215);
+    public static int paddingBitControl = 15;
+    public static Color bitPreviewBorderColor = Color.BLUE.darker();
+    public static Stroke bitPreviewBorderStroke = new BasicStroke(1.1f);
+    public static Color bitPreviewColor = new Color(164, 180, 200, 100);
+    public static Color irregularBitPreviewBorderColor = Color.RED.darker();
+    public static Stroke irregularBitPreviewBorderStroke = new BasicStroke(1.1f);
+    public static Color irregularBitPreviewColor = new Color(250, 0, 100, 100);
 }
