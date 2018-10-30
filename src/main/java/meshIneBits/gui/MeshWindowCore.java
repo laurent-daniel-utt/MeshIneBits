@@ -265,6 +265,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         requestFocusInWindow();
 
+
         setDefaultZoom();
         updateDrawScale();
 

@@ -25,10 +25,7 @@ package meshIneBits.gui;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
-import meshIneBits.gui.utilities.AboutDialogWindow;
-import meshIneBits.gui.utilities.CustomFileChooser;
-import meshIneBits.gui.utilities.MeshActionMenu;
-import meshIneBits.gui.utilities.MeshActionToolbar;
+import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.util.Logger;
 
@@ -45,12 +42,13 @@ import java.util.Vector;
 public class MeshWindow extends JFrame {
 
     private final GridBagConstraints selectorGBC;
+    private final GridBagConstraints utilityParametersPanelGBC;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
     private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
     private Vector<MeshAction> meshActionList = new Vector<>();
-    private JPanel utilityParametersPanel = new JPanel();
+    private UtilityParametersPanel utilityParametersPanel;
     private JPanel core;
     private MeshWindowZoomer zoomer;
     private JPanel selector = new JPanel();
@@ -106,13 +104,14 @@ public class MeshWindow extends JFrame {
         add(utilitiesBox, c);
 
         // Utility parameter panel
-        c.gridx = 1;
-        c.gridy = 1;
-        c.gridheight = 1;
-        c.gridwidth = 2;
-        c.weightx = 1;
-        c.weighty = 0;
-        add(utilityParametersPanel, c);
+        utilityParametersPanelGBC = new GridBagConstraints();
+        utilityParametersPanelGBC.fill = GridBagConstraints.HORIZONTAL;
+        utilityParametersPanelGBC.gridx = 1;
+        utilityParametersPanelGBC.gridy = 1;
+        utilityParametersPanelGBC.gridheight = 1;
+        utilityParametersPanelGBC.gridwidth = 2;
+        utilityParametersPanelGBC.weightx = 1;
+        utilityParametersPanelGBC.weighty = 0;
 
         // Core
         c.gridx = 1;
@@ -157,7 +156,7 @@ public class MeshWindow extends JFrame {
     }
 
     private void init() {
-        InputMap inputMap = this.getRootPane().getInputMap();
+        InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
 
         /* Actions */
@@ -356,7 +355,7 @@ public class MeshWindow extends JFrame {
                 "3D View",
                 "view-3D.png",
                 "Open the 3D view of mesh",
-                ""
+                "alt 3"
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -370,7 +369,7 @@ public class MeshWindow extends JFrame {
                 "Slice Mesh",
                 "mesh-slice.png",
                 "Slice the mesh",
-                ""
+                "alt S"
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -388,12 +387,17 @@ public class MeshWindow extends JFrame {
                 "paveMesh",
                 "Pave Mesh",
                 "mesh-pave.png",
-                "Pave the whole mesh with an unique pattern",
-                ""
+                "Pave the whole mesh with a pattern",
+                "alt P"
         ) {
+            UPPPaveMesh uppPaveMesh = new UPPPaveMesh(meshController);
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                // Check validity
+                if (meshController.getMesh() == null
+                        || !meshController.getMesh().isSliced()) return;
+                toggleUtilityParametersPanel(uppPaveMesh);
             }
         };
         meshActionList.add(paveMesh);
@@ -718,6 +722,19 @@ public class MeshWindow extends JFrame {
         utilitiesBox.add(deleteBit);
         utilitiesBox.add(restoreBit);
 
+    }
+
+    private void toggleUtilityParametersPanel(UtilityParametersPanel newUPP) {
+        if (newUPP == utilityParametersPanel)
+            utilityParametersPanel.setVisible(!utilityParametersPanel.isVisible());
+        else {
+            if (utilityParametersPanel != null)
+                remove(utilityParametersPanel);
+            utilityParametersPanel = newUPP;
+            add(utilityParametersPanel, utilityParametersPanelGBC);
+        }
+        revalidate();
+        repaint();
     }
 
     ProcessingModelView getView3DWindow() {

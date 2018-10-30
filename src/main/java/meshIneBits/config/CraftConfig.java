@@ -106,6 +106,21 @@ public class CraftConfig {
             new EconomicPattern(),
             new UnitSquarePattern()
     };
+
+    /**
+     * @return new instance of each pattern builder
+     */
+    public static PatternTemplate[] clonePreloadedPatterns() {
+        PatternTemplate[] patternsList = new PatternTemplate[CraftConfig.templatesPreloaded.length];
+        for (int i = 0; i < CraftConfig.templatesPreloaded.length; i++) {
+            try {
+                patternsList[i] = CraftConfig.templatesPreloaded[i].getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return patternsList;
+    }
     /**
      * Includes the provided templates and added lately ones
      */
