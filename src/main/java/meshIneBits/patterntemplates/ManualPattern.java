@@ -76,7 +76,7 @@ public class ManualPattern extends PatternTemplate {
      * @return the full name of icon representation the template
      */
     public String getIconName() {
-        return "default-template-icon.png";
+        return "pattern-manual.png";
     }
 
     /**

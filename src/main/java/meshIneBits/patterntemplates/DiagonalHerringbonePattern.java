@@ -105,7 +105,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p2.png";
+        return "pattern-diagonal-herringbone.png";
     }
 
     @Override

@@ -95,7 +95,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p1.png";
+        return "pattern-classic-brick.png";
     }
 
     @Override

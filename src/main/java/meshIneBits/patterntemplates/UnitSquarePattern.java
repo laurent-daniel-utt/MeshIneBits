@@ -218,7 +218,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p5.png";
+        return "pattern-unit-square.png";
     }
 
     @Override

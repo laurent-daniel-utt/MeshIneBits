@@ -138,7 +138,7 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
      * @return the full name of icon representation the template
      */
     public String getIconName() {
-        return "default-template-icon.png";
+        return "pattern-default.png";
     }
 
     /**

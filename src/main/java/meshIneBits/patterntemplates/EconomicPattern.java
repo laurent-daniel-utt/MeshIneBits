@@ -533,7 +533,7 @@ public class EconomicPattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p4.png";
+        return "pattern-economic.png";
     }
 
     @Override
