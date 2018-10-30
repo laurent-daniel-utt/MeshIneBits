@@ -26,6 +26,7 @@ import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.*;
 
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  * Observes the {@link Mesh}. Observed by {@link MeshWindowCore}. Controls
  * {@link MeshWindowCore} and {@link MeshWindow}.
  */
+@SuppressWarnings("WeakerAccess")
 public class MeshController extends Observable implements Observer {
 
     // New bit config
@@ -138,7 +140,7 @@ public class MeshController extends Observable implements Observer {
                                 safeguardSpaceParam.getCurrentValue())));
     }
 
-    void reset() {
+    public void reset() {
         setSelectedBitKeys(null);
         setAddingBits(false);
     }
@@ -202,7 +204,7 @@ public class MeshController extends Observable implements Observer {
      *
      * @param file location of saved mesh
      */
-    void openMesh(File file) throws SimultaneousOperationsException {
+    public void openMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshOpener meshOpener = new MeshOpener(file);
@@ -215,7 +217,7 @@ public class MeshController extends Observable implements Observer {
      *
      * @param file location to save
      */
-    void saveMesh(File file) throws Exception {
+    public void saveMesh(File file) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
@@ -225,7 +227,7 @@ public class MeshController extends Observable implements Observer {
         (new Thread(meshSaver)).start();
     }
 
-    void exportXML(File file) throws Exception {
+    public void exportXML(File file) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
@@ -237,7 +239,7 @@ public class MeshController extends Observable implements Observer {
         (new Thread(meshXMLExporter)).start();
     }
 
-    void newMesh(File file) throws SimultaneousOperationsException {
+    public void newMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshCreator meshCreator = new MeshCreator(file);
@@ -245,7 +247,7 @@ public class MeshController extends Observable implements Observer {
         (new Thread(meshCreator)).start();
     }
 
-    void sliceMesh() throws Exception {
+    public void sliceMesh() throws Exception {
         if (mesh == null) throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
@@ -254,7 +256,11 @@ public class MeshController extends Observable implements Observer {
         (new Thread(meshSlicer)).start();
     }
 
-    void deleteSelectedBits() {
+    public void paveMesh(PatternTemplate patternTemplate) {
+        // TODO
+    }
+
+    public void deleteSelectedBits() {
         currentLayer.removeBits(selectedBitKeys, false);
         selectedBitKeys.clear();
         currentLayer.rebuild();
@@ -274,7 +280,7 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    int getSliceNumber() {
+    public int getSliceNumber() {
         return sliceNumber;
     }
 
@@ -282,19 +288,19 @@ public class MeshController extends Observable implements Observer {
         return addingBits;
     }
 
-    void setAddingBits(boolean b) {
+    public void setAddingBits(boolean b) {
         this.addingBits = b;
         setChanged();
         notifyObservers();
     }
 
-    void incrementBitsOrientationParamBy(double v) {
+    public void incrementBitsOrientationParamBy(double v) {
         newBitsOrientationParam.incrementBy(v, true);
         setChanged();
         notifyObservers();
     }
 
-    Set<Vector2> getSelectedBitKeys() {
+    public Set<Vector2> getSelectedBitKeys() {
         return selectedBitKeys;
     }
 
@@ -303,7 +309,7 @@ public class MeshController extends Observable implements Observer {
      *
      * @param newSelectedBitKeys <tt>null</tt> to reset to empty
      */
-    void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
+    public void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
         selectedBitKeys.clear();
         if (newSelectedBitKeys != null) {
             selectedBitKeys.addAll(newSelectedBitKeys);
@@ -314,80 +320,80 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    void rotateSelectedBitsBy(double v) {
+    public void rotateSelectedBitsBy(double v) {
         setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, v));
     }
 
-    Layer getCurrentLayer() {
+    public Layer getCurrentLayer() {
         return currentLayer;
     }
 
-    Slice getCurrentSlice() {
+    public Slice getCurrentSlice() {
         return mesh.getSlices().get(sliceNumber);
     }
 
-    boolean showingPreviousLayer() {
+    public boolean showingPreviousLayer() {
         return showPreviousLayer;
     }
 
-    boolean showingIrregularBits() {
+    public boolean showingIrregularBits() {
         return showIrregularBits;
     }
 
-    boolean showingCutPaths() {
+    public boolean showingCutPaths() {
         return showCutPaths;
     }
 
-    boolean showingLiftPoints() {
+    public boolean showingLiftPoints() {
         return showLiftPoints;
     }
 
-    boolean showingSlice() {
+    public boolean showingSlice() {
         return showSlice;
     }
 
-    void toggleShowCutPaths(boolean selected) {
+    public void toggleShowCutPaths(boolean selected) {
         this.showCutPaths = selected;
 
         setChanged();
         notifyObservers();
     }
 
-    void toggleShowLiftPoints(boolean selected) {
+    public void toggleShowLiftPoints(boolean selected) {
         this.showLiftPoints = selected;
 
         setChanged();
         notifyObservers();
     }
 
-    void toggleShowPreviousLayer(boolean selected) {
+    public void toggleShowPreviousLayer(boolean selected) {
         this.showPreviousLayer = selected;
 
         setChanged();
         notifyObservers();
     }
 
-    void toggleShowSlice(boolean selected) {
+    public void toggleShowSlice(boolean selected) {
         this.showSlice = selected;
 
         setChanged();
         notifyObservers();
     }
 
-    void toggleShowIrregularBits(boolean selected) {
+    public void toggleShowIrregularBits(boolean selected) {
         this.showIrregularBits = selected;
 
         setChanged();
         notifyObservers();
     }
 
-    Set<Bit3D> getSelectedBits() {
+    public Set<Bit3D> getSelectedBits() {
         return selectedBitKeys.stream()
                 .map(currentLayer::getBit3D)
                 .collect(Collectors.toSet());
     }
 
-    Area getAvailableBitAreaAt(Point2D.Double spot) {
+    public Area getAvailableBitAreaAt(Point2D.Double spot) {
         Rectangle2D.Double r = new Rectangle2D.Double(
                 -CraftConfig.bitLength / 2,
                 -CraftConfig.bitWidth / 2,
@@ -411,7 +417,7 @@ public class MeshController extends Observable implements Observer {
     /**
      * @param position real position (not zoomed or translated)
      */
-    void addNewBitAt(Point2D.Double position) {
+    public void addNewBitAt(Point2D.Double position) {
         if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
             return;
         realToPavement.transform(position, position);
@@ -431,7 +437,7 @@ public class MeshController extends Observable implements Observer {
      * @param position real position (not zoomed or translated)
      * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
      */
-    Vector2 findBitAt(Point2D.Double position) {
+    public Vector2 findBitAt(Point2D.Double position) {
         realToPavement.transform(position, position);
         Pavement flatPavement = currentLayer.getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
@@ -447,7 +453,7 @@ public class MeshController extends Observable implements Observer {
      *
      * @param bitKey in layer's coordinate system
      */
-    void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
+    public void addOrRemoveSelectedBitKeys(Vector2 bitKey) {
         if (mesh == null || !mesh.isPaved() || bitKey == null) {
             return;
         }
@@ -459,11 +465,11 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    double getZoom() {
+    public double getZoom() {
         return zoom;
     }
 
-    void setZoom(double zoom) {
+    public void setZoom(double zoom) {
         this.zoom = zoom;
         setChanged();
         notifyObservers();
