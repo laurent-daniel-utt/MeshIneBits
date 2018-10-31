@@ -388,6 +388,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private void paintBits(Graphics2D g2d) {
         Mesh mesh = meshController.getMesh();
         Layer layer = meshController.getCurrentLayer();
+        if (layer == null) return;
         Vector<Vector2> bitKeys = layer.getBits3dKeys();
         // Get all the irregular bits (bitKey in fact) in this layer
         List<Vector2> irregularBitsOfThisLayer = mesh.getIrregularBitKeysOf(layer);

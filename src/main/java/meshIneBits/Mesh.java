@@ -139,15 +139,12 @@ public class Mesh extends Observable implements Observer, Serializable {
         // Remove all current layers
         layers.clear();
         // New worker
-        PavingWorker pavingWorker = new PavingWorker(template);
-        pavingWorker.addObserver(this);
-        Thread t = new Thread(pavingWorker);
-        t.start();
+        PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
+        pavingWorkerMaster.addObserver(this);
+        (new Thread(pavingWorkerMaster)).start();
     }
 
     // TODO pave a certain layer
-
-    // TODO parallel pavement
 
     private void pavementSafetyCheck() throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);
@@ -249,14 +246,14 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     private void detectIrregularBits() {
-//        optimizer = new Optimizer(layers);
-//        optimizer.detectIrregularBits();
-        irregularBits = layers.parallelStream().collect(Collectors.toConcurrentMap(
-                layer -> layer,
-                layer -> DetectorTool.detectIrregularBits(layer.getFlatPavement()),
-                (u, v) -> u,
-                ConcurrentHashMap::new
-        ));
+        irregularBits = layers.parallelStream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toConcurrentMap(
+                        layer -> layer,
+                        layer -> DetectorTool.detectIrregularBits(layer.getFlatPavement()),
+                        (u, v) -> u,
+                        ConcurrentHashMap::new
+                ));
     }
 
     /**
@@ -315,11 +312,10 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case PAVING_MESH:
                     break;
                 case PAVED_MESH:
-                    // In sequential pavement, we only need one signal at the end
                     setState(MeshEvents.PAVED_MESH);
-                    // TODO In parallel pavement, we need to collect all signals
                     break;
                 case PAVED_MESH_FAILED:
+                    setState(MeshEvents.SLICED);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
@@ -362,14 +358,15 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     /**
-     * Determine all empty layers to notify users
+     * Determine all empty or null layers to notify users
      */
     public List<Integer> getEmptyLayers() {
         List<Integer> indexes = new ArrayList<>();
-        layers.forEach(layer -> {
-            if (layer.getFlatPavement().getBitsKeys().size() == 0)
-                indexes.add(layer.getLayerNumber());
-        });
+        for (int i = 0; i < slices.size(); i++) {
+            if (layers.get(i) == null
+                    || layers.get(i).getFlatPavement().getBitsKeys().size() == 0)
+                indexes.add(i);
+        }
         return indexes;
     }
 
@@ -403,12 +400,99 @@ public class Mesh extends Observable implements Observer, Serializable {
          * Construct layers from slices then pave them
          */
         private void buildLayers() {
-            Logger.updateStatus("Paving Layers with " + patternTemplate.getCommonName());
+            Logger.updateStatus("Paving layers with " + patternTemplate.getCommonName());
             for (int i = 0; i < slices.size(); i++) {
-                // TODO where is the altitude of layer?
                 layers.add(new Layer(i, slices.get(i), patternTemplate));
             }
             Logger.updateStatus(layers.size() + " layers have been generated and paved");
+        }
+    }
+
+    /**
+     * Simultaneously pave all layers
+     */
+    private class PavingWorkerMaster extends Observable implements Observer, Runnable {
+
+        private Map<Integer, PavingWorkerSlave> jobsMap = new ConcurrentHashMap<>();
+        private int jobsTotalCount = 0;
+        private int finishedJobsCount = 0;
+
+        public PavingWorkerMaster(PatternTemplate patternTemplate) {
+            layers.clear();
+            for (int i = 0; i < slices.size(); i++) {
+                try {
+                    PavingWorkerSlave pavingWorkerSlave = new PavingWorkerSlave(
+                            (PatternTemplate) patternTemplate.clone(),
+                            i,
+                            slices.get(i)
+                    );
+                    pavingWorkerSlave.addObserver(this);
+                    jobsMap.put(i, pavingWorkerSlave);
+                    jobsTotalCount++;
+                    layers.add(null);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void run() {
+            Logger.updateStatus("Paving mesh");
+            setState(MeshEvents.PAVING_MESH);
+            jobsMap.forEach((integer, pavingWorkerSlave)
+                    -> (new Thread(pavingWorkerSlave)).start());
+        }
+
+        @Override
+        public synchronized void update(Observable o, Object arg) {
+            if (o instanceof PavingWorkerSlave) {
+                Layer resultLayer = ((PavingWorkerSlave) o).getLayer();
+                layers.set(resultLayer.getLayerNumber(), resultLayer);
+                finishedJobsCount++;
+                Logger.setProgress(finishedJobsCount, jobsTotalCount);
+            }
+            if (finishedJobsCount == jobsTotalCount) {
+                // Finished all
+                Logger.updateStatus(layers.size() + " layers have been generated and paved");
+                // Check irregularities
+                detectIrregularBits();
+                // Notify
+                setChanged();
+                notifyObservers(MeshEvents.PAVED_MESH);
+            }
+        }
+    }
+
+    /**
+     * Separated thread to pave a certain layer
+     */
+    private class PavingWorkerSlave extends Observable implements Runnable {
+
+        private PatternTemplate patternTemplate;
+        private int index;
+        private Slice slice;
+        private Layer layer;
+
+        public PavingWorkerSlave(PatternTemplate patternTemplate, int index, Slice slice) {
+            this.patternTemplate = patternTemplate;
+            this.index = index;
+            this.slice = slice;
+        }
+
+        public Layer getLayer() {
+            return layer;
+        }
+
+        @Override
+        public void run() {
+            try {
+                layer = new Layer(index, slice, patternTemplate);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            setChanged();
+            notifyObservers();
         }
     }
 

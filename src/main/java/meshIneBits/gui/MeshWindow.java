@@ -752,13 +752,29 @@ public class MeshWindow extends JFrame {
 
         // Init slice selector
         if (!(selector instanceof MeshWindowSliceSelector) // Null or not slice selector
-                || !((MeshWindowSliceSelector) selector).getMesh().equals(meshController.getMesh())) // Not point to same mesh
+                || ((MeshWindowSliceSelector) selector).getMesh() != meshController.getMesh()) // Not point to same mesh
         {
+            remove(selector);
             selector = new MeshWindowSliceSelector(meshController);
             add(selector, selectorGBC);
         }
+    }
 
-        // Init core
-        // Controller will handle initialisation of core
+    /**
+     * When {@link Mesh} is {@link meshIneBits.MeshEvents#PAVED_MESH}
+     */
+    void initLayerView() {
+        // Init zoomer
+        // Show
+        zoomer.setVisible(true);
+
+        // Remove slice selector
+        if (!(selector instanceof MeshWindowLayerSelector) // Null or not layer selector
+                || ((MeshWindowLayerSelector) selector).getMesh() != meshController.getMesh()) // Not point to same mesh
+        {
+            remove(selector);
+            selector = new MeshWindowLayerSelector(meshController);
+            add(selector, selectorGBC);
+        }
     }
 }

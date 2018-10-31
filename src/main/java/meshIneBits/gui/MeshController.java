@@ -180,6 +180,8 @@ public class MeshController extends Observable implements Observer {
                         checkEmptyLayers();
                         // Set default layer
                         setLayer(0);
+                        // Init selector
+                        meshWindow.initLayerView();
                         setChanged();
                         notifyObservers(MeshEvents.PAVED_MESH);
                         break;
