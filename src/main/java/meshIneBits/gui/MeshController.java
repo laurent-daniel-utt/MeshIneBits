@@ -24,8 +24,10 @@ package meshIneBits.gui;
 
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.*;
@@ -36,8 +38,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Observes the {@link Mesh}. Observed by {@link MeshWindowCore}. Controls
- * {@link MeshWindowCore} and {@link MeshWindow}.
+ * Observes the {@link Mesh} and {@link Layer}s. Observed by {@link MeshWindowCore}
+ * and {@link ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
 public class MeshController extends Observable implements Observer {
@@ -98,6 +100,7 @@ public class MeshController extends Observable implements Observer {
 
     public void setMesh(Mesh mesh) {
         this.mesh = mesh;
+        mesh.addObserver(this);
     }
 
     public int getLayerNumber() {
@@ -147,56 +150,70 @@ public class MeshController extends Observable implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (arg instanceof MeshEvents)
-            switch ((MeshEvents) arg) {
-                case READY:
-                    break;
-                case IMPORTING:
-                    Logger.updateStatus("Importing model");
-                    break;
-                case IMPORTED:
-                    Logger.updateStatus("Model imported. Mesh ready to slice.");
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
-                    break;
-                case SLICING:
-                    break;
-                case SLICED:
-                    Logger.updateStatus("Mesh sliced");
-                    meshWindow.initSliceView();
-                    // Notify the core to draw
-                    setChanged();
-                    notifyObservers(MeshEvents.SLICED);
-                    break;
-                case PAVING_MESH:
-                    break;
-                case PAVED_MESH:
-                    break;
-                case OPTIMIZING_LAYER:
-                    break;
-                case OPTIMIZED_LAYER:
-                    break;
-                case OPTIMIZING_MESH:
-                    break;
-                case OPTIMIZED_MESH:
-                    break;
-                case GLUING:
-                    break;
-                case GLUED:
-                    break;
-                case OPENED:
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
-                    break;
-                case OPEN_FAILED:
-                    Logger.error("Failed to open the mesh");
-                    break;
-                case SAVED:
-                    break;
-                case SAVE_FAILED:
-                    Logger.error("Failed to save the mesh");
-                    break;
-                case EXPORTED:
-                    break;
-            }
+        if (o instanceof Layer) {
+            setChanged();
+            notifyObservers(arg);
+        } else if (o instanceof Mesh)
+            if (arg instanceof MeshEvents)
+                switch ((MeshEvents) arg) {
+                    case READY:
+                        break;
+                    case IMPORTING:
+                        Logger.updateStatus("Importing model");
+                        break;
+                    case IMPORTED:
+                        Logger.updateStatus("Model imported. Mesh ready to slice.");
+                        meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                        break;
+                    case SLICING:
+                        break;
+                    case SLICED:
+                        Logger.updateStatus("Mesh sliced");
+                        meshWindow.initSliceView();
+                        // Notify the core to draw
+                        setChanged();
+                        notifyObservers(MeshEvents.SLICED);
+                        break;
+                    case PAVING_MESH:
+                        break;
+                    case PAVED_MESH:
+                        checkEmptyLayers();
+                        // Set default layer
+                        setLayer(0);
+                        setChanged();
+                        notifyObservers(MeshEvents.PAVED_MESH);
+                        break;
+                    case PAVED_MESH_FAILED:
+                        Logger.updateStatus("Mesh paving process failed");
+                        setChanged();
+                        notifyObservers(MeshEvents.PAVED_MESH);
+                        break;
+                    case OPTIMIZING_LAYER:
+                        break;
+                    case OPTIMIZED_LAYER:
+                        break;
+                    case OPTIMIZING_MESH:
+                        break;
+                    case OPTIMIZED_MESH:
+                        break;
+                    case GLUING:
+                        break;
+                    case GLUED:
+                        break;
+                    case OPENED:
+                        meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                        break;
+                    case OPEN_FAILED:
+                        Logger.error("Failed to open the mesh");
+                        break;
+                    case SAVED:
+                        break;
+                    case SAVE_FAILED:
+                        Logger.error("Failed to save the mesh");
+                        break;
+                    case EXPORTED:
+                        break;
+                }
     }
 
     /**
@@ -256,8 +273,16 @@ public class MeshController extends Observable implements Observer {
         (new Thread(meshSlicer)).start();
     }
 
-    public void paveMesh(PatternTemplate patternTemplate) {
-        // TODO
+    public void paveMesh(PatternTemplate patternTemplate) throws Exception {
+        if (mesh == null) throw new Exception("Mesh not found");
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        if (!mesh.isSliced())
+            throw new Exception("Mesh not sliced");
+        MeshPaver meshPaver = new MeshPaver();
+        meshPaver.addObserver(this);
+        meshPaver.setPatternTemplate(patternTemplate);
+        (new Thread(meshPaver)).start();
     }
 
     public void deleteSelectedBits() {
@@ -475,6 +500,26 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
+    public void checkEmptyLayers() {
+        // Check empty layers
+        List<Integer> indexesEmptyLayers = mesh.getEmptyLayers();
+        if (indexesEmptyLayers.size() > 0) {
+            StringBuilder str = new StringBuilder();
+            indexesEmptyLayers.forEach(integer -> str.append(integer).append(" "));
+            Logger.updateStatus("Some layers are empty: " + str.toString());
+        }
+    }
+
+    /**
+     * Centralized handler of exceptions
+     *
+     * @param e raised from any mesh execution
+     */
+    public void handleException(Exception e) {
+        e.printStackTrace();
+        Logger.error(e.getMessage());
+    }
+
     /**
      * Convenient class to run async tasks
      */
@@ -586,6 +631,27 @@ public class MeshController extends Observable implements Observer {
             xt.writeXmlCode();
             setChanged();
             notifyObservers(MeshEvents.EXPORTED);
+        }
+    }
+
+    private class MeshPaver extends MeshOperator {
+
+        PatternTemplate patternTemplate;
+
+        public void setPatternTemplate(PatternTemplate patternTemplate) {
+            this.patternTemplate = patternTemplate;
+        }
+
+        @Override
+        public void run() {
+            try {
+                CraftConfigLoader.saveConfig(null);
+                mesh.pave(patternTemplate);
+            } catch (Exception e) {
+                e.printStackTrace();
+                setChanged();
+                notifyObservers(MeshEvents.PAVED_MESH_FAILED);
+            }
         }
     }
 }

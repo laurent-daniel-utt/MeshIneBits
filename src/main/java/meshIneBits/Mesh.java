@@ -319,6 +319,8 @@ public class Mesh extends Observable implements Observer, Serializable {
                     setState(MeshEvents.PAVED_MESH);
                     // TODO In parallel pavement, we need to collect all signals
                     break;
+                case PAVED_MESH_FAILED:
+                    break;
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
@@ -332,6 +334,16 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case GLUING:
                     break;
                 case GLUED:
+                    break;
+                case OPENED:
+                    break;
+                case OPEN_FAILED:
+                    break;
+                case SAVED:
+                    break;
+                case SAVE_FAILED:
+                    break;
+                case EXPORTED:
                     break;
             }
         }
@@ -347,6 +359,18 @@ public class Mesh extends Observable implements Observer, Serializable {
 
     public MeshEvents getState() {
         return state;
+    }
+
+    /**
+     * Determine all empty layers to notify users
+     */
+    public List<Integer> getEmptyLayers() {
+        List<Integer> indexes = new ArrayList<>();
+        layers.forEach(layer -> {
+            if (layer.getFlatPavement().getBitsKeys().size() == 0)
+                indexes.add(layer.getLayerNumber());
+        });
+        return indexes;
     }
 
     /**
@@ -379,7 +403,7 @@ public class Mesh extends Observable implements Observer, Serializable {
          * Construct layers from slices then pave them
          */
         private void buildLayers() {
-            Logger.updateStatus("Generating Layers");
+            Logger.updateStatus("Paving Layers with " + patternTemplate.getCommonName());
             for (int i = 0; i < slices.size(); i++) {
                 // TODO where is the altitude of layer?
                 layers.add(new Layer(i, slices.get(i), patternTemplate));

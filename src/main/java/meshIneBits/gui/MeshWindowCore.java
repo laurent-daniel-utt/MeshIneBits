@@ -53,13 +53,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private AffineTransform realToView;
     private AffineTransform viewToReal;
     private MeshController meshController;
-    private MeshWindow meshWindow;
 
-    MeshWindowCore(MeshController meshController, MeshWindow meshWindow) {
+    MeshWindowCore(MeshController meshController) {
         this.meshController = meshController;
         this.meshController.addObserver(this);
-
-        this.meshWindow = meshWindow;
 
         this.setLayout(new BorderLayout());
         initBackground();
@@ -249,12 +246,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void update(Observable o, Object arg) {
-        if (meshController.getMesh() == null)
-            return;
-        else
+        if (meshController.getMesh() != null) {
             removeAll();
-        revalidate();
-        repaint();
+            revalidate();
+            repaint();
+        }
     }
 
     @Override

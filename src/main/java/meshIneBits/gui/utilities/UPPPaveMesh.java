@@ -43,7 +43,13 @@ public class UPPPaveMesh extends UtilityParametersPanel {
         );
 
         JButton startButton = new JButton("Start");
-        startButton.addActionListener(e -> meshController.paveMesh(patternComboBox.getCurrentChoice()));
+        startButton.addActionListener(e -> {
+            try {
+                meshController.paveMesh(patternComboBox.getCurrentChoice());
+            } catch (Exception e1) {
+                meshController.handleException(e1);
+            }
+        });
 
         // Layout
         setLayout(new GridBagLayout());

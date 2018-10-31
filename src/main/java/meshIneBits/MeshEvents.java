@@ -32,6 +32,7 @@ public enum MeshEvents implements Serializable {
     SLICED(false, 201),
     PAVING_MESH(true, 300),
     PAVED_MESH(false, 301),
+    PAVED_MESH_FAILED(false, 302), // State should return to SLICED
     OPTIMIZING_LAYER(true, 400),
     OPTIMIZED_LAYER(false, 401),
     OPTIMIZING_MESH(true, 500),

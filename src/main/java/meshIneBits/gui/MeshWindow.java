@@ -120,7 +120,7 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.weightx = 1;
         c.weighty = 1;
-        core = new MeshWindowCore(meshController, this);
+        core = new MeshWindowCore(meshController);
         add(core, c);
 
         // Selector
