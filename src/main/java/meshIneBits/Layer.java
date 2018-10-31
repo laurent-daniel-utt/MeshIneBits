@@ -85,7 +85,6 @@ public class Layer extends Observable implements Serializable {
         this.horizontalSection = horizontalSection;
         this.patternTemplate = patternTemplate;
         this.flatPavement = patternTemplate.pave(this);
-        this.flatPavement.computeBits(horizontalSection);
         rebuild();
     }
 
