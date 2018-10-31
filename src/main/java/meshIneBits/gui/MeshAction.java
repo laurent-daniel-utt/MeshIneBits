@@ -27,6 +27,7 @@ import javax.swing.*;
 public abstract class MeshAction extends AbstractAction {
     public final String uuid;
     public final KeyStroke acceleratorKey;
+    public final String combo;
 
     MeshAction(String uuid,
                String name,
@@ -38,5 +39,20 @@ public abstract class MeshAction extends AbstractAction {
         this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
         putValue(ACCELERATOR_KEY, this.acceleratorKey);
         this.uuid = uuid;
+        combo = translate(acceleratorKey);
+    }
+
+    private String translate(String acceleratorKey) {
+        return acceleratorKey
+                .trim()
+                .replace(" ", " + ")
+                .replace("control", "Ctrl")
+                .replace("shift", "Shift")
+                .replace("alt", "Alt");
+    }
+
+    public String getToolTipText() {
+        return this.getValue(NAME).toString() +
+                (!combo.equals("") ? " (" + combo + ")" : "");
     }
 }

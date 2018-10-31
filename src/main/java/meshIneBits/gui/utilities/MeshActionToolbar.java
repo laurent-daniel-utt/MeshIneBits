@@ -28,10 +28,14 @@ import javax.swing.*;
 
 public class MeshActionToolbar extends JToolBar {
     public void add(MeshAction a) {
-        add(new ButtonIcon(a));
+        JComponent buttonIcon = new ButtonIcon(a);
+        add(buttonIcon);
+        buttonIcon.setToolTipText(a.getToolTipText());
     }
 
     public void addToggleButton(MeshAction meshAction) {
-        add(new ToggleIcon(meshAction));
+        JComponent toggleIcon = new ToggleIcon(meshAction);
+        add(toggleIcon);
+        toggleIcon.setToolTipText(meshAction.getToolTipText());
     }
 }
