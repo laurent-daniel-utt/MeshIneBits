@@ -40,7 +40,6 @@ public class Checkbox extends Renderer {
      */
     private static final long serialVersionUID = -6286431984037692066L;
 
-    private JLabel lblName;
     private JCheckBox checkbox;
     private BooleanParam config;
 
@@ -55,12 +54,12 @@ public class Checkbox extends Renderer {
 
     private void initGUI() {
         // Visual options
+        this.setOpaque(false);
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Label
-        lblName = new JLabel(config.getTitle());
+        JLabel lblName = new JLabel(config.getTitle());
         lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
         this.add(lblName, BorderLayout.WEST);
 

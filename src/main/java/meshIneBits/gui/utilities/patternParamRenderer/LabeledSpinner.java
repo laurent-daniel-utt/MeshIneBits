@@ -55,8 +55,8 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
 
     public LabeledSpinner(String attributeName, Setting parameters) {
         // Visual options
+        this.setOpaque(false);
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Setting up
@@ -93,8 +93,8 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
      */
     public LabeledSpinner(DoubleParam config) {
         // Visual options
+        this.setOpaque(false);
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Setting up

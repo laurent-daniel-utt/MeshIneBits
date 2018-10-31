@@ -40,7 +40,6 @@ public class Selector extends Renderer {
      */
     private static final long serialVersionUID = 4913058735577067521L;
 
-    private JLabel lblName;
     private JComboBox<String> options;
     private OptionParam config;
 
@@ -55,12 +54,12 @@ public class Selector extends Renderer {
 
     private void initGUI() {
         // Visual options
+        this.setOpaque(false);
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Label
-        lblName = new JLabel(config.getTitle());
+        JLabel lblName = new JLabel(config.getTitle());
         lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
         this.add(lblName, BorderLayout.WEST);
 
