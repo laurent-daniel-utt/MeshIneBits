@@ -27,6 +27,7 @@ import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.util.Logger;
+import meshIneBits.util.SimultaneousOperationsException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -175,9 +176,8 @@ public class MeshWindow extends JFrame {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     try {
                         meshController.newMesh(fc.getSelectedFile());
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        Logger.error("Failed to create new mesh. " + e1.getMessage());
+                    } catch (SimultaneousOperationsException e1) {
+                        meshController.handleException(e1);
                     }
                 }
             }
@@ -200,12 +200,11 @@ public class MeshWindow extends JFrame {
                 int returnVal = fc.showOpenDialog(MeshWindow.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File f = fc.getSelectedFile();
+                    Logger.updateStatus("Opening the mesh " + f.getName());
                     try {
-                        Logger.updateStatus("Opening the mesh " + f.getName());
                         meshController.openMesh(f); // asynchronous task
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        Logger.error("Failed to load mesh. " + e1.getMessage());
+                    } catch (SimultaneousOperationsException e1) {
+                        meshController.handleException(e1);
                     }
                 }
             }
@@ -229,12 +228,11 @@ public class MeshWindow extends JFrame {
                     if (!f.getName().endsWith("." + ext)) {
                         f = new File(f.getPath() + "." + ext);
                     }
+                    Logger.updateStatus("Saving the mesh at " + f.getName());
                     try {
-                        Logger.updateStatus("Saving the mesh at " + f.getName());
                         meshController.saveMesh(f);
                     } catch (Exception e1) {
-                        e1.printStackTrace();
-                        Logger.error("Failed to save mesh. " + e1.getMessage());
+                        meshController.handleException(e1);
                     }
                 }
             }
@@ -328,7 +326,7 @@ public class MeshWindow extends JFrame {
                                             .getResource("resources/help.pdf"))
                                     .getPath()));
                 } catch (IOException e1) {
-                    Logger.error("Failed to load help file");
+                    meshController.handleException(e1);
                 }
             }
         };
@@ -374,8 +372,7 @@ public class MeshWindow extends JFrame {
                 try {
                     meshController.sliceMesh();
                 } catch (Exception e1) {
-                    e1.printStackTrace();
-                    Logger.error("Failed to slice mesh. " + e1.getMessage());
+                    meshController.handleException(e1);
                 }
             }
         };
@@ -418,7 +415,7 @@ public class MeshWindow extends JFrame {
                     try {
                         meshController.exportXML(fc.getSelectedFile()); // async task
                     } catch (Exception e1) {
-                        e1.printStackTrace();
+                        meshController.handleException(e1);
                     }
                 }
             }

@@ -108,38 +108,6 @@ public class MeshController extends Observable implements Observer {
         return layerNumber;
     }
 
-    public void setLayer(int layerNum) {
-        if (mesh == null) {
-            return;
-        }
-        if ((layerNum >= mesh.getLayers().size()) || (layerNum < 0)) {
-            return;
-        }
-        layerNumber = layerNum;
-        currentLayer = mesh.getLayers().get(layerNumber);
-        currentLayer.addObserver(this);
-        calculateRealToPavement();
-        reset();
-
-        // Notify the core
-        setChanged();
-        notifyObservers();
-    }
-
-    private void updateAvailableArea() {
-        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
-        Pavement pavement = currentLayer.getFlatPavement();
-        pavement.getBitsKeys()
-                .forEach(key -> availableArea.subtract(
-                        AreaTool.expand(pavement.getBit(key).getArea(),
-                                safeguardSpaceParam.getCurrentValue())));
-    }
-
-    public void reset() {
-        setSelectedBitKeys(null);
-        setAddingBits(false);
-    }
-
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof Layer) {
@@ -220,6 +188,48 @@ public class MeshController extends Observable implements Observer {
             }
             updateAvailableArea();
         }
+    }
+
+    public void setLayer(int layerNum) {
+        if (mesh == null) {
+            return;
+        }
+        if ((layerNum >= mesh.getLayers().size()) || (layerNum < 0)) {
+            return;
+        }
+        layerNumber = layerNum;
+        currentLayer = mesh.getLayers().get(layerNumber);
+        currentLayer.addObserver(this);
+        calculateRealToPavement();
+        reset();
+
+        // Notify the core
+        setChanged();
+        notifyObservers();
+    }
+
+    public void checkEmptyLayers() {
+        // Check empty layers
+        List<Integer> indexesEmptyLayers = mesh.getEmptyLayers();
+        if (indexesEmptyLayers.size() > 0) {
+            StringBuilder str = new StringBuilder();
+            indexesEmptyLayers.forEach(integer -> str.append(integer).append(" "));
+            Logger.updateStatus("Some layers are empty: " + str.toString());
+        }
+    }
+
+    private void updateAvailableArea() {
+        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
+        Pavement pavement = currentLayer.getFlatPavement();
+        pavement.getBitsKeys()
+                .forEach(key -> availableArea.subtract(
+                        AreaTool.expand(pavement.getBit(key).getArea(),
+                                safeguardSpaceParam.getCurrentValue())));
+    }
+
+    public void reset() {
+        setSelectedBitKeys(null);
+        setAddingBits(false);
     }
 
     /**
@@ -484,16 +494,6 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    public void checkEmptyLayers() {
-        // Check empty layers
-        List<Integer> indexesEmptyLayers = mesh.getEmptyLayers();
-        if (indexesEmptyLayers.size() > 0) {
-            StringBuilder str = new StringBuilder();
-            indexesEmptyLayers.forEach(integer -> str.append(integer).append(" "));
-            Logger.updateStatus("Some layers are empty: " + str.toString());
-        }
-    }
-
     /**
      * Centralized handler of exceptions
      *
@@ -536,7 +536,7 @@ public class MeshController extends Observable implements Observer {
             try {
                 mesh.importModel(filename); // sync task
             } catch (Exception e) {
-                e.printStackTrace();
+                handleException(e);
             }
         }
     }
@@ -552,8 +552,7 @@ public class MeshController extends Observable implements Observer {
             try {
                 mesh.slice();
             } catch (Exception e) {
-                e.printStackTrace();
-                Logger.error("Unable to slice mesh. " + e.getMessage());
+                handleException(e);
             }
         }
     }
@@ -573,7 +572,7 @@ public class MeshController extends Observable implements Observer {
                 setChanged();
                 notifyObservers(MeshEvents.SAVED);
             } catch (IOException e) {
-                e.printStackTrace();
+                handleException(e);
                 setChanged();
                 notifyObservers(MeshEvents.SAVE_FAILED);
             }
@@ -595,7 +594,7 @@ public class MeshController extends Observable implements Observer {
                 setChanged();
                 notifyObservers(MeshEvents.OPENED);
             } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
+                handleException(e);
                 setChanged();
                 notifyObservers(MeshEvents.OPEN_FAILED);
             }
@@ -610,11 +609,12 @@ public class MeshController extends Observable implements Observer {
 
         @Override
         public void run() {
-            assert file != null;
-            XmlTool xt = new XmlTool(mesh, file.toPath());
-            xt.writeXmlCode();
-            setChanged();
-            notifyObservers(MeshEvents.EXPORTED);
+            if (file != null) {
+                XmlTool xt = new XmlTool(mesh, file.toPath());
+                xt.writeXmlCode();
+                setChanged();
+                notifyObservers(MeshEvents.EXPORTED);
+            }
         }
     }
 
@@ -632,7 +632,7 @@ public class MeshController extends Observable implements Observer {
                 CraftConfigLoader.saveConfig(null);
                 mesh.pave(patternTemplate);
             } catch (Exception e) {
-                e.printStackTrace();
+                handleException(e);
                 setChanged();
                 notifyObservers(MeshEvents.PAVED_MESH_FAILED);
             }
