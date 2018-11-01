@@ -135,6 +135,15 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
     public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 
     /**
+     * A hint for paving sequentially from lowest layer to highest one
+     *
+     * @return <tt>false</tt> to parallelize execution
+     */
+    public boolean isInterdependent() {
+        return false;
+    }
+
+    /**
      * @return the full name of icon representation the template
      */
     public String getIconName() {

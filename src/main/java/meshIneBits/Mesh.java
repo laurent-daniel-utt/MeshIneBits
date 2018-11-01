@@ -139,9 +139,15 @@ public class Mesh extends Observable implements Observer, Serializable {
         // Remove all current layers
         layers.clear();
         // New worker
-        PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
-        pavingWorkerMaster.addObserver(this);
-        (new Thread(pavingWorkerMaster)).start();
+        if (template.isInterdependent()) {
+            SequentialPavingWorker pavingWorker = new SequentialPavingWorker(template);
+            pavingWorker.addObserver(this);
+            (new Thread(pavingWorker)).start();
+        } else {
+            PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
+            pavingWorkerMaster.addObserver(this);
+            (new Thread(pavingWorkerMaster)).start();
+        }
     }
 
     // TODO pave a certain layer
@@ -237,7 +243,6 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public boolean isPaved() {
-        // TODO make a full check
         return state.getCode() >= MeshEvents.PAVED_MESH.getCode();
     }
 
@@ -315,7 +320,6 @@ public class Mesh extends Observable implements Observer, Serializable {
                     setState(MeshEvents.PAVED_MESH);
                     break;
                 case PAVED_MESH_FAILED:
-                    setState(MeshEvents.SLICED);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
@@ -371,11 +375,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     /**
-     * In charge of paving one or multiple layers
-     *
-     * @since 0.3
+     * In charge of paving layers sequentially
      */
-    private class PavingWorker extends Observable implements Runnable {
+    private class SequentialPavingWorker extends Observable implements Runnable {
 
         private PatternTemplate patternTemplate;
 
@@ -384,7 +386,7 @@ public class Mesh extends Observable implements Observer, Serializable {
          *
          * @param patternTemplate how we want to pave a layer
          */
-        PavingWorker(PatternTemplate patternTemplate) {
+        SequentialPavingWorker(PatternTemplate patternTemplate) {
             this.patternTemplate = patternTemplate;
         }
 
@@ -400,9 +402,11 @@ public class Mesh extends Observable implements Observer, Serializable {
          * Construct layers from slices then pave them
          */
         private void buildLayers() {
-            Logger.updateStatus("Paving layers with " + patternTemplate.getCommonName());
-            for (int i = 0; i < slices.size(); i++) {
+            Logger.updateStatus("Paving layers sequentially with " + patternTemplate.getCommonName());
+            int jobsize = slices.size();
+            for (int i = 0; i < jobsize; i++) {
                 layers.add(new Layer(i, slices.get(i), patternTemplate));
+                Logger.setProgress(i + 1, jobsize);
             }
             Logger.updateStatus(layers.size() + " layers have been generated and paved");
         }
@@ -416,9 +420,11 @@ public class Mesh extends Observable implements Observer, Serializable {
         private Map<Integer, PavingWorkerSlave> jobsMap = new ConcurrentHashMap<>();
         private int jobsTotalCount = 0;
         private int finishedJobsCount = 0;
+        private PatternTemplate originalPatternTemplate;
 
         public PavingWorkerMaster(PatternTemplate patternTemplate) {
             layers.clear();
+            originalPatternTemplate = patternTemplate;
             for (int i = 0; i < slices.size(); i++) {
                 try {
                     PavingWorkerSlave pavingWorkerSlave = new PavingWorkerSlave(
@@ -438,7 +444,7 @@ public class Mesh extends Observable implements Observer, Serializable {
 
         @Override
         public void run() {
-            Logger.updateStatus("Paving mesh");
+            Logger.updateStatus("Paving mesh parallelly " + originalPatternTemplate.getCommonName());
             setState(MeshEvents.PAVING_MESH);
             jobsMap.forEach((integer, pavingWorkerSlave)
                     -> (new Thread(pavingWorkerSlave)).start());

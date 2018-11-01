@@ -544,9 +544,8 @@ public class EconomicPattern extends PatternTemplate {
 
     @Override
     public String getHowToUse() {
-        return "It requires auto-optimization task to complete. "
-                + "Note that this pattern does not always return a result "
-                + "because once it can not fill a separated zone of the generated part, "
+        return "This pattern does not always return a result "
+                + "because once it can not fill a separated zone of the mesh, "
                 + "that whole layer will end up failed.";
     }
 
@@ -555,6 +554,11 @@ public class EconomicPattern extends PatternTemplate {
      */
     @Override
     public boolean ready(Mesh mesh) {
+        return true;
+    }
+
+    @Override
+    public boolean isInterdependent() {
         return true;
     }
 
