@@ -171,8 +171,9 @@ public class Mesh extends Observable implements Observer, Serializable {
         setState(MeshEvents.OPTIMIZING_MESH);
         // MeshEvents.OPTIMIZED_MESH will be sent in update() after receiving
         // enough signals from layers
-        MeshOptimizer meshOptimizer = new MeshOptimizer();
-        Thread t = new Thread(meshOptimizer);
+        MeshOptimizerMaster meshOptimizerMaster = new MeshOptimizerMaster();
+        meshOptimizerMaster.addObserver(this);
+        Thread t = new Thread(meshOptimizerMaster);
         t.start();
     }
 
@@ -187,6 +188,7 @@ public class Mesh extends Observable implements Observer, Serializable {
 
         setState(MeshEvents.OPTIMIZING_LAYER);
         LayerOptimizer layerOptimizer = new LayerOptimizer(layer);
+        layerOptimizer.addObserver(this);
         // MeshEvents.OPTIMIZED_LAYER will be sent after completed the task
         Thread t = new Thread(layerOptimizer);
         t.start();
@@ -330,7 +332,7 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
-                    setState(MeshEvents.OPTIMIZED_MESH);
+                    setState(MeshEvents.OPTIMIZED_LAYER);
                     break;
                 case OPTIMIZING_MESH:
                     break;
@@ -507,7 +509,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     /**
-     * Managing optimization of a layer, then reporting to {@link MeshOptimizer} or {@link Mesh}
+     * Managing optimization of a layer, then reporting to {@link MeshOptimizerMaster} or {@link Mesh}
      */
     private class LayerOptimizer extends Observable implements Runnable {
 
@@ -549,32 +551,91 @@ public class Mesh extends Observable implements Observer, Serializable {
     /**
      * Managing process of optimizing consequently all layers, then reporting to {@link Mesh}
      */
-    private class MeshOptimizer extends Observable implements Runnable {
+    private class MeshOptimizerMaster extends Observable implements Runnable, Observer {
+        private int irregularitiesRest = 0;
+        private int finishedJob = 0;
+        private List<Layer> uncleanLayers = new ArrayList<>();
+        private List<Layer> unsolvedLayers = new ArrayList<>();
+        private List<MeshOptimizerSlave> slaves = new ArrayList<>();
+
+        MeshOptimizerMaster() {
+            for (Layer layer : layers) {
+                MeshOptimizerSlave slave = new MeshOptimizerSlave(layer);
+                slave.addObserver(this);
+                slaves.add(slave);
+            }
+        }
+
         @Override
         public void run() {
-            int progressGoal = layers.size();
-            int irregularitiesRest = 0;
-            ArrayList<Integer> unsolvedLayers = new ArrayList<>();
-            Logger.updateStatus("Optimizing the current mesh.");
-            for (int j = 0; j < layers.size(); j++) {
-                Logger.setProgress(j + 1, progressGoal);
-                int ir = layers.get(j).getPatternTemplate().optimize(layers.get(j));
+            slaves.forEach(meshOptimizerSlave -> (new Thread(meshOptimizerSlave)).start());
+        }
+
+        @Override
+        public synchronized void update(Observable o, Object arg) {
+            if (o instanceof MeshOptimizerSlave) {
+                finishedJob++;
+                Logger.setProgress(finishedJob, layers.size());
+                int ir = (int) arg;
+                Layer layer = ((MeshOptimizerSlave) o).getLayer();
                 if (ir > 0) {
                     irregularitiesRest += ir;
-                } else if (ir < 0) {
-                    unsolvedLayers.add(layers.get(j).getLayerNumber());
+                    uncleanLayers.add(layer);
+                    Logger.updateStatus("Optimized layer " + layer.getLayerNumber() + ". Still has " + ir + " irregular bits unsolved");
+                } else {
+                    switch (ir) {
+                        case 0:
+                            Logger.updateStatus("Optimized layer " + layer.getLayerNumber() + ". No irregular bits left.");
+                            break;
+                        case -1:
+                            Logger.updateStatus("Auto-optimization failed on layer " + layer.getLayerNumber());
+                            break;
+                        case -2:
+                            Logger.updateStatus("No optimizing algorithm implemented on layer " + layer.getLayerNumber());
+                            break;
+                    }
+                    unsolvedLayers.add(layer);
                 }
             }
-            Logger.updateStatus("Auto-optimization complete. Still has " + irregularitiesRest + " irregularities not solved yet.");
-            if (!unsolvedLayers.isEmpty()) {
+            if (finishedJob == layers.size()) {
+                // Finished
                 StringBuilder str = new StringBuilder();
-                for (Integer integer : unsolvedLayers) {
-                    str.append(" ").append(integer);
+                StringBuilder str2 = new StringBuilder();
+                unsolvedLayers.sort(Comparator.comparingInt(Layer::getLayerNumber));
+                uncleanLayers.sort(Comparator.comparingInt(Layer::getLayerNumber));
+                for (Layer unsolvedLayer : unsolvedLayers) {
+                    str.append(unsolvedLayer.getLayerNumber()).append(" ");
                 }
-                Logger.updateStatus("Unsolvable layers: " + str.toString());
+                for (Layer uncleanLayer : uncleanLayers) {
+                    str2.append(uncleanLayer.getLayerNumber()).append(" ");
+                }
+                Logger.updateStatus("Optimization completed. "
+                        + (irregularitiesRest == 0 ? "" : irregularitiesRest + " irregularities left on layers " + str2.toString() + ". ")
+                        + (str.toString().equals("") ? "" : "Some layers are not optimizable: " + str.toString() + ". ")
+                );
+                setChanged();
+                notifyObservers(MeshEvents.OPTIMIZED_MESH);
             }
+        }
+    }
+
+    private class MeshOptimizerSlave extends Observable implements Runnable {
+
+        private Layer layer;
+
+        MeshOptimizerSlave(Layer layer) {
+            this.layer = layer;
+        }
+
+        public Layer getLayer() {
+            return layer;
+        }
+
+        @Override
+        public void run() {
+            int irregularitiesLeft = layer.getPatternTemplate().optimize(layer);
             setChanged();
-            notifyObservers(MeshEvents.OPTIMIZED_MESH);
+            notifyObservers(irregularitiesLeft);
         }
     }
 

@@ -506,6 +506,16 @@ public class MeshController extends Observable implements Observer {
         mesh.optimize();
     }
 
+    public void optimizeLayer() throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        if (!currentLayer.isPaved())
+            throw new Exception("Layer not paved");
+        mesh.optimize(currentLayer);
+    }
+
     /**
      * Convenient class to run async tasks
      */
