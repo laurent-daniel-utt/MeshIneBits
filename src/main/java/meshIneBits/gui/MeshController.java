@@ -29,7 +29,6 @@ import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.slicer.Slice;
 import meshIneBits.util.*;
 
 import java.awt.geom.AffineTransform;
@@ -78,7 +77,6 @@ public class MeshController extends Observable implements Observer {
     );
     private final MeshWindow meshWindow;
     private Mesh mesh;
-    private int sliceNumber = 0;
     private int layerNumber = 0;
     private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
@@ -299,24 +297,6 @@ public class MeshController extends Observable implements Observer {
         currentLayer.rebuild();
     }
 
-    public void setSlice(int sliceNum) {
-        if (mesh == null) {
-            return;
-        }
-        if ((sliceNum >= mesh.getSlices().size()) || (sliceNum < 0)) {
-            return;
-        }
-        sliceNumber = sliceNum;
-
-        // Notify the core
-        setChanged();
-        notifyObservers();
-    }
-
-    public int getSliceNumber() {
-        return sliceNumber;
-    }
-
     boolean isAddingBits() {
         return addingBits;
     }
@@ -359,10 +339,6 @@ public class MeshController extends Observable implements Observer {
 
     public Layer getCurrentLayer() {
         return currentLayer;
-    }
-
-    public Slice getCurrentSlice() {
-        return mesh.getSlices().get(sliceNumber);
     }
 
     public boolean showingPreviousLayer() {
