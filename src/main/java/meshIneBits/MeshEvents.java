@@ -30,9 +30,9 @@ public enum MeshEvents implements Serializable {
     IMPORTED(false, 101),
     SLICING(true, 200),
     SLICED(false, 201),
+    PAVED_MESH_FAILED(false, 299),
     PAVING_MESH(true, 300),
     PAVED_MESH(false, 301),
-    PAVED_MESH_FAILED(false, 302),
     OPTIMIZING_LAYER(true, 400),
     OPTIMIZED_LAYER(false, 401),
     OPTIMIZING_MESH(true, 500),
@@ -43,7 +43,8 @@ public enum MeshEvents implements Serializable {
     OPEN_FAILED(false, 2),
     SAVED(false, 50),
     SAVE_FAILED(false, 51),
-    EXPORTED(false, 900);
+    EXPORTING(true, 900),
+    EXPORTED(false, 901);
 
     private boolean working;
     /**

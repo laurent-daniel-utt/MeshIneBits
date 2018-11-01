@@ -27,6 +27,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -207,8 +208,25 @@ public class Mesh extends Observable implements Observer, Serializable {
         // enough signals from layers
     }
 
-    public void export() {
-        // TODO export instructions
+    /**
+     * Export paving instructions
+     *
+     * @param file location to save instructions
+     * @throws Exception when in working state or not paved
+     */
+    public void export(File file) throws Exception {
+        exportationSafetyCheck();
+
+        setState(MeshEvents.EXPORTING);
+        MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
+        Thread t = new Thread(meshXMLExporter);
+        t.start();
+    }
+
+    private void exportationSafetyCheck() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
+        if (!isPaved())
+            throw new Exception("Mesh in unpaved");
     }
 
     public Vector<Layer> getLayers() {
@@ -228,8 +246,19 @@ public class Mesh extends Observable implements Observer, Serializable {
         return slices;
     }
 
+    /**
+     * @return <tt>true</tt> if all {@link Layer} is paved
+     */
     public boolean isPaved() {
-        return state.getCode() >= MeshEvents.PAVED_MESH.getCode();
+        if (state.getCode() >= MeshEvents.PAVED_MESH.getCode())
+            return true;
+        else {
+            if (layers.stream().allMatch(Layer::isPaved)) {
+                state = MeshEvents.PAVED_MESH;
+                return true;
+            } else
+                return false;
+        }
     }
 
     public boolean isSliced() {
@@ -320,7 +349,11 @@ public class Mesh extends Observable implements Observer, Serializable {
                     break;
                 case SAVE_FAILED:
                     break;
+                case EXPORTING:
+                    Logger.updateStatus("Exporting XML");
+                    break;
                 case EXPORTED:
+                    Logger.updateStatus("XML exported");
                     break;
             }
         }
@@ -545,4 +578,20 @@ public class Mesh extends Observable implements Observer, Serializable {
         }
     }
 
+    private class MeshXMLExporter extends Observable implements Runnable {
+
+        private final File file;
+
+        MeshXMLExporter(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            XmlTool xt = new XmlTool(Mesh.this, file.toPath());
+            xt.writeXmlCode();
+            setChanged();
+            notifyObservers(MeshEvents.EXPORTED);
+        }
+    }
 }

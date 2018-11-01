@@ -173,6 +173,8 @@ public class MeshController extends Observable implements Observer {
                     case SAVE_FAILED:
                         Logger.error("Failed to save the mesh");
                         break;
+                    case EXPORTING:
+                        break;
                     case EXPORTED:
                         break;
                 }
@@ -263,13 +265,7 @@ public class MeshController extends Observable implements Observer {
     public void exportXML(File file) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
-        if (mesh.getState().isWorking())
-            throw new SimultaneousOperationsException(mesh);
-        if (mesh.getState().getCode() < MeshEvents.PAVED_MESH.getCode())
-            throw new Exception("Mesh unpaved");
-        MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
-        meshXMLExporter.addObserver(this);
-        (new Thread(meshXMLExporter)).start();
+        mesh.export(file);
     }
 
     public void newMesh(File file) throws SimultaneousOperationsException {
@@ -284,9 +280,7 @@ public class MeshController extends Observable implements Observer {
         if (mesh == null) throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        MeshSlicer meshSlicer = new MeshSlicer();
-        meshSlicer.addObserver(this);
-        (new Thread(meshSlicer)).start();
+        mesh.slice();
     }
 
     public void paveMesh(PatternTemplate patternTemplate) throws Exception {
@@ -295,10 +289,8 @@ public class MeshController extends Observable implements Observer {
             throw new SimultaneousOperationsException(mesh);
         if (!mesh.isSliced())
             throw new Exception("Mesh not sliced");
-        MeshPaver meshPaver = new MeshPaver();
-        meshPaver.addObserver(this);
-        meshPaver.setPatternTemplate(patternTemplate);
-        (new Thread(meshPaver)).start();
+        CraftConfigLoader.saveConfig(null);
+        mesh.pave(patternTemplate);
     }
 
     public void deleteSelectedBits() {
@@ -504,6 +496,16 @@ public class MeshController extends Observable implements Observer {
         Logger.error(e.getMessage());
     }
 
+    public void optimizeMesh() throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (!mesh.isPaved())
+            throw new Exception("Mesh not paved");
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        mesh.optimize();
+    }
+
     /**
      * Convenient class to run async tasks
      */
@@ -512,10 +514,6 @@ public class MeshController extends Observable implements Observer {
 
         MeshOperator(File file) {
             this.file = file;
-        }
-
-        MeshOperator() {
-            file = null;
         }
     }
 
@@ -535,22 +533,6 @@ public class MeshController extends Observable implements Observer {
             String filename = file.toString();
             try {
                 mesh.importModel(filename); // sync task
-            } catch (Exception e) {
-                handleException(e);
-            }
-        }
-    }
-
-    private class MeshSlicer extends MeshOperator {
-
-        MeshSlicer() {
-            super();
-        }
-
-        @Override
-        public void run() {
-            try {
-                mesh.slice();
             } catch (Exception e) {
                 handleException(e);
             }
@@ -597,44 +579,6 @@ public class MeshController extends Observable implements Observer {
                 handleException(e);
                 setChanged();
                 notifyObservers(MeshEvents.OPEN_FAILED);
-            }
-        }
-    }
-
-    private class MeshXMLExporter extends MeshOperator {
-
-        MeshXMLExporter(File file) {
-            super(file);
-        }
-
-        @Override
-        public void run() {
-            if (file != null) {
-                XmlTool xt = new XmlTool(mesh, file.toPath());
-                xt.writeXmlCode();
-                setChanged();
-                notifyObservers(MeshEvents.EXPORTED);
-            }
-        }
-    }
-
-    private class MeshPaver extends MeshOperator {
-
-        PatternTemplate patternTemplate;
-
-        public void setPatternTemplate(PatternTemplate patternTemplate) {
-            this.patternTemplate = patternTemplate;
-        }
-
-        @Override
-        public void run() {
-            try {
-                CraftConfigLoader.saveConfig(null);
-                mesh.pave(patternTemplate);
-            } catch (Exception e) {
-                handleException(e);
-                setChanged();
-                notifyObservers(MeshEvents.PAVED_MESH_FAILED);
             }
         }
     }

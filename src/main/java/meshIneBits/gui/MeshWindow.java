@@ -483,11 +483,15 @@ public class MeshWindow extends JFrame {
                 "Optimize Mesh",
                 "mesh-optimize.png",
                 "Optimize all layers",
-                ""
+                "alt O"
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                try {
+                    meshController.optimizeMesh();
+                } catch (Exception e1) {
+                    meshController.handleException(e1);
+                }
             }
         };
         meshActionList.add(optimizeMesh);
