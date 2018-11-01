@@ -22,7 +22,6 @@
 
 package meshIneBits.gui;
 
-import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
@@ -43,6 +42,7 @@ public class MeshWindow extends JFrame {
 
     private final GridBagConstraints selectorGBC;
     private final GridBagConstraints utilityParametersPanelGBC;
+    private final GridBagConstraints zoomerGBC;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
@@ -51,7 +51,7 @@ public class MeshWindow extends JFrame {
     private UtilityParametersPanel utilityParametersPanel;
     private JPanel core;
     private MeshWindowZoomer zoomer;
-    private JPanel selector = new JPanel();
+    private MeshWindowSelector selector;
     private MeshController meshController = new MeshController(this);
 
     private ProcessingModelView view3DWindow = new ProcessingModelView();
@@ -131,17 +131,15 @@ public class MeshWindow extends JFrame {
         selectorGBC.gridheight = 1;
         selectorGBC.weightx = 0;
         selectorGBC.weighty = 1;
-        add(selector, selectorGBC);
 
         // Zoomer
-        c.gridx = 1;
-        c.gridy = 3;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1;
-        c.weighty = 0;
-        zoomer = new MeshWindowZoomer(meshController);
-        add(zoomer, c);
+        zoomerGBC = new GridBagConstraints();
+        zoomerGBC.gridx = 1;
+        zoomerGBC.gridy = 3;
+        zoomerGBC.gridwidth = 2;
+        zoomerGBC.gridheight = 1;
+        zoomerGBC.weightx = 1;
+        zoomerGBC.weighty = 0;
 
         // Status bar
         c.gridx = 0;
@@ -407,7 +405,7 @@ public class MeshWindow extends JFrame {
                 "Export XML",
                 "mesh-export-xml.png",
                 "Export printing instructions",
-                ""
+                "alt E"
         ) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -741,40 +739,11 @@ public class MeshWindow extends JFrame {
         return view3DWindow;
     }
 
-    /**
-     * When {@link Mesh} is {@link meshIneBits.MeshEvents#SLICED} but still not
-     * {@link meshIneBits.MeshEvents#PAVED_MESH}
-     */
-    void initSliceView() {
-        // Init zoomer
-        // Show
-        zoomer.setVisible(true);
+    void initGadgets() {
+        zoomer = new MeshWindowZoomer(meshController);
+        add(zoomer, zoomerGBC);
 
-        // Init slice selector
-        if (!(selector instanceof MeshWindowSliceSelector) // Null or not slice selector
-                || ((MeshWindowSliceSelector) selector).getMesh() != meshController.getMesh()) // Not point to same mesh
-        {
-            remove(selector);
-            selector = new MeshWindowSliceSelector(meshController);
-            add(selector, selectorGBC);
-        }
-    }
-
-    /**
-     * When {@link Mesh} is {@link meshIneBits.MeshEvents#PAVED_MESH}
-     */
-    void initLayerView() {
-        // Init zoomer
-        // Show
-        zoomer.setVisible(true);
-
-        // Remove slice selector
-        if (!(selector instanceof MeshWindowLayerSelector) // Null or not layer selector
-                || ((MeshWindowLayerSelector) selector).getMesh() != meshController.getMesh()) // Not point to same mesh
-        {
-            remove(selector);
-            selector = new MeshWindowLayerSelector(meshController);
-            add(selector, selectorGBC);
-        }
+        selector = new MeshWindowSelector(meshController);
+        add(selector, selectorGBC);
     }
 }

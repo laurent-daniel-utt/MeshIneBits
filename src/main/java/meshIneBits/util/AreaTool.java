@@ -81,10 +81,13 @@ public class AreaTool {
 
     /**
      * @param poly target to extract
-     * @return the surface constraint in the given polygon
+     * @return the surface constraint in the given polygon. Empty if polygon is null
      */
     public static Area getAreaFrom(Polygon poly) {
-        return new Area(poly.toPath2D());
+        if (poly == null)
+            return new Area();
+        else
+            return new Area(poly.toPath2D());
     }
 
     /**

@@ -41,6 +41,7 @@ import java.awt.geom.Rectangle2D.Double;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -135,6 +136,11 @@ public class UnitSquarePattern extends PatternTemplate {
      */
     @Override
     public boolean ready(Mesh mesh) {
+        // Reduce the logger's verbalism
+        LOGGER.setLevel(Level.OFF);
+        for (Handler handler : LOGGER.getHandlers()) {
+            handler.setLevel(Level.OFF);
+        }
         return true;
     }
 
@@ -145,7 +151,6 @@ public class UnitSquarePattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Logger.updateStatus("Paving layer " + layer.getLayerNumber());
-        LOGGER.config("Paving layer " + layer.getLayerNumber());
         // Calculate size of unit square
         this.calcUnitSizeAndLimits();
         // Update the choice on applying quick regroup
@@ -182,6 +187,7 @@ public class UnitSquarePattern extends PatternTemplate {
             }
         }
         LOGGER.info("Paved layer " + layer.getLayerNumber());
+        Logger.updateStatus("Paved layer " + layer.getLayerNumber());
         return new Pavement(overallPavement, new Vector2(1, 0));
     }
 

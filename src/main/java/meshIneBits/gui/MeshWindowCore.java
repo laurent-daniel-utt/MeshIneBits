@@ -261,7 +261,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         requestFocusInWindow();
 
-
         setDefaultZoom();
         updateDrawScale();
 
@@ -270,15 +269,13 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         Graphics2D g2d = (Graphics2D) g;
 
-        // If mesh is only sliced (layers not generated yet), draw the slices
-        if (mesh.isSliced() && !mesh.isPaved()) {
-            g2d.setColor(WorkspaceConfig.sliceColor);
-            g2d.setStroke(WorkspaceConfig.sliceStroke);
-            paintSlice(g2d);
+        // If current layer is only sliced (not paved yet), draw the slice
+        if (!meshController.getCurrentLayer().isPaved()) {
+            paintLayerBorder(g2d);
         }
 
-        // If layers are generated, draw the pavements
-        if (mesh.isPaved()) {
+        // If layers are paved, draw the pavements
+        else {
 
             // Draw previous layer
             if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
@@ -297,8 +294,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             // Draw the border of layer
             if (meshController.showingSlice()) {
-                g2d.setColor(WorkspaceConfig.layerBorderColor);
-                g2d.setStroke(WorkspaceConfig.layerBorderStroke);
                 paintLayerBorder(g2d);
             }
 
@@ -345,17 +340,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     /**
-     * Draw the horizontal section
-     *
-     * @param g2d graphic
-     */
-    private void paintSlice(Graphics2D g2d) {
-        for (Polygon p : meshController.getCurrentSlice()) {
-            drawModelPath2D(g2d, p.toPath2D());
-        }
-    }
-
-    /**
      * Draw the outline of the layer below the current showing one
      *
      * @param g2d graphic
@@ -386,12 +370,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     private void paintBits(Graphics2D g2d) {
-        Mesh mesh = meshController.getMesh();
         Layer layer = meshController.getCurrentLayer();
-        if (layer == null) return;
         Vector<Vector2> bitKeys = layer.getBits3dKeys();
         // Get all the irregular bits (bitKey in fact) in this layer
-        List<Vector2> irregularBitsOfThisLayer = mesh.getIrregularBitKeysOf(layer);
+        List<Vector2> irregularBitsOfThisLayer = layer.getIrregularBits();
 
         for (Vector2 b : bitKeys) { // Draw each bits
             Bit3D bit = layer.getBit3D(b);
@@ -438,6 +420,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     private void paintLayerBorder(Graphics2D g2d) {
+        g2d.setColor(WorkspaceConfig.layerBorderColor);
+        g2d.setStroke(WorkspaceConfig.layerBorderStroke);
         Slice slice = meshController.getCurrentLayer().getHorizontalSection();
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());

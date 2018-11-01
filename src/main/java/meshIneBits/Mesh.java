@@ -30,7 +30,6 @@ import meshIneBits.util.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * This object is the equivalent of the piece which will be printed
@@ -41,18 +40,20 @@ public class Mesh extends Observable implements Observer, Serializable {
 
     private Vector<Layer> layers = new Vector<>();
     private Vector<Slice> slices = new Vector<>();
-    @Deprecated
-    private transient PatternTemplate patternTemplate = null;
     private double skirtRadius;
     private transient SliceTool slicer;
-    // private boolean sliced = false;
-    @Deprecated
-    private transient Optimizer optimizer = null;
     private Model model;
     private MeshEvents state;
+    @Deprecated
+    private boolean sliced = false;
+    @Deprecated
+    private transient PatternTemplate patternTemplate = null;
+    @Deprecated
+    private transient Optimizer optimizer = null;
     /**
      * Regroup of irregularities by index of layers and keys of bits
      */
+    @Deprecated
     private Map<Layer, List<Vector2>> irregularBits;
 
     /**
@@ -102,7 +103,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     /**
-     * Start slicing the registered model
+     * Start slicing the registered model and generating layers
      *
      * @throws Exception when an other action is currently executing
      */
@@ -126,7 +127,8 @@ public class Mesh extends Observable implements Observer, Serializable {
      * Given a certain template, pave the whole mesh sequentially
      *
      * @param template an automatic builder
-     * @throws Exception when an other action is currently executing
+     * @throws Exception when an other action is currently executing or {@link Mesh}
+     *                   is not sliced yet
      */
     public void pave(PatternTemplate template) throws Exception {
         pavementSafetyCheck();
@@ -136,13 +138,11 @@ public class Mesh extends Observable implements Observer, Serializable {
         // enough signals from layers
         Logger.updateStatus("Ready to generate bits");
         template.ready(this);
-        // Remove all current layers
-        layers.clear();
         // New worker
         if (template.isInterdependent()) {
-            SequentialPavingWorker pavingWorker = new SequentialPavingWorker(template);
-            pavingWorker.addObserver(this);
-            (new Thread(pavingWorker)).start();
+            SequentialPavingWorker sequentialPavingWorker = new SequentialPavingWorker(template);
+            sequentialPavingWorker.addObserver(this);
+            (new Thread(sequentialPavingWorker)).start();
         } else {
             PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
             pavingWorkerMaster.addObserver(this);
@@ -212,13 +212,6 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public Vector<Layer> getLayers() {
-        if (!isPaved()) {
-            try {
-                throw new Exception("Mesh not paved!");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         return this.layers;
     }
 
@@ -232,13 +225,6 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public Vector<Slice> getSlices() {
-        if (!isSliced()) {
-            try {
-                throw new Exception("Mesh not sliced!");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         return slices;
     }
 
@@ -250,20 +236,10 @@ public class Mesh extends Observable implements Observer, Serializable {
         return state.getCode() >= MeshEvents.SLICED.getCode();
     }
 
-    private void detectIrregularBits() {
-        irregularBits = layers.parallelStream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toConcurrentMap(
-                        layer -> layer,
-                        layer -> DetectorTool.detectIrregularBits(layer.getFlatPavement()),
-                        (u, v) -> u,
-                        ConcurrentHashMap::new
-                ));
-    }
-
     /**
      * @param layer target
      * @return keys of irregularities in layer
+     * @deprecated
      */
     public List<Vector2> getIrregularBitKeysOf(Layer layer) {
         return irregularBits.get(layer);
@@ -312,6 +288,7 @@ public class Mesh extends Observable implements Observer, Serializable {
                     this.slices = slicer.getSlices();
                     // sliced = true;
                     setSkirtRadius();
+                    initLayers();
                     setState(MeshEvents.SLICED);
                     break;
                 case PAVING_MESH:
@@ -346,6 +323,18 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case EXPORTED:
                     break;
             }
+        }
+    }
+
+    /**
+     * Generate empty layers
+     */
+    private void initLayers() {
+        Logger.updateStatus("Generating layers");
+        int jobsize = slices.size();
+        for (int i = 0; i < jobsize; i++) {
+            layers.add(new Layer(i, slices.get(i)));
+            Logger.setProgress(i + 1, jobsize);
         }
     }
 
@@ -393,7 +382,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         @Override
         public void run() {
             buildLayers();
-            detectIrregularBits();
             setChanged();
             notifyObservers(MeshEvents.PAVED_MESH);
         }
@@ -405,10 +393,11 @@ public class Mesh extends Observable implements Observer, Serializable {
             Logger.updateStatus("Paving layers sequentially with " + patternTemplate.getCommonName());
             int jobsize = slices.size();
             for (int i = 0; i < jobsize; i++) {
-                layers.add(new Layer(i, slices.get(i), patternTemplate));
+                layers.get(i).setPatternTemplate(patternTemplate);
+                layers.get(i).startPaver();
                 Logger.setProgress(i + 1, jobsize);
             }
-            Logger.updateStatus(layers.size() + " layers have been generated and paved");
+            Logger.updateStatus(layers.size() + " layers have been paved");
         }
     }
 
@@ -417,52 +406,44 @@ public class Mesh extends Observable implements Observer, Serializable {
      */
     private class PavingWorkerMaster extends Observable implements Observer, Runnable {
 
-        private Map<Integer, PavingWorkerSlave> jobsMap = new ConcurrentHashMap<>();
+        private Map<Layer, PavingWorkerSlave> jobsMap = new ConcurrentHashMap<>();
         private int jobsTotalCount = 0;
         private int finishedJobsCount = 0;
         private PatternTemplate originalPatternTemplate;
 
-        public PavingWorkerMaster(PatternTemplate patternTemplate) {
-            layers.clear();
+        PavingWorkerMaster(PatternTemplate patternTemplate) {
             originalPatternTemplate = patternTemplate;
-            for (int i = 0; i < slices.size(); i++) {
+            layers.forEach(layer -> {
                 try {
                     PavingWorkerSlave pavingWorkerSlave = new PavingWorkerSlave(
                             (PatternTemplate) patternTemplate.clone(),
-                            i,
-                            slices.get(i)
+                            layer
                     );
                     pavingWorkerSlave.addObserver(this);
-                    jobsMap.put(i, pavingWorkerSlave);
+                    jobsMap.put(layer, pavingWorkerSlave);
                     jobsTotalCount++;
-                    layers.add(null);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
-            }
+            });
         }
 
         @Override
         public void run() {
-            Logger.updateStatus("Paving mesh parallelly " + originalPatternTemplate.getCommonName());
-            setState(MeshEvents.PAVING_MESH);
-            jobsMap.forEach((integer, pavingWorkerSlave)
+            Logger.updateStatus("Paving mesh parallelly with " + originalPatternTemplate.getCommonName());
+            jobsMap.forEach((layer, pavingWorkerSlave)
                     -> (new Thread(pavingWorkerSlave)).start());
         }
 
         @Override
         public synchronized void update(Observable o, Object arg) {
             if (o instanceof PavingWorkerSlave) {
-                Layer resultLayer = ((PavingWorkerSlave) o).getLayer();
-                layers.set(resultLayer.getLayerNumber(), resultLayer);
                 finishedJobsCount++;
                 Logger.setProgress(finishedJobsCount, jobsTotalCount);
             }
             if (finishedJobsCount == jobsTotalCount) {
                 // Finished all
-                Logger.updateStatus(layers.size() + " layers have been generated and paved");
-                // Check irregularities
-                detectIrregularBits();
+                Logger.updateStatus(layers.size() + " layers have been paved");
                 // Notify
                 setChanged();
                 notifyObservers(MeshEvents.PAVED_MESH);
@@ -476,27 +457,17 @@ public class Mesh extends Observable implements Observer, Serializable {
     private class PavingWorkerSlave extends Observable implements Runnable {
 
         private PatternTemplate patternTemplate;
-        private int index;
-        private Slice slice;
         private Layer layer;
 
-        public PavingWorkerSlave(PatternTemplate patternTemplate, int index, Slice slice) {
+        PavingWorkerSlave(PatternTemplate patternTemplate, Layer layer) {
             this.patternTemplate = patternTemplate;
-            this.index = index;
-            this.slice = slice;
-        }
-
-        public Layer getLayer() {
-            return layer;
+            this.layer = layer;
         }
 
         @Override
         public void run() {
-            try {
-                layer = new Layer(index, slice, patternTemplate);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+            layer.setPatternTemplate(patternTemplate);
+            layer.startPaver();
             setChanged();
             notifyObservers();
         }

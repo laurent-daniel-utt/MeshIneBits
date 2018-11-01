@@ -26,50 +26,57 @@ import meshIneBits.Mesh;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
-class MeshWindowSliceSelector extends JPanel {
-    private JSlider sliceSlider;
-    private JSpinner sliceSpinner;
-    private Mesh mesh;
+public class MeshWindowSelector extends JPanel {
+    private JSlider layerSlider;
+    private JSpinner layerSpinner;
+    private final MeshController meshController;
 
-    MeshWindowSliceSelector(MeshController meshController) {
-        mesh = meshController.getMesh();
-        sliceSlider = new JSlider(
+    public MeshWindowSelector(MeshController meshController) {
+        this.meshController = meshController;
+        Mesh mesh = meshController.getMesh();
+        layerSlider = new JSlider(
                 SwingConstants.VERTICAL,
                 0,
-                mesh.getSlices().size() - 1,
+                mesh.getLayers().size() - 1,
                 0);
-        sliceSpinner = new JSpinner(
+        layerSpinner = new JSpinner(
                 new SpinnerNumberModel(
                         0,
                         0,
-                        mesh.getSlices().size() - 1,
+                        mesh.getLayers().size() - 1,
                         1));
-        sliceSlider.setMaximumSize(new Dimension(40, 500));
-        sliceSlider.setFocusable(false);
-        sliceSpinner.setMaximumSize(new Dimension(40, 40));
-
+        layerSlider.setFocusable(false);
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(sliceSlider);
-        add(sliceSpinner);
+        add(layerSlider);
+        add(layerSpinner);
         setBorder(new EmptyBorder(0, 5, 5, 0));
 
-        sliceSpinner.addChangeListener(e ->
+        layerSpinner.addChangeListener(e ->
         {
-            meshController.setSlice((Integer) sliceSpinner.getValue());
-            sliceSlider.setValue((Integer) sliceSpinner.getValue());
+            meshController.setLayer((int) layerSpinner.getValue());
+            layerSlider.setValue((int) layerSpinner.getValue());
         });
 
-        sliceSlider.addChangeListener(e ->
+        layerSlider.addChangeListener(e ->
         {
-            meshController.setSlice(sliceSlider.getValue());
-            sliceSpinner.setValue(sliceSlider.getValue());
+            meshController.setLayer(layerSlider.getValue());
+            layerSpinner.setValue(layerSlider.getValue());
         });
-        setVisible(true);
     }
 
-    public Mesh getMesh() {
-        return mesh;
+    /**
+     * Adapt values for new mesh
+     */
+    public void reset() {
+        Mesh mesh = meshController.getMesh();
+        layerSlider.setMaximum(mesh.getLayers().size() - 1);
+        layerSlider.setValue(meshController.getLayerNumber());
+        layerSpinner.setModel(new SpinnerNumberModel(
+                meshController.getLayerNumber(),
+                0,
+                mesh.getLayers().size() - 1,
+                1
+        ));
     }
 }

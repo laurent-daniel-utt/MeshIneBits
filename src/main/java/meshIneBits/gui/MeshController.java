@@ -32,7 +32,10 @@ import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.*;
 
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -111,22 +114,13 @@ public class MeshController extends Observable implements Observer {
         if (mesh == null) {
             return;
         }
-        if (!mesh.isPaved()) {
-            return;
-        }
         if ((layerNum >= mesh.getLayers().size()) || (layerNum < 0)) {
             return;
         }
         layerNumber = layerNum;
         currentLayer = mesh.getLayers().get(layerNumber);
         currentLayer.addObserver(this);
-        realToPavement = new AffineTransform();
-        try {
-            realToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
-        } catch (NoninvertibleTransformException e) {
-            realToPavement = AffineTransform.getScaleInstance(1, 1);
-        }
-        updateAvailableArea();
+        calculateRealToPavement();
         reset();
 
         // Notify the core
@@ -151,6 +145,7 @@ public class MeshController extends Observable implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof Layer) {
+            calculateRealToPavement();
             setChanged();
             notifyObservers(arg);
         } else if (o instanceof Mesh)
@@ -169,24 +164,23 @@ public class MeshController extends Observable implements Observer {
                         break;
                     case SLICED:
                         Logger.updateStatus("Mesh sliced");
-                        meshWindow.initSliceView();
+                        setLayer(0);
+                        meshWindow.initGadgets();
                         // Notify the core to draw
                         setChanged();
                         notifyObservers(MeshEvents.SLICED);
                         break;
                     case PAVING_MESH:
+                        Logger.updateStatus("Paving mesh");
                         break;
                     case PAVED_MESH:
+                        Logger.updateStatus("Mesh paved");
                         checkEmptyLayers();
-                        // Set default layer
-                        setLayer(0);
-                        // Init selector
-                        meshWindow.initLayerView();
                         setChanged();
                         notifyObservers(MeshEvents.PAVED_MESH);
                         break;
                     case PAVED_MESH_FAILED:
-                        Logger.updateStatus("Mesh paving process failed");
+                        Logger.updateStatus("Mesh pavement failed");
                         setChanged();
                         notifyObservers(MeshEvents.PAVED_MESH_FAILED);
                         break;
@@ -216,6 +210,18 @@ public class MeshController extends Observable implements Observer {
                     case EXPORTED:
                         break;
                 }
+    }
+
+    private void calculateRealToPavement() {
+        if (currentLayer.getFlatPavement() != null) {
+            realToPavement = new AffineTransform();
+            try {
+                realToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
+            } catch (Exception e) {
+                realToPavement = AffineTransform.getScaleInstance(1, 1);
+            }
+            updateAvailableArea();
+        }
     }
 
     /**

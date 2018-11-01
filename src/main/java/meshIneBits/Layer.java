@@ -26,6 +26,7 @@ import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
@@ -44,14 +45,19 @@ import java.util.stream.Collectors;
 public class Layer extends Observable implements Serializable {
 
     private int layerNumber;
-    private Vector<Slice> slices;
     private Slice horizontalSection;
     private Pavement flatPavement;
+    private PatternTemplate patternTemplate;
+    private Map<Vector2, Bit3D> mapBits3D;
+    private boolean paved = false;
+    private List<Vector2> irregularBits;
+    @Deprecated
+    private Vector<Slice> slices;
     @Deprecated
     private transient Pavement referentialPavement;
-    private PatternTemplate patternTemplate;
+    @Deprecated
     private Vector<Pavement> pavements = new Vector<>();
-    private Map<Vector2, Bit3D> mapBits3D;
+    @Deprecated
     private int sliceToSelect;
 
     /**
@@ -67,9 +73,64 @@ public class Layer extends Observable implements Serializable {
         this.layerNumber = layerNumber;
         this.patternTemplate = mesh.getPatternTemplate();
         this.referentialPavement = mesh.getPatternTemplate().pave(this);
+        this.paved = true;
         setSliceToSelect(CraftConfig.defaultSliceToSelect);
 
         rebuild();
+    }
+
+    /**
+     * Only for default slice to select
+     *
+     * @param percentageOfHeight >0 and <=100
+     * @deprecated
+     */
+    private void setSliceToSelect(double percentageOfHeight) {
+        sliceToSelect = (int) Math.round((percentageOfHeight / 100) * (slices.size() - 1));
+    }
+
+    /**
+     * Rebuild the whole layer. To be called after every changes made on this
+     * layer
+     */
+    public void rebuild() {
+        flatPavement.computeBits(horizontalSection);
+        extrudeBitsTo3D();
+        computeLiftPoints();
+        irregularBits = DetectorTool.detectIrregularBits(flatPavement);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Inflate 2D paved bits into 3D shapes
+     *
+     * @since 0.3
+     */
+    private void extrudeBitsTo3D() {
+        mapBits3D = flatPavement.getBitsKeys().parallelStream()
+                .collect(Collectors.toConcurrentMap(key -> key,
+                        key -> {
+                            Bit2D bit2D = flatPavement.getBit(key);
+                            return new Bit3D(bit2D, key,
+                                    bit2D.getOrientation()
+                                            .getTransformed(flatPavement
+                                                    .getAffineTransform()));
+                        }
+                        , (u, v) -> u, ConcurrentHashMap::new));
+    }
+
+    /**
+     * Computer lift points after extruding 3D bits
+     */
+    private void computeLiftPoints() {
+        for (Vector2 key : getBits3dKeys()) {
+            mapBits3D.get(key).computeLiftPoints();
+        }
+    }
+
+    public Vector<Vector2> getBits3dKeys() {
+        return new Vector<>(mapBits3D.keySet());
     }
 
     /**
@@ -79,13 +140,28 @@ public class Layer extends Observable implements Serializable {
      * @param horizontalSection projection of mesh onto certain altitude
      * @param patternTemplate   algorithm of flat pavement
      * @since 0.3
+     * @deprecated replaced by {@link Layer#Layer(int, Slice)}
      */
     public Layer(int layerNumber, Slice horizontalSection, PatternTemplate patternTemplate) {
         this.layerNumber = layerNumber;
         this.horizontalSection = horizontalSection;
         this.patternTemplate = patternTemplate;
         this.flatPavement = patternTemplate.pave(this);
+        this.paved = true;
         rebuild();
+    }
+
+    /**
+     * Construct new empty layer. No {@link PatternTemplate}, no {@link Pavement}
+     *
+     * @param layerNumber       index of layer
+     * @param horizontalSection projection of mesh onto layer's altitude
+     */
+    public Layer(int layerNumber, Slice horizontalSection) {
+        this.layerNumber = layerNumber;
+        this.horizontalSection = horizontalSection;
+        this.patternTemplate = null;
+        this.flatPavement = null;
     }
 
     /**
@@ -144,15 +220,6 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Computer lift points after extruding 3D bits
-     */
-    private void computeLiftPoints() {
-        for (Vector2 key : getBits3dKeys()) {
-            mapBits3D.get(key).computeLiftPoints();
-        }
-    }
-
-    /**
      * Build the {@link Bit3D} from all the {@link Bit2D} contained in the
      * {@link Pavement}.
      *
@@ -195,41 +262,6 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Inflate 2D paved bits into 3D shapes
-     *
-     * @since 0.3
-     */
-    private void extrudeBitsTo3D() {
-        mapBits3D = flatPavement.getBitsKeys().parallelStream()
-                .collect(Collectors.toConcurrentMap(key -> key,
-                        key -> {
-                            Bit2D bit2D = flatPavement.getBit(key);
-                            return new Bit3D(bit2D, key,
-                                    bit2D.getOrientation().getTransformed(flatPavement.getAffineTransform()));
-                        }
-                        , (u, v) -> u, ConcurrentHashMap::new));
-    }
-
-    /**
-     * @param key bit origin in 2D plan
-     * @return extruded version of bit 2D
-     */
-    public Bit3D getBit3D(Vector2 key) {
-        return mapBits3D.get(key);
-    }
-
-    public Vector<Vector2> getBits3dKeys() {
-        return new Vector<>(mapBits3D.keySet());
-    }
-
-    /**
-     * @return index of layer
-     */
-    public int getLayerNumber() {
-        return layerNumber;
-    }
-
-    /**
      * @param bit inside pavement
      * @return orientation in layer's coordinate system
      * @deprecated
@@ -238,6 +270,13 @@ public class Layer extends Observable implements Serializable {
         AffineTransform patternAffTrans = (AffineTransform) referentialPavement.getAffineTransform().clone();
 //		patternAffTrans.translate(-CraftConfig.xOffset, -CraftConfig.yOffset);
         return bit.getOrientation().getTransformed(patternAffTrans);
+    }
+
+    /**
+     * @return index of layer
+     */
+    public int getLayerNumber() {
+        return layerNumber;
     }
 
     /**
@@ -265,6 +304,17 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
+     * @param sliceNbr index
+     * @deprecated
+     */
+    public void setSliceToSelect(int sliceNbr) {
+        if ((sliceNbr >= 0) && (sliceNbr < slices.size())) {
+            sliceToSelect = sliceNbr;
+            rebuild();
+        }
+    }
+
+    /**
      * @return the selected pattern
      * @deprecated replaced by {@link #getFlatPavement()}
      */
@@ -278,6 +328,15 @@ public class Layer extends Observable implements Serializable {
      */
     public Pavement getFlatPavement() {
         return flatPavement;
+    }
+
+    /**
+     * Change the whole current pavement
+     *
+     * @param newFlatPavement new base pavement
+     */
+    public void setFlatPavement(Pavement newFlatPavement) {
+        this.flatPavement = newFlatPavement;
     }
 
     /**
@@ -330,17 +389,11 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Rebuild the whole layer. To be called after every changes made on this
-     * layer
+     * @param key bit origin in 2D plan
+     * @return extruded version of bit 2D
      */
-    public void rebuild() {
-//		buildPatterns();
-//      generateBits3D();
-        flatPavement.computeBits(horizontalSection);
-        extrudeBitsTo3D();
-        computeLiftPoints();
-        setChanged();
-        notifyObservers();
+    public Bit3D getBit3D(Vector2 key) {
+        return mapBits3D.get(key);
     }
 
     /**
@@ -390,27 +443,6 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Only for default slice to select
-     *
-     * @param percentageOfHeight >0 and <=100
-     * @deprecated
-     */
-    private void setSliceToSelect(double percentageOfHeight) {
-        sliceToSelect = (int) Math.round((percentageOfHeight / 100) * (slices.size() - 1));
-    }
-
-    /**
-     * @param sliceNbr index
-     * @deprecated
-     */
-    public void setSliceToSelect(int sliceNbr) {
-        if ((sliceNbr >= 0) && (sliceNbr < slices.size())) {
-            sliceToSelect = sliceNbr;
-            rebuild();
-        }
-    }
-
-    /**
      * @return the patternTemplate
      */
     public PatternTemplate getPatternTemplate() {
@@ -433,15 +465,6 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Change the whole current pavement
-     *
-     * @param newFlatPavement new base pavement
-     */
-    public void setFlatPavement(Pavement newFlatPavement) {
-        this.flatPavement = newFlatPavement;
-    }
-
-    /**
      * Rotate multiple bits around their center
      *
      * @param bitKeys in surface
@@ -457,5 +480,22 @@ public class Layer extends Observable implements Serializable {
         return newPositions.stream()
                 .filter(pos -> this.getBit3D(pos) != null)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Start the {@link #patternTemplate}
+     */
+    public void startPaver() {
+        this.flatPavement = this.patternTemplate.pave(this);
+        paved = true;
+        rebuild();
+    }
+
+    public boolean isPaved() {
+        return paved;
+    }
+
+    public List<Vector2> getIrregularBits() {
+        return irregularBits;
     }
 }

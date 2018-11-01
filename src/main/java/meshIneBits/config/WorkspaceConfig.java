@@ -34,14 +34,9 @@ public class WorkspaceConfig {
      */
     public static double zoomSpeed = 1.25;
     /**
-     * Slice boundary
-     */
-    public static Color sliceColor = Color.BLACK;
-    /**
      * Previous layer
      */
     public static Color previousLayerColor = Color.DARK_GRAY;
-    public static Stroke sliceStroke = new BasicStroke(1.0f);
     /**
      * Realisable bit
      */
@@ -54,7 +49,7 @@ public class WorkspaceConfig {
     public static Stroke cutpathStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
     public static Color liftpointColor = Color.RED;
     public static Stroke liftpointStroke = new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
-    public static Color layerBorderColor = Color.RED;
+    public static Color layerBorderColor = Color.BLACK;
     public static Stroke layerBorderStroke = new BasicStroke(1.0f);
     public static Color bitControlColor = new Color(94, 125, 215);
     public static int paddingBitControl = 15;
