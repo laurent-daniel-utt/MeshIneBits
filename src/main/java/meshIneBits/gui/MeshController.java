@@ -188,7 +188,7 @@ public class MeshController extends Observable implements Observer {
                     case PAVED_MESH_FAILED:
                         Logger.updateStatus("Mesh paving process failed");
                         setChanged();
-                        notifyObservers(MeshEvents.PAVED_MESH);
+                        notifyObservers(MeshEvents.PAVED_MESH_FAILED);
                         break;
                     case OPTIMIZING_LAYER:
                         break;
