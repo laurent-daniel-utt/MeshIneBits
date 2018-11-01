@@ -337,10 +337,10 @@ public class Mesh extends Observable implements Observer, Serializable {
                     break;
                 case GLUED:
                     break;
-                case ORDENNING:
+                case SCHEDULING:
                     setState((MeshEvents) arg);
                     break;
-                case ORDENNED:
+                case SCHEDULED:
                     setState((MeshEvents) arg);
                     break;
             }
@@ -353,6 +353,7 @@ public class Mesh extends Observable implements Observer, Serializable {
 
     public void setScheduler(AScheduler s)
     {
+        Logger.message("Set scheduler to: "+ s.toString());
         scheduler = s;
     }
 

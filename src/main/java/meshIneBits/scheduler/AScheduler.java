@@ -13,6 +13,7 @@ import java.util.Vector;
 public abstract class AScheduler extends Observable implements Serializable, Runnable {
     private Mesh model = null;
 
+    AScheduler() {}
     AScheduler(Mesh m)
     {
         super();
@@ -43,10 +44,10 @@ public abstract class AScheduler extends Observable implements Serializable, Run
     public abstract boolean schedule();
 
     public void run(){
-        notifyObservers(MeshEvents.ORDENNING);
+        notifyObservers(MeshEvents.SCHEDULING);
         Logger.updateStatus("Starting scheduling operation");
         schedule();
-        notifyObservers(MeshEvents.ORDENNED);
+        notifyObservers(MeshEvents.SCHEDULED);
     }
 
 
