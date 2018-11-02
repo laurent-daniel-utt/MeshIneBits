@@ -578,7 +578,7 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Layer Border",
                 "layer-border-toggle.png",
                 "Show or hide boundary of layer",
-                "shift 1",
+                "",
                 meshController::toggleShowSlice
         );
         meshActionList.add(toggleShowSlice);
@@ -588,7 +588,7 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Irregular Bit",
                 "bit-irregular-toggle.png",
                 "Show or hide non realizable bits",
-                "shift 2",
+                "",
                 meshController::toggleShowIrregularBits
         );
         meshActionList.add(toggleIrregularBit);
@@ -598,7 +598,7 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Cut Paths",
                 "bit-cutpath-toggle.png",
                 "Show or hide cut path of bit",
-                "shift 3",
+                "",
                 meshController::toggleShowCutPaths
         );
         meshActionList.add(toggleCutPaths);
@@ -608,7 +608,7 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Lift Points",
                 "bit-liftpoint-toggle.png",
                 "Show or hide lift point of bit",
-                "shift 4",
+                "",
                 meshController::toggleShowLiftPoints
         );
         meshActionList.add(toggleLiftPoint);
