@@ -81,7 +81,7 @@ public class MeshController extends Observable implements Observer {
     private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
-    private boolean showSlice = true;
+    private boolean showSlice = false;
     private boolean showLiftPoints = false;
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
