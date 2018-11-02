@@ -81,7 +81,7 @@ public class MeshController extends Observable implements Observer {
     private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
-    private boolean showSlice = false;
+    private boolean showSlice = true;
     private boolean showLiftPoints = false;
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
@@ -363,36 +363,36 @@ public class MeshController extends Observable implements Observer {
         return showSlice;
     }
 
-    public void toggleShowCutPaths(boolean selected) {
-        this.showCutPaths = selected;
+    public void toggleShowCutPaths() {
+        showCutPaths = !showCutPaths;
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowLiftPoints(boolean selected) {
-        this.showLiftPoints = selected;
+    public void toggleShowLiftPoints() {
+        showLiftPoints = !showLiftPoints;
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowPreviousLayer(boolean selected) {
-        this.showPreviousLayer = selected;
+    public void toggleShowPreviousLayer() {
+        showPreviousLayer = !showPreviousLayer;
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowSlice(boolean selected) {
-        this.showSlice = selected;
+    public void toggleShowSlice() {
+        showSlice = !showSlice;
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowIrregularBits(boolean selected) {
-        this.showIrregularBits = selected;
+    public void toggleShowIrregularBits() {
+        showIrregularBits = !showIrregularBits;
 
         setChanged();
         notifyObservers();

@@ -20,22 +20,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui.utilities;
+package meshIneBits.gui;
 
-import meshIneBits.gui.MeshAction;
-import meshIneBits.gui.MeshToggleAction;
-
-import javax.swing.*;
-
-public class MeshActionToolbar extends JToolBar {
-    public void add(MeshAction a) {
-        JComponent buttonIcon = new ButtonIcon(a);
-        add(buttonIcon);
-        buttonIcon.setToolTipText(a.getToolTipText());
-    }
-
-    public void addToggleButton(MeshToggleAction meshToggleAction) {
-        JComponent toggleIcon = new ToggleIcon(meshToggleAction);
-        add(toggleIcon);
-    }
+public interface MeshActionInterface {
+    void execute();
 }

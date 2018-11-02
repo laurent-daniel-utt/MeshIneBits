@@ -164,24 +164,21 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "mesh-new.png",
                 "New Mesh",
-                "control N"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fc = new CustomFileChooser();
-                fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-                fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
-                int returnVal = fc.showOpenDialog(MeshWindow.this);
+                "control N",
+                () -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    int returnVal = fc.showOpenDialog(MeshWindow.this);
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        meshController.newMesh(fc.getSelectedFile());
-                    } catch (SimultaneousOperationsException e1) {
-                        meshController.handleException(e1);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            meshController.newMesh(fc.getSelectedFile());
+                        } catch (SimultaneousOperationsException e1) {
+                            meshController.handleException(e1);
+                        }
                     }
-                }
-            }
-        };
+                });
         meshActionList.add(newMesh);
 
         MeshAction openMesh = new MeshAction(
@@ -189,26 +186,23 @@ public class MeshWindow extends JFrame {
                 "Open Mesh",
                 "mesh-open.png",
                 "Reload a project into workspace",
-                "control O"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fc = new CustomFileChooser();
-                String meshExt = CraftConfigLoader.MESH_EXTENSION;
-                fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
-                fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
-                int returnVal = fc.showOpenDialog(MeshWindow.this);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File f = fc.getSelectedFile();
-                    Logger.updateStatus("Opening the mesh " + f.getName());
-                    try {
-                        meshController.openMesh(f); // asynchronous task
-                    } catch (SimultaneousOperationsException e1) {
-                        meshController.handleException(e1);
+                "control O",
+                () -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    String meshExt = CraftConfigLoader.MESH_EXTENSION;
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
+                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    int returnVal = fc.showOpenDialog(MeshWindow.this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        File f = fc.getSelectedFile();
+                        Logger.updateStatus("Opening the mesh " + f.getName());
+                        try {
+                            meshController.openMesh(f); // asynchronous task
+                        } catch (SimultaneousOperationsException e1) {
+                            meshController.handleException(e1);
+                        }
                     }
-                }
-            }
-        };
+                });
         meshActionList.add(openMesh);
 
         MeshAction saveMesh = new MeshAction(
@@ -216,27 +210,24 @@ public class MeshWindow extends JFrame {
                 "Save Mesh",
                 "mesh-save.png",
                 "Save the current project",
-                "control S"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fc = new CustomFileChooser();
-                String ext = CraftConfigLoader.MESH_EXTENSION;
-                fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-                if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
-                    File f = fc.getSelectedFile();
-                    if (!f.getName().endsWith("." + ext)) {
-                        f = new File(f.getPath() + "." + ext);
+                "control S",
+                () -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    String ext = CraftConfigLoader.MESH_EXTENSION;
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+                    if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
+                        File f = fc.getSelectedFile();
+                        if (!f.getName().endsWith("." + ext)) {
+                            f = new File(f.getPath() + "." + ext);
+                        }
+                        Logger.updateStatus("Saving the mesh at " + f.getName());
+                        try {
+                            meshController.saveMesh(f);
+                        } catch (Exception e1) {
+                            meshController.handleException(e1);
+                        }
                     }
-                    Logger.updateStatus("Saving the mesh at " + f.getName());
-                    try {
-                        meshController.saveMesh(f);
-                    } catch (Exception e1) {
-                        meshController.handleException(e1);
-                    }
-                }
-            }
-        };
+                });
         meshActionList.add(saveMesh);
 
 //        MeshAction openPatternConfig = new MeshAction(
@@ -285,8 +276,8 @@ public class MeshWindow extends JFrame {
                 "Configuration",
                 "gears.png",
                 "Configure hyper parameters of printer and workspace",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -299,13 +290,8 @@ public class MeshWindow extends JFrame {
                 "Exit",
                 "",
                 "Exit program",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        };
+                "",
+                () -> System.exit(0));
         meshActionList.add(exit);
 
         MeshAction manual = new MeshAction(
@@ -313,23 +299,20 @@ public class MeshWindow extends JFrame {
                 "Manual",
                 "manual.png",
                 "Open manual file",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Desktop dt = Desktop.getDesktop();
-                try {
-                    dt.open(new File(
-                            Objects.requireNonNull(
-                                    MeshWindow.this.getClass()
-                                            .getClassLoader()
-                                            .getResource("resources/help.pdf"))
-                                    .getPath()));
-                } catch (IOException e1) {
-                    meshController.handleException(e1);
-                }
-            }
-        };
+                "",
+                () -> {
+                    Desktop dt = Desktop.getDesktop();
+                    try {
+                        dt.open(new File(
+                                Objects.requireNonNull(
+                                        MeshWindow.this.getClass()
+                                                .getClassLoader()
+                                                .getResource("resources/help.pdf"))
+                                        .getPath()));
+                    } catch (IOException e1) {
+                        meshController.handleException(e1);
+                    }
+                });
         meshActionList.add(manual);
 
         MeshAction about = new MeshAction(
@@ -337,13 +320,11 @@ public class MeshWindow extends JFrame {
                 "About",
                 "info-circle.png",
                 "General information about software",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new AboutDialogWindow(MeshWindow.this, "About MeshIneBits", true);
-            }
-        };
+                "",
+                () -> new AboutDialogWindow(
+                        MeshWindow.this,
+                        "About MeshIneBits",
+                        true));
         meshActionList.add(about);
 
         MeshAction view3D = new MeshAction(
@@ -351,13 +332,8 @@ public class MeshWindow extends JFrame {
                 "3D View",
                 "view-3D.png",
                 "Open the 3D view of mesh",
-                "alt 3"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                view3DWindow.toggle();
-            }
-        };
+                "alt 3",
+                () -> view3DWindow.toggle());
         meshActionList.add(view3D);
 
         MeshAction sliceMesh = new MeshAction(
@@ -365,17 +341,14 @@ public class MeshWindow extends JFrame {
                 "Slice Mesh",
                 "mesh-slice.png",
                 "Slice the mesh",
-                "alt S"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    meshController.sliceMesh();
-                } catch (Exception e1) {
-                    meshController.handleException(e1);
-                }
-            }
-        };
+                "alt S",
+                () -> {
+                    try {
+                        meshController.sliceMesh();
+                    } catch (Exception e) {
+                        meshController.handleException(e);
+                    }
+                });
         meshActionList.add(sliceMesh);
 
         MeshAction paveMesh = new MeshAction(
@@ -383,8 +356,8 @@ public class MeshWindow extends JFrame {
                 "Pave Mesh",
                 "mesh-pave.png",
                 "Pave the whole mesh with a pattern",
-                "alt P"
-        ) {
+                "alt P",
+                null) {
             UPPPaveMesh uppPaveMesh = new UPPPaveMesh(meshController);
 
             @Override
@@ -402,24 +375,21 @@ public class MeshWindow extends JFrame {
                 "Export XML",
                 "mesh-export-xml.png",
                 "Export printing instructions",
-                "alt E"
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fc = new CustomFileChooser();
-                fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
-                int returnVal = fc.showSaveDialog(MeshWindow.this);
+                "alt E",
+                () -> {
+                    final JFileChooser fc = new CustomFileChooser();
+                    fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+                    int returnVal = fc.showSaveDialog(MeshWindow.this);
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    Logger.updateStatus("Exporting XML at " + fc.getSelectedFile().getName());
-                    try {
-                        meshController.exportXML(fc.getSelectedFile()); // async task
-                    } catch (Exception e1) {
-                        meshController.handleException(e1);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        Logger.updateStatus("Exporting XML at " + fc.getSelectedFile().getName());
+                        try {
+                            meshController.exportXML(fc.getSelectedFile()); // async task
+                        } catch (Exception e1) {
+                            meshController.handleException(e1);
+                        }
                     }
-                }
-            }
-        };
+                });
         meshActionList.add(exportMeshXML);
 
         MeshAction paveLayer = new MeshAction(
@@ -427,8 +397,8 @@ public class MeshWindow extends JFrame {
                 "Pave Layer",
                 "layer-pave.png",
                 "Pave the current layer",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -441,8 +411,8 @@ public class MeshWindow extends JFrame {
                 "Select Region",
                 "region-select.png",
                 "Select a region",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -455,8 +425,8 @@ public class MeshWindow extends JFrame {
                 "Pave Region",
                 "layer-region.png",
                 "Choose and pave a region",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -469,8 +439,8 @@ public class MeshWindow extends JFrame {
                 "Fill",
                 "layer-fill.png",
                 "Fill the left space with pattern",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -483,8 +453,8 @@ public class MeshWindow extends JFrame {
                 "Optimize Mesh",
                 "mesh-optimize.png",
                 "Optimize all layers",
-                "alt O"
-        ) {
+                "alt O",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -501,8 +471,8 @@ public class MeshWindow extends JFrame {
                 "Optimize Layer",
                 "layer-optimize.png",
                 "Optimize the current layer",
-                "alt shift O"
-        ) {
+                "alt shift O",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -519,8 +489,8 @@ public class MeshWindow extends JFrame {
                 "Half Width",
                 "bit-half-length.png",
                 "Cut bit half in length",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -533,8 +503,8 @@ public class MeshWindow extends JFrame {
                 "Half Length",
                 "bit-half-width.png",
                 "Cut bit half in width",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -547,8 +517,8 @@ public class MeshWindow extends JFrame {
                 "1/4 Bit",
                 "bit-quart.png",
                 "Cut bit half in width and length",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -561,8 +531,8 @@ public class MeshWindow extends JFrame {
                 "Delete Bit",
                 "bit-delete.png",
                 "Remove chosen bit(s)",
-                "DELETE"
-        ) {
+                "DELETE",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -575,8 +545,8 @@ public class MeshWindow extends JFrame {
                 "Restore Bit",
                 "bit-restore.png",
                 "Restore to full bit",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -589,8 +559,8 @@ public class MeshWindow extends JFrame {
                 "New Bit",
                 "bit-new.png",
                 "Create new bit",
-                ""
-        ) {
+                "",
+                null) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
@@ -598,60 +568,44 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(newBit);
 
-        MeshAction toggleLayerBorder = new MeshAction(
-                "toggleLayerBorder",
+        MeshToggleAction toggleShowSlice = new MeshToggleAction(
+                "toggleShowSlice",
                 "Show/Hide Layer Border",
                 "layer-border-toggle.png",
                 "Show or hide boundary of layer",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
-        meshActionList.add(toggleLayerBorder);
+                "shift 1",
+                meshController::toggleShowSlice
+        );
+        meshActionList.add(toggleShowSlice);
 
-        MeshAction toggleIrregularBit = new MeshAction(
+        MeshToggleAction toggleIrregularBit = new MeshToggleAction(
                 "toggleIrregularBit",
                 "Show/Hide Irregular Bit",
                 "bit-irregular-toggle.png",
                 "Show or hide non realizable bits",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                "shift 2",
+                meshController::toggleShowIrregularBits
+        );
         meshActionList.add(toggleIrregularBit);
 
-        MeshAction toggleCutPaths = new MeshAction(
+        MeshToggleAction toggleCutPaths = new MeshToggleAction(
                 "toggleCutPaths",
                 "Show/Hide Cut Paths",
                 "bit-cutpath-toggle.png",
                 "Show or hide cut path of bit",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                "shift 3",
+                meshController::toggleShowCutPaths
+        );
         meshActionList.add(toggleCutPaths);
 
-        MeshAction toggleLiftPoint = new MeshAction(
+        MeshToggleAction toggleLiftPoint = new MeshToggleAction(
                 "toggleLiftPoints",
                 "Show/Hide Lift Points",
                 "bit-liftpoint-toggle.png",
                 "Show or hide lift point of bit",
-                ""
-        ) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                "shift 4",
+                meshController::toggleShowLiftPoints
+        );
         meshActionList.add(toggleLiftPoint);
 
         // Register to global listener
@@ -701,10 +655,10 @@ public class MeshWindow extends JFrame {
         toolBar.addSeparator();
         toolBar.add(view3D);
         toolBar.addSeparator();
-        toolBar.addToggleButton(toggleLayerBorder);
-        toolBar.addToggleButton(toggleLiftPoint);
-        toolBar.addToggleButton(toggleCutPaths);
+        toolBar.addToggleButton(toggleShowSlice);
         toolBar.addToggleButton(toggleIrregularBit);
+        toolBar.addToggleButton(toggleCutPaths);
+        toolBar.addToggleButton(toggleLiftPoint);
 
         /* UtilitiesBox */
         utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));

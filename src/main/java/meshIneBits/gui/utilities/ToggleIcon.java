@@ -22,10 +22,11 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.MeshAction;
+import meshIneBits.gui.MeshToggleAction;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ToggleIcon extends JToggleButton {
@@ -33,20 +34,20 @@ public class ToggleIcon extends JToggleButton {
     private final Border onBorder = BorderFactory.createLoweredBevelBorder();
     private final Border offBorder = BorderFactory.createRaisedBevelBorder();
 
-    public ToggleIcon(MeshAction meshAction) {
-        super(meshAction);
+    public ToggleIcon(MeshToggleAction meshToggleAction) {
+        super(meshToggleAction);
         setHideActionText(true);
-        setToolTipText((String) meshAction.getValue(Action.NAME));
+        setToolTipText(meshToggleAction.getToolTipText());
         setContentAreaFilled(false);
         setBorder(offBorder);
-        addMouseListener(new java.awt.event.MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+            public void mouseEntered(MouseEvent evt) {
                 setContentAreaFilled(true);
             }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+            public void mouseExited(MouseEvent evt) {
                 setContentAreaFilled(false);
             }
 

@@ -23,23 +23,27 @@
 package meshIneBits.gui;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
-public abstract class MeshAction extends AbstractAction {
+public class MeshAction extends AbstractAction {
     public final String uuid;
     public final KeyStroke acceleratorKey;
     public final String combo;
+    public final MeshActionInterface action;
 
     MeshAction(String uuid,
                String name,
                String iconname,
                String description,
-               String acceleratorKey) {
+               String acceleratorKey,
+               MeshActionInterface action) {
         super(name, IconLoader.get(iconname));
         putValue(SHORT_DESCRIPTION, description);
         this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
         putValue(ACCELERATOR_KEY, this.acceleratorKey);
         this.uuid = uuid;
         combo = translate(acceleratorKey);
+        this.action = action;
     }
 
     private String translate(String acceleratorKey) {
@@ -54,5 +58,10 @@ public abstract class MeshAction extends AbstractAction {
     public String getToolTipText() {
         return this.getValue(NAME).toString() +
                 (!combo.equals("") ? " (" + combo + ")" : "");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        action.execute();
     }
 }
