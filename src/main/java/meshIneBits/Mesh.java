@@ -23,6 +23,7 @@
 package meshIneBits;
 
 import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.scheduler.AScheduler;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
@@ -50,6 +51,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     private transient Optimizer optimizer = null;
     private Model model;
     private MeshEvents state;
+
+    private AScheduler scheduler = null;
+
     /**
      * Regroup of irregularities by index of layers and keys of bits
      */
@@ -333,8 +337,36 @@ public class Mesh extends Observable implements Observer, Serializable {
                     break;
                 case GLUED:
                     break;
+                case SCHEDULING:
+                    setState((MeshEvents) arg);
+                    break;
+                case SCHEDULED:
+                    setState((MeshEvents) arg);
+                    break;
             }
         }
+    }
+
+    /**
+     * Scheduling Part
+     */
+
+    public void setScheduler(AScheduler s)
+    {
+        Logger.message("Set scheduler to: "+ s.toString());
+        scheduler = s;
+    }
+
+    public AScheduler getScheduler()
+    {
+        return scheduler;
+    }
+
+    public void runScheduler() throws Exception
+    {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (scheduler == null) throw new SchedulerNotDefinedException();
+        (new Thread(scheduler)).start();
     }
 
     /**
@@ -459,6 +491,12 @@ public class Mesh extends Observable implements Observer, Serializable {
     private class SimultaneousOperationsException extends Exception {
         SimultaneousOperationsException() {
             super("The mesh is undergoing an other task. " + state + ". Please wait until that task is done.");
+        }
+    }
+
+    private class SchedulerNotDefinedException extends Exception {
+        SchedulerNotDefinedException() {
+            super("The scheduling method is not defined in the mesh object");
         }
     }
 }

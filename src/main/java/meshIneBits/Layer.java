@@ -49,10 +49,12 @@ public class Layer extends Observable implements Serializable {
     private Pavement flatPavement;
     @Deprecated
     private transient Pavement referentialPavement;
+
     private PatternTemplate patternTemplate;
     private Vector<Pavement> pavements = new Vector<>();
     private Map<Vector2, Bit3D> mapBits3D;
     private int sliceToSelect;
+
 
     /**
      * Constructor for multiple slices
