@@ -600,12 +600,22 @@ public class MeshWindow extends JFrame {
         );
         meshActionList.add(toggleLiftPoint);
 
+        MeshToggleAction togglePreviousLayer = new MeshToggleAction(
+                "togglePreviousLayer",
+                "Show/Hide Previous Layer",
+                "layer-below.png",
+                "Show or hide below pavement",
+                "",
+                meshController::toggleShowPreviousLayer
+        );
+        meshActionList.add(togglePreviousLayer);
+
         MeshAction scheduleMesh = new MeshAction(
                 "scheduleMesh",
                 "Schedule Mesh",
                 "mesh-schedule.png",
                 "Index bits to print",
-                "alt S",
+                "alt I",
                 null
         ) {
             private UPPScheduleMesh uppScheduleMesh = new UPPScheduleMesh(meshController);
@@ -677,6 +687,7 @@ public class MeshWindow extends JFrame {
         toolBar.addToggleButton(toggleIrregularBit);
         toolBar.addToggleButton(toggleCutPaths);
         toolBar.addToggleButton(toggleLiftPoint);
+        toolBar.addToggleButton(togglePreviousLayer);
 
         /* UtilitiesBox */
         utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));
