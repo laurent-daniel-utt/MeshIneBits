@@ -23,6 +23,7 @@
 package meshIneBits;
 
 import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.scheduler.AScheduler;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
@@ -45,6 +46,8 @@ public class Mesh extends Observable implements Observer, Serializable {
     private transient SliceTool slicer;
     private Model model;
     private MeshEvents state;
+    private AScheduler scheduler = null;
+
     @Deprecated
     private boolean sliced = false;
     @Deprecated
@@ -361,6 +364,12 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case EXPORTED:
                     Logger.updateStatus("XML exported");
                     break;
+                case SCHEDULING:
+                    setState((MeshEvents) arg);
+                    break;
+                case SCHEDULED:
+                    setState((MeshEvents) arg);
+                    break;
             }
         }
     }
@@ -375,6 +384,28 @@ public class Mesh extends Observable implements Observer, Serializable {
             layers.add(new Layer(i, slices.get(i)));
             Logger.setProgress(i + 1, jobsize);
         }
+    }
+
+    /**
+     * Scheduling Part
+     */
+
+    public void setScheduler(AScheduler s)
+    {
+        Logger.message("Set scheduler to: "+ s.toString());
+        scheduler = s;
+    }
+
+    public AScheduler getScheduler()
+    {
+        return scheduler;
+    }
+
+    public void runScheduler() throws Exception
+    {
+        if (state.isWorking()) throw new SimultaneousOperationsException();
+        if (scheduler == null) throw new SchedulerNotDefinedException();
+        (new Thread(scheduler)).start();
     }
 
     /**
@@ -691,6 +722,12 @@ public class Mesh extends Observable implements Observer, Serializable {
             layer.startPaver();
             setChanged();
             notifyObservers(MeshEvents.PAVED_LAYER);
+        }
+    }
+
+    private class SchedulerNotDefinedException extends Exception {
+        SchedulerNotDefinedException() {
+            super("The scheduling method is not defined in the mesh object");
         }
     }
 }

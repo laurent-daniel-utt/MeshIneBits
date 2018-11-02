@@ -23,6 +23,7 @@
 package meshIneBits.config;
 
 import meshIneBits.patterntemplates.*;
+import meshIneBits.scheduler.AScheduler;
 
 import java.util.Vector;
 
@@ -219,4 +220,9 @@ public class CraftConfig {
     @Setting(title = "Printer Z",
             description = "Height of printer in mm")
     public static float printerZ = 2000f;
+
+    /**
+     * The provided templates
+     */
+    public static AScheduler[] schedulerPreloaded = {};
 }

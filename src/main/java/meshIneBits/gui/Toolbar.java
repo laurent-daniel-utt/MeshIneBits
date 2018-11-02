@@ -30,6 +30,8 @@ import meshIneBits.config.Setting;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view3d.ProcessingView;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.Logger;
 import meshIneBits.util.XmlTool;
 
@@ -526,6 +528,15 @@ class Toolbar extends JTabbedPane implements Observer {
             processingViewCont.add(processingViewBtn);
             add(processingViewCont);
 
+            // For Scheduling
+            add(new TabContainerSeparator());
+            OptionsContainer processingViewScheduler = new OptionsContainer("Scheduling");
+            JComboBox schedulerChoice = new JComboBox(CraftConfig.schedulerPreloaded);
+            ButtonIcon processingViewSchedulerBtn = new ButtonIcon("Run bits scheduling", "cog.png");
+            processingViewScheduler.add(schedulerChoice);
+            processingViewScheduler.add(processingViewSchedulerBtn);
+            add(processingViewScheduler);
+
             /////////////////////////////////////////////
             // Actions listener
 
@@ -540,6 +551,27 @@ class Toolbar extends JTabbedPane implements Observer {
                     Logger.error(e1.getMessage());
                 }
                 optimizeMeshBtn.setEnabled(true);
+            });
+
+            processingViewSchedulerBtn.addActionListener(e -> {
+                processingViewSchedulerBtn.setEnabled(false);
+                Mesh currentMesh = controller.getCurrentMesh();
+                try {
+                    currentMesh.runScheduler();
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
+                }
+                processingViewSchedulerBtn.setEnabled(true);
+            });
+
+            schedulerChoice.addActionListener(e -> {
+                JComboBox sC = (JComboBox)e.getSource();
+                Mesh currentMesh = controller.getCurrentMesh();
+                try {
+                    currentMesh.setScheduler((AScheduler) sC.getSelectedItem());
+                } catch (Exception e1) {
+                    Logger.error(e1.getMessage());
+                }
             });
 
             // For 3D view

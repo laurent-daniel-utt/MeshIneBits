@@ -40,6 +40,8 @@ public enum MeshEvents implements Serializable {
     OPTIMIZED_MESH(false, 501),
     GLUING(true, 600),
     GLUED(false, 601),
+    SCHEDULING(true, 700),
+    SCHEDULED(false, 701),
     OPENED(false, 1),
     OPEN_FAILED(false, 2),
     SAVED(false, 50),
