@@ -233,6 +233,16 @@ public class MeshController extends Observable implements Observer {
         setAddingBits(false);
     }
 
+    public void scaleSelectedBit(double percentageLength, double percentageWidth) {
+        if (this.getSelectedBitKeys().isEmpty()) {
+            Logger.warning("There is no bit selected");
+        } else {
+            setSelectedBitKeys(getSelectedBits().stream()
+                    .map(bit -> currentLayer.scaleBit(bit, percentageLength, percentageWidth))
+                    .collect(Collectors.toSet()));
+        }
+    }
+
     /**
      * Restore a mesh into working space
      *

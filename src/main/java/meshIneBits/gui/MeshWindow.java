@@ -495,12 +495,10 @@ public class MeshWindow extends JFrame {
                 "bit-half-length.png",
                 "Cut bit half in length",
                 "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                () -> meshController.scaleSelectedBit(
+                        50,
+                        100
+                ));
         meshActionList.add(halfLengthBit);
 
         MeshAction halfWidthBit = new MeshAction(
@@ -509,12 +507,10 @@ public class MeshWindow extends JFrame {
                 "bit-half-width.png",
                 "Cut bit half in width",
                 "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                () -> meshController.scaleSelectedBit(
+                        100,
+                        50
+                ));
         meshActionList.add(halfWidthBit);
 
         MeshAction quartBit = new MeshAction(
@@ -523,12 +519,10 @@ public class MeshWindow extends JFrame {
                 "bit-quart.png",
                 "Cut bit half in width and length",
                 "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                () -> meshController.scaleSelectedBit(
+                        50,
+                        50
+                ));
         meshActionList.add(quartBit);
 
         MeshAction deleteBit = new MeshAction(
@@ -537,12 +531,7 @@ public class MeshWindow extends JFrame {
                 "bit-delete.png",
                 "Remove chosen bit(s)",
                 "DELETE",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                meshController::deleteSelectedBits);
         meshActionList.add(deleteBit);
 
         MeshAction restoreBit = new MeshAction(
@@ -551,12 +540,9 @@ public class MeshWindow extends JFrame {
                 "bit-restore.png",
                 "Restore to full bit",
                 "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                () -> meshController.scaleSelectedBit(
+                        100,
+                        100));
         meshActionList.add(restoreBit);
 
         MeshAction newBit = new MeshAction(
