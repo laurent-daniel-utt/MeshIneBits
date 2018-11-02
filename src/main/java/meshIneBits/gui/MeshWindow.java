@@ -411,20 +411,6 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(paveLayer);
 
-        MeshAction selectRegion = new MeshAction(
-                "selectRegion",
-                "Select Region",
-                "region-select.png",
-                "Select a region",
-                "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
-        meshActionList.add(selectRegion);
-
         MeshAction paveRegion = new MeshAction(
                 "paveRegion",
                 "Pave Region",
@@ -697,7 +683,6 @@ public class MeshWindow extends JFrame {
         utilitiesBox.setFloatable(false);
         utilitiesBox.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
         utilitiesBox.add(paveLayer);
-        utilitiesBox.add(selectRegion);
         utilitiesBox.add(paveRegion);
         utilitiesBox.add(paveFill);
         utilitiesBox.add(optimizeLayer);
