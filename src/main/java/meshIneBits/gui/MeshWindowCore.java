@@ -232,11 +232,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 if (meshController.isAddingBits()) {
                     meshController.incrementBitsOrientationParamBy(notches * WorkspaceConfig.rotationSpeed);
                 }
-                // Rotate the selected bits
-                if (meshController.getSelectedBitKeys().size() > 0) {
-                    // TODO precalculate before accepting
-                    meshController.rotateSelectedBitsBy(notches * WorkspaceConfig.rotationSpeed);
-                }
             }
         } else {
             // Navigate through layers when right click pressed
