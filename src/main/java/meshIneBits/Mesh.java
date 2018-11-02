@@ -258,6 +258,8 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (state.getCode() >= MeshEvents.PAVED_MESH.getCode())
             return true;
         else {
+            if (layers.isEmpty())
+                return false;
             if (layers.stream().allMatch(Layer::isPaved)) {
                 state = MeshEvents.PAVED_MESH;
                 return true;
@@ -365,10 +367,11 @@ public class Mesh extends Observable implements Observer, Serializable {
                     Logger.updateStatus("XML exported");
                     break;
                 case SCHEDULING:
-                    setState((MeshEvents) arg);
+                    setState(MeshEvents.SCHEDULING);
                     break;
                 case SCHEDULED:
-                    setState((MeshEvents) arg);
+                    Logger.updateStatus("Mesh scheduled");
+                    setState(MeshEvents.SCHEDULED);
                     break;
             }
         }
@@ -390,21 +393,21 @@ public class Mesh extends Observable implements Observer, Serializable {
      * Scheduling Part
      */
 
-    public void setScheduler(AScheduler s)
-    {
-        Logger.message("Set scheduler to: "+ s.toString());
+    public void setScheduler(AScheduler s) {
+        Logger.message("Set scheduler to: " + s.toString());
         scheduler = s;
+        scheduler.addObserver(this);
     }
 
-    public AScheduler getScheduler()
-    {
+    public AScheduler getScheduler() {
         return scheduler;
     }
 
-    public void runScheduler() throws Exception
-    {
-        if (state.isWorking()) throw new SimultaneousOperationsException();
+    public void runScheduler() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
         if (scheduler == null) throw new SchedulerNotDefinedException();
+        Logger.updateStatus("Scheduling mesh");
+        // Scheduler will send a signal MeshEvents.SCHEDULED to Mesh.update()
         (new Thread(scheduler)).start();
     }
 

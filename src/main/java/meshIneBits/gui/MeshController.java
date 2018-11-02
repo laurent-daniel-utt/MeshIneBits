@@ -29,7 +29,11 @@ import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.util.*;
+import meshIneBits.scheduler.AScheduler;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Logger;
+import meshIneBits.util.SimultaneousOperationsException;
+import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -558,6 +562,24 @@ public class MeshController extends Observable implements Observer {
         newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
         setChanged();
         notifyObservers();
+    }
+
+    public void scheduleMesh() throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (!mesh.isPaved())
+            throw new Exception("Mesh not paved");
+        if (mesh.getScheduler() == null)
+            throw new Exception("Scheduler not defined");
+        mesh.runScheduler();
+    }
+
+    public void setScheduler(AScheduler scheduler) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (!mesh.isPaved())
+            throw new Exception("Mesh not paved");
+        mesh.setScheduler(scheduler);
     }
 
     /**

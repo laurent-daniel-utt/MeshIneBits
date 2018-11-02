@@ -553,6 +553,7 @@ public class MeshWindow extends JFrame {
                 "alt N",
                 null) {
             private UPPNewBit uppNewBit = new UPPNewBit(meshController);
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (meshController.getMesh() == null) {
@@ -613,6 +614,31 @@ public class MeshWindow extends JFrame {
         );
         meshActionList.add(toggleLiftPoint);
 
+        MeshAction scheduleMesh = new MeshAction(
+                "scheduleMesh",
+                "Schedule Mesh",
+                "mesh-schedule.png",
+                "Index bits to print",
+                "alt S",
+                null
+        ) {
+            private UPPScheduleMesh uppScheduleMesh = new UPPScheduleMesh(meshController);
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (meshController.getMesh() == null) {
+                    meshController.handleException(new Exception("Mesh not found"));
+                    return;
+                }
+                if (!meshController.getMesh().isPaved()) {
+                    meshController.handleException(new Exception("Mesh not paved"));
+                    return;
+                }
+                toggleUtilityParametersPanel(uppScheduleMesh);
+            }
+        };
+        meshActionList.add(scheduleMesh);
+
         // Register to global listener
         meshActionList.forEach(meshAction -> {
             inputMap.put(meshAction.acceleratorKey, meshAction.uuid);
@@ -652,6 +678,7 @@ public class MeshWindow extends JFrame {
         toolBar.add(sliceMesh);
         toolBar.add(paveMesh);
         toolBar.add(optimizeMesh);
+        toolBar.add(scheduleMesh);
         toolBar.add(exportMeshXML);
         toolBar.addSeparator();
 //        toolBar.add(openPatternConfig);

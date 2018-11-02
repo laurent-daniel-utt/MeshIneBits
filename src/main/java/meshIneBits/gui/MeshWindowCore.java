@@ -253,6 +253,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         super.paintComponent(g);
         Mesh mesh = meshController.getMesh();
         if (mesh == null) return;
+        if (meshController.getCurrentLayer() == null) return;
 
         requestFocusInWindow();
 
