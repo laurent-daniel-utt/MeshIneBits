@@ -397,11 +397,16 @@ public class MeshWindow extends JFrame {
                 "Pave Layer",
                 "layer-pave.png",
                 "Pave the current layer",
-                "",
+                "alt shift P",
                 null) {
+            private UPPPaveLayer uppPaveLayer = new UPPPaveLayer(meshController);
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                // Check validity
+                if (meshController.getMesh() == null
+                        || !meshController.getMesh().isSliced()) return;
+                toggleUtilityParametersPanel(uppPaveLayer);
             }
         };
         meshActionList.add(paveLayer);

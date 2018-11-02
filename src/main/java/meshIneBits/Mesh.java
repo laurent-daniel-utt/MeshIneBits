@@ -327,7 +327,11 @@ public class Mesh extends Observable implements Observer, Serializable {
                 case PAVED_MESH:
                     setState(MeshEvents.PAVED_MESH);
                     break;
-                case PAVED_MESH_FAILED:
+                case PAVING_LAYER:
+                    break;
+                case PAVED_LAYER:
+                    Logger.updateStatus("Layer paved");
+                    setState(MeshEvents.PAVED_LAYER);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
@@ -396,6 +400,25 @@ public class Mesh extends Observable implements Observer, Serializable {
                 indexes.add(i);
         }
         return indexes;
+    }
+
+    /**
+     * Pave certain layer
+     *
+     * @param patternTemplate maybe different from global choice
+     * @param layer           target
+     */
+    public void pave(PatternTemplate patternTemplate, Layer layer) throws Exception {
+        pavementSafetyCheck();
+
+        setState(MeshEvents.PAVING_LAYER);
+        // MeshEvents.PAVED_LAYER will be sent in update() after receiving
+        // enough signals from layers
+        Logger.updateStatus("Paving layer " + layer.getLayerNumber());
+        // New worker
+        LayerPaver layerPaver = new LayerPaver(layer, patternTemplate);
+        layerPaver.addObserver(this);
+        (new Thread(layerPaver)).start();
     }
 
     /**
@@ -518,10 +541,6 @@ public class Mesh extends Observable implements Observer, Serializable {
 
         LayerOptimizer(Layer layer) {
             this.layer = layer;
-        }
-
-        public Layer getLayer() {
-            return layer;
         }
 
         @Override
@@ -653,6 +672,25 @@ public class Mesh extends Observable implements Observer, Serializable {
             xt.writeXmlCode();
             setChanged();
             notifyObservers(MeshEvents.EXPORTED);
+        }
+    }
+
+    private class LayerPaver extends Observable implements Runnable {
+        private final Layer layer;
+        private final PatternTemplate patternTemplate;
+
+        LayerPaver(Layer layer, PatternTemplate patternTemplate) {
+            this.layer = layer;
+            this.patternTemplate = patternTemplate;
+            patternTemplate.ready(Mesh.this);
+        }
+
+        @Override
+        public void run() {
+            layer.setPatternTemplate(patternTemplate);
+            layer.startPaver();
+            setChanged();
+            notifyObservers(MeshEvents.PAVED_LAYER);
         }
     }
 }

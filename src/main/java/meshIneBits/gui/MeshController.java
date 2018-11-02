@@ -145,10 +145,9 @@ public class MeshController extends Observable implements Observer {
                         setChanged();
                         notifyObservers(MeshEvents.PAVED_MESH);
                         break;
-                    case PAVED_MESH_FAILED:
-                        Logger.updateStatus("Mesh pavement failed");
-                        setChanged();
-                        notifyObservers(MeshEvents.PAVED_MESH_FAILED);
+                    case PAVING_LAYER:
+                        break;
+                    case PAVED_LAYER:
                         break;
                     case OPTIMIZING_LAYER:
                         break;
@@ -514,6 +513,14 @@ public class MeshController extends Observable implements Observer {
         if (!currentLayer.isPaved())
             throw new Exception("Layer not paved");
         mesh.optimize(currentLayer);
+    }
+
+    public void paveLayer(PatternTemplate patternTemplate) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (mesh.getState().isWorking())
+            throw new SimultaneousOperationsException(mesh);
+        mesh.pave(patternTemplate, currentLayer);
     }
 
     /**
