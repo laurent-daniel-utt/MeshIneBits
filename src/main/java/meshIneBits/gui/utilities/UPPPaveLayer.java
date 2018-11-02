@@ -78,14 +78,4 @@ public class UPPPaveLayer extends UtilityParametersPanel {
         c.anchor = GridBagConstraints.LINE_START;
         add(parametersPanel, c);
     }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(getWidth(), 100);
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return new Dimension(getWidth(), 100);
-    }
 }

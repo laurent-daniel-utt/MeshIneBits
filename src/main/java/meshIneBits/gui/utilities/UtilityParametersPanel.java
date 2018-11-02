@@ -37,4 +37,14 @@ public class UtilityParametersPanel extends JPanel {
         titledBorder.setTitleColor(Color.GRAY);
         this.setBorder(titledBorder);
     }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(getWidth(), 100);
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(getWidth(), 100);
+    }
 }
