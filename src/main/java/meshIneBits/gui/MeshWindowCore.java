@@ -431,14 +431,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         Rectangle2D.Double r = new Rectangle2D.Double(
                 -CraftConfig.bitLength / 2,
                 -CraftConfig.bitWidth / 2,
-                meshController.newBitsLengthParam.getCurrentValue(),
-                meshController.newBitsWidthParam.getCurrentValue());
+                meshController.getNewBitsLengthParam().getCurrentValue(),
+                meshController.getNewBitsWidthParam().getCurrentValue());
         Area bitBorder = new Area(r);
         // Transform into current view
         AffineTransform affineTransform = new AffineTransform();
         affineTransform.translate(oldX, oldY);
         Vector2 lOrientation = Vector2.getEquivalentVector(
-                meshController.newBitsOrientationParam.getCurrentValue());
+                meshController.getNewBitsOrientationParam().getCurrentValue());
         affineTransform.rotate(lOrientation.x, lOrientation.y);
         affineTransform.scale(drawScale, drawScale);
         bitBorder.transform(affineTransform);

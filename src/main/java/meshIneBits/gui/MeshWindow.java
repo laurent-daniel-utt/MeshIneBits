@@ -550,11 +550,25 @@ public class MeshWindow extends JFrame {
                 "New Bit",
                 "bit-new.png",
                 "Create new bit",
-                "",
+                "alt N",
                 null) {
+            private UPPNewBit uppNewBit = new UPPNewBit(meshController);
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                if (meshController.getMesh() == null) {
+                    meshController.handleException(new Exception("Mesh not found"));
+                    return;
+                }
+                if (meshController.getCurrentLayer() == null) {
+                    meshController.handleException(new Exception("Layer not found"));
+                    return;
+                }
+                if (!meshController.getCurrentLayer().isPaved()) {
+                    meshController.handleException(new Exception("Layer not paved"));
+                    return;
+                }
+                toggleUtilityParametersPanel(uppNewBit);
+                meshController.setAddingBits(uppNewBit.isVisible());
             }
         };
         meshActionList.add(newBit);

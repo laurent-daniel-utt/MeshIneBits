@@ -24,12 +24,12 @@ package meshIneBits.gui;
 
 public class MeshToggleAction extends MeshAction {
 
-    MeshToggleAction(String uuid,
-                     String name,
-                     String iconname,
-                     String description,
-                     String acceleratorKey,
-                     MeshActionInterface action) {
+    public MeshToggleAction(String uuid,
+                            String name,
+                            String iconname,
+                            String description,
+                            String acceleratorKey,
+                            MeshActionInterface action) {
         super(uuid, name, iconname, description, acceleratorKey, action);
     }
 }

@@ -47,29 +47,29 @@ import java.util.stream.Collectors;
 public class MeshController extends Observable implements Observer {
 
     // New bit config
-    final DoubleParam newBitsLengthParam = new DoubleParam(
+    private final DoubleParam newBitsLengthParam = new DoubleParam(
             "newBitLength",
             "Bit length",
             "Length of bits to add",
             1.0, CraftConfig.bitLength,
             CraftConfig.bitLength, 1.0);
-    final DoubleParam newBitsWidthParam = new DoubleParam(
+    private final DoubleParam newBitsWidthParam = new DoubleParam(
             "newBitWidth",
             "Bit width",
             "Length of bits to add",
             1.0, CraftConfig.bitWidth,
             CraftConfig.bitWidth, 1.0);
-    final DoubleParam newBitsOrientationParam = new DoubleParam(
+    private final DoubleParam newBitsOrientationParam = new DoubleParam(
             "newBitOrientation",
             "Bit orientation",
             "Angle of bits in respect to that of layer",
             -180.0, 180.0, 0.0, 0.01);
-    final DoubleParam safeguardSpaceParam = new DoubleParam(
+    private final DoubleParam safeguardSpaceParam = new DoubleParam(
             "safeguardSpace",
             "Space around bit",
             "In order to keep bits not overlapping or grazing each other",
             1.0, 10.0, 3.0, 0.01);
-    final BooleanParam autocropParam = new BooleanParam(
+    private final BooleanParam autocropParam = new BooleanParam(
             "autocrop",
             "Auto crop",
             "Cut the new bit while preserving space around bits",
@@ -495,6 +495,26 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
+    public DoubleParam getNewBitsLengthParam() {
+        return newBitsLengthParam;
+    }
+
+    public DoubleParam getNewBitsWidthParam() {
+        return newBitsWidthParam;
+    }
+
+    public DoubleParam getNewBitsOrientationParam() {
+        return newBitsOrientationParam;
+    }
+
+    public DoubleParam getSafeguardSpaceParam() {
+        return safeguardSpaceParam;
+    }
+
+    public BooleanParam getAutocropParam() {
+        return autocropParam;
+    }
+
     /**
      * Centralized handler of exceptions
      *
@@ -531,6 +551,13 @@ public class MeshController extends Observable implements Observer {
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         mesh.pave(patternTemplate, currentLayer);
+    }
+
+    public void setNewBitSize(int lengthPercentage, int widthPercentage) {
+        newBitsLengthParam.setCurrentValue(CraftConfig.bitLength * lengthPercentage / 100);
+        newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
+        setChanged();
+        notifyObservers();
     }
 
     /**
