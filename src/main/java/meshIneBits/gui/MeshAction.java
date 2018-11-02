@@ -31,12 +31,12 @@ public class MeshAction extends AbstractAction {
     public final String combo;
     public final MeshActionInterface action;
 
-    MeshAction(String uuid,
-               String name,
-               String iconname,
-               String description,
-               String acceleratorKey,
-               MeshActionInterface action) {
+    public MeshAction(String uuid,
+                      String name,
+                      String iconname,
+                      String description,
+                      String acceleratorKey,
+                      MeshActionInterface action) {
         super(name, IconLoader.get(iconname));
         putValue(SHORT_DESCRIPTION, description);
         this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
@@ -56,8 +56,11 @@ public class MeshAction extends AbstractAction {
     }
 
     public String getToolTipText() {
-        return this.getValue(NAME).toString() +
-                (!combo.equals("") ? " (" + combo + ")" : "");
+        return "<html>"
+                + "<p><b>" + this.getValue(NAME).toString() + "</b>" +
+                (!combo.equals("") ? " (" + combo + ")" : "") + "</p>"
+                + "<p><i>" + this.getValue(SHORT_DESCRIPTION) + "</i></p>"
+                ;
     }
 
     @Override
