@@ -50,11 +50,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     private AScheduler scheduler = null;
 
     @Deprecated
-    private boolean sliced = false;
-    @Deprecated
     private transient PatternTemplate patternTemplate = null;
-    @Deprecated
-    private transient Optimizer optimizer = null;
     /**
      * Regroup of irregularities by index of layers and keys of bits
      */
@@ -410,14 +406,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         Logger.updateStatus("Scheduling mesh");
         // Scheduler will send a signal MeshEvents.SCHEDULED to Mesh.update()
         (new Thread(scheduler)).start();
-    }
-
-    /**
-     * @return the optimizer
-     * @deprecated
-     */
-    public Optimizer getOptimizer() {
-        return optimizer;
     }
 
     public MeshEvents getState() {

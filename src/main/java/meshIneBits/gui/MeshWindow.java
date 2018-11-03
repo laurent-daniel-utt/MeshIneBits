@@ -230,47 +230,6 @@ public class MeshWindow extends JFrame {
                 });
         meshActionList.add(saveMesh);
 
-//        MeshAction openPatternConfig = new MeshAction(
-//                "openPatternConfig",
-//                "Open Pattern Config",
-//                "pconf-open.png",
-//                "Open a set of predefined pattern parameters",
-//                ""
-//        ) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                final JFileChooser fc = new CustomFileChooser();
-//                String ext = CraftConfigLoader.PATTERN_CONFIG_EXTENSION;
-//                fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-//                String filePath = CraftConfig.lastPatternConfigFile.replace("\n", "\\n");
-//                fc.setSelectedFile(new File(filePath));
-//                if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-//                    File patternConfigFile = fc.getSelectedFile();
-//                    CraftConfig.lastPatternConfigFile = patternConfigFile.getAbsolutePath();
-//                    PatternConfig loadedConf = CraftConfigLoader.loadPatternConfig(patternConfigFile);
-//                    if (loadedConf != null) {
-//                        Toolbar.TemplateTab.patternParametersContainer.setupPatternParameters(loadedConf);
-//                        Logger.updateStatus("Pattern configuration loaded.");
-//                    }
-//                }
-//            }
-//        };
-//        meshActionList.add(openPatternConfig);
-//
-//        MeshAction savePatternConfig = new MeshAction(
-//                "savePatternConfig",
-//                "Save Pattern Config",
-//                "pconf-save.png",
-//                "Save the current set of pattern parameters",
-//                ""
-//        ) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                // TODO
-//            }
-//        };
-//        meshActionList.add(savePatternConfig);
-
         MeshAction configure = new MeshAction(
                 "configure",
                 "Configuration",
