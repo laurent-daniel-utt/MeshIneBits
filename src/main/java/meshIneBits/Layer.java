@@ -96,24 +96,6 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Construct new layer given a slice and a parameterized pattern
-     *
-     * @param layerNumber       index of layer
-     * @param horizontalSection projection of mesh onto certain altitude
-     * @param patternTemplate   algorithm of flat pavement
-     * @since 0.3
-     * @deprecated replaced by {@link Layer#Layer(int, Slice)}
-     */
-    public Layer(int layerNumber, Slice horizontalSection, PatternTemplate patternTemplate) {
-        this.layerNumber = layerNumber;
-        this.horizontalSection = horizontalSection;
-        this.patternTemplate = patternTemplate;
-        this.flatPavement = patternTemplate.pave(this);
-        this.paved = true;
-        rebuild();
-    }
-
-    /**
      * Construct new empty layer. No {@link PatternTemplate}, no {@link Pavement}
      *
      * @param layerNumber       index of layer
