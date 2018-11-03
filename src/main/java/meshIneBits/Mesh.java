@@ -142,8 +142,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         }
     }
 
-    // TODO pave a certain layer
-
     private void pavementSafetyCheck() throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);
         if (!isSliced())

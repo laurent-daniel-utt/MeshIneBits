@@ -42,7 +42,7 @@ public abstract class PatternParameter implements Serializable {
     String title;
     String codename;
     String description;
-    PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     /**
      * Type of current value depends on sub class

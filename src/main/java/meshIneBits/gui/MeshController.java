@@ -119,80 +119,77 @@ public class MeshController extends Observable implements Observer {
             calculateRealToPavement();
             setChanged();
             notifyObservers(arg);
-        } else if (o instanceof Mesh)
-            if (arg instanceof MeshEvents)
-                switch ((MeshEvents) arg) {
-                    case READY:
-                        break;
-                    case IMPORT_FAILED:
-                        Logger.updateStatus("Model import failed");
-                        break;
-                    case IMPORTING:
-                        Logger.updateStatus("Importing model");
-                        break;
-                    case IMPORTED:
-                        Logger.updateStatus("Model imported. Mesh ready to slice.");
-                        meshWindow.getView3DWindow().setCurrentMesh(mesh);
-                        break;
-                    case SLICING:
-                        break;
-                    case SLICED:
-                        Logger.updateStatus("Mesh sliced");
-                        setLayer(0);
-                        meshWindow.initGadgets();
-                        // Notify the core to draw
-                        setChanged();
-                        notifyObservers(MeshEvents.SLICED);
-                        break;
-                    case PAVING_MESH:
-                        Logger.updateStatus("Paving mesh");
-                        break;
-                    case PAVED_MESH:
-                        Logger.updateStatus("Mesh paved");
-                        checkEmptyLayers();
-                        setChanged();
-                        notifyObservers(MeshEvents.PAVED_MESH);
-                        break;
-                    case PAVING_LAYER:
-                        break;
-                    case PAVED_LAYER:
-                        break;
-                    case OPTIMIZING_LAYER:
-                        break;
-                    case OPTIMIZED_LAYER:
-                        break;
-                    case OPTIMIZING_MESH:
-                        break;
-                    case OPTIMIZED_MESH:
-                        break;
-                    case GLUING:
-                        break;
-                    case GLUED:
-                        break;
-                    case SCHEDULING:
-                        break;
-                    case SCHEDULED:
-                        break;
-                    case OPENED:
-                        meshWindow.getView3DWindow().setCurrentMesh(mesh);
-                        setLayer(0);
-                        meshWindow.initGadgets();
-                        setChanged();
-                        notifyObservers(MeshEvents.OPENED);
-                        break;
-                    case OPEN_FAILED:
-                        Logger.error("Failed to open the mesh");
-                        break;
-                    case SAVED:
-                        break;
-                    case SAVE_FAILED:
-                        Logger.error("Failed to save the mesh");
-                        break;
-                    case EXPORTING:
-                        break;
-                    case EXPORTED:
-                        break;
-                }
+        } else if (arg instanceof MeshEvents)
+            switch ((MeshEvents) arg) {
+                case READY:
+                    break;
+                case IMPORT_FAILED:
+                    Logger.updateStatus("Model import failed");
+                    break;
+                case IMPORTING:
+                    Logger.updateStatus("Importing model");
+                    break;
+                case IMPORTED:
+                    Logger.updateStatus("Model imported. Mesh ready to slice.");
+                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    break;
+                case SLICING:
+                    break;
+                case SLICED:
+                    Logger.updateStatus("Mesh sliced");
+                    setLayer(0);
+                    meshWindow.initGadgets();
+                    // Notify the core to draw
+                    setChanged();
+                    notifyObservers(MeshEvents.SLICED);
+                    break;
+                case PAVING_MESH:
+                    Logger.updateStatus("Paving mesh");
+                    break;
+                case PAVED_MESH:
+                    Logger.updateStatus("Mesh paved");
+                    checkEmptyLayers();
+                    setChanged();
+                    notifyObservers(MeshEvents.PAVED_MESH);
+                    break;
+                case PAVING_LAYER:
+                    break;
+                case PAVED_LAYER:
+                    break;
+                case OPTIMIZING_LAYER:
+                    break;
+                case OPTIMIZED_LAYER:
+                    break;
+                case OPTIMIZING_MESH:
+                    break;
+                case OPTIMIZED_MESH:
+                    break;
+                case GLUING:
+                    break;
+                case GLUED:
+                    break;
+                case SCHEDULING:
+                    break;
+                case SCHEDULED:
+                    break;
+                case OPENED:
+                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    setLayer(0);
+                    meshWindow.initGadgets();
+                    setChanged();
+                    notifyObservers(MeshEvents.OPENED);
+                    break;
+                case OPEN_FAILED:
+                    break;
+                case SAVED:
+                    break;
+                case SAVE_FAILED:
+                    break;
+                case EXPORTING:
+                    break;
+                case EXPORTED:
+                    break;
+            }
     }
 
     private void calculateRealToPavement() {
@@ -451,7 +448,10 @@ public class MeshController extends Observable implements Observer {
      * @param position real position (not zoomed or translated)
      */
     public void addNewBitAt(Point2D.Double position) {
-        if (mesh == null || currentLayer.getFlatPavement() == null || position == null)
+        if (mesh == null
+                || currentLayer.getFlatPavement() == null
+                || position == null
+                || bitAreaPreview.isEmpty())
             return;
         realToPavement.transform(position, position);
         bitAreaPreview.transform(realToPavement);
@@ -720,6 +720,7 @@ public class MeshController extends Observable implements Observer {
                 // notify main window
                 setChanged();
                 notifyObservers(MeshEvents.SAVED);
+                Logger.updateStatus("Mesh saved at " + file.getPath());
             } catch (IOException e) {
                 handleException(e);
                 setChanged();
@@ -739,6 +740,7 @@ public class MeshController extends Observable implements Observer {
             assert file != null;
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 setMesh((Mesh) ois.readObject());
+                Logger.updateStatus("Mesh opened from " + file.getPath());
                 // notify main window
                 setChanged();
                 notifyObservers(MeshEvents.OPENED);
