@@ -168,6 +168,10 @@ public class MeshController extends Observable implements Observer {
                         break;
                     case OPENED:
                         meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                        setLayer(0);
+                        meshWindow.initGadgets();
+                        setChanged();
+                        notifyObservers(MeshEvents.OPENED);
                         break;
                     case OPEN_FAILED:
                         Logger.error("Failed to open the mesh");
