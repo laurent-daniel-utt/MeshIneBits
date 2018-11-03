@@ -29,8 +29,7 @@ import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
 
 import java.awt.geom.Area;
-import java.io.File;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -50,21 +49,18 @@ public class Mesh extends Observable implements Observer, Serializable {
     private AScheduler scheduler = null;
 
     /**
-     * Update the current state of mesh and notify observers with that state
-     *
-     * @param state a value from predefined list
-     */
-    private void setState(MeshEvents state) {
-        this.state = state;
-        setChanged();
-        notifyObservers(state);
-    }
-
-    /**
      * Set the new mesh to ready
      */
     public Mesh() {
         setState(MeshEvents.READY);
+    }
+
+    public static Mesh open(File file) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return ((Mesh) ois.readObject());
+        } catch (ClassNotFoundException | IOException e) {
+            throw e;
+        }
     }
 
     /**
@@ -77,6 +73,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);
 
         setState(MeshEvents.IMPORTING);
+        Logger.updateStatus("Importing model from " + filepath);
         try {
             this.model = new Model(filepath);
             this.model.center();
@@ -90,6 +87,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         slices.clear();
         layers.clear();
 
+        Logger.updateStatus("Model from " + filepath + " imported. Ready to slice");
         // Signal to update
         setState(MeshEvents.IMPORTED);
     }
@@ -148,6 +146,10 @@ public class Mesh extends Observable implements Observer, Serializable {
             throw new Exception("The mesh cannot be paved until it is sliced");
     }
 
+    public boolean isSliced() {
+        return state.getCode() >= MeshEvents.SLICED.getCode();
+    }
+
     /**
      * Start the auto optimizer embedded in each template of each layer
      * if presenting
@@ -166,6 +168,29 @@ public class Mesh extends Observable implements Observer, Serializable {
         t.start();
     }
 
+    private void optimizationSafetyCheck() throws Exception {
+        if (state.isWorking()) throw new SimultaneousOperationsException(this);
+        if (!isPaved())
+            throw new Exception("The mesh cannot be auto optimized until it is fully paved.");
+    }
+
+    /**
+     * @return <tt>true</tt> if all {@link Layer} is paved
+     */
+    public boolean isPaved() {
+        if (state.getCode() >= MeshEvents.PAVED_MESH.getCode())
+            return true;
+        else {
+            if (layers.isEmpty())
+                return false;
+            if (layers.stream().allMatch(Layer::isPaved)) {
+                state = MeshEvents.PAVED_MESH;
+                return true;
+            } else
+                return false;
+        }
+    }
+
     /**
      * Run the optimizing algorithm of the layer
      *
@@ -181,12 +206,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         // MeshEvents.OPTIMIZED_LAYER will be sent after completed the task
         Thread t = new Thread(layerOptimizer);
         t.start();
-    }
-
-    private void optimizationSafetyCheck() throws Exception {
-        if (state.isWorking()) throw new SimultaneousOperationsException(this);
-        if (!isPaved())
-            throw new Exception("The mesh cannot be auto optimized until it is fully paved.");
     }
 
     /**
@@ -232,48 +251,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         return slices;
     }
 
-    /**
-     * @return <tt>true</tt> if all {@link Layer} is paved
-     */
-    public boolean isPaved() {
-        if (state.getCode() >= MeshEvents.PAVED_MESH.getCode())
-            return true;
-        else {
-            if (layers.isEmpty())
-                return false;
-            if (layers.stream().allMatch(Layer::isPaved)) {
-                state = MeshEvents.PAVED_MESH;
-                return true;
-            } else
-                return false;
-        }
-    }
-
-    public boolean isSliced() {
-        return state.getCode() >= MeshEvents.SLICED.getCode();
-    }
-
-    /**
-     * skirtRadius is the radius of the cylinder that fully contains the part.
-     */
-    private void setSkirtRadius() {
-
-        double radius = 0;
-
-        for (Slice s : slices) {
-            for (Segment2D segment : s.getSegmentList()) {
-                if (segment.start.vSize2() > radius) {
-                    radius = segment.start.vSize2();
-                }
-                if (segment.end.vSize2() > radius) {
-                    radius = segment.end.vSize2();
-                }
-            }
-        }
-        skirtRadius = Math.sqrt(radius);
-        Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
-    }
-
     public Model getModel() {
         return model;
     }
@@ -283,6 +260,8 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (arg instanceof MeshEvents) {
             switch ((MeshEvents) arg) {
                 case READY:
+                    break;
+                case IMPORT_FAILED:
                     break;
                 case IMPORTING:
                     break;
@@ -350,6 +329,27 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     /**
+     * skirtRadius is the radius of the cylinder that fully contains the part.
+     */
+    private void setSkirtRadius() {
+
+        double radius = 0;
+
+        for (Slice s : slices) {
+            for (Segment2D segment : s.getSegmentList()) {
+                if (segment.start.vSize2() > radius) {
+                    radius = segment.start.vSize2();
+                }
+                if (segment.end.vSize2() > radius) {
+                    radius = segment.end.vSize2();
+                }
+            }
+        }
+        skirtRadius = Math.sqrt(radius);
+        Logger.updateStatus("Skirt's radius: " + ((int) skirtRadius + 1) + " mm");
+    }
+
+    /**
      * Generate empty layers
      */
     private void initLayers() {
@@ -359,6 +359,10 @@ public class Mesh extends Observable implements Observer, Serializable {
             layers.add(new Layer(i, slices.get(i)));
             Logger.setProgress(i + 1, jobsize);
         }
+    }
+
+    public AScheduler getScheduler() {
+        return scheduler;
     }
 
     /**
@@ -371,10 +375,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         scheduler.addObserver(this);
     }
 
-    public AScheduler getScheduler() {
-        return scheduler;
-    }
-
     public void runScheduler() throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);
         if (scheduler == null) throw new SchedulerNotDefinedException();
@@ -385,6 +385,17 @@ public class Mesh extends Observable implements Observer, Serializable {
 
     public MeshEvents getState() {
         return state;
+    }
+
+    /**
+     * Update the current state of mesh and notify observers with that state
+     *
+     * @param state a value from predefined list
+     */
+    private void setState(MeshEvents state) {
+        this.state = state;
+        setChanged();
+        notifyObservers(state);
     }
 
     /**
@@ -435,6 +446,19 @@ public class Mesh extends Observable implements Observer, Serializable {
         RegionPaver regionPaver = new RegionPaver(layer, region, patternTemplate);
         regionPaver.addObserver(this);
         (new Thread(regionPaver)).start();
+    }
+
+    public void saveAs(File file) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(this);
+            oos.flush();
+            setChanged();
+            notifyObservers(MeshEvents.SAVED);
+        } catch (IOException e) {
+            setChanged();
+            notifyObservers(MeshEvents.SAVE_FAILED);
+            throw e;
+        }
     }
 
     /**
@@ -721,7 +745,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         private final Area region;
         private final PatternTemplate patternTemplate;
 
-        public RegionPaver(Layer layer, Area region, PatternTemplate patternTemplate) {
+        RegionPaver(Layer layer, Area region, PatternTemplate patternTemplate) {
             this.layer = layer;
             this.region = region;
             this.patternTemplate = patternTemplate;

@@ -124,13 +124,11 @@ public class MeshController extends Observable implements Observer {
                 case READY:
                     break;
                 case IMPORT_FAILED:
-                    Logger.updateStatus("Model import failed");
+
                     break;
                 case IMPORTING:
-                    Logger.updateStatus("Importing model");
                     break;
                 case IMPORTED:
-                    Logger.updateStatus("Model imported. Mesh ready to slice.");
                     meshWindow.getView3DWindow().setCurrentMesh(mesh);
                     break;
                 case SLICING:
@@ -247,6 +245,15 @@ public class MeshController extends Observable implements Observer {
         clearSelectingRegion();
     }
 
+    private void clearSelectingRegion() {
+        regionVertices.clear();
+        currentSelectedRegion = new Path2D.Double();
+        selectedRegion = false;
+        selectingRegion = false;
+        setChanged();
+        notifyObservers();
+    }
+
     public void scaleSelectedBit(double percentageLength, double percentageWidth) {
         if (this.getSelectedBitKeys().isEmpty()) {
             Logger.warning("There is no bit selected");
@@ -255,6 +262,32 @@ public class MeshController extends Observable implements Observer {
                     .map(bit -> currentLayer.scaleBit(bit, percentageLength, percentageWidth))
                     .collect(Collectors.toSet()));
         }
+    }
+
+    public Set<Vector2> getSelectedBitKeys() {
+        return selectedBitKeys;
+    }
+
+    /**
+     * Bulk reset
+     *
+     * @param newSelectedBitKeys <tt>null</tt> to reset to empty
+     */
+    public void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
+        selectedBitKeys.clear();
+        if (newSelectedBitKeys != null) {
+            selectedBitKeys.addAll(newSelectedBitKeys);
+            selectedBitKeys.removeIf(Objects::isNull);
+        }
+        // Notify the core to repaint
+        setChanged();
+        notifyObservers();
+    }
+
+    public Set<Bit3D> getSelectedBits() {
+        return selectedBitKeys.stream()
+                .map(currentLayer::getBit3D)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -281,7 +314,6 @@ public class MeshController extends Observable implements Observer {
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         MeshSaver meshSaver = new MeshSaver(file);
-        meshSaver.addObserver(this);
         (new Thread(meshSaver)).start();
     }
 
@@ -334,26 +366,6 @@ public class MeshController extends Observable implements Observer {
 
     public void incrementBitsOrientationParamBy(double v) {
         newBitsOrientationParam.incrementBy(v, true);
-        setChanged();
-        notifyObservers();
-    }
-
-    public Set<Vector2> getSelectedBitKeys() {
-        return selectedBitKeys;
-    }
-
-    /**
-     * Bulk reset
-     *
-     * @param newSelectedBitKeys <tt>null</tt> to reset to empty
-     */
-    public void setSelectedBitKeys(Set<Vector2> newSelectedBitKeys) {
-        selectedBitKeys.clear();
-        if (newSelectedBitKeys != null) {
-            selectedBitKeys.addAll(newSelectedBitKeys);
-            selectedBitKeys.removeIf(Objects::isNull);
-        }
-        // Notify the core to repaint
         setChanged();
         notifyObservers();
     }
@@ -415,12 +427,6 @@ public class MeshController extends Observable implements Observer {
 
         setChanged();
         notifyObservers();
-    }
-
-    public Set<Bit3D> getSelectedBits() {
-        return selectedBitKeys.stream()
-                .map(currentLayer::getBit3D)
-                .collect(Collectors.toSet());
     }
 
     public Area getAvailableBitAreaAt(Point2D.Double spot) {
@@ -610,25 +616,16 @@ public class MeshController extends Observable implements Observer {
         setSelectingRegion(!selectingRegion);
     }
 
+    public boolean isSelectingRegion() {
+        return selectingRegion;
+    }
+
     public void setSelectingRegion(boolean b) {
         this.selectingRegion = b;
         if (!selectingRegion)
             clearSelectingRegion();
         setChanged();
         notifyObservers();
-    }
-
-    private void clearSelectingRegion() {
-        regionVertices.clear();
-        currentSelectedRegion = new Path2D.Double();
-        selectedRegion = false;
-        selectingRegion = false;
-        setChanged();
-        notifyObservers();
-    }
-
-    public boolean isSelectingRegion() {
-        return selectingRegion;
     }
 
     public boolean hasSelectedRegion() {
@@ -690,11 +687,9 @@ public class MeshController extends Observable implements Observer {
 
         @Override
         public void run() {
-            mesh = new Mesh();
-            mesh.addObserver(MeshController.this);
+            setMesh(new Mesh());
             setChanged();
             notifyObservers(MeshEvents.READY);
-            assert file != null;
             String filename = file.toString();
             try {
                 mesh.importModel(filename); // sync task
@@ -713,18 +708,11 @@ public class MeshController extends Observable implements Observer {
 
         @Override
         public void run() {
-            assert file != null;
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-                oos.writeObject(mesh);
-                oos.flush();
-                // notify main window
-                setChanged();
-                notifyObservers(MeshEvents.SAVED);
+            try {
+                mesh.saveAs(file);
                 Logger.updateStatus("Mesh saved at " + file.getPath());
             } catch (IOException e) {
                 handleException(e);
-                setChanged();
-                notifyObservers(MeshEvents.SAVE_FAILED);
             }
         }
     }
@@ -737,9 +725,8 @@ public class MeshController extends Observable implements Observer {
 
         @Override
         public void run() {
-            assert file != null;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                setMesh((Mesh) ois.readObject());
+            try {
+                setMesh(Mesh.open(file));
                 Logger.updateStatus("Mesh opened from " + file.getPath());
                 // notify main window
                 setChanged();
