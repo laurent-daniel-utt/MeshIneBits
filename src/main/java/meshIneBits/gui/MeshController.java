@@ -654,6 +654,16 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
+    public void paveFill(PatternTemplate patternTemplate) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (currentLayer == null)
+            throw new Exception("Layer not found");
+        if (!currentLayer.isPaved())
+            throw new Exception("Layer not paved");
+        mesh.pave(patternTemplate, currentLayer, availableArea);
+    }
+
     /**
      * Convenient class to run async tasks
      */

@@ -441,9 +441,18 @@ public class MeshWindow extends JFrame {
                 "Fill the left space with pattern",
                 "",
                 null) {
+            private UPPPaveFill uppPaveFill = new UPPPaveFill(meshController);
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                if (meshController.getMesh() == null) {
+                    meshController.handleException(new Exception("Mesh not found"));
+                    return;
+                }
+                if (meshController.getCurrentLayer() == null) {
+                    meshController.handleException(new Exception("Layer not found"));
+                    return;
+                }
+                toggleUtilityParametersPanel(uppPaveFill);
             }
         };
         meshActionList.add(paveFill);
