@@ -418,9 +418,18 @@ public class MeshWindow extends JFrame {
                 "Choose and pave a region",
                 "",
                 null) {
+            private UPPPaveRegion uppPaveRegion = new UPPPaveRegion(meshController);
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                if (meshController.getMesh() == null) {
+                    meshController.handleException(new Exception("Mesh not found"));
+                    return;
+                }
+                if (meshController.getCurrentLayer() == null) {
+                    meshController.handleException(new Exception("Layer not found"));
+                    return;
+                }
+                toggleUtilityParametersPanel(uppPaveRegion);
             }
         };
         meshActionList.add(paveRegion);

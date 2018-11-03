@@ -59,4 +59,8 @@ public class WorkspaceConfig {
     public static Color irregularBitPreviewBorderColor = Color.RED.darker();
     public static Stroke irregularBitPreviewBorderStroke = new BasicStroke(1.1f);
     public static Color irregularBitPreviewColor = new Color(250, 0, 100, 100);
+    public static Color vertexColor = new Color(255, 0, 100, 200);
+    public static int vertexRadius = 10;
+    public static Color regionColor = new Color(255, 0, 100, 100);
+    public static Stroke regionStroke = new BasicStroke(2f);
 }

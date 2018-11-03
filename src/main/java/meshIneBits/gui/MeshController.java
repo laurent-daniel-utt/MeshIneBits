@@ -35,10 +35,7 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,6 +91,10 @@ public class MeshController extends Observable implements Observer {
     private AffineTransform realToPavement;
     private Area availableArea;
     private Area bitAreaPreview;
+    private boolean selectingRegion;
+    private boolean selectedRegion;
+    private List<Point2D.Double> regionVertices = new ArrayList<>();
+    private Path2D.Double currentSelectedRegion = new Path2D.Double();
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -235,6 +236,7 @@ public class MeshController extends Observable implements Observer {
     public void reset() {
         setSelectedBitKeys(null);
         setAddingBits(false);
+        clearSelectingRegion();
     }
 
     public void scaleSelectedBit(double percentageLength, double percentageWidth) {
@@ -580,6 +582,76 @@ public class MeshController extends Observable implements Observer {
         if (!mesh.isPaved())
             throw new Exception("Mesh not paved");
         mesh.setScheduler(scheduler);
+    }
+
+    public void paveSelectedRegion(PatternTemplate patternTemplate) throws Exception {
+        if (mesh == null)
+            throw new Exception("Mesh not found");
+        if (currentLayer == null)
+            throw new Exception("Layer not found");
+        if (regionVertices.isEmpty())
+            throw new Exception("No region vertex found");
+        if (!selectedRegion)
+            throw new Exception("Region not closed");
+        mesh.pave(patternTemplate,
+                currentLayer,
+                new Area(currentSelectedRegion));
+        clearSelectingRegion();
+    }
+
+    public void toggleSelectRegion() {
+        setSelectingRegion(!selectingRegion);
+    }
+
+    public void setSelectingRegion(boolean b) {
+        this.selectingRegion = b;
+        if (!selectingRegion)
+            clearSelectingRegion();
+        setChanged();
+        notifyObservers();
+    }
+
+    private void clearSelectingRegion() {
+        regionVertices.clear();
+        currentSelectedRegion = new Path2D.Double();
+        selectedRegion = false;
+        selectingRegion = false;
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean isSelectingRegion() {
+        return selectingRegion;
+    }
+
+    public boolean hasSelectedRegion() {
+        return selectedRegion;
+    }
+
+    public Path2D.Double getCurrentSelectedRegion() {
+        return currentSelectedRegion;
+    }
+
+    public List<Point2D.Double> getRegionVertices() {
+        return regionVertices;
+    }
+
+    public void addNewRegionVertex(Point2D.Double clickSpotInReal) {
+        regionVertices.add(clickSpotInReal);
+        if (regionVertices.size() == 1) // the first vertex
+            currentSelectedRegion.moveTo(clickSpotInReal.x, clickSpotInReal.y);
+        else
+            currentSelectedRegion.lineTo(clickSpotInReal.x, clickSpotInReal.y);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void closeSelectedRegion() {
+        currentSelectedRegion.closePath();
+        selectedRegion = true;
+        selectingRegion = false;
+        setChanged();
+        notifyObservers();
     }
 
     /**

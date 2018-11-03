@@ -99,6 +99,13 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 meshController.deleteSelectedBits();
             }
         });
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ACCEPT");
+        getActionMap().put("ACCEPT", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                meshController.closeSelectedRegion();
+            }
+        });
     }
 
     @Override
@@ -119,12 +126,19 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     @Override
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            Mesh mesh = meshController.getMesh();
+            Layer layer = meshController.getCurrentLayer();
+            if (layer == null) return;
 
-            if ((mesh != null) && mesh.isPaved()) {
-                // Get the clicked point in the right coordinate system
-                Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
-                viewToReal.transform(clickSpot, clickSpot);
+            // Get the clicked point in the right coordinate system
+            Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+            viewToReal.transform(clickSpot, clickSpot);
+
+            if (meshController.isSelectingRegion()) {
+                meshController.addNewRegionVertex(clickSpot);
+                return;
+            }
+
+            if (layer.isPaved()) {
                 if (meshController.isAddingBits()) {
                     meshController.addNewBitAt(clickSpot);
                     return;
@@ -257,6 +271,15 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         requestFocusInWindow();
 
+        // Change cursor on paving region
+        if (meshController.isSelectingRegion()) {
+            if (getCursor().getType() != Cursor.CROSSHAIR_CURSOR)
+                setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            if (getCursor().getType() != Cursor.DEFAULT_CURSOR)
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+
         setDefaultZoom();
         updateDrawScale();
 
@@ -268,30 +291,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         // If current layer is only sliced (not paved yet), draw the slice
         if (!meshController.getCurrentLayer().isPaved()) {
             paintLayerBorder(g2d);
-        }
-
-        // If layers are paved, draw the pavements
-        else {
-
-            // Draw previous layer
-            if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
-                paintPreviousLayer(g2d);
-            }
-
-            // Draw bits
-            paintBits(g2d);
-
-            // Draw the slices contained in the layer
-/*
-			if (meshController.showSlices()) {
-				paintSlicesInTheSameLayer(currentLayer, g2d);
-			}
-*/
-
+        } else {
             // Draw the border of layer
             if (meshController.showingSlice()) {
                 paintLayerBorder(g2d);
             }
+
+            // Draw bits
+            paintBits(g2d);
 
             // Draw the controls of the selected bit
             bitMovers.clear();
@@ -304,6 +311,36 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 paintBitPreview(g2d);
             }
         }
+
+        // Draw selected region
+        if (meshController.isSelectingRegion()
+                || meshController.hasSelectedRegion())
+            paintSelectedRegion(g2d);
+
+        // Draw previous layer
+        if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
+            paintPreviousLayer(g2d);
+        }
+    }
+
+    private void paintSelectedRegion(Graphics2D g2d) {
+        // Paint vertices
+        g2d.setColor(WorkspaceConfig.vertexColor);
+        meshController.getRegionVertices().forEach(p -> {
+
+            Point2D.Double pInView = new Point2D.Double(); // Init with real
+            realToView.transform(p, pInView); // Transform to view
+            g2d.fill(new Rectangle2D.Double(
+                    pInView.x - (WorkspaceConfig.vertexRadius >> 1),
+                    pInView.y - (WorkspaceConfig.vertexRadius >> 1),
+                    WorkspaceConfig.vertexRadius,
+                    WorkspaceConfig.vertexRadius
+            ));
+        });
+        // Paint polygon
+        g2d.setColor(WorkspaceConfig.regionColor);
+        g2d.setStroke(WorkspaceConfig.regionStroke);
+        g2d.draw(realToView.createTransformedShape(meshController.getCurrentSelectedRegion()));
     }
 
     private void setDefaultZoom() {
@@ -345,6 +382,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 .getMesh()
                 .getLayers()
                 .get(meshController.getLayerNumber() - 1);
+        if (!previousLayer.isPaved()) return;
         Vector<Vector2> previousLayerBitKeys = previousLayer.getBits3dKeys();
 
         g2d.setColor(WorkspaceConfig.previousLayerColor);
@@ -367,6 +405,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     private void paintBits(Graphics2D g2d) {
         Layer layer = meshController.getCurrentLayer();
+        if (layer == null) return;
         Vector<Vector2> bitKeys = layer.getBits3dKeys();
         // Get all the irregular bits (bitKey in fact) in this layer
         List<Vector2> irregularBitsOfThisLayer = layer.getIrregularBits();
