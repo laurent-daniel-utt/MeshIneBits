@@ -350,10 +350,6 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    public void rotateSelectedBitsBy(double v) {
-        setSelectedBitKeys(currentLayer.rotateBits(selectedBitKeys, v));
-    }
-
     public Layer getCurrentLayer() {
         return currentLayer;
     }
