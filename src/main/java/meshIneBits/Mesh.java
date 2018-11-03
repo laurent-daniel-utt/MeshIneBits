@@ -49,14 +49,6 @@ public class Mesh extends Observable implements Observer, Serializable {
     private MeshEvents state;
     private AScheduler scheduler = null;
 
-    @Deprecated
-    private transient PatternTemplate patternTemplate = null;
-    /**
-     * Regroup of irregularities by index of layers and keys of bits
-     */
-    @Deprecated
-    private Map<Layer, List<Vector2>> irregularBits;
-
     /**
      * Update the current state of mesh and notify observers with that state
      *
@@ -66,13 +58,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         this.state = state;
         setChanged();
         notifyObservers(state);
-    }
-
-    @Deprecated
-    public Mesh(Model model) {
-        slicer = new SliceTool(this);
-        slicer.sliceModel();
-        this.model = model;
     }
 
     /**
@@ -235,11 +220,6 @@ public class Mesh extends Observable implements Observer, Serializable {
         return this.layers;
     }
 
-    @Deprecated
-    PatternTemplate getPatternTemplate() {
-        return patternTemplate;
-    }
-
     public double getSkirtRadius() {
         return skirtRadius;
     }
@@ -267,15 +247,6 @@ public class Mesh extends Observable implements Observer, Serializable {
 
     public boolean isSliced() {
         return state.getCode() >= MeshEvents.SLICED.getCode();
-    }
-
-    /**
-     * @param layer target
-     * @return keys of irregularities in layer
-     * @deprecated
-     */
-    public List<Vector2> getIrregularBitKeysOf(Layer layer) {
-        return irregularBits.get(layer);
     }
 
     /**

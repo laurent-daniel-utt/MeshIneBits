@@ -528,31 +528,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         g2d.draw(realToView.createTransformedShape(liftPoint));
     }
 
-    @SuppressWarnings("unused")
-    @Deprecated
-    private void paintSlicesInTheSameLayer(Graphics2D g2d) {
-        Layer layer = meshController.getCurrentLayer();
-        g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-        g2d.setColor(new Color(100 + (155 / layer.getSlices().size()), 50, 0));
-        for (int i = 0; i < layer.getSlices().size(); i++) {
-            if (i == layer.getSliceToSelect()) {
-                // Set the selected slice of the layer in blue
-                Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{2},
-                        0);
-                g2d.setStroke(dashed);
-                g2d.setColor(Color.blue);
-            } else {
-                // Set the other slices in different red to differentiate them from each other
-                g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-                g2d.setColor(new Color(100 + ((i + 1) * (155 / layer.getSlices().size())), 50, 0));
-            }
-
-            for (Polygon p : layer.getSlices().get(i)) {
-                drawModelPath2D(g2d, p.toPath2D());
-            }
-        }
-    }
-
     private class TriangleShape extends Path2D.Double {
 
         private TriangleShape(Point2D... points) {
