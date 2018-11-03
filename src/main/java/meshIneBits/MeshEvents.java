@@ -26,6 +26,7 @@ import java.io.Serializable;
 
 public enum MeshEvents implements Serializable {
     READY(false, 0),
+    IMPORT_FAILED(false, 99),
     IMPORTING(true, 100),
     IMPORTED(false, 101),
     SLICING(true, 200),

@@ -124,6 +124,9 @@ public class MeshController extends Observable implements Observer {
                 switch ((MeshEvents) arg) {
                     case READY:
                         break;
+                    case IMPORT_FAILED:
+                        Logger.updateStatus("Model import failed");
+                        break;
                     case IMPORTING:
                         Logger.updateStatus("Importing model");
                         break;
@@ -165,6 +168,10 @@ public class MeshController extends Observable implements Observer {
                     case GLUING:
                         break;
                     case GLUED:
+                        break;
+                    case SCHEDULING:
+                        break;
+                    case SCHEDULED:
                         break;
                     case OPENED:
                         meshWindow.getView3DWindow().setCurrentMesh(mesh);
@@ -693,6 +700,8 @@ public class MeshController extends Observable implements Observer {
                 mesh.importModel(filename); // sync task
             } catch (Exception e) {
                 handleException(e);
+                setChanged();
+                notifyObservers(MeshEvents.IMPORT_FAILED);
             }
         }
     }

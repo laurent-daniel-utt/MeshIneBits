@@ -77,8 +77,14 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);
 
         setState(MeshEvents.IMPORTING);
-        this.model = new Model(filepath);
-        this.model.center();
+        try {
+            this.model = new Model(filepath);
+            this.model.center();
+        } catch (Exception e) {
+            e.printStackTrace();
+            setState(MeshEvents.IMPORT_FAILED);
+            return;
+        }
 
         // Crash all slices and layers
         slices.clear();
