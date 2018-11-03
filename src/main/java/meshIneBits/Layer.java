@@ -30,6 +30,7 @@ import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -497,5 +498,18 @@ public class Layer extends Observable implements Serializable {
 
     public List<Vector2> getIrregularBits() {
         return irregularBits;
+    }
+
+    public void paveRegion(Area region, PatternTemplate patternTemplate) {
+        if (this.flatPavement == null) {
+            setPatternTemplate(patternTemplate);
+            setFlatPavement(patternTemplate.pave(this, region));
+        } else
+            getFlatPavement()
+                    .addBits(patternTemplate
+                            .pave(this, region)
+                            .getBits());
+        paved = true;
+        rebuild();
     }
 }

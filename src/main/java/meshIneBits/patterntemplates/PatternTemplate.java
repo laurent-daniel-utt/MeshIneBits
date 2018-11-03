@@ -28,6 +28,7 @@ import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
 import java.io.Serializable;
 
 /**
@@ -92,6 +93,16 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
      * @since 0.3
      */
     public abstract Pavement pave(Layer layer);
+
+    /**
+     * A general case of {@link #pave(Layer)}
+     *
+     * @param layer base of filling
+     * @param area  target to fill. Expressed in general coordinate system
+     * @return schema of paving instructions
+     * @since 0.4
+     */
+    public abstract Pavement pave(Layer layer, Area area);
 
     /**
      * Auto-optimization. Also a constructor who considers completely the layer's

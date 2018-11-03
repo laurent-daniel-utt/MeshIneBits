@@ -28,8 +28,11 @@ import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 /**
@@ -42,6 +45,24 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
+        Vector<Bit2D> bits = pave(layer.getLayerNumber(), patternStart, patternEnd);
+        return new Pavement(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
+    }
+
+    @Override
+    public Pavement pave(Layer layer, Area area) {
+        // Start
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
+        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
+        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
+        Vector<Bit2D> bits = pave(layer.getLayerNumber(), patternStart, patternEnd);
+        Pavement pavement = new Pavement(bits, new Vector2(1, 0));
+        pavement.computeBits(area);
+        return pavement;
+    }
+
+    private Vector<Bit2D> pave(int layerNumber, Vector2 patternStart, Vector2 patternEnd) {
         // Setup parameters
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
         // Start
@@ -53,7 +74,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
                 Vector2 originBit;
                 Vector2 orientationBit;
                 double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-                if (layer.getLayerNumber() % 2 == 0) {
+                if (layerNumber % 2 == 0) {
                     layerOffSet = yOffSet;
                 }
                 originBit = new Vector2(i, j + layerOffSet);
@@ -66,7 +87,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
                 Vector2 originBit;
                 Vector2 orientationBit;
                 double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
-                if (layer.getLayerNumber() % 2 == 0) {
+                if (layerNumber % 2 == 0) {
                     layerOffSet = yOffSet;
                 }
                 originBit = new Vector2(i, j + layerOffSet);
@@ -74,7 +95,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
                 bits.add(new Bit2D(originBit, orientationBit));
             }
         }
-        return new Pavement(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
+        return bits;
     }
 
     @Override

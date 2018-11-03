@@ -192,6 +192,51 @@ public class UnitSquarePattern extends PatternTemplate {
     }
 
     @Override
+    public Pavement pave(Layer layer, Area area) {
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        Pavement pavement = pave(layer.getLayerNumber(), area);
+        pavement.computeBits(area);
+        return pavement;
+    }
+
+    private Pavement pave(int layerNumber, Area area) {
+        // Calculate size of unit square
+        this.calcUnitSizeAndLimits();
+        // Update the choice on applying quick regroup
+        applyQuickRegroup = (boolean) config.get(APPLY_QUICK_REGROUP).getCurrentValue();
+        // Limit depth of search
+        limitActions = (int) Math.round((double) config.get(LIMIT_ACTIONS).getCurrentValue());
+        // Cut off minor details or not
+        cutDetails = (boolean) config.get(CUT_DETAILS).getCurrentValue();
+        // Get the boundaries
+        List<Area> zones = AreaTool.getContinuousSurfacesFrom(area);
+        // Rotation
+        double rotation = Math.toRadians(((double) config.get(INCREMENTAL_ROTATION).getCurrentValue()) * layerNumber);
+        // Matrix of transformation
+        AffineTransform atmatrix = AffineTransform.getRotateInstance(-rotation);
+        AffineTransform inv = AffineTransform.getRotateInstance(rotation);
+        // Sum of pavement
+        Vector<Bit2D> overallPavement = new Vector<>();
+        for (Area zone : zones) {
+            // Transform the zone beforehand
+            zone.transform(atmatrix);
+            // Generate the corresponding matrix
+            UnitMatrix matrix = new UnitMatrix(zone);
+            if (matrix.resolve()) {
+                LOGGER.config("Solution found for " + zone);
+                // Re-transform bits
+                Set<Bit2D> biasedBits = matrix.exportBits();
+                Set<Bit2D> trueBits = biasedBits.stream().map(bit -> bit.createTransformedBit(inv)).collect(Collectors.toSet());
+                overallPavement.addAll(trueBits);
+                LOGGER.config(matrix.pToString());
+            } else {
+                return new Pavement(new Vector<>(), new Vector2(1, 0));
+            }
+        }
+        return new Pavement(overallPavement, new Vector2(1, 0));
+    }
+
+    @Override
     public int optimize(Layer actualState) {
         return 0;
     }

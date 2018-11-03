@@ -29,7 +29,6 @@ import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleListParam;
 import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
@@ -39,10 +38,7 @@ import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A pattern which tries optimization not by displacing paved bits but rather
@@ -81,7 +77,7 @@ public class EconomicPattern extends PatternTemplate {
     /**
      * Stocks all rotations' layers.
      */
-    private static Vector<java.lang.Double> layersRotations = new Vector<>();
+    private static Map<Integer, java.lang.Double> layersRotations = new HashMap<>();
 
     /**
      * This will try to pave bits into the layer in the best way possible. The
@@ -93,25 +89,31 @@ public class EconomicPattern extends PatternTemplate {
      */
     @Override
     public Pavement pave(Layer layer) {
-        layersRotations.add((double) layer.getLayerNumber());
-        // Reset the state
-        layer.setFlatPavement(new Pavement(new Vector<>(), new Vector2(1, 0)));
+        return pave(layer.getLayerNumber(), AreaTool.getAreaFrom(layer.getHorizontalSection()));
+    }
+
+    @Override
+    public Pavement pave(Layer layer, Area area) {
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        Pavement pavement = pave(layer.getLayerNumber(), area);
+        pavement.computeBits(area);
+        return pavement;
+    }
+
+    private Pavement pave(int layerNumber, Area area) {
         // Prepare parameters
         this.setupTrialLengthOffsets();
         this.setupTrialHeightOffsets();
-        this.setupTrialRotations(layer.getLayerNumber());
+        this.setupTrialRotations(layerNumber);
         this.bitsLengthSpace = (double) config.get("bitsLengthSpace").getCurrentValue();
         this.bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();
-        // Slice in fact is a set of polygons
-        Slice boundary = layer.getHorizontalSection();
         Vector<Bit2D> overallPavement = new Vector<>();
         double thisLayerRotation = 0;
         boolean essay = true;
         // Get all lv0 areas
-        Vector<Area> lv0Areas = AreaTool.getLevel0AreasFrom(boundary);
+        List<Area> lv0Areas = AreaTool.getContinuousSurfacesFrom(area);
         for (double trialRotation : trialRotations) {
             thisLayerRotation = trialRotation;
-            // System.out.println("Essay of rotation:" + thisLayerRotation);
             // Assuming this rotation of this layer will give us the best answer
             // Note: differential rotation means the difference of directions
             // between this layer and the previous one
@@ -120,13 +122,16 @@ public class EconomicPattern extends PatternTemplate {
             //
             // Pave bits into each lv0 area
             // Receive the map of keys
-            for (Area area : Objects.requireNonNull(lv0Areas)) {
-                // System.out.println("Area:" + area.getBounds2D());
-                Double bound = (Double) area.getBounds2D();
+            for (Area zone : Objects.requireNonNull(lv0Areas)) {
+                Double bound = (Double) zone.getBounds2D();
                 double anchorX = bound.x + bound.width / 2, anchorY = bound.y + bound.height / 2;
                 Vector2 vectorRotation = Vector2.getEquivalentVector(thisLayerRotation);
-                AffineTransform rotate = AffineTransform.getRotateInstance(vectorRotation.x, vectorRotation.y, anchorX,
-                        anchorY), rotateBack = new AffineTransform();
+                AffineTransform rotate = AffineTransform.getRotateInstance(
+                        vectorRotation.x,
+                        vectorRotation.y,
+                        anchorX,
+                        anchorY),
+                        rotateBack = new AffineTransform();
                 try {
                     rotateBack = rotate.createInverse();
                 } catch (Exception e) {
@@ -135,7 +140,7 @@ public class EconomicPattern extends PatternTemplate {
                     rotateBack.setToIdentity();
                 }
                 // Rotate the local zone
-                Area rotatedZone = area.createTransformedArea(rotate);
+                Area rotatedZone = zone.createTransformedArea(rotate);
                 Vector<Bit2D> localPavement = null;
                 Vector<AffineTransform> possibleFlips = this.calculatePossibleFlips(rotatedZone);
                 if (possibleFlips == null) {
@@ -174,7 +179,7 @@ public class EconomicPattern extends PatternTemplate {
         }
         // Recreate the base pavement for this layer
         if (!overallPavement.isEmpty()) {
-            layersRotations.set(layer.getLayerNumber(), thisLayerRotation);
+            layersRotations.put(layerNumber, thisLayerRotation);
             return new Pavement(overallPavement, new Vector2(1, 0));
         } else {
             return new Pavement(new Vector<>(), new Vector2(1, 0));

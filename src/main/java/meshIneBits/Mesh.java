@@ -28,6 +28,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
 
+import java.awt.geom.Area;
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
@@ -446,13 +447,31 @@ public class Mesh extends Observable implements Observer, Serializable {
         pavementSafetyCheck();
 
         setState(MeshEvents.PAVING_LAYER);
-        // MeshEvents.PAVED_LAYER will be sent in update() after receiving
-        // enough signals from layers
+        // MeshEvents.PAVED_LAYER will be sent to update()
         Logger.updateStatus("Paving layer " + layer.getLayerNumber());
         // New worker
         LayerPaver layerPaver = new LayerPaver(layer, patternTemplate);
         layerPaver.addObserver(this);
         (new Thread(layerPaver)).start();
+    }
+
+    /**
+     * Pave a certain region on layer
+     *
+     * @param patternTemplate maybe different from pattern of layer
+     * @param layer           target
+     * @param region          should be closed. Expressed in layer's coordinate system
+     */
+    public void pave(PatternTemplate patternTemplate, Layer layer, Area region) throws Exception {
+        pavementSafetyCheck();
+
+        setState(MeshEvents.PAVING_LAYER);
+        // MeshEvents.PAVED_LAYER will be sent to update()
+        Logger.updateStatus("Paving region on layer " + layer.getLayerNumber());
+        // New worker
+        RegionPaver regionPaver = new RegionPaver(layer, region, patternTemplate);
+        regionPaver.addObserver(this);
+        (new Thread(regionPaver)).start();
     }
 
     /**
@@ -731,6 +750,26 @@ public class Mesh extends Observable implements Observer, Serializable {
     private class SchedulerNotDefinedException extends Exception {
         SchedulerNotDefinedException() {
             super("The scheduling method is not defined in the mesh object");
+        }
+    }
+
+    private class RegionPaver extends Observable implements Runnable {
+        private final Layer layer;
+        private final Area region;
+        private final PatternTemplate patternTemplate;
+
+        public RegionPaver(Layer layer, Area region, PatternTemplate patternTemplate) {
+            this.layer = layer;
+            this.region = region;
+            this.patternTemplate = patternTemplate;
+        }
+
+        @Override
+        public void run() {
+            patternTemplate.ready(Mesh.this);
+            layer.paveRegion(region, patternTemplate);
+            setChanged();
+            notifyObservers(MeshEvents.PAVED_LAYER);
         }
     }
 }

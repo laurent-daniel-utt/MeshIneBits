@@ -32,8 +32,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
  * Build by a {@link PatternTemplate} or manually.
@@ -120,7 +123,7 @@ public class Pavement implements Cloneable, Serializable {
      * Removes the {@link Bit2D} that are outside the boundaries of the
      * {@link Slice} and cut at right shape the ones that intercepts the boundaries.
      *
-     * @param slice boundary
+     * @param slice boundary in general coordinate system
      */
     public void computeBits(Slice slice) {
         Area sliceArea = AreaTool.getAreaFrom(slice);
@@ -200,5 +203,47 @@ public class Pavement implements Cloneable, Serializable {
                 newOrientation,
                 bitToRotate.getLength(),
                 bitToRotate.getWidth()));
+    }
+
+    /**
+     * Get all bits 2D
+     *
+     * @return whole schema
+     */
+    public Set<Bit2D> getBits() {
+        return getBitsKeys().stream()
+                .map(this::getBit)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Concat 2 sets
+     *
+     * @param bits neighbors in same layer
+     */
+    public void addBits(Collection<Bit2D> bits) {
+        bits.forEach(this::addBit);
+    }
+
+    /**
+     * Compute bits given region
+     *
+     * @param area target to fill
+     */
+    public void computeBits(Area area) {
+        area.transform(inverseTransformMatrix);
+        Vector<Vector2> keys = new Vector<>(mapBits.keySet());
+        for (Vector2 key : keys) {
+            Bit2D bit = mapBits.get(key);
+            Area bitArea = new Area();
+            bitArea.add(bit.getArea());
+            bitArea.intersect(area);
+            if (bitArea.isEmpty()) {
+                mapBits.remove(key);
+            } else {
+                bit.updateBoundaries(bitArea);
+                bit.calcCutPath();
+            }
+        }
     }
 }
