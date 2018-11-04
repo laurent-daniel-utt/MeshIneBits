@@ -22,6 +22,7 @@
 
 package meshIneBits.gui.utilities;
 
+import meshIneBits.gui.MeshAction;
 import meshIneBits.gui.MeshController;
 import meshIneBits.gui.MeshToggleAction;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
@@ -44,6 +45,19 @@ public class UPPNewBit extends UtilityParametersPanel {
         c.gridy = 0;
         c.gridx = -1;
 
+        MeshToggleAction toggleAddingBits = new MeshToggleAction(
+                "addBits",
+                "Select origins",
+                "selection-tool.png",
+                "Select positions to add new bits",
+                "",
+                meshController,
+                MeshController.ADDING_BITS
+        );
+        ToggleIcon addingBitsBtn = new ToggleIcon(toggleAddingBits);
+        c.gridx++;
+        add(addingBitsBtn, c);
+
         LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(meshController.getNewBitsOrientationParam());
         c.gridx++;
         add(newBitsOrientationSpinner, c);
@@ -60,7 +74,7 @@ public class UPPNewBit extends UtilityParametersPanel {
 
         ButtonGroup bitTypes = new ButtonGroup();
 
-        ToggleIcon fullbit = new ToggleIcon(new MeshToggleAction(
+        ToggleIcon fullbit = new ToggleIcon(new MeshAction(
                 "addFullBit",
                 "Add a full bit",
                 "bit-restore.png",
@@ -72,7 +86,7 @@ public class UPPNewBit extends UtilityParametersPanel {
         add(fullbit, c);
         bitTypes.add(fullbit);
 
-        ToggleIcon halfwidthbit = new ToggleIcon(new MeshToggleAction(
+        ToggleIcon halfwidthbit = new ToggleIcon(new MeshAction(
                 "addHalfWidthBit",
                 "Add a bit with half width",
                 "bit-half-width.png",
@@ -84,7 +98,7 @@ public class UPPNewBit extends UtilityParametersPanel {
         add(halfwidthbit, c);
         bitTypes.add(halfwidthbit);
 
-        ToggleIcon halflengthbit = new ToggleIcon(new MeshToggleAction(
+        ToggleIcon halflengthbit = new ToggleIcon(new MeshAction(
                 "addHalfLengthBit",
                 "Add a bit with half length",
                 "bit-half-length.png",
@@ -96,7 +110,7 @@ public class UPPNewBit extends UtilityParametersPanel {
         add(halflengthbit, c);
         bitTypes.add(halflengthbit);
 
-        ToggleIcon quartbit = new ToggleIcon(new MeshToggleAction(
+        ToggleIcon quartbit = new ToggleIcon(new MeshAction(
                 "addQuartBit",
                 "Add a quart of bit",
                 "bit-quart.png",

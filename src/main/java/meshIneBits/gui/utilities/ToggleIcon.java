@@ -22,24 +22,33 @@
 
 package meshIneBits.gui.utilities;
 
+import meshIneBits.gui.MeshAction;
 import meshIneBits.gui.MeshToggleAction;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class ToggleIcon extends JToggleButton {
-    private boolean on = false;
+public class ToggleIcon extends JToggleButton implements PropertyChangeListener {
     private final Border onBorder = BorderFactory.createLoweredBevelBorder();
     private final Border offBorder = BorderFactory.createRaisedBevelBorder();
+    private String bindProperty;
 
-    public ToggleIcon(MeshToggleAction meshToggleAction) {
+    ToggleIcon(MeshToggleAction meshToggleAction) {
         super(meshToggleAction);
+        bindProperty = meshToggleAction.getBindProperty();
+
         setHideActionText(true);
         setToolTipText(meshToggleAction.getToolTipText());
         setContentAreaFilled(false);
-        setBorder(offBorder);
+        meshToggleAction.getMeshController()
+                .addPropertyChangeListener(meshToggleAction.getBindProperty(), this);
+        setSelected(meshToggleAction.getMeshController().get(bindProperty));
+        setFocusPainted(false);
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent evt) {
@@ -50,18 +59,46 @@ public class ToggleIcon extends JToggleButton {
             public void mouseExited(MouseEvent evt) {
                 setContentAreaFilled(false);
             }
+        });
+    }
+
+    public ToggleIcon(MeshAction meshAction) {
+        super(meshAction);
+        bindProperty = "";
+        setHideActionText(true);
+        setToolTipText(meshAction.getToolTipText());
+        setContentAreaFilled(false);
+        setFocusPainted(false);
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent evt) {
+                setContentAreaFilled(true);
+            }
 
             @Override
-            public void mouseClicked(MouseEvent e) {
-                setFocusPainted(false);
-                if (on) {
-                    on = false;
-                    setBorder(offBorder);
-                } else {
-                    on = true;
-                    setBorder(onBorder);
-                }
+            public void mouseExited(MouseEvent evt) {
+                setContentAreaFilled(false);
             }
         });
+    }
+
+    private void toggleBorder() {
+        if (isSelected())
+            setBorder(onBorder);
+        else
+            setBorder(offBorder);
+    }
+
+    @Override
+    public void setSelected(boolean b) {
+        super.setSelected(b);
+        toggleBorder();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(bindProperty))
+            setSelected((Boolean) evt.getNewValue());
     }
 }

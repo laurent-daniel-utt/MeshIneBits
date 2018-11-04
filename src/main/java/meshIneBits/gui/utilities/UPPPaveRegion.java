@@ -23,8 +23,8 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.MeshAction;
 import meshIneBits.gui.MeshController;
+import meshIneBits.gui.MeshToggleAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,14 +38,16 @@ public class UPPPaveRegion extends UtilityParametersPanel {
         parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        ButtonIcon regionSelectTool = new ButtonIcon(new MeshAction(
+        MeshToggleAction toggleSelectingRegion = new MeshToggleAction(
                 "selectRegion",
                 "Select Region",
                 "region-select.png",
                 "Select a region to pave. Press ENTER to close the region",
                 "",
-                meshController::toggleSelectRegion
-        ));
+                meshController,
+                MeshController.SELECTING_REGION
+        );
+        ToggleIcon regionSelectTool = new ToggleIcon(toggleSelectingRegion);
 
         final PatternComboBox patternComboBox = new PatternComboBox(
                 Arrays.asList(CraftConfig.clonePreloadedPatterns()),

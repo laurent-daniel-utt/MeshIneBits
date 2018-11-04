@@ -36,7 +36,10 @@ import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.*;
-import java.io.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,7 +85,7 @@ public class MeshController extends Observable implements Observer {
     private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
-    private boolean showSlice = false;
+    private boolean showSlice = true;
     private boolean showLiftPoints = false;
     private boolean showPreviousLayer = false;
     private boolean showCutPaths = false;
@@ -95,6 +98,7 @@ public class MeshController extends Observable implements Observer {
     private boolean selectedRegion;
     private List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
+    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -242,14 +246,16 @@ public class MeshController extends Observable implements Observer {
     public void reset() {
         setSelectedBitKeys(null);
         setAddingBits(false);
-        clearSelectingRegion();
+        clearSelectingRegion(true);
     }
 
-    private void clearSelectingRegion() {
+    private void clearSelectingRegion(boolean fireChangesSelectingRegion) {
         regionVertices.clear();
         currentSelectedRegion = new Path2D.Double();
         selectedRegion = false;
         selectingRegion = false;
+        if (fireChangesSelectingRegion)
+            changes.firePropertyChange(SELECTING_REGION, !selectingRegion, selectingRegion);
         setChanged();
         notifyObservers();
     }
@@ -360,6 +366,9 @@ public class MeshController extends Observable implements Observer {
 
     public void setAddingBits(boolean b) {
         this.addingBits = b;
+
+        changes.firePropertyChange(ADDING_BITS, !addingBits, addingBits);
+
         setChanged();
         notifyObservers();
     }
@@ -394,36 +403,47 @@ public class MeshController extends Observable implements Observer {
         return showSlice;
     }
 
-    public void toggleShowCutPaths() {
-        showCutPaths = !showCutPaths;
+    public void setShowCutPaths(boolean b) {
+        showCutPaths = b;
+
+        changes.firePropertyChange(SHOW_CUT_PATHS, !showCutPaths, showCutPaths);
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowLiftPoints() {
-        showLiftPoints = !showLiftPoints;
+    public void setShowLiftPoints(boolean b) {
+        showLiftPoints = b;
+
+        changes.firePropertyChange(SHOW_LIFT_POINTS, !showLiftPoints, showLiftPoints);
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowPreviousLayer() {
-        showPreviousLayer = !showPreviousLayer;
+    public void setShowPreviousLayer(boolean b) {
+        showPreviousLayer = b;
+
+        changes.firePropertyChange(SHOW_PREVIOUS_LAYER, !showPreviousLayer, showPreviousLayer);
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowSlice() {
-        showSlice = !showSlice;
+    public void setShowSlice(boolean b) {
+        showSlice = b;
+        System.out.println("showSlice = " + showSlice);
+
+        changes.firePropertyChange(SHOW_SLICE, !showSlice, showSlice);
 
         setChanged();
         notifyObservers();
     }
 
-    public void toggleShowIrregularBits() {
-        showIrregularBits = !showIrregularBits;
+    public void setShowIrregularBits(boolean b) {
+        showIrregularBits = b;
+
+        changes.firePropertyChange(SHOW_IRREGULAR_BITS, !showIrregularBits, showIrregularBits);
 
         setChanged();
         notifyObservers();
@@ -534,6 +554,10 @@ public class MeshController extends Observable implements Observer {
         return autocropParam;
     }
 
+    public void addPropertyChangeListener(String property, PropertyChangeListener l) {
+        changes.addPropertyChangeListener(property, l);
+    }
+
     /**
      * Centralized handler of exceptions
      *
@@ -609,11 +633,7 @@ public class MeshController extends Observable implements Observer {
         mesh.pave(patternTemplate,
                 currentLayer,
                 new Area(currentSelectedRegion));
-        clearSelectingRegion();
-    }
-
-    public void toggleSelectRegion() {
-        setSelectingRegion(!selectingRegion);
+        clearSelectingRegion(true);
     }
 
     public boolean isSelectingRegion() {
@@ -622,8 +642,11 @@ public class MeshController extends Observable implements Observer {
 
     public void setSelectingRegion(boolean b) {
         this.selectingRegion = b;
+        changes.firePropertyChange(SELECTING_REGION, !selectingRegion, selectingRegion);
+
         if (!selectingRegion)
-            clearSelectingRegion();
+            clearSelectingRegion(false);
+
         setChanged();
         notifyObservers();
     }
@@ -666,6 +689,60 @@ public class MeshController extends Observable implements Observer {
         if (!currentLayer.isPaved())
             throw new Exception("Layer not paved");
         mesh.pave(patternTemplate, currentLayer, availableArea);
+    }
+
+    public static final String SHOW_SLICE = "showSlice";
+    public static final String SHOW_LIFT_POINTS = "showLiftPoints";
+    public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
+    public static final String SHOW_CUT_PATHS = "showCutPaths";
+    public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
+    public static final String ADDING_BITS = "addingBits";
+    public static final String SELECTING_REGION = "selectingRegion";
+
+    public void toggle(String property) {
+        switch (property) {
+            case SHOW_SLICE:
+                setShowSlice(!showingSlice());
+                break;
+            case SHOW_LIFT_POINTS:
+                setShowLiftPoints(!showingLiftPoints());
+                break;
+            case SHOW_PREVIOUS_LAYER:
+                setShowPreviousLayer(!showingPreviousLayer());
+                break;
+            case SHOW_CUT_PATHS:
+                setShowCutPaths(!showingCutPaths());
+                break;
+            case SHOW_IRREGULAR_BITS:
+                setShowIrregularBits(!showingIrregularBits());
+                break;
+            case ADDING_BITS:
+                setAddingBits(!isAddingBits());
+                break;
+            case SELECTING_REGION:
+                setSelectingRegion(!isSelectingRegion());
+                break;
+        }
+    }
+
+    public boolean get(String property) {
+        switch (property) {
+            case SHOW_SLICE:
+                return showingSlice();
+            case SHOW_LIFT_POINTS:
+                return showingLiftPoints();
+            case SHOW_PREVIOUS_LAYER:
+                return showingPreviousLayer();
+            case SHOW_CUT_PATHS:
+                return showingCutPaths();
+            case SHOW_IRREGULAR_BITS:
+                return showingIrregularBits();
+            case ADDING_BITS:
+                return isAddingBits();
+            case SELECTING_REGION:
+                return isSelectingRegion();
+        }
+        return false;
     }
 
     /**

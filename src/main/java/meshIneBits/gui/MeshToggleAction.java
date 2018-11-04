@@ -24,12 +24,26 @@ package meshIneBits.gui;
 
 public class MeshToggleAction extends MeshAction {
 
+    private MeshController meshController;
+    private String bindProperty;
+
     public MeshToggleAction(String uuid,
                             String name,
                             String iconname,
                             String description,
                             String acceleratorKey,
-                            MeshActionInterface action) {
-        super(uuid, name, iconname, description, acceleratorKey, action);
+                            MeshController meshController,
+                            String bindProperty) {
+        super(uuid, name, iconname, description, acceleratorKey, () -> meshController.toggle(bindProperty));
+        this.meshController = meshController;
+        this.bindProperty = bindProperty;
+    }
+
+    public MeshController getMeshController() {
+        return meshController;
+    }
+
+    public String getBindProperty() {
+        return bindProperty;
     }
 }

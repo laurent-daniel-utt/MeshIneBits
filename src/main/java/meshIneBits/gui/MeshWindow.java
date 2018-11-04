@@ -542,8 +542,9 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Layer Border",
                 "layer-border-toggle.png",
                 "Show or hide boundary of layer",
-                "",
-                meshController::toggleShowSlice
+                "shift 1",
+                meshController,
+                MeshController.SHOW_SLICE
         );
         meshActionList.add(toggleShowSlice);
 
@@ -552,8 +553,9 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Irregular Bit",
                 "bit-irregular-toggle.png",
                 "Show or hide non realizable bits",
-                "",
-                meshController::toggleShowIrregularBits
+                "shift 2",
+                meshController,
+                MeshController.SHOW_IRREGULAR_BITS
         );
         meshActionList.add(toggleIrregularBit);
 
@@ -562,8 +564,9 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Cut Paths",
                 "bit-cutpath-toggle.png",
                 "Show or hide cut path of bit",
-                "",
-                meshController::toggleShowCutPaths
+                "shift 3",
+                meshController,
+                MeshController.SHOW_CUT_PATHS
         );
         meshActionList.add(toggleCutPaths);
 
@@ -572,8 +575,9 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Lift Points",
                 "bit-liftpoint-toggle.png",
                 "Show or hide lift point of bit",
-                "",
-                meshController::toggleShowLiftPoints
+                "shift 4",
+                meshController,
+                MeshController.SHOW_LIFT_POINTS
         );
         meshActionList.add(toggleLiftPoint);
 
@@ -582,8 +586,9 @@ public class MeshWindow extends JFrame {
                 "Show/Hide Previous Layer",
                 "layer-below.png",
                 "Show or hide below pavement",
-                "",
-                meshController::toggleShowPreviousLayer
+                "shift 5",
+                meshController,
+                MeshController.SHOW_PREVIOUS_LAYER
         );
         meshActionList.add(togglePreviousLayer);
 
@@ -695,6 +700,7 @@ public class MeshWindow extends JFrame {
             utilityParametersPanel = newUPP;
             add(utilityParametersPanel, utilityParametersPanelGBC);
         }
+        meshController.reset();
         revalidate();
         repaint();
     }
