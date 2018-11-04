@@ -46,60 +46,6 @@ public class Bit3D implements Serializable {
     private Vector<Vector2> depositPoints = new Vector<>();
 
     /**
-     * 2 reasons to have all the included bit2D in parameter : - It is the Bit3D
-     * itself which determines if it can be build or not, therefore it needs all
-     * the information to do so. - The next improvement will be a 3D laser cut
-     * of the bits, in that scenario every bit2D are necessary to determine the
-     * 3D shape of the bit
-     * <p>
-     * Refer to the report for an explanation on the parameter sliceToSelect.
-     *
-     * @param bits2D        all horizontal sections
-     * @param origin        on selected slice
-     * @param orientation   in its own coordinate system
-     * @param sliceToSelect representative slice to build
-     * @throws Exception when not enough slices or out of boundary
-     * @deprecated 0.3+
-     */
-    Bit3D(Vector<Bit2D> bits2D, Vector2 origin, Vector2 orientation, int sliceToSelect) throws Exception {
-
-        double maxNumberOfbit2D = bits2D.size();
-        double nbrActualBit2D = 0;
-        for (Bit2D b : bits2D) {
-            if (b != null) {
-                nbrActualBit2D++;
-            }
-        }
-
-        double percentage = (nbrActualBit2D / maxNumberOfbit2D) * 100;
-
-        if (percentage < CraftConfig.minPercentageOfSlices) {
-            throw new Exception() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public String getMessage() {
-                    return "This bit does not contain enough bit 2D in it";
-                }
-            };
-        } else if (sliceToSelect >= bits2D.size() || bits2D.get(sliceToSelect) == null) {
-            throw new Exception() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public String getMessage() {
-                    return "The slice to select does not exist in that bit";
-                }
-            };
-        } else {
-            this.origin = origin;
-            this.orientation = orientation;
-            bit2dToExtrude = bits2D.get(sliceToSelect);
-            cutPaths = bit2dToExtrude.getRawCutPaths();
-        }
-    }
-
-    /**
      * Construct bit 3D from horizontal section
      *
      * @param baseBit            horizontal section of bit

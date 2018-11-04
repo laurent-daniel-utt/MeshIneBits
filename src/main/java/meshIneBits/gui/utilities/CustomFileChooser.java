@@ -22,9 +22,10 @@
 
 package meshIneBits.gui.utilities;
 
+import meshIneBits.gui.IconLoader;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 public class CustomFileChooser extends JFileChooser {
 
@@ -32,14 +33,12 @@ public class CustomFileChooser extends JFileChooser {
      *
      */
     private static final long serialVersionUID = 9019431933537011834L;
+    private static final ImageIcon meshIneBitsIcon = IconLoader.get("icon.png", 24, 24);
 
     @Override
     protected JDialog createDialog(Component parent) throws HeadlessException {
         JDialog dialog = super.createDialog(parent);
-        ImageIcon icon = new ImageIcon(
-                new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + "icon.png"))).getImage()
-                        .getScaledInstance(24, 24, Image.SCALE_REPLICATE));
-        dialog.setIconImage(icon.getImage());
+        dialog.setIconImage(meshIneBitsIcon.getImage());
         return dialog;
     }
 }

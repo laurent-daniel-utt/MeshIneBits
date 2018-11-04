@@ -58,8 +58,8 @@ public class LabeledListReceiver extends Renderer {
     public LabeledListReceiver(DoubleListParam config) {
         this.dlconfig = config;
         // Visual options
+        this.setOpaque(false);
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Setting up

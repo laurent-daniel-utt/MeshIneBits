@@ -55,7 +55,12 @@ abstract class PatternIntegrityTest {
     private static int TIME_LIMIT = 60;
 
     @ParameterizedTest
-    @ValueSource(strings = {"Sphere.stl", "HoledBox.stl", "Tour.stl", "Blob.stl"})
+    @ValueSource(strings = {
+            "Sphere.stl",
+//            "HoledBox.stl",
+            "Tour.stl",
+            "Blob.stl"
+    })
     void testScenario(String modelFilename) {
         String classname = this.getClass().getSimpleName();
         logger.info("Integrity test of " + classname + " in scenario " + modelFilename + " starts");

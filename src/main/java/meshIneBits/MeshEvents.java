@@ -26,12 +26,15 @@ import java.io.Serializable;
 
 public enum MeshEvents implements Serializable {
     READY(false, 0),
+    IMPORT_FAILED(false, 99),
     IMPORTING(true, 100),
     IMPORTED(false, 101),
     SLICING(true, 200),
     SLICED(false, 201),
     PAVING_MESH(true, 300),
     PAVED_MESH(false, 301),
+    PAVING_LAYER(true, 350),
+    PAVED_LAYER(false, 351),
     OPTIMIZING_LAYER(true, 400),
     OPTIMIZED_LAYER(false, 401),
     OPTIMIZING_MESH(true, 500),
@@ -41,7 +44,11 @@ public enum MeshEvents implements Serializable {
     SCHEDULING(true, 700),
     SCHEDULED(false, 701),
     OPENED(false, 1),
-    OPEN_FAILED(false, 2);
+    OPEN_FAILED(false, 2),
+    SAVED(false, 50),
+    SAVE_FAILED(false, 51),
+    EXPORTING(true, 900),
+    EXPORTED(false, 901);
 
     private boolean working;
     /**

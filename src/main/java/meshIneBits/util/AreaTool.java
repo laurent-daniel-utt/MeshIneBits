@@ -23,6 +23,7 @@
 package meshIneBits.util;
 
 import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
 
 import java.awt.geom.*;
 import java.util.*;
@@ -81,10 +82,13 @@ public class AreaTool {
 
     /**
      * @param poly target to extract
-     * @return the surface constraint in the given polygon
+     * @return the surface constraint in the given polygon. Empty if polygon is null
      */
     public static Area getAreaFrom(Polygon poly) {
-        return new Area(poly.toPath2D());
+        if (poly == null)
+            return new Area();
+        else
+            return new Area(poly.toPath2D());
     }
 
     /**
@@ -645,5 +649,12 @@ public class AreaTool {
                 segment.start.add(distance),
                 segment.end.add(distance)
         );
+    }
+
+    public static Slice getSliceFrom(Area area) {
+        Slice slice = new Slice();
+        getPolygonsFrom(area).forEach(polygon -> polygon.forEach(slice::addModelSegment));
+        slice.optimize();
+        return slice;
     }
 }

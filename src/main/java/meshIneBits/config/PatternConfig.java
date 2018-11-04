@@ -33,7 +33,7 @@ import java.util.HashMap;
  *
  * @author NHATHAN
  */
-public class PatternConfig extends HashMap<String, PatternParameter> implements Serializable {
+public class PatternConfig extends HashMap<String, PatternParameter> implements Serializable, Cloneable {
 
     /**
      *

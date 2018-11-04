@@ -28,12 +28,13 @@ import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
 import java.io.Serializable;
 
 /**
  * This is a factory paving the layers. Use {@link #pave(Layer)} to pave.
  */
-public abstract class PatternTemplate implements Serializable {
+public abstract class PatternTemplate implements Serializable, Cloneable {
 
     /**
      * Contains all customizable special parameters of the pattern template
@@ -94,6 +95,16 @@ public abstract class PatternTemplate implements Serializable {
     public abstract Pavement pave(Layer layer);
 
     /**
+     * A general case of {@link #pave(Layer)}
+     *
+     * @param layer base of filling
+     * @param area  target to fill. Expressed in general coordinate system
+     * @return schema of paving instructions
+     * @since 0.4
+     */
+    public abstract Pavement pave(Layer layer, Area area);
+
+    /**
      * Auto-optimization. Also a constructor who considers completely the layer's
      * boundary.
      *
@@ -135,10 +146,19 @@ public abstract class PatternTemplate implements Serializable {
     public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 
     /**
+     * A hint for paving sequentially from lowest layer to highest one
+     *
+     * @return <tt>false</tt> to parallelize execution
+     */
+    public boolean isInterdependent() {
+        return false;
+    }
+
+    /**
      * @return the full name of icon representation the template
      */
     public String getIconName() {
-        return "default-template-icon.png";
+        return "pattern-default.png";
     }
 
     /**
@@ -164,5 +184,13 @@ public abstract class PatternTemplate implements Serializable {
 
     public PatternConfig getPatternConfig() {
         return config;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        PatternTemplate patternTemplate;
+        patternTemplate = (PatternTemplate) super.clone();
+        patternTemplate.config = (PatternConfig) config.clone();
+        return patternTemplate;
     }
 }

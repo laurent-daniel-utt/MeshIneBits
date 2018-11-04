@@ -29,10 +29,13 @@ import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -52,13 +55,38 @@ public class ImprovedBrickPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         int layerNumber = layer.getLayerNumber();
+        Vector<Bit2D> bits = pave(layer, patternStart, patternEnd);
+        double diffRotation = (double) config.get("diffRotation").getCurrentValue();
+
+        // Rotation for this layer
+        Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
+        return new Pavement(bits, customizedRotation);
+    }
+
+    @Override
+    public Pavement pave(Layer layer, Area area) {
+        // Start
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
+        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
+        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
+        int layerNumber = layer.getLayerNumber();
+        Vector<Bit2D> bits = pave(layer, patternStart, patternEnd);
+
+        // Rotation for this layer
+        Pavement pavement = new Pavement(bits, new Vector2(1, 0));
+        pavement.computeBits(area);
+        return pavement;
+    }
+
+    public Vector<Bit2D> pave(Layer layer, Vector2 patternStart, Vector2 patternEnd) {
+        int layerNumber = layer.getLayerNumber();
         Vector<Bit2D> bits = new Vector<>();
         // Setup parameters
         bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();
         bitsLengthSpace = (double) config.get("bitsLengthSpace").getCurrentValue();
         double diffxOffset = (double) config.get("diffxOffset").getCurrentValue();
         double diffyOffset = (double) config.get("diffyOffset").getCurrentValue();
-        double diffRotation = (double) config.get("diffRotation").getCurrentValue();
         // The first bit is displaced by multiples of diffxOffset and
         // diffyOffset
         Vector2 _1stBit = new Vector2(diffxOffset * layerNumber % CraftConfig.bitLength,
@@ -70,11 +98,19 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 + lineNum * (CraftConfig.bitWidth + bitsLengthSpace) <= patternEnd.y) {
             // Horizontally
             if (lineNum % 2 == 0) {
-                fillHorizontally(new Vector2(_1stBit.x, _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
-                        bits);
+                fillHorizontally(
+                        new Vector2(_1stBit.x,
+                                _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+                        bits,
+                        patternStart,
+                        patternEnd);
             } else {
-                fillHorizontally(new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
-                        _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)), bits);
+                fillHorizontally(
+                        new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+                                _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+                        bits,
+                        patternStart,
+                        patternEnd);
             }
             lineNum++;
         }
@@ -84,18 +120,23 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 - lineNum * (CraftConfig.bitWidth + bitsLengthSpace) >= patternStart.y) {
             // Horizontally
             if (lineNum % 2 == 0) {
-                fillHorizontally(new Vector2(_1stBit.x, _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
-                        bits);
+                fillHorizontally(
+                        new Vector2(_1stBit.x,
+                                _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+                        bits,
+                        patternStart,
+                        patternEnd);
             } else {
-                fillHorizontally(new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
-                        _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)), bits);
+                fillHorizontally(
+                        new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+                                _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
+                        bits,
+                        patternStart,
+                        patternEnd);
             }
             lineNum++;
         }
-
-        // Rotation for this layer
-        Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
-        return new Pavement(bits, customizedRotation);
+        return bits;
     }
 
     /**
@@ -103,8 +144,10 @@ public class ImprovedBrickPattern extends PatternTemplate {
      *
      * @param _1stBitOrigin origin of departure
      * @param bits          set of bits of this layer
+     * @param patternStart  limit to the left
+     * @param patternEnd    limit to the right
      */
-    private void fillHorizontally(Vector2 _1stBitOrigin, Vector<Bit2D> bits) {
+    private void fillHorizontally(Vector2 _1stBitOrigin, Vector<Bit2D> bits, Vector2 patternStart, Vector2 patternEnd) {
         double L = CraftConfig.bitLength;
         double f = bitsWidthSpace;
         // To the right
@@ -527,7 +570,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p3.png";
+        return "pattern-improved-brick.png";
     }
 
     @Override

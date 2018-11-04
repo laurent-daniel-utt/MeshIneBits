@@ -25,8 +25,6 @@ package meshIneBits.config;
 import meshIneBits.patterntemplates.*;
 import meshIneBits.scheduler.AScheduler;
 
-import java.util.Vector;
-
 /**
  * The CraftConfig class contains the configurable
  * settings for the slicer. Reflection and annotations
@@ -38,15 +36,6 @@ public class CraftConfig {
     static final String VERSION = "Dev-Prerelease";
 
     // Slicer options
-
-    /**
-     * @deprecated No more multiple slices per layer
-     */
-    @Setting(title = "Slice height",
-            description = "Height of each sliced layer (in mm)",
-            minValue = 1.0, maxValue = 1000.0
-    )
-    public static double sliceHeight = 2;
 
     @Setting(title = "Space between layers",
             description = "The vertical gap between each layers (in mm)",
@@ -89,28 +78,32 @@ public class CraftConfig {
     // Pattern choices
 
     /**
-     * @deprecated As of release of 0.2, replaced by {@link #templateChoice}
-     */
-    @Setting(title = "Pattern number",
-            description = "Pattern template you want to apply",
-            minValue = 1, maxValue = 4
-    )
-    public static int patternNumber = 2;
-    /**
      * The provided templates
      */
     public static PatternTemplate[] templatesPreloaded = {
-            new ClassicBrickPattern(),
             new ManualPattern(),
+            new ClassicBrickPattern(),
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
             new UnitSquarePattern()
     };
+
     /**
-     * Includes the provided templates and added lately ones
+     * @return new instance of each pattern builder
      */
-    public static Vector<PatternTemplate> templatesLoaded;
+    public static PatternTemplate[] clonePreloadedPatterns() {
+        PatternTemplate[] patternsList = new PatternTemplate[CraftConfig.templatesPreloaded.length];
+        for (int i = 0; i < CraftConfig.templatesPreloaded.length; i++) {
+            try {
+                patternsList[i] = CraftConfig.templatesPreloaded[i].getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return patternsList;
+    }
+
     /**
      * The chosen pattern
      */
@@ -118,58 +111,8 @@ public class CraftConfig {
 
     // Deprecated pattern parameters
 
-    /**
-     * @deprecated
-     */
-    /*
-     * Should be replaced in the next version by 3D-view.
-     */
-    @Setting(title = "Overall rotation (°)",
-            description = "Rotation you want to apply on the whole object (in degrees)",
-            minValue = 0.0, maxValue = 360.0
-    )
-    public static double rotation = 0.0;
-
-    /**
-     * @deprecated
-     */
-    /*
-     * Should be replaced in the next version by 3D-view.
-     */
-    @Setting(title = "Overall X offSet (mm)",
-            description = "Offset you want to apply on the whole object in the X direction (mm)",
-            minValue = -60.0, maxValue = 90.0
-    )
-    public static double xOffset = 0.0;
-
-    /**
-     * @deprecated
-     */
-    /*
-     * Should be replaced in the next version by 3D-view.
-     */
-    @Setting(title = "Overall Y offSet (mm)",
-            description = "Offset you want to apply on the whole object in the Y direction (mm)",
-            minValue = -60.0, maxValue = 90.0
-    )
-    public static double yOffset = 0.0;
-
     // Layer computation
 
-
-    @Setting(title = "Min % of slices in a bit3D",
-            description = "Minimum percentage of number slices in a bit3D (%)",
-            minValue = 1.0, maxValue = 100.0
-    )
-    @Deprecated
-    public static double minPercentageOfSlices = 50.0;
-
-    @Setting(title = "Default slice to select",
-            description = "Default slice to select (in % of bit height) in a bit 3D to become the bit2D to extrude. 0% means the lower slice, 100% the highest.",
-            minValue = 0.0, maxValue = 100.0
-    )
-    @Deprecated
-    public static double defaultSliceToSelect = 50.0;
 
     @Setting(title = "Suction cup diameter",
             description = "Diameter of the suction cup which lifts the bits (in mm)",

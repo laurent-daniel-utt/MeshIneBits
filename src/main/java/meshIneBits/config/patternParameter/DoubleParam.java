@@ -239,10 +239,18 @@ public class DoubleParam extends PatternParameter {
      * @param amount positive to increment {@link #currentValue} or
      *               negative to decrement. Can not trespass {@link #maxValue}
      *               and {@link #minValue}
+     * @param cyclic <tt>true</tt> to recount from {@link #minValue} when
+     *               greater than {@link #maxValue}
      */
-    public void incrementBy(double amount) {
+    public void incrementBy(double amount, boolean cyclic) {
         double oldValue = currentValue;
-        currentValue = filter(currentValue + amount);
+        if (cyclic) {
+            if (currentValue + amount > maxValue)
+                currentValue += amount - maxValue + minValue;
+            else
+                currentValue += amount;
+        } else
+            currentValue = filter(currentValue + amount);
         changes.firePropertyChange("currentValue", oldValue, currentValue);
     }
 }

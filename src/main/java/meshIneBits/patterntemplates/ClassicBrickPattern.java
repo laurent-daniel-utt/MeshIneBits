@@ -28,8 +28,11 @@ import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 /**
@@ -44,6 +47,31 @@ public class ClassicBrickPattern extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
+        // Start
+        Vector<Bit2D> bits = pave(patternStart, patternEnd);
+        // in this pattern 1 layer on 2 has a 90° rotation
+        Vector2 rotation = new Vector2(1, 0);
+        if (layer.getLayerNumber() % 2 == 0) {
+            rotation = new Vector2(0, 1);
+        }
+        return new Pavement(bits, rotation);
+    }
+
+    @Override
+    public Pavement pave(Layer layer, Area area) {
+        // Start
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
+        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
+        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
+        Vector<Bit2D> bits = pave(patternStart, patternEnd);
+        Vector2 rotation = new Vector2(1, 0);
+        Pavement pavement = new Pavement(bits, rotation);
+        pavement.computeBits(area);
+        return pavement;
+    }
+
+    private Vector<Bit2D> pave(Vector2 patternStart, Vector2 patternEnd) {
         // Setup parameters
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
         // Start
@@ -59,12 +87,7 @@ public class ClassicBrickPattern extends PatternTemplate {
             coo = new Vector2(patternStart.x + (CraftConfig.bitLength + bitsOffset) * column, patternStart.y);
             column++;
         }
-        // in this pattern 1 layer on 2 has a 90° rotation
-        Vector2 rotation = new Vector2(1, 0);
-        if (layer.getLayerNumber() % 2 == 0) {
-            rotation = new Vector2(0, 1);
-        }
-        return new Pavement(bits, rotation);
+        return bits;
     }
 
     @Override
@@ -95,7 +118,7 @@ public class ClassicBrickPattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "p1.png";
+        return "pattern-classic-brick.png";
     }
 
     @Override

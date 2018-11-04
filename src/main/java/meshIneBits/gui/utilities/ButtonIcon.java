@@ -22,10 +22,12 @@
 
 package meshIneBits.gui.utilities;
 
+import meshIneBits.gui.IconLoader;
+import meshIneBits.gui.MeshAction;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Objects;
 
 public class ButtonIcon extends JButton {
     private static final long serialVersionUID = 4439705350058229259L;
@@ -42,15 +44,7 @@ public class ButtonIcon extends JButton {
         super((label.isEmpty() ? "" : " ") + label);
         this.setHorizontalAlignment(LEFT);
         this.setMargin(new Insets(0, 0, 0, 2));
-
-        try {
-            ImageIcon icon = new ImageIcon(
-                    new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/" + iconName))).getImage()
-                            .getScaledInstance(width, height, Image.SCALE_DEFAULT));
-            this.setIcon(icon);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.setIcon(IconLoader.get(iconName, width, height));
 
         if (onlyIcon) {
             setContentAreaFilled(false);
@@ -69,5 +63,24 @@ public class ButtonIcon extends JButton {
                 }
             });
         }
+    }
+
+    public ButtonIcon(MeshAction meshAction) {
+        super(meshAction);
+        setHideActionText(true);
+        setToolTipText(meshAction.getToolTipText());
+        setContentAreaFilled(false);
+        setBorder(new EmptyBorder(3, 3, 3, 3));
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                setContentAreaFilled(false);
+            }
+        });
     }
 }

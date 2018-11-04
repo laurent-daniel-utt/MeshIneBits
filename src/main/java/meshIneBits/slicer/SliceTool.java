@@ -73,7 +73,7 @@ public class SliceTool extends Observable implements Runnable {
      */
     @Override
     public void run() {
-        Logger.updateStatus("Slicing slices");
+        Logger.updateStatus("Slicing mesh");
         Vector3 modelMax = model.getMax();
         double sliceDistance = CraftConfig.bitThickness + CraftConfig.layersOffset;
         double firstSliceHeight = CraftConfig.firstSliceHeightPercent / 100 * CraftConfig.bitThickness; // right at the middle
@@ -122,7 +122,7 @@ public class SliceTool extends Observable implements Runnable {
             slices.get(i).optimize();
         }
 
-        Logger.updateStatus("Number of slices: " + slices.size());
+        Logger.updateStatus("Mesh sliced");
         setChanged();
         notifyObservers(MeshEvents.SLICED);
     }
