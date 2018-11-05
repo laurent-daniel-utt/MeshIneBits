@@ -47,9 +47,9 @@ public class UPPNewBit extends UtilityParametersPanel {
 
         MeshToggleAction toggleAddingBits = new MeshToggleAction(
                 "addBits",
-                "Select origins",
+                "Toggle select positions",
                 "selection-tool.png",
-                "Select positions to add new bits",
+                "Enable/Disable bit adding mode",
                 "",
                 meshController,
                 MeshController.ADDING_BITS
@@ -121,19 +121,6 @@ public class UPPNewBit extends UtilityParametersPanel {
         c.gridx++;
         add(quartbit, c);
         bitTypes.add(quartbit);
-
-        JButton chooseOriginsBtn = new JButton("Start");
-        c.gridx++;
-        add(chooseOriginsBtn, c);
-
-        JButton cancelChoosingOriginsBtn = new JButton("Cancel");
-        c.gridx++;
-        add(cancelChoosingOriginsBtn, c);
-
-        chooseOriginsBtn.addActionListener(e ->
-                meshController.setAddingBits(true));
-        cancelChoosingOriginsBtn.addActionListener(e ->
-                meshController.setAddingBits(false));
 
         // Dummy panel
         JPanel dummy = new JPanel();

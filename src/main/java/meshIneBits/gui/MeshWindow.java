@@ -454,7 +454,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction halfLengthBit = new MeshAction(
                 "halfLengthBit",
-                "Half Width",
+                "Half Length",
                 "bit-half-length.png",
                 "Cut bit half in length",
                 "",
@@ -466,7 +466,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction halfWidthBit = new MeshAction(
                 "halfWidthBit",
-                "Half Length",
+                "Half Width",
                 "bit-half-width.png",
                 "Cut bit half in width",
                 "",
