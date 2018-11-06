@@ -180,9 +180,9 @@ public class EconomicPattern extends PatternTemplate {
         // Recreate the base pavement for this layer
         if (!overallPavement.isEmpty()) {
             layersRotations.put(layerNumber, thisLayerRotation);
-            return new Pavement(overallPavement, new Vector2(1, 0));
+            return new Pavement(overallPavement);
         } else {
-            return new Pavement(new Vector<>(), new Vector2(1, 0));
+            return new Pavement(new Vector<>());
         }
     }
 

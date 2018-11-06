@@ -72,14 +72,9 @@ public class Layer extends Observable implements Serializable {
     private void extrudeBitsTo3D() {
         mapBits3D = flatPavement.getBitsKeys().parallelStream()
                 .collect(Collectors.toConcurrentMap(key -> key,
-                        key -> {
-                            Bit2D bit2D = flatPavement.getBit(key);
-                            return new Bit3D(bit2D, key,
-                                    bit2D.getOrientation()
-                                            .getTransformed(flatPavement
-                                                    .getAffineTransform()));
-                        }
-                        , (u, v) -> u, ConcurrentHashMap::new));
+                        key -> new Bit3D(flatPavement.getBit(key)),
+                        (u, v) -> u, // Preserve the first
+                        ConcurrentHashMap::new));
     }
 
     /**
@@ -117,7 +112,7 @@ public class Layer extends Observable implements Serializable {
     public Vector<Pair<Bit3D, Vector2>> sortBits() {
         Vector<Pair<Bit3D, Vector2>> keySet = new Vector<>();
         for (Vector2 key : mapBits3D.keySet()) {
-            for (Vector2 pos : mapBits3D.get(key).getDepositPoints()) {
+            for (Vector2 pos : mapBits3D.get(key).getLiftPoints()) {
                 if (pos != null) {
                     keySet.add(new Pair<>(mapBits3D.get(key), pos));
                 }
@@ -134,12 +129,13 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Add a bit to the {@link #flatPavement} and call {@link #rebuild}
-     * which will reconstruct all the {@link Pavement} taking in account this new
-     * bit.
+     * Add a {@link Bit2D} to the {@link #flatPavement} and call {@link #rebuild}
+     * which will reconstruct all the {@link Layer} taking in account this new
+     * {@link Bit2D}.
      *
-     * @param bit target
-     * @return the key of the newly inserted bit. <tt>null</tt> if out of bound
+     * @param bit expressed in {@link Mesh} coordinate system
+     * @return the origin of the newly inserted bit in {@link Mesh} coordinate system.
+     * <tt>null</tt> if out of bound
      */
     public Vector2 addBit(Bit2D bit) {
         Vector2 newKey = flatPavement.addBit(bit);
@@ -297,7 +293,7 @@ public class Layer extends Observable implements Serializable {
         return paved;
     }
 
-    public List<Vector2> getIrregularBits() {
+    public List<Vector2> getKeysOfIrregularBits() {
         return irregularBits;
     }
 

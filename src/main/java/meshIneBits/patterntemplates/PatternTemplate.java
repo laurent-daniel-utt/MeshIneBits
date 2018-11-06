@@ -22,6 +22,7 @@
 
 package meshIneBits.patterntemplates;
 
+import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
@@ -99,7 +100,7 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
      *
      * @param layer base of filling
      * @param area  target to fill. Expressed in general coordinate system
-     * @return schema of paving instructions
+     * @return schema of paving instructions. All {@link Bit2D}s will be computed
      * @since 0.4
      */
     public abstract Pavement pave(Layer layer, Area area);

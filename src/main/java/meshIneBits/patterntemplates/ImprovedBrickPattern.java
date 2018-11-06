@@ -36,12 +36,13 @@ import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Vector;
 
 /**
  * Pattern improved from classic pattern
- * {@link meshIneBits.patterntemplates.ClassicBrickPattern ClassicBrickPattern}.
+ * {@link ClassicBrickPattern}.
  *
  * @author NHATHAN
  */
@@ -55,12 +56,12 @@ public class ImprovedBrickPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         int layerNumber = layer.getLayerNumber();
-        Vector<Bit2D> bits = pave(layer, patternStart, patternEnd);
+        Collection<Bit2D> bits = pave(layer, patternStart, patternEnd);
         double diffRotation = (double) config.get("diffRotation").getCurrentValue();
 
         // Rotation for this layer
         Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
-        return new Pavement(bits, customizedRotation);
+        return new Pavement(bits);
     }
 
     @Override
@@ -71,15 +72,15 @@ public class ImprovedBrickPattern extends PatternTemplate {
         Vector2 patternStart = new Vector2(bounds.x, bounds.y);
         Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
         int layerNumber = layer.getLayerNumber();
-        Vector<Bit2D> bits = pave(layer, patternStart, patternEnd);
+        Collection<Bit2D> bits = pave(layer, patternStart, patternEnd);
 
         // Rotation for this layer
-        Pavement pavement = new Pavement(bits, new Vector2(1, 0));
+        Pavement pavement = new Pavement(bits);
         pavement.computeBits(area);
         return pavement;
     }
 
-    public Vector<Bit2D> pave(Layer layer, Vector2 patternStart, Vector2 patternEnd) {
+    private Collection<Bit2D> pave(Layer layer, Vector2 patternStart, Vector2 patternEnd) {
         int layerNumber = layer.getLayerNumber();
         Vector<Bit2D> bits = new Vector<>();
         // Setup parameters
@@ -199,8 +200,9 @@ public class ImprovedBrickPattern extends PatternTemplate {
                     lengthToReduce = bitsWidthSpace;
                 }
                 reduceBit(newPos, currentPavement, localDirectionToMove, lengthToReduce);
+                Vector2 directionToMoveInMesh = localDirectionToMove.getTransformed(initialStateOfBitToMove.getTransfoMatrix());
                 Logger.updateStatus("Moved bit at " + irBitKeyToMove + " in direction "
-                        + localDirectionToMove.getTransformed(currentPavement.getAffineTransform()) + " to " + newPos);
+                        + directionToMoveInMesh + " to " + newPos);
                 // Re-validate
                 currentPavement.computeBits(selectedBoundary);
                 // Try to recover the gap left behind

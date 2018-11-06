@@ -183,12 +183,12 @@ public class UnitSquarePattern extends PatternTemplate {
             } else {
                 LOGGER.warning("Pavement of layer " + layer.getLayerNumber() + " failed.");
                 Logger.updateStatus("Pavement of layer " + layer.getLayerNumber() + " failed.");
-                return new Pavement(new Vector<>(), new Vector2(1, 0));
+                return new Pavement(new Vector<>());
             }
         }
         LOGGER.info("Paved layer " + layer.getLayerNumber());
         Logger.updateStatus("Paved layer " + layer.getLayerNumber());
-        return new Pavement(overallPavement, new Vector2(1, 0));
+        return new Pavement(overallPavement);
     }
 
     @Override
@@ -230,10 +230,10 @@ public class UnitSquarePattern extends PatternTemplate {
                 overallPavement.addAll(trueBits);
                 LOGGER.config(matrix.pToString());
             } else {
-                return new Pavement(new Vector<>(), new Vector2(1, 0));
+                return new Pavement(new Vector<>());
             }
         }
-        return new Pavement(overallPavement, new Vector2(1, 0));
+        return new Pavement(overallPavement);
     }
 
     @Override

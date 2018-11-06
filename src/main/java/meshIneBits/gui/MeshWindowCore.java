@@ -22,6 +22,7 @@
 
 package meshIneBits.gui;
 
+import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -129,7 +130,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             Layer layer = meshController.getCurrentLayer();
             if (layer == null) return;
 
-            // Get the clicked point in the right coordinate system
+            // Get the clicked point in the Mesh coordinate system
             Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
             viewToReal.transform(clickSpot, clickSpot);
 
@@ -405,51 +406,46 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     private void paintBits(Graphics2D g2d) {
         Layer layer = meshController.getCurrentLayer();
-        if (layer == null) return;
+        if (layer == null
+                || layer.getFlatPavement() == null)
+            return;
         Vector<Vector2> bitKeys = layer.getBits3dKeys();
-        // Get all the irregular bits (bitKey in fact) in this layer
-        List<Vector2> irregularBitsOfThisLayer = layer.getIrregularBits();
+        // Get all the irregular bits' key in this layer
+        List<Vector2> keysIrregularBits = layer.getKeysOfIrregularBits();
 
-        for (Vector2 b : bitKeys) { // Draw each bits
-            Bit3D bit = layer.getBit3D(b);
-            Area area = bit.getRawArea(); // Get the area of the bit
-            AffineTransform affTrans = new AffineTransform();
-            affTrans.translate(b.x, b.y);
-            affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-            area.transform(affTrans); // Put the bit's area at the right place
+        for (Vector2 bitKey : bitKeys) {
+            Bit3D bit3D = layer.getBit3D(bitKey);
+            Bit2D bit2D = bit3D.getBaseBit();
+            // Draw each bits
 
-            // Color irregular bits
-            g2d.setColor(WorkspaceConfig.regularBitColor);
-            if (meshController.showingIrregularBits() && irregularBitsOfThisLayer.contains(b)) {
+            // Area
+            if (meshController.showingIrregularBits()
+                    && keysIrregularBits.contains(bitKey))
                 g2d.setColor(WorkspaceConfig.irregularBitColor);
-            }
-            // Draw the bit's area
-            drawModelArea(g2d, area);
+            else
+                g2d.setColor(WorkspaceConfig.regularBitColor);
+            drawModelArea(g2d, bit2D.getArea());
 
-            // Draw the cut path
-            if (meshController.showingCutPaths() && (bit.getCutPaths() != null)) {
+            // Cut paths
+            Vector<Path2D> cutpaths = bit2D.getCutPaths();
+            if (meshController.showingCutPaths()
+                    && (cutpaths != null)) {
                 g2d.setColor(WorkspaceConfig.cutpathColor);
                 g2d.setStroke(WorkspaceConfig.cutpathStroke);
-                for (Path2D p : bit.getCutPaths()) {
-                    Path2D path = (Path2D) p.clone();
-                    path.transform(affTrans);
-                    drawModelPath2D(g2d, path);
-                }
+                cutpaths.forEach(path2D -> drawModelPath2D(g2d, path2D));
             }
 
-            // Draw the lift points path if checkbox is checked
+            // Lift points
             if (meshController.showingLiftPoints()) {
                 g2d.setColor(WorkspaceConfig.liftpointColor);
                 g2d.setStroke(WorkspaceConfig.liftpointStroke);
-                for (Vector2 liftPoint : bit.getLiftPoints()) {
-                    if (liftPoint != null) {
-                        Point2D point = new Point2D.Double();
-                        affTrans.transform(new Point2D.Double(liftPoint.x, liftPoint.y), point);
-                        drawModelCircle(g2d,
-                                new Vector2(point.getX(), point.getY()),
-                                (int) CraftConfig.suckerDiameter);
-                    }
-                }
+                if (!bit3D.getLiftPoints().isEmpty())
+                    bit3D.getLiftPoints()
+                            .forEach(liftPoint ->
+                                    drawModelCircle(g2d,
+                                            liftPoint.x,
+                                            liftPoint.y,
+                                            (int) CraftConfig.suckerDiameter));
             }
         }
     }
@@ -468,24 +464,26 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     private void paintBitPreview(Graphics2D g2d) {
+        // Bit boundary
         Rectangle2D.Double r = new Rectangle2D.Double(
                 -CraftConfig.bitLength / 2,
                 -CraftConfig.bitWidth / 2,
                 meshController.getNewBitsLengthParam().getCurrentValue(),
                 meshController.getNewBitsWidthParam().getCurrentValue());
-        Area bitBorder = new Area(r);
+        // Current position of cursor
+        Point2D.Double currentSpot = new Point2D.Double(oldX, oldY); // In view
+        viewToReal.transform(currentSpot, currentSpot); // In real
         // Transform into current view
-        AffineTransform affineTransform = new AffineTransform();
-        affineTransform.translate(oldX, oldY);
+        AffineTransform originToCurrentSpot = new AffineTransform();
+        originToCurrentSpot.translate(currentSpot.x, currentSpot.y);
         Vector2 lOrientation = Vector2.getEquivalentVector(
                 meshController.getNewBitsOrientationParam().getCurrentValue());
-        affineTransform.rotate(lOrientation.x, lOrientation.y);
-        affineTransform.scale(drawScale, drawScale);
-        bitBorder.transform(affineTransform);
+        originToCurrentSpot.rotate(lOrientation.x, lOrientation.y);
 
-        Point2D.Double realSpot = new Point2D.Double(oldX, oldY);
-        viewToReal.transform(realSpot, realSpot);
-        Area availableBitArea = meshController.getAvailableBitAreaAt(realSpot); // in real pos
+        Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
+        Shape bitPreviewInView = realToView.createTransformedShape(bitPreviewInReal);
+
+        Area availableBitArea = meshController.getAvailableBitAreaFrom(bitPreviewInReal); // in real pos
         boolean irregular = DetectorTool.checkIrregular(availableBitArea);
         // Fit into view
         availableBitArea.transform(realToView);
@@ -494,7 +492,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             // Draw border
             g2d.setColor(WorkspaceConfig.bitPreviewBorderColor);
             g2d.setStroke(WorkspaceConfig.bitPreviewBorderStroke);
-            g2d.draw(bitBorder);
+            g2d.draw(bitPreviewInView);
             // Draw internal area
             g2d.setColor(WorkspaceConfig.bitPreviewColor);
             g2d.fill(availableBitArea);
@@ -502,7 +500,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             // Draw border
             g2d.setColor(WorkspaceConfig.irregularBitPreviewBorderColor);
             g2d.setStroke(WorkspaceConfig.irregularBitPreviewBorderStroke);
-            g2d.draw(bitBorder);
+            g2d.draw(bitPreviewInView);
             // Draw internal area
             g2d.setColor(WorkspaceConfig.irregularBitPreviewColor);
             g2d.fill(availableBitArea);
@@ -520,10 +518,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         g2d.draw(area);
     }
 
-    private void drawModelCircle(Graphics2D g2d, Vector2 center, int radius) {
+    private void drawModelCircle(Graphics2D g2d, double x, double y, int radius) {
         Ellipse2D liftPoint = new Ellipse2D.Double(
-                center.x - (radius >> 1),
-                center.y - (radius >> 1),
+                x - (radius >> 1),
+                y - (radius >> 1),
                 radius, radius);
         g2d.draw(realToView.createTransformedShape(liftPoint));
     }
@@ -554,16 +552,17 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                             -CraftConfig.bitWidth / 2,
                             CraftConfig.bitLength,
                             CraftConfig.bitWidth));
-            Vector<Area> areas = new Vector<>();
-            areas.add(overlapBit);
+            overlapBit.transform(bit.getBaseBit().getTransfoMatrix());
 
-            AffineTransform affTrans = new AffineTransform();
+            Vector<Area> arrows = new Vector<>();
+            AffineTransform affTrans;
 
             Area topArrow = new Area(triangleShape);
+            affTrans = new AffineTransform();
             affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
             affTrans.rotate(0, 0);
             topArrow.transform(affTrans);
-            areas.add(topArrow);
+            arrows.add(topArrow);
             this.add(topArrow);
 
             Area leftArrow = new Area(triangleShape);
@@ -571,7 +570,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
             affTrans.rotate(0, 1);
             leftArrow.transform(affTrans);
-            areas.add(leftArrow);
+            arrows.add(leftArrow);
             this.add(leftArrow);
 
             Area bottomArrow = new Area(triangleShape);
@@ -579,7 +578,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
             affTrans.rotate(-1, 0);
             bottomArrow.transform(affTrans);
-            areas.add(bottomArrow);
+            arrows.add(bottomArrow);
             this.add(bottomArrow);
 
             Area rightArrow = new Area(triangleShape);
@@ -587,26 +586,22 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
             affTrans.rotate(0, -1);
             rightArrow.transform(affTrans);
-            areas.add(rightArrow);
+            arrows.add(rightArrow);
             this.add(rightArrow);
 
-            for (Area area : areas) {
-                affTrans = new AffineTransform();
-                affTrans.translate(bit.getOrigin().x, bit.getOrigin().y);
-                affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
+
+            g2d.setColor(WorkspaceConfig.bitControlColor);
+            affTrans = bit.getBaseBit().getTransfoMatrix();
+            for (Area area : arrows) {
                 area.transform(affTrans);
-
                 area.transform(realToView);
-
-                g2d.setColor(WorkspaceConfig.bitControlColor);
-                if (!area.equals(overlapBit)) {
-                    g2d.draw(area);
-                    g2d.fill(area);
-                }
+                g2d.draw(area);
+                g2d.fill(area);
             }
 
             g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
             g2d.setColor(new Color(94, 125, 215));
+            overlapBit.transform(realToView);
             g2d.draw(overlapBit);
 
             g2d.setColor(new Color(0, 114, 255, 50));

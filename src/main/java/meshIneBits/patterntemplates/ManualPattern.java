@@ -30,7 +30,7 @@ import meshIneBits.config.PatternConfig;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * This pattern does not do anything in process. In fact, it allows user to
@@ -49,12 +49,12 @@ public class ManualPattern extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
-        return new Pavement(new Vector<>(), new Vector2(1, 0));
+        return new Pavement(new ArrayList<>());
     }
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        return new Pavement(new Vector<>(), new Vector2(1, 0));
+        return new Pavement(new ArrayList<>());
     }
 
     @Override
