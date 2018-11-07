@@ -23,7 +23,7 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.MeshController;
+import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.scheduler.AScheduler;
 
 import javax.swing.*;

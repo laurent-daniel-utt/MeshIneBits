@@ -22,9 +22,9 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.MeshAction;
-import meshIneBits.gui.MeshController;
-import meshIneBits.gui.MeshToggleAction;
+import meshIneBits.gui.view2d.MeshAction;
+import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.MeshToggleAction;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
 import javax.swing.*;

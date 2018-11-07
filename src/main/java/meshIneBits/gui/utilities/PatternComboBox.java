@@ -23,7 +23,6 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.config.patternParameter.PatternParameter;
-import meshIneBits.gui.IconLoader;
 import meshIneBits.patterntemplates.PatternTemplate;
 
 import javax.swing.*;

@@ -23,7 +23,7 @@
 package meshIneBits;
 
 import meshIneBits.config.CraftConfigLoader;
-import meshIneBits.gui.MeshWindow;
+import meshIneBits.gui.view2d.MeshWindow;
 
 /**
  * Main class. Call {@link #main(String[])} to start MeshIneBits. Will first
