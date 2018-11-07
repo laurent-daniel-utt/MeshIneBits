@@ -342,7 +342,7 @@ public class EconomicPattern extends PatternTemplate {
                 // Creating a new bit
                 // Attention to the case of rebuilding a bit
                 // with half of its normal length
-                Vector2 origin = new Vector2(unpavedSpaceRect.x + thisBitLength - CraftConfig.bitLength / 2, originY);
+                Vector2 origin = new Vector2(unpavedSpaceRect.x + CraftConfig.bitLength / 2, originY);
                 if (bandPavement.isEmpty()) {
                     // If this is the first bit
                     // we will push it backward a little bit
