@@ -392,12 +392,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         for (Vector2 b : previousLayerBitKeys) {
 
             Bit3D bit = previousLayer.getBit3D(b);
-            Area area = bit.getRawArea();
-            AffineTransform affTrans = new AffineTransform();
-            affTrans.translate(b.x, b.y);
-            affTrans.rotate(bit.getOrientation().x, bit.getOrientation().y);
-
-            area.transform(affTrans);
+            Area area = bit.getBaseBit().getArea();
             area.transform(realToView);
 
             g2d.draw(area);
