@@ -25,7 +25,7 @@ package meshIneBits;
 import javafx.util.Pair;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.DetectorTool;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
@@ -45,6 +45,7 @@ public class Layer extends Observable implements Serializable {
 
     private int layerNumber;
     private Slice horizontalSection;
+    private transient Area horizontalArea;
     private Pavement flatPavement;
     private PatternTemplate patternTemplate;
     private Map<Vector2, Bit3D> mapBits3D;
@@ -52,16 +53,21 @@ public class Layer extends Observable implements Serializable {
     private List<Vector2> irregularBits;
 
     /**
-     * Rebuild the whole layer. To be called after every changes made on this
-     * layer
+     * Rebuild the whole layer. To be called after overall changes made on this
+     * {@link Layer}
      */
     public void rebuild() {
         flatPavement.computeBits(horizontalSection);
         extrudeBitsTo3D();
-        computeLiftPoints();
-        irregularBits = DetectorTool.detectIrregularBits(flatPavement);
+        findKeysOfIrregularBits();
         setChanged();
         notifyObservers();
+    }
+
+    private void findKeysOfIrregularBits() {
+        irregularBits = mapBits3D.keySet().stream()
+                .filter(key -> mapBits3D.get(key).isIrregular())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -77,12 +83,12 @@ public class Layer extends Observable implements Serializable {
                         ConcurrentHashMap::new));
     }
 
-    /**
-     * Computer lift points after extruding 3D bits
-     */
-    private void computeLiftPoints() {
-        for (Vector2 key : getBits3dKeys()) {
-            mapBits3D.get(key).computeLiftPoints();
+    private void extrudeBitTo3D(Vector2 key) {
+        if (flatPavement.getBit(key) != null) {
+            Bit3D bit3D = new Bit3D(flatPavement.getBit(key));
+            mapBits3D.put(key, bit3D);
+            if (bit3D.isIrregular())
+                irregularBits.add(key);
         }
     }
 
@@ -99,6 +105,7 @@ public class Layer extends Observable implements Serializable {
     public Layer(int layerNumber, Slice horizontalSection) {
         this.layerNumber = layerNumber;
         this.horizontalSection = horizontalSection;
+        this.horizontalArea = AreaTool.getAreaFrom(horizontalSection);
         this.patternTemplate = null;
         this.flatPavement = null;
     }
@@ -129,21 +136,26 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Add a {@link Bit2D} to the {@link #flatPavement} and call {@link #rebuild}
-     * which will reconstruct all the {@link Layer} taking in account this new
-     * {@link Bit2D}.
+     * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of
+     * {@link Bit2D} and decide to add into {@link #flatPavement} if it is inside
+     * border
      *
      * @param bit expressed in {@link Mesh} coordinate system
      * @return the origin of the newly inserted bit in {@link Mesh} coordinate system.
      * <tt>null</tt> if out of bound
      */
     public Vector2 addBit(Bit2D bit) {
-        Vector2 newKey = flatPavement.addBit(bit);
-        rebuild();
-        if (this.getBit3D(newKey) == null) {
+        Area bitArea = bit.getArea();
+        bitArea.intersect(horizontalArea);
+        if (bitArea.isEmpty()) {
+            // Out of bound
             return null;
         } else {
-            return newKey;
+            bit.updateBoundaries(bitArea);
+            bit.calcCutPath();
+            Vector2 key = flatPavement.addBit(bit);
+            extrudeBitTo3D(key);
+            return key;
         }
     }
 
@@ -223,27 +235,20 @@ public class Layer extends Observable implements Serializable {
     /**
      * Remove a bit
      *
-     * @param key     origin of bit in 2D plan
-     * @param rebuild need to rebuild whole layer
+     * @param key origin of bit in 2D plan
      */
-    public void removeBit(Vector2 key, boolean rebuild) {
+    public void removeBit(Vector2 key) {
         flatPavement.removeBit(key);
-        if (rebuild) {
-            rebuild();
-        }
+        mapBits3D.remove(key);
     }
 
     /**
      * Remove multiple bits
      *
-     * @param keys    origin of bit in layer coordinate system
-     * @param rebuild need to rebuild whole layer
+     * @param keys origin of bit in layer coordinate system
      */
-    public void removeBits(Collection<Vector2> keys, boolean rebuild) {
+    public void removeBits(Collection<Vector2> keys) {
         keys.forEach(flatPavement::removeBit);
-        if (rebuild) {
-            rebuild();
-        }
     }
 
     /**
@@ -257,7 +262,7 @@ public class Layer extends Observable implements Serializable {
      */
     public Vector2 scaleBit(Bit3D bit, double percentageLength, double percentageWidth) {
         Bit2D modelBit = bit.getBit2dToExtrude();
-        removeBit(bit.getOrigin(), false);
+        removeBit(bit.getOrigin());
         if (percentageLength != 0 && percentageWidth != 0) {
             Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
             return addBit(newBit);

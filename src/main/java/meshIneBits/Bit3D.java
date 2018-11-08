@@ -56,12 +56,13 @@ public class Bit3D implements Serializable {
      */
     private Vector<Vector2> rawLiftPoints = new Vector<>();
     /**
-     * In {@link #bit2dToExtrude} coordinate system
+     * In {@link Mesh} coordinate system
      */
     private Vector<Vector2> liftPoints = new Vector<>();
+    private boolean irregular = false;
 
     /**
-     * Construct bit 3D from horizontal section
+     * Construct bit 3D from horizontal section and calculate lift points
      *
      * @param baseBit horizontal cut
      */
@@ -70,6 +71,7 @@ public class Bit3D implements Serializable {
         origin = baseBit.getOrigin();
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
+        computeLiftPoints();
     }
 
     private Vector2 computeLiftPoint(Area subBit) {
@@ -80,25 +82,19 @@ public class Bit3D implements Serializable {
      * Calculate the lift point, which is the best position to grip
      * the bit by vacuuming.
      */
-    void computeLiftPoints() {
+    private void computeLiftPoints() {
         for (Area subBit : bit2dToExtrude.getRawAreas()) {
             Vector2 liftPoint = computeLiftPoint(subBit);
-            rawLiftPoints.add(liftPoint);
             if (liftPoint != null) {
-                // A new lift point means a new deposit point which is the
-                // addition of the origin point of the bit and the lift point
-                // (which is in the local coordinate system of the bit)
-                liftPoints.add(
-                        origin.add(
-                                new Vector2(rawLiftPoints.lastElement().x,
-                                        rawLiftPoints.lastElement().y)));
+                rawLiftPoints.add(liftPoint);
+                liftPoints.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrix()));
             } else {
-                liftPoints.add(null);
+                irregular = true;
             }
         }
     }
 
-    Bit2D getBit2dToExtrude() {
+    public Bit2D getBit2dToExtrude() {
         return bit2dToExtrude;
     }
 
@@ -128,5 +124,9 @@ public class Bit3D implements Serializable {
 
     public Bit2D getBaseBit() {
         return bit2dToExtrude;
+    }
+
+    public boolean isIrregular() {
+        return irregular;
     }
 }

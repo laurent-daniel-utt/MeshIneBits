@@ -37,6 +37,7 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -175,7 +176,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
             Pavement currentPavement = actualState.getFlatPavement();
             Slice selectedBoundary = actualState.getHorizontalSection();
             Vector2 localDirectionToMove = null, irBitKeyToMove = null;
-            Vector<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(currentPavement);
+            List<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(currentPavement);
             // We will find the first irregular bit that we can resolve
             for (Vector2 irBitKey : irregularBitKeys) {
                 // We try to move this irregular bit in 4 directions, starting

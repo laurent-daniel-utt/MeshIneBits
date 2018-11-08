@@ -23,11 +23,13 @@
 package meshIneBits.util;
 
 import meshIneBits.Bit2D;
+import meshIneBits.Bit3D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.Area;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * To determine if a bit is not regular (not having a lift point)
@@ -41,8 +43,8 @@ public class DetectorTool {
      *                 boundary)
      * @return all irregular bits in the given layer
      */
-    public static Vector<Vector2> detectIrregularBits(Pavement pavement) {
-        Vector<Vector2> result = new Vector<>();
+    public static List<Vector2> detectIrregularBits(Pavement pavement) {
+        List<Vector2> result = new ArrayList<>();
         for (Vector2 bitKey : pavement.getBitsKeys()) {
             Bit2D bit = pavement.getBit(bitKey);
             if (checkIrregular(bit)) {
@@ -55,32 +57,35 @@ public class DetectorTool {
     /**
      * Check if a bit is irregular.
      * <ol>
-     * <li>Only one area per bit</li>
-     * <li>Area is large enough to contain one lift point</li>
+     * <li>Can have multiple separated areas.</li>
+     * <li>Each area is large enough to contain one lift point</li>
      * </ol>
      *
      * @param bit target
      * @return <tt>true</tt> if this bit is irregular, <tt>false</tt> otherwise.
      */
     public static boolean checkIrregular(Bit2D bit) {
-        // int numLiftPoints = bit.computeLiftPoints().size(), numLevel0Areas =
-        // bit.getRawAreas().size();
-        // return (numLiftPoints != numLevel0Areas);
-        if (bit.getRawAreas().size() != 1)
-            return true;
-        return bit.computeLiftPoint() == null;
+        return checkIrregular(bit.getArea());
+    }
+
+    public static boolean checkIrregular(Bit3D bit3D) {
+        return bit3D.isIrregular();
     }
 
     /**
      * Check if an area is irregular
      *
      * @param area closed zone
-     * @return <tt>true</tt> if the surface has more than 1 continuous surface,
-     * or no possible lift point or <tt>area</tt> is <tt>null</tt> or empty
+     * @return <tt>true</tt> if a sub surface has no lift point
+     * or <tt>area</tt> is <tt>null</tt> or empty
      */
     public static boolean checkIrregular(Area area) {
         if (area == null || area.isEmpty()) return true;
-        if (AreaTool.segregateArea(area).size() > 1) return true;
-        return AreaTool.getLiftPoint(area, CraftConfig.suckerDiameter / 2) == null;
+        return AreaTool.segregateArea(area)
+                .stream()
+                .anyMatch(subarea ->
+                        AreaTool.getLiftPoint(
+                                area,
+                                CraftConfig.suckerDiameter / 2) == null);
     }
 }

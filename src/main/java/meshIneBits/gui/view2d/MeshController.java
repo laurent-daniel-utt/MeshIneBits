@@ -356,7 +356,7 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void deleteSelectedBits() {
-        currentLayer.removeBits(selectedBitKeys, false);
+        currentLayer.removeBits(selectedBitKeys);
         selectedBitKeys.clear();
         currentLayer.rebuild();
     }
