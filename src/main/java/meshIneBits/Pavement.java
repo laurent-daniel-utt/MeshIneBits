@@ -128,11 +128,17 @@ public class Pavement implements Cloneable, Serializable {
     public Vector2 moveBit(Vector2 key, Vector2 direction, double distance) {
         Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
         // Convert local direction into Mesh coordinate system
-        Vector2 directionInMesh = direction.getTransformed(bitToMove.getTransfoMatrix()).normal();
-        AffineTransform translation = new AffineTransform();
-        translation.translate(distance * directionInMesh.x, distance * directionInMesh.y);
+        AffineTransform t = AffineTransform.getRotateInstance(
+                bitToMove.getOrientation().x,
+                bitToMove.getOrientation().y
+        );
+        direction = direction.normal().mul(distance).getTransformed(t);
+        t = AffineTransform.getTranslateInstance(
+                direction.x,
+                direction.y
+        );
         removeBit(key);
-        return addBit(bitToMove.createTransformedBit(translation));
+        return addBit(bitToMove.createTransformedBit(t));
     }
 
     /**
