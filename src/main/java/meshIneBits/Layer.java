@@ -23,6 +23,7 @@
 package meshIneBits;
 
 import javafx.util.Pair;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -201,7 +202,13 @@ public class Layer extends Observable implements Serializable {
      * @return the new origin of the moved bit
      */
     public Vector2 moveBit(Vector2 bitKey, Vector2 direction) {
-        Vector2 newCoordinate = patternTemplate.moveBit(flatPavement, bitKey, direction);
+        double distance = 0;
+        if (direction.x == 0) {// up or down
+            distance = CraftConfig.bitWidth / 2;
+        } else if (direction.y == 0) {// left or right
+            distance = CraftConfig.bitLength / 2;
+        }
+        Vector2 newCoordinate = flatPavement.moveBit(bitKey, direction, distance);
         rebuild();
         return newCoordinate;
     }
@@ -214,8 +221,16 @@ public class Layer extends Observable implements Serializable {
      * @return list of new origins' position
      */
     public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
+        double distance = 0;
+        if (direction.x == 0) {// up or down
+            distance = CraftConfig.bitWidth / 2;
+        } else if (direction.y == 0) {// left or right
+            distance = CraftConfig.bitLength / 2;
+        }
+
+        final double finalDistance = distance;
         Set<Vector2> newPositions = bits.stream()
-                .map(bit -> patternTemplate.moveBit(flatPavement, bit.getOrigin(), direction))
+                .map(bit -> flatPavement.moveBit(bit.getOrigin(), direction, finalDistance))
                 .collect(Collectors.toSet());
         rebuild();
         // Some new positions may be out of border

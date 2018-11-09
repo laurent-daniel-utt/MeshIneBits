@@ -27,7 +27,6 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
-import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.io.Serializable;
@@ -118,33 +117,6 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
      * </ul>
      */
     public abstract int optimize(Layer actualState);
-
-    /**
-     * Move the bit by the minimum distance automatically calculated.
-     * <p>
-     * The distance depends on the chosen pattern. Realize the move on the input
-     * pattern. Do not use {@link Layer#moveBit(Vector2, Vector2)} here to
-     * avoid infinite loop
-     *
-     * @param actualState    the actual state of layer which is paved by this pattern template
-     * @param bitKey         the transformed origin of bit
-     * @param localDirection the direction in the coordinate system of bit
-     * @return the new origin of the moved bit
-     */
-    public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection);
-
-    /**
-     * Similar to {@link #moveBit(Pavement, Vector2, Vector2)} except the distance is
-     * free to decide.
-     *
-     * @param actualState    the actual state of layer which is paved by this pattern template
-     * @param bitKey         the transformed origin of bit
-     * @param localDirection the direction in the coordinate system of bit
-     * @param distance       an positive real number (in double precision)
-     * @return the new origin of the moved bit
-     * @see PatternTemplate#moveBit(Pavement, Vector2, Vector2)
-     */
-    public abstract Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance);
 
     /**
      * A hint for paving sequentially from lowest layer to highest one

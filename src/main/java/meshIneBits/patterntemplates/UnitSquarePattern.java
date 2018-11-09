@@ -252,22 +252,6 @@ public class UnitSquarePattern extends PatternTemplate {
     }
 
     @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
-    }
-
-    @Override
     public String getIconName() {
         return "pattern-unit-square.png";
     }

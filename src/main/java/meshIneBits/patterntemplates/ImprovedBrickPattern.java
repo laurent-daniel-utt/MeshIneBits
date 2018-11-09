@@ -546,24 +546,37 @@ public class ImprovedBrickPattern extends PatternTemplate {
         return (Math.abs(dist.dot(localDirection.getCWAngularRotated())) <= h1 / 2);
     }
 
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        // audit to control the movement
-        // We should have here an audit to control the movement (not to overlap
-        // other bits)
-        // The vector will be either (0,1), (0,-1), (1,0), (-1,0)
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
+    /**
+     * Remove old bit and replace new bit with same height and width
+     *
+     * @param pavement       current state
+     * @param key            origin of bit to be moved
+     * @param localDirection in bit coordinate system. (1;0), (-1;0), (0;1) or (0;-1)
+     * @param distance       in mm
+     * @return new origin, after moving
+     */
+    private Vector2 moveBitWithoutKeepingGeometry(Pavement pavement,
+                                                  Vector2 key,
+                                                  Vector2 localDirection,
+                                                  double distance) {
+        Bit2D bitToMove = pavement.getBit(key);
+        // Convert local direction into Mesh coordinate system
+        AffineTransform t = AffineTransform.getRotateInstance(
+                bitToMove.getOrientation().x,
+                bitToMove.getOrientation().y
+        );
+        localDirection = localDirection.normal().mul(distance).getTransformed(t);
+        t = AffineTransform.getTranslateInstance(
+                localDirection.x,
+                localDirection.y
+        );
+        Vector2 newCenter = bitToMove.getOrigin().getTransformed(t);
+        pavement.removeBit(key);
+        return pavement.addBit(new Bit2D(
+                newCenter,
+                bitToMove.getOrientation(),
+                bitToMove.getLength(),
+                bitToMove.getWidth()));
     }
 
     @Override
