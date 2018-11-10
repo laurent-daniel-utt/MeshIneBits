@@ -367,8 +367,8 @@ public class Bit2D implements Cloneable, Serializable {
      * @param newPercentageWidth  100 means retain 100% of old bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
-        length = length * newPercentageLength / 100;
-        width = width * newPercentageWidth / 100;
+        length = CraftConfig.bitLength * newPercentageLength / 100;
+        width = CraftConfig.bitWidth * newPercentageWidth / 100;
         // Rebuild the boundary
         buildBoundaries();
     }

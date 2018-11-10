@@ -270,8 +270,8 @@ public class Layer extends Observable implements Serializable {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength 0 to 100
-     * @param percentageWidth  0 to 100
+     * @param percentageLength of {@link CraftConfig#bitLength}
+     * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
      */
@@ -279,8 +279,8 @@ public class Layer extends Observable implements Serializable {
         Bit2D modelBit = bit.getBit2dToExtrude();
         removeBit(bit.getOrigin());
         if (percentageLength != 0 && percentageWidth != 0) {
-            Bit2D newBit = new Bit2D(modelBit, percentageLength, percentageWidth);
-            return addBit(newBit);
+            modelBit.resize(percentageLength, percentageWidth);
+            return addBit(modelBit);
         } else {
             return null;
         }
