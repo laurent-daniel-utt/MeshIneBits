@@ -34,16 +34,18 @@ import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
- * Pattern improved from classic pattern
- * {@link ClassicBrickPattern}.
+ * Pattern improved from {@link ClassicBrickPattern}.
  *
  * @author NHATHAN
  */
@@ -57,32 +59,57 @@ public class ImprovedBrickPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         int layerNumber = layer.getLayerNumber();
-        Collection<Bit2D> bits = pave(layer, patternStart, patternEnd);
         double diffRotation = (double) config.get("diffRotation").getCurrentValue();
-
-        // Rotation for this layer
         Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
+
+        // Recalculate patternStart/End
+        Rectangle2D.Double r = new Rectangle2D.Double(
+                patternStart.x,
+                patternStart.y,
+                patternEnd.x - patternStart.x,
+                patternEnd.y - patternStart.y
+        );
+        AffineTransform t1 = new AffineTransform(), t2 = new AffineTransform();
+        t1.rotate(customizedRotation.x, -customizedRotation.y); // Rotate backward
+        t2.rotate(customizedRotation.x, customizedRotation.y); // Rotate forward
+        Shape r2 = t1.createTransformedShape(r);
+        Rectangle2D bound = r2.getBounds2D();
+        Vector2 newPatternStart = new Vector2(bound.getX(), bound.getY()),
+                newPatternEnd = new Vector2(bound.getMaxX(), bound.getMaxY());
+
+        Collection<Bit2D> bits =
+                pave(layerNumber, newPatternStart, newPatternEnd).stream()
+                        .map(bit2D -> bit2D.createTransformedBit(t2)) // Rotate forward
+                        .collect(Collectors.toList());
+
         return new Pavement(bits);
     }
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        // Start
-        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
-        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
-        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
-        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
         int layerNumber = layer.getLayerNumber();
-        Collection<Bit2D> bits = pave(layer, patternStart, patternEnd);
+        double diffRotation = (double) config.get("diffRotation").getCurrentValue();
+        Vector2 customizedRotation = Vector2.getEquivalentVector((diffRotation * layerNumber) % 360);
 
-        // Rotation for this layer
+        AffineTransform t1 = new AffineTransform(), t2 = new AffineTransform();
+        t1.rotate(customizedRotation.x, -customizedRotation.y); // Rotate backward
+        t2.rotate(customizedRotation.x, customizedRotation.y); // Rotate forward
+        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection())); // what we need to pave
+        Shape r2 = t1.createTransformedShape(area);
+        Rectangle2D bound = r2.getBounds2D();
+        Vector2 newPatternStart = new Vector2(bound.getX(), bound.getY()),
+                newPatternEnd = new Vector2(bound.getMaxX(), bound.getMaxY());
+        Collection<Bit2D> bits =
+                pave(layerNumber, newPatternStart, newPatternEnd).stream()
+                        .map(bit2D -> bit2D.createTransformedBit(t2))
+                        .collect(Collectors.toList());
+
         Pavement pavement = new Pavement(bits);
         pavement.computeBits(area);
         return pavement;
     }
 
-    private Collection<Bit2D> pave(Layer layer, Vector2 patternStart, Vector2 patternEnd) {
-        int layerNumber = layer.getLayerNumber();
+    private Collection<Bit2D> pave(int layerNumber, Vector2 patternStart, Vector2 patternEnd) {
         Vector<Bit2D> bits = new Vector<>();
         // Setup parameters
         bitsWidthSpace = (double) config.get("bitsWidthSpace").getCurrentValue();
@@ -97,7 +124,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
         int lineNum = 0;// Initialize
         // Vertically downward
         while (_1stBit.y - CraftConfig.bitWidth / 2
-                + lineNum * (CraftConfig.bitWidth + bitsLengthSpace) <= patternEnd.y) {
+                + lineNum * (CraftConfig.bitWidth + bitsLengthSpace) <= patternEnd.y + CraftConfig.bitWidth / 2) {
             // Horizontally
             if (lineNum % 2 == 0) {
                 fillHorizontally(
@@ -154,29 +181,37 @@ public class ImprovedBrickPattern extends PatternTemplate {
         double f = bitsWidthSpace;
         // To the right
         int colNum = 0; // Initialize
-        while (_1stBitOrigin.x - L / 2 + colNum * (L + f) <= patternEnd.x) {
+        while (_1stBitOrigin.x - L / 2 + colNum * (L + f) <= patternEnd.x + CraftConfig.bitLength / 2) {
             bits.add(new Bit2D(new Vector2(_1stBitOrigin.x + colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
             colNum++;
         }
         // To the left
         colNum = 1; // Reinitialize
-        while (_1stBitOrigin.x + L / 2 - colNum * (L + f) >= patternStart.x) {
+        while (_1stBitOrigin.x + L / 2 - colNum * (L + f) >= patternStart.x - CraftConfig.bitLength / 2) {
             bits.add(new Bit2D(new Vector2(_1stBitOrigin.x - colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
             colNum++;
         }
     }
-
 
     @Override
     public int optimize(Layer actualState) {
         Logger.updateStatus("Optimizing layer " + actualState.getLayerNumber());
         // this boolean to check that if we'd tried all possibilities
         boolean allFail = false;
+        Pavement currentPavement = actualState.getFlatPavement();
+        List<Vector2> irregularBitKeys = new Vector<>();
+        // Sort irregular bit key in y & x order to stabilize process
+        Comparator<Vector2> irBitKeysSorter = (Vector2 k1, Vector2 k2) -> {
+            if (k1.y != k2.y) return k1.y < k2.y ? -1 : 1;
+            else
+                return k1.x < k2.x ? -1 : 1;
+        };
         while (!allFail) {
-            Pavement currentPavement = actualState.getFlatPavement();
-            Slice selectedBoundary = actualState.getHorizontalSection();
+            Slice boundary = actualState.getHorizontalSection();
             Vector2 localDirectionToMove = null, irBitKeyToMove = null;
-            List<Vector2> irregularBitKeys = DetectorTool.detectIrregularBits(currentPavement);
+            irregularBitKeys = DetectorTool.detectIrregularBits(currentPavement);
+            irregularBitKeys.sort(irBitKeysSorter);
+            if (irregularBitKeys.isEmpty()) break;
             // We will find the first irregular bit that we can resolve
             for (Vector2 irBitKey : irregularBitKeys) {
                 // We try to move this irregular bit in 4 directions, starting
@@ -184,7 +219,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 // If there is at least one way to reduce the number of
                 // irregular bits in the pattern,
                 // we choose that direction and apply on the pattern
-                localDirectionToMove = attemptToSolve(currentPavement, selectedBoundary, irBitKey);
+                localDirectionToMove = attemptToSolve(currentPavement, boundary, irBitKey, irregularBitKeys);
                 if (localDirectionToMove != null) {
                     irBitKeyToMove = irBitKey;
                     break;
@@ -193,36 +228,23 @@ public class ImprovedBrickPattern extends PatternTemplate {
             // If we have at least one chance to move
             if (localDirectionToMove != null && irBitKeyToMove != null) {
                 Bit2D initialStateOfBitToMove = currentPavement.getBit(irBitKeyToMove);
-                Vector2 newPos = this.pushBit(currentPavement, irBitKeyToMove, localDirectionToMove);
-                double lengthToReduce;
-                if (localDirectionToMove.x == 0) {
-                    lengthToReduce = bitsLengthSpace;
-                } else {
-                    lengthToReduce = bitsWidthSpace;
-                }
-                reduceBit(newPos, currentPavement, localDirectionToMove, lengthToReduce);
-                Vector2 directionToMoveInMesh = localDirectionToMove.getTransformed(initialStateOfBitToMove.getTransfoMatrix());
+                Vector2 newPos = this.pushBit(currentPavement, boundary, irBitKeyToMove, localDirectionToMove);
                 Logger.updateStatus("Moved bit at " + irBitKeyToMove + " in direction "
-                        + directionToMoveInMesh + " to " + newPos);
-                // Re-validate
-                currentPavement.computeBits(selectedBoundary);
-                // Try to recover the gap left behind
-                this.cover(currentPavement, initialStateOfBitToMove, localDirectionToMove);
-                // Re-validate
-                currentPavement.computeBits(selectedBoundary);
-                // Apply the changes on whole layer
-                actualState.setFlatPavement(currentPavement);
-                actualState.rebuild();
+                        + localDirectionToMove.rotate(initialStateOfBitToMove.getOrientation())
+                        + " to " + newPos);
+
+                // We cover behind
+                this.cover(currentPavement, boundary, initialStateOfBitToMove, localDirectionToMove);
             } else {
                 // Else if we don't have anyway to solve
                 // We stop the process of resolution
                 allFail = true;
             }
         }
-        int irregularitiesRest = DetectorTool.detectIrregularBits(actualState.getFlatPavement()).size();
-        Logger.updateStatus("Layer " + actualState.getLayerNumber() + " optimized. " + irregularitiesRest
-                + " irregularities not solved yet.");
-        return irregularitiesRest;
+        // Apply the changes on whole layer
+        actualState.setFlatPavement(currentPavement);
+        actualState.rebuild();
+        return irregularBitKeys.size();
     }
 
     /**
@@ -232,17 +254,21 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * bits, we will follow that way. Note: we also try to cover what we left behind
      * by a full bit.
      *
-     * @param pavement the selected pavement in the layer. This method will work on its
-     *                 clone
-     * @param boundary used to re-validate the attempt
-     * @param irBitKey the key of the bit to try
+     * @param pavement       the selected pavement in the layer. This method will work on its
+     *                       clone
+     * @param boundary       used to re-validate the attempt
+     * @param irBitKey       the key of the bit to try
+     * @param irregularities keys of current irregular bits
      * @return the first direction which reduce the total number of irregular bits
-     * in the pavement. Null if no way to get better state. Calculated in
-     * local coordinate system of input b.it
+     * in the pavement. <tt>Null</tt> if no way to get better state. Calculated in
+     * local coordinate system of input bit
      */
-    private Vector2 attemptToSolve(Pavement pavement, Slice boundary, Vector2 irBitKey) {
+    private Vector2 attemptToSolve(Pavement pavement,
+                                   Slice boundary,
+                                   Vector2 irBitKey,
+                                   List<Vector2> irregularities) {
         // Initial number of irregularities
-        int initialIrregularities = DetectorTool.detectIrregularBits(pavement).size();
+        int initialIrregularities = irregularities.size();
         Vector2[] localDirectionsForTrying = {new Vector2(1, 0), // right
                 new Vector2(-1, 0), // left
                 new Vector2(0, 1), // up
@@ -253,21 +279,17 @@ public class ImprovedBrickPattern extends PatternTemplate {
             // So we work on a clone
             Pavement clonedPavement = pavement.clone();
             Bit2D initialBit = clonedPavement.getBit(irBitKey);
-            Vector2 newOrigin = this.pushBit(clonedPavement, irBitKey, localDirectionToTry);
-            // Rebuild the boundary
-            clonedPavement.computeBits(boundary);
+            Vector2 newOrigin = this.pushBit(clonedPavement, boundary, irBitKey, localDirectionToTry);
             // Check that we did not push the bit into the air
-            if (clonedPavement.getBit(newOrigin) == null) {
+            if (newOrigin == null) {
                 continue;
             }
             // We cover what we left behind
-            this.cover(clonedPavement, initialBit, localDirectionToTry);
-            // Rebuild the boundary
-            clonedPavement.computeBits(boundary);
+            // We do not need to cover if the bit is not full
+            this.cover(clonedPavement, boundary, initialBit, localDirectionToTry);
             // Re-validate
-            if (initialIrregularities > DetectorTool.detectIrregularBits(clonedPavement).size()) {
+            if (initialIrregularities > DetectorTool.detectIrregularBits(clonedPavement).size())
                 return localDirectionToTry;
-            }
         }
         return null;
     }
@@ -276,22 +298,33 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * Cover the gap left behind after moving a bit forward.
      *
      * @param actualState          current situation
-     * @param movedBit             the moved bit (in the initial location)
-     * @param localDirectionOfMove in which we move the bit. Calculated in the local coordinate
-     *                             system of bit.
+     * @param boundary             to determine the necessity of cover
+     * @param movedBit             the initial state. Full bit
+     * @param localDirectionToMove in which we move the bit. In the local coordinate
+     * @return origin of cover bit. <tt>Null</tt> if no need to cover
      */
-    private void cover(Pavement actualState, Bit2D movedBit, Vector2 localDirectionOfMove) {
-        //double paddle = 0;
-        //if (localDirectionOfMove.x == 0) {
-        //    paddle = bitsLengthSpace / 2;
-        //} else {
-        //    paddle = bitsWidthSpace / 2;
-        //}
-        Vector2 coveringBitKey = actualState.addBit(movedBit);
-        // coveringBitKey = this.pushBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite());
-        this.pushBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite());
-        // Maintaining a gap between covering bit and the newly moved bit
-        // this.moveBit(actualState, coveringBitKey, localDirectionOfMove.getOpposite(), paddle);
+    private Vector2 cover(Pavement actualState,
+                          Slice boundary,
+                          Bit2D movedBit,
+                          Vector2 localDirectionToMove) {
+        if ((movedBit.getLength() == CraftConfig.bitLength
+                && localDirectionToMove.y == 0) // right or left
+                || (movedBit.getWidth() == CraftConfig.bitWidth
+                && localDirectionToMove.x == 0)) { // up or down
+            Vector2 initialCenter = movedBit.getCenter();
+            Vector2 coveringBitKey = actualState.addBit(
+                    new Bit2D(
+                            initialCenter.x,
+                            initialCenter.y,
+                            movedBit.getLength(),
+                            movedBit.getWidth(),
+                            movedBit.getOrientation().x,
+                            movedBit.getOrientation().y
+                    )
+            );
+            return this.pushBit(actualState, boundary, coveringBitKey, localDirectionToMove.getOpposite());
+        }
+        return null;
     }
 
     /**
@@ -302,14 +335,55 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * {@link CraftConfig#bitWidth}
      *
      * @param actualState          current situation
+     * @param boundary             anticipate cases of pushing into thin air
      * @param keyOfBitToMove       key of the bitToMove
      * @param localDirectionToPush in the coordinate system of the bitToMove. Either (1, 0), (-1, 0),
      *                             (0, 1), (0, -1).
-     * @return new origin of bit after being pushed into the given direction
+     * @return new origin of bit after being pushed into the given direction.
+     * <tt>Null</tt> if we push bit out of <tt>boundary</tt>
      */
-    private Vector2 pushBit(Pavement actualState, Vector2 keyOfBitToMove, Vector2 localDirectionToPush) {
-        // Detect the side of bit staying in that direction
+    private Vector2 pushBit(Pavement actualState,
+                            Slice boundary,
+                            Vector2 keyOfBitToMove,
+                            Vector2 localDirectionToPush) {
         Bit2D bitToPush = actualState.getBit(keyOfBitToMove);
+        // Calculating the distance to push
+        double verticalDisplacement,
+                // these 2 are for calculating origins of covering bits
+                horizontalDisplacement,
+                // to move the bits in front a little more
+                // in order to have space between bits
+                additionalVerticalDisplacement,
+                additionalHorizontalDisplacement,
+                // quart bit to cover
+                coveringBitLength = CraftConfig.bitLength / 2,
+                coveringBitWidth = CraftConfig.bitWidth / 2;
+        if (localDirectionToPush.x == 0) {
+            // If we push up and down
+            verticalDisplacement = CraftConfig.bitWidth / 2;
+            horizontalDisplacement = CraftConfig.bitLength / 2;
+            additionalVerticalDisplacement = bitsLengthSpace / 2;
+            additionalHorizontalDisplacement = bitsWidthSpace / 2;
+        } else {
+            // If we push right or left
+            verticalDisplacement = CraftConfig.bitLength / 2;
+            horizontalDisplacement = CraftConfig.bitWidth / 2;
+            additionalVerticalDisplacement = bitsWidthSpace / 2;
+            additionalHorizontalDisplacement = bitsLengthSpace / 2;
+        }
+
+        // Note that, we move by a distance
+        // equal to what we reduce the bits in front of us
+        Vector2 newOrigin = this.moveBitWithoutKeepingCutpaths(
+                actualState,
+                keyOfBitToMove,
+                localDirectionToPush,
+                verticalDisplacement);
+        actualState.computeBits(boundary);
+        // Check if we move into thin air
+        // If yes, we skip the push
+        // If no, we reduce bits in front
+        if (actualState.getBit(newOrigin) == null) return null;
 
         // Find all the bits in front of bitToMove.
         // And classify them into 2 groups:
@@ -319,6 +393,8 @@ public class ImprovedBrickPattern extends PatternTemplate {
         Vector<Vector2> bitEntirelyInFrontOfBitToMove = new Vector<>();
         Vector<Vector2> bitPartiallyInFrontOfBitToMove = new Vector<>();
         for (Vector2 bitKey : actualState.getBitsKeys()) {
+            if (bitKey.equals(keyOfBitToMove) || bitKey.equals(newOrigin))
+                continue;
             Bit2D bitToCompare = actualState.getBit(bitKey);
             if (checkAdjacence(bitToPush, bitToCompare)) {
                 if (checkInFront(bitToPush, bitToCompare, localDirectionToPush)) {
@@ -329,25 +405,6 @@ public class ImprovedBrickPattern extends PatternTemplate {
                     }
                 }
             }
-        }
-        // Calculating the distance to push
-        double verticalDisplacement,
-                // these 2 are for calculating origins of covering bits
-                horizontalDisplacement,
-                // to move the bits in front a little more
-                // in order to have space between bits
-                additionalVerticalDisplacement;
-        if (localDirectionToPush.x == 0) {
-            // If we push up and down
-            verticalDisplacement = CraftConfig.bitWidth / 2;
-            horizontalDisplacement = CraftConfig.bitLength / 2;
-            additionalVerticalDisplacement = bitsLengthSpace / 2;
-
-        } else {
-            // If we push right or left
-            verticalDisplacement = CraftConfig.bitLength / 2;
-            horizontalDisplacement = CraftConfig.bitWidth / 2;
-            additionalVerticalDisplacement = bitsWidthSpace / 2;
         }
 
         // Treating the group bitEntirelyInFrontOfBitToMove.
@@ -365,81 +422,114 @@ public class ImprovedBrickPattern extends PatternTemplate {
         // We try the simplest way of covering.
         for (Vector2 bitKey : bitPartiallyInFrontOfBitToMove) {
             // Save the initial state of the actual bit
-            Bit2D bit = actualState.getBit(bitKey).clone();
+            Bit2D bitToReduce = actualState.getBit(bitKey).clone();
             // Reduce the actual bit
             this.reduceBit(bitKey, actualState, localDirectionToPush, verticalDisplacement);
             // The covering bit will always be a quart of a full one.
-            // We have to define its origin
-            Vector2 coveringBitOrigin;
-            Vector2 centrifugalVector = Vector2.Tools.getCentrifugalVector(bitToPush.getOrigin(), localDirectionToPush,
-                    bit.getOrigin());
-            if (bit.getLength() == CraftConfig.bitLength && bit.getWidth() == CraftConfig.bitWidth) {
-                // If the actually considered bit is full
-                coveringBitOrigin = bit.getOrigin()
-                        // horizontally move
-                        .add(Objects.requireNonNull(centrifugalVector).mul(horizontalDisplacement))
-                        // vertically move backward
-                        .add(centrifugalVector.mul(additionalVerticalDisplacement * 2));
-                // Add the "petit" covering bit
-                // First, we add it as a full bit
-                Vector2 coveringBitKey = actualState.addBit(new Bit2D(coveringBitOrigin, bit.getOrientation()));
-                // Then reform
-                coveringBitKey = this.reduceBit(coveringBitKey, actualState, localDirectionToPush.getOpposite(),
-                        verticalDisplacement + additionalVerticalDisplacement * 2);
-                this.reduceBit(coveringBitKey, actualState, centrifugalVector.getOpposite(),
-                        horizontalDisplacement + additionalVerticalDisplacement * 2);
-            } else {
+            // We define its center instead of origin
+            Vector2 coveringCenter,
+                    initialOrientation = bitToReduce.getOrientation(),
+                    initialCenter = bitToReduce.getCenter();
+            Vector2 centrifugalVector = Vector2.Tools.getCentrifugalVector(
+                    bitToPush.getCenter(),
+                    localDirectionToPush.rotate(initialOrientation), // in Mesh coordinate system
+                    bitToReduce.getCenter());
+            if (bitToReduce.getLength() == CraftConfig.bitLength
+                    && bitToReduce.getWidth() == CraftConfig.bitWidth)
+                // If the initial bit is full
+                coveringCenter = initialCenter.add(
+                        centrifugalVector.mul(
+                                horizontalDisplacement / 2
+                                        + additionalHorizontalDisplacement
+                        ) // horizontal displacement
+                ).sub(
+                        localDirectionToPush
+                                .rotate(initialOrientation)
+                                .mul(verticalDisplacement / 2 + additionalVerticalDisplacement) // vertical displacement
+                );
+            else
                 // The actually considered bit has been modified
                 // (not in full form)
                 // Add the "petit" covering bit
                 // First, we add the clone of the actual bit,
                 // which has just been reduced to none
-                Vector2 coveringBitKey = actualState.addBit(bit);
-                // Then reform
-                this.reduceBit(coveringBitKey, actualState, Objects.requireNonNull(centrifugalVector), horizontalDisplacement);
-            }
+                coveringCenter = initialCenter.add(
+                        centrifugalVector.mul(
+                                additionalHorizontalDisplacement / 2
+                                        + additionalHorizontalDisplacement
+                        ) // horizontal displacement
+                );
+            Bit2D coveringBit = new Bit2D(
+                    coveringCenter.x,
+                    coveringCenter.y,
+                    coveringBitLength,
+                    coveringBitWidth,
+                    initialOrientation.x,
+                    initialOrientation.y
+            );
+            actualState.addBit(coveringBit);
         }
 
-        // Finally, push the given bit forward
-        // Note that, we move by a distance
-        // equal to what we reduce the bits in front of us
-        return actualState.moveBit(keyOfBitToMove, localDirectionToPush, verticalDisplacement);
+        return newOrigin;
     }
 
     /**
-     * Cut a bit and push it into the given local direction.
+     * Cut a bit and push it into the given local direction. Remove bit if
+     * <tt>lengthToReduce</tt> is larger than bit's length (if push left or right)
+     * or bit's width (if push up or down)
      *
      * @param bitKey                 origin of the bit in coordinate system of this layer
      * @param actualState            the selected pattern
      * @param localDirectionToReduce in the coordinate system of bit. Should be either (0, 1), (0, -1),
      *                               (1, 0), (-1, 0).
      * @param lengthToReduce         in millimeter. If greater than sides, the bit will be removed.
-     * @return origin of reduced bit. Null if bit is removed.
+     *                               Half of {@link CraftConfig#bitLength} or {@link CraftConfig#bitWidth}
      */
-    private Vector2 reduceBit(Vector2 bitKey, Pavement actualState, Vector2 localDirectionToReduce,
-                              double lengthToReduce) {
+    private void reduceBit(Vector2 bitKey,
+                           Pavement actualState,
+                           Vector2 localDirectionToReduce,
+                           double lengthToReduce) {
         Bit2D initialBit = actualState.getBit(bitKey);
-        double actualLength, newPercentageWidth = 100, newPercentageLength = 100;
+        double initialLength = initialBit.getLength(),
+                initialWidth = initialBit.getWidth();
+        Vector2 initialCenter = initialBit.getCenter(),
+                initialRotation = initialBit.getOrientation();
+        actualState.removeBit(bitKey); // Remove old one
         if (localDirectionToReduce.x == 0) {
-            actualLength = initialBit.getWidth();
-            newPercentageWidth = (1 - lengthToReduce / actualLength) * 100;
+            // Push up or down
+            if (initialWidth > lengthToReduce) {
+                // Add new replacement
+                Vector2 newCenter = initialCenter.add(
+                        localDirectionToReduce
+                                .rotate(initialRotation)
+                                .mul((initialWidth - lengthToReduce) / 2)
+                );
+                actualState.addBit(new Bit2D(
+                        newCenter.x,
+                        newCenter.y,
+                        initialLength,
+                        initialWidth - lengthToReduce,
+                        initialRotation.x,
+                        initialRotation.y
+                ));
+            }
         } else {
-            actualLength = initialBit.getLength();
-            newPercentageLength = (1 - lengthToReduce / actualLength) * 100;
-        }
-        if (lengthToReduce >= actualLength) {
-            actualState.removeBit(bitKey);
-            return null;
-        } else {
-            initialBit.resize(newPercentageLength, newPercentageWidth);
-            // Check that if we should move the bit
-            if (localDirectionToReduce.x == 1 || localDirectionToReduce.y == -1) {
-                // If we push up or to the right
-                // we do not need to move further
-                // because the resize already did
-                return this.moveBit(actualState, bitKey, localDirectionToReduce, 0);
-            } else {
-                return this.moveBit(actualState, bitKey, localDirectionToReduce, lengthToReduce);
+            // Push left or right
+            if (initialLength > lengthToReduce) {
+                // Add new replacement
+                Vector2 newCenter = initialCenter.add(
+                        localDirectionToReduce
+                                .rotate(initialRotation)
+                                .mul((initialLength - lengthToReduce) / 2)
+                );
+                actualState.addBit(new Bit2D(
+                        newCenter.x,
+                        newCenter.y,
+                        initialLength - lengthToReduce,
+                        initialWidth,
+                        initialRotation.x,
+                        initialRotation.y
+                ));
             }
         }
     }
@@ -452,10 +542,16 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * @return <tt>true</tt> if they are close enough
      */
     private boolean checkAdjacence(Bit2D bit1, Bit2D bit2) {
-        // The orientation of 2 bits is always (1, 0).
-        Vector2 x = bit1.getOrientation().normal(), y = x.getCWAngularRotated(),
+        // The 2 bits always have same rotation
+        // The orientation is parallel to the length side
+        Vector2 x = bit1.getOrientation().normal(),
+                y = x.getCWAngularRotated(),
                 dist = bit2.getCenter().sub(bit1.getCenter());
-        double length1 = bit1.getLength(), width1 = bit1.getWidth(), length2 = bit2.getLength(),
+        double distX = Math.abs(dist.dot(x)),
+                distY = Math.abs(dist.dot(y));
+        double length1 = bit1.getLength(),
+                width1 = bit1.getWidth(),
+                length2 = bit2.getLength(),
                 width2 = bit2.getWidth();
 
         // Firstly, we check if they do not overlap.
@@ -463,44 +559,40 @@ public class ImprovedBrickPattern extends PatternTemplate {
         // (not on the border)
         // we will consider it as overlapped.
         // Horizontally && vertically
-        if (Math.abs(dist.dot(x)) < (length1 + length2) / 2 && Math.abs(dist.dot(y)) < (width1 + width2) / 2) {
+        if (distX < (length1 + length2) / 2
+                && distY < (width1 + width2) / 2) {
             return false;
         }
 
         // Secondly, we check if they are not too far
-        if (Math.abs(dist.dot(x)) < (length1 + length2) / 2 + CraftConfig.bitLength / 2
-                && Math.abs(dist.dot(y)) < (width1 + width2) / 2) {
+        if (distX < (length1 + length2) / 2 + CraftConfig.bitLength / 2
+                && distY < (width1 + width2) / 2) {
             return true;
         }
-        return Math.abs(dist.dot(y)) < (width1 + width2) / 2 + CraftConfig.bitWidth / 2
-                && Math.abs(dist.dot(x)) < (length1 + length2) / 2;
+        return distY < (width1 + width2) / 2 + CraftConfig.bitWidth / 2
+                && distX < (length1 + length2) / 2;
     }
 
     /**
-     * To check if the second input bit is directly in front of the first one.
+     * To check if the <tt>bit2</tt>is directly in front of <tt>bit1</tt>.
      * <p>
      * Ensure to use {@link #checkAdjacence(Bit2D, Bit2D) checkAdjacence}
      * before this.
      *
      * @param bit1           the first input bit (reference bit)
      * @param bit2           the second input bit (bit to check)
-     * @param localDirection in the local coordinate system of bit1. Either (0, 1), (1, 0), (0,
-     *                       -1), (-1, 0)
-     * @return true if 2 bits' sides have common length.
+     * @param localDirection in the local coordinate system of bit1.
+     *                       Either (0, 1), (1, 0), (0, -1), (-1, 0)
+     * @return <tt>true</tt> if half of sum of 2 bits' sides is greater than
+     * distance between center; anh <tt>bit2</tt> faces in <tt>localDirection</tt>
+     * of <tt>bit1</tt>.
      */
     private boolean checkInFront(Bit2D bit1, Bit2D bit2, Vector2 localDirection) {
         // By default, these 2 bits have the same orientation
-        Vector2 orientation = bit1.getOrientation().normal();
-        // Normalize the vector of direction
-        localDirection = localDirection.normal();
-        // If the direction is not perpendicular
-        // or parallel to orientation of 2 bits
-        if (localDirection.dot(orientation) != 0 && localDirection.dot(orientation.getCWAngularRotated()) != 0) {
-            return false;
-        }
         Vector2 dist = bit2.getCenter().sub(bit1.getCenter());
+        Vector2 realDirection = localDirection.rotate(bit1.getOrientation());
         double h1, h2;// Horizontal measures
-        if (localDirection.dot(orientation) == 0) {
+        if (localDirection.x == 0) {
             // If we check with length sides
             h1 = bit1.getLength();
             h2 = bit2.getLength();
@@ -509,12 +601,12 @@ public class ImprovedBrickPattern extends PatternTemplate {
             h1 = bit1.getWidth();
             h2 = bit2.getWidth();
         }
-        return (Math.abs(dist.dot(localDirection.getCWAngularRotated())) < (h1 + h2) / 2
-                && dist.dot(localDirection) > 0);
+        return (Math.abs(dist.dot(realDirection.getCWAngularRotated())) < (h1 + h2) / 2
+                && dist.dot(realDirection) > 0);
     }
 
     /**
-     * Check if the second bit's center is in front of the first one's side, given
+     * Check if the <tt>bit2</tt>'s center is in front of the <tt>bit1</tt>'s side, given
      * the direction.
      * <p>
      * Ensure to use {@link #checkInFront(Bit2D, Bit2D, Vector2) checkInFront}
@@ -522,61 +614,51 @@ public class ImprovedBrickPattern extends PatternTemplate {
      *
      * @param bit1           the first input bit (reference bit)
      * @param bit2           the second input bit (bit to check)
-     * @param localDirection in the local coordinate system of bit1. Either (0, 1), (1, 0), (0,
-     *                       -1), (-1, 0)
-     * @return <tt>true</tt> if the second bit's center is in front of the first
-     * one's side
+     * @param localDirection in the local coordinate system of <tt>bit1</tt>
+     * @return <tt>true</tt> if the <tt>bit2</tt>'s center is in front of the <tt>bit1</tt>'s side
      */
     private boolean checkEntirelyInFront(Bit2D bit1, Bit2D bit2, Vector2 localDirection) {
-        // By default, the orientation is (1, 0)
-        Vector2 orientation = bit1.getOrientation().normal();
-        // Normalize the vector of direction
-        localDirection = localDirection.normal();
         // Horizontal measures
         double h1;
+        Vector2 realDirection = localDirection.rotate(bit1.getOrientation());
         Vector2 dist = bit2.getCenter().sub(bit1.getCenter());
         // Direction must be orthogonal or parallel to orientation of bits.
-        if (localDirection.dot(orientation) == 0) {
+        if (localDirection.x == 0) {
             // If we check with length sides
             h1 = bit1.getLength();
         } else {
             // If we check with width sides
             h1 = bit1.getWidth();
         }
-        return (Math.abs(dist.dot(localDirection.getCWAngularRotated())) <= h1 / 2);
+        return (Math.abs(dist.dot(realDirection.getCWAngularRotated())) <= h1 / 2);
     }
 
     /**
      * Remove old bit and replace new bit with same height and width
      *
-     * @param pavement       current state
-     * @param key            origin of bit to be moved
-     * @param localDirection in bit coordinate system. (1;0), (-1;0), (0;1) or (0;-1)
-     * @param distance       in mm
+     * @param pavement             current state
+     * @param key                  origin of bit to be moved
+     * @param localDirectionToMove in bit coordinate system. (1;0), (-1;0), (0;1) or (0;-1)
+     * @param distance             in mm
      * @return new origin, after moving
      */
-    private Vector2 moveBitWithoutKeepingGeometry(Pavement pavement,
+    private Vector2 moveBitWithoutKeepingCutpaths(Pavement pavement,
                                                   Vector2 key,
-                                                  Vector2 localDirection,
+                                                  Vector2 localDirectionToMove,
                                                   double distance) {
         Bit2D bitToMove = pavement.getBit(key);
-        // Convert local direction into Mesh coordinate system
-        AffineTransform t = AffineTransform.getRotateInstance(
-                bitToMove.getOrientation().x,
-                bitToMove.getOrientation().y
-        );
-        localDirection = localDirection.normal().mul(distance).getTransformed(t);
-        t = AffineTransform.getTranslateInstance(
-                localDirection.x,
-                localDirection.y
-        );
-        Vector2 newCenter = bitToMove.getOrigin().getTransformed(t);
+        Vector2 translationInMesh =
+                localDirectionToMove.rotate(bitToMove.getOrientation())
+                        .normal()
+                        .mul(distance);
+        Vector2 newOrigin = bitToMove.getOrigin().add(translationInMesh);
         pavement.removeBit(key);
-        return pavement.addBit(new Bit2D(
-                newCenter,
+        Bit2D newBit = new Bit2D(
+                newOrigin,
                 bitToMove.getOrientation(),
                 bitToMove.getLength(),
-                bitToMove.getWidth()));
+                bitToMove.getWidth());
+        return pavement.addBit(newBit);
     }
 
     @Override
@@ -602,20 +684,49 @@ public class ImprovedBrickPattern extends PatternTemplate {
     @Override
     public void initiateConfig() {
         // bitsLengthSpace
-        config.add(new DoubleParam("bitsLengthSpace", "Space between bits' lengths",
-                "The gap between two consecutive bits' lengths (in mm)", 1.0, 100.0, 1.0, 1.0));
+        config.add(new DoubleParam(
+                "bitsLengthSpace",
+                "Space between bits' lengths",
+                "The gap between two consecutive bits' lengths (in mm)",
+                1.0,
+                100.0,
+                1.0,
+                1.0));
         // bitsWidthSpace
-        config.add(new DoubleParam("bitsWidthSpace", "Space between bits' widths",
-                "The gap between two consecutive bits' widths (in mm)", 1.0, 100.0, 5.0, 1.0));
+        config.add(new DoubleParam(
+                "bitsWidthSpace",
+                "Space between bits' widths",
+                "The gap between two consecutive bits' widths (in mm)",
+                1.0,
+                100.0,
+                5.0,
+                1.0));
         // diffRotation
-        config.add(new DoubleParam("diffRotation", "Differential rotation",
-                "Rotation of a layer in comparison to the previous one (in degrees °)", 0.0, 360.0, 90.0, 0.1));
+        config.add(new DoubleParam("diffRotation",
+                "Differential rotation",
+                "Rotation of a layer in comparison to the previous one (in degrees °)",
+                0.0,
+                360.0,
+                90.0,
+                0.1));
         // diffxOffset
-        config.add(new DoubleParam("diffxOffset", "Differential X offset",
-                "Offset in the X-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
+        config.add(new DoubleParam(
+                "diffxOffset",
+                "Differential X offset",
+                "Offset in the X-axe of a layer in comparison to the previous one (in mm)",
+                -1000.0,
+                1000.0,
+                0.0,
+                1.0));
         // diffyOffset
-        config.add(new DoubleParam("diffyOffset", "Differential Y offset",
-                "Offset in the Y-axe of a layer in comparison to the previous one (in mm)", -1000.0, 1000.0, 0.0, 1.0));
+        config.add(new DoubleParam(
+                "diffyOffset",
+                "Differential Y offset",
+                "Offset in the Y-axe of a layer in comparison to the previous one (in mm)",
+                -1000.0,
+                1000.0,
+                0.0,
+                1.0));
 
     }
 

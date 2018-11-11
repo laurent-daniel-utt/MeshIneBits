@@ -39,6 +39,10 @@ import java.util.Vector;
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
  * build with multiple Bit2D <br>
  * <img src="./doc-files/bit2d.png" alt="">
+ * <br/>
+ * We always take the upper left corner as
+ * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+ * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
  */
@@ -65,25 +69,6 @@ public class Bit2D implements Cloneable, Serializable {
     private Vector<Area> areas = new Vector<>();
 
     /**
-     * Constructor to clone an existing bit into a smaller one.
-     * <p>
-     * All the other parameters remain unchanged in comparison to model bit.
-     *
-     * @param modelBit         the model
-     * @param percentageLength from 0 to 100
-     * @param percentageWidth  from 0 to 100
-     */
-    public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
-        this.origin = modelBit.origin;
-        this.orientation = modelBit.orientation;
-        length = (CraftConfig.bitLength * percentageLength) / 100;
-        width = (CraftConfig.bitWidth * percentageWidth) / 100;
-
-        setTransfoMatrix();
-        buildBoundaries();
-    }
-
-    /**
      * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
      * coordinate system of {@link Mesh}
      *
@@ -95,6 +80,43 @@ public class Bit2D implements Cloneable, Serializable {
         this.orientation = orientation;
         length = CraftConfig.bitLength;
         width = CraftConfig.bitWidth;
+
+        setTransfoMatrix();
+        buildBoundaries();
+    }
+
+    /**
+     * This constructor will decide itself the origin, base on upper left corner
+     *
+     * @param boundaryCenterX in {@link Mesh} coordinate system
+     * @param boundaryCenterY in {@link Mesh} coordinate system
+     * @param length          of boundary
+     * @param width           of boundary
+     * @param orientationX    in {@link Mesh} coordinate system
+     * @param orientationY    in {@link Mesh} coordinate system
+     */
+    public Bit2D(double boundaryCenterX,
+                 double boundaryCenterY,
+                 double length,
+                 double width,
+                 double orientationX,
+                 double orientationY) {
+        orientation = new Vector2(
+                orientationX,
+                orientationY
+        );
+        this.length = length;
+        this.width = width;
+        origin = new Vector2(boundaryCenterX, boundaryCenterY)
+                .sub(
+                        // Vector distance in Bit coordinate system
+                        new Vector2(
+                                -CraftConfig.bitLength / 2 + length / 2,
+                                -CraftConfig.bitWidth / 2 + width / 2
+                        )
+                                // Rotate into Mesh coordinate system
+                                .rotate(orientation)
+                );
 
         setTransfoMatrix();
         buildBoundaries();
@@ -157,6 +179,7 @@ public class Bit2D implements Cloneable, Serializable {
                 width
         );
 
+        this.areas.clear();
         this.areas.add(new Area(r));
     }
 
@@ -246,27 +269,33 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * @return orientation in {@link Pavement} coordinate system
+     * @return orientation in {@link Mesh} coordinate system
      */
     public Vector2 getOrientation() {
         return orientation;
     }
 
     /**
-     * @return the origin in the {@link Pavement} coordinate system
+     * @return the origin in the {@link Mesh} coordinate system
      */
     public Vector2 getOrigin() {
         return origin;
     }
 
     /**
-     * @return the center of the rectangle of this bit, not necessarily the
-     * {@link #origin origin}
+     * @return the center of the rectangle boundary of this bit, not necessarily the
+     * {@link #origin}. Calculate from the upper left corner
      */
     public Vector2 getCenter() {
-        double verticalDistance = -(CraftConfig.bitWidth - width) / 2,
-                horizontalDistance = (CraftConfig.bitLength - length) / 2;
-        return origin.add(new Vector2(horizontalDistance, verticalDistance));
+        return origin.sub(
+                // Vector distance in Bit coordinate system
+                new Vector2(
+                        CraftConfig.bitLength / 2 - length / 2,
+                        CraftConfig.bitWidth / 2 - width / 2
+                )
+                        // Rotate into Mesh coordinate system
+                        .rotate(orientation)
+        );
     }
 
     /**
@@ -361,10 +390,10 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * To resize a bit, keeping up-right corner as reference.
+     * To resize a bit, keeping top left corner as reference.
      *
-     * @param newPercentageLength 100 means retain 100% of old bit's length
-     * @param newPercentageWidth  100 means retain 100% of old bit's width
+     * @param newPercentageLength 100 means retain 100% of normal bit's length
+     * @param newPercentageWidth  100 means retain 100% of normal bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
         length = CraftConfig.bitLength * newPercentageLength / 100;

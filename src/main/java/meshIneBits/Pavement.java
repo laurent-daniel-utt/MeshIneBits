@@ -28,7 +28,6 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.Serializable;
 import java.util.*;
@@ -127,18 +126,13 @@ public class Pavement implements Cloneable, Serializable {
      */
     public Vector2 moveBit(Vector2 key, Vector2 direction, double distance) {
         Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
-        // Convert local direction into Mesh coordinate system
-        AffineTransform t = AffineTransform.getRotateInstance(
-                bitToMove.getOrientation().x,
-                bitToMove.getOrientation().y
-        );
-        direction = direction.normal().mul(distance).getTransformed(t);
-        t = AffineTransform.getTranslateInstance(
-                direction.x,
-                direction.y
-        );
+        Vector2 translationInMesh =
+                direction.rotate(bitToMove.getOrientation())
+                        .normal()
+                        .mul(distance);
+        Vector2 newOrigin = bitToMove.getOrigin().add(translationInMesh);
         removeBit(key);
-        return addBit(bitToMove.createTransformedBit(t));
+        return addBit(new Bit2D(newOrigin, bitToMove.getOrientation()));
     }
 
     /**
