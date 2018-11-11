@@ -236,12 +236,17 @@ public class MeshController extends Observable implements Observer {
         Pavement pavement = currentLayer.getFlatPavement();
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
-                .forEach(key -> availableArea.subtract(
-                        AreaTool.expand(
-                                pavement.getBit(key)
-                                        .getArea(), // in real
-                                safeguardSpaceParam.getCurrentValue())
-                ));
+                .forEach(key -> {
+                    Bit2D bit2D = pavement.getBit(key);
+                    if (bit2D != null) { // for safety
+                        availableArea.subtract(
+                                AreaTool.expand(
+                                        pavement.getBit(key)
+                                                .getArea(), // in real
+                                        safeguardSpaceParam.getCurrentValue())
+                        );
+                    }
+                });
     }
 
     public void reset() {
