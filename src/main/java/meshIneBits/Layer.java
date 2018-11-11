@@ -60,6 +60,12 @@ public class Layer extends Observable implements Serializable {
      */
     public void rebuild() {
         flatPavement.computeBits(horizontalSection);
+        // Filter
+        new HashSet<>(flatPavement.getBitsKeys()) // dummy holder
+                .forEach(key -> {
+                    if (flatPavement.getBit(key) == null)
+                        flatPavement.removeBit(key);
+                });
         extrudeBitsTo3D();
         findKeysOfIrregularBits();
         setChanged();
@@ -320,12 +326,7 @@ public class Layer extends Observable implements Serializable {
 
     public void paveRegion(Area region, PatternTemplate patternTemplate) {
         if (this.flatPavement == null) {
-            try {
-                setPatternTemplate(ManualPattern.class.newInstance()); // Set manual pattern by default
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-                setPatternTemplate(CraftConfig.templatesPreloaded[0]);
-            }
+            setPatternTemplate(new ManualPattern());
             setFlatPavement(patternTemplate.pave(this, region));
         } else
             getFlatPavement()
