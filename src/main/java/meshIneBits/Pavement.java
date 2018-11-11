@@ -117,7 +117,7 @@ public class Pavement implements Cloneable, Serializable {
 
     /**
      * Move the chosen bit in the wanted direction. Note: not exactly "moving", but
-     * rather "removing" then "adding" new one with same geometry
+     * rather "removing" then "adding" new one with same size
      *
      * @param key       in {@link Mesh} coordinate system
      * @param direction in the local coordinate system of the {@link Bit2D}
@@ -132,7 +132,11 @@ public class Pavement implements Cloneable, Serializable {
                         .mul(distance);
         Vector2 newOrigin = bitToMove.getOrigin().add(translationInMesh);
         removeBit(key);
-        return addBit(new Bit2D(newOrigin, bitToMove.getOrientation()));
+        return addBit(new Bit2D(
+                newOrigin,
+                bitToMove.getOrientation(),
+                bitToMove.getLength(),
+                bitToMove.getWidth()));
     }
 
     /**
