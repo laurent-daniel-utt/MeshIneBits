@@ -24,6 +24,7 @@ package meshIneBits;
 
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.patterntemplates.ManualPattern;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -319,7 +320,12 @@ public class Layer extends Observable implements Serializable {
 
     public void paveRegion(Area region, PatternTemplate patternTemplate) {
         if (this.flatPavement == null) {
-            setPatternTemplate(patternTemplate);
+            try {
+                setPatternTemplate(ManualPattern.class.newInstance()); // Set manual pattern by default
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+                setPatternTemplate(CraftConfig.templatesPreloaded[0]);
+            }
             setFlatPavement(patternTemplate.pave(this, region));
         } else
             getFlatPavement()
