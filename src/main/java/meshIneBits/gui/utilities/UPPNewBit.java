@@ -22,9 +22,9 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.MeshAction;
-import meshIneBits.gui.MeshController;
-import meshIneBits.gui.MeshToggleAction;
+import meshIneBits.gui.view2d.MeshAction;
+import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.MeshToggleAction;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
 import javax.swing.*;
@@ -47,9 +47,9 @@ public class UPPNewBit extends UtilityParametersPanel {
 
         MeshToggleAction toggleAddingBits = new MeshToggleAction(
                 "addBits",
-                "Select origins",
+                "Toggle select positions",
                 "selection-tool.png",
-                "Select positions to add new bits",
+                "Enable/Disable bit adding mode",
                 "",
                 meshController,
                 MeshController.ADDING_BITS
@@ -121,19 +121,6 @@ public class UPPNewBit extends UtilityParametersPanel {
         c.gridx++;
         add(quartbit, c);
         bitTypes.add(quartbit);
-
-        JButton chooseOriginsBtn = new JButton("Start");
-        c.gridx++;
-        add(chooseOriginsBtn, c);
-
-        JButton cancelChoosingOriginsBtn = new JButton("Cancel");
-        c.gridx++;
-        add(cancelChoosingOriginsBtn, c);
-
-        chooseOriginsBtn.addActionListener(e ->
-                meshController.setAddingBits(true));
-        cancelChoosingOriginsBtn.addActionListener(e ->
-                meshController.setAddingBits(false));
 
         // Dummy panel
         JPanel dummy = new JPanel();

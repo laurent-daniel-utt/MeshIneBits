@@ -22,8 +22,6 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.IconLoader;
-
 import javax.swing.*;
 import java.awt.*;
 

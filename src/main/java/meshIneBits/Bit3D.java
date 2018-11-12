@@ -29,6 +29,7 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -37,26 +38,40 @@ import java.util.Vector;
  */
 public class Bit3D implements Serializable {
 
-    private Vector<Path2D> cutPaths; // In the local coordinate system
-    private Vector2 origin; // Position of the center of the full bit in the
-    // general coordinate system
-    private Vector2 orientation; // Rotation around its local origin point
+    /**
+     * In {@link #bit2dToExtrude} coordinate system
+     */
+    private Vector<Path2D> rawCutPaths;
+    /**
+     * In {@link Mesh} coordinate system
+     */
+    private Vector2 origin;
+    /**
+     * In {@link Mesh} coordinate system
+     */
+    private Vector2 orientation;
     private Bit2D bit2dToExtrude;
+    /**
+     * In {@link #bit2dToExtrude} coordinate system
+     */
+    private Vector<Vector2> rawLiftPoints = new Vector<>();
+    /**
+     * In {@link Mesh} coordinate system
+     */
     private Vector<Vector2> liftPoints = new Vector<>();
-    private Vector<Vector2> depositPoints = new Vector<>();
+    private boolean irregular = false;
 
     /**
-     * Construct bit 3D from horizontal section
+     * Construct bit 3D from horizontal section and calculate lift points
      *
-     * @param baseBit            horizontal section of bit
-     * @param originInLayer      the key of bit
-     * @param orientationInLayer transformed by matrix of layer
+     * @param baseBit horizontal cut
      */
-    Bit3D(Bit2D baseBit, Vector2 originInLayer, Vector2 orientationInLayer) {
-        origin = originInLayer;
-        orientation = orientationInLayer;
+    Bit3D(Bit2D baseBit) {
         bit2dToExtrude = baseBit;
-        cutPaths = bit2dToExtrude.getRawCutPaths();
+        origin = baseBit.getOrigin();
+        orientation = baseBit.getOrientation();
+        rawCutPaths = baseBit.getRawCutPaths();
+        computeLiftPoints();
     }
 
     private Vector2 computeLiftPoint(Area subBit) {
@@ -67,35 +82,32 @@ public class Bit3D implements Serializable {
      * Calculate the lift point, which is the best position to grip
      * the bit by vacuuming.
      */
-    void computeLiftPoints() {
+    private void computeLiftPoints() {
         for (Area subBit : bit2dToExtrude.getRawAreas()) {
             Vector2 liftPoint = computeLiftPoint(subBit);
-            liftPoints.add(liftPoint);
             if (liftPoint != null) {
-                // A new lift point means a new deposit point which is the
-                // addition of the origin point of the bit and the lift point
-                // (which is in the local coordinate system of the bit)
-                depositPoints.add(origin.add(new Vector2(liftPoints.lastElement().x, liftPoints.lastElement().y)));
+                rawLiftPoints.add(liftPoint);
+                liftPoints.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrix()));
             } else {
-                depositPoints.addElement(null);
+                irregular = true;
             }
         }
     }
 
-    Bit2D getBit2dToExtrude() {
+    public Bit2D getBit2dToExtrude() {
         return bit2dToExtrude;
     }
 
-    public Vector<Path2D> getCutPaths() {
-        return cutPaths;
+    public List<Path2D> getRawCutPaths() {
+        return rawCutPaths;
     }
 
-    public Vector<Vector2> getDepositPoints() {
-        return depositPoints;
-    }
-
-    public Vector<Vector2> getLiftPoints() {
+    public List<Vector2> getLiftPoints() {
         return liftPoints;
+    }
+
+    public List<Vector2> getRawLiftPoints() {
+        return rawLiftPoints;
     }
 
     public Vector2 getOrientation() {
@@ -110,7 +122,11 @@ public class Bit3D implements Serializable {
         return bit2dToExtrude.getRawArea();
     }
 
-    public Vector2 getRotation() {
-        return orientation;
+    public Bit2D getBaseBit() {
+        return bit2dToExtrude;
+    }
+
+    public boolean isIrregular() {
+        return irregular;
     }
 }

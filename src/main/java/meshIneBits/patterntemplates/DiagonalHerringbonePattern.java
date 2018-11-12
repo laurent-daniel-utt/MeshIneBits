@@ -33,6 +33,7 @@ import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -40,37 +41,42 @@ import java.util.Vector;
  */
 public class DiagonalHerringbonePattern extends PatternTemplate {
 
-    private Vector2 patternStart;
-    private Vector2 patternEnd;
-
     @Override
     public Pavement pave(Layer layer) {
-        Vector<Bit2D> bits = pave(layer.getLayerNumber(), patternStart, patternEnd);
-        return new Pavement(bits, new Vector2(1, 0)); // every pattern have no rotation in that template
+        Area area = AreaTool.getAreaFrom(layer.getHorizontalSection());
+        Vector2[] p = calculatePatternStartEnd(area);
+        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]);
+        return new Pavement(bits);
     }
 
     @Override
     public Pavement pave(Layer layer, Area area) {
         // Start
         area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
-        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
-        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
-        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
-        Vector<Bit2D> bits = pave(layer.getLayerNumber(), patternStart, patternEnd);
-        Pavement pavement = new Pavement(bits, new Vector2(1, 0));
+        Vector2[] p = calculatePatternStartEnd(area);
+        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]);
+        Pavement pavement = new Pavement(bits);
         pavement.computeBits(area);
         return pavement;
     }
 
-    private Vector<Bit2D> pave(int layerNumber, Vector2 patternStart, Vector2 patternEnd) {
+    private Vector2[] calculatePatternStartEnd(Area area) {
+        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
+        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
+        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
+        return new Vector2[]{patternStart, patternEnd};
+    }
+
+    private Collection<Bit2D> pave(int layerNumber, Vector2 patternStart, Vector2 patternEnd) {
         // Setup parameters
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
+        double paddle = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
         // Start
         Vector<Bit2D> bits = new Vector<>();
         double xOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLength + bitsOffset;
         double yOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitWidth + bitsOffset;
-        for (double i = patternStart.x; i <= patternEnd.x; i = i + 2 * xOffSet) {
-            for (double j = patternStart.y; j <= patternEnd.y; j = j + 2 * yOffSet) {
+        for (double i = patternStart.x - paddle; i <= patternEnd.x + paddle; i = i + 2 * xOffSet) {
+            for (double j = patternStart.y - paddle; j <= patternEnd.y + paddle; j = j + 2 * yOffSet) {
                 Vector2 originBit;
                 Vector2 orientationBit;
                 double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
@@ -82,8 +88,8 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
                 bits.add(new Bit2D(originBit, orientationBit));
             }
         }
-        for (double i = patternStart.x + xOffSet; i <= patternEnd.x; i = i + 2 * xOffSet) {
-            for (double j = patternStart.y + yOffSet; j <= patternEnd.y; j = j + 2 * yOffSet) {
+        for (double i = patternStart.x + xOffSet - paddle; i <= patternEnd.x + paddle; i = i + 2 * xOffSet) {
+            for (double j = patternStart.y + yOffSet - paddle; j <= patternEnd.y + paddle; j = j + 2 * yOffSet) {
                 Vector2 originBit;
                 Vector2 orientationBit;
                 double layerOffSet = 0; // In this pattern we apply an offset on 1 layer on 2
@@ -104,22 +110,6 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
     }
 
     @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
-    }
-
-    @Override
     public String getCommonName() {
         return "Diagonal Herringbone Pattern";
     }
@@ -131,7 +121,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
     @Override
     public String getDescription() {
-        return "A rather usual pattern. No auto-optimization implemented yet.";
+        return "A rather usual pattern. No rotation between layer. No auto-optimization implemented.";
     }
 
     @Override
@@ -141,16 +131,18 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
 
     @Override
     public void initiateConfig() {
-        config.add(new DoubleParam("bitsOffset", "Space between bits", "The horizontal and vertical gap in mm", 1.0,
-                100.0, 3.0, 1.0));
+        config.add(new DoubleParam(
+                "bitsOffset",
+                "Space between bits",
+                "The horizontal and vertical gap in mm",
+                1.0,
+                100.0,
+                3.0,
+                1.0));
     }
 
     @Override
     public boolean ready(Mesh mesh) {
-        double skirtRadius = mesh.getSkirtRadius();
-        double maxiSide = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
-        this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
-        this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
         return true;
     }
 }

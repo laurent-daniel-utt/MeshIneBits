@@ -180,9 +180,9 @@ public class EconomicPattern extends PatternTemplate {
         // Recreate the base pavement for this layer
         if (!overallPavement.isEmpty()) {
             layersRotations.put(layerNumber, thisLayerRotation);
-            return new Pavement(overallPavement, new Vector2(1, 0));
+            return new Pavement(overallPavement);
         } else {
-            return new Pavement(new Vector<>(), new Vector2(1, 0));
+            return new Pavement(new Vector<>());
         }
     }
 
@@ -342,7 +342,7 @@ public class EconomicPattern extends PatternTemplate {
                 // Creating a new bit
                 // Attention to the case of rebuilding a bit
                 // with half of its normal length
-                Vector2 origin = new Vector2(unpavedSpaceRect.x + thisBitLength - CraftConfig.bitLength / 2, originY);
+                Vector2 origin = new Vector2(unpavedSpaceRect.x + CraftConfig.bitLength / 2, originY);
                 if (bandPavement.isEmpty()) {
                     // If this is the first bit
                     // we will push it backward a little bit
@@ -427,22 +427,6 @@ public class EconomicPattern extends PatternTemplate {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
     }
 
     @SuppressWarnings("unchecked")

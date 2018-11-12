@@ -124,12 +124,11 @@ public class Vector2 implements Serializable {
         return (Math.atan2(y, x) * 180) / Math.PI;
     }
 
-    public Vector2 getInLowerCooSystem(Vector2 myOrientation, Vector2 myOrigin) {
-        Vector2 orientation = myOrientation.normal();
-        double angleRotation = Math.acos(orientation.x);
-        double computedX = ((x * Math.cos(angleRotation)) - (y * Math.sin(angleRotation))) + myOrigin.x;
-        double computedY = (x * Math.sin(angleRotation)) + (y * Math.cos(angleRotation)) + myOrigin.y;
-        return new Vector2(computedX, computedY);
+    public Vector2 rotate(Vector2 additionalRotation) {
+        return new Vector2(
+                this.x * additionalRotation.x - this.y * additionalRotation.y,
+                this.x * additionalRotation.y + this.y * additionalRotation.x
+        );
     }
 
     public Vector2 getTransformed(AffineTransform transfoMatrix) {
@@ -289,10 +288,7 @@ public class Vector2 implements Serializable {
             Vector2 d = line.end.sub(line.start);// directional vector
             Vector2 n = (new Vector2(-d.y, d.x)).normal();// normal vector
             // Equation: n * (v - start) = 0 with v = (x,y)
-            if ((n.dot(p1.sub(line.start))) * (n.dot(p2.sub(line.start))) < 0) {
-                return true;
-            }
-            return false;
+            return (n.dot(p1.sub(line.start))) * (n.dot(p2.sub(line.start))) < 0;
         }
 
         /**
@@ -321,21 +317,17 @@ public class Vector2 implements Serializable {
          * @param o origin of departure of v
          * @param v vector of direction departing from origin
          * @param p point of depart
-         * @return null if p is on the line passing by o with v as directing vector
+         * @return normalized vector
          */
         public static Vector2 getCentrifugalVector(Vector2 o, Vector2 v, Vector2 p) {
             Vector2 v2 = v.getCWAngularRotated();
-            if (v2.dot(p.sub(o)) == 0) {
-                return null;
+            // Create a segment as border
+            Segment2D border = new Segment2D(o, o.add(v));
+            Vector2 samplePoint = o.add(v2);
+            if (!Vector2.Tools.checkOnDifferentSides(samplePoint, p, border)) {
+                return v2.normal();
             } else {
-                // Create a segment as border
-                Segment2D border = new Segment2D(o, o.add(v));
-                Vector2 samplePoint = o.add(v2);
-                if (!Vector2.Tools.checkOnDifferentSides(samplePoint, p, border)) {
-                    return v2;
-                } else {
-                    return v2.getOpposite();
-                }
+                return v2.getOpposite().normal();
             }
         }
     }

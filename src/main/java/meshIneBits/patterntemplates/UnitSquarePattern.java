@@ -183,12 +183,12 @@ public class UnitSquarePattern extends PatternTemplate {
             } else {
                 LOGGER.warning("Pavement of layer " + layer.getLayerNumber() + " failed.");
                 Logger.updateStatus("Pavement of layer " + layer.getLayerNumber() + " failed.");
-                return new Pavement(new Vector<>(), new Vector2(1, 0));
+                return new Pavement(new Vector<>());
             }
         }
         LOGGER.info("Paved layer " + layer.getLayerNumber());
         Logger.updateStatus("Paved layer " + layer.getLayerNumber());
-        return new Pavement(overallPavement, new Vector2(1, 0));
+        return new Pavement(overallPavement);
     }
 
     @Override
@@ -230,10 +230,10 @@ public class UnitSquarePattern extends PatternTemplate {
                 overallPavement.addAll(trueBits);
                 LOGGER.config(matrix.pToString());
             } else {
-                return new Pavement(new Vector<>(), new Vector2(1, 0));
+                return new Pavement(new Vector<>());
             }
         }
-        return new Pavement(overallPavement, new Vector2(1, 0));
+        return new Pavement(overallPavement);
     }
 
     @Override
@@ -249,22 +249,6 @@ public class UnitSquarePattern extends PatternTemplate {
         this.unitWidth = ((double) config.get("verticalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
         this.maxPLength = ((int) Math.ceil(CraftConfig.bitLength / this.unitLength)) * this.unitLength;
         this.maxPWidth = ((int) Math.ceil(CraftConfig.bitWidth / this.unitWidth)) * this.unitWidth;
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
     }
 
     @Override

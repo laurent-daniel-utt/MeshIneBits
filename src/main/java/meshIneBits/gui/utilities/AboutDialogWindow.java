@@ -22,7 +22,6 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.IconLoader;
 import meshIneBits.util.Logger;
 
 import javax.swing.*;

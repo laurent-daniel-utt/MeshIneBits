@@ -20,7 +20,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui;
+package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
@@ -35,12 +35,16 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.*;
+import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -91,8 +95,13 @@ public class MeshController extends Observable implements Observer {
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private boolean addingBits = false;
-    private AffineTransform realToPavement;
+    /**
+     * In {@link Mesh}'s coordinate system
+     */
     private Area availableArea;
+    /**
+     * In {@link Mesh}'s coordinate system
+     */
     private Area bitAreaPreview;
     private boolean selectingRegion;
     private boolean selectedRegion;
@@ -120,7 +129,7 @@ public class MeshController extends Observable implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof Layer) {
-            calculateRealToPavement();
+            updateAvailableArea();
             setChanged();
             notifyObservers(arg);
         } else if (arg instanceof MeshEvents)
@@ -194,18 +203,6 @@ public class MeshController extends Observable implements Observer {
             }
     }
 
-    private void calculateRealToPavement() {
-        if (currentLayer.getFlatPavement() != null) {
-            realToPavement = new AffineTransform();
-            try {
-                realToPavement = currentLayer.getFlatPavement().getAffineTransform().createInverse();
-            } catch (Exception e) {
-                realToPavement = AffineTransform.getScaleInstance(1, 1);
-            }
-            updateAvailableArea();
-        }
-    }
-
     public void setLayer(int layerNum) {
         if (mesh == null) {
             return;
@@ -216,7 +213,7 @@ public class MeshController extends Observable implements Observer {
         layerNumber = layerNum;
         currentLayer = mesh.getLayers().get(layerNumber);
         currentLayer.addObserver(this);
-        calculateRealToPavement();
+        updateAvailableArea();
         reset();
 
         // Notify the core
@@ -237,10 +234,19 @@ public class MeshController extends Observable implements Observer {
     private void updateAvailableArea() {
         availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
         Pavement pavement = currentLayer.getFlatPavement();
+        if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
-                .forEach(key -> availableArea.subtract(
-                        AreaTool.expand(pavement.getBit(key).getArea(),
-                                safeguardSpaceParam.getCurrentValue())));
+                .forEach(key -> {
+                    Bit2D bit2D = pavement.getBit(key);
+                    if (bit2D != null) { // for safety
+                        availableArea.subtract(
+                                AreaTool.expand(
+                                        pavement.getBit(key)
+                                                .getArea(), // in real
+                                        safeguardSpaceParam.getCurrentValue())
+                        );
+                    }
+                });
     }
 
     public void reset() {
@@ -304,6 +310,10 @@ public class MeshController extends Observable implements Observer {
     public void openMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastMesh = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
         (new Thread(meshOpener)).start();
@@ -319,6 +329,10 @@ public class MeshController extends Observable implements Observer {
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastMesh = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshSaver meshSaver = new MeshSaver(file);
         (new Thread(meshSaver)).start();
     }
@@ -332,6 +346,10 @@ public class MeshController extends Observable implements Observer {
     public void newMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastModel = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshCreator meshCreator = new MeshCreator(file);
         meshCreator.addObserver(this);
         (new Thread(meshCreator)).start();
@@ -355,7 +373,7 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void deleteSelectedBits() {
-        currentLayer.removeBits(selectedBitKeys, false);
+        currentLayer.removeBits(selectedBitKeys);
         selectedBitKeys.clear();
         currentLayer.rebuild();
     }
@@ -449,20 +467,8 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
-    public Area getAvailableBitAreaAt(Point2D.Double spot) {
-        Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.bitLength / 2,
-                -CraftConfig.bitWidth / 2,
-                newBitsLengthParam.getCurrentValue(),
-                newBitsWidthParam.getCurrentValue());
-        Area a = new Area(r);
-        // Rotate
-        AffineTransform affineTransform = new AffineTransform(realToPavement);
-        affineTransform.translate(spot.x, spot.y);
-        Vector2 lOrientation = Vector2.getEquivalentVector(
-                newBitsOrientationParam.getCurrentValue());
-        affineTransform.rotate(lOrientation.x, lOrientation.y);
-        a.transform(affineTransform);
+    public Area getAvailableBitAreaFrom(Shape bitPreviewInReal) {
+        Area a = new Area(bitPreviewInReal);
         // Intersect
         a.intersect(availableArea);
         // Cache
@@ -471,7 +477,7 @@ public class MeshController extends Observable implements Observer {
     }
 
     /**
-     * @param position real position (not zoomed or translated)
+     * @param position in {@link Mesh}'s coordinate system
      */
     public void addNewBitAt(Point2D.Double position) {
         if (mesh == null
@@ -479,11 +485,8 @@ public class MeshController extends Observable implements Observer {
                 || position == null
                 || bitAreaPreview.isEmpty())
             return;
-        realToPavement.transform(position, position);
-        bitAreaPreview.transform(realToPavement);
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
-        // Add
         Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue());
@@ -493,11 +496,10 @@ public class MeshController extends Observable implements Observer {
     }
 
     /**
-     * @param position real position (not zoomed or translated)
+     * @param position in {@link Mesh} coordinate system
      * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
      */
     public Vector2 findBitAt(Point2D.Double position) {
-        realToPavement.transform(position, position);
         Pavement flatPavement = currentLayer.getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
             if (flatPavement.getBit(key).getArea().contains(position))
@@ -518,7 +520,6 @@ public class MeshController extends Observable implements Observer {
         }
         if (!selectedBitKeys.add(bitKey))
             selectedBitKeys.remove(bitKey);
-
         // Notify the core
         setChanged();
         notifyObservers();

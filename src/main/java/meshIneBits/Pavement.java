@@ -28,187 +28,130 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Build by a {@link PatternTemplate} or manually.
- * Contains a set of {@link Bit2D}.
+ * Build by a {@link PatternTemplate}.
+ * Literally a {@link Set} of {@link Bit2D}.
  */
 public class Pavement implements Cloneable, Serializable {
-    private Vector2 rotation;
     /**
-     * The key is the origin of bit in coordinate system of global object.
+     * The key is the origin of {@link Bit2D} in {@link Mesh} coordinate system.
      */
-    private Hashtable<Vector2, Bit2D> mapBits;
-    private AffineTransform transformMatrix = new AffineTransform();
-    private AffineTransform inverseTransformMatrix;
-
-    private Pavement(Hashtable<Vector2, Bit2D> mapBits, Vector2 rotation, AffineTransform transformMatrix,
-                     AffineTransform inverseTransformMatrix) {
-        this.rotation = rotation;
-        this.mapBits = mapBits;
-        this.transformMatrix = transformMatrix;
-        this.inverseTransformMatrix = inverseTransformMatrix;
-    }
+    private Map<Vector2, Bit2D> mapBits;
 
     /**
      * Construct pavement out of bits and chosen rotation
      *
-     * @param bits     polygons in 2D plan
-     * @param rotation specific to layer
+     * @param bits in {@link Mesh} coordinate system
      */
 
-    public Pavement(Vector<Bit2D> bits, Vector2 rotation) {
-
-        this.rotation = rotation;
-
-        // Each pavement can have a rotation, usually linked to the layer number
-        transformMatrix.rotate(rotation.x, rotation.y);
-
-        try {
-            inverseTransformMatrix = ((AffineTransform) transformMatrix.clone()).createInverse();
-        } catch (NoninvertibleTransformException e) {
-            e.printStackTrace();
-        }
-
+    public Pavement(Collection<Bit2D> bits) {
         // Set up map of bits
-        mapBits = new Hashtable<>();
+        mapBits = new HashMap<>();
         for (Bit2D bit : bits) {
             addBit(bit);
         }
     }
 
     /**
-     * @param bit what to incorporate into pavement
-     * @return the key of inserted bit in this pavement
+     * @param bit in {@link Mesh} coordinate system
+     * @return the origin of inserted bit in {@link Mesh} coordinate system
      */
     public Vector2 addBit(Bit2D bit) {
-        // the key of each bit is its origin's coordinates in the general coo
-        // system
-        Vector2 bitKey = bit.getOrigin().getTransformed(transformMatrix);
+        Vector2 origin = bit.getOrigin();
         // We check that there is not already a bit at this place
         for (Vector2 key : getBitsKeys()) {
-            if (bitKey.asGoodAsEqual(key)) {
+            if (origin.asGoodAsEqual(key)) {
                 Logger.warning(
-                        "A bit already exists at these coordinates: " + key
+                        "A bit already exists at these coordinates: "
+                                + key
                                 + ", it has been replaced by the new one.");
                 removeBit(key);
             }
-
         }
-        mapBits.put(bitKey, bit);
-        return bitKey;
+        mapBits.put(origin, bit);
+        return origin;
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Pavement clone() {
-        Hashtable<Vector2, Bit2D> clonedMapBits = new Hashtable<>();
-        for (Vector2 key : this.getBitsKeys()) {
-            clonedMapBits.put(key, mapBits.get(key).clone());
-        }
-
-        return new Pavement(clonedMapBits, rotation, transformMatrix, inverseTransformMatrix);
+        Collection<Bit2D> clonedMapBits = this.getBitsKeys().stream()
+                .map(vector2 -> getBit(vector2).clone())
+                .collect(Collectors.toSet());
+        return new Pavement(clonedMapBits);
     }
 
     /**
      * Removes the {@link Bit2D} that are outside the boundaries of the
      * {@link Slice} and cut at right shape the ones that intercepts the boundaries.
      *
-     * @param slice boundary in general coordinate system
+     * @param slice boundary in {@link Mesh} coordinate system
+     * @see #computeBits(Area)
      */
     public void computeBits(Slice slice) {
-        Area sliceArea = AreaTool.getAreaFrom(slice);
-        sliceArea.transform(inverseTransformMatrix);
-        Vector<Vector2> keys = new Vector<>(mapBits.keySet());
-        for (Vector2 key : keys) {
-            Bit2D bit = mapBits.get(key);
-            Area bitArea = new Area();
-            bitArea.add(bit.getArea());
-            bitArea.intersect(sliceArea);
-            if (bitArea.isEmpty()) {
-                mapBits.remove(key);
-            } else {
-                bit.updateBoundaries(bitArea);
-                bit.calcCutPath();
-            }
-        }
+        computeBits(AreaTool.getAreaFrom(slice));
     }
 
-    public AffineTransform getAffineTransform() {
-        return transformMatrix;
-    }
-
+    /**
+     * @param key in {@link Mesh} coordinate system
+     * @return {@link Bit2D} in {@link Mesh} coordinate system
+     */
     public Bit2D getBit(Vector2 key) {
         return mapBits.get(key);
     }
 
-    public Vector<Vector2> getBitsKeys() {
-        return new Vector<>(mapBits.keySet());
+    /**
+     * Retrieve all {@link Bit2D} origins. A new {@link Set} will be created to
+     * preserve {@link #mapBits}
+     *
+     * @return a {@link Set} in {@link Mesh} coordinate system
+     */
+    public Set<Vector2> getBitsKeys() {
+        return new HashSet<>(mapBits.keySet());
     }
 
     /**
      * Move the chosen bit in the wanted direction. Note: not exactly "moving", but
-     * rather "removing" then "adding" new one
+     * rather "removing" then "adding" new one with same size
      *
-     * @param key         the key of the bit we want to move
-     * @param direction   in the local coordinate system of the bit
-     * @param offsetValue the distance of displacement
-     * @return the key of the newly added bit
+     * @param key       in {@link Mesh} coordinate system
+     * @param direction in the local coordinate system of the {@link Bit2D}
+     * @param distance  the distance of displacement
+     * @return the key of the newly added bit in {@link Mesh} coordinate system
      */
-    public Vector2 moveBit(Vector2 key, Vector2 direction, double offsetValue) {
-        Bit2D bitToMove = mapBits.get(key);
+    public Vector2 moveBit(Vector2 key, Vector2 direction, double distance) {
+        Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
+        Vector2 translationInMesh =
+                direction.rotate(bitToMove.getOrientation())
+                        .normal()
+                        .mul(distance);
+        Vector2 newOrigin = bitToMove.getOrigin().add(translationInMesh);
         removeBit(key);
-        Vector2 localDirection = bitToMove.getOrientation();
-        AffineTransform rotateMatrix = new AffineTransform();
-        rotateMatrix.rotate(direction.x, direction.y);
-        localDirection = localDirection.getTransformed(rotateMatrix);
-        localDirection = localDirection.normal();
-        Vector2 newCenter = new Vector2(bitToMove.getOrigin().x + (localDirection.x * offsetValue),
-                bitToMove.getOrigin().y + (localDirection.y * offsetValue));
-        return addBit(new Bit2D(newCenter, bitToMove.getOrientation(), bitToMove.getLength(), bitToMove.getWidth()));
+        return addBit(new Bit2D(
+                newOrigin,
+                bitToMove.getOrientation(),
+                bitToMove.getLength(),
+                bitToMove.getWidth()));
     }
 
     /**
-     * Unregister a bit
+     * Unregister a {@link Bit2D}
      *
-     * @param key origin of bit in pavement coordinate system
+     * @param key origin of bit in {@link Mesh} coordinate system
      */
     public void removeBit(Vector2 key) {
         mapBits.remove(key);
     }
 
     /**
-     * Rotate a bit around its center
+     * Get all stocked {@link Bit2D}s
      *
-     * @param bitKey  of target bit
-     * @param degrees negative to rotate counter-clockwise
-     * @return original bit key. <tt>null</tt> if no such key in pavement
-     */
-    Vector2 rotateBit(Vector2 bitKey, double degrees) {
-        Bit2D bitToRotate = mapBits.get(bitKey);
-        if (bitToRotate == null) return null;
-        removeBit(bitKey);
-        Vector2 newOrientation = bitToRotate.getOrientation()
-                .add(Vector2.getEquivalentVector(degrees));
-        return addBit(new Bit2D(bitToRotate.getOrigin(),
-                newOrientation,
-                bitToRotate.getLength(),
-                bitToRotate.getWidth()));
-    }
-
-    /**
-     * Get all bits 2D
-     *
-     * @return whole schema
+     * @return whole schema in {@link Mesh} coordinate system
      */
     public Set<Bit2D> getBits() {
         return getBitsKeys().stream()
@@ -219,26 +162,25 @@ public class Pavement implements Cloneable, Serializable {
     /**
      * Concat 2 sets
      *
-     * @param bits neighbors in same layer
+     * @param bits neighbors in same {@link Layer}
      */
     public void addBits(Collection<Bit2D> bits) {
         bits.forEach(this::addBit);
     }
 
     /**
-     * Compute bits given region
+     * Recompute surfaces of {@link Bit2D}s
      *
-     * @param area target to fill
+     * @param area in {@link Mesh} coordinate system
+     * @see #computeBits(Slice)
      */
     public void computeBits(Area area) {
-        area.transform(inverseTransformMatrix);
-        Vector<Vector2> keys = new Vector<>(mapBits.keySet());
-        for (Vector2 key : keys) {
-            Bit2D bit = mapBits.get(key);
-            Area bitArea = new Area();
-            bitArea.add(bit.getArea());
+        for (Vector2 key : getBitsKeys()) {
+            Bit2D bit = getBit(key);
+            Area bitArea = bit.getArea();
             bitArea.intersect(area);
             if (bitArea.isEmpty()) {
+                // Outside of border
                 mapBits.remove(key);
             } else {
                 bit.updateBoundaries(bitArea);

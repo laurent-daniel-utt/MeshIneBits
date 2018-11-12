@@ -28,10 +28,7 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
+import java.awt.geom.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,49 +39,38 @@ import java.util.Vector;
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
  * build with multiple Bit2D <br>
  * <img src="./doc-files/bit2d.png" alt="">
+ * <br/>
+ * We always take the upper left corner as
+ * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+ * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
  */
 public class Bit2D implements Cloneable, Serializable {
     /**
-     * In the pattern coordinate system without rotation or translation of whole
-     * object.
+     * In the {@link Mesh} coordinate system
+     */
+    private Vector2 orientation;
+    /**
+     * In the {@link Mesh} coordinate system
      */
     private Vector2 origin;
-    private Vector2 orientation;
     private double length;
     private double width;
     private AffineTransform transfoMatrix = new AffineTransform();
-    private AffineTransform inverseTransfoMatrix;
-    private Vector<Path2D> cutPaths = new Vector<>();
-
+    private AffineTransform inverseTransfoMatrix = new AffineTransform();
     /**
-     * A bit should only have one area
+     * In {@link Bit2D} coordinate system
+     */
+    private Vector<Path2D> cutPaths = new Vector<>();
+    /**
+     * In {@link Bit2D} coordinate system
      */
     private Vector<Area> areas = new Vector<>();
 
     /**
-     * Constructor to clone an existing bit into a smaller one.
-     * <p>
-     * All the other parameters remain unchanged in comparison to model bit.
-     *
-     * @param modelBit         the model
-     * @param percentageLength from 0 to 100
-     * @param percentageWidth  from 0 to 100
-     */
-    public Bit2D(Bit2D modelBit, double percentageLength, double percentageWidth) {
-        this.origin = modelBit.origin;
-        this.orientation = modelBit.orientation;
-        length = (CraftConfig.bitLength * percentageLength) / 100;
-        width = (CraftConfig.bitWidth * percentageWidth) / 100;
-
-        setTransfoMatrix();
-        buildBoundaries();
-    }
-
-    /**
-     * A new full bit with <tt>originBit</tt> and <tt>orientation</tt> in the
-     * coordinate system of the associated pattern
+     * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
+     * coordinate system of {@link Mesh}
      *
      * @param origin      the center of bit's outer bound
      * @param orientation the rotation of bit
@@ -94,6 +80,43 @@ public class Bit2D implements Cloneable, Serializable {
         this.orientation = orientation;
         length = CraftConfig.bitLength;
         width = CraftConfig.bitWidth;
+
+        setTransfoMatrix();
+        buildBoundaries();
+    }
+
+    /**
+     * This constructor will decide itself the origin, base on upper left corner
+     *
+     * @param boundaryCenterX in {@link Mesh} coordinate system
+     * @param boundaryCenterY in {@link Mesh} coordinate system
+     * @param length          of boundary
+     * @param width           of boundary
+     * @param orientationX    in {@link Mesh} coordinate system
+     * @param orientationY    in {@link Mesh} coordinate system
+     */
+    public Bit2D(double boundaryCenterX,
+                 double boundaryCenterY,
+                 double length,
+                 double width,
+                 double orientationX,
+                 double orientationY) {
+        orientation = new Vector2(
+                orientationX,
+                orientationY
+        );
+        this.length = length;
+        this.width = width;
+        origin = new Vector2(boundaryCenterX, boundaryCenterY)
+                .sub(
+                        // Vector distance in Bit coordinate system
+                        new Vector2(
+                                -CraftConfig.bitLength / 2 + length / 2,
+                                -CraftConfig.bitWidth / 2 + width / 2
+                        )
+                                // Rotate into Mesh coordinate system
+                                .rotate(orientation)
+                );
 
         setTransfoMatrix();
         buildBoundaries();
@@ -142,44 +165,22 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * Create the area of the bit and set an initial cut path if necessary. This is
-     * necessary when the bit has been reduced manually. Note: Oy axe points
-     * downward and Ox points to the right. We always take the up right corner as
-     * ({@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
-     * bitWidth} / 2 ). The bit' boundary is a rectangle.
+     * Create the area of the bit. This is
+     * necessary when the bit has been reduced manually.<br/>
+     * <b>Note</b>: We always take the upper left corner as
+     * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+     * bitWidth} / 2 ). The bit's boundary is a rectangle.
      */
     private void buildBoundaries() {
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
-        Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
-        Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
-        Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
+        Rectangle2D.Double r = new Rectangle2D.Double(
+                -CraftConfig.bitLength / 2,
+                -CraftConfig.bitWidth / 2,
+                length,
+                width
+        );
 
-        Path2D path = new Path2D.Double();
-        path.moveTo(cornerUpRight.x, cornerUpRight.y);
-        path.lineTo(cornerDownRight.x, cornerDownRight.y);
-        path.lineTo(cornerDownLeft.x, cornerDownLeft.y);
-        path.lineTo(cornerUpLeft.x, cornerUpLeft.y);
-        path.closePath();
-
-        this.areas.add(new Area(path));
-
-        // Set a cut path if necessary
-        if ((length != CraftConfig.bitLength) || (width != CraftConfig.bitWidth)) {
-            cutPaths = new Vector<>();
-            Path2D.Double cutPath = new Path2D.Double();
-            if ((length != CraftConfig.bitLength) && (width != CraftConfig.bitWidth)) {
-                cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
-                cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);
-                cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
-            } else if (length != CraftConfig.bitLength) {
-                cutPath.moveTo(cornerDownLeft.x, cornerDownLeft.y);
-                cutPath.lineTo(cornerUpLeft.x, cornerUpLeft.y);
-            } else if (width != CraftConfig.bitWidth) {
-                cutPath.moveTo(cornerUpLeft.x, cornerUpLeft.y);
-                cutPath.lineTo(cornerUpRight.x, cornerUpRight.y);
-            }
-            this.cutPaths.add(cutPath);
-        }
+        this.areas.clear();
+        this.areas.add(new Area(r));
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
@@ -190,8 +191,8 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * @return the union of all surfaces making this bit transformed by
-     * <tt>transfoMatrix</tt>
+     * @return the union of all cloned surfaces making this {@link Bit2D}. Expressed
+     * in {@link Mesh} coordinate system
      */
     public Area getArea() {
         Area transformedArea = new Area();
@@ -245,7 +246,7 @@ public class Bit2D implements Cloneable, Serializable {
 
     /**
      * @return clone of cut paths (after transforming into coordinates system of
-     * layer)
+     * {@link Mesh})
      */
     @SuppressWarnings("unused")
     public Vector<Path2D> getCutPaths() {
@@ -268,27 +269,33 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * @return orientation in coordinates system of layer
+     * @return orientation in {@link Mesh} coordinate system
      */
     public Vector2 getOrientation() {
         return orientation;
     }
 
     /**
-     * @return the origin in the pattern coordinate system
+     * @return the origin in the {@link Mesh} coordinate system
      */
     public Vector2 getOrigin() {
         return origin;
     }
 
     /**
-     * @return the center of the rectangle of this bit, not necessarily the
-     * {@link #origin origin}
+     * @return the center of the rectangle boundary of this bit, not necessarily the
+     * {@link #origin}. Calculate from the upper left corner
      */
     public Vector2 getCenter() {
-        double verticalDistance = -(CraftConfig.bitWidth - width) / 2,
-                horizontalDistance = (CraftConfig.bitLength - length) / 2;
-        return origin.add(new Vector2(horizontalDistance, verticalDistance));
+        return origin.sub(
+                // Vector distance in Bit coordinate system
+                new Vector2(
+                        CraftConfig.bitLength / 2 - length / 2,
+                        CraftConfig.bitWidth / 2 - width / 2
+                )
+                        // Rotate into Mesh coordinate system
+                        .rotate(orientation)
+        );
     }
 
     /**
@@ -329,40 +336,25 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * Incorporate new cut paths into bit
-     *
-     * @param paths measured in coordinate system of layer
-     */
-    @SuppressWarnings("unused")
-    public void setCutPath(Vector<Path2D> paths) {
-        if (this.cutPaths == null) {
-            this.cutPaths = new Vector<>();
-        }
-
-        for (Path2D p : paths) {
-            this.cutPaths.add(new Path2D.Double(p, inverseTransfoMatrix));
-        }
-    }
-
-    /**
-     * Set up the matrix transformation from bit into coordinate system of layer
+     * Set up the matrix transformation from {@link Bit2D} coordinate system
+     * into {@link Pavement}
      */
     private void setTransfoMatrix() {
 
         transfoMatrix.translate(origin.x, origin.y);
         transfoMatrix.rotate(orientation.x, orientation.y);
-
         try {
             inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
         } catch (NoninvertibleTransformException e) {
             e.printStackTrace();
+            inverseTransfoMatrix = AffineTransform.getScaleInstance(1, 1); // Fallback
         }
     }
 
     /**
      * Given an area cut from a zone, construct the surface of this bit
      *
-     * @param transformedArea a bit of surface
+     * @param transformedArea a bit of surface in real
      */
     public void updateBoundaries(Area transformedArea) {
         areas.clear();
@@ -398,14 +390,14 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * To resize a bit, keeping up-right corner as reference.
+     * To resize a bit, keeping top left corner as reference.
      *
-     * @param newPercentageLength 100 means retain 100% of old bit's length
-     * @param newPercentageWidth  100 means retain 100% of old bit's width
+     * @param newPercentageLength 100 means retain 100% of normal bit's length
+     * @param newPercentageWidth  100 means retain 100% of normal bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
-        length = length * newPercentageLength / 100;
-        width = width * newPercentageWidth / 100;
+        length = CraftConfig.bitLength * newPercentageLength / 100;
+        width = CraftConfig.bitWidth * newPercentageWidth / 100;
         // Rebuild the boundary
         buildBoundaries();
     }
@@ -417,17 +409,18 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
     /**
-     * This method only accepts the conservative transformation (no scaling). The
-     * coordinates are rounded by {@link CraftConfig#errorAccepted} to accelerate
-     * calculation.
+     * This method only accepts the conservative transformation (no scaling).
      *
-     * @param transformation a combination of affine transformation
-     * @return a new bit with same geometric with initial one transformed by
-     * <tt>transfoMatrix</tt>
+     * @param transformation a combination of conservative affine transformation
+     * @return a new {@link Bit2D} with same geometric of initial one transformed by
+     * <tt>transformation</tt>
      */
     public Bit2D createTransformedBit(AffineTransform transformation) {
-        Vector2 newOrigin = origin.getTransformed(transformation).getRounded(), newOrientation = origin.add(orientation)
-                .getTransformed(transformation).sub(newOrigin).normal().getRounded();
+        Vector2 newOrigin = origin.getTransformed(transformation),
+                newOrientation = origin.add(orientation)
+                        .getTransformed(transformation)
+                        .sub(newOrigin)
+                        .normal();
         Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
         newBit.updateBoundaries(this.getArea().createTransformedArea(transformation));
         return newBit;
@@ -525,5 +518,13 @@ public class Bit2D implements Cloneable, Serializable {
         this.areas = new Vector<>();
         Shape s = (Shape) ois.readObject();
         this.updateBoundaries(new Area(s));
+    }
+
+    public AffineTransform getTransfoMatrix() {
+        return transfoMatrix;
+    }
+
+    public AffineTransform getInverseTransfoMatrix() {
+        return inverseTransfoMatrix;
     }
 }

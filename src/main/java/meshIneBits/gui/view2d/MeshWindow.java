@@ -20,7 +20,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui;
+package meshIneBits.gui.view2d;
 
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -168,7 +168,7 @@ public class MeshWindow extends JFrame {
                 () -> {
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    fc.setSelectedFile(new File(CraftConfig.lastModel.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(MeshWindow.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -191,7 +191,7 @@ public class MeshWindow extends JFrame {
                     final JFileChooser fc = new CustomFileChooser();
                     String meshExt = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
-                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    fc.setSelectedFile(new File(CraftConfig.lastMesh.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(MeshWindow.this);
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
@@ -215,6 +215,7 @@ public class MeshWindow extends JFrame {
                     final JFileChooser fc = new CustomFileChooser();
                     String ext = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+                    fc.setSelectedFile(new File(CraftConfig.lastMesh.replace("\n", "\\n")));
                     if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
                         if (!f.getName().endsWith("." + ext)) {
@@ -454,7 +455,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction halfLengthBit = new MeshAction(
                 "halfLengthBit",
-                "Half Width",
+                "Half Length",
                 "bit-half-length.png",
                 "Cut bit half in length",
                 "",
@@ -466,7 +467,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction halfWidthBit = new MeshAction(
                 "halfWidthBit",
-                "Half Length",
+                "Half Width",
                 "bit-half-width.png",
                 "Cut bit half in width",
                 "",

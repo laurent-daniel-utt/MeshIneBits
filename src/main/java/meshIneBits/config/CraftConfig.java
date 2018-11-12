@@ -88,7 +88,6 @@ public class CraftConfig {
             new EconomicPattern(),
             new UnitSquarePattern()
     };
-
     /**
      * @return new instance of each pattern builder
      */
@@ -103,6 +102,7 @@ public class CraftConfig {
         }
         return patternsList;
     }
+
 
     /**
      * The chosen pattern
@@ -122,16 +122,20 @@ public class CraftConfig {
 
     // Other parameters
     /**
-     * To know the file in process
+     * Save the directory of last opened {@link meshIneBits.Model}
      */
     @Setting()
-    public static String lastSlicedFile = "";
+    public static String lastModel = "";
 
     /**
      * To know the lastly selected pattern configuration file
      */
     @Setting()
     public static String lastPatternConfigFile = "";
+    /**
+     * Save the directory of last opened {@link meshIneBits.Mesh}
+     */
+    public static String lastMesh = "";
 
     @Setting(title = "Acceptable error",
             description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation")

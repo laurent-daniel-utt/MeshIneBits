@@ -60,7 +60,7 @@ public class XmlTool {
 
     private boolean liftableBit(Bit3D bit) {
         int liftableSubBit = 0;
-        for (Vector2 p : bit.getLiftPoints()) {
+        for (Vector2 p : bit.getRawLiftPoints()) {
             if (p != null) {
                 liftableSubBit++;
             }
@@ -129,15 +129,15 @@ public class XmlTool {
             writer.println("		</return>");
             remainingBits = nbBits;
         }
-        for (int i = 0; i < bit.getDepositPoints().size(); i++) {
-            if (bit.getDepositPoints().get(i) != null) {
+        for (int i = 0; i < bit.getLiftPoints().size(); i++) {
+            if (bit.getLiftPoints().get(i) != null) {
                 if (id == 0) {
                     writer.println("		<goTo>");
-                    currentPos = bit.getDepositPoints().get(i).x + effectiveWidth / 2;
+                    currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
                     writer.println("			<x>" + currentPos + "</x>");
                     writer.println("		</goTo>");
                 } else {
-                    if (Math.abs(bit.getDepositPoints().get(i).x - currentPos) > effectiveWidth / 2) {
+                    if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
                         currentPos += effectiveWidth;
                         writer.println("		<goTo>");
                         writer.println("			<x>" + currentPos + "</x>");
@@ -157,8 +157,8 @@ public class XmlTool {
         writer.println("		<bit>");
         writer.println("			<id>" + id + "</id>");
         writer.println("			<cut>");
-        if (bit.getCutPaths() != null) {
-            for (Path2D p : bit.getCutPaths()) {
+        if (bit.getRawCutPaths() != null) {
+            for (Path2D p : bit.getRawCutPaths()) {
                 writeCutPaths(p);
             }
         }
@@ -212,11 +212,11 @@ public class XmlTool {
         for (int i = 0; i < Bits3DKeys.size(); i++) {
             Bit3D bit = Bits3DKeys.get(i).getKey();
             // translating the bits - they are generated at the origin of the world coordinate system;
-            for (int j = 0; j < bit.getLiftPoints().size(); j++) {
-                if (bit.getLiftPoints().get(j) != null) {
-                    double oldX = bit.getDepositPoints().get(j).x;
-                    double oldY = bit.getDepositPoints().get(j).y;
-                    bit.getDepositPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
+            for (int j = 0; j < bit.getRawLiftPoints().size(); j++) {
+                if (bit.getRawLiftPoints().get(j) != null) {
+                    double oldX = bit.getLiftPoints().get(j).x;
+                    double oldY = bit.getLiftPoints().get(j).y;
+                    bit.getLiftPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
                 }
             }
             moveWorkingSpace(bit, i);
@@ -227,18 +227,18 @@ public class XmlTool {
     }
 
     private void writeSubBits(Bit3D bit) {
-        for (int id = 0; id < bit.getLiftPoints().size(); id++) {
-            if (bit.getLiftPoints().get(id) != null) {
+        for (int id = 0; id < bit.getRawLiftPoints().size(); id++) {
+            if (bit.getRawLiftPoints().get(id) != null) {
                 writer.println("			<subBit>");
                 writer.println("				<id>" + id + "</id>");
                 writer.println("				<liftPoint>");
-                writer.println("					<x>" + bit.getLiftPoints().get(id).x + "</x>");
-                writer.println("					<y>" + bit.getLiftPoints().get(id).y + "</y>");
+                writer.println("					<x>" + bit.getRawLiftPoints().get(id).x + "</x>");
+                writer.println("					<y>" + bit.getRawLiftPoints().get(id).y + "</y>");
                 writer.println("				</liftPoint>");
                 writer.println("				<rotation>" + bit.getOrientation().getEquivalentAngle() + "</rotation>");
                 writer.println("				<position>");
-                writer.println("					<x>" + bit.getDepositPoints().get(id).x + "</x>");
-                writer.println("					<y>" + bit.getDepositPoints().get(id).y + "</y>");
+                writer.println("					<x>" + bit.getLiftPoints().get(id).x + "</x>");
+                writer.println("					<y>" + bit.getLiftPoints().get(id).y + "</y>");
                 writer.println("				</position>");
                 writer.println("			</subBit>");
             }

@@ -245,10 +245,17 @@ public class DoubleParam extends PatternParameter {
     public void incrementBy(double amount, boolean cyclic) {
         double oldValue = currentValue;
         if (cyclic) {
-            if (currentValue + amount > maxValue)
-                currentValue += amount - maxValue + minValue;
+            double newValue = currentValue + amount;
+            if (newValue > maxValue) // Positive amount
+                currentValue = minValue
+                        + newValue - maxValue
+                        - Math.floor((newValue - maxValue) / (maxValue - minValue)) * (maxValue - minValue);
+            else if (newValue < minValue) // Negative amount
+                currentValue = maxValue
+                        - ((minValue - newValue)
+                        - Math.floor((minValue - newValue) / (maxValue - minValue)) * (maxValue - minValue));
             else
-                currentValue += amount;
+                currentValue = newValue;
         } else
             currentValue = filter(currentValue + amount);
         changes.firePropertyChange("currentValue", oldValue, currentValue);

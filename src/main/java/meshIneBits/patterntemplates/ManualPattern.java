@@ -25,12 +25,10 @@ package meshIneBits.patterntemplates;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.config.CraftConfig;
 import meshIneBits.config.PatternConfig;
-import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * This pattern does not do anything in process. In fact, it allows user to
@@ -49,33 +47,17 @@ public class ManualPattern extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
-        return new Pavement(new Vector<>(), new Vector2(1, 0));
+        return new Pavement(new ArrayList<>());
     }
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        return new Pavement(new Vector<>(), new Vector2(1, 0));
+        return new Pavement(new ArrayList<>());
     }
 
     @Override
     public int optimize(Layer actualState) {
         return -2;
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection) {
-        double distance = 0;
-        if (localDirection.x == 0) {// up or down
-            distance = CraftConfig.bitWidth / 2;
-        } else if (localDirection.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
-        }
-        return this.moveBit(actualState, bitKey, localDirection, distance);
-    }
-
-    @Override
-    public Vector2 moveBit(Pavement actualState, Vector2 bitKey, Vector2 localDirection, double distance) {
-        return actualState.moveBit(bitKey, localDirection, distance);
     }
 
     /**

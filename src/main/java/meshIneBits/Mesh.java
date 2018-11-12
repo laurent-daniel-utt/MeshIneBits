@@ -648,12 +648,13 @@ public class Mesh extends Observable implements Observer, Serializable {
                             break;
                         case -1:
                             Logger.updateStatus("Auto-optimization failed on layer " + layer.getLayerNumber());
+                            unsolvedLayers.add(layer);
                             break;
                         case -2:
                             Logger.updateStatus("No optimizing algorithm implemented on layer " + layer.getLayerNumber());
+                            unsolvedLayers.add(layer);
                             break;
                     }
-                    unsolvedLayers.add(layer);
                 }
             }
             if (finishedJob == layers.size()) {

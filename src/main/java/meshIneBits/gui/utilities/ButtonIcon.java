@@ -22,8 +22,7 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.IconLoader;
-import meshIneBits.gui.MeshAction;
+import meshIneBits.gui.view2d.MeshAction;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

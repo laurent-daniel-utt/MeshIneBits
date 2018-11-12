@@ -20,7 +20,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.gui;
+package meshIneBits.gui.view2d;
 
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.ButtonIcon;
