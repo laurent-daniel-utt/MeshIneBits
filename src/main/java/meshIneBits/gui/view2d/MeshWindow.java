@@ -168,7 +168,7 @@ public class MeshWindow extends JFrame {
                 () -> {
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    fc.setSelectedFile(new File(CraftConfig.lastModel.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(MeshWindow.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -191,7 +191,7 @@ public class MeshWindow extends JFrame {
                     final JFileChooser fc = new CustomFileChooser();
                     String meshExt = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
-                    fc.setSelectedFile(new File(CraftConfig.lastSlicedFile.replace("\n", "\\n")));
+                    fc.setSelectedFile(new File(CraftConfig.lastMesh.replace("\n", "\\n")));
                     int returnVal = fc.showOpenDialog(MeshWindow.this);
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
@@ -215,6 +215,7 @@ public class MeshWindow extends JFrame {
                     final JFileChooser fc = new CustomFileChooser();
                     String ext = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+                    fc.setSelectedFile(new File(CraftConfig.lastMesh.replace("\n", "\\n")));
                     if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
                         if (!f.getName().endsWith("." + ext)) {

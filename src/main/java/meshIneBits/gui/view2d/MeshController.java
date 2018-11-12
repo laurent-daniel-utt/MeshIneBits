@@ -310,6 +310,10 @@ public class MeshController extends Observable implements Observer {
     public void openMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastMesh = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
         (new Thread(meshOpener)).start();
@@ -325,6 +329,10 @@ public class MeshController extends Observable implements Observer {
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastMesh = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshSaver meshSaver = new MeshSaver(file);
         (new Thread(meshSaver)).start();
     }
@@ -338,6 +346,10 @@ public class MeshController extends Observable implements Observer {
     public void newMesh(File file) throws SimultaneousOperationsException {
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
+        // Save last opened file
+        CraftConfig.lastModel = file.getPath();
+        CraftConfigLoader.savePatternConfig(null);
+
         MeshCreator meshCreator = new MeshCreator(file);
         meshCreator.addObserver(this);
         (new Thread(meshCreator)).start();
