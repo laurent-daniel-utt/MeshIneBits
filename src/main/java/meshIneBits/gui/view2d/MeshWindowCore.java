@@ -60,6 +60,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         this.meshController = meshController;
         this.meshController.addObserver(this);
 
+        setOpaque(false);
         this.setLayout(new BorderLayout());
         initBackground();
         // Actions listener

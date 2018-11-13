@@ -54,6 +54,7 @@ class MeshWindowZoomer extends JPanel {
         bCoefficient = Math.log(MIN_ZOOM_VALUE / 10) / (MIN_ZOOM_SLIDER_VALUE - MAX_ZOOM_SLIDER_VALUE);
         aCoefficient = MIN_ZOOM_VALUE / Math.exp(bCoefficient * MIN_ZOOM_SLIDER_VALUE);
         zoomSlider.setMaximumSize(new Dimension(500, 20));
+        setOpaque(false);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
