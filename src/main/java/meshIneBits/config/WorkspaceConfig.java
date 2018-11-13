@@ -63,6 +63,6 @@ public class WorkspaceConfig {
     public static int vertexRadius = 10;
     public static Color regionColor = new Color(255, 0, 100, 100);
     public static Stroke regionStroke = new BasicStroke(2f);
-    public static Color bulkSelectZoneColor = new Color(200, 180, 255, 250);
+    public static Color bulkSelectZoneColor = new Color(200, 180, 255, 100);
     public static Stroke bulkSelectZoneStroke = new BasicStroke(1.2f);
 }
