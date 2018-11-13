@@ -39,6 +39,7 @@ import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -108,6 +109,12 @@ public class MeshController extends Observable implements Observer {
     private List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    /**
+     * In real coordinate system
+     */
+    private Point2D bulkSelectZoneUpperLeft;
+    private Point2D bulkSelectZoneBottomRight;
+    private Rectangle2D.Double bulkSelectZone;
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -563,6 +570,48 @@ public class MeshController extends Observable implements Observer {
         changes.addPropertyChangeListener(property, l);
     }
 
+    public void retrieveBulkSelectedBits() {
+        if (mesh == null
+                || !mesh.isPaved()
+                || bulkSelectZone.isEmpty()) {
+            return;
+        }
+        Pavement flatPavement = currentLayer.getFlatPavement();
+        for (Vector2 key : flatPavement.getBitsKeys()) {
+            if (bulkSelectZone.contains(flatPavement.getBit(key).getArea().getBounds2D()))
+                selectedBitKeys.add(key);
+        }
+        clearBulkSelect();
+        setChanged();
+        notifyObservers();
+    }
+
+    public void startBulkSelect(Point2D realSpot) {
+        bulkSelectZoneBottomRight = realSpot;
+        bulkSelectZoneUpperLeft = realSpot;
+        bulkSelectZone = new Rectangle2D.Double();
+        bulkSelectZone.setFrameFromDiagonal(bulkSelectZoneUpperLeft, bulkSelectZoneBottomRight);
+    }
+
+    public void updateBulkSelect(Point2D realSpot) {
+        bulkSelectZoneBottomRight = realSpot;
+        bulkSelectZone.setFrameFromDiagonal(bulkSelectZoneUpperLeft, bulkSelectZoneBottomRight);
+    }
+
+    public void clearBulkSelect() {
+        bulkSelectZone = null;
+        bulkSelectZoneUpperLeft = null;
+        bulkSelectZoneBottomRight = null;
+    }
+
+    public Rectangle2D getBulkSelectZone() {
+        return bulkSelectZone;
+    }
+
+    public boolean isBulkSelecting() {
+        return bulkSelectZone != null;
+    }
+
     /**
      * Centralized handler of exceptions
      *
@@ -701,8 +750,11 @@ public class MeshController extends Observable implements Observer {
     public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
     public static final String SHOW_CUT_PATHS = "showCutPaths";
     public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
+
     public static final String ADDING_BITS = "addingBits";
+
     public static final String SELECTING_REGION = "selectingRegion";
+
     public static final String SETTING_LAYER = "settingLayer";
 
     public void toggle(String property) {
