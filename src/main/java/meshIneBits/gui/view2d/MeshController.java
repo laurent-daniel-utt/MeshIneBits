@@ -227,15 +227,12 @@ public class MeshController extends Observable implements Observer {
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
                 .forEach(key -> {
-                    Bit2D bit2D = pavement.getBit(key);
-                    if (bit2D != null) { // for safety
-                        availableArea.subtract(
-                                AreaTool.expand(
-                                        pavement.getBit(key)
-                                                .getArea(), // in real
-                                        safeguardSpaceParam.getCurrentValue())
-                        );
-                    }
+                    availableArea.subtract(
+                            AreaTool.expand(
+                                    pavement.getBit(key)
+                                            .getArea(), // in real
+                                    safeguardSpaceParam.getCurrentValue())
+                    );
                 });
     }
 
@@ -440,7 +437,7 @@ public class MeshController extends Observable implements Observer {
                 newBitsWidthParam.getCurrentValue());
         if (autocropParam.getCurrentValue())
             newBit.updateBoundaries(bitAreaPreview);
-        currentLayer.addBit(newBit);
+        currentLayer.addBit(newBit, true);
     }
 
     /**
