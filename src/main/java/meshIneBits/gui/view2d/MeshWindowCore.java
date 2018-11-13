@@ -212,8 +212,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isLeftMouseButton(e)) {
-
+        if (SwingUtilities.isLeftMouseButton(e)) {
             viewOffsetX += (e.getX() - oldX) / drawScale;
             viewOffsetY += (e.getY() - oldY) / drawScale;
             repaint();

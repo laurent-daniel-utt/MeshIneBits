@@ -711,9 +711,13 @@ public class MeshWindow extends JFrame {
     }
 
     void initGadgets() {
+        if (zoomer != null)
+            remove(zoomer);
         zoomer = new MeshWindowZoomer(meshController);
         add(zoomer, zoomerGBC);
 
+        if (selector != null)
+            remove(selector);
         selector = new MeshWindowSelector(meshController);
         add(selector, selectorGBC);
     }

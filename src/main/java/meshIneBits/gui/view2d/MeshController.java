@@ -85,7 +85,7 @@ public class MeshController extends Observable implements Observer {
     );
     private final MeshWindow meshWindow;
     private Mesh mesh;
-    private int layerNumber = 0;
+    private int layerNumber = -1;
     private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
@@ -207,7 +207,9 @@ public class MeshController extends Observable implements Observer {
         if (mesh == null) {
             return;
         }
-        if ((layerNum >= mesh.getLayers().size()) || (layerNum < 0)) {
+        if ((layerNum >= mesh.getLayers().size())
+                || (layerNum < 0)
+                || (layerNum == layerNumber)) {
             return;
         }
         layerNumber = layerNum;
@@ -215,6 +217,8 @@ public class MeshController extends Observable implements Observer {
         currentLayer.addObserver(this);
         updateAvailableArea();
         reset();
+        // Notify selector
+        changes.firePropertyChange(SETTING_LAYER, 0, layerNum); // no need of old value
 
         // Notify the core
         setChanged();
@@ -699,6 +703,7 @@ public class MeshController extends Observable implements Observer {
     public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
     public static final String ADDING_BITS = "addingBits";
     public static final String SELECTING_REGION = "selectingRegion";
+    public static final String SETTING_LAYER = "settingLayer";
 
     public void toggle(String property) {
         switch (property) {
