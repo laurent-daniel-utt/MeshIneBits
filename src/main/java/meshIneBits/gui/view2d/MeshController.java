@@ -30,10 +30,7 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.SimultaneousOperationsException;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -55,6 +52,14 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class MeshController extends Observable implements Observer {
 
+    public static final String SHOW_SLICE = "showSlice";
+    public static final String SHOW_LIFT_POINTS = "showLiftPoints";
+    public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
+    public static final String SHOW_CUT_PATHS = "showCutPaths";
+    public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
+    public static final String ADDING_BITS = "addingBits";
+    public static final String SELECTING_REGION = "selectingRegion";
+    public static final String SETTING_LAYER = "settingLayer";
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
             "newBitLength",
@@ -82,6 +87,12 @@ public class MeshController extends Observable implements Observer {
             "autocrop",
             "Auto crop",
             "Cut the new bit while preserving space around bits",
+            true
+    );
+    private final BooleanParam prohibitAddingIrregularBitParam = new BooleanParam(
+            "prohibitAddingIrregularBit",
+            "Keep regularity",
+            "Prohibit adding irregular bit",
             true
     );
     private final MeshWindow meshWindow;
@@ -210,6 +221,24 @@ public class MeshController extends Observable implements Observer {
             }
     }
 
+    private void updateAvailableArea() {
+        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
+        Pavement pavement = currentLayer.getFlatPavement();
+        if (pavement == null) return; // Empty layer
+        pavement.getBitsKeys()
+                .forEach(key -> {
+                    Bit2D bit2D = pavement.getBit(key);
+                    if (bit2D != null) { // for safety
+                        availableArea.subtract(
+                                AreaTool.expand(
+                                        pavement.getBit(key)
+                                                .getArea(), // in real
+                                        safeguardSpaceParam.getCurrentValue())
+                        );
+                    }
+                });
+    }
+
     public void setLayer(int layerNum) {
         if (mesh == null) {
             return;
@@ -240,24 +269,6 @@ public class MeshController extends Observable implements Observer {
             indexesEmptyLayers.forEach(integer -> str.append(integer).append(" "));
             Logger.updateStatus("Some layers are empty: " + str.toString());
         }
-    }
-
-    private void updateAvailableArea() {
-        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
-        Pavement pavement = currentLayer.getFlatPavement();
-        if (pavement == null) return; // Empty layer
-        pavement.getBitsKeys()
-                .forEach(key -> {
-                    Bit2D bit2D = pavement.getBit(key);
-                    if (bit2D != null) { // for safety
-                        availableArea.subtract(
-                                AreaTool.expand(
-                                        pavement.getBit(key)
-                                                .getArea(), // in real
-                                        safeguardSpaceParam.getCurrentValue())
-                        );
-                    }
-                });
     }
 
     public void reset() {
@@ -389,19 +400,6 @@ public class MeshController extends Observable implements Observer {
         currentLayer.rebuild();
     }
 
-    boolean isAddingBits() {
-        return addingBits;
-    }
-
-    public void setAddingBits(boolean b) {
-        this.addingBits = b;
-
-        changes.firePropertyChange(ADDING_BITS, !addingBits, addingBits);
-
-        setChanged();
-        notifyObservers();
-    }
-
     public void incrementBitsOrientationParamBy(double v) {
         newBitsOrientationParam.incrementBy(v, true);
         setChanged();
@@ -410,72 +408,6 @@ public class MeshController extends Observable implements Observer {
 
     public Layer getCurrentLayer() {
         return currentLayer;
-    }
-
-    public boolean showingPreviousLayer() {
-        return showPreviousLayer;
-    }
-
-    public boolean showingIrregularBits() {
-        return showIrregularBits;
-    }
-
-    public boolean showingCutPaths() {
-        return showCutPaths;
-    }
-
-    public boolean showingLiftPoints() {
-        return showLiftPoints;
-    }
-
-    public boolean showingSlice() {
-        return showSlice;
-    }
-
-    public void setShowCutPaths(boolean b) {
-        showCutPaths = b;
-
-        changes.firePropertyChange(SHOW_CUT_PATHS, !showCutPaths, showCutPaths);
-
-        setChanged();
-        notifyObservers();
-    }
-
-    public void setShowLiftPoints(boolean b) {
-        showLiftPoints = b;
-
-        changes.firePropertyChange(SHOW_LIFT_POINTS, !showLiftPoints, showLiftPoints);
-
-        setChanged();
-        notifyObservers();
-    }
-
-    public void setShowPreviousLayer(boolean b) {
-        showPreviousLayer = b;
-
-        changes.firePropertyChange(SHOW_PREVIOUS_LAYER, !showPreviousLayer, showPreviousLayer);
-
-        setChanged();
-        notifyObservers();
-    }
-
-    public void setShowSlice(boolean b) {
-        showSlice = b;
-        System.out.println("showSlice = " + showSlice);
-
-        changes.firePropertyChange(SHOW_SLICE, !showSlice, showSlice);
-
-        setChanged();
-        notifyObservers();
-    }
-
-    public void setShowIrregularBits(boolean b) {
-        showIrregularBits = b;
-
-        changes.firePropertyChange(SHOW_IRREGULAR_BITS, !showIrregularBits, showIrregularBits);
-
-        setChanged();
-        notifyObservers();
     }
 
     public Area getAvailableBitAreaFrom(Shape bitPreviewInReal) {
@@ -494,7 +426,12 @@ public class MeshController extends Observable implements Observer {
         if (mesh == null
                 || currentLayer.getFlatPavement() == null
                 || position == null
-                || bitAreaPreview.isEmpty())
+                || bitAreaPreview.isEmpty()
+        )
+            return;
+        // Do not add new irregular bit
+        if (DetectorTool.checkIrregular(bitAreaPreview)
+                && prohibitAddingIrregularBitParam.getCurrentValue())
             return;
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
@@ -566,6 +503,10 @@ public class MeshController extends Observable implements Observer {
         return autocropParam;
     }
 
+    public BooleanParam getProhibitAddingIrregularBitParam() {
+        return prohibitAddingIrregularBitParam;
+    }
+
     public void addPropertyChangeListener(String property, PropertyChangeListener l) {
         changes.addPropertyChangeListener(property, l);
     }
@@ -586,6 +527,12 @@ public class MeshController extends Observable implements Observer {
         notifyObservers();
     }
 
+    public void clearBulkSelect() {
+        bulkSelectZone = null;
+        bulkSelectZoneUpperLeft = null;
+        bulkSelectZoneBottomRight = null;
+    }
+
     public void startBulkSelect(Point2D realSpot) {
         bulkSelectZoneBottomRight = realSpot;
         bulkSelectZoneUpperLeft = realSpot;
@@ -596,12 +543,6 @@ public class MeshController extends Observable implements Observer {
     public void updateBulkSelect(Point2D realSpot) {
         bulkSelectZoneBottomRight = realSpot;
         bulkSelectZone.setFrameFromDiagonal(bulkSelectZoneUpperLeft, bulkSelectZoneBottomRight);
-    }
-
-    public void clearBulkSelect() {
-        bulkSelectZone = null;
-        bulkSelectZoneUpperLeft = null;
-        bulkSelectZoneBottomRight = null;
     }
 
     public Rectangle2D getBulkSelectZone() {
@@ -690,21 +631,6 @@ public class MeshController extends Observable implements Observer {
         clearSelectingRegion(true);
     }
 
-    public boolean isSelectingRegion() {
-        return selectingRegion;
-    }
-
-    public void setSelectingRegion(boolean b) {
-        this.selectingRegion = b;
-        changes.firePropertyChange(SELECTING_REGION, !selectingRegion, selectingRegion);
-
-        if (!selectingRegion)
-            clearSelectingRegion(false);
-
-        setChanged();
-        notifyObservers();
-    }
-
     public boolean hasSelectedRegion() {
         return selectedRegion;
     }
@@ -745,18 +671,6 @@ public class MeshController extends Observable implements Observer {
         mesh.pave(patternTemplate, currentLayer, availableArea);
     }
 
-    public static final String SHOW_SLICE = "showSlice";
-    public static final String SHOW_LIFT_POINTS = "showLiftPoints";
-    public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
-    public static final String SHOW_CUT_PATHS = "showCutPaths";
-    public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
-
-    public static final String ADDING_BITS = "addingBits";
-
-    public static final String SELECTING_REGION = "selectingRegion";
-
-    public static final String SETTING_LAYER = "settingLayer";
-
     public void toggle(String property) {
         switch (property) {
             case SHOW_SLICE:
@@ -781,6 +695,100 @@ public class MeshController extends Observable implements Observer {
                 setSelectingRegion(!isSelectingRegion());
                 break;
         }
+    }
+
+    public void setShowSlice(boolean b) {
+        showSlice = b;
+        System.out.println("showSlice = " + showSlice);
+
+        changes.firePropertyChange(SHOW_SLICE, !showSlice, showSlice);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean showingSlice() {
+        return showSlice;
+    }
+
+    public void setShowLiftPoints(boolean b) {
+        showLiftPoints = b;
+
+        changes.firePropertyChange(SHOW_LIFT_POINTS, !showLiftPoints, showLiftPoints);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean showingLiftPoints() {
+        return showLiftPoints;
+    }
+
+    public void setShowPreviousLayer(boolean b) {
+        showPreviousLayer = b;
+
+        changes.firePropertyChange(SHOW_PREVIOUS_LAYER, !showPreviousLayer, showPreviousLayer);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean showingPreviousLayer() {
+        return showPreviousLayer;
+    }
+
+    public void setShowCutPaths(boolean b) {
+        showCutPaths = b;
+
+        changes.firePropertyChange(SHOW_CUT_PATHS, !showCutPaths, showCutPaths);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean showingCutPaths() {
+        return showCutPaths;
+    }
+
+    public void setShowIrregularBits(boolean b) {
+        showIrregularBits = b;
+
+        changes.firePropertyChange(SHOW_IRREGULAR_BITS, !showIrregularBits, showIrregularBits);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean showingIrregularBits() {
+        return showIrregularBits;
+    }
+
+    boolean isAddingBits() {
+        return addingBits;
+    }
+
+    public void setAddingBits(boolean b) {
+        this.addingBits = b;
+
+        changes.firePropertyChange(ADDING_BITS, !addingBits, addingBits);
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean isSelectingRegion() {
+        return selectingRegion;
+    }
+
+    public void setSelectingRegion(boolean b) {
+        this.selectingRegion = b;
+        changes.firePropertyChange(SELECTING_REGION, !selectingRegion, selectingRegion);
+
+        if (!selectingRegion)
+            clearSelectingRegion(false);
+
+        setChanged();
+        notifyObservers();
     }
 
     public boolean get(String property) {
