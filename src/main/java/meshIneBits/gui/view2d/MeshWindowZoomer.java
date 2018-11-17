@@ -75,6 +75,7 @@ class MeshWindowZoomer extends JPanel {
             setZoom(zoom * WorkspaceConfig.zoomSpeed);
             zoomSlider.setValue(getSliderZoomValueFrom(zoom));
         });
+        zoomSlider.setOpaque(false);
 
         // Not show if mesh not sliced yet
         if (meshController.getMesh() == null || !(meshController.getMesh().isSliced()))

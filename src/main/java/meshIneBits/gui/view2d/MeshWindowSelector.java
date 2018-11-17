@@ -64,6 +64,9 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
             meshController.setLayer(layerSlider.getValue());
             layerSpinner.setValue(layerSlider.getValue());
         });
+        setOpaque(false);
+        layerSpinner.setOpaque(false);
+        layerSpinner.setOpaque(false);
     }
 
     @Override
