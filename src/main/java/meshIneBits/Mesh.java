@@ -47,6 +47,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     private Model model;
     private MeshEvents state;
     private AScheduler scheduler = null;
+    private String modelFile;
 
     /**
      * Set the new mesh to ready
@@ -58,8 +59,6 @@ public class Mesh extends Observable implements Observer, Serializable {
     public static Mesh open(File file) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return ((Mesh) ois.readObject());
-        } catch (ClassNotFoundException | IOException e) {
-            throw e;
         }
     }
 
@@ -77,6 +76,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         try {
             this.model = new Model(filepath);
             this.model.center();
+            this.modelFile = filepath;
         } catch (Exception e) {
             e.printStackTrace();
             setState(MeshEvents.IMPORT_FAILED);
@@ -459,6 +459,10 @@ public class Mesh extends Observable implements Observer, Serializable {
             notifyObservers(MeshEvents.SAVE_FAILED);
             throw e;
         }
+    }
+
+    public String getModelFile() {
+        return modelFile;
     }
 
     /**

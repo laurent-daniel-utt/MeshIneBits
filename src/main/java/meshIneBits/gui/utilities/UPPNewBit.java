@@ -68,6 +68,9 @@ public class UPPNewBit extends UtilityParametersPanel {
         c.gridx++;
         add(meshController.getAutocropParam().getRenderer(), c);
 
+        c.gridx++;
+        add(meshController.getProhibitAddingIrregularBitParam().getRenderer(), c);
+
         JLabel bitLabel = new JLabel("Bit types: ");
         c.gridx++;
         add(bitLabel, c);

@@ -44,15 +44,17 @@ public class MeshWindow extends JFrame {
     private final GridBagConstraints selectorGBC;
     private final GridBagConstraints utilityParametersPanelGBC;
     private final GridBagConstraints zoomerGBC;
+    private final GridBagConstraints propertyPanelGBC;
+    private final MeshWindowCore core;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
     private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
     private Vector<MeshAction> meshActionList = new Vector<>();
     private UtilityParametersPanel utilityParametersPanel;
-    private JPanel core;
     private MeshWindowZoomer zoomer;
     private MeshWindowSelector selector;
+    private MeshWindowPropertyPanel propertyPanel;
     private MeshController meshController = new MeshController(this);
 
     private ProcessingModelView view3DWindow = new ProcessingModelView();
@@ -90,7 +92,7 @@ public class MeshWindow extends JFrame {
         c.gridx = 0;
         c.gridy = 0;
         c.gridheight = 1;
-        c.gridwidth = 3;
+        c.gridwidth = 4;
         c.weightx = 1;
         c.weighty = 0;
         add(toolBar, c);
@@ -142,10 +144,20 @@ public class MeshWindow extends JFrame {
         zoomerGBC.weightx = 1;
         zoomerGBC.weighty = 0;
 
+        // Property panel
+        propertyPanelGBC = new GridBagConstraints();
+        propertyPanelGBC.fill = GridBagConstraints.BOTH;
+        propertyPanelGBC.gridx = 3;
+        propertyPanelGBC.gridy = 1;
+        propertyPanelGBC.gridwidth = 1;
+        propertyPanelGBC.gridheight = 3;
+        propertyPanelGBC.weightx = 0;
+        propertyPanelGBC.weighty = 1;
+
         // Status bar
         c.gridx = 0;
         c.gridy = 4;
-        c.gridwidth = 3;
+        c.gridwidth = 4;
         c.gridheight = 1;
         c.weightx = 1;
         c.weighty = 0;
@@ -711,10 +723,36 @@ public class MeshWindow extends JFrame {
     }
 
     void initGadgets() {
+        if (zoomer != null)
+            remove(zoomer);
         zoomer = new MeshWindowZoomer(meshController);
         add(zoomer, zoomerGBC);
 
+        if (selector != null)
+            remove(selector);
         selector = new MeshWindowSelector(meshController);
         add(selector, selectorGBC);
+
+        if (propertyPanel != null)
+            remove(propertyPanel);
+        propertyPanel = new MeshWindowPropertyPanel(meshController);
+        add(propertyPanel, propertyPanelGBC);
+    }
+
+    void reset() {
+        if (zoomer != null) {
+            remove(zoomer);
+            zoomer = null;
+        }
+        if (selector != null) {
+            remove(selector);
+            selector = null;
+        }
+        if (propertyPanel != null) {
+            remove(propertyPanel);
+            meshController.removePropertyChangeListener(propertyPanel);
+            propertyPanel = null;
+        }
+        core.initBackground();
     }
 }

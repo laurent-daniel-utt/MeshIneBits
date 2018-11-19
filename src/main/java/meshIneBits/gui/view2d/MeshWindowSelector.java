@@ -26,15 +26,16 @@ import meshIneBits.Mesh;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class MeshWindowSelector extends JPanel {
+public class MeshWindowSelector extends JPanel implements PropertyChangeListener {
     private JSlider layerSlider;
     private JSpinner layerSpinner;
-    private final MeshController meshController;
 
     public MeshWindowSelector(MeshController meshController) {
-        this.meshController = meshController;
         Mesh mesh = meshController.getMesh();
+        meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
         layerSlider = new JSlider(
                 SwingConstants.VERTICAL,
                 0,
@@ -63,20 +64,16 @@ public class MeshWindowSelector extends JPanel {
             meshController.setLayer(layerSlider.getValue());
             layerSpinner.setValue(layerSlider.getValue());
         });
+        setOpaque(false);
+        layerSpinner.setOpaque(false);
+        layerSpinner.setOpaque(false);
     }
 
-    /**
-     * Adapt values for new mesh
-     */
-    public void reset() {
-        Mesh mesh = meshController.getMesh();
-        layerSlider.setMaximum(mesh.getLayers().size() - 1);
-        layerSlider.setValue(meshController.getLayerNumber());
-        layerSpinner.setModel(new SpinnerNumberModel(
-                meshController.getLayerNumber(),
-                0,
-                mesh.getLayers().size() - 1,
-                1
-        ));
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(MeshController.SETTING_LAYER)
+                && ((int) evt.getNewValue() != layerSlider.getValue())) {
+            layerSlider.setValue((int) evt.getNewValue());
+        }
     }
 }

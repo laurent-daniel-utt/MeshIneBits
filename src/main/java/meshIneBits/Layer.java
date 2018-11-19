@@ -149,10 +149,11 @@ public class Layer extends Observable implements Serializable {
      * border
      *
      * @param bit expressed in {@link Mesh} coordinate system
+     * @param b   <tt>true</tt> to notify observers
      * @return the origin of the newly inserted bit in {@link Mesh} coordinate system.
      * <tt>null</tt> if out of bound
      */
-    public Vector2 addBit(Bit2D bit) {
+    public Vector2 addBit(Bit2D bit, boolean b) {
         Area bitArea = bit.getArea();
         bitArea.intersect(horizontalArea);
         if (bitArea.isEmpty()) {
@@ -163,6 +164,10 @@ public class Layer extends Observable implements Serializable {
             bit.calcCutPath();
             Vector2 key = flatPavement.addBit(bit);
             extrudeBitTo3D(key);
+            if (b) {
+                setChanged();
+                notifyObservers();
+            }
             return key;
         }
     }
@@ -287,7 +292,7 @@ public class Layer extends Observable implements Serializable {
         removeBit(bit.getOrigin());
         if (percentageLength != 0 && percentageWidth != 0) {
             modelBit.resize(percentageLength, percentageWidth);
-            return addBit(modelBit);
+            return addBit(modelBit, true);
         } else {
             return null;
         }

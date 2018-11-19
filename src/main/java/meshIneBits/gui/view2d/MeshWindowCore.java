@@ -60,6 +60,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         this.meshController = meshController;
         this.meshController.addObserver(this);
 
+        setOpaque(false);
         this.setLayout(new BorderLayout());
         initBackground();
         // Actions listener
@@ -71,7 +72,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         setupKeyBindings();
     }
 
-    private void initBackground() {
+    void initBackground() {
         Mesh mesh = meshController.getMesh();
         if (mesh == null || !mesh.isSliced()) {
             this.removeAll();
@@ -190,6 +191,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
             rightClickPressed = true;
+            if (!meshController.isAddingBits()
+                    || !meshController.isSelectingRegion()) {
+                // We can only bulk select when not adding bits or selecting region
+                meshController.startBulkSelect(viewToReal.transform(e.getPoint(), null));
+            }
         }
     }
 
@@ -197,6 +203,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     public void mouseReleased(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
             rightClickPressed = false;
+            if (!meshController.getBulkSelectZone().isEmpty())
+                meshController.retrieveBulkSelectedBits();
         }
     }
 
@@ -212,10 +220,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isLeftMouseButton(e)) {
-
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            // Move the clip around
             viewOffsetX += (e.getX() - oldX) / drawScale;
             viewOffsetY += (e.getY() - oldY) / drawScale;
+            repaint();
+        } else if (rightClickPressed
+                && meshController.isBulkSelecting()) {
+            meshController.updateBulkSelect(viewToReal.transform(e.getPoint(), null));
             repaint();
         }
         oldX = e.getX();
@@ -312,6 +324,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             if (meshController.isAddingBits()) {
                 paintBitPreview(g2d);
             }
+
+            if (meshController.isBulkSelecting()) {
+                paintBulkSelectZone(g2d);
+            }
         }
 
         // Draw selected region
@@ -323,6 +339,13 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
             paintPreviousLayer(g2d);
         }
+    }
+
+    private void paintBulkSelectZone(Graphics2D g2d) {
+        g2d.setColor(WorkspaceConfig.bulkSelectZoneColor);
+        g2d.setStroke(WorkspaceConfig.bulkSelectZoneStroke);
+        Shape bulkSelectZoneInView = realToView.createTransformedShape(meshController.getBulkSelectZone());
+        g2d.fill(bulkSelectZoneInView);
     }
 
     private void paintSelectedRegion(Graphics2D g2d) {

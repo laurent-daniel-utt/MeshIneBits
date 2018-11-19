@@ -1,0 +1,74 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 Vallon BENJAMIN.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package meshIneBits.gui.view2d;
+
+import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.List;
+
+class PropertyTableModel extends AbstractTableModel {
+    private static String[] columnNames = {
+            "Property",
+            "Value"
+    };
+    private String[][] properties;
+    private List<String> propertyLabels = new ArrayList<>();
+
+    PropertyTableModel(String[][] properties) {
+        this.properties = properties;
+        for (String[] property : properties) {
+            propertyLabels.add(property[0]);
+        }
+    }
+
+    @Override
+    public int getRowCount() {
+        return properties.length;
+    }
+
+    @Override
+    public int getColumnCount() {
+        return columnNames.length;
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    }
+
+    @Override
+    public String getValueAt(int rowIndex, int columnIndex) {
+        if (columnIndex < 2 && rowIndex < properties.length)
+            return properties[rowIndex][columnIndex];
+        else
+            return "";
+    }
+
+    void setValueAt(String label, String value) {
+        int i = propertyLabels.indexOf(label);
+        if (i > -1) {
+            properties[i][1] = value;
+            fireTableCellUpdated(i, 1);
+        }
+    }
+}
