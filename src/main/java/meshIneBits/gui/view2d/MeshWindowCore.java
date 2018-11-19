@@ -72,7 +72,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         setupKeyBindings();
     }
 
-    private void initBackground() {
+    void initBackground() {
         Mesh mesh = meshController.getMesh();
         if (mesh == null || !mesh.isSliced()) {
             this.removeAll();

@@ -153,6 +153,7 @@ public class MeshController extends Observable implements Observer {
         } else if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
                 case READY:
+                    meshWindow.reset();
                     break;
                 case IMPORT_FAILED:
 

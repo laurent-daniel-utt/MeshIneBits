@@ -44,6 +44,7 @@ public class MeshWindow extends JFrame {
     private final GridBagConstraints selectorGBC;
     private final GridBagConstraints utilityParametersPanelGBC;
     private final GridBagConstraints zoomerGBC;
+    private final MeshWindowCore core;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
@@ -720,5 +721,22 @@ public class MeshWindow extends JFrame {
             remove(selector);
         selector = new MeshWindowSelector(meshController);
         add(selector, selectorGBC);
+    }
+
+    void reset() {
+        if (zoomer != null) {
+            remove(zoomer);
+            zoomer = null;
+        }
+        if (selector != null) {
+            remove(selector);
+            selector = null;
+        }
+        if (propertyPanel != null) {
+            remove(propertyPanel);
+            meshController.removePropertyChangeListener(propertyPanel);
+            propertyPanel = null;
+        }
+        core.initBackground();
     }
 }
