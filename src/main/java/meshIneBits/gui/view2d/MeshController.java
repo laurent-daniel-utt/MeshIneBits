@@ -60,6 +60,18 @@ public class MeshController extends Observable implements Observer {
     public static final String ADDING_BITS = "addingBits";
     public static final String SELECTING_REGION = "selectingRegion";
     public static final String SETTING_LAYER = "settingLayer";
+
+    public static final String MESH_SLICED = "meshSliced";
+    public static final String MESH_OPENED = "meshOpened";
+    public static final String LAYER_CHOSEN = "layerChosen";
+    public static final String MESH_PAVED = "meshPaved";
+    public static final String LAYER_PAVED = "layerPaved";
+    public static final String LAYER_OPTIMIZED = "layerOptimized";
+    public static final String MESH_OPTIMIZED = "meshOptimized";
+    public static final String BIT_UNSELECTED = "bitUnselected";
+    public static final String BIT_SELECTED = "bitSelected";
+    public static final String BITS_SELECTED = "bitsSelected";
+
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
             "newBitLength",
@@ -148,9 +160,13 @@ public class MeshController extends Observable implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof Layer) {
             updateAvailableArea();
+        }
+        if (arg == null) {
             setChanged();
-            notifyObservers(arg);
-        } else if (arg instanceof MeshEvents)
+            notifyObservers();
+            return;
+        }
+        if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
                 case READY:
                     meshWindow.reset();
@@ -172,6 +188,9 @@ public class MeshController extends Observable implements Observer {
                     // Notify the core to draw
                     setChanged();
                     notifyObservers(MeshEvents.SLICED);
+                    // Notify property panel
+                    changes.firePropertyChange(MESH_SLICED, null, mesh);
+                    changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
                     break;
                 case PAVING_MESH:
                     Logger.updateStatus("Paving mesh");
@@ -181,18 +200,26 @@ public class MeshController extends Observable implements Observer {
                     checkEmptyLayers();
                     setChanged();
                     notifyObservers(MeshEvents.PAVED_MESH);
+                    // Notify property panel
+                    changes.firePropertyChange(MESH_PAVED, null, mesh);
                     break;
                 case PAVING_LAYER:
                     break;
                 case PAVED_LAYER:
+                    // Notify property panel
+                    changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
+                    // Notify property panel
+                    changes.firePropertyChange(LAYER_OPTIMIZED, null, currentLayer);
                     break;
                 case OPTIMIZING_MESH:
                     break;
                 case OPTIMIZED_MESH:
+                    // Notify property panel
+                    changes.firePropertyChange(MESH_OPTIMIZED, null, mesh);
                     break;
                 case GLUING:
                     break;
@@ -208,6 +235,8 @@ public class MeshController extends Observable implements Observer {
                     meshWindow.initGadgets();
                     setChanged();
                     notifyObservers(MeshEvents.OPENED);
+                    changes.firePropertyChange(MESH_OPENED, null, mesh);
+                    changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
                     break;
                 case OPEN_FAILED:
                     break;
@@ -227,14 +256,12 @@ public class MeshController extends Observable implements Observer {
         Pavement pavement = currentLayer.getFlatPavement();
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
-                .forEach(key -> {
-                    availableArea.subtract(
-                            AreaTool.expand(
-                                    pavement.getBit(key)
-                                            .getArea(), // in real
-                                    safeguardSpaceParam.getCurrentValue())
-                    );
-                });
+                .forEach(key -> availableArea.subtract(
+                        AreaTool.expand(
+                                pavement.getBit(key)
+                                        .getArea(), // in real
+                                safeguardSpaceParam.getCurrentValue())
+                ));
     }
 
     public void setLayer(int layerNum) {
@@ -253,7 +280,8 @@ public class MeshController extends Observable implements Observer {
         reset();
         // Notify selector
         changes.firePropertyChange(SETTING_LAYER, 0, layerNum); // no need of old value
-
+        // Notify property panel
+        changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
         // Notify the core
         setChanged();
         notifyObservers();
@@ -281,7 +309,7 @@ public class MeshController extends Observable implements Observer {
         selectedRegion = false;
         selectingRegion = false;
         if (fireChangesSelectingRegion)
-            changes.firePropertyChange(SELECTING_REGION, !selectingRegion, selectingRegion);
+            changes.firePropertyChange(SELECTING_REGION, true, false);
         setChanged();
         notifyObservers();
     }
@@ -311,6 +339,8 @@ public class MeshController extends Observable implements Observer {
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
         }
+        // Notify property panel
+        changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
         // Notify the core to repaint
         setChanged();
         notifyObservers();
@@ -464,8 +494,11 @@ public class MeshController extends Observable implements Observer {
         if (mesh == null || !mesh.isPaved() || bitKey == null) {
             return;
         }
-        if (!selectedBitKeys.add(bitKey))
+        if (!selectedBitKeys.add(bitKey)) {
             selectedBitKeys.remove(bitKey);
+            changes.firePropertyChange(BIT_UNSELECTED, null, currentLayer.getBit3D(bitKey));
+        } else
+            changes.firePropertyChange(BIT_SELECTED, null, currentLayer.getBit3D(bitKey));
         // Notify the core
         setChanged();
         notifyObservers();
@@ -506,7 +539,16 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void addPropertyChangeListener(String property, PropertyChangeListener l) {
-        changes.addPropertyChangeListener(property, l);
+        if (property.equals(""))
+            // Listen all changes
+            changes.addPropertyChangeListener(l);
+        else
+            // Listen to specific changes
+            changes.addPropertyChangeListener(property, l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changes.removePropertyChangeListener(l);
     }
 
     public void retrieveBulkSelectedBits() {
@@ -521,6 +563,7 @@ public class MeshController extends Observable implements Observer {
                 selectedBitKeys.add(key);
         }
         clearBulkSelect();
+        changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
         setChanged();
         notifyObservers();
     }
