@@ -29,7 +29,6 @@ import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.Vector;
 
 
@@ -186,7 +185,8 @@ public class Model implements Serializable {
                 nextTri.point[i] = new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
                 i++;
                 if (i == 3) {
-                    if ((Objects.requireNonNull(normal).vSize2() > 0.1)) {
+                    //noinspection ConstantConditions
+                    if ((normal.vSize2() > 0.1)) {
                         nextTri.getNormal().dot(normal);
                     }
                     // Triangle winding order and normal don't point in the same direction...
@@ -215,7 +215,7 @@ public class Model implements Serializable {
         int triangleCount = Integer.reverseBytes(raf.readInt());
         Vector<Triangle> resultTriangles = new Vector<>();
         for (int i = 0; i < triangleCount; i++) {
-            Logger.setProgress(i, triangleCount);
+            Logger.setProgress(i, triangleCount - 1);
             for (int j = 0; j < 3; j++) {
                 raf.readFloat();
             }
@@ -236,7 +236,6 @@ public class Model implements Serializable {
             raf.readShort();// flags
             resultTriangles.add(t);
         }
-        System.out.println(getMin());
         raf.close();
         return resultTriangles;
     }
