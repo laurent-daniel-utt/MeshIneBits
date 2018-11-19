@@ -32,25 +32,36 @@ public class LayerPropertyPanel extends PropertyPanel {
     static final String LAYER_BITS = "Bits";
     static final String LAYER_IRREGULAR_BITS = "Irregular Bits";
 
-    LayerPropertyPanel(Layer layer) {
-        super("Current Layer", getPropertiesOf(layer));
+    LayerPropertyPanel() {
+        super("Current Layer");
+        initTable(getPropertiesOf(null));
     }
 
     private static String[][] getPropertiesOf(Layer layer) {
-        return new String[][]{
-                {LAYER_INDEX, String.valueOf(layer.getLayerNumber())},
-                {LAYER_IS_PAVED, String.valueOf(layer.isPaved())},
-                {LAYER_PATTERN,
-                        layer.getPatternTemplate() == null ? "None" : layer.getPatternTemplate().getCommonName()},
-                {LAYER_BITS,
-                        layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getBits3dKeys().size())},
-                {LAYER_IRREGULAR_BITS,
-                        layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getKeysOfIrregularBits().size())}
-        };
+        if (layer == null)
+            // Default value
+            return new String[][]{
+                    {LAYER_INDEX, "UNSET"},
+                    {LAYER_IS_PAVED, "FALSE"},
+                    {LAYER_PATTERN, "NONE"},
+                    {LAYER_BITS, "0"},
+                    {LAYER_IRREGULAR_BITS, "0"}
+            };
+        else
+            return new String[][]{
+                    {LAYER_INDEX, String.valueOf(layer.getLayerNumber())},
+                    {LAYER_IS_PAVED, String.valueOf(layer.isPaved())},
+                    {LAYER_PATTERN,
+                            layer.getPatternTemplate() == null ? "None" : layer.getPatternTemplate().getCommonName()},
+                    {LAYER_BITS,
+                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getBits3dKeys().size())},
+                    {LAYER_IRREGULAR_BITS,
+                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getKeysOfIrregularBits().size())}
+            };
     }
 
     @Override
-    public void updateProperties(Object object, String msg) {
+    public void updateProperties(Object object) {
         try {
             String[][] properties = getPropertiesOf((Layer) object);
             for (String[] property : properties) {

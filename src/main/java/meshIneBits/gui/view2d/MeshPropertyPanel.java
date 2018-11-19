@@ -37,8 +37,9 @@ class MeshPropertyPanel extends PropertyPanel {
     static final String MESH_LAYERS = "Number of Layers";
     static final String MESH_STATE = "State";
 
-    MeshPropertyPanel(Mesh mesh) {
-        super("Current Mesh", getPropertiesOf(mesh));
+    MeshPropertyPanel() {
+        super("Current Mesh");
+        initTable(getPropertiesOf(null));
     }
 
     /**
@@ -49,21 +50,33 @@ class MeshPropertyPanel extends PropertyPanel {
      * @return list of properties
      */
     private static String[][] getPropertiesOf(Mesh mesh) {
-        File modelFile = new File(mesh.getModelFile());
-        Model model = mesh.getModel();
-        return new String[][]{
-                {MODEL_NAME, modelFile.getName()},
-                {MODEL_PATH, modelFile.getPath()},
-                {MODEL_POSITION, model.getPos().toString()},
-                {MODEL_NUMBER_OF_TRIANGLES, String.valueOf(model.getTriangles().size())},
-                {MODEL_SKIRT_RADIUS, String.valueOf(mesh.getSkirtRadius())},
-                {MESH_LAYERS, String.valueOf(mesh.getLayers().size())},
-                {MESH_STATE, String.valueOf(mesh.getState())}
-        };
+        if (mesh == null)
+            return new String[][]{
+                    {MODEL_NAME, "UNDEFINED"},
+                    {MODEL_PATH, "UNKNOWN"},
+                    {MODEL_POSITION, "UNKNOWN"},
+                    {MODEL_NUMBER_OF_TRIANGLES, "UNKNOWN"},
+                    {MODEL_SKIRT_RADIUS, "UNKNOWN"},
+                    {MESH_LAYERS, "UNKNOWN"},
+                    {MESH_STATE, "UNKNOWN"}
+            };
+        else {
+            File modelFile = new File(mesh.getModelFile());
+            Model model = mesh.getModel();
+            return new String[][]{
+                    {MODEL_NAME, modelFile.getName()},
+                    {MODEL_PATH, modelFile.getPath()},
+                    {MODEL_POSITION, model.getPos().toString()},
+                    {MODEL_NUMBER_OF_TRIANGLES, String.valueOf(model.getTriangles().size())},
+                    {MODEL_SKIRT_RADIUS, String.valueOf(mesh.getSkirtRadius())},
+                    {MESH_LAYERS, String.valueOf(mesh.getLayers().size())},
+                    {MESH_STATE, String.valueOf(mesh.getState())}
+            };
+        }
     }
 
     @Override
-    public void updateProperties(Object object, String msg) {
+    public void updateProperties(Object object) {
         try {
             String[][] properties = getPropertiesOf((Mesh) object);
             for (String[] property : properties) {

@@ -32,9 +32,9 @@ import java.awt.event.MouseEvent;
  */
 abstract class PropertyPanel extends JPanel {
 
-    private final PropertyTableModel propertyTableModel;
+    private PropertyTableModel propertyTableModel;
 
-    PropertyPanel(String title, String[][] properties) {
+    PropertyPanel(String title) {
         super();
         setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(),
@@ -42,6 +42,10 @@ abstract class PropertyPanel extends JPanel {
                 TitledBorder.CENTER,
                 TitledBorder.TOP));
         this.setLayout(new BorderLayout());
+        this.setOpaque(false);
+    }
+
+    void initTable(String[][] properties) {
         propertyTableModel = new PropertyTableModel(properties);
         JTable propertyTable = new JTable(propertyTableModel) {
             @Override
@@ -59,10 +63,9 @@ abstract class PropertyPanel extends JPanel {
         };
         propertyTable.setOpaque(false);
         this.add(propertyTable, BorderLayout.CENTER);
-        this.setOpaque(false);
     }
 
-    public abstract void updateProperties(Object object, String msg);
+    public abstract void updateProperties(Object object);
 
     void updateProperty(String label, String value) {
         propertyTableModel.setValueAt(label, value);

@@ -31,44 +31,40 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Display properties of {@link Mesh}, {@link Layer} and {@link Bit3D}.
  * Observes {@link MeshController}.
  */
 public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeListener {
-    private JPanel content = new JPanel();
-    private GridBagConstraints meshPropertyPanelGBC;
-    private GridBagConstraints layerPropertyPanelGBC;
-    private MeshPropertyPanel meshPropertyPanel;
-    private LayerPropertyPanel layerPropertyPanel;
-    private JPanel bitsPropertyPanel;
-    private List<Bit3D> bit3Ds = new Vector<>();
+    private MeshPropertyPanel meshPropertyPanel = new MeshPropertyPanel();
+    private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
+    private BitsPropertyPanel bitsPropertyPanel = new BitsPropertyPanel();
 
     MeshWindowPropertyPanel(MeshController meshController) {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.BLACK));
         meshController.addPropertyChangeListener("", this);
         this.setLayout(new BorderLayout());
+        JPanel content = new JPanel();
         content.setOpaque(false);
         content.setLayout(new GridBagLayout());
 
-        meshPropertyPanelGBC = new GridBagConstraints();
+        GridBagConstraints meshPropertyPanelGBC = new GridBagConstraints();
         meshPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
         meshPropertyPanelGBC.gridx = 0;
         meshPropertyPanelGBC.gridy = 0;
         meshPropertyPanelGBC.weightx = 1;
         meshPropertyPanelGBC.weighty = 0;
+        content.add(meshPropertyPanel, meshPropertyPanelGBC);
 
-        layerPropertyPanelGBC = new GridBagConstraints();
+        GridBagConstraints layerPropertyPanelGBC = new GridBagConstraints();
         layerPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
         layerPropertyPanelGBC.gridx = 0;
         layerPropertyPanelGBC.gridy = 1;
         layerPropertyPanelGBC.weightx = 1;
         layerPropertyPanelGBC.weighty = 0;
+        content.add(layerPropertyPanel, layerPropertyPanelGBC);
 
-        bitsPropertyPanel = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.PAGE_START;
@@ -77,13 +73,6 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
         c.weighty = 1;
         c.weightx = 1;
         content.add(bitsPropertyPanel, c);
-        bitsPropertyPanel.setLayout(new GridBagLayout());
-        GridBagConstraints bitPropertyPanelGBC = new GridBagConstraints();
-        bitPropertyPanelGBC.fill = GridBagConstraints.BOTH;
-        bitPropertyPanelGBC.gridx = 0;
-        // gridy will be incremented
-        bitPropertyPanelGBC.weightx = 1;
-        bitPropertyPanelGBC.weighty = 0;
 
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -98,13 +87,13 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
         Object val = evt.getNewValue();
         switch (msg) {
             case MeshController.MESH_SLICED:
-                initMeshPropertyPanel((Mesh) val, msg);
+                meshPropertyPanel.updateProperties(val);
                 break;
             case MeshController.LAYER_CHOSEN:
-                initLayerPropertyPanel((Layer) val, msg);
+                layerPropertyPanel.updateProperties(val);
                 break;
             case MeshController.MESH_OPENED:
-                initMeshPropertyPanel((Mesh) val, msg);
+                meshPropertyPanel.updateProperties(val);
                 break;
             case MeshController.MESH_PAVED:
                 meshPropertyPanel.updateProperty(MeshPropertyPanel.MESH_STATE, "PAVED");
@@ -113,50 +102,19 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
                 meshPropertyPanel.updateProperty(MeshPropertyPanel.MESH_STATE, "OPTIMIZED");
                 break;
             case MeshController.LAYER_PAVED:
-                layerPropertyPanel.updateProperties(val, msg);
+                layerPropertyPanel.updateProperties(val);
                 break;
             case MeshController.BIT_SELECTED:
-                selectBit((Bit3D) val);
+                bitsPropertyPanel.selectBit((Bit3D) val);
                 break;
             case MeshController.BIT_UNSELECTED:
-                unselectBit((Bit3D) val);
+                bitsPropertyPanel.unselectBit((Bit3D) val);
                 break;
             case MeshController.BITS_SELECTED:
-                selectBits((Collection<Bit3D>) val);
+                bitsPropertyPanel.selectBits((Collection<Bit3D>) val);
                 break;
         }
         revalidate();
-    }
-
-    private void selectBits(Collection<Bit3D> newBit3DS) {
-        // TODO
-        System.out.println("Bits selected");
-    }
-
-    private void unselectBit(Bit3D bit3D) {
-        // TODO
-        System.out.println("Bit unselected");
-    }
-
-    private void selectBit(Bit3D bit3D) {
-        // TODO
-        System.out.println("Bit selected");
-    }
-
-    private void initLayerPropertyPanel(Layer layer, String msg) {
-        if (layerPropertyPanel == null) {
-            layerPropertyPanel = new LayerPropertyPanel(layer);
-            content.add(layerPropertyPanel, layerPropertyPanelGBC);
-        } else
-            layerPropertyPanel.updateProperties(layer, msg);
-    }
-
-    private void initMeshPropertyPanel(Mesh mesh, String msg) {
-        if (meshPropertyPanel == null) {
-            meshPropertyPanel = new MeshPropertyPanel(mesh);
-            content.add(meshPropertyPanel, meshPropertyPanelGBC);
-        } else
-            meshPropertyPanel.updateProperties(mesh, msg);
     }
 
     @Override
