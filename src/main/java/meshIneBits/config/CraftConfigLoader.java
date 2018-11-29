@@ -26,7 +26,6 @@ import meshIneBits.util.Logger;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Properties;
 
 public class CraftConfigLoader {
@@ -61,61 +60,58 @@ public class CraftConfigLoader {
         }
 
         // Set field
-        List<Field> settings = CraftConfig.getSettings();
-        if (settings != null && !settings.isEmpty()) {
-            for (Field field : settings) {
-                try {
-                    // This is a double field
-                    DoubleSetting dAnno = field.getAnnotation(DoubleSetting.class);
-                    if (dAnno != null) {
-                        try {
-                            double val = Double.parseDouble(craftProperties.getProperty(field.getName()));
-                            if (val < dAnno.minValue() || val > dAnno.maxValue())
-                                val = field.getDouble(null);
-                            field.setDouble(null, val);
-                        } catch (NullPointerException | NumberFormatException e) {
-                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
-                        }
-                        continue;
+        for (Field field : CraftConfig.settings) {
+            try {
+                // This is a double field
+                DoubleSetting dAnno = field.getAnnotation(DoubleSetting.class);
+                if (dAnno != null) {
+                    try {
+                        double val = Double.parseDouble(craftProperties.getProperty(field.getName()));
+                        if (val < dAnno.minValue() || val > dAnno.maxValue())
+                            val = field.getDouble(null);
+                        field.setDouble(null, val);
+                    } catch (NullPointerException | NumberFormatException e) {
+                        Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
                     }
-
-                    // This is a float field
-                    FloatSetting fAnno = field.getAnnotation(FloatSetting.class);
-                    if (fAnno != null) {
-                        try {
-                            float val = Float.parseFloat(craftProperties.getProperty(field.getName()));
-                            if (val < fAnno.minValue() || val > fAnno.maxValue())
-                                val = field.getFloat(null);
-                            field.setFloat(null, val);
-                        } catch (NullPointerException | NumberFormatException e) {
-                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
-                        }
-                        continue;
-                    }
-
-                    // This is a string field
-                    StringSetting strAnno = field.getAnnotation(StringSetting.class);
-                    if (strAnno != null) {
-                        String str = craftProperties.getProperty(field.getName());
-                        field.set(null, str);
-                        continue;
-                    }
-
-                    // This is an integer field
-                    IntegerSetting intAnno = field.getAnnotation(IntegerSetting.class);
-                    if (intAnno != null) {
-                        try {
-                            int val = Integer.parseInt(craftProperties.getProperty(field.getName()));
-                            if (val < intAnno.minValue() || val > intAnno.maxValue())
-                                val = field.getInt(null);
-                            field.setInt(null, val);
-                        } catch (NumberFormatException e) {
-                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    continue;
                 }
+
+                // This is a float field
+                FloatSetting fAnno = field.getAnnotation(FloatSetting.class);
+                if (fAnno != null) {
+                    try {
+                        float val = Float.parseFloat(craftProperties.getProperty(field.getName()));
+                        if (val < fAnno.minValue() || val > fAnno.maxValue())
+                            val = field.getFloat(null);
+                        field.setFloat(null, val);
+                    } catch (NullPointerException | NumberFormatException e) {
+                        Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
+                    }
+                    continue;
+                }
+
+                // This is a string field
+                StringSetting strAnno = field.getAnnotation(StringSetting.class);
+                if (strAnno != null) {
+                    String str = craftProperties.getProperty(field.getName());
+                    field.set(null, str);
+                    continue;
+                }
+
+                // This is an integer field
+                IntegerSetting intAnno = field.getAnnotation(IntegerSetting.class);
+                if (intAnno != null) {
+                    try {
+                        int val = Integer.parseInt(craftProperties.getProperty(field.getName()));
+                        if (val < intAnno.minValue() || val > intAnno.maxValue())
+                            val = field.getInt(null);
+                        field.setInt(null, val);
+                    } catch (NumberFormatException e) {
+                        Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -131,16 +127,13 @@ public class CraftConfigLoader {
             filename = System.getProperty("user.home") + File.separator + CRAFT_CONFIG_EXTENSION;
 
         Properties craftProperties = new Properties();
-        List<Field> settings = CraftConfig.getSettings();
-        if (settings != null && !settings.isEmpty()) {
-            settings.forEach(field -> {
-                try {
-                    craftProperties.setProperty(field.getName(), String.valueOf(field.get(null)));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+        CraftConfig.settings.forEach(field -> {
+            try {
+                craftProperties.setProperty(field.getName(), String.valueOf(field.get(null)));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
         try (FileWriter fw = new FileWriter(filename)) {
             craftProperties.store(fw, null);
         } catch (IOException e) {

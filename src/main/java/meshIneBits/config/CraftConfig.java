@@ -27,6 +27,7 @@ import meshIneBits.scheduler.AScheduler;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -46,6 +47,9 @@ public class CraftConfig {
             description = "The vertical gap between each layers (in mm)",
             step = 0.01, minValue = 0.01, maxValue = 100.0
     )
+    @SlicerSetting(
+            order = 0
+    )
     public static double layersOffset = 0.25;
 
     @DoubleSetting(
@@ -53,12 +57,18 @@ public class CraftConfig {
             description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
             minValue = 1.0, maxValue = 99.0
     )
+    @SlicerSetting(
+            order = 1
+    )
     public static double firstSliceHeightPercent = 50;
 
     @DoubleSetting(
             title = "Minimal line segment cosine value",
             description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
             minValue = 0.95, maxValue = 1.0
+    )
+    @SlicerSetting(
+            order = 2
     )
     public static double joinMinCosAngle = 0.995;
 
@@ -69,6 +79,9 @@ public class CraftConfig {
             description = "Thickness of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
     )
+    @BitSetting(
+            order = 0
+    )
     public static double bitThickness = 8.0;
 
     @DoubleSetting(
@@ -76,12 +89,18 @@ public class CraftConfig {
             description = "Width of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
     )
+    @BitSetting(
+            order = 1
+    )
     public static double bitWidth = 24.0;
 
     @DoubleSetting(
             title = "Bit length",
             description = "Length of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
+    )
+    @BitSetting(
+            order = 2
     )
     public static double bitLength = 120.0;
 
@@ -124,6 +143,9 @@ public class CraftConfig {
             description = "Diameter of the suction cup which lifts the bits (in mm)",
             minValue = 1.0, maxValue = 100.0
     )
+    @AssemblerSetting(
+            order = 0
+    )
     public static double suckerDiameter = 10.0;
 
     // Other parameters
@@ -158,12 +180,18 @@ public class CraftConfig {
             title = "Acceptable error",
             description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation"
     )
+    @AssemblerSetting(
+            order = 1
+    )
     public static int errorAccepted = 5;
 
     @FloatSetting(
             title = "Printer X",
             description = "Length of printer in mm",
             minValue = 0
+    )
+    @PrinterSetting(
+            order = 0
     )
     public static float printerX = 8000f;
 
@@ -172,6 +200,9 @@ public class CraftConfig {
             description = "Width of printer in mm",
             minValue = 0
     )
+    @PrinterSetting(
+            order = 1
+    )
     public static float printerY = 4000f;
 
     @FloatSetting(
@@ -179,11 +210,17 @@ public class CraftConfig {
             description = "Height of printer in mm",
             minValue = 0
     )
+    @PrinterSetting(
+            order = 2
+    )
     public static float printerZ = 2000f;
 
     @FloatSetting(
             title = "Working width",
             minValue = 0
+    )
+    @XMLSetting(
+            order = 0
     )
     public static float workingWidth = 500;
 
@@ -191,11 +228,17 @@ public class CraftConfig {
             title = "Margin",
             minValue = 0
     )
+    @XMLSetting(
+            order = 1
+    )
     public static float margin = 0;
 
     @IntegerSetting(
             title = "Number of bits",
             minValue = 1
+    )
+    @XMLSetting(
+            order = 2
     )
     public static int nbBits = 50;
 
@@ -204,13 +247,45 @@ public class CraftConfig {
      */
     public static AScheduler[] schedulerPreloaded = {};
 
-    public static List<Field> getSettings() {
-        List<Field> settings = new ArrayList<>();
+    public static List<Field> settings = new ArrayList<>();
+
+    public static List<Field> printerSettings = new ArrayList<>();
+
+    public static List<Field> bitSettings = new ArrayList<>();
+
+    public static List<Field> slicerSettings = new ArrayList<>();
+
+    public static List<Field> assemblerSettings = new ArrayList<>();
+
+    public static List<Field> xmlSettings = new ArrayList<>();
+
+    public static List<Field> schedulerSettings = new ArrayList<>();
+
+    static {
         Field[] fields = CraftConfig.class.getDeclaredFields();
         for (Field field : fields) {
-            if (field.getDeclaredAnnotations().length > 0)
+            if (field.getDeclaredAnnotations().length > 0) {
                 settings.add(field);
+                // Categorize
+                if (field.isAnnotationPresent(PrinterSetting.class))
+                    printerSettings.add(field);
+                if (field.isAnnotationPresent(BitSetting.class))
+                    bitSettings.add(field);
+                if (field.isAnnotationPresent(SlicerSetting.class))
+                    slicerSettings.add(field);
+                if (field.isAnnotationPresent(AssemblerSetting.class))
+                    assemblerSettings.add(field);
+                if (field.isAnnotationPresent(XMLSetting.class))
+                    xmlSettings.add(field);
+                if (field.isAnnotationPresent(SchedulerSetting.class))
+                    schedulerSettings.add(field);
+            }
         }
-        return settings;
+        printerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(PrinterSetting.class).order()));
+        bitSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(BitSetting.class).order()));
+        slicerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SlicerSetting.class).order()));
+        assemblerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(AssemblerSetting.class).order()));
+        xmlSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(XMLSetting.class).order()));
+        schedulerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SchedulerSetting.class).order()));
     }
 }
