@@ -22,7 +22,7 @@
 
 package meshIneBits.gui.utilities.patternParamRenderer;
 
-import meshIneBits.config.Setting;
+import meshIneBits.config.DoubleSetting;
 import meshIneBits.config.patternParameter.DoubleParam;
 
 import javax.swing.*;
@@ -53,7 +53,7 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         getTitle().setEnabled(enabled);
     }
 
-    public LabeledSpinner(String attributeName, Setting parameters) {
+    public LabeledSpinner(String attributeName, DoubleSetting parameters) {
         // Visual options
         this.setOpaque(false);
         this.setLayout(new BorderLayout());

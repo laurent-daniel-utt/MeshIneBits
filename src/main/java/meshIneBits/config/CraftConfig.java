@@ -25,6 +25,10 @@ package meshIneBits.config;
 import meshIneBits.patterntemplates.*;
 import meshIneBits.scheduler.AScheduler;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The CraftConfig class contains the configurable
  * settings for the slicer. Reflection and annotations
@@ -37,19 +41,22 @@ public class CraftConfig {
 
     // Slicer options
 
-    @Setting(title = "Space between layers",
+    @DoubleSetting(
+            title = "Space between layers",
             description = "The vertical gap between each layers (in mm)",
             step = 0.01, minValue = 0.01, maxValue = 100.0
     )
     public static double layersOffset = 0.25;
 
-    @Setting(title = "First slice height",
+    @DoubleSetting(
+            title = "First slice height",
             description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
             minValue = 1.0, maxValue = 99.0
     )
     public static double firstSliceHeightPercent = 50;
 
-    @Setting(title = "Minimal line segment cosine value",
+    @DoubleSetting(
+            title = "Minimal line segment cosine value",
             description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
             minValue = 0.95, maxValue = 1.0
     )
@@ -57,19 +64,22 @@ public class CraftConfig {
 
     // Bits options
 
-    @Setting(title = "Bit thickness",
+    @DoubleSetting(
+            title = "Bit thickness",
             description = "Thickness of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
     )
     public static double bitThickness = 8.0;
 
-    @Setting(title = "Bit width",
+    @DoubleSetting(
+            title = "Bit width",
             description = "Width of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
     )
     public static double bitWidth = 24.0;
 
-    @Setting(title = "Bit length",
+    @DoubleSetting(
+            title = "Bit length",
             description = "Length of the bits (in mm)",
             minValue = 1.0, maxValue = 1000.0
     )
@@ -88,6 +98,7 @@ public class CraftConfig {
             new EconomicPattern(),
             new UnitSquarePattern()
     };
+
     /**
      * @return new instance of each pattern builder
      */
@@ -103,18 +114,13 @@ public class CraftConfig {
         return patternsList;
     }
 
-
     /**
-     * The chosen pattern
+     * The default chosen pattern
      */
     public static PatternTemplate templateChoice = templatesPreloaded[0];
 
-    // Deprecated pattern parameters
-
-    // Layer computation
-
-
-    @Setting(title = "Suction cup diameter",
+    @DoubleSetting(
+            title = "Suction cup diameter",
             description = "Diameter of the suction cup which lifts the bits (in mm)",
             minValue = 1.0, maxValue = 100.0
     )
@@ -124,37 +130,87 @@ public class CraftConfig {
     /**
      * Save the directory of last opened {@link meshIneBits.Model}
      */
-    @Setting()
+    @StringSetting(
+            title = "Last Model",
+            description = "Path of the last opened model"
+    )
     public static String lastModel = "";
 
     /**
      * To know the lastly selected pattern configuration file
      */
-    @Setting()
+    @StringSetting(
+            title = "Last Pattern Config",
+            description = "Path of the last opened pattern configuration"
+    )
     public static String lastPatternConfigFile = "";
+
     /**
      * Save the directory of last opened {@link meshIneBits.Mesh}
      */
+    @StringSetting(
+            title = "Last Mesh",
+            description = "Path of the last opened Mesh"
+    )
     public static String lastMesh = "";
 
-    @Setting(title = "Acceptable error",
-            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation")
+    @IntegerSetting(
+            title = "Acceptable error",
+            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation"
+    )
     public static int errorAccepted = 5;
 
-    @Setting(title = "Printer X",
-            description = "Length of printer in mm")
+    @FloatSetting(
+            title = "Printer X",
+            description = "Length of printer in mm",
+            minValue = 0
+    )
     public static float printerX = 8000f;
 
-    @Setting(title = "Printer Y",
-            description = "Width of printer in mm")
+    @FloatSetting(
+            title = "Printer Y",
+            description = "Width of printer in mm",
+            minValue = 0
+    )
     public static float printerY = 4000f;
 
-    @Setting(title = "Printer Z",
-            description = "Height of printer in mm")
+    @FloatSetting(
+            title = "Printer Z",
+            description = "Height of printer in mm",
+            minValue = 0
+    )
     public static float printerZ = 2000f;
+
+    @FloatSetting(
+            title = "Working width",
+            minValue = 0
+    )
+    public static float workingWidth = 500;
+
+    @FloatSetting(
+            title = "Margin",
+            minValue = 0
+    )
+    public static float margin = 0;
+
+    @IntegerSetting(
+            title = "Number of bits",
+            minValue = 1
+    )
+    public static int nbBits = 50;
 
     /**
      * The provided templates
      */
     public static AScheduler[] schedulerPreloaded = {};
+
+    public static List<Field> getSettings() {
+        List<Field> settings = new ArrayList<>();
+        Field[] fields = CraftConfig.class.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.getDeclaredAnnotations().length > 0)
+                settings.add(field);
+        }
+        return settings;
+    }
 }

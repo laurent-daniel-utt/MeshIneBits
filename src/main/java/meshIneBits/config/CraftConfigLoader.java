@@ -26,6 +26,8 @@ import meshIneBits.util.Logger;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Properties;
 
 public class CraftConfigLoader {
     /***************************
@@ -34,6 +36,7 @@ public class CraftConfigLoader {
 
     public final static String PATTERN_CONFIG_EXTENSION = "mpconf";
     public static final String MESH_EXTENSION = "mesh";
+    public static final String CRAFT_CONFIG_EXTENSION = ".MeshIneBits.conf";
 
     /**
      * Loads the configuration from a file, use 'null' for the default config
@@ -43,77 +46,78 @@ public class CraftConfigLoader {
      */
     public static void loadConfig(String filename) {
         if (filename == null) {
-            filename = System.getProperty("user.home") + "/.MeshIneBits.conf";
-            Logger.updateStatus("Loading: " + filename);
+            filename = System.getProperty("user.home") + File.separator + CRAFT_CONFIG_EXTENSION;
         }
+        Logger.updateStatus("Loading: " + filename);
 
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(filename));
+        Properties craftProperties = new Properties();
+        try (FileInputStream fis = new FileInputStream(filename)) {
+            craftProperties.load(fis);
         } catch (FileNotFoundException e) {
             return;
-        }
-        String line;
-        String section = null;
-        try {
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith(";"))
-                    continue;
-                if (line.startsWith("[") && line.endsWith("]")) {
-                    section = line;
-                    continue;
-                }
-                if (line.indexOf('=') < 0)
-                    continue;
-                String key = line.substring(0, line.indexOf('='));
-                String value = line.substring(line.indexOf('=') + 1);
-                if ("[MeshIneBits config]".equals(section)) {
-                    setField(key, value);
-                }
-            }
         } catch (IOException e) {
-            Logger.error("IOException during loading of config file...");
+            Logger.error("Cannot load craft properties. " + e.getMessage());
+            return;
         }
-    }
 
-    private static void setField(String key, String value) {
-        Class<?> c = CraftConfig.class;
-        Field f;
-        try {
-            f = c.getField(key);
-            if (f == null)
-                return;
-            Setting s = f.getAnnotation(Setting.class);
-            if (f.getType() == Double.TYPE) {
-                double v = Double.parseDouble(value);
-                if (s != null && v < s.minValue())
-                    v = s.minValue();
-                if (s != null && v > s.maxValue())
-                    v = s.maxValue();
-                f.setDouble(null, v);
-            } else if (f.getType() == Integer.TYPE) {
-                int v = Integer.parseInt(value);
-                if (s != null && v < s.minValue())
-                    v = (int) s.minValue();
-                if (s != null && v > s.maxValue())
-                    v = (int) s.maxValue();
-                f.setInt(null, v);
-            } else if (f.getType() == Boolean.TYPE) {
-                f.setBoolean(null, Boolean.parseBoolean(value));
-            } else if (f.getType() == String.class) {
-                f.set(null, value.replace("\\n", "\n"));
+        // Set field
+        List<Field> settings = CraftConfig.getSettings();
+        if (settings != null && !settings.isEmpty()) {
+            for (Field field : settings) {
+                try {
+                    // This is a double field
+                    DoubleSetting dAnno = field.getAnnotation(DoubleSetting.class);
+                    if (dAnno != null) {
+                        try {
+                            double val = Double.parseDouble(craftProperties.getProperty(field.getName()));
+                            if (val < dAnno.minValue() || val > dAnno.maxValue())
+                                val = field.getDouble(null);
+                            field.setDouble(null, val);
+                        } catch (NullPointerException | NumberFormatException e) {
+                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
+                        }
+                        continue;
+                    }
+
+                    // This is a float field
+                    FloatSetting fAnno = field.getAnnotation(FloatSetting.class);
+                    if (fAnno != null) {
+                        try {
+                            float val = Float.parseFloat(craftProperties.getProperty(field.getName()));
+                            if (val < fAnno.minValue() || val > fAnno.maxValue())
+                                val = field.getFloat(null);
+                            field.setFloat(null, val);
+                        } catch (NullPointerException | NumberFormatException e) {
+                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
+                        }
+                        continue;
+                    }
+
+                    // This is a string field
+                    StringSetting strAnno = field.getAnnotation(StringSetting.class);
+                    if (strAnno != null) {
+                        String str = craftProperties.getProperty(field.getName());
+                        field.set(null, str);
+                        continue;
+                    }
+
+                    // This is an integer field
+                    IntegerSetting intAnno = field.getAnnotation(IntegerSetting.class);
+                    if (intAnno != null) {
+                        try {
+                            int val = Integer.parseInt(craftProperties.getProperty(field.getName()));
+                            if (val < intAnno.minValue() || val > intAnno.maxValue())
+                                val = field.getInt(null);
+                            field.setInt(null, val);
+                        } catch (NumberFormatException e) {
+                            Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
-            // throw new RuntimeException("Unknown config type: " +
-            // f.getType());
-
-        } catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            Logger.warning("Found: " + key + " in the configuration, but I don't know this setting");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
 
     /**
@@ -124,25 +128,24 @@ public class CraftConfigLoader {
      */
     public static void saveConfig(String filename) {
         if (filename == null)
-            filename = System.getProperty("user.home") + "/.MeshIneBits.conf";
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-            bw.write(";Saved with version: " + CraftConfig.VERSION + "\n");
-            bw.write("[MeshIneBits config]\n");
-            Class<CraftConfig> configClass = CraftConfig.class;
-            for (final Field f : configClass.getFields()) {
-                Setting s = f.getAnnotation(Setting.class);
-                if (s == null)
-                    continue;
+            filename = System.getProperty("user.home") + File.separator + CRAFT_CONFIG_EXTENSION;
+
+        Properties craftProperties = new Properties();
+        List<Field> settings = CraftConfig.getSettings();
+        if (settings != null && !settings.isEmpty()) {
+            settings.forEach(field -> {
                 try {
-                    bw.write(f.getName() + "=" + f.get(null).toString().replace("\n", "\\n") + "\n");
-                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    craftProperties.setProperty(field.getName(), String.valueOf(field.get(null)));
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
-            }
-            bw.close();
-        } catch (IOException e1) {
-            e1.printStackTrace();
+            });
+        }
+        try (FileWriter fw = new FileWriter(filename)) {
+            craftProperties.store(fw, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.error("Cannot save craft config. " + e.getMessage());
         }
     }
 
@@ -153,7 +156,7 @@ public class CraftConfigLoader {
      */
     public static void savePatternConfig(File file) {
         if (file == null) {
-            file = new File(System.getProperty("user.home") + File.separator + "MeshIneBits.PatternConfig."
+            file = new File(System.getProperty("user.home") + File.separator + ".MeshIneBits."
                     + PATTERN_CONFIG_EXTENSION);
         }
         Logger.updateStatus("Trying to save your configuration...");
@@ -192,27 +195,5 @@ public class CraftConfigLoader {
             Logger.message(e.getMessage());
         }
         return result;
-    }
-
-    /**
-     * Load printer config into {@link CraftConfig}
-     */
-    public static void loadPrinterConfig() {
-        try (InputStream in = CraftConfigLoader.class.getClassLoader().getResourceAsStream("resources/PrinterConfig.txt")) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strline;
-            while ((strline = br.readLine()) != null) {
-                if (strline.startsWith("x")) {
-                    CraftConfig.printerX = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("y")) {
-                    CraftConfig.printerY = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("z")) {
-                    CraftConfig.printerZ = Float.valueOf(strline.substring(3));
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

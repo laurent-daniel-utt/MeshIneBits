@@ -362,7 +362,7 @@ public class MeshController extends Observable implements Observer {
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
         CraftConfig.lastMesh = file.getPath();
-        CraftConfigLoader.savePatternConfig(null);
+        CraftConfigLoader.saveConfig(null);
 
         MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
@@ -381,7 +381,7 @@ public class MeshController extends Observable implements Observer {
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
         CraftConfig.lastMesh = file.getPath();
-        CraftConfigLoader.savePatternConfig(null);
+        CraftConfigLoader.saveConfig(null);
 
         MeshSaver meshSaver = new MeshSaver(file);
         (new Thread(meshSaver)).start();
@@ -398,7 +398,7 @@ public class MeshController extends Observable implements Observer {
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
         CraftConfig.lastModel = file.getPath();
-        CraftConfigLoader.savePatternConfig(null);
+        CraftConfigLoader.saveConfig(null);
 
         MeshCreator meshCreator = new MeshCreator(file);
         meshCreator.addObserver(this);

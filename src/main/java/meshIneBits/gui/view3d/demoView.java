@@ -28,6 +28,7 @@ import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
 import javafx.util.Pair;
 import meshIneBits.Mesh;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
 import processing.core.PApplet;
 import processing.core.PShape;
@@ -35,10 +36,6 @@ import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
@@ -204,25 +201,9 @@ public class demoView extends PApplet implements Observer, SubWindow {
      *
      */
     private void drawWorkspace() {
-        try {
-            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
-            FileInputStream file = new FileInputStream(filename);
-            BufferedReader br = new BufferedReader(new InputStreamReader(file));
-            String strline;
-            while ((strline = br.readLine()) != null) {
-                if (strline.startsWith("x")) {
-                    printerX = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("y")) {
-                    printerY = Float.valueOf(strline.substring(3));
-                } else if (strline.startsWith("z")) {
-                    printerZ = Float.valueOf(strline.substring(3));
-                }
-            }
-            br.close();
-            file.close();
-        } catch (Exception e) {
-            System.out.println("Error :" + e.getMessage());
-        }
+        printerX = CraftConfig.printerX;
+        printerY = CraftConfig.printerY;
+        printerZ = CraftConfig.printerZ;
         pushMatrix();
         noFill();
         stroke(255, 255, 0);

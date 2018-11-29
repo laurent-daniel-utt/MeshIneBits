@@ -30,11 +30,11 @@ import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Vector;
 
 public class XmlTool {
@@ -73,27 +73,9 @@ public class XmlTool {
     }
 
     private void getPrinterParameters() {
-        float workingWidth = 0;
-        float margin = 0;
-        try {
-            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("resources/PrinterConfig.txt")).getPath());
-            FileInputStream file = new FileInputStream(filename);
-            BufferedReader br = new BufferedReader(new InputStreamReader(file));
-            String strline;
-            while ((strline = br.readLine()) != null) {
-                if (strline.startsWith("workingWidth")) {
-                    workingWidth = Float.valueOf(strline.substring(14));
-                } else if (strline.startsWith("margin")) {
-                    margin = Float.valueOf(strline.substring(8));
-                } else if (strline.startsWith("nbBits")) {
-                    nbBits = Integer.valueOf(strline.substring(8));
-                }
-            }
-            br.close();
-            file.close();
-        } catch (Exception e) {
-            System.out.println("Error :" + e.getMessage());
-        }
+        float workingWidth = CraftConfig.workingWidth;
+        float margin = CraftConfig.margin;
+        nbBits = CraftConfig.nbBits;
         effectiveWidth = workingWidth - margin;
         remainingBits = nbBits;
     }
