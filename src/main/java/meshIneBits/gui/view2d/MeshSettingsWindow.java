@@ -22,7 +22,10 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.config.*;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.DoubleSetting;
+import meshIneBits.config.FloatSetting;
+import meshIneBits.config.IntegerSetting;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
@@ -32,6 +35,13 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 class MeshSettingsWindow extends JFrame {
+    private final TabContentPanel bitSettingsPanel;
+    private final TabContentPanel slicerSettingsPanel;
+    private final TabContentPanel assemblerSettingsPanel;
+    private final TabContentPanel xmlSettingsPanel;
+    private final TabContentPanel schedulerSettingsPanel;
+    private final TabContentPanel printerSettingsPanel;
+
     MeshSettingsWindow() throws HeadlessException {
         this.setIconImage(IconLoader.get("gears.png", 0, 0).getImage());
         setTitle("Settings");
@@ -41,42 +51,67 @@ class MeshSettingsWindow extends JFrame {
         setLayout(new BorderLayout());
 
         JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         tabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
         add(tabbedPane, BorderLayout.CENTER);
 
         // Add tabs of settings
-        tabbedPane.addTab("Bit", initSettingsPanel(CraftConfig.bitSettings));
-        tabbedPane.addTab("Slicer", initSettingsPanel(CraftConfig.slicerSettings));
-        tabbedPane.addTab("Assembler", initSettingsPanel(CraftConfig.assemblerSettings));
-        tabbedPane.addTab("XML", initSettingsPanel(CraftConfig.xmlSettings));
-        tabbedPane.addTab("Scheduler", initSettingsPanel(CraftConfig.schedulerSettings));
-        tabbedPane.addTab("Printer", initSettingsPanel(CraftConfig.printerSettings));
+        bitSettingsPanel = new TabContentPanel(CraftConfig.bitSettings);
+        tabbedPane.addTab("Bit", bitSettingsPanel);
+        slicerSettingsPanel = new TabContentPanel(CraftConfig.slicerSettings);
+        tabbedPane.addTab("Slicer", slicerSettingsPanel);
+        assemblerSettingsPanel = new TabContentPanel(CraftConfig.assemblerSettings);
+        tabbedPane.addTab("Assembler", assemblerSettingsPanel);
+        xmlSettingsPanel = new TabContentPanel(CraftConfig.xmlSettings);
+        tabbedPane.addTab("XML", xmlSettingsPanel);
+        schedulerSettingsPanel = new TabContentPanel(CraftConfig.schedulerSettings);
+        tabbedPane.addTab("Scheduler", schedulerSettingsPanel);
+        printerSettingsPanel = new TabContentPanel(CraftConfig.printerSettings);
+        tabbedPane.addTab("Printer", printerSettingsPanel);
+
+        // Default button
+        JPanel dummy = new JPanel();
+        add(dummy, BorderLayout.SOUTH);
+        dummy.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        JButton resetDefault = new JButton("Default");
+        resetDefault.addActionListener(e -> reset());
+        dummy.add(resetDefault);
 
         setLocationRelativeTo(null);
         setVisible(false);
     }
 
-    private JPanel initSettingsPanel(List<Field> fieldList) {
-        TabContentPanel panel = new TabContentPanel();
-        for (Field field : fieldList) {
-            if (field.isAnnotationPresent(DoubleSetting.class))
-                panel.add(new LabeledSpinner(field, field.getAnnotation(DoubleSetting.class)));
-            else if (field.isAnnotationPresent(FloatSetting.class))
-                panel.add(new LabeledSpinner(field, field.getAnnotation(FloatSetting.class)));
-            else if (field.isAnnotationPresent(IntegerSetting.class))
-                panel.add(new LabeledSpinner(field, field.getAnnotation(IntegerSetting.class)));
-            else if (field.isAnnotationPresent(StringSetting.class)) {
-                // TODO renderer of string setting
-            }
-        }
-        return panel;
+    private void reset() {
+        bitSettingsPanel.reset();
+        slicerSettingsPanel.reset();
+        assemblerSettingsPanel.reset();
+        xmlSettingsPanel.reset();
+        schedulerSettingsPanel.reset();
+        printerSettingsPanel.reset();
     }
 
     private class TabContentPanel extends JPanel {
-        TabContentPanel() {
+        TabContentPanel(List<Field> fieldList) {
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             setLayout(new GridLayout(3, 0, 5, 5));
             setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+
+            for (Field field : fieldList) {
+                if (field.isAnnotationPresent(DoubleSetting.class))
+                    add(new LabeledSpinner(field, field.getAnnotation(DoubleSetting.class)));
+                else if (field.isAnnotationPresent(FloatSetting.class))
+                    add(new LabeledSpinner(field, field.getAnnotation(FloatSetting.class)));
+                else if (field.isAnnotationPresent(IntegerSetting.class))
+                    add(new LabeledSpinner(field, field.getAnnotation(IntegerSetting.class)));
+                // TODO renderer of string setting
+            }
+        }
+
+        void reset() {
+            for (Component component : getComponents()) {
+                if (component instanceof LabeledSpinner)
+                    ((LabeledSpinner) component).reset();
+            }
         }
     }
 }

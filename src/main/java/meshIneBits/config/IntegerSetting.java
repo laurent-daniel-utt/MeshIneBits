@@ -36,5 +36,7 @@ public @interface IntegerSetting {
 
     int minValue() default Integer.MIN_VALUE;
 
+    int defaultValue();
+
     int maxValue() default Integer.MAX_VALUE;
 }

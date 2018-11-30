@@ -36,6 +36,8 @@ public @interface FloatSetting {
 
     float minValue() default Float.MIN_VALUE;
 
+    float defaultValue();
+
     float maxValue() default Float.MAX_VALUE;
 
 }

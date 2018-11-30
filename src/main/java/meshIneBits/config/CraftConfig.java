@@ -45,7 +45,10 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Space between layers",
             description = "The vertical gap between each layers (in mm)",
-            step = 0.01, minValue = 0.01, maxValue = 100.0
+            step = 0.01,
+            minValue = 0.01,
+            maxValue = 100.0,
+            defaultValue = 0.25
     )
     @SlicerSetting(
             order = 0
@@ -55,7 +58,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "First slice height",
             description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
-            minValue = 1.0, maxValue = 99.0
+            minValue = 1.0,
+            maxValue = 99.0,
+            defaultValue = 50
     )
     @SlicerSetting(
             order = 1
@@ -65,7 +70,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Minimal line segment cosine value",
             description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
-            minValue = 0.95, maxValue = 1.0
+            minValue = 0.95,
+            maxValue = 1.0,
+            defaultValue = 0.995
     )
     @SlicerSetting(
             order = 2
@@ -77,7 +84,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Bit thickness",
             description = "Thickness of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 8.0
     )
     @BitSetting(
             order = 0
@@ -87,7 +96,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Bit width",
             description = "Width of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 24.0
     )
     @BitSetting(
             order = 1
@@ -97,7 +108,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Bit length",
             description = "Length of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 120.0
     )
     @BitSetting(
             order = 2
@@ -141,7 +154,9 @@ public class CraftConfig {
     @DoubleSetting(
             title = "Suction cup diameter",
             description = "Diameter of the suction cup which lifts the bits (in mm)",
-            minValue = 1.0, maxValue = 100.0
+            minValue = 1.0,
+            maxValue = 100.0,
+            defaultValue = 10.0
     )
     @AssemblerSetting(
             order = 0
@@ -178,7 +193,8 @@ public class CraftConfig {
 
     @IntegerSetting(
             title = "Acceptable error",
-            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation"
+            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation",
+            defaultValue = 5
     )
     @AssemblerSetting(
             order = 1
@@ -188,7 +204,8 @@ public class CraftConfig {
     @FloatSetting(
             title = "Printer X",
             description = "Length of printer in mm",
-            minValue = 0
+            minValue = 0,
+            defaultValue = 8000
     )
     @PrinterSetting(
             order = 0
@@ -198,7 +215,8 @@ public class CraftConfig {
     @FloatSetting(
             title = "Printer Y",
             description = "Width of printer in mm",
-            minValue = 0
+            minValue = 0,
+            defaultValue = 4000
     )
     @PrinterSetting(
             order = 1
@@ -208,7 +226,8 @@ public class CraftConfig {
     @FloatSetting(
             title = "Printer Z",
             description = "Height of printer in mm",
-            minValue = 0
+            minValue = 0,
+            defaultValue = 2000
     )
     @PrinterSetting(
             order = 2
@@ -217,7 +236,8 @@ public class CraftConfig {
 
     @FloatSetting(
             title = "Working width",
-            minValue = 0
+            minValue = 0,
+            defaultValue = 500
     )
     @XMLSetting(
             order = 0
@@ -226,7 +246,8 @@ public class CraftConfig {
 
     @FloatSetting(
             title = "Margin",
-            minValue = 0
+            minValue = 0,
+            defaultValue = 0
     )
     @XMLSetting(
             order = 1
@@ -235,7 +256,8 @@ public class CraftConfig {
 
     @IntegerSetting(
             title = "Number of bits",
-            minValue = 1
+            minValue = 1,
+            defaultValue = 50
     )
     @XMLSetting(
             order = 2

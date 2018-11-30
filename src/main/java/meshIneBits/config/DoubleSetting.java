@@ -36,5 +36,7 @@ public @interface DoubleSetting {
 
     double minValue() default Double.MIN_VALUE;
 
+    double defaultValue();
+
     double maxValue() default Double.MAX_VALUE;
 }

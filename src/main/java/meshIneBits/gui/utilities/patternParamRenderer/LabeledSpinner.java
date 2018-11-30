@@ -38,21 +38,13 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
 
     private static final long serialVersionUID = 6726754934854914029L;
 
-    private JSpinner spinner;
+    private FixedWidthSpinner spinner;
 
     private JLabel lblName;
 
-    private JSpinner getSpinner() {
-        return spinner;
-    }
-
-    private JLabel getTitle() {
-        return lblName;
-    }
-
     public void setEnabled(boolean enabled) {
-        getSpinner().setEnabled(enabled);
-        getTitle().setEnabled(enabled);
+        spinner.setEnabled(enabled);
+        lblName.setEnabled(enabled);
     }
 
     public LabeledSpinner(Field field, DoubleSetting setting) {
@@ -66,12 +58,13 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         lblName.setToolTipText(setting.description());
         this.add(lblName, BorderLayout.WEST);
         try {
-            spinner = new FixedWidthSpinner(
+            spinner = new FieldSpinner(
                     new SpinnerNumberModel(
                             field.getDouble(null),
                             setting.minValue(),
                             setting.maxValue(),
-                            setting.step()));
+                            setting.step()),
+                    setting.defaultValue());
             spinner.addChangeListener(e -> {
                 try {
                     field.setDouble(null, (double) spinner.getValue());
@@ -96,15 +89,16 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         lblName.setToolTipText(setting.description());
         this.add(lblName, BorderLayout.WEST);
         try {
-            spinner = new FixedWidthSpinner(
+            spinner = new FieldSpinner(
                     new SpinnerNumberModel(
-                            field.getFloat(null),
+                            (Number) field.getFloat(null),
                             setting.minValue(),
                             setting.maxValue(),
-                            setting.step()));
+                            setting.step()),
+                    setting.defaultValue());
             spinner.addChangeListener(e -> {
                 try {
-                    field.setFloat(null, (float) spinner.getValue());
+                    field.setFloat(null, (Float) spinner.getValue());
                 } catch (IllegalArgumentException | IllegalAccessException e1) {
                     e1.printStackTrace();
                 }
@@ -126,12 +120,13 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         lblName.setToolTipText(setting.description());
         this.add(lblName, BorderLayout.WEST);
         try {
-            spinner = new FixedWidthSpinner(
+            spinner = new FieldSpinner(
                     new SpinnerNumberModel(
                             field.getInt(null),
                             setting.minValue(),
                             setting.maxValue(),
-                            setting.step()));
+                            setting.step()),
+                    setting.defaultValue());
             spinner.addChangeListener(e -> {
                 try {
                     field.setInt(null, (int) spinner.getValue());
@@ -161,11 +156,13 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
         this.add(lblName, BorderLayout.WEST);
 
-        spinner = new FixedWidthSpinner(new SpinnerNumberModel(
-                config.getCurrentValue(),
-                config.getMinValue(),
-                config.getMaxValue(),
-                config.getStep()));
+        spinner = new ParamSpinner(
+                new SpinnerNumberModel(
+                        config.getCurrentValue(),
+                        config.getMinValue(),
+                        config.getMaxValue(),
+                        config.getStep()),
+                config.getDefaultValue());
         spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
         this.add(spinner, BorderLayout.EAST);
         config.addPropertyChangeListener(this);
@@ -178,12 +175,53 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         }
     }
 
-    private class FixedWidthSpinner extends JSpinner {
+    public void reset() {
+        try {
+            spinner.reset();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private interface Resetable {
+        void reset() throws IllegalAccessException;
+    }
+
+    private abstract class FixedWidthSpinner extends JSpinner implements Resetable {
         static final int MAX_CHAR_WIDTH = 6;
 
         FixedWidthSpinner(SpinnerModel model) {
             super(model);
             ((JSpinner.DefaultEditor) this.getEditor()).getTextField().setColumns(MAX_CHAR_WIDTH);
+        }
+    }
+
+    private class ParamSpinner extends FixedWidthSpinner {
+
+        private final Object defaultValue;
+
+        ParamSpinner(SpinnerModel model, Object defaultValue) {
+            super(model);
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public void reset() {
+            spinner.setValue(defaultValue);
+        }
+    }
+
+    private class FieldSpinner extends FixedWidthSpinner {
+        private final Object defaultValue;
+
+        FieldSpinner(SpinnerModel model, Object defaultValue) {
+            super(model);
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public void reset() {
+            spinner.setValue(defaultValue); // static field
         }
     }
 }
