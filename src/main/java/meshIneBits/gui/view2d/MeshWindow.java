@@ -55,6 +55,7 @@ public class MeshWindow extends JFrame {
     private MeshWindowZoomer zoomer;
     private MeshWindowSelector selector;
     private MeshWindowPropertyPanel propertyPanel;
+    private MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private MeshController meshController = new MeshController(this);
 
     private ProcessingModelView view3DWindow = new ProcessingModelView();
@@ -264,12 +265,7 @@ public class MeshWindow extends JFrame {
                 "gears.png",
                 "Configure hyper parameters of printer and workspace",
                 "",
-                null) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        };
+                () -> meshSettingsWindow.setVisible(true));
         meshActionList.add(configure);
 
         MeshAction exit = new MeshAction(

@@ -28,13 +28,13 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 @Documented
 public @interface IntegerSetting {
-    double step() default 1;
+    int step() default 1;
 
     String title() default "";
 
     String description() default "";
 
-    double minValue() default Integer.MIN_VALUE;
+    int minValue() default Integer.MIN_VALUE;
 
-    double maxValue() default Integer.MAX_VALUE;
+    int maxValue() default Integer.MAX_VALUE;
 }

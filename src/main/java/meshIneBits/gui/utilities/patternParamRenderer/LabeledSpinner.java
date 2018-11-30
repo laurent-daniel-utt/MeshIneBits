@@ -23,6 +23,8 @@
 package meshIneBits.gui.utilities.patternParamRenderer;
 
 import meshIneBits.config.DoubleSetting;
+import meshIneBits.config.FloatSetting;
+import meshIneBits.config.IntegerSetting;
 import meshIneBits.config.patternParameter.DoubleParam;
 
 import javax.swing.*;
@@ -53,35 +55,92 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         getTitle().setEnabled(enabled);
     }
 
-    public LabeledSpinner(String attributeName, DoubleSetting parameters) {
+    public LabeledSpinner(Field field, DoubleSetting setting) {
         // Visual options
         this.setOpaque(false);
         this.setLayout(new BorderLayout());
         this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
         // Setting up
-        lblName = new JLabel(parameters.title());
-        lblName.setToolTipText(parameters.description());
+        lblName = new JLabel(setting.title());
+        lblName.setToolTipText(setting.description());
         this.add(lblName, BorderLayout.WEST);
-        final Field attribute;
-        double defaultValue;
         try {
-            attribute = Class.forName("meshIneBits.config.CraftConfig").getDeclaredField(attributeName);
-            attribute.setAccessible(true);
-            defaultValue = attribute.getDouble(attribute);
-
-            spinner = new JSpinner(new SpinnerNumberModel(defaultValue, parameters.minValue(), parameters.maxValue(),
-                    parameters.step()));
+            spinner = new FixedWidthSpinner(
+                    new SpinnerNumberModel(
+                            field.getDouble(null),
+                            setting.minValue(),
+                            setting.maxValue(),
+                            setting.step()));
             spinner.addChangeListener(e -> {
                 try {
-                    attribute.setDouble(null, (double) spinner.getValue());
+                    field.setDouble(null, (double) spinner.getValue());
                 } catch (IllegalArgumentException | IllegalAccessException e1) {
                     e1.printStackTrace();
                 }
             });
             this.add(spinner, BorderLayout.EAST);
-        } catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
-                | IllegalAccessException e) {
+        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LabeledSpinner(Field field, FloatSetting setting) {
+        // Visual options
+        this.setOpaque(false);
+        this.setLayout(new BorderLayout());
+        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+
+        // Setting up
+        lblName = new JLabel(setting.title());
+        lblName.setToolTipText(setting.description());
+        this.add(lblName, BorderLayout.WEST);
+        try {
+            spinner = new FixedWidthSpinner(
+                    new SpinnerNumberModel(
+                            field.getFloat(null),
+                            setting.minValue(),
+                            setting.maxValue(),
+                            setting.step()));
+            spinner.addChangeListener(e -> {
+                try {
+                    field.setFloat(null, (float) spinner.getValue());
+                } catch (IllegalArgumentException | IllegalAccessException e1) {
+                    e1.printStackTrace();
+                }
+            });
+            this.add(spinner, BorderLayout.EAST);
+        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LabeledSpinner(Field field, IntegerSetting setting) {
+        // Visual options
+        this.setOpaque(false);
+        this.setLayout(new BorderLayout());
+        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+
+        // Setting up
+        lblName = new JLabel(setting.title());
+        lblName.setToolTipText(setting.description());
+        this.add(lblName, BorderLayout.WEST);
+        try {
+            spinner = new FixedWidthSpinner(
+                    new SpinnerNumberModel(
+                            field.getInt(null),
+                            setting.minValue(),
+                            setting.maxValue(),
+                            setting.step()));
+            spinner.addChangeListener(e -> {
+                try {
+                    field.setInt(null, (int) spinner.getValue());
+                } catch (IllegalArgumentException | IllegalAccessException e1) {
+                    e1.printStackTrace();
+                }
+            });
+            this.add(spinner, BorderLayout.EAST);
+        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -102,8 +161,11 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
         lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
         this.add(lblName, BorderLayout.WEST);
 
-        spinner = new JSpinner(new SpinnerNumberModel(config.getCurrentValue(), config.getMinValue(),
-                config.getMaxValue(), config.getStep()));
+        spinner = new FixedWidthSpinner(new SpinnerNumberModel(
+                config.getCurrentValue(),
+                config.getMinValue(),
+                config.getMaxValue(),
+                config.getStep()));
         spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
         this.add(spinner, BorderLayout.EAST);
         config.addPropertyChangeListener(this);
@@ -113,6 +175,15 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("currentValue")) {
             spinner.setValue(evt.getNewValue());
+        }
+    }
+
+    private class FixedWidthSpinner extends JSpinner {
+        static final int MAX_CHAR_WIDTH = 6;
+
+        FixedWidthSpinner(SpinnerModel model) {
+            super(model);
+            ((JSpinner.DefaultEditor) this.getEditor()).getTextField().setColumns(MAX_CHAR_WIDTH);
         }
     }
 }
