@@ -44,7 +44,7 @@ import java.util.Vector;
 class Builder extends PApplet implements Observer {
 
     private final int MODEL_COLOR = color(219, 100, 50);
-    private final int BIT_COLOR = color(19, 100, 50);
+    private final int BIT_COLOR = color(112, 66, 20);
     private Controller controller;
     private PApplet pApplet;
 
@@ -100,7 +100,7 @@ class Builder extends PApplet implements Observer {
                 Bit3D curBit = sortedBit.getKey();
                 PShape bitPShape;
                 pApplet.fill(BIT_COLOR);
-                pApplet.noStroke();
+                pApplet.stroke(0);
                 bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
                 if (bitPShape != null) {
                     Vector2 curBitCenter = curBit.getOrigin();
@@ -113,6 +113,7 @@ class Builder extends PApplet implements Observer {
                 }
             }
         }
+        pApplet.noStroke();
         Logger.updateStatus("3D model built : " + bitCount + " bits generated.");
     }
 
