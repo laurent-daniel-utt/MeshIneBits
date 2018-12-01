@@ -113,6 +113,8 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
             case MeshController.BITS_SELECTED:
                 bitsPropertyPanel.selectBits((Collection<Bit3D>) val);
                 break;
+            case MeshController.DELETING_BITS:
+                bitsPropertyPanel.unselectBits((Collection<Bit3D>) val);
         }
         revalidate();
     }

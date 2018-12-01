@@ -55,16 +55,23 @@ class BitsPropertyPanel extends JPanel {
         this.setOpaque(false);
     }
 
-    void selectBits(Collection<Bit3D> newBit3DS) {
+    void selectBits(Collection<Bit3D> newBit3Ds) {
         // Bulk reset
         bit3Ds.clear();
         bitPropertyPanelsMap.clear();
         defaultGBC.gridy = 1000;
         removeAll();
         // Add
-        newBit3DS.forEach(this::selectBit);
+        newBit3Ds.forEach(this::selectBit);
     }
 
+
+    void unselectBits(Collection<Bit3D> bit3Ds) {
+        this.bit3Ds.removeAll(bit3Ds);
+        this.bitPropertyPanelsMap.forEach((bit3D, bitPropertyPanel) -> remove(bitPropertyPanel));
+        bit3Ds.forEach(this.bitPropertyPanelsMap::remove);
+        updateTitle();
+    }
 
     void unselectBit(Bit3D bit3D) {
         bit3Ds.remove(bit3D);

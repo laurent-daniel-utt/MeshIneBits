@@ -71,6 +71,7 @@ public class MeshController extends Observable implements Observer {
     public static final String BIT_UNSELECTED = "bitUnselected";
     public static final String BIT_SELECTED = "bitSelected";
     public static final String BITS_SELECTED = "bitsSelected";
+    public static final String DELETING_BITS = "deletingBits";
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -423,6 +424,7 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void deleteSelectedBits() {
+        changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
         currentLayer.removeBits(selectedBitKeys);
         selectedBitKeys.clear();
         currentLayer.rebuild();
