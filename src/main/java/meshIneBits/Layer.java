@@ -60,12 +60,6 @@ public class Layer extends Observable implements Serializable {
      */
     public void rebuild() {
         flatPavement.computeBits(horizontalSection);
-        // Filter
-        new HashSet<>(flatPavement.getBitsKeys()) // dummy holder
-                .forEach(key -> {
-                    if (flatPavement.getBit(key) == null)
-                        flatPavement.removeBit(key);
-                });
         extrudeBitsTo3D();
         findKeysOfIrregularBits();
         setChanged();
@@ -84,11 +78,16 @@ public class Layer extends Observable implements Serializable {
      * @since 0.3
      */
     private void extrudeBitsTo3D() {
-        mapBits3D = flatPavement.getBitsKeys().parallelStream()
-                .collect(Collectors.toConcurrentMap(key -> key,
-                        key -> new Bit3D(flatPavement.getBit(key)),
-                        (u, v) -> u, // Preserve the first
-                        ConcurrentHashMap::new));
+//        mapBits3D = flatPavement.getBitsKeys().parallelStream()
+//                .collect(Collectors.toConcurrentMap(key -> key,
+//                        key -> new Bit3D(flatPavement.getBit(key)),
+//                        (u, v) -> u, // Preserve the first
+//                        ConcurrentHashMap::new));
+        mapBits3D = new ConcurrentHashMap<>();
+        for (Vector2 key : flatPavement.getBitsKeys()) {
+            Bit3D bit3D = new Bit3D(flatPavement.getBit(key));
+            mapBits3D.put(key, bit3D);
+        }
     }
 
     private void extrudeBitTo3D(Vector2 key) {

@@ -416,11 +416,12 @@ public class Bit2D implements Cloneable, Serializable {
      * <tt>transformation</tt>
      */
     public Bit2D createTransformedBit(AffineTransform transformation) {
-        Vector2 newOrigin = origin.getTransformed(transformation),
+        Vector2 newOrigin = origin.getTransformed(transformation).getRounded(),
                 newOrientation = origin.add(orientation)
                         .getTransformed(transformation)
                         .sub(newOrigin)
-                        .normal();
+                        .normal()
+                        .getRounded();
         Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
         newBit.updateBoundaries(this.getArea().createTransformedArea(transformation));
         return newBit;

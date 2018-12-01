@@ -148,6 +148,19 @@ public class AreaTool {
     }
 
     /**
+     * Get separated areas from a {@link Shape2D}.
+     *
+     * @param shape supposedly contains non self-intersected and non
+     *              inter-intersected polygons
+     * @return list of continuous area. Empty if no area
+     * @see #getContinuousSurfacesFrom(List)
+     * @since 0.3
+     */
+    public static List<Area> getContinuousSurfacesFrom(Shape2D shape) {
+        return getContinuousSurfacesFrom(shape.polygons);
+    }
+
+    /**
      * @param areas targets
      * @return All the constraint areas that do not contain any others
      * @see #getContinuousSurfacesFrom(Shape2D)
@@ -239,19 +252,6 @@ public class AreaTool {
     }
 
     /**
-     * Get separated areas from a {@link Shape2D}.
-     *
-     * @param shape supposedly contains non self-intersected and non
-     *              inter-intersected polygons
-     * @return list of continuous area. Empty if no area
-     * @see #getContinuousSurfacesFrom(List)
-     * @since 0.3
-     */
-    public static List<Area> getContinuousSurfacesFrom(Shape2D shape) {
-        return getContinuousSurfacesFrom(shape.polygons);
-    }
-
-    /**
      * Get separated areas extract from border-defining polygons. Use approx
      * check of polygon
      *
@@ -339,6 +339,7 @@ public class AreaTool {
         return getSegmentsFrom(area).stream()
                 .map(Polygon::extractFrom)
                 .filter(Objects::nonNull)
+                .filter(Polygon::isNegligible)
                 .collect(Collectors.toList());
     }
 
@@ -550,7 +551,10 @@ public class AreaTool {
             // pathLine.get(pathLine.size() - 1).end.y);
             // cutPaths.add(cutPath2D);
             path2D.closePath();
-            segregatedAreas.add(new Area(path2D));
+            // Remove area if too tiny
+            if (Rounder.round(path2D.getBounds2D().getHeight(), CraftConfig.errorAccepted) > 0
+                    && Rounder.round(path2D.getBounds2D().getWidth(), CraftConfig.errorAccepted) > 0)
+                segregatedAreas.add(new Area(path2D));
         }
         return AreaTool.getLevel0AreasFrom(segregatedAreas);
     }
