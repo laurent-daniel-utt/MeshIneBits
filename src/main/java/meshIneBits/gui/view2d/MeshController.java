@@ -71,6 +71,7 @@ public class MeshController extends Observable implements Observer {
     public static final String BIT_UNSELECTED = "bitUnselected";
     public static final String BIT_SELECTED = "bitSelected";
     public static final String BITS_SELECTED = "bitsSelected";
+    public static final String DELETING_BITS = "deletingBits";
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -161,7 +162,7 @@ public class MeshController extends Observable implements Observer {
         if (o instanceof Layer) {
             updateAvailableArea();
         }
-        if (arg == null) {
+        if (arg == null || arg instanceof M) {
             setChanged();
             notifyObservers();
             return;
@@ -208,18 +209,26 @@ public class MeshController extends Observable implements Observer {
                 case PAVED_LAYER:
                     // Notify property panel
                     changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
+                    setChanged();
+                    notifyObservers(MeshEvents.PAVED_LAYER);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
                     // Notify property panel
                     changes.firePropertyChange(LAYER_OPTIMIZED, null, currentLayer);
+                    // Notify the core to draw
+                    setChanged();
+                    notifyObservers(MeshEvents.SLICED);
                     break;
                 case OPTIMIZING_MESH:
                     break;
                 case OPTIMIZED_MESH:
                     // Notify property panel
                     changes.firePropertyChange(MESH_OPTIMIZED, null, mesh);
+                    // Notify the core to draw
+                    setChanged();
+                    notifyObservers(MeshEvents.SLICED);
                     break;
                 case GLUING:
                     break;
@@ -423,7 +432,8 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void deleteSelectedBits() {
-        currentLayer.removeBits(selectedBitKeys);
+        changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
+        currentLayer.removeBits(selectedBitKeys, true);
         selectedBitKeys.clear();
         currentLayer.rebuild();
     }

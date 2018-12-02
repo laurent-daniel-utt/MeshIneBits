@@ -31,10 +31,12 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -44,8 +46,17 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Area area = AreaTool.getAreaFrom(layer.getHorizontalSection());
+        // Rotate area
+        double diffRotation = Math.toRadians(
+                ((Double) config.get("diffRotation").getCurrentValue()) * layer.getLayerNumber());
+        AffineTransform t1 = AffineTransform.getRotateInstance(-diffRotation),
+                t2 = AffineTransform.getRotateInstance(diffRotation);
+        area.transform(t1);
+        // Pave
         Vector2[] p = calculatePatternStartEnd(area);
-        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]);
+        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]).stream()
+                .map(bit2D -> bit2D.createTransformedBit(t2))
+                .collect(Collectors.toList());
         return new Pavement(bits);
     }
 
@@ -53,8 +64,17 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
     public Pavement pave(Layer layer, Area area) {
         // Start
         area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+        // Rotate area
+        double diffRotation = Math.toRadians(
+                ((Double) config.get("diffRotation").getCurrentValue()) * layer.getLayerNumber());
+        AffineTransform t1 = AffineTransform.getRotateInstance(-diffRotation),
+                t2 = AffineTransform.getRotateInstance(diffRotation);
+        area.transform(t1);
+        // Pave
         Vector2[] p = calculatePatternStartEnd(area);
-        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]);
+        Collection<Bit2D> bits = pave(layer.getLayerNumber(), p[0], p[1]).stream()
+                .map(bit2D -> bit2D.createTransformedBit(t2))
+                .collect(Collectors.toList());
         Pavement pavement = new Pavement(bits);
         pavement.computeBits(area);
         return pavement;
@@ -139,6 +159,15 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
                 100.0,
                 3.0,
                 1.0));
+        config.add(new DoubleParam(
+                "diffRotation",
+                "Differential rotation",
+                "Determine the rotation (in deg) of n-th layer",
+                -180.0,
+                180.0,
+                0.0,
+                0.01
+        ));
     }
 
     @Override

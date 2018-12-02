@@ -28,6 +28,7 @@ import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
@@ -128,5 +129,24 @@ public class Bit3D implements Serializable {
 
     public boolean isIrregular() {
         return irregular;
+    }
+
+    @Override
+    public String toString() {
+        Rectangle2D bound = bit2dToExtrude.getArea().getBounds2D();
+        return "Bit3D[" +
+                "origin=" + origin +
+                ", orientation=" + orientation +
+                ", width=" + bit2dToExtrude.getLength() +
+                ", height=" + bit2dToExtrude.getWidth() +
+                ", liftPoints=" + liftPoints +
+                ", irregular=" + irregular +
+                ", areaBound=" +
+                "[x=" + bound.getX() +
+                ", y=" + bound.getY() +
+                ", w=" + bound.getWidth() +
+                ", h=" + bound.getHeight() +
+                "]" +
+                ']';
     }
 }

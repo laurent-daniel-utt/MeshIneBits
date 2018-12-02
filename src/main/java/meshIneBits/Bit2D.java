@@ -363,32 +363,6 @@ public class Bit2D implements Cloneable, Serializable {
         areas.addAll(AreaTool.segregateArea(newArea));
     }
 
-    // /**
-    // * @return a set of lift points, each of which is in charge of each separated
-    // * area (in case a bit has many separated areas)
-    // */
-
-    /**
-     * A bit should only have one lift point
-     *
-     * @return <tt>null</tt> if this bit has multiple separated areas or no area.
-     * The lift point is calculated in coordinate system of layer
-     */
-    public Vector2 computeLiftPoint() {
-        if (areas.size() != 1)
-            return null;
-        return AreaTool.getLiftPoint(this.getArea(), CraftConfig.suckerDiameter / 2);
-        // Vector<Vector2> result = new Vector<Vector2>();
-        // for (Area area : areas) {
-        // Vector2 localLiftPoint = AreaTool.getLiftPoint(area,
-        // CraftConfig.suckerDiameter / 2);
-        // if (localLiftPoint != null) {
-        // result.add(localLiftPoint);
-        // }
-        // }
-        // return result;
-    }
-
     /**
      * To resize a bit, keeping top left corner as reference.
      *
@@ -404,7 +378,16 @@ public class Bit2D implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return "Bit2D [origin=" + origin + ", length=" + length + ", width=" + width + ", orientation=" + orientation
+        Rectangle2D bound = this.getArea().getBounds2D();
+        return "Bit2D[origin=" + origin
+                + ", length=" + length
+                + ", width=" + width
+                + ", orientation=" + orientation
+                + ", areaBound=[x=" + bound.getX()
+                + ", y=" + bound.getY()
+                + ", w=" + bound.getWidth()
+                + ", h=" + bound.getHeight()
+                + "]"
                 + "]";
     }
 
@@ -416,11 +399,12 @@ public class Bit2D implements Cloneable, Serializable {
      * <tt>transformation</tt>
      */
     public Bit2D createTransformedBit(AffineTransform transformation) {
-        Vector2 newOrigin = origin.getTransformed(transformation),
+        Vector2 newOrigin = origin.getTransformed(transformation).getRounded(),
                 newOrientation = origin.add(orientation)
                         .getTransformed(transformation)
                         .sub(newOrigin)
-                        .normal();
+                        .normal()
+                        .getRounded();
         Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
         newBit.updateBoundaries(this.getArea().createTransformedArea(transformation));
         return newBit;
