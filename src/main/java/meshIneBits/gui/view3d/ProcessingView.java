@@ -38,11 +38,10 @@ import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
 import java.awt.geom.Area;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 import static java.awt.event.KeyEvent.VK_SPACE;
 
@@ -276,30 +275,9 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void drawWorkspace() {
-        try {
-            File filename = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("meshIneBits/config/PrinterConfig.txt")).getPath());
-            FileInputStream file = new FileInputStream(filename);
-            BufferedReader br = new BufferedReader(new InputStreamReader(file));
-            String strline;
-            int linenumber = 0;
-            while ((strline = br.readLine()) != null) {
-                linenumber++;
-                br.skip(3);
-                if (linenumber == 3) {
-                    printerX = Float.valueOf(strline);
-                } else if (linenumber == 4) {
-                    printerY = Float.valueOf(strline);
-                } else if (linenumber == 5) {
-                    printerZ = Float.valueOf(strline);
-                }
-
-            }
-            br.close();
-            file.close();
-
-        } catch (Exception e) {
-            System.out.println("Error :" + e.getMessage());
-        }
+        printerX = CraftConfig.printerX;
+        printerY = CraftConfig.printerY;
+        printerZ = CraftConfig.printerZ;
         pushMatrix();
         noFill();
 

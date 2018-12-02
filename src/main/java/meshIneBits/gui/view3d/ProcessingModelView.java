@@ -31,7 +31,6 @@ import javafx.util.Pair;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.SubWindow;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
@@ -175,7 +174,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         createButtons(cp5);
 
         // Setup workspace
-        CraftConfigLoader.loadPrinterConfig();
         printerX = CraftConfig.printerX;
         printerY = CraftConfig.printerY;
         printerZ = CraftConfig.printerZ;

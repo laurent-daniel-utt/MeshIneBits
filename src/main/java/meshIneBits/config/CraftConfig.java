@@ -25,6 +25,11 @@ package meshIneBits.config;
 import meshIneBits.patterntemplates.*;
 import meshIneBits.scheduler.AScheduler;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * The CraftConfig class contains the configurable
  * settings for the slicer. Reflection and annotations
@@ -37,41 +42,78 @@ public class CraftConfig {
 
     // Slicer options
 
-    @Setting(title = "Space between layers",
+    @DoubleSetting(
+            title = "Space between layers",
             description = "The vertical gap between each layers (in mm)",
-            step = 0.01, minValue = 0.01, maxValue = 100.0
+            step = 0.01,
+            minValue = 0.01,
+            maxValue = 100.0,
+            defaultValue = 0.25
+    )
+    @SlicerSetting(
+            order = 0
     )
     public static double layersOffset = 0.25;
 
-    @Setting(title = "First slice height",
+    @DoubleSetting(
+            title = "First slice height",
             description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
-            minValue = 1.0, maxValue = 99.0
+            minValue = 1.0,
+            maxValue = 99.0,
+            defaultValue = 50
+    )
+    @SlicerSetting(
+            order = 1
     )
     public static double firstSliceHeightPercent = 50;
 
-    @Setting(title = "Minimal line segment cosine value",
+    @DoubleSetting(
+            title = "Minimal line segment cosine value",
             description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
-            minValue = 0.95, maxValue = 1.0
+            minValue = 0.95,
+            maxValue = 1.0,
+            defaultValue = 0.995
+    )
+    @SlicerSetting(
+            order = 2
     )
     public static double joinMinCosAngle = 0.995;
 
     // Bits options
 
-    @Setting(title = "Bit thickness",
+    @DoubleSetting(
+            title = "Bit thickness",
             description = "Thickness of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 8.0
+    )
+    @BitSetting(
+            order = 0
     )
     public static double bitThickness = 8.0;
 
-    @Setting(title = "Bit width",
+    @DoubleSetting(
+            title = "Bit width",
             description = "Width of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 24.0
+    )
+    @BitSetting(
+            order = 1
     )
     public static double bitWidth = 24.0;
 
-    @Setting(title = "Bit length",
+    @DoubleSetting(
+            title = "Bit length",
             description = "Length of the bits (in mm)",
-            minValue = 1.0, maxValue = 1000.0
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 120.0
+    )
+    @BitSetting(
+            order = 2
     )
     public static double bitLength = 120.0;
 
@@ -88,6 +130,7 @@ public class CraftConfig {
             new EconomicPattern(),
             new UnitSquarePattern()
     };
+
     /**
      * @return new instance of each pattern builder
      */
@@ -103,20 +146,20 @@ public class CraftConfig {
         return patternsList;
     }
 
-
     /**
-     * The chosen pattern
+     * The default chosen pattern
      */
     public static PatternTemplate templateChoice = templatesPreloaded[0];
 
-    // Deprecated pattern parameters
-
-    // Layer computation
-
-
-    @Setting(title = "Suction cup diameter",
+    @DoubleSetting(
+            title = "Suction cup diameter",
             description = "Diameter of the suction cup which lifts the bits (in mm)",
-            minValue = 1.0, maxValue = 100.0
+            minValue = 1.0,
+            maxValue = 100.0,
+            defaultValue = 10.0
+    )
+    @AssemblerSetting(
+            order = 0
     )
     public static double suckerDiameter = 10.0;
 
@@ -124,37 +167,147 @@ public class CraftConfig {
     /**
      * Save the directory of last opened {@link meshIneBits.Model}
      */
-    @Setting()
+    @StringSetting(
+            title = "Last Model",
+            description = "Path of the last opened model"
+    )
     public static String lastModel = "";
 
     /**
      * To know the lastly selected pattern configuration file
      */
-    @Setting()
+    @StringSetting(
+            title = "Last Pattern Config",
+            description = "Path of the last opened pattern configuration"
+    )
     public static String lastPatternConfigFile = "";
+
     /**
      * Save the directory of last opened {@link meshIneBits.Mesh}
      */
+    @StringSetting(
+            title = "Last Mesh",
+            description = "Path of the last opened Mesh"
+    )
     public static String lastMesh = "";
 
-    @Setting(title = "Acceptable error",
-            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation")
+    @IntegerSetting(
+            title = "Acceptable error",
+            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation",
+            defaultValue = 5
+    )
+    @AssemblerSetting(
+            order = 1
+    )
     public static int errorAccepted = 5;
 
-    @Setting(title = "Printer X",
-            description = "Length of printer in mm")
+    @FloatSetting(
+            title = "Printer X",
+            description = "Length of printer in mm",
+            minValue = 0,
+            defaultValue = 8000
+    )
+    @PrinterSetting(
+            order = 0
+    )
     public static float printerX = 8000f;
 
-    @Setting(title = "Printer Y",
-            description = "Width of printer in mm")
+    @FloatSetting(
+            title = "Printer Y",
+            description = "Width of printer in mm",
+            minValue = 0,
+            defaultValue = 4000
+    )
+    @PrinterSetting(
+            order = 1
+    )
     public static float printerY = 4000f;
 
-    @Setting(title = "Printer Z",
-            description = "Height of printer in mm")
+    @FloatSetting(
+            title = "Printer Z",
+            description = "Height of printer in mm",
+            minValue = 0,
+            defaultValue = 2000
+    )
+    @PrinterSetting(
+            order = 2
+    )
     public static float printerZ = 2000f;
+
+    @FloatSetting(
+            title = "Working width",
+            minValue = 0,
+            defaultValue = 500
+    )
+    @XMLSetting(
+            order = 0
+    )
+    public static float workingWidth = 500;
+
+    @FloatSetting(
+            title = "Margin",
+            minValue = 0,
+            defaultValue = 0
+    )
+    @XMLSetting(
+            order = 1
+    )
+    public static float margin = 0;
+
+    @IntegerSetting(
+            title = "Number of bits",
+            minValue = 1,
+            defaultValue = 50
+    )
+    @XMLSetting(
+            order = 2
+    )
+    public static int nbBits = 50;
 
     /**
      * The provided templates
      */
     public static AScheduler[] schedulerPreloaded = {};
+
+    public static List<Field> settings = new ArrayList<>();
+
+    public static List<Field> printerSettings = new ArrayList<>();
+
+    public static List<Field> bitSettings = new ArrayList<>();
+
+    public static List<Field> slicerSettings = new ArrayList<>();
+
+    public static List<Field> assemblerSettings = new ArrayList<>();
+
+    public static List<Field> xmlSettings = new ArrayList<>();
+
+    public static List<Field> schedulerSettings = new ArrayList<>();
+
+    static {
+        Field[] fields = CraftConfig.class.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.getDeclaredAnnotations().length > 0) {
+                settings.add(field);
+                // Categorize
+                if (field.isAnnotationPresent(PrinterSetting.class))
+                    printerSettings.add(field);
+                if (field.isAnnotationPresent(BitSetting.class))
+                    bitSettings.add(field);
+                if (field.isAnnotationPresent(SlicerSetting.class))
+                    slicerSettings.add(field);
+                if (field.isAnnotationPresent(AssemblerSetting.class))
+                    assemblerSettings.add(field);
+                if (field.isAnnotationPresent(XMLSetting.class))
+                    xmlSettings.add(field);
+                if (field.isAnnotationPresent(SchedulerSetting.class))
+                    schedulerSettings.add(field);
+            }
+        }
+        printerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(PrinterSetting.class).order()));
+        bitSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(BitSetting.class).order()));
+        slicerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SlicerSetting.class).order()));
+        assemblerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(AssemblerSetting.class).order()));
+        xmlSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(XMLSetting.class).order()));
+        schedulerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SchedulerSetting.class).order()));
+    }
 }

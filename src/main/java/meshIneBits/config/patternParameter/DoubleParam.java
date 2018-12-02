@@ -43,7 +43,6 @@ public class DoubleParam extends PatternParameter {
     private Double defaultValue;
     private Double step;
     private Double currentValue;
-
     /**
      * This will validate each input. If one does not satisfy, it will bring the
      * default value. Be careful of {@link List}. Should use a real provided class
@@ -196,6 +195,10 @@ public class DoubleParam extends PatternParameter {
         return "Double[name=" + codename + ", title=" + title + ", description=" + description + ", minValue="
                 + minValue + ", maxValue=" + maxValue + ", defaultValue=" + defaultValue + ", step=" + step
                 + ", currentValue=" + currentValue + "]";
+    }
+
+    public Double getDefaultValue() {
+        return defaultValue;
     }
 
     @Override
