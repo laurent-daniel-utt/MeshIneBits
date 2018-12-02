@@ -162,7 +162,7 @@ public class MeshController extends Observable implements Observer {
         if (o instanceof Layer) {
             updateAvailableArea();
         }
-        if (arg == null) {
+        if (arg == null || arg instanceof M) {
             setChanged();
             notifyObservers();
             return;
@@ -209,18 +209,26 @@ public class MeshController extends Observable implements Observer {
                 case PAVED_LAYER:
                     // Notify property panel
                     changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
+                    setChanged();
+                    notifyObservers(MeshEvents.PAVED_LAYER);
                     break;
                 case OPTIMIZING_LAYER:
                     break;
                 case OPTIMIZED_LAYER:
                     // Notify property panel
                     changes.firePropertyChange(LAYER_OPTIMIZED, null, currentLayer);
+                    // Notify the core to draw
+                    setChanged();
+                    notifyObservers(MeshEvents.SLICED);
                     break;
                 case OPTIMIZING_MESH:
                     break;
                 case OPTIMIZED_MESH:
                     // Notify property panel
                     changes.firePropertyChange(MESH_OPTIMIZED, null, mesh);
+                    // Notify the core to draw
+                    setChanged();
+                    notifyObservers(MeshEvents.SLICED);
                     break;
                 case GLUING:
                     break;
@@ -425,7 +433,7 @@ public class MeshController extends Observable implements Observer {
 
     public void deleteSelectedBits() {
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
-        currentLayer.removeBits(selectedBitKeys);
+        currentLayer.removeBits(selectedBitKeys, true);
         selectedBitKeys.clear();
         currentLayer.rebuild();
     }

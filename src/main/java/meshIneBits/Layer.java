@@ -34,6 +34,7 @@ import java.awt.geom.Area;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -52,24 +53,30 @@ public class Layer extends Observable implements Serializable {
     private PatternTemplate patternTemplate;
     private Map<Vector2, Bit3D> mapBits3D;
     private boolean paved = false;
-    private List<Vector2> irregularBits;
+    private Collection<Vector2> irregularBits; // should be concurrent
 
     /**
      * Rebuild the whole layer. To be called after overall changes made on this
      * {@link Layer}
      */
     public void rebuild() {
-        flatPavement.computeBits(horizontalSection);
+        flatPavement.computeBits(horizontalArea);
         extrudeBitsTo3D();
         findKeysOfIrregularBits();
         setChanged();
-        notifyObservers();
+        notifyObservers(new M(
+                M.LAYER_REBUILT,
+                M.map(
+                        M.REBUILT_LAYER,
+                        this
+                )
+        ));
     }
 
     private void findKeysOfIrregularBits() {
-        irregularBits = mapBits3D.keySet().stream()
+        irregularBits = mapBits3D.keySet().parallelStream()
                 .filter(key -> mapBits3D.get(key).isIrregular())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
     }
 
     /**
@@ -78,19 +85,19 @@ public class Layer extends Observable implements Serializable {
      * @since 0.3
      */
     private void extrudeBitsTo3D() {
-//        mapBits3D = flatPavement.getBitsKeys().parallelStream()
-//                .collect(Collectors.toConcurrentMap(key -> key,
-//                        key -> new Bit3D(flatPavement.getBit(key)),
-//                        (u, v) -> u, // Preserve the first
-//                        ConcurrentHashMap::new));
-        mapBits3D = new ConcurrentHashMap<>();
-        for (Vector2 key : flatPavement.getBitsKeys()) {
-            Bit3D bit3D = new Bit3D(flatPavement.getBit(key));
-            mapBits3D.put(key, bit3D);
-        }
+        mapBits3D = flatPavement.getBitsKeys().parallelStream()
+                .collect(Collectors.toConcurrentMap(key -> key,
+                        key -> new Bit3D(flatPavement.getBit(key)),
+                        (u, v) -> u, // Preserve the first
+                        ConcurrentHashMap::new));
     }
 
-    private void extrudeBitTo3D(Vector2 key) {
+    /**
+     * Extrude {@link Bit2D} to {@link Bit3D} and detect irregularities
+     *
+     * @param key origin of {@link Bit2D}
+     */
+    private void rebuild(Vector2 key) {
         if (flatPavement.getBit(key) != null) {
             Bit3D bit3D = new Bit3D(flatPavement.getBit(key));
             mapBits3D.put(key, bit3D);
@@ -153,22 +160,41 @@ public class Layer extends Observable implements Serializable {
      * <tt>null</tt> if out of bound
      */
     public Vector2 addBit(Bit2D bit, boolean b) {
-        Area bitArea = bit.getArea();
-        bitArea.intersect(horizontalArea);
-        if (bitArea.isEmpty()) {
+        Area bitArea = getInteriorArea(bit);
+        if (bitArea == null) {
             // Out of bound
             return null;
         } else {
             bit.updateBoundaries(bitArea);
             bit.calcCutPath();
             Vector2 key = flatPavement.addBit(bit);
-            extrudeBitTo3D(key);
+            rebuild(key);
             if (b) {
                 setChanged();
-                notifyObservers();
+                notifyObservers(new M(
+                        M.LAYER_ADDED_BIT,
+                        M.map(
+                                M.NEW_BIT,
+                                getBit3D(key)
+                        )
+                ));
             }
             return key;
         }
+    }
+
+    /**
+     * @param bit2D target
+     * @return <tt>null</tt> if outside
+     */
+    private Area getInteriorArea(Bit2D bit2D) {
+        Area bitArea = bit2D.getArea();
+        bitArea.intersect(horizontalArea);
+        if (bitArea.isEmpty()) {
+            // Out of bound
+            return null;
+        } else
+            return bitArea;
     }
 
     /**
@@ -187,7 +213,8 @@ public class Layer extends Observable implements Serializable {
     }
 
     /**
-     * Change the whole current pavement
+     * Change the whole current pavement. Should call {@link #rebuild()} to extrude
+     * full bit
      *
      * @param newFlatPavement new base pavement
      */
@@ -208,19 +235,30 @@ public class Layer extends Observable implements Serializable {
      * on the pattern template. Not use in quick succession because after each
      * move, the layer will be recalculated, slowing the process
      *
-     * @param bitKey    origin of bit
+     * @param bit3D    target
      * @param direction the direction in local coordinate system of the bit
      * @return the new origin of the moved bit
      */
-    public Vector2 moveBit(Vector2 bitKey, Vector2 direction) {
+    public Vector2 moveBit(Bit3D bit3D, Vector2 direction) {
+        irregularBits.remove(bit3D.getOrigin());
         double distance = 0;
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
             distance = CraftConfig.bitLength / 2;
         }
-        Vector2 newCoordinate = flatPavement.moveBit(bitKey, direction, distance);
-        rebuild();
+        Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
+        rebuild(newCoordinate);
+        setChanged();
+        notifyObservers(new M(
+                M.LAYER_MOVED_BIT,
+                M.map(
+                        M.OLD_BIT,
+                        bit3D,
+                        M.NEW_BIT,
+                        getBit3D(newCoordinate)
+                )
+        ));
         return newCoordinate;
     }
 
@@ -232,6 +270,7 @@ public class Layer extends Observable implements Serializable {
      * @return list of new origins' position
      */
     public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
+        // Calculate travel distance
         double distance = 0;
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
@@ -239,15 +278,48 @@ public class Layer extends Observable implements Serializable {
             distance = CraftConfig.bitLength / 2;
         }
 
+        // Move bits
         final double finalDistance = distance;
         Set<Vector2> newPositions = bits.stream()
                 .map(bit -> flatPavement.moveBit(bit.getOrigin(), direction, finalDistance))
                 .collect(Collectors.toSet());
-        rebuild();
-        // Some new positions may be out of border
-        return newPositions.stream()
-                .filter(pos -> this.getBit3D(pos) != null)
-                .collect(Collectors.toSet());
+
+        // Remove old bits
+        removeBits(
+                bits.stream()
+                        .map(Bit3D::getOrigin)
+                        .collect(Collectors.toList()),
+                false
+        );
+
+        // Filter new bits 3D
+        Collection<Bit3D> newBit3Ds = new ConcurrentLinkedQueue<>();
+        for (Vector2 pos : new HashSet<>(newPositions)) {
+            Bit2D bit2D = flatPavement.getBit(pos);
+            Area a = getInteriorArea(bit2D);
+            if (a == null) {
+                flatPavement.removeBit(pos);
+                newPositions.remove(pos);
+            } else {
+                bit2D.updateBoundaries(a);
+                bit2D.calcCutPath();
+                rebuild(pos);
+                newBit3Ds.add(getBit3D(pos));
+            }
+        }
+
+        setChanged();
+        notifyObservers(new M(
+                M.LAYER_MOVED_BITS,
+                M.map(
+                        M.OLD_BIT,
+                        bits,
+                        M.NEW_BIT,
+                        newBit3Ds
+                )
+        ));
+
+        return newPositions;
     }
 
     /**
@@ -261,20 +333,49 @@ public class Layer extends Observable implements Serializable {
     /**
      * Remove a bit
      *
-     * @param key origin of bit in 2D plan
+     * @param key origin of bit
+     * @param b   notify or not
      */
-    public void removeBit(Vector2 key) {
+    public void removeBit(Vector2 key, boolean b) {
+        Bit3D oldBit = getBit3D(key);
         flatPavement.removeBit(key);
         mapBits3D.remove(key);
+        irregularBits.remove(key);
+        if (b) {
+            setChanged();
+            notifyObservers(new M(
+                    M.LAYER_REMOVED_BIT,
+                    M.map(
+                            M.OLD_BIT,
+                            oldBit
+                    )
+            ));
+        }
     }
 
     /**
      * Remove multiple bits
      *
      * @param keys origin of bit in layer coordinate system
+     * @param b notify or not
      */
-    public void removeBits(Collection<Vector2> keys) {
-        keys.forEach(flatPavement::removeBit);
+    public void removeBits(Collection<Vector2> keys, boolean b) {
+        Collection<Bit3D> oldBit3Ds = keys
+                .parallelStream()
+                .map(this::getBit3D)
+                .collect(Collectors
+                        .toCollection(ConcurrentLinkedQueue::new));
+        keys.forEach(key -> this.removeBit(key, false));
+        if (b) {
+            setChanged();
+            notifyObservers(new M(
+                    M.LAYER_REMOVED_BITS,
+                    M.map(
+                            M.OLD_BIT,
+                            oldBit3Ds
+                    )
+            ));
+        }
     }
 
     /**
@@ -288,7 +389,7 @@ public class Layer extends Observable implements Serializable {
      */
     public Vector2 scaleBit(Bit3D bit, double percentageLength, double percentageWidth) {
         Bit2D modelBit = bit.getBit2dToExtrude();
-        removeBit(bit.getOrigin());
+        removeBit(bit.getOrigin(), true);
         if (percentageLength != 0 && percentageWidth != 0) {
             modelBit.resize(percentageLength, percentageWidth);
             return addBit(modelBit, true);
@@ -324,7 +425,7 @@ public class Layer extends Observable implements Serializable {
         return paved;
     }
 
-    public List<Vector2> getKeysOfIrregularBits() {
+    public Collection<Vector2> getKeysOfIrregularBits() {
         return irregularBits;
     }
 
