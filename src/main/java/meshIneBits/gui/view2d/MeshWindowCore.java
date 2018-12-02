@@ -39,7 +39,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
-import java.util.List;
 
 /**
  * Sketch of slice and layer. Observes the {@link MeshController}.
@@ -429,8 +428,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 || layer.getFlatPavement() == null)
             return;
         Vector<Vector2> bitKeys = layer.getBits3dKeys();
-        // Get all the irregular bits' key in this layer
-        List<Vector2> keysIrregularBits = layer.getKeysOfIrregularBits();
 
         for (Vector2 bitKey : bitKeys) {
             Bit3D bit3D = layer.getBit3D(bitKey);
@@ -439,7 +436,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             // Area
             if (meshController.showingIrregularBits()
-                    && keysIrregularBits.contains(bitKey))
+                    && bit3D.isIrregular())
                 g2d.setColor(WorkspaceConfig.irregularBitColor);
             else
                 g2d.setColor(WorkspaceConfig.regularBitColor);
