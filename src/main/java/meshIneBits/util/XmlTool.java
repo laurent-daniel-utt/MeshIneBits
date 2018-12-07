@@ -27,6 +27,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.scheduler.AScheduler;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -35,6 +36,7 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 public class XmlTool {
@@ -130,14 +132,16 @@ public class XmlTool {
         }
     }
 
-    private void writeBit(Bit3D bit, int id) {
+    private void writeBit(Bit3D bit) {
 
         if (!liftableBit(bit)) {
             return;
         }
 
         writer.println("		<bit>");
-        writer.println("			<id>" + id + "</id>");
+        writer.println("			<id>" + part.getScheduler().getBitIndex(bit) + "</id>");
+        writer.println("			<batch>" + part.getScheduler().getBitBatch(bit) + "</batch>");
+        writer.println("			<plate>" + part.getScheduler().getBitPlate(bit) + "</plate>");
         writer.println("			<cut>");
         if (bit.getRawCutPaths() != null) {
             for (Path2D p : bit.getRawCutPaths()) {
@@ -187,7 +191,11 @@ public class XmlTool {
     }
 
     private void writeLayer(Layer layer) {
-        Vector<Pair<Bit3D, Vector2>> Bits3DKeys = layer.sortBits();
+        AScheduler scheduler = part.getScheduler();
+        Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
+        int startIndex = scheduler.getBitIndex(startBit);
+        List<Pair<Bit3D, Vector2>> Bits3DKeys = scheduler.getSortedBits().subList(startIndex, (startIndex + layer.getBits3dKeys().size() - 1));
+
         Vector3 modelTranslation = part.getModel().getPos();
         writer.println("	<layer>");
         writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
@@ -202,7 +210,7 @@ public class XmlTool {
                 }
             }
             moveWorkingSpace(bit, i);
-            writeBit(bit, i);
+            writeBit(bit);
             remainingBits -= 1;
         }
         writer.println("	</layer>");
