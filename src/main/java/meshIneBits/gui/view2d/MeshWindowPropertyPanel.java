@@ -39,7 +39,7 @@ import java.util.Collection;
 public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeListener {
     private MeshPropertyPanel meshPropertyPanel = new MeshPropertyPanel();
     private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
-    private BitsPropertyPanel bitsPropertyPanel = new BitsPropertyPanel();
+    private BitsPropertyPanel bitsPropertyPanel;
 
     MeshWindowPropertyPanel(MeshController meshController) {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.BLACK));
@@ -48,6 +48,8 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
         JPanel content = new JPanel();
         content.setOpaque(false);
         content.setLayout(new GridBagLayout());
+
+        this.bitsPropertyPanel = new BitsPropertyPanel(meshController.getMesh());
 
         GridBagConstraints meshPropertyPanelGBC = new GridBagConstraints();
         meshPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;

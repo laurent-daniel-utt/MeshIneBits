@@ -22,6 +22,7 @@
 
 package meshIneBits;
 
+import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.slicer.Slice;
@@ -46,7 +47,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     private transient SliceTool slicer;
     private Model model;
     private MeshEvents state;
-    private AScheduler scheduler = null;
+    private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
     private String modelFile;
 
     /**
@@ -54,6 +55,7 @@ public class Mesh extends Observable implements Observer, Serializable {
      */
     public Mesh() {
         setState(MeshEvents.READY);
+        this.scheduler.setMesh(this);
     }
 
     public static Mesh open(File file) throws IOException, ClassNotFoundException {
@@ -362,7 +364,11 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public AScheduler getScheduler() {
-        return scheduler;
+        if(scheduler != null) {
+            return scheduler;
+        }
+
+        return null;
     }
 
     /**
@@ -372,6 +378,7 @@ public class Mesh extends Observable implements Observer, Serializable {
     public void setScheduler(AScheduler s) {
         Logger.message("Set scheduler to: " + s.toString());
         scheduler = s;
+        s.setMesh(this);
         scheduler.addObserver(this);
     }
 

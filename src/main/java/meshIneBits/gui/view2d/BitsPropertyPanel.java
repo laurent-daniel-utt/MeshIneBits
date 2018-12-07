@@ -23,6 +23,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit3D;
+import meshIneBits.Mesh;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -43,8 +44,10 @@ class BitsPropertyPanel extends JPanel {
             TitledBorder.TOP);
     private static final String TITLE_PREFIX = "Selected bits: ";
     private GridBagLayout gbc = new GridBagLayout();
+    private Mesh mesh;
 
-    BitsPropertyPanel() {
+
+    BitsPropertyPanel(Mesh m) {
         setBorder(titledBorder);
         this.setLayout(gbc);
         defaultGBC.fill = GridBagConstraints.HORIZONTAL;
@@ -53,6 +56,7 @@ class BitsPropertyPanel extends JPanel {
         defaultGBC.gridx = 0;
         defaultGBC.gridy = 1000;
         this.setOpaque(false);
+        this.mesh = m;
     }
 
     void selectBits(Collection<Bit3D> newBit3Ds) {
@@ -83,7 +87,7 @@ class BitsPropertyPanel extends JPanel {
 
     void selectBit(Bit3D bit3D) {
         bit3Ds.addFirst(bit3D);
-        BitPropertyPanel bitPropertyPanel = new BitPropertyPanel(bit3D);
+        BitPropertyPanel bitPropertyPanel = new BitPropertyPanel(bit3D, mesh);
         bitPropertyPanelsMap.put(bit3D, bitPropertyPanel);
         // Add into layout
         if (defaultGBC.gridy == 0)
