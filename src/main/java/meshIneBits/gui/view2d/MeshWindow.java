@@ -360,6 +360,14 @@ public class MeshWindow extends JFrame {
                 "Export printing instructions",
                 "alt E",
                 () -> {
+                    if (meshController.getMesh() == null) {
+                        meshController.handleException(new Exception("Mesh not found"));
+                        return;
+                    }
+                    if (!meshController.getMesh().getScheduler().isScheduled()) {
+                        meshController.handleException(new Exception("Scheduling not lauched"));
+                        return;
+                    }
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     int returnVal = fc.showSaveDialog(MeshWindow.this);

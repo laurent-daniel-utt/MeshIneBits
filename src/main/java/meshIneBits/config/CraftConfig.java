@@ -24,6 +24,7 @@ package meshIneBits.config;
 
 import meshIneBits.patterntemplates.*;
 import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.BasicScheduler;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -264,10 +265,52 @@ public class CraftConfig {
     )
     public static int nbBits = 50;
 
+    @IntegerSetting(
+            title = "Number of bits on a plate",
+            minValue = 1,
+            defaultValue = 10
+    )
+    @SchedulerSetting()
+    public static int nbBitesByPlat = 10;
+
+    @IntegerSetting(
+            title = "Number of bits by Batch",
+            minValue = 1,
+            defaultValue = 50
+    )
+    @SchedulerSetting()
+    public static int nbBitesBatch = 50;
+
+    @DoubleSetting(
+            title = "Plate width",
+            minValue = 1,
+            defaultValue = 50
+    )
+    @PrinterSetting()
+    public static double plateWidth = 50;
+
+    @DoubleSetting(
+            title = "First bit x position",
+            minValue = 1,
+            defaultValue = 1
+    )
+    @PrinterSetting()
+    public static double firstBitX = 1;
+
+    @DoubleSetting(
+            title = "Bit inter space",
+            minValue = 1,
+            defaultValue = 1
+    )
+    @PrinterSetting()
+    public static double plateBitSpace = 1;
+
     /**
      * The provided templates
      */
-    public static AScheduler[] schedulerPreloaded = {};
+    public static AScheduler[] schedulerPreloaded = {
+            new BasicScheduler(),
+    };
 
     public static List<Field> settings = new ArrayList<>();
 

@@ -23,6 +23,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit3D;
+import meshIneBits.Mesh;
 import meshIneBits.util.Logger;
 
 public class BitPropertyPanel extends PropertyPanel {
@@ -30,9 +31,19 @@ public class BitPropertyPanel extends PropertyPanel {
     private static final String ORIENTATION = "Orientation";
     private static final String LIFT_POINTS = "Lift points";
     private static final String IS_IRREGULAR = "Is irregular";
+    private static final String BATCH_ID = "Batch id";
+    private static final String PLATE_ID = "Plate id";
+    private static final String BIT_NUMBER = "Bit id";
+    private static  Mesh mesh = null;
 
     BitPropertyPanel(Bit3D bit3D) {
         super("Bit3D@" + bit3D.hashCode());
+        initTable(getPropertiesOf(bit3D));
+    }
+
+    BitPropertyPanel(Bit3D bit3D, Mesh m) {
+        super("Bit3D@" + bit3D.hashCode());
+        mesh = m;
         initTable(getPropertiesOf(bit3D));
     }
 
@@ -42,14 +53,33 @@ public class BitPropertyPanel extends PropertyPanel {
                     {ORIGIN, "UNKNOWN"},
                     {ORIENTATION, "UNKNOWN"},
                     {LIFT_POINTS, "UNKNOWN"},
-                    {IS_IRREGULAR, "UNKNOWN"}
+                    {IS_IRREGULAR, "UNKNOWN"},
+                    {PLATE_ID, "UNKNOWN"},
+                    {BIT_NUMBER, "UNKNOWN"},
+                    {BATCH_ID, "UNKNOWN"}
             };
+        else if (mesh.getScheduler() != null && !mesh.getScheduler().getSortedBits().isEmpty())
+        {
+            return new String[][]{
+                    {ORIGIN, bit3D.getOrigin().toString()},
+                    {ORIENTATION, String.valueOf(bit3D.getOrientation().getEquivalentAngle2())},
+                    {LIFT_POINTS, bit3D.getLiftPoints().toString()},
+                    {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
+                    {BIT_NUMBER, String.valueOf(mesh.getScheduler().getBitIndex(bit3D))},
+                    {PLATE_ID,  String.valueOf(mesh.getScheduler().getBitPlate(bit3D))},
+                    {BATCH_ID, String.valueOf(mesh.getScheduler().getBitBatch(bit3D))}
+            };
+        }
         else
             return new String[][]{
                     {ORIGIN, bit3D.getOrigin().toString()},
                     {ORIENTATION, String.valueOf(bit3D.getOrientation().getEquivalentAngle2())},
                     {LIFT_POINTS, bit3D.getLiftPoints().toString()},
-                    {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())}
+                    {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
+                    {PLATE_ID, "UNKNOWN"},
+                    {BIT_NUMBER, "UNKNOWN"},
+                    {BATCH_ID, "UNKNOWN"}
+
             };
     }
 
