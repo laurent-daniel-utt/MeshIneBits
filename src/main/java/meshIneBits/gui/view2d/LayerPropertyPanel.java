@@ -26,11 +26,14 @@ import meshIneBits.Layer;
 import meshIneBits.util.Logger;
 
 public class LayerPropertyPanel extends PropertyPanel {
-    static final String LAYER_INDEX = "Layer Index";
-    static final String LAYER_IS_PAVED = "Is Paved?";
-    static final String LAYER_PATTERN = "Pattern Applied";
-    static final String LAYER_BITS = "Bits";
-    static final String LAYER_IRREGULAR_BITS = "Irregular Bits";
+    private static final String LAYER_INDEX = "Layer Index";
+    private static final String LAYER_IS_PAVED = "Is Paved?";
+    private static final String LAYER_PATTERN = "Pattern Applied";
+    private static final String LAYER_BITS = "Bits";
+    private static final String LAYER_IRREGULAR_BITS = "Irregular Bits";
+    private static final String LAYER_LOWER_ALTITUDE = "Lower Altitude";
+    private static final String LAYER_HIGHER_ALTITUDE = "Higher Altitude";
+    private static final String LAYER_SLICE_ALTITUDE = "Slice Altitude";
 
     LayerPropertyPanel() {
         super("Current Layer");
@@ -45,7 +48,10 @@ public class LayerPropertyPanel extends PropertyPanel {
                     {LAYER_IS_PAVED, "FALSE"},
                     {LAYER_PATTERN, "NONE"},
                     {LAYER_BITS, "0"},
-                    {LAYER_IRREGULAR_BITS, "0"}
+                    {LAYER_IRREGULAR_BITS, "0"},
+                    {LAYER_LOWER_ALTITUDE, "UNKNOWN"},
+                    {LAYER_HIGHER_ALTITUDE, "UNKNOWN"},
+                    {LAYER_SLICE_ALTITUDE, "UNKNOWN"}
             };
         else
             return new String[][]{
@@ -56,7 +62,10 @@ public class LayerPropertyPanel extends PropertyPanel {
                     {LAYER_BITS,
                             layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getBits3dKeys().size())},
                     {LAYER_IRREGULAR_BITS,
-                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getKeysOfIrregularBits().size())}
+                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getKeysOfIrregularBits().size())},
+                    {LAYER_LOWER_ALTITUDE, String.valueOf(layer.getLowerAltitude())},
+                    {LAYER_HIGHER_ALTITUDE, String.valueOf(layer.getHigherAltitude())},
+                    {LAYER_SLICE_ALTITUDE, String.valueOf(layer.getHorizontalSection().getAltitude())}
             };
     }
 

@@ -61,18 +61,23 @@ public class Bit3D implements Serializable {
      */
     private Vector<Vector2> liftPoints = new Vector<>();
     private boolean irregular = false;
+    private double lowerAltitude;
+    private double higherAltitude;
 
     /**
      * Construct bit 3D from horizontal section and calculate lift points
      *
      * @param baseBit horizontal cut
+     * @param layer in which this bit resides
      */
-    Bit3D(Bit2D baseBit) {
+    Bit3D(Bit2D baseBit, Layer layer) {
         bit2dToExtrude = baseBit;
         origin = baseBit.getOrigin();
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
         computeLiftPoints();
+        lowerAltitude = layer.getLowerAltitude();
+        higherAltitude = layer.getHigherAltitude();
     }
 
     private Vector2 computeLiftPoint(Area subBit) {
@@ -148,5 +153,13 @@ public class Bit3D implements Serializable {
                 ", h=" + bound.getHeight() +
                 "]" +
                 ']';
+    }
+
+    public double getLowerAltitude() {
+        return lowerAltitude;
+    }
+
+    public double getHigherAltitude() {
+        return higherAltitude;
     }
 }
