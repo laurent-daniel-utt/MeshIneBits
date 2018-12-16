@@ -54,6 +54,8 @@ public class Layer extends Observable implements Serializable {
     private Map<Vector2, Bit3D> mapBits3D;
     private boolean paved = false;
     private Collection<Vector2> irregularBits; // should be concurrent
+    private double lowerAltitude;
+    private double higherAltitude;
 
     /**
      * Rebuild the whole layer. To be called after overall changes made on this
@@ -87,7 +89,7 @@ public class Layer extends Observable implements Serializable {
     private void extrudeBitsTo3D() {
         mapBits3D = flatPavement.getBitsKeys().parallelStream()
                 .collect(Collectors.toConcurrentMap(key -> key,
-                        key -> new Bit3D(flatPavement.getBit(key)),
+                        key -> new Bit3D(flatPavement.getBit(key), this),
                         (u, v) -> u, // Preserve the first
                         ConcurrentHashMap::new));
     }
@@ -99,7 +101,7 @@ public class Layer extends Observable implements Serializable {
      */
     private void rebuild(Vector2 key) {
         if (flatPavement.getBit(key) != null) {
-            Bit3D bit3D = new Bit3D(flatPavement.getBit(key));
+            Bit3D bit3D = new Bit3D(flatPavement.getBit(key), this);
             mapBits3D.put(key, bit3D);
             if (bit3D.isIrregular())
                 irregularBits.add(key);
@@ -122,6 +124,10 @@ public class Layer extends Observable implements Serializable {
         this.horizontalArea = AreaTool.getAreaFrom(horizontalSection);
         this.patternTemplate = null;
         this.flatPavement = null;
+        this.lowerAltitude = horizontalSection.getAltitude()
+                - CraftConfig.firstSliceHeightPercent / 100
+                * CraftConfig.bitThickness;
+        this.higherAltitude = this.lowerAltitude + CraftConfig.bitThickness;
     }
 
     /**
@@ -441,4 +447,13 @@ public class Layer extends Observable implements Serializable {
         paved = true;
         rebuild();
     }
+
+    public double getLowerAltitude() {
+        return lowerAltitude;
+    }
+
+    public double getHigherAltitude() {
+        return higherAltitude;
+    }
+
 }

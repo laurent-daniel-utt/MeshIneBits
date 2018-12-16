@@ -35,4 +35,14 @@ import java.io.Serializable;
 public class Slice extends Shape2D implements Serializable {
     public Slice() {
     }
+
+    private double altitude;
+
+    public double getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
+    }
 }
