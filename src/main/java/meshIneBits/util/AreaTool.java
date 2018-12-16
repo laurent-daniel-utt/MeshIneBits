@@ -23,7 +23,6 @@
 package meshIneBits.util;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.slicer.Slice;
 
 import java.awt.geom.*;
 import java.util.*;
@@ -653,12 +652,5 @@ public class AreaTool {
                 segment.start.add(distance),
                 segment.end.add(distance)
         );
-    }
-
-    public static Slice getSliceFrom(Area area) {
-        Slice slice = new Slice();
-        getPolygonsFrom(area).forEach(polygon -> polygon.forEach(slice::addModelSegment));
-        slice.optimize();
-        return slice;
     }
 }

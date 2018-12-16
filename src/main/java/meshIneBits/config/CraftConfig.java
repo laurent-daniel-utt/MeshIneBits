@@ -44,8 +44,8 @@ public class CraftConfig {
     // Slicer options
 
     @DoubleSetting(
-            title = "Space between layers",
-            description = "The vertical gap between each layers (in mm)",
+            title = "Space between layers (mm)",
+            description = "The vertical gap between each layers",
             step = 0.01,
             minValue = 0.01,
             maxValue = 100.0,
@@ -57,8 +57,8 @@ public class CraftConfig {
     public static double layersOffset = 0.25;
 
     @DoubleSetting(
-            title = "First slice height (%)",
-            description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
+            title = "First slice height (% of a bit's thickness)",
+            description = "Starting height of the first slice in the model. 50% is the default.",
             minValue = 1.0,
             maxValue = 99.0,
             defaultValue = 50
@@ -83,8 +83,8 @@ public class CraftConfig {
     // Bits options
 
     @DoubleSetting(
-            title = "Bit thickness",
-            description = "Thickness of the bits (in mm)",
+            title = "Bit thickness (mm)",
+            description = "Thickness of the bits",
             minValue = 1.0,
             maxValue = 1000.0,
             defaultValue = 8.0
@@ -95,8 +95,8 @@ public class CraftConfig {
     public static double bitThickness = 8.0;
 
     @DoubleSetting(
-            title = "Bit width",
-            description = "Width of the bits (in mm)",
+            title = "Bit width (mm)",
+            description = "Width of the bits",
             minValue = 1.0,
             maxValue = 1000.0,
             defaultValue = 24.0
@@ -107,8 +107,8 @@ public class CraftConfig {
     public static double bitWidth = 24.0;
 
     @DoubleSetting(
-            title = "Bit length",
-            description = "Length of the bits (in mm)",
+            title = "Bit length (mm)",
+            description = "Length of the bits",
             minValue = 1.0,
             maxValue = 1000.0,
             defaultValue = 120.0
@@ -153,8 +153,8 @@ public class CraftConfig {
     public static PatternTemplate templateChoice = templatesPreloaded[0];
 
     @DoubleSetting(
-            title = "Suction cup diameter",
-            description = "Diameter of the suction cup which lifts the bits (in mm)",
+            title = "Suction cup diameter (mm)",
+            description = "Diameter of the suction cup which lifts the bits",
             minValue = 1.0,
             maxValue = 100.0,
             defaultValue = 10.0
@@ -203,8 +203,8 @@ public class CraftConfig {
     public static int errorAccepted = 5;
 
     @FloatSetting(
-            title = "Printer X",
-            description = "Length of printer in mm",
+            title = "Printer X (mm)",
+            description = "Length of printer",
             minValue = 0,
             defaultValue = 8000
     )
@@ -214,8 +214,8 @@ public class CraftConfig {
     public static float printerX = 8000f;
 
     @FloatSetting(
-            title = "Printer Y",
-            description = "Width of printer in mm",
+            title = "Printer Y (mm)",
+            description = "Width of printer",
             minValue = 0,
             defaultValue = 4000
     )
@@ -225,8 +225,8 @@ public class CraftConfig {
     public static float printerY = 4000f;
 
     @FloatSetting(
-            title = "Printer Z",
-            description = "Height of printer in mm",
+            title = "Printer Z (mm)",
+            description = "Height of printer",
             minValue = 0,
             defaultValue = 2000
     )
@@ -236,7 +236,7 @@ public class CraftConfig {
     public static float printerZ = 2000f;
 
     @FloatSetting(
-            title = "Working width",
+            title = "Working width (mm)",
             minValue = 0,
             defaultValue = 500
     )
@@ -246,7 +246,7 @@ public class CraftConfig {
     public static float workingWidth = 500;
 
     @FloatSetting(
-            title = "Margin",
+            title = "Margin (mm)",
             minValue = 0,
             defaultValue = 0
     )

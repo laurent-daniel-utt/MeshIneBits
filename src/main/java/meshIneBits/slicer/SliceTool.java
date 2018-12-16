@@ -80,7 +80,9 @@ public class SliceTool extends Observable implements Runnable {
         int sliceCount = (int) (Math.floor((modelMax.z - firstSliceHeight) / sliceDistance) + 1);
 
         for (int i = 0; i < sliceCount; i++) {
-            slices.add(new Slice());
+            Slice s = new Slice();
+            s.setAltitude(firstSliceHeight + i * sliceDistance);
+            slices.add(s); // holder
         }
 
         int n = 0;
@@ -109,10 +111,11 @@ public class SliceTool extends Observable implements Runnable {
             // Project each segment on slices
             int inf = (int) Math.floor((zMin - firstSliceHeight) / sliceDistance); // index of lowest floor above zMin
             int sup = (int) Math.floor((zMax - firstSliceHeight) / sliceDistance); // index of highest floor under zMax
-            for (int i = inf; i <= sup; i++) {
-                double sliceZ = i * sliceDistance + firstSliceHeight;
-                Segment2D s = t.project2D(sliceZ);
-                if (s != null) slices.get(i).addModelSegment(s);
+            for (int i = Math.max(inf, 0); i <= Math.min(sup, sliceCount - 1); i++) {
+                Slice s = slices.get(i);
+                double sliceZ = s.getAltitude();
+                Segment2D project2D = t.project2D(sliceZ);
+                if (project2D != null) s.addModelSegment(project2D);
             }
         }
 
