@@ -57,7 +57,7 @@ public class CraftConfig {
     public static double layersOffset = 0.25;
 
     @DoubleSetting(
-            title = "First slice height",
+            title = "First slice height (%)",
             description = "Starting height of the first slice in the model (in % of a bit's thickness). 50% is the default.",
             minValue = 1.0,
             maxValue = 99.0,
@@ -240,7 +240,7 @@ public class CraftConfig {
             minValue = 0,
             defaultValue = 500
     )
-    @XMLSetting(
+    @PrinterSetting(
             order = 0
     )
     public static float workingWidth = 500;
@@ -270,15 +270,15 @@ public class CraftConfig {
             minValue = 1,
             defaultValue = 10
     )
-    @SchedulerSetting()
+    @PrinterSetting()
     public static int nbBitesByPlat = 10;
 
     @IntegerSetting(
-            title = "Number of bits by Batch",
+            title = "Number of bits on a Batch",
             minValue = 1,
             defaultValue = 50
     )
-    @SchedulerSetting()
+    @PrinterSetting()
     public static int nbBitesBatch = 50;
 
     @DoubleSetting(
