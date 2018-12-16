@@ -712,7 +712,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void B(int value) {
         value *= 255. / 100.;
         for (Pair<Position, PShape> p : shapeMap) {
-            p.getValue().setFill(color(19, 100, 50, value));
+            p.getValue().stroke(0,0,0, value);
+            p.getValue().setFill(color(112, 66, 20, value));
         }
     }
 
