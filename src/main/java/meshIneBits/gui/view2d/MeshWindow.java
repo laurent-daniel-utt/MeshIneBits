@@ -626,7 +626,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction scheduleMesh = new MeshAction(
                 "scheduleMesh",
-                "Schedule Mesh",
+                "Bit cut and place scheduling",
                 "mesh-schedule.png",
                 "Index bits to print",
                 "alt I",

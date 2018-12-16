@@ -31,7 +31,7 @@ import java.awt.*;
 
 public class UPPScheduleMesh extends UtilityParametersPanel {
     public UPPScheduleMesh(MeshController meshController) {
-        super("Schedule Mesh");
+        super("Bit cut and place scheduling");
         setLayout(new FlowLayout(FlowLayout.LEADING));
         setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
