@@ -485,7 +485,7 @@ public class MeshController extends Observable implements Observer {
      * @param position in {@link Mesh} coordinate system
      * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
      */
-    public Vector2 findBitAt(Point2D.Double position) {
+    private Vector2 findBitAt(Point2D.Double position) {
         Pavement flatPavement = currentLayer.getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
             if (flatPavement.getBit(key).getArea().contains(position))
@@ -860,6 +860,31 @@ public class MeshController extends Observable implements Observer {
                 return isSelectingRegion();
         }
         return false;
+    }
+
+    public void moveSelectedBits(Vector2 direction) {
+        setSelectedBitKeys(currentLayer.moveBits(getSelectedBits(), direction));
+    }
+
+    /**
+     * Add new bit key to {@link #selectedBitKeys} and remove if already
+     * present
+     *
+     * @param clickSpot in {@link Mesh} coordinate system
+     */
+    public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
+        Vector2 bitKey = findBitAt(clickSpot);
+        if (mesh == null || !mesh.isPaved() || bitKey == null) {
+            return;
+        }
+        if (!selectedBitKeys.add(bitKey)) {
+            selectedBitKeys.remove(bitKey);
+            changes.firePropertyChange(BIT_UNSELECTED, null, currentLayer.getBit3D(bitKey));
+        } else
+            changes.firePropertyChange(BIT_SELECTED, null, currentLayer.getBit3D(bitKey));
+        // Notify the core
+        setChanged();
+        notifyObservers();
     }
 
     /**
