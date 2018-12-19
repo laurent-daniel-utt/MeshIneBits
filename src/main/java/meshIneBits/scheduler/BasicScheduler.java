@@ -7,6 +7,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
@@ -58,6 +59,7 @@ public class BasicScheduler extends AScheduler {
     @Override
     public boolean schedule() {
         System.out.println("Basic scheduler schedule");
+        Logger.setProgress(0, this.mesh.getLayers().size());
         double xMin;
         this.sortedBits.clear();
 
@@ -68,6 +70,7 @@ public class BasicScheduler extends AScheduler {
             bits = this.sortBits(bits, Math.abs(xMin));
             this.sortedBits.addAll(bits);
             this.firstLayerBits.add(bits.firstElement().getKey());
+            Logger.setProgress(curLayer.getLayerNumber()+1, this.mesh.getLayers().size());
         }
         System.out.println("Basic scheduler end scheduling");
         return true;

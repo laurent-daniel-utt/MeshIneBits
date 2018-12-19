@@ -56,7 +56,7 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
     private HashMap<Position, PShape> shapeMap;
 
     private final int BACKGROUND_COLOR = color(150, 150, 150);
-    private final int BIT_COLOR = color(219, 100, 50);
+    private final int BIT_COLOR = color(112, 66, 20);
     private float printerX;
     private float printerY;
     private float printerZ;

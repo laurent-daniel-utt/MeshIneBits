@@ -69,8 +69,9 @@ public abstract class AScheduler extends Observable implements Serializable, Run
 
     public void run(){
         notifyObservers(MeshEvents.SCHEDULING);
-        Logger.updateStatus("Starting scheduling operation");
+        Logger.updateStatus("Starting bits cut & place scheduling operation.");
         schedule();
+        Logger.updateStatus("Bits cut & place scheduling is over.");
         notifyObservers(MeshEvents.SCHEDULED);
     }
 

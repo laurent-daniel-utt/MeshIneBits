@@ -39,7 +39,6 @@ class MeshSettingsWindow extends JFrame {
     private final TabContentPanel slicerSettingsPanel;
     private final TabContentPanel assemblerSettingsPanel;
     private final TabContentPanel xmlSettingsPanel;
-    private final TabContentPanel schedulerSettingsPanel;
     private final TabContentPanel printerSettingsPanel;
 
     MeshSettingsWindow() throws HeadlessException {
@@ -64,8 +63,6 @@ class MeshSettingsWindow extends JFrame {
         tabbedPane.addTab("Assembler", assemblerSettingsPanel);
         xmlSettingsPanel = new TabContentPanel(CraftConfig.xmlSettings);
         tabbedPane.addTab("XML", xmlSettingsPanel);
-        schedulerSettingsPanel = new TabContentPanel(CraftConfig.schedulerSettings);
-        tabbedPane.addTab("Scheduler", schedulerSettingsPanel);
         printerSettingsPanel = new TabContentPanel(CraftConfig.printerSettings);
         tabbedPane.addTab("Printer", printerSettingsPanel);
 
@@ -73,9 +70,17 @@ class MeshSettingsWindow extends JFrame {
         JPanel dummy = new JPanel();
         add(dummy, BorderLayout.SOUTH);
         dummy.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        JButton resetDefault = new JButton("Default");
+        JButton resetDefault = new JButton("Reset to default value");
         resetDefault.addActionListener(e -> reset());
         dummy.add(resetDefault);
+
+        JButton okButton = new JButton("Ok");
+        okButton.addActionListener(e -> {
+            JComponent comp = (JComponent) e.getSource();
+            Window win = SwingUtilities.getWindowAncestor(comp);
+            win.dispose();
+        });
+        dummy.add(okButton);
 
         setLocationRelativeTo(null);
         setVisible(false);
@@ -86,7 +91,6 @@ class MeshSettingsWindow extends JFrame {
         slicerSettingsPanel.reset();
         assemblerSettingsPanel.reset();
         xmlSettingsPanel.reset();
-        schedulerSettingsPanel.reset();
         printerSettingsPanel.reset();
     }
 
