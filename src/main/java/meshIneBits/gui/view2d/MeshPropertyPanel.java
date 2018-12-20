@@ -29,13 +29,15 @@ import meshIneBits.util.Logger;
 import java.io.File;
 
 class MeshPropertyPanel extends PropertyPanel {
-    static final String MODEL_POSITION = "Model Position";
-    static final String MODEL_NAME = "Model Name";
-    static final String MODEL_PATH = "Model Path";
-    static final String MODEL_NUMBER_OF_TRIANGLES = "Number of Triangles in Model";
-    static final String MODEL_SKIRT_RADIUS = "Model Skirt Radius";
-    static final String MESH_LAYERS = "Number of Layers";
+    private static final String MODEL_POSITION = "Model Position";
+    private static final String MODEL_NAME = "Model Name";
+    private static final String MODEL_PATH = "Model Path";
+    private static final String MODEL_NUMBER_OF_TRIANGLES = "Number of Triangles in Model";
+    private static final String MODEL_SKIRT_RADIUS = "Model Skirt Radius";
+    private static final String MESH_LAYERS = "Number of Layers";
     static final String MESH_STATE = "State";
+    static final String MESH_IRREGULARITIES = "Irregularities";
+    private Mesh mesh;
 
     MeshPropertyPanel() {
         super("Current Mesh");
@@ -58,7 +60,8 @@ class MeshPropertyPanel extends PropertyPanel {
                     {MODEL_NUMBER_OF_TRIANGLES, "UNKNOWN"},
                     {MODEL_SKIRT_RADIUS, "UNKNOWN"},
                     {MESH_LAYERS, "UNKNOWN"},
-                    {MESH_STATE, "UNKNOWN"}
+                    {MESH_STATE, "UNKNOWN"},
+                    {MESH_IRREGULARITIES, "UNKNOWN"}
             };
         else {
             File modelFile = new File(mesh.getModelFile());
@@ -70,7 +73,8 @@ class MeshPropertyPanel extends PropertyPanel {
                     {MODEL_NUMBER_OF_TRIANGLES, String.valueOf(model.getTriangles().size())},
                     {MODEL_SKIRT_RADIUS, String.valueOf(mesh.getSkirtRadius())},
                     {MESH_LAYERS, String.valueOf(mesh.getLayers().size())},
-                    {MESH_STATE, String.valueOf(mesh.getState())}
+                    {MESH_STATE, String.valueOf(mesh.getState())},
+                    {MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities())}
             };
         }
     }
@@ -78,7 +82,9 @@ class MeshPropertyPanel extends PropertyPanel {
     @Override
     public void updateProperties(Object object) {
         try {
-            String[][] properties = getPropertiesOf((Mesh) object);
+            Mesh mesh = (Mesh) object;
+            this.mesh = mesh;
+            String[][] properties = getPropertiesOf(mesh);
             for (String[] property : properties) {
                 updateProperty(property[0], property[1]);
             }
@@ -86,5 +92,11 @@ class MeshPropertyPanel extends PropertyPanel {
             e.printStackTrace();
             Logger.error(e.getMessage());
         }
+    }
+
+    void updateMeshProperties() {
+        // We only need to update irregularities and state
+        updateProperty(MESH_STATE, String.valueOf(mesh.getState()));
+        updateProperty(MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities()));
     }
 }

@@ -72,6 +72,7 @@ public class MeshController extends Observable implements Observer {
     public static final String BIT_SELECTED = "bitSelected";
     public static final String BITS_SELECTED = "bitsSelected";
     public static final String DELETING_BITS = "deletingBits";
+    public static final String BITS_DELETED = "deletedBits";
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -203,6 +204,7 @@ public class MeshController extends Observable implements Observer {
                     notifyObservers(MeshEvents.PAVED_MESH);
                     // Notify property panel
                     changes.firePropertyChange(MESH_PAVED, null, mesh);
+                    changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
                     break;
                 case PAVING_LAYER:
                     break;
@@ -436,6 +438,7 @@ public class MeshController extends Observable implements Observer {
         currentLayer.removeBits(selectedBitKeys, true);
         selectedBitKeys.clear();
         currentLayer.rebuild();
+        changes.firePropertyChange(BITS_DELETED, null, currentLayer);
     }
 
     public void incrementBitsOrientationParamBy(double v) {

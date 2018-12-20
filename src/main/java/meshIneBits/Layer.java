@@ -128,6 +128,7 @@ public class Layer extends Observable implements Serializable {
                 - CraftConfig.firstSliceHeightPercent / 100
                 * CraftConfig.bitThickness;
         this.higherAltitude = this.lowerAltitude + CraftConfig.bitThickness;
+        this.irregularBits = new ConcurrentLinkedQueue<>();
     }
 
     /**
