@@ -553,9 +553,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     private class BitControls extends Vector<Area> {
         BitControls(Bit3D bit, Graphics2D g2d) {
-            Bit2D baseBit = bit.getBaseBit();
-            double bitLength = baseBit.getLength(),
-                    bitWidth = baseBit.getWidth();
             // Defining the shape of the arrows
             TriangleShape triangleShape = new TriangleShape(
                     new Point2D.Double(0, 0),
@@ -568,17 +565,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                     new Rectangle2D.Double(
                             -CraftConfig.bitLength / 2,
                             -CraftConfig.bitWidth / 2,
-                            bitLength,
-                            bitWidth)
-            );
-            overlapBit.transform(baseBit.getTransfoMatrix());
+                            CraftConfig.bitLength,
+                            CraftConfig.bitWidth));
+            overlapBit.transform(bit.getBaseBit().getTransfoMatrix());
 
             Vector<Area> arrows = new Vector<>();
             AffineTransform affTrans;
 
             Area topArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(0, -padding - (bitWidth / 2));
+            affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
             affTrans.rotate(0, 0);
             topArrow.transform(affTrans);
             arrows.add(topArrow);
@@ -586,7 +582,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area leftArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(padding + (bitLength / 2), 0);
+            affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
             affTrans.rotate(0, 1);
             leftArrow.transform(affTrans);
             arrows.add(leftArrow);
@@ -594,7 +590,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area bottomArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(0, padding + (bitWidth / 2));
+            affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
             affTrans.rotate(-1, 0);
             bottomArrow.transform(affTrans);
             arrows.add(bottomArrow);
@@ -602,7 +598,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area rightArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(-padding - (bitLength / 2), 0);
+            affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
             affTrans.rotate(0, -1);
             rightArrow.transform(affTrans);
             arrows.add(rightArrow);
