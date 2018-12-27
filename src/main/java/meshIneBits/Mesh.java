@@ -472,6 +472,12 @@ public class Mesh extends Observable implements Observer, Serializable {
         return modelFile;
     }
 
+    public int countIrregularities() {
+        return layers.stream()
+                .mapToInt(layer -> layer.getKeysOfIrregularBits().size())
+                .sum();
+    }
+
     /**
      * In charge of paving layers sequentially
      */

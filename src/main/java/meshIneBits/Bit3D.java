@@ -100,10 +100,6 @@ public class Bit3D implements Serializable {
         }
     }
 
-    public Bit2D getBit2dToExtrude() {
-        return bit2dToExtrude;
-    }
-
     public List<Path2D> getRawCutPaths() {
         return rawCutPaths;
     }

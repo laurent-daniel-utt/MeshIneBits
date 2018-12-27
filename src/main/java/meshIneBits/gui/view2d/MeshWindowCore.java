@@ -151,20 +151,19 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                     for (int i = 0; i < controls.size(); i++) {
                         if (controls.get(i).contains(oldX, oldY)) {
                             bitMovers.clear();
-                            clickOnBitControl(i);
+                            onClickedBitControl(i);
                             return;
                         }
                     }
                 }
 
                 // Look for a bit which contains the clicked spot
-                meshController.addOrRemoveSelectedBitKeys(meshController.findBitAt(clickSpot));
+                meshController.toggleInclusionOfBitHaving(clickSpot);
             }
         }
     }
 
-    private void clickOnBitControl(int id) {
-        Layer layer = meshController.getCurrentLayer();
+    private void onClickedBitControl(int id) {
         Vector2 direction = null;
 
         // Every directions are in the bit's local coordinate system
@@ -183,7 +182,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 break;
         }
         // Move all selected bits
-        meshController.setSelectedBitKeys(layer.moveBits(meshController.getSelectedBits(), direction));
+        meshController.moveSelectedBits(direction);
     }
 
     @Override

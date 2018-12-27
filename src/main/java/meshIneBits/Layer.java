@@ -128,6 +128,7 @@ public class Layer extends Observable implements Serializable {
                 - CraftConfig.firstSliceHeightPercent / 100
                 * CraftConfig.bitThickness;
         this.higherAltitude = this.lowerAltitude + CraftConfig.bitThickness;
+        this.irregularBits = new ConcurrentLinkedQueue<>();
     }
 
     /**
@@ -394,7 +395,7 @@ public class Layer extends Observable implements Serializable {
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
      */
     public Vector2 scaleBit(Bit3D bit, double percentageLength, double percentageWidth) {
-        Bit2D modelBit = bit.getBit2dToExtrude();
+        Bit2D modelBit = bit.getBaseBit();
         removeBit(bit.getOrigin(), true);
         if (percentageLength != 0 && percentageWidth != 0) {
             modelBit.resize(percentageLength, percentageWidth);

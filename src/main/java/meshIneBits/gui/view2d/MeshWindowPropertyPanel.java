@@ -98,25 +98,33 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
                 meshPropertyPanel.updateProperties(val);
                 break;
             case MeshController.MESH_PAVED:
-                meshPropertyPanel.updateProperty(MeshPropertyPanel.MESH_STATE, "PAVED");
+                meshPropertyPanel.updateMeshProperties();
                 break;
             case MeshController.MESH_OPTIMIZED:
-                meshPropertyPanel.updateProperty(MeshPropertyPanel.MESH_STATE, "OPTIMIZED");
                 break;
             case MeshController.LAYER_PAVED:
                 layerPropertyPanel.updateProperties(val);
+                meshPropertyPanel.updateMeshProperties();
                 break;
             case MeshController.BIT_SELECTED:
                 bitsPropertyPanel.selectBit((Bit3D) val);
+                meshPropertyPanel.updateMeshProperties();
                 break;
             case MeshController.BIT_UNSELECTED:
                 bitsPropertyPanel.unselectBit((Bit3D) val);
+                meshPropertyPanel.updateMeshProperties();
                 break;
             case MeshController.BITS_SELECTED:
                 bitsPropertyPanel.selectBits((Collection<Bit3D>) val);
+                meshPropertyPanel.updateMeshProperties();
                 break;
             case MeshController.DELETING_BITS:
                 bitsPropertyPanel.unselectBits((Collection<Bit3D>) val);
+                break;
+            case MeshController.BITS_DELETED:
+                layerPropertyPanel.updateProperties(val);
+                meshPropertyPanel.updateMeshProperties();
+                break;
         }
         revalidate();
     }
