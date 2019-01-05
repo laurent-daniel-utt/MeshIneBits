@@ -140,8 +140,6 @@ public class XmlTool {
 
         writer.println("		<bit>");
         writer.println("			<id>" + part.getScheduler().getBitIndex(bit) + "</id>");
-        writer.println("			<batch>" + part.getScheduler().getBitBatch(bit) + "</batch>");
-        writer.println("			<plate>" + part.getScheduler().getBitPlate(bit) + "</plate>");
         writer.println("			<cut>");
         if (bit.getRawCutPaths() != null) {
             for (Path2D p : bit.getRawCutPaths()) {
@@ -220,7 +218,9 @@ public class XmlTool {
         for (int id = 0; id < bit.getRawLiftPoints().size(); id++) {
             if (bit.getRawLiftPoints().get(id) != null) {
                 writer.println("			<subBit>");
-                writer.println("				<id>" + id + "</id>");
+                writer.println("			    <id>" + part.getScheduler().getBitIndex(bit) + "</id>");
+                writer.println("			    <batch>" + part.getScheduler().getBitBatch(bit) + "</batch>");
+                writer.println("			    <plate>" + part.getScheduler().getBitPlate(bit) + "</plate>");
                 writer.println("				<liftPoint>");
                 writer.println("					<x>" + bit.getRawLiftPoints().get(id).x + "</x>");
                 writer.println("					<y>" + bit.getRawLiftPoints().get(id).y + "</y>");
