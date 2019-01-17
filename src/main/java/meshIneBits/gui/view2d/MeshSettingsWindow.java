@@ -56,15 +56,15 @@ class MeshSettingsWindow extends JFrame {
 
         // Add tabs of settings
         bitSettingsPanel = new TabContentPanel(CraftConfig.bitSettings);
-        tabbedPane.addTab("Bit", bitSettingsPanel);
+        tabbedPane.addTab("Bit", new JScrollPane(bitSettingsPanel));
         slicerSettingsPanel = new TabContentPanel(CraftConfig.slicerSettings);
-        tabbedPane.addTab("Slicer", slicerSettingsPanel);
+        tabbedPane.addTab("Slicer", new JScrollPane(slicerSettingsPanel));
         assemblerSettingsPanel = new TabContentPanel(CraftConfig.assemblerSettings);
-        tabbedPane.addTab("Assembler", assemblerSettingsPanel);
+        tabbedPane.addTab("Assembler", new JScrollPane(assemblerSettingsPanel));
         xmlSettingsPanel = new TabContentPanel(CraftConfig.xmlSettings);
-        tabbedPane.addTab("XML", xmlSettingsPanel);
+        tabbedPane.addTab("XML", new JScrollPane(xmlSettingsPanel));
         printerSettingsPanel = new TabContentPanel(CraftConfig.printerSettings);
-        tabbedPane.addTab("Printer", printerSettingsPanel);
+        tabbedPane.addTab("Printer", new JScrollPane(printerSettingsPanel));
 
         // Default button
         JPanel dummy = new JPanel();
@@ -97,7 +97,7 @@ class MeshSettingsWindow extends JFrame {
     private class TabContentPanel extends JPanel {
         TabContentPanel(List<Field> fieldList) {
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            setLayout(new GridLayout(3, 0, 5, 5));
+            setLayout(new GridLayout(0, 1, 5, 5));
             setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
             for (Field field : fieldList) {
