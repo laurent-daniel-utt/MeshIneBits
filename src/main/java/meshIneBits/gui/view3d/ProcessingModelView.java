@@ -685,6 +685,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void Bits(boolean flag) {
         if (flag) {
             if (controller.getCurrentMesh().isPaved() && !built) {
+                if(!controller.getCurrentMesh().getScheduler().isScheduled()) {
+                    controller.getCurrentMesh().getScheduler().schedule();
+                }
                 builder.buildBits(shapeMap);
                 built = true;
             }
