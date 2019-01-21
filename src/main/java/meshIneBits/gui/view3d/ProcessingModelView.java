@@ -83,6 +83,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textarea tooltipApply;
     private Toggle toggleBits;
 
+    // Animation variable
+    private boolean isAnimated = false;
+    private int bitIndex = 0;
+    private int fpsRatioSpeed = 2;
+    private int lastFrames = 0;
+
     private DecimalFormat df;
 
     private boolean[] borders;
@@ -197,6 +203,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         drawWorkspace();
         mouseConstraints();
         scene.drawFrames();
+        animationProcess();
         if (built) {
             drawBits(shapeMap);
         }
@@ -291,6 +298,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         cp5.addButton("Reset").setPosition(20, 280).setSize(80, 20).setColorLabel(255);
         cp5.addButton("CenterCamera").setPosition(20, 310).setSize(80, 20).setColorLabel(255);
         cp5.addButton("Apply").setPosition(20, 340).setSize(80, 20).setColorLabel(255);
+        cp5.addButton("Animation").setPosition(20, 370).setSize(80, 20).setColorLabel(255);
 
         int color = gravity.getColor().getBackground();
 
@@ -701,6 +709,52 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 for (Pair<Position, PShape> aShapeMap : shapeMap) {
                     aShapeMap.getValue().setVisible(false);
                 }
+            }
+        }
+    }
+    public void Animation()
+    {
+        this.isAnimated = !isAnimated;
+        if(!isAnimated)
+        {
+            this.bitIndex = this.shapeMap.size();
+            for (Pair<Position, PShape> aShapeMap : shapeMap) {
+                aShapeMap.getValue().setVisible(true);
+            }
+        } else {
+            this.bitIndex = 0;
+            this.lastFrames = (int)(frameRate * fpsRatioSpeed);
+            Model(false);
+        }
+    }
+    protected void animationProcess()
+    {
+        if(!this.isAnimated) return ;
+        if(!built)
+        {
+            this.Bits(true);
+        }
+
+        this.lastFrames -= 1;
+        if(this.lastFrames <= 0)
+        {
+            if(this.bitIndex < this.shapeMap.size()) {
+                this.bitIndex += 1;
+                this.lastFrames = (int)(frameRate * fpsRatioSpeed);
+            }
+            else {
+                this.bitIndex = this.shapeMap.size();
+                this.isAnimated = false;
+            }
+        }
+
+        // Boucle de raffraichissement
+        for (Pair<Position, PShape> aShapeMap : shapeMap.subList(0, this.bitIndex)) {
+            aShapeMap.getValue().setVisible(true);
+        }
+        if(this.bitIndex < shapeMap.size()) {
+            for (Pair<Position, PShape> aShapeMap : shapeMap.subList(this.bitIndex + 1, shapeMap.size())) {
+                aShapeMap.getValue().setVisible(false);
             }
         }
     }
