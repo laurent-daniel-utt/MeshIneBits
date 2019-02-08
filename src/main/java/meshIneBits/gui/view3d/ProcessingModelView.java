@@ -83,6 +83,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textarea tooltipApply;
     private Toggle toggleBits;
 
+    // Animation variable
+    private boolean isAnimated = false;
+    private int bitIndex = 0;
+    private float fpsRatioSpeed = 2;
+    private int lastFrames = 0;
+
     private DecimalFormat df;
 
     private boolean[] borders;
@@ -197,6 +203,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         drawWorkspace();
         mouseConstraints();
         scene.drawFrames();
+        animationProcess();
         if (built) {
             drawBits(shapeMap);
         }
@@ -291,6 +298,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         cp5.addButton("Reset").setPosition(20, 280).setSize(80, 20).setColorLabel(255);
         cp5.addButton("CenterCamera").setPosition(20, 310).setSize(80, 20).setColorLabel(255);
         cp5.addButton("Apply").setPosition(20, 340).setSize(80, 20).setColorLabel(255);
+
+        cp5.addButton("Animation").setPosition(20, 370).setSize(80, 20).setColorLabel(255);
+        cp5.addSlider("bitIndex").setVisible(false).setSize(200, 30).setPosition(20, 400).getCaptionLabel().setText("");
+        cp5.addButton("animationSpeedUp").setVisible(false).setPosition(270, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText(">>");
+        cp5.addButton("animationSpeedDown").setVisible(false).setPosition(230, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText("<<");
 
         int color = gravity.getColor().getBackground();
 
@@ -685,6 +697,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void Bits(boolean flag) {
         if (flag) {
             if (controller.getCurrentMesh().isPaved() && !built) {
+                if(!controller.getCurrentMesh().getScheduler().isScheduled()) {
+                    controller.getCurrentMesh().getScheduler().schedule();
+                }
                 builder.buildBits(shapeMap);
                 built = true;
             }
@@ -700,6 +715,69 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 }
             }
         }
+    }
+    public void Animation()
+    {
+        this.isAnimated = !isAnimated;
+        if(!isAnimated)
+        {
+            this.bitIndex = this.shapeMap.size();
+            for (Pair<Position, PShape> aShapeMap : shapeMap) {
+                aShapeMap.getValue().setVisible(true);
+            }
+            cp5.getController("bitIndex").setVisible(false);
+            cp5.getController("animationSpeedUp").setVisible(false);
+            cp5.getController("animationSpeedDown").setVisible(false);
+        } else {
+            if(!built)
+            {
+                this.Bits(true);
+            }
+            this.bitIndex = 0;
+            this.lastFrames = (int)(frameRate * fpsRatioSpeed);
+            Model(false);
+            ((Slider)(cp5.getController("bitIndex"))).setRange(0, shapeMap.size()).setValue(0).setVisible(true);
+            cp5.getController("animationSpeedUp").setVisible(true);
+            cp5.getController("animationSpeedDown").setVisible(true);
+        }
+    }
+    protected void animationSpeedUp()
+    {
+        fpsRatioSpeed += 0.5;
+    }
+
+    protected void animationSpeedDown()
+    {
+        fpsRatioSpeed -= 0.5;
+    }
+
+    protected void animationProcess()
+    {
+        if(!this.isAnimated) return ;
+
+        this.lastFrames -= 1;
+        if(this.lastFrames <= 0)
+        {
+            if(this.bitIndex < this.shapeMap.size()) {
+                this.bitIndex += 1;
+                this.lastFrames = (int)(frameRate * fpsRatioSpeed);
+            }
+            else {
+                this.bitIndex = this.shapeMap.size();
+                this.isAnimated = false;
+            }
+        }
+
+        // Boucle de raffraichissement
+        for (Pair<Position, PShape> aShapeMap : shapeMap.subList(0, this.bitIndex)) {
+            aShapeMap.getValue().setVisible(true);
+        }
+        if(this.bitIndex < shapeMap.size()) {
+            for (Pair<Position, PShape> aShapeMap : shapeMap.subList(this.bitIndex + 1, shapeMap.size())) {
+                aShapeMap.getValue().setVisible(false);
+            }
+        }
+        cp5.getController("bitIndex").setValue(this.bitIndex);
     }
 
     @SuppressWarnings("unused")

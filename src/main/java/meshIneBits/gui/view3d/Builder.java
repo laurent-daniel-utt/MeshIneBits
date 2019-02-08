@@ -88,31 +88,26 @@ class Builder extends PApplet implements Observer {
         float layersOffSet = (float) CraftConfig.layersOffset;
 
         getUncutBitPShape(bitThickness);
-
-        float zLayer;
         int bitCount = 0;
+        Vector<Pair<Bit3D, Vector2>> sortedBits = controller.getCurrentMesh().getScheduler().getSortedBits();
 
-        for (Layer curLayer : layers) {
-            Vector<Pair<Bit3D, Vector2>> sortedBits = curLayer.sortBits();
-            zLayer = curLayer.getLayerNumber() * (bitThickness + layersOffSet);
-            for (Pair<Bit3D, Vector2> sortedBit : sortedBits) {
-                bitCount++;
-                Bit3D curBit = sortedBit.getKey();
-                PShape bitPShape;
-                pApplet.fill(BIT_COLOR);
-                pApplet.stroke(0);
-                bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
-                if (bitPShape != null) {
-                    Vector2 curBitCenter = curBit.getOrigin();
-                    float curBitCenterX = (float) curBitCenter.x;
-                    float curBitCenterY = (float) curBitCenter.y;
-                    float[] translation = {curBitCenterX, curBitCenterY, zLayer};
-                    float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
-                    Position curBitPosition = new Position(translation, rotation);
-                    shapeMap.add(new Pair<>(curBitPosition, bitPShape));
-                }
+        for (Pair<Bit3D, Vector2> sortedBit : sortedBits) {
+            bitCount++;
+            Bit3D curBit = sortedBit.getKey();
+            PShape bitPShape;
+            pApplet.fill(BIT_COLOR);
+            pApplet.stroke(0);
+            bitPShape = getBitPShapeFrom(curBit.getRawArea(), bitThickness);
+            if (bitPShape != null) {
+                Vector2 curBitCenter = curBit.getOrigin();
+                float curBitCenterX = (float) curBitCenter.x;
+                float curBitCenterY = (float) curBitCenter.y;
+                float[] translation = {curBitCenterX, curBitCenterY, (float) curBit.getLowerAltitude()};
+                float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
+                Position curBitPosition = new Position(translation, rotation);
+                shapeMap.add(new Pair<>(curBitPosition, bitPShape));
             }
-        }
+            }
         pApplet.noStroke();
         Logger.updateStatus("3D model built : " + bitCount + " bits generated.");
     }
