@@ -338,7 +338,7 @@ public class AreaTool {
         return getSegmentsFrom(area).stream()
                 .map(Polygon::extractFrom)
                 .filter(Objects::nonNull)
-                .filter(Polygon::isNegligible)
+                .filter(Polygon::isNotNegligible)
                 .collect(Collectors.toList());
     }
 

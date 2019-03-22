@@ -298,12 +298,12 @@ public class Polygon implements Iterable<Segment2D>, Serializable {
     }
 
     /**
-     * @return <tt>true</tt> if bound's height or width after rounding is 0
+     * @return <tt>true</tt> if bound's height and width after rounding art not 0
      * @see Rounder#round(double, int)
      */
-    boolean isNegligible() {
-        return Rounder.round(toPath2D().getBounds2D().getWidth(), CraftConfig.errorAccepted) == 0
-                || Rounder.round(toPath2D().getBounds2D().getHeight(), CraftConfig.errorAccepted) == 0;
+    boolean isNotNegligible() {
+        return Rounder.round(toPath2D().getBounds2D().getWidth(), CraftConfig.errorAccepted) > 0
+                && Rounder.round(toPath2D().getBounds2D().getHeight(), CraftConfig.errorAccepted) > 0;
     }
 
     private class Segment2DIterator implements Iterator<Segment2D> {
