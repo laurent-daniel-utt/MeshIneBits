@@ -22,10 +22,6 @@ public class HandlerRedoUndo{
         void redo();
     }
 
-//    public void pushAction(ActionMoveBit a){
-//        this.actionBits.push(a);
-//    }
-
     public Stack<ActionMoveBit> getPreviousActionBits() {
         return previousActionBits;
     }
