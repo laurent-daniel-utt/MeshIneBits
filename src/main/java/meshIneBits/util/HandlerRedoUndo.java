@@ -19,6 +19,9 @@ public class HandlerRedoUndo{
         this.previousActionOfUserBits = new Stack<ActionOfUser>();
         this.afterActionOfUserBits = new Stack<>();
     }
+    /**
+     * Action with bits of user
+     * */
     private interface ActionOfUser {
 
         public void runUndo(MeshController meshController);
@@ -40,8 +43,8 @@ public class HandlerRedoUndo{
     * Save actions scaling bits
     * */
     public static class ActionOfUserScaleBit implements ActionOfUser {
-        private double setPercentageLength;
-        private double setPercentageWidth;
+        private final double setPercentageLength;
+        private final double setPercentageWidth;
         private Map<Vector2,Double[]> keyMapLengthWidth;
 
 
@@ -89,13 +92,13 @@ public class HandlerRedoUndo{
          */
         private Set<Vector2> resultKeys;
         private Set<Bit3D> currentSelectedBits;
-        private int layerNum;
-        private Set<Vector2> previousSelectedBits =new HashSet<Vector2>();
+        private final int layerNum;
+        private Set<Vector2> previousSelectedBits =new HashSet<>();
 
 
         public ActionOfUserMoveBit(Set<Bit3D> previousState, Set<Vector2> previousSelectedBits, Set<Vector2> resultKeys, Set<Bit3D> currentSelectedBits, int layerNumber) {
             if(previousState!=null){
-                this.previousState = new HashSet<Bit3D>(previousState);
+                this.previousState = new HashSet<>(previousState);
             }
             if(previousSelectedBits!=null){
                 this.previousSelectedBits=previousSelectedBits;
@@ -105,7 +108,7 @@ public class HandlerRedoUndo{
             }
             if(currentSelectedBits!=null){
                 System.out.println("OKKK");
-                this.currentSelectedBits=new HashSet<Bit3D>(currentSelectedBits);
+                this.currentSelectedBits=new HashSet<>(currentSelectedBits);
             }
             this.layerNum=layerNumber;
         }
@@ -164,7 +167,7 @@ public class HandlerRedoUndo{
      * call by MeshController, for redoing the previous actions
      * */
     public void undo(MeshController meshController){
-        if(previousActionOfUserBits !=null && previousActionOfUserBits.size()!=0) {
+        if(previousActionOfUserBits.size()!=0) {
             ActionOfUser lastAction = previousActionOfUserBits.pop();
             afterActionOfUserBits.add(lastAction);
             lastAction.runUndo(meshController);
@@ -174,7 +177,7 @@ public class HandlerRedoUndo{
      * call by MeshController, for redoing the following actions
      * */
     public void redo(MeshController meshController){
-        if(afterActionOfUserBits !=null && afterActionOfUserBits.size()!=0) {
+        if(afterActionOfUserBits.size()!=0) {
             ActionOfUser lastAction = afterActionOfUserBits.pop();
             previousActionOfUserBits.add(lastAction);
             lastAction.runRedo(meshController);
