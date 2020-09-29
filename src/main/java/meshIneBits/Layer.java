@@ -28,14 +28,21 @@ import meshIneBits.patterntemplates.ManualPattern;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
+import java.awt.*;
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
+import java.awt.geom.AffineTransform;
+
 
 /**
  * A layer contains all the bit 3D for a given Z. These bits are organized
@@ -49,6 +56,7 @@ public class Layer extends Observable implements Serializable {
     private int layerNumber;
     private Slice horizontalSection;
     private transient Area horizontalArea;
+    private Path2D.Double horizontalAreaConvert;
     private Pavement flatPavement;
     private PatternTemplate patternTemplate;
     private Map<Vector2, Bit3D> mapBits3D;
@@ -56,6 +64,70 @@ public class Layer extends Observable implements Serializable {
     private Collection<Vector2> irregularBits; // should be concurrent
     private double lowerAltitude;
     private double higherAltitude;
+
+
+//    public static class AreaSerializable extends Area implements Serializable{
+//        private static final long serialVersionUID = -3627137348463415558L;
+//        public AreaSerializable(){
+//            super();
+//        }
+//
+//        @Override
+//        public Object clone() {
+//            return new AreaSerializable(this);
+//        }
+//
+//        public AreaSerializable(Shape s) {
+//            super(s);
+//        }
+//        /**
+//         * Writes object out to out.
+//         * @param out Output
+//         * @throws IOException if I/O errors occur while writing to the
+//         *  underlying OutputStream
+//         */
+//        public void writeObject(java.io.ObjectOutputStream out)
+//                throws IOException {
+//            out.writeObject(AffineTransform.getTranslateInstance(0, 0).
+//                    createTransformedShape(this));
+//        }
+//        /**
+//         * Reads object in from in.
+//         * @param in Input
+//         * @throws IOException if I/O errors occur while writing to the
+//         *  underlying OutputStream
+//         * @throws ClassNotFoundException if the class of a serialized object
+//         *  could not be found.
+//         */
+//        public void readObject(java.io.ObjectInputStream in)
+//                throws IOException, ClassNotFoundException {
+//            add(new Area((Shape) in.readObject()));
+//        }
+//    }
+public static class SerializeArea {
+
+        static Path2D.Double toPath2D(final Area a) {
+        final PathIterator pi = a.getPathIterator(new AffineTransform());
+        final Path2D.Double path = new Path2D.Double();
+        switch (pi.getWindingRule()) {
+            case PathIterator.WIND_EVEN_ODD: path.setWindingRule(Path2D.WIND_EVEN_ODD); break;
+            case PathIterator.WIND_NON_ZERO: path.setWindingRule(Path2D.WIND_NON_ZERO); break;
+            default: throw new UnsupportedOperationException("Unimplemented winding rule.");
+        }
+        path.append(pi, false);
+        return path;
+    }
+
+    public static Area toArea(final Path2D path) {
+        return new Area(path);
+    }
+}
+    public void convertHorizontalAreatoPath2D(){
+        this.horizontalAreaConvert=SerializeArea.toPath2D(this.horizontalArea);
+    }
+    public void convertPath2DtoHorizontalArea(){
+        this.horizontalArea=SerializeArea.toArea(this.horizontalAreaConvert);
+    }
 
     /**
      * Rebuild the whole layer. To be called after overall changes made on this
@@ -122,6 +194,8 @@ public class Layer extends Observable implements Serializable {
         this.layerNumber = layerNumber;
         this.horizontalSection = horizontalSection;
         this.horizontalArea = AreaTool.getAreaFrom(horizontalSection);
+//        Area area = AreaTool.getAreaFrom(horizontalSection);
+//        AreaSerializable areaSerializable = (AreaSerializable) horizontalArea;
         this.patternTemplate = null;
         this.flatPavement = null;
         this.lowerAltitude = horizontalSection.getAltitude()
@@ -196,6 +270,9 @@ public class Layer extends Observable implements Serializable {
      */
     private Area getInteriorArea(Bit2D bit2D) {
         Area bitArea = bit2D.getArea();
+        if(horizontalArea==null){
+            Logger.message("null valeur");
+        }
         bitArea.intersect(horizontalArea);
         if (bitArea.isEmpty()) {
             // Out of bound

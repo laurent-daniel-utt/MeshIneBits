@@ -59,8 +59,11 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public static Mesh open(File file) throws IOException, ClassNotFoundException {
+        Logger.message("open starts");
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return ((Mesh) ois.readObject());
+            Mesh mesh =(Mesh) ois.readObject();
+            mesh.convertAllLayerPath2DToHorizontalArea();
+            return mesh;
         }
     }
 
@@ -456,8 +459,11 @@ public class Mesh extends Observable implements Observer, Serializable {
     }
 
     public void saveAs(File file) throws IOException {
+        this.convertAllLayerHorizontalAreaToPath2D();
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            System.out.println(file.getPath());
             oos.writeObject(this);
+
             oos.flush();
             setChanged();
             notifyObservers(MeshEvents.SAVED);
@@ -775,6 +781,22 @@ public class Mesh extends Observable implements Observer, Serializable {
             layer.paveRegion(region, patternTemplate);
             setChanged();
             notifyObservers(MeshEvents.PAVED_LAYER);
+        }
+    }
+    /**
+     * Convert all layer's propertie HorizontalArea to Path2D.double for serialize the propertie HorizontalArea
+     */
+    public void convertAllLayerHorizontalAreaToPath2D(){
+        for(Layer l : this.getLayers()){
+            l.convertHorizontalAreatoPath2D();
+        }
+    }
+    /**
+     * Convert all layer's propertie Path2D.double to HorizontalArea  for reload file
+     */
+    public void convertAllLayerPath2DToHorizontalArea(){
+        for(Layer l : this.getLayers()){
+            l.convertPath2DtoHorizontalArea();
         }
     }
 }
