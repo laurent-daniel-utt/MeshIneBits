@@ -61,6 +61,7 @@ public class MeshWindow extends JFrame {
     private ProcessingModelView view3DWindow = new ProcessingModelView();
 
     public MeshWindow() throws HeadlessException {
+
         this.setIconImage(IconLoader.get("icon.png", 0, 0).getImage());
 
         // Visual options
@@ -165,6 +166,7 @@ public class MeshWindow extends JFrame {
         add(new StatusBar(), c);
 
         setVisible(true);
+
     }
 
     private void init() {
@@ -182,8 +184,9 @@ public class MeshWindow extends JFrame {
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
                     String dir;
-                    if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals(""))
+                    if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
                         dir = System.getProperty("user.home");
+                    }
                     else
                         dir = CraftConfig.lastModel.replace("\n", "\\n");
                     fc.setSelectedFile(new File(dir));
@@ -196,6 +199,7 @@ public class MeshWindow extends JFrame {
                             meshController.handleException(e1);
                         }
                     }
+
                 });
         meshActionList.add(newMesh);
 

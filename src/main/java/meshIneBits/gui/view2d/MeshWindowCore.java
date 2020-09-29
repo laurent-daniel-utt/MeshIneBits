@@ -38,6 +38,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
@@ -56,6 +57,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private MeshController meshController;
 
     MeshWindowCore(MeshController meshController) {
+
         this.meshController = meshController;
         this.meshController.addObserver(this);
 
@@ -67,8 +69,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         addMouseListener(this);
         addMouseWheelListener(this);
         addKeyListener(this);
-        setFocusable(true);
         setupKeyBindings();
+        setFocusable(true);
+
+
+
     }
 
     void initBackground() {
@@ -108,6 +113,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 meshController.closeSelectedRegion();
             }
         });
+
+
     }
 
     @Override
@@ -117,6 +124,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
+            meshController.undo();
+        }
+        if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)){
+            meshController.redo();
+        }
         onControl = e.isControlDown();
     }
 
