@@ -209,6 +209,7 @@ public class Model implements Serializable {
      * @throws IOException when bad input
      */
     private Vector<Triangle> readBinarySTL(String filename) throws IOException {
+        Logger.message("ReadBinarySTL starts");
         RandomAccessFile raf = new RandomAccessFile(filename, "r");
         byte[] header = new byte[80];
         raf.read(header);

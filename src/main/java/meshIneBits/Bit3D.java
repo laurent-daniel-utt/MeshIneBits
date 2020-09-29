@@ -32,13 +32,14 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
  * extrusion of a {@link Bit2D}
  */
-public class Bit3D implements Serializable {
-
+public class Bit3D implements Serializable, Cloneable {
+    private static final String TAG = "Bit3D";
     /**
      * In {@link #bit2dToExtrude} coordinate system
      */
@@ -79,8 +80,18 @@ public class Bit3D implements Serializable {
         lowerAltitude = layer.getLowerAltitude();
         higherAltitude = layer.getHigherAltitude();
     }
+    Bit3D(Bit3D bit3D){
+        bit2dToExtrude = bit3D.getBaseBit();
+        origin = bit3D.getOrigin();
+        orientation = bit3D.getOrientation();
+        rawCutPaths = (Vector<Path2D>) bit3D.getRawCutPaths();
+        computeLiftPoints();
+        lowerAltitude = bit3D.getLowerAltitude();
+        higherAltitude = bit3D.getHigherAltitude();
+    }
 
     private Vector2 computeLiftPoint(Area subBit) {
+//        System.out.println(TAG+"computeLiftPoint");
         return AreaTool.getLiftPoint(subBit, CraftConfig.suckerDiameter / 2);
     }
 
@@ -89,6 +100,7 @@ public class Bit3D implements Serializable {
      * the bit by vacuuming.
      */
     private void computeLiftPoints() {
+//        System.out.println(TAG+"computeLiftPoint void");
         for (Area subBit : bit2dToExtrude.getRawAreas()) {
             Vector2 liftPoint = computeLiftPoint(subBit);
             if (liftPoint != null) {
@@ -157,5 +169,9 @@ public class Bit3D implements Serializable {
 
     public double getHigherAltitude() {
         return higherAltitude;
+    }
+
+    public Bit3D clone() {
+        return new Bit3D(this);
     }
 }

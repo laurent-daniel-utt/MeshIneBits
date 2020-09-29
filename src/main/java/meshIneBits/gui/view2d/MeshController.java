@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  * and {@link ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer {
+public class MeshController extends Observable implements Observer,HandlerRedoUndo.UndoFunction {
 
     public static final String SHOW_SLICE = "showSlice";
     public static final String SHOW_LIFT_POINTS = "showLiftPoints";
@@ -73,6 +74,10 @@ public class MeshController extends Observable implements Observer {
     public static final String BITS_SELECTED = "bitsSelected";
     public static final String DELETING_BITS = "deletingBits";
     public static final String BITS_DELETED = "deletedBits";
+
+    public static final String UNDO_BIT_ACTION = "undoBitAction";
+
+    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo();
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -349,6 +354,8 @@ public class MeshController extends Observable implements Observer {
         if (newSelectedBitKeys != null) {
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
+        } else {
+            System.out.println("null");
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -362,6 +369,7 @@ public class MeshController extends Observable implements Observer {
                 .map(currentLayer::getBit3D)
                 .collect(Collectors.toSet());
     }
+
 
     /**
      * Restore a mesh into working space
@@ -434,8 +442,21 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void deleteSelectedBits() {
+        //save action before doing
+        Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
+        Set<Bit3D> bit3DSet = this.getSelectedBits();
+        handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionMoveBit(bit3DSet,previousKeys,null,null,this.currentLayer.getLayerNumber()));
+
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
         currentLayer.removeBits(selectedBitKeys, true);
+        selectedBitKeys.clear();
+        currentLayer.rebuild();
+        changes.firePropertyChange(BITS_DELETED, null, currentLayer);
+    }
+    public void deleteBitsByBitsAndKeys(Set<Bit3D> bit3DSet,Set<Vector2> keys){
+        setSelectedBitKeys(keys);
+        changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
+        currentLayer.removeBits(getSelectedBitKeys(), true);
         selectedBitKeys.clear();
         currentLayer.rebuild();
         changes.firePropertyChange(BITS_DELETED, null, currentLayer);
@@ -476,13 +497,28 @@ public class MeshController extends Observable implements Observer {
             return;
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
+        //save origin of new bit
+        Set<Vector2> resultKey = new HashSet<Vector2>();
+        resultKey.add(origin);
+        //add new bit
         Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue());
-        if (autocropParam.getCurrentValue())
+        if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
+        }
         currentLayer.addBit(newBit, true);
+        //add new action into HandlerRedoUndo
+        setSelectedBitKeys(resultKey);
+        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
     }
+
+    public void addBit3Ds(Collection<Bit3D> bits3d) {
+        for (Bit3D bit3d : bits3d) {
+            currentLayer.addBit(bit3d.getBaseBit(), true);
+        }
+    }
+
 
     /**
      * @param position in {@link Mesh} coordinate system
@@ -866,7 +902,18 @@ public class MeshController extends Observable implements Observer {
     }
 
     public void moveSelectedBits(Vector2 direction) {
+        // Save before doing
+        Set<Bit3D> cloned = getSelectedBits();
+        Set<Vector2> previousSelectedBits = new HashSet<Vector2>();
+        previousSelectedBits.addAll(this.getSelectedBitKeys());
+        //move bits
         setSelectedBitKeys(currentLayer.moveBits(getSelectedBits(), direction));
+        Set<Bit3D> bits3D = this.getSelectedBits();
+        //Save after moved
+        Set<Vector2> resultKeys = new HashSet<Vector2>();
+        resultKeys.addAll(getSelectedBitKeys());
+        //create new ActionMoveBit for save action
+        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionMoveBit(cloned, previousSelectedBits, resultKeys,bits3D,currentLayer.getLayerNumber()));
     }
 
     /**
@@ -959,5 +1006,30 @@ public class MeshController extends Observable implements Observer {
                 notifyObservers(MeshEvents.OPEN_FAILED);
             }
         }
+    }
+
+
+    /**
+     * Call to back to step previous
+     */
+    @Override
+    public void undo() {
+        if (handlerRedoUndo.getPreviousActionBits() != null && !handlerRedoUndo.getPreviousActionBits().isEmpty()) {
+            handlerRedoUndo.undo(this);
+        }
+    }
+
+    @Override
+    public void redo() {
+        if (handlerRedoUndo.getPreviousActionBits() != null && handlerRedoUndo.getAfterActionBits().size()!=0) {
+            handlerRedoUndo.redo(this);
+        }
+    }
+
+    /**
+     * Save bits before move it and bit's key
+     */
+    public void saveInstanceOfBits() {
+
     }
 }
