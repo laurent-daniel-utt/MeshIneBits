@@ -239,7 +239,28 @@ public class MeshWindow extends JFrame {
                 "Save the current project",
                 "control S",
                 () -> {
-                    final JFileChooser fc = new CustomFileChooser();
+                    final JFileChooser fc = new CustomFileChooser(){
+                        @Override
+                        public void approveSelection() {
+                            File f = getSelectedFile();
+                            if (f.exists() && getDialogType() == SAVE_DIALOG) {
+                                int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
+                                switch (result){
+                                    case JOptionPane.YES_OPTION:
+                                        super.approveSelection();
+                                        return;
+                                    case JOptionPane.NO_OPTION:
+                                        return;
+                                    case JOptionPane.CLOSED_OPTION:
+                                        return;
+                                    case JOptionPane.CANCEL_OPTION:
+                                        cancelSelection();
+                                        return;
+                                }
+                            }
+                            super.approveSelection();
+                        }
+                    };
                     String ext = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
                     String dir;
@@ -250,15 +271,16 @@ public class MeshWindow extends JFrame {
                     fc.setSelectedFile(new File(dir));
                     if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
-                        if (!f.getName().endsWith("." + ext)) {
-                            f = new File(f.getPath() + "." + ext);
-                        }
-                        Logger.updateStatus("Saving the mesh at " + f.getName());
-                        try {
-                            meshController.saveMesh(f);
-                        } catch (Exception e1) {
-                            meshController.handleException(e1);
-                        }
+                               if (!f.getName().endsWith("." + ext)) {
+                                   f = new File(f.getPath() + "." + ext);
+                               }
+                               Logger.updateStatus("Saving the mesh at " + f.getName());
+                               try {
+                                   meshController.saveMesh(f);
+                               } catch (Exception e1) {
+                                   meshController.handleException(e1);
+                               }
+
                     }
                 });
         meshActionList.add(saveMesh);
