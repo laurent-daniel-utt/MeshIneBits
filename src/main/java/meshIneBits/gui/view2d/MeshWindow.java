@@ -45,7 +45,7 @@ public class MeshWindow extends JFrame {
     private final GridBagConstraints utilityParametersPanelGBC;
     private final GridBagConstraints zoomerGBC;
     private final GridBagConstraints propertyPanelGBC;
-    private final MeshWindowCore core;
+    private MeshWindowCore core;
     private JMenuBar menuBar = new JMenuBar();
     private MeshActionToolbar toolBar = new MeshActionToolbar();
     private ActionMap actionMap;
@@ -284,6 +284,14 @@ public class MeshWindow extends JFrame {
                     }
                 });
         meshActionList.add(saveMesh);
+
+        MeshAction closeMesh = new MeshAction("closeProject","Close Project","project-close.png","Close the current project","control Q",()->{
+            dispose();
+            new MeshWindow();
+//            meshController.resetMesh();
+//            core.initBackground();
+            System.out.println("close project");
+        });
 
         MeshAction configure = new MeshAction(
                 "configure",
@@ -689,6 +697,7 @@ public class MeshWindow extends JFrame {
         fileMenu.add(newMesh);
         fileMenu.add(openMesh);
         fileMenu.add(saveMesh);
+        fileMenu.add(closeMesh);
         fileMenu.addSeparator();
 //        fileMenu.add(openPatternConfig);
 //        fileMenu.add(savePatternConfig);

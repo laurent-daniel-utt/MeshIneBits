@@ -157,6 +157,11 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         this.mesh = mesh;
         mesh.addObserver(this);
     }
+    public void resetMesh(){
+        this.mesh=null;
+        this.setChanged();
+        this.notifyObservers();
+    }
 
     public int getLayerNumber() {
         return layerNumber;
@@ -1031,10 +1036,4 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         }
     }
 
-    /**
-     * Save bits before move it and bit's key
-     */
-    public void saveInstanceOfBits() {
-
-    }
 }
