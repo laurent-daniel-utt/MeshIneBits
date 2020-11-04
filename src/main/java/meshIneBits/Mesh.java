@@ -732,8 +732,10 @@ public class Mesh extends Observable implements Observer, Serializable {
 
         @Override
         public void run() {
-            XmlTool xt = new XmlTool(Mesh.this, file.toPath());
-            xt.writeXmlCode();
+//            XmlTool2 xt = new XmlTool2(Mesh.this, file.toPath());
+//            xt.writeXmlCode();
+            XMLTool xt = XMLTool.getInstance();
+            xt.writeMeshToXML(Mesh.this,file.toPath());
             setChanged();
             notifyObservers(MeshEvents.EXPORTED);
         }
@@ -799,4 +801,5 @@ public class Mesh extends Observable implements Observer, Serializable {
             l.convertPath2DtoHorizontalArea();
         }
     }
+
 }

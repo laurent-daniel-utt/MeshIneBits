@@ -284,6 +284,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             removeAll();
             revalidate();
             repaint();
+        }else{
+//            initBackground();
         }
     }
 

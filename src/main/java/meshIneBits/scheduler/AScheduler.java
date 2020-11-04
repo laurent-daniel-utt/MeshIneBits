@@ -9,13 +9,16 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Vector;
 
 public abstract class AScheduler extends Observable implements Serializable, Runnable {
     protected Mesh mesh = null;
     protected Vector<Pair<Bit3D, Vector2>> sortedBits = new Vector<>();
-    protected Vector<Bit3D> firstLayerBits = new Vector<>();
+//    protected Vector<Bit3D> firstLayerBits = new Vector<>();
+    protected Map<Integer,Bit3D> firstLayerBits = new HashMap<>();
 
     AScheduler() {}
     AScheduler(Mesh m)
@@ -63,7 +66,8 @@ public abstract class AScheduler extends Observable implements Serializable, Run
     }
 
     public Vector<Pair<Bit3D, Vector2>> getSortedBits() { return this.sortedBits; }
-    public Vector<Bit3D> getFirstLayerBits() { return this.firstLayerBits; }
+//    public Vector<Bit3D> getFirstLayerBits() { return this.firstLayerBits; }
+    public Map<Integer, Bit3D> getFirstLayerBits() { return this.firstLayerBits; }
 
     public abstract boolean schedule();
 

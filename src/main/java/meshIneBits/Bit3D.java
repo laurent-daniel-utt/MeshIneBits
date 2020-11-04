@@ -30,9 +30,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
@@ -44,6 +44,7 @@ public class Bit3D implements Serializable, Cloneable {
      * In {@link #bit2dToExtrude} coordinate system
      */
     private Vector<Path2D> rawCutPaths;
+    private LinkedList<Vector<Path2D>> rawCutPathsSeparate;
     /**
      * In {@link Mesh} coordinate system
      */
@@ -76,6 +77,7 @@ public class Bit3D implements Serializable, Cloneable {
         origin = baseBit.getOrigin();
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
+        rawCutPathsSeparate=baseBit.getCutPathsSeparate();
         computeLiftPoints();
         lowerAltitude = layer.getLowerAltitude();
         higherAltitude = layer.getHigherAltitude();
@@ -162,6 +164,9 @@ public class Bit3D implements Serializable, Cloneable {
                 "]" +
                 ']';
     }
+    public boolean isCutable() {
+        return this.getRawLiftPoints().size() > 0;
+    }
 
     public double getLowerAltitude() {
         return lowerAltitude;
@@ -173,5 +178,9 @@ public class Bit3D implements Serializable, Cloneable {
 
     public Bit3D clone() {
         return new Bit3D(this);
+    }
+
+    public LinkedList<Vector<Path2D>> getRawCutPathsSeparate() {
+        return rawCutPathsSeparate;
     }
 }

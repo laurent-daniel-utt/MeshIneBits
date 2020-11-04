@@ -213,6 +213,9 @@ public static class SerializeArea {
      */
     public Vector<Pair<Bit3D, Vector2>> sortBits() {
         Vector<Pair<Bit3D, Vector2>> keySet = new Vector<>();
+        if (mapBits3D == null) {
+            return keySet;
+        }
         for (Vector2 key : mapBits3D.keySet()) {
             for (Vector2 pos : mapBits3D.get(key).getLiftPoints()) {
                 if (pos != null) {

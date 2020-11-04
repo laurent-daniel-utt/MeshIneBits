@@ -28,6 +28,7 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.BasicScheduler;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -39,25 +40,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
-public class XmlTool {
+public class XmlTool2  {
 
     private Mesh part;
     private PrintWriter writer;
-    private Path filePath;
+    private Path mFilePath;
     private double effectiveWidth;
     private int nbBits;
     private int remainingBits;
     private double currentPos;
 
-    public XmlTool(Mesh part, Path fileLocation) {
+    public XmlTool2(Mesh part, Path filePath) {
         this.part = part;
-        this.filePath = fileLocation;
-        setFileToXml();
+        this.mFilePath = setFilePathToXML(filePath);
         getPrinterParameters();
     }
 
     private String getNameFromFileLocation() {
-        return filePath.getFileName().toString().split("[.]")[0];
+        return mFilePath.getFileName().toString().split("[.]")[0];
     }
 
     private boolean liftableBit(Bit3D bit) {
@@ -83,13 +83,13 @@ public class XmlTool {
     }
 
 
-    private void setFileToXml() {
+    private Path setFilePathToXML(Path filePath) {
         String fileName = filePath.getFileName().toString();
         if (fileName.split("[.]").length >= 2) {
             fileName = fileName.split("[.]")[0];
         }
         fileName = fileName + "." + "xml";
-        filePath = Paths.get(filePath.getParent().toString() + File.separator + fileName);
+        return Paths.get(filePath.getParent().toString() + File.separator + fileName);
     }
 
     private void startFile() {
@@ -141,6 +141,13 @@ public class XmlTool {
         writer.println("		<bit>");
         writer.println("			<id>" + part.getScheduler().getBitIndex(bit) + "</id>");
         writer.println("			<cut>");
+        Vector<Path2D> cutPaths = new Vector<>();
+//        for(Vector<Path2D> paths : bit.getBaseBit().getCutPathsSeparate()){
+//            cutPaths.addAll(paths);
+//        }
+//        for (Path2D p : cutPaths) {
+//            writeCutPaths(p);
+//        }
         if (bit.getRawCutPaths() != null) {
             for (Path2D p : bit.getRawCutPaths()) {
                 writeCutPaths(p);
@@ -190,28 +197,35 @@ public class XmlTool {
 
     private void writeLayer(Layer layer) {
         AScheduler scheduler = part.getScheduler();
-        Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
-        int startIndex = scheduler.getBitIndex(startBit);
-        List<Pair<Bit3D, Vector2>> Bits3DKeys = scheduler.getSortedBits().subList(startIndex, (startIndex + layer.getBits3dKeys().size() - 1));
-
-        Vector3 modelTranslation = part.getModel().getPos();
-        writer.println("	<layer>");
-        writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
-        for (int i = 0; i < Bits3DKeys.size(); i++) {
-            Bit3D bit = Bits3DKeys.get(i).getKey();
-            // translating the bits - they are generated at the origin of the world coordinate system;
-            for (int j = 0; j < bit.getRawLiftPoints().size(); j++) {
-                if (bit.getRawLiftPoints().get(j) != null) {
-                    double oldX = bit.getLiftPoints().get(j).x;
-                    double oldY = bit.getLiftPoints().get(j).y;
-                    bit.getLiftPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
+        if(scheduler.getFirstLayerBits().get(layer.getLayerNumber())!=null){
+            Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
+            int startIndex = scheduler.getBitIndex(startBit);
+            System.out.println(layer.getLayerNumber());
+            int endIndex=((BasicScheduler)scheduler).filterBits(layer.sortBits()).size();
+            System.out.println(startIndex+"-"+endIndex);
+            System.out.println("size of sortedBit"+scheduler.getSortedBits().size());
+            List<Pair<Bit3D, Vector2>> Bits3DKeys = scheduler.getSortedBits().subList(startIndex,startIndex+endIndex);
+            System.out.println("size of Bits3Dkeys: "+Bits3DKeys.size());
+            Vector3 modelTranslation = part.getModel().getPos();
+            writer.println("	<layer>");
+            writer.println("		<z>" + (layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset)) + "</z>");
+            for (int i = 0; i < Bits3DKeys.size(); i++) {
+                Bit3D bit = Bits3DKeys.get(i).getKey();
+// translating the bits - they are generated at the origin of the world coordinate system;
+                for (int j = 0; j < bit.getRawLiftPoints().size(); j++) {
+                    if (bit.getRawLiftPoints().get(j) != null) {
+                        double oldX = bit.getLiftPoints().get(j).x;
+                        double oldY = bit.getLiftPoints().get(j).y;
+                        bit.getLiftPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
+                    }
                 }
+                moveWorkingSpace(bit, i);
+                writeBit(bit);
+                remainingBits -= 1;
             }
-            moveWorkingSpace(bit, i);
-            writeBit(bit);
-            remainingBits -= 1;
+            writer.println("	</layer>");
         }
-        writer.println("	</layer>");
+
     }
 
     private void writeSubBits(Bit3D bit) {
@@ -237,7 +251,7 @@ public class XmlTool {
 
     public void writeXmlCode() {
         try {
-            writer = new PrintWriter(filePath.toString(), "UTF-8");
+            writer = new PrintWriter(mFilePath.toString(), "UTF-8");
             writer.println("<part>");
             startFile();
             Logger.updateStatus("Generating XML file");
@@ -246,7 +260,7 @@ public class XmlTool {
                 Logger.setProgress(i, part.getLayers().size() - 1);
             }
             writer.println("</part>");
-            Logger.message("The XML file has been generated and saved in " + filePath);
+            Logger.message("The XML file has been generated and saved in " + mFilePath);
         } catch (Exception e) {
             Logger.error("The XML file has not been generated");
             e.printStackTrace();

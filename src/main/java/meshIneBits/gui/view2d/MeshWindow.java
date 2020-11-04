@@ -289,6 +289,7 @@ public class MeshWindow extends JFrame {
             dispose();
             new MeshWindow();
 //            meshController.resetMesh();
+//            meshController.reset();
 //            core.initBackground();
             System.out.println("close project");
         });
@@ -808,5 +809,7 @@ public class MeshWindow extends JFrame {
             propertyPanel = null;
         }
         core.initBackground();
+//        revalidate();
+//        repaint();
     }
 }

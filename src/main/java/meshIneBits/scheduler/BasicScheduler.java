@@ -62,18 +62,35 @@ public class BasicScheduler extends AScheduler {
         Logger.setProgress(0, this.mesh.getLayers().size());
         double xMin;
         this.sortedBits.clear();
-
+        Logger.message("Size of layer "+ this.mesh.getLayers().size());
+        int i=0;
         for (Layer curLayer: this.mesh.getLayers())
         {
             Vector<Pair<Bit3D, Vector2>> bits = curLayer.sortBits();
-            xMin = bits.get(0).getValue().x;
-            bits = this.sortBits(bits, Math.abs(xMin));
-            this.sortedBits.addAll(bits);
-            this.firstLayerBits.add(bits.firstElement().getKey());
+            bits=this.filterBits(bits);
+            if (bits.size()>0) {
+                System.out.println(bits.size());
+                this.sortedBits.addAll(bits);
+                this.firstLayerBits.put(i,bits.firstElement().getKey());
+            }
+//                this.firstLayerBits.add(bits.firstElement().getKey());
             Logger.setProgress(curLayer.getLayerNumber()+1, this.mesh.getLayers().size());
+            i++;
         }
+        System.out.println("size of firstlayerBits: "+firstLayerBits.size()+", first value: "+firstLayerBits.get(0));
+        System.out.println("Size of SOrtedBits: "+sortedBits.size());
         System.out.println("Basic scheduler end scheduling");
         return true;
+    }
+    public Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits){
+        double xMin;
+        if(bits.size()>0){
+            xMin = bits.get(0).getValue().x;
+            bits = this.sortBits(bits, Math.abs(xMin));
+            System.out.println(bits.size());
+//                this.firstLayerBits.add(bits.firstElement().getKey());
+        }
+        return bits;
     }
 
     public Vector<Pair<Bit3D, Vector2>> sortBits(Vector<Pair<Bit3D, Vector2>> keySet, double offsetX) {
