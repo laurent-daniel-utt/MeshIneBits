@@ -26,6 +26,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.ProcessingModelView;
+import meshIneBits.slicer.AI_Tool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 
@@ -387,6 +388,21 @@ public class MeshWindow extends JFrame {
         };
         meshActionList.add(paveMesh);
 
+        MeshAction paveMeshAI = new MeshAction(
+                "paveMeshAI",
+                "AI Pave Mesh",
+                "mesh-pave.png",
+                "Pave the whole mesh with AI",
+                "alt A",
+                () -> {
+                    if (meshController.getMesh() != null && meshController.getMesh().isSliced()) {
+                        AI_Tool ai_Tool = new AI_Tool(); //todo else throw error "Mesh not found or Mesh not sliced"
+                        ai_Tool.startAI(meshController);
+                        meshController.ai_Tool = ai_Tool;
+                    }
+                });
+        meshActionList.add(paveMeshAI);
+
         MeshAction exportMeshXML = new MeshAction(
                 "exportMeshXML",
                 "Export XML",
@@ -722,6 +738,7 @@ public class MeshWindow extends JFrame {
         toolBar.addSeparator();
         toolBar.add(sliceMesh);
         toolBar.add(paveMesh);
+        toolBar.add(paveMeshAI);
         toolBar.add(optimizeMesh);
         toolBar.add(scheduleMesh);
         toolBar.add(exportMeshXML);

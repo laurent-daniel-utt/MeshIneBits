@@ -22,6 +22,7 @@
 
 package meshIneBits.gui.view2d;
 
+import javafx.util.Pair;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -38,7 +39,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
@@ -316,6 +316,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         // If current layer is only sliced (not paved yet), draw the slice
         if (!meshController.getCurrentLayer().isPaved()) {
             paintLayerBorder(g2d);
+            //debugonly
+            if (meshController.AIneedPaint) {
+                paintPathsAI(g2d);
+                System.out.println("l323 Core");
+            }
         } else {
             // Draw the border of layer
             if (meshController.showingSlice()) {
@@ -484,6 +489,27 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         Slice slice = meshController.getCurrentLayer().getHorizontalSection();
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
+        }
+    }
+
+    //debugOnly
+    private void paintPathsAI(Graphics2D g2d) {
+        Color[] colors = {Color.BLUE, Color.GREEN, Color.MAGENTA, Color.orange, Color.RED, Color.YELLOW, Color.CYAN, Color.PINK};
+        g2d.setStroke(new BasicStroke(2f));
+        Slice slice = meshController.getCurrentLayer().getHorizontalSection();
+        Pair<Vector<Polygon>, Vector2> pair = meshController.ai_Tool.getactualPolygons_StartPoint(slice);
+        Vector<Polygon> polys = pair.getKey();
+
+        //draw start point of the first polygon
+        Vector2 startPoint = pair.getValue();
+        drawModelCircle(g2d, startPoint.x, startPoint.y, 10);
+
+        //draw polygons
+        int iColor = 0;
+        for (Polygon p : polys) {
+            g2d.setColor(colors[iColor]);
+            drawModelPath2D(g2d, p.toPath2D());
+            iColor++;
         }
     }
 

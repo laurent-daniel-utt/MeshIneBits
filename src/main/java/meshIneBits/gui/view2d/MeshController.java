@@ -30,6 +30,7 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
+import meshIneBits.slicer.AI_Tool;
 import meshIneBits.util.*;
 
 import java.awt.*;
@@ -41,8 +42,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -145,6 +146,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Point2D bulkSelectZoneBottomRight;
     private Rectangle2D.Double bulkSelectZone;
 
+    public boolean AIneedPaint = false; //debugonly
+    public AI_Tool ai_Tool; //debugonly
+
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
     }
@@ -177,6 +181,10 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             notifyObservers();
             return;
         }
+        if (AIneedPaint) { //debugonly
+            setChanged();
+            notifyObservers(MeshEvents.AIneedPaint);
+        }
         if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
                 case READY:
@@ -202,6 +210,14 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     // Notify property panel
                     changes.firePropertyChange(MESH_SLICED, null, mesh);
                     changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
+                    break;
+                case AIneedPaint://debugonly
+                    setLayer(0);
+                    meshWindow.initGadgets();
+                    this.AIneedPaint = true;
+                    setChanged();
+
+                    notifyObservers(MeshEvents.AIneedPaint);
                     break;
                 case PAVING_MESH:
                     Logger.updateStatus("Paving mesh");
@@ -365,7 +381,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
         } else {
-            System.out.println("null");
+            //        System.out.println("null"); //todo sert à quoi?
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -437,7 +453,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     public void sliceMesh() throws Exception {
         if (mesh == null) throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
-            throw new SimultaneousOperationsException(mesh);
+            throw new SimultaneousOperationsException(mesh); //todo this exception is redundant with Mesh.slice()
         mesh.slice();
     }
 

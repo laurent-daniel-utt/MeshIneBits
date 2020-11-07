@@ -31,6 +31,7 @@ public enum MeshEvents implements Serializable {
     IMPORTED(false, 101),
     SLICING(true, 200),
     SLICED(false, 201),
+    AIneedPaint(false, 202),//debugonly
     PAVING_MESH(true, 300),
     PAVED_MESH(false, 301),
     PAVING_LAYER(true, 350),
