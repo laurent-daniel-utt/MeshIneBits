@@ -7,14 +7,16 @@ import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class AI_Tool {
     Tools tools;
     private MeshController meshController;
-    private Vector<Segment2D> segment2DList;
+    Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
-    public void startAI(MeshController MC) {
+    public void startAI(MeshController MC) { //started when pushing button on UI
         this.meshController = MC;
 
         System.out.println("Starting IA pavement");
@@ -25,7 +27,7 @@ public class AI_Tool {
         tools = new Tools();
 
         for (Slice currentSlice : slicesList) {
-            //computePoints(currentSlice);
+            sliceMap.put(currentSlice, currentSlice.getSegmentList());
         }
         meshController.AIneedPaint = true;
     }
@@ -35,10 +37,11 @@ public class AI_Tool {
         Vector<Vector2> pointList;
 
         //compute points
-        this.segment2DList = currentSlice.getSegmentList(); //todo enregistrer les slices en this. pour pas devoir les rappeller
-        Vector<Vector<Segment2D>> borderList = tools.rearrangeSegments(this.segment2DList);
-        Vector<Vector<Vector2>> areaList;
-        Vector<Vector<Vector2>> globalList = new Vector<>(); //contains all areaList elements
+        Vector<Segment2D> segment2DList = sliceMap.get(currentSlice);
+        segment2DList = (Vector<Segment2D>) segment2DList.clone();
+        Vector<Vector<Segment2D>> borderList = tools.rearrangeSegments(segment2DList);
+        Vector<Vector<Vector2>> sectionsList;
+        Vector<Vector<Vector2>> globalList = new Vector<>(); //contains all sectionsList elements
         Vector2 startPoint = new Vector2(0, 0);
 
         for (Vector<Segment2D> segmentList : borderList) {
@@ -46,27 +49,27 @@ public class AI_Tool {
             pointList = tools.rearrangePoints(pointList);
             startPoint = pointList.get(0);
 
-            //todo place points in a local coordinate system
+            //todo ANDRE : function in Tools that places points in a local coordinate system
 
-            areaList = tools.splitAreas(pointList); //todo refactor "area" name
-            areaList.forEach(globalList::add);
+            sectionsList = tools.splitSections(pointList);
+            sectionsList.forEach(globalList::add);
         }
 
-        for (Vector<Vector2> area : globalList) { //create polygons for drawing
-            polys.add(tools.CreatePolygon(area));
+        for (Vector<Vector2> section : globalList) { //create polygons for drawing
+            polys.add(tools.CreatePolygon(section));
         }
 
         /*
         //make regression
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(this.degree);
-        for (Vector<Vector2> area : areaList) {
+        for (Vector<Vector2> section : sectionsList) {
             WeightedObservedPoints observedPoints = new WeightedObservedPoints();
-            for (Vector2 point : area) { observedPoints.add(point.x,point.y); }
+            for (Vector2 point : section) { observedPoints.add(point.x,point.y); }
             double[] coefficients = tool.reverse(fitter.fit(observedPoints.toList()));
             coefficients = tool.round(coefficients);
             tool.checkCoefficients(coefficients);
             tool.printCoefficients(coefficients);
-        }*/ //todo regressions
+        }*/ //todo Etienne : regressions
         return new Pair(polys, startPoint);
     }
 

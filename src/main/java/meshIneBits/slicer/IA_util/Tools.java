@@ -66,13 +66,12 @@ public class Tools {
         IntStream.range(indexMax, pointList.size()).mapToObj(pointList::get).forEachOrdered(newPointList::add);
         IntStream.range(0, indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
 
-        IntStream.range(0, indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
         return newPointList;
     }
 
 
     //divide a pointlist and return a vector of pointlist
-    public Vector<Vector<Vector2>> splitAreas(Vector<Vector2> pointList) {
+    public Vector<Vector<Vector2>> splitSections(Vector<Vector2> pointList) {
         Vector<Vector<Vector2>> areaList = new Vector<>(); //contains different pointLists
 
         int PointsIndex;

@@ -316,10 +316,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         // If current layer is only sliced (not paved yet), draw the slice
         if (!meshController.getCurrentLayer().isPaved()) {
             paintLayerBorder(g2d);
-            //debugonly
-            if (meshController.AIneedPaint) {
+            if (meshController.AIneedPaint) {//debugOnly
                 paintPathsAI(g2d);
-                System.out.println("l323 Core");
             }
         } else {
             // Draw the border of layer
