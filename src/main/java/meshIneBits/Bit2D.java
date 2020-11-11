@@ -26,7 +26,6 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-import remixlab.dandelion.geom.Vec;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -34,10 +33,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
@@ -72,7 +69,6 @@ public class Bit2D implements Cloneable, Serializable {
      * In {@link Bit2D} coordinate system
      */
     private Vector<Area> areas = new Vector<>();
-    private List<Path2D> longestCrossingSegments = new ArrayList<>();
 
     /**
      * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
@@ -379,9 +375,7 @@ public class Bit2D implements Cloneable, Serializable {
         Area newArea = (Area) transformedArea.clone();
         newArea.transform(inverseTransfoMatrix);
         areas.addAll(AreaTool.segregateArea(newArea));
-        for(Area area : areas){
-            defineTwoPointNearTwoMostDistantPointsInArea(area);
-        }
+
     }
 
     /**
@@ -462,28 +456,33 @@ public class Bit2D implements Cloneable, Serializable {
             if (polygon.isEmpty())
                 continue;
             Path2D cutPath2D = new Path2D.Double();
-            Segment2D currentEdge = polygon.get(0);
-            cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
+//            Segment2D currentEdge = polygon.get(0);
+//            cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
             for (int i = 0; i < polygon.size(); i++) {
-                currentEdge = polygon.get(i);
+                Segment2D currentEdge = polygon.get(i);
+                if(i==0||!(currentEdge.start.asGoodAsEqual(polygon.get(i-1).end))){
+                    cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
+                }
                 cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
                 // Some edges may have been deleted
                 // So we check beforehand to skip
-                if (i + 1 < polygon.size() && !polygon.contains(currentEdge.getNext())) {
-                    // If the next edge has been removed
-                    // We complete the path
-                    this.cutPaths.add(cutPath2D);
-                    // Then we create a new one
-                    // And move to the start of the succeeding edge
-                    cutPath2D = new Path2D.Double();
-                    cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
-                }
+//                if (i + 1 < polygon.size() && !polygon.contains(currentEdge.getNext())) {
+//                    // If the next edge has been removed
+//                    // We complete the path
+//                    this.cutPaths.add(cutPath2D);
+//                    // Then we create a new one
+//                    // And move to the start of the succeeding edge
+//                    cutPath2D = new Path2D.Double();
+//                    cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
+//                }
             }
             // Finish the last cut path
             if (!this.cutPaths.contains(cutPath2D)) {
                 this.cutPaths.add(cutPath2D);
             }
-            cutPathsSeparate.add((Vector<Path2D>) this.cutPaths.clone());
+            @SuppressWarnings("unchecked")
+           Vector<Path2D> vector = ((Vector<Path2D>) this.cutPaths.clone());
+            cutPathsSeparate.add(vector);
         }
     }
 
@@ -535,78 +534,4 @@ public class Bit2D implements Cloneable, Serializable {
         return inverseTransfoMatrix;
     }
 
-    public Vector<Vector2> defineTwoMostDistantPointsInArea(Area area) {
-        Vector<Vector2> positionTwoMostDistantPoint = new Vector<>();
-        double longestDistance = 0;
-        for (PathIterator p1 = area.getPathIterator(null); !p1.isDone(); p1.next()) {
-            double[] coord1 = new double[6];
-            int type1 = p1.currentSegment(coord1);
-            Vector2 v1 = new Vector2(coord1[0], coord1[1]);
-            if (type1 == PathIterator.SEG_CLOSE) continue;
-
-            for (PathIterator p2 = area.getPathIterator(null); !p2.isDone(); p2.next()) {
-                double[] coord2 = new double[6];
-                int type2 = p2.currentSegment(coord2);
-                if (type2 == PathIterator.SEG_CLOSE) {
-                    continue;
-                }
-                Vector2 v2 = new Vector2(coord2[0], coord2[1]);
-                if (Vector2.dist(v1, v2) > longestDistance) {
-                    positionTwoMostDistantPoint.removeAllElements();
-                    positionTwoMostDistantPoint.add(v1);
-                    positionTwoMostDistantPoint.add(v2);
-                    longestDistance = Vector2.dist(v1, v2);
-                    System.out.println(longestDistance);
-                }
-            }
-        }
-        return positionTwoMostDistantPoint.size() > 0 ? positionTwoMostDistantPoint : null;
-    }
-
-    public Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInArea(Area area) {
-        double rayon = 5.0;
-        Vector<Vector2> positionTwoMostDistantPoint = defineTwoMostDistantPointsInArea(area);
-        if (positionTwoMostDistantPoint == null) return null;
-        Vector2 point1 = positionTwoMostDistantPoint.firstElement();
-        Vector2 point2 = positionTwoMostDistantPoint.lastElement();
-        Rectangle2D rectangle2D = area.getBounds2D();
-        boolean foundFirstPoint = false;
-        boolean foundSecondPoint = false;
-        Vector2 pointResult1 = null;
-        Vector2 pointResult2 = null;
-        double distant1;
-        double distant2;
-        System.out.println(rectangle2D.getWidth()+":::"+rectangle2D.getHeight());
-
-        //Find a point near first point of two most distant points
-//        for (double x = 0; x < rectangle2D.getWidth(); x++) {
-//            for (double y = 0; y < rectangle2D.getHeight(); y++) {
-//                if (area.contains(x, y)) {
-//                    if (!foundFirstPoint) {
-//                        distant1 = Math.sqrt(((x - point1.x) * (x - point1.x)) + ((y - point1.y) * (y - point1.y)));
-//                        if (pointResult2 == null || (x != pointResult2.x && y != pointResult2.y)) {
-//                            if (distant1 > rayon&&distant1 <= rayon*2) {
-//                                pointResult1 = new Vector2(x, y);
-//                                foundFirstPoint = true;
-//                            }
-//                        }
-//                    }
-//                    if (!foundSecondPoint) {
-//                        distant2 = Math.sqrt(((x - point2.x) * (x - point2.x)) + ((y - point2.y) * (y - point2.y)));
-//                        if (pointResult1 == null || (x != pointResult1.x && y != pointResult1.y)) {
-//                            if (distant2 > rayon&& distant2 <= rayon*2) {
-//                                pointResult2 = new Vector2(x, y);
-//                                foundSecondPoint = true;
-//                            }
-//                        }
-//                    }
-//                }
-//                if (foundFirstPoint && foundSecondPoint) break;
-//            }
-//            if (foundFirstPoint && foundSecondPoint) break;
-//        }
-        if (pointResult1 != null && pointResult2 != null)
-            System.out.println("Distant result: " + Vector2.dist(pointResult1, pointResult2));
-        return null;
-    }
 }
