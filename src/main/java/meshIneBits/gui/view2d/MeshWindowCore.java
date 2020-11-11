@@ -38,7 +38,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
@@ -284,8 +283,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             removeAll();
             revalidate();
             repaint();
-        }else{
-//            initBackground();
         }
     }
 
@@ -476,6 +473,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                                             liftPoint.x,
                                             liftPoint.y,
                                             (int) CraftConfig.suckerDiameter));
+                g2d.setColor(Color.blue);
+                if(!bit3D.getListTwoDistantPoints().isEmpty()){
+                    for(Vector2 point : bit3D.getListTwoDistantPoints()){
+                        drawModelCircle(g2d,point.x,point.y,(int) CraftConfig.suckerDiameter/4);
+                    }
+                }
             }
         }
     }

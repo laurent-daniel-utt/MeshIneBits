@@ -24,6 +24,8 @@ package meshIneBits.util;
 
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
+import org.jetbrains.annotations.Nullable;
+import remixlab.dandelion.geom.Vec;
 
 import java.awt.geom.*;
 import java.util.*;
@@ -653,6 +655,215 @@ public class AreaTool {
                 segment.start.add(distance),
                 segment.end.add(distance)
         );
+    }
+
+    /**
+     * Get two most distant {@link Vector2 point} from the {@link Area} provided.
+     * It is used in the {@link #defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area, double)}
+     * @param area The {@link Area} provided to find the two {@link Vector2 points}
+     * @return {@link Vector list} of {@link Vector2 points}points founded
+     */
+    public static Vector<Vector2> getTwoMostDistantPointFromArea(Area area){
+        Vector<Vector2> positionTwoMostDistantPoint = new Vector<>();
+        double longestDistance = 0;
+        for (PathIterator p1 = area.getPathIterator(null); !p1.isDone(); p1.next()) {
+            double[] coord1 = new double[6];
+            int type1 = p1.currentSegment(coord1);
+            Vector2 v1 = new Vector2(coord1[0], coord1[1]);
+            if (type1 == PathIterator.SEG_CLOSE) continue;
+
+            for (PathIterator p2 = area.getPathIterator(null); !p2.isDone(); p2.next()) {
+                double[] coord2 = new double[6];
+                int type2 = p2.currentSegment(coord2);
+                if (type2 == PathIterator.SEG_CLOSE) {
+                    continue;
+                }
+                Vector2 v2 = new Vector2(coord2[0], coord2[1]);
+                if (Vector2.dist(v1, v2) > longestDistance) {
+                    positionTwoMostDistantPoint.removeAllElements();
+                    positionTwoMostDistantPoint.add(v1);
+                    positionTwoMostDistantPoint.add(v2);
+                    longestDistance = Vector2.dist(v1, v2);
+                    System.out.println(v1.x+"-"+v1.y);
+                    System.out.println(v2.x+"-"+v2.y);
+                    System.out.println(longestDistance);
+                }
+            }
+        }
+        return positionTwoMostDistantPoint.size() > 0 ? positionTwoMostDistantPoint : null;
+    }
+
+    /**
+     * this method hasn't been optimized yet
+     * @param area
+     * @param radius
+     * @return
+     * @deprecated
+     */
+    @Deprecated
+    public static Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadiusOtherWay(Area area,double radius) {
+        Vector<Vector2> twoMostDistantPoint = getTwoMostDistantPointFromArea(area);
+        if(twoMostDistantPoint==null)return null;
+        Vector<Vector2> twoPointNearestTwoPointMostDistant = new Vector<>();
+        for(Vector2 point : twoMostDistantPoint){
+            Vector2 pointFound = detectPointNearestPointProvidedInAreaWithRadius(area,point,radius);
+            if(pointFound!=null){
+                twoPointNearestTwoPointMostDistant.add(pointFound);
+            }
+        }
+        if(twoPointNearestTwoPointMostDistant.size()==2){
+            return twoPointNearestTwoPointMostDistant;
+        }
+        return null;
+    }
+
+    /**
+     * This method allows us to determine the two closest points {@link Vector2}
+     * to the two furthest points in the provided {@link Area} , which are located on the border of the {@link Area}
+     * <br></br>
+     * TODO: <b>Optimized the algorithm</b>
+     * @param area The {@link Area} provided to find the two {@link Vector2 points}
+     * @param radius the value of the detection interval of two {@link Vector2 point} from the two most distant {@link Vector2 point}. ex: [radius,radius*3]
+     * @return {@link Vector list} of {@link Vector2 points}points founded
+     */
+    public static Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,double radius) {
+        Vector<Vector2> twoDistantPoints=new Vector<>();
+        Vector<Vector2> positionTwoMostDistantPoint = getTwoMostDistantPointFromArea(area);
+        if (positionTwoMostDistantPoint == null) return null;
+        Vector2 point1 = positionTwoMostDistantPoint.firstElement();
+        Vector2 point2 = positionTwoMostDistantPoint.lastElement();
+        Rectangle2D rectangle2D = area.getBounds2D();
+        double startX = rectangle2D.getMinX();
+        double startY = rectangle2D.getMinY();
+        double endX = rectangle2D.getMaxX();
+        double endY = rectangle2D.getMaxY();
+        boolean foundFirstPoint = false;
+        boolean foundSecondPoint = false;
+        Vector2 pointResult1 = null;
+        Vector2 pointResult2 = null;
+        double distant1;
+        double distant2;
+
+        System.out.println(rectangle2D.getWidth()+":::"+rectangle2D.getHeight());
+
+        //Find a point near first point of two most distant points
+        while (radius<10 && !(foundFirstPoint && foundSecondPoint)) {
+            for (double x = startX; x < endX; x += 0.1) {
+                for (double y = startY; y < endY; y += 0.1) {
+                    if (area.contains(x, y)
+                            && !(x == CraftConfig.bitLength / 2 || x == -CraftConfig.bitLength / 2)
+                            && !(y == CraftConfig.bitWidth / 2 || y == -CraftConfig.bitWidth / 2)) {
+                        if (!foundFirstPoint) {
+                            distant1 = Math.sqrt(((x - point1.x) * (x - point1.x)) + ((y - point1.y) * (y - point1.y)));
+                            if (pointResult2 == null || (x != pointResult2.x && y != pointResult2.y)) {
+                                if (distant1 > radius && distant1 <= radius * 3) {
+//                                System.out.println("distant 1: "+distant1);
+                                    if (checkPointInsideAreaWithRadius(x, y, area, CraftConfig.suckerDiameter/4)) {
+                                        pointResult1 = new Vector2(x, y);
+                                        foundFirstPoint = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (!foundSecondPoint) {
+                            distant2 = Math.sqrt(((x - point2.x) * (x - point2.x)) + ((y - point2.y) * (y - point2.y)));
+                            if (pointResult1 == null || (x != pointResult1.x && y != pointResult1.y)) {
+                                if (distant2 > radius && distant2 <= radius * 3) {
+                                    if (checkPointInsideAreaWithRadius(x, y, area, CraftConfig.suckerDiameter/4)) {
+                                        pointResult2 = new Vector2(x, y);
+                                        foundSecondPoint = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (foundFirstPoint && foundSecondPoint) break;
+                }
+                if (foundFirstPoint && foundSecondPoint) break;
+            }
+            if (pointResult1 != null && pointResult2 != null) {
+                twoDistantPoints.add(pointResult1);
+                twoDistantPoints.add(pointResult2);
+//                System.out.println("Distant result: " + Vector2.dist(pointResult1, pointResult2));
+//                System.out.println(pointResult1.x + "-" + pointResult1.y);
+//                System.out.println(pointResult2.x + "-" + pointResult2.y);
+                return twoDistantPoints;
+            }
+            radius++;
+        }
+        return twoDistantPoints;
+    }
+
+    public static Vector<double[]> getListPointBorderOfArea(Area area) {
+        Vector<double[]> listPoints = new Vector<>();
+        for (PathIterator p2 = area.getPathIterator(null); !p2.isDone(); p2.next()) {
+            double[] coord2 = new double[6];
+            double[] point;
+            int type2 = p2.currentSegment(coord2);
+            if (type2 == PathIterator.SEG_CLOSE) {
+                continue;
+            }
+            point = new double[]{type2, coord2[0], coord2[1]};
+            listPoints.add(point);
+        }
+        return listPoints;
+    }
+
+    /**
+     * This method determines if the {@link Vector2 point} in parameter is contained in the {@link Area}
+     * and its position respects the distances with the edge of {@link Area}
+     * whose value must be less than {@link Double radius}
+     * @param x coordinate X of the point
+     * @param y coordinate X of the point
+     * @param area The {@link Area} provided to check
+     * @param radius The {@link Double value} indicates that the two {@link Vector2 value} found must ensure a distance,
+     *  equal to this {@link Double value}, to the edge of {@link Area}
+     * @return
+     */
+    public static boolean checkPointInsideAreaWithRadius(double x, double y, Area area,double radius){
+        Vector<Vector<Segment2D>> segments = AreaTool.getSegmentsFrom(area);
+        Vector2 point = new Vector2(x,y);
+        //check if the area contain point and the distant of the point inside with the segment is always smaller the radius
+        if(area.contains(point.x,point.y)){
+            for(Vector<Segment2D> polygon :segments){
+                for(Segment2D segment2D :polygon){
+                    if(radius>0 && segment2D.distFromPoint(point)<radius){
+                        return false;
+                    }
+                }
+            }
+        }else{
+            return false;
+        }
+
+        return true;
+    }
+
+    public static Vector2 detectPointNearestPointProvidedInAreaWithRadius(Area area, Vector2 pointProvided,double radius){
+        //get rectangle enclosed completely this area
+        Rectangle2D rectangle2D = area.getBounds2D();
+        double startX = rectangle2D.getMinX();
+        double startY = rectangle2D.getMinY();
+        double endX = rectangle2D.getMaxX();
+        double endY = rectangle2D.getMaxY();
+        double distantMin=Math.sqrt(CraftConfig.bitLength*CraftConfig.bitLength+CraftConfig.bitWidth*CraftConfig.bitWidth);
+        double distant;
+        Vector2 pointResult=null;
+        for(double x = startX;x<endX;x+=0.1){
+            for (double y = startY;y<endY;y+=0.1){
+                if(area.contains(x,y)){
+                    Vector2 pointSearch = new Vector2(x,y);
+                    distant = Vector2.dist(pointProvided,pointSearch);
+                    if(distant<distantMin
+                            && distant>radius
+                            && distant<=radius*3
+                            && checkPointInsideAreaWithRadius(pointSearch.x,pointSearch.y,area,CraftConfig.suckerDiameter/4)){
+                        pointResult=pointSearch;
+                    }
+                }
+            }
+        }
+        return pointResult;
     }
 
 

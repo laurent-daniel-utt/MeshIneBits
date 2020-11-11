@@ -25,6 +25,7 @@ package meshIneBits.util;
 import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Vector;
@@ -82,6 +83,7 @@ public class Vector2 implements Serializable {
      *
      * @return reflection
      */
+    @SuppressWarnings("all")
     public Vector2 crossZ() {
         return new Vector2(y, -x);
     }
@@ -146,6 +148,15 @@ public class Vector2 implements Serializable {
 
         return false;
     }
+    public boolean isOnArea(Area area){
+        Vector<double[]>points=AreaTool.getListPointBorderOfArea(area);
+        for(double[] point : points){
+            if(this.asGoodAsEqual(new Vector2(point[1],point[2]))){
+                return true;
+            }
+        }
+        return false;
+    }
 
     /*
      * Taken from http://stackoverflow.com/a/17590923
@@ -177,11 +188,7 @@ public class Vector2 implements Serializable {
         double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
         double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
 
-        if (AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted)) {
-            return true;
-        } else {
-            return false;
-        }
+        return AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
     }
 
     /**
@@ -240,6 +247,7 @@ public class Vector2 implements Serializable {
     /**
      * @return the vector after 90° CW rotation.
      */
+    @SuppressWarnings("all")
     public Vector2 getCWAngularRotated() {
         return new Vector2(-y, x);
     }
