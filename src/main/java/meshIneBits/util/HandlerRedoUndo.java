@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  *
  * */
-public class HandlerRedoUndo{
+public class HandlerRedoUndo {
     private final Stack<ActionOfUser> previousActionOfUserBits;
     private final Stack<ActionOfUser> afterActionOfUserBits;
 
@@ -37,8 +37,8 @@ public class HandlerRedoUndo{
         return afterActionOfUserBits;
     }
     /**
-    * Save actions scaling bits
-    * */
+     * Save actions scaling bits
+     * */
     public static class ActionOfUserScaleBit implements ActionOfUser {
         private double setPercentageLength;
         private double setPercentageWidth;
@@ -153,9 +153,9 @@ public class HandlerRedoUndo{
             }
         }
     }
-    //clear afterActionBit when create new action
     public void addActionBit(ActionOfUser actionMoveBit){
         if(this.afterActionOfUserBits.size()!=0){
+            //clear afterActionBit when create new action
             this.afterActionOfUserBits.clear();
         }
         this.previousActionOfUserBits.push(actionMoveBit);

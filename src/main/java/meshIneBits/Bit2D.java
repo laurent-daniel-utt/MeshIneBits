@@ -33,7 +33,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.*;
+import java.util.List;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is
@@ -63,6 +64,7 @@ public class Bit2D implements Cloneable, Serializable {
      * In {@link Bit2D} coordinate system
      */
     private Vector<Path2D> cutPaths = new Vector<>();
+    private LinkedList<Vector<Path2D>> cutPathsSeparate = new LinkedList<>();
     /**
      * In {@link Bit2D} coordinate system
      */
@@ -83,6 +85,12 @@ public class Bit2D implements Cloneable, Serializable {
 
         setTransfoMatrix();
         buildBoundaries();
+//        for (Path2D longestCrossingSegment : longestCrossingSegments) {
+//            longestCrossingSegment.transform(transfoMatrix);
+//        }
+//        for (Area area : areas) {
+//            area.getPathIterator()
+//        }
     }
 
     /**
@@ -181,6 +189,8 @@ public class Bit2D implements Cloneable, Serializable {
 
         this.areas.clear();
         this.areas.add(new Area(r));
+
+
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
@@ -328,6 +338,10 @@ public class Bit2D implements Cloneable, Serializable {
         return cutPaths;
     }
 
+    public LinkedList<Vector<Path2D>> getCutPathsSeparate() {
+        return cutPathsSeparate;
+    }
+
     /**
      * @return vertical side
      */
@@ -361,6 +375,7 @@ public class Bit2D implements Cloneable, Serializable {
         Area newArea = (Area) transformedArea.clone();
         newArea.transform(inverseTransfoMatrix);
         areas.addAll(AreaTool.segregateArea(newArea));
+
     }
 
     /**
@@ -417,6 +432,7 @@ public class Bit2D implements Cloneable, Serializable {
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
+        this.cutPathsSeparate = new LinkedList<>();
         Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
         // Define 4 corners
         Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
@@ -440,27 +456,33 @@ public class Bit2D implements Cloneable, Serializable {
             if (polygon.isEmpty())
                 continue;
             Path2D cutPath2D = new Path2D.Double();
-            Segment2D currentEdge = polygon.get(0);
-            cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
+//            Segment2D currentEdge = polygon.get(0);
+//            cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
             for (int i = 0; i < polygon.size(); i++) {
-                currentEdge = polygon.get(i);
+                Segment2D currentEdge = polygon.get(i);
+                if(i==0||!(currentEdge.start.asGoodAsEqual(polygon.get(i-1).end))){
+                    cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
+                }
                 cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
                 // Some edges may have been deleted
                 // So we check beforehand to skip
-                if (i + 1 < polygon.size() && !polygon.contains(currentEdge.getNext())) {
-                    // If the next edge has been removed
-                    // We complete the path
-                    this.cutPaths.add(cutPath2D);
-                    // Then we create a new one
-                    // And move to the start of the succeeding edge
-                    cutPath2D = new Path2D.Double();
-                    cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
-                }
+//                if (i + 1 < polygon.size() && !polygon.contains(currentEdge.getNext())) {
+//                    // If the next edge has been removed
+//                    // We complete the path
+//                    this.cutPaths.add(cutPath2D);
+//                    // Then we create a new one
+//                    // And move to the start of the succeeding edge
+//                    cutPath2D = new Path2D.Double();
+//                    cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
+//                }
             }
             // Finish the last cut path
             if (!this.cutPaths.contains(cutPath2D)) {
                 this.cutPaths.add(cutPath2D);
             }
+            @SuppressWarnings("unchecked")
+           Vector<Path2D> vector = ((Vector<Path2D>) this.cutPaths.clone());
+            cutPathsSeparate.add(vector);
         }
     }
 
@@ -511,4 +533,5 @@ public class Bit2D implements Cloneable, Serializable {
     public AffineTransform getInverseTransfoMatrix() {
         return inverseTransfoMatrix;
     }
+
 }

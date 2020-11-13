@@ -30,9 +30,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Logger;
+import java.util.*;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
@@ -44,6 +42,7 @@ public class Bit3D implements Serializable, Cloneable {
      * In {@link #bit2dToExtrude} coordinate system
      */
     private Vector<Path2D> rawCutPaths;
+    private LinkedList<Vector<Path2D>> rawCutPathsSeparate;
     /**
      * In {@link Mesh} coordinate system
      */
@@ -61,9 +60,16 @@ public class Bit3D implements Serializable, Cloneable {
      * In {@link Mesh} coordinate system
      */
     private Vector<Vector2> liftPoints = new Vector<>();
+    /**
+     * List two points correspond  areas in key
+     * In {@link #bit2dToExtrude} coordinate system
+     */
+    private Map<Area,List<Vector2>> listTwoDistantPoints =new HashMap<>();
+
     private boolean irregular = false;
     private double lowerAltitude;
     private double higherAltitude;
+
 
     /**
      * Construct bit 3D from horizontal section and calculate lift points
@@ -76,7 +82,9 @@ public class Bit3D implements Serializable, Cloneable {
         origin = baseBit.getOrigin();
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
+        rawCutPathsSeparate=baseBit.getCutPathsSeparate();
         computeLiftPoints();
+        computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = layer.getLowerAltitude();
         higherAltitude = layer.getHigherAltitude();
     }
@@ -85,7 +93,9 @@ public class Bit3D implements Serializable, Cloneable {
         origin = bit3D.getOrigin();
         orientation = bit3D.getOrientation();
         rawCutPaths = (Vector<Path2D>) bit3D.getRawCutPaths();
+        rawCutPathsSeparate= bit3D.getBaseBit().getCutPathsSeparate();
         computeLiftPoints();
+        computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = bit3D.getLowerAltitude();
         higherAltitude = bit3D.getHigherAltitude();
     }
@@ -162,6 +172,32 @@ public class Bit3D implements Serializable, Cloneable {
                 "]" +
                 ']';
     }
+    public boolean isCutable() {
+        return this.getRawLiftPoints().size() > 0;
+    }
+
+    public void computeTwoPointNearTwoPointMostDistantOnBit(){
+//        double radius = CraftConfig.suckerDiameter/4;
+//        while (radius<CraftConfig.suckerDiameter){
+//            for (Area area : bit2dToExtrude.getRawAreas()){
+//                if(!listTwoDistantPoints.keySet().contains(area)){
+//                    Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area,radius);
+//                    if (listPoint != null) {
+//                        listTwoDistantPoints.put(area,listPoint);
+//                    }
+//                }
+//            }
+//            radius++;
+//        }
+        for (Area area : bit2dToExtrude.getRawAreas()){
+            if(!listTwoDistantPoints.containsKey(area)){
+                Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area,CraftConfig.suckerDiameter/4);
+                if (listPoint != null) {
+                    listTwoDistantPoints.put(area,listPoint);
+                }
+            }
+        }
+    }
 
     public double getLowerAltitude() {
         return lowerAltitude;
@@ -170,8 +206,18 @@ public class Bit3D implements Serializable, Cloneable {
     public double getHigherAltitude() {
         return higherAltitude;
     }
-
+    @SuppressWarnings("super")
     public Bit3D clone() {
         return new Bit3D(this);
+    }
+
+    public LinkedList<Vector<Path2D>> getRawCutPathsSeparate() {
+        return rawCutPathsSeparate;
+    }
+
+    public Vector<Vector2> getListTwoDistantPoints() {
+        Vector<Vector2> listPoints = new Vector<>();
+        listTwoDistantPoints.values().forEach(list -> list.forEach(ele->listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
+        return listPoints;
     }
 }

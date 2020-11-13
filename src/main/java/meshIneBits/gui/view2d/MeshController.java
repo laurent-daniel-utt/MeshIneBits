@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * and {@link ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer,HandlerRedoUndo.UndoFunction {
+public class MeshController extends Observable implements Observer, HandlerRedoUndo.UndoFunction {
 
     public static final String SHOW_SLICE = "showSlice";
     public static final String SHOW_LIFT_POINTS = "showLiftPoints";
@@ -116,7 +116,6 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private final MeshWindow meshWindow;
     private Mesh mesh;
     private int layerNumber = -1;
-    private Layer currentLayer = null;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
     private boolean showSlice = true;
@@ -158,9 +157,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         mesh.addObserver(this);
     }
     public void resetMesh(){
-        this.mesh=null;
+        setMesh(new Mesh());
         this.setChanged();
-        this.notifyObservers();
+        this.notifyObservers(MeshEvents.READY);
     }
 
     public int getLayerNumber() {
@@ -201,7 +200,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     notifyObservers(MeshEvents.SLICED);
                     // Notify property panel
                     changes.firePropertyChange(MESH_SLICED, null, mesh);
-                    changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
+                    changes.firePropertyChange(LAYER_CHOSEN, null, getCurrentLayer());
                     break;
                 case PAVING_MESH:
                     Logger.updateStatus("Paving mesh");
@@ -213,13 +212,13 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     notifyObservers(MeshEvents.PAVED_MESH);
                     // Notify property panel
                     changes.firePropertyChange(MESH_PAVED, null, mesh);
-                    changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
+                    changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
                     break;
                 case PAVING_LAYER:
                     break;
                 case PAVED_LAYER:
                     // Notify property panel
-                    changes.firePropertyChange(LAYER_PAVED, null, currentLayer);
+                    changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
                     setChanged();
                     notifyObservers(MeshEvents.PAVED_LAYER);
                     break;
@@ -227,7 +226,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     break;
                 case OPTIMIZED_LAYER:
                     // Notify property panel
-                    changes.firePropertyChange(LAYER_OPTIMIZED, null, currentLayer);
+                    changes.firePropertyChange(LAYER_OPTIMIZED, null, getCurrentLayer());
                     // Notify the core to draw
                     setChanged();
                     notifyObservers(MeshEvents.SLICED);
@@ -256,7 +255,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     setChanged();
                     notifyObservers(MeshEvents.OPENED);
                     changes.firePropertyChange(MESH_OPENED, null, mesh);
-                    changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
+                    changes.firePropertyChange(LAYER_CHOSEN, null, getCurrentLayer());
                     break;
                 case OPEN_FAILED:
                     break;
@@ -272,8 +271,8 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     }
 
     private void updateAvailableArea() {
-        availableArea = AreaTool.getAreaFrom(currentLayer.getHorizontalSection());
-        Pavement pavement = currentLayer.getFlatPavement();
+        availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
+        Pavement pavement = getCurrentLayer().getFlatPavement();
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
                 .forEach(key -> availableArea.subtract(
@@ -294,14 +293,13 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             return;
         }
         layerNumber = layerNum;
-        currentLayer = mesh.getLayers().get(layerNumber);
-        currentLayer.addObserver(this);
+        getCurrentLayer().addObserver(this);
         updateAvailableArea();
         reset();
         // Notify selector
         changes.firePropertyChange(SETTING_LAYER, 0, layerNum); // no need of old value
         // Notify property panel
-        changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
+        changes.firePropertyChange(LAYER_CHOSEN, null, getCurrentLayer());
         // Notify the core
         setChanged();
         notifyObservers();
@@ -345,7 +343,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             Logger.warning("There is no bit selected");
         } else {
             setSelectedBitKeys(getSelectedBits().stream()
-                    .map(bit -> currentLayer.scaleBit(bit, percentageLength, percentageWidth))
+                    .map(bit -> getCurrentLayer().scaleBit(bit, percentageLength, percentageWidth))
                     .collect(Collectors.toSet()));
         }
     }
@@ -376,7 +374,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
 
     public Set<Bit3D> getSelectedBits() {
         return selectedBitKeys.stream()
-                .map(currentLayer::getBit3D)
+                .map(getCurrentLayer()::getBit3D)
                 .collect(Collectors.toSet());
     }
 
@@ -455,21 +453,21 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         //save action before doing
         Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
         Set<Bit3D> bit3DSet = this.getSelectedBits();
-        handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(bit3DSet,previousKeys,null,null,this.currentLayer.getLayerNumber()));
+        handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(bit3DSet,previousKeys,null,null, this.getCurrentLayer().getLayerNumber()));
 
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
-        currentLayer.removeBits(selectedBitKeys, true);
+        getCurrentLayer().removeBits(selectedBitKeys, true);
         selectedBitKeys.clear();
-        currentLayer.rebuild();
-        changes.firePropertyChange(BITS_DELETED, null, currentLayer);
+        getCurrentLayer().rebuild();
+        changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
     }
     public void deleteBitsByBitsAndKeys(Set<Bit3D> bit3DSet,Set<Vector2> keys){
         setSelectedBitKeys(keys);
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
-        currentLayer.removeBits(getSelectedBitKeys(), true);
+        getCurrentLayer().removeBits(getSelectedBitKeys(), true);
         selectedBitKeys.clear();
-        currentLayer.rebuild();
-        changes.firePropertyChange(BITS_DELETED, null, currentLayer);
+        getCurrentLayer().rebuild();
+        changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
     }
 
     public void incrementBitsOrientationParamBy(double v) {
@@ -479,7 +477,8 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     }
 
     public Layer getCurrentLayer() {
-        return currentLayer;
+        return getMesh() == null || getMesh().getLayers() == null || getMesh().getLayers().isEmpty() || layerNumber < 0 || getMesh().getLayers().size() < layerNumber
+                ? null : getMesh().getLayers().get(layerNumber);
     }
 
     public Area getAvailableBitAreaFrom(Shape bitPreviewInReal) {
@@ -496,7 +495,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
      */
     public void addNewBitAt(Point2D.Double position) {
         if (mesh == null
-                || currentLayer.getFlatPavement() == null
+                || getCurrentLayer().getFlatPavement() == null
                 || position == null
                 || bitAreaPreview.isEmpty()
         )
@@ -517,15 +516,15 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
         }
-        currentLayer.addBit(newBit, true);
+        getCurrentLayer().addBit(newBit, true);
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
+        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(), getCurrentLayer().getLayerNumber()));
     }
 
     public void addBit3Ds(Collection<Bit3D> bits3d) {
         for (Bit3D bit3d : bits3d) {
-            currentLayer.addBit(bit3d.getBaseBit(), true);
+            getCurrentLayer().addBit(bit3d.getBaseBit(), true);
         }
     }
 
@@ -535,7 +534,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
      * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
      */
     private Vector2 findBitAt(Point2D.Double position) {
-        Pavement flatPavement = currentLayer.getFlatPavement();
+        Pavement flatPavement = getCurrentLayer().getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
             if (flatPavement.getBit(key).getArea().contains(position))
                 return key;
@@ -555,9 +554,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         }
         if (!selectedBitKeys.add(bitKey)) {
             selectedBitKeys.remove(bitKey);
-            changes.firePropertyChange(BIT_UNSELECTED, null, currentLayer.getBit3D(bitKey));
+            changes.firePropertyChange(BIT_UNSELECTED, null, getCurrentLayer().getBit3D(bitKey));
         } else
-            changes.firePropertyChange(BIT_SELECTED, null, currentLayer.getBit3D(bitKey));
+            changes.firePropertyChange(BIT_SELECTED, null, getCurrentLayer().getBit3D(bitKey));
         // Notify the core
         setChanged();
         notifyObservers();
@@ -616,7 +615,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                 || bulkSelectZone.isEmpty()) {
             return;
         }
-        Pavement flatPavement = currentLayer.getFlatPavement();
+        Pavement flatPavement = getCurrentLayer().getFlatPavement();
         for (Vector2 key : flatPavement.getBitsKeys()) {
             if (bulkSelectZone.contains(flatPavement.getBit(key).getArea().getBounds2D()))
                 selectedBitKeys.add(key);
@@ -678,9 +677,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        if (!currentLayer.isPaved())
+        if (!getCurrentLayer().isPaved())
             throw new Exception("Layer not paved");
-        mesh.optimize(currentLayer);
+        mesh.optimize(getCurrentLayer());
     }
 
     public void paveLayer(PatternTemplate patternTemplate) throws Exception {
@@ -688,7 +687,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        mesh.pave(patternTemplate, currentLayer);
+        mesh.pave(patternTemplate, getCurrentLayer());
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
@@ -719,14 +718,14 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     public void paveSelectedRegion(PatternTemplate patternTemplate) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
-        if (currentLayer == null)
+        if (getCurrentLayer() == null)
             throw new Exception("Layer not found");
         if (regionVertices.isEmpty())
             throw new Exception("No region vertex found");
         if (!selectedRegion)
             throw new Exception("Region not closed");
         mesh.pave(patternTemplate,
-                currentLayer,
+                getCurrentLayer(),
                 new Area(currentSelectedRegion));
         clearSelectingRegion(true);
     }
@@ -764,11 +763,11 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     public void paveFill(PatternTemplate patternTemplate) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
-        if (currentLayer == null)
+        if (getCurrentLayer() == null)
             throw new Exception("Layer not found");
-        if (!currentLayer.isPaved())
+        if (!getCurrentLayer().isPaved())
             throw new Exception("Layer not paved");
-        mesh.pave(patternTemplate, currentLayer, availableArea);
+        mesh.pave(patternTemplate, getCurrentLayer(), availableArea);
     }
 
     public void toggle(String property) {
@@ -917,13 +916,13 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         Set<Vector2> previousSelectedBits = new HashSet<Vector2>();
         previousSelectedBits.addAll(this.getSelectedBitKeys());
         //move bits
-        setSelectedBitKeys(currentLayer.moveBits(getSelectedBits(), direction));
+        setSelectedBitKeys(getCurrentLayer().moveBits(getSelectedBits(), direction));
         Set<Bit3D> bits3D = this.getSelectedBits();
         //Save after moved
         Set<Vector2> resultKeys = new HashSet<Vector2>();
         resultKeys.addAll(getSelectedBitKeys());
         //create new ActionMoveBit for save action
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys,bits3D,currentLayer.getLayerNumber()));
+        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys,bits3D, getCurrentLayer().getLayerNumber()));
     }
 
     /**
@@ -939,9 +938,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         }
         if (!selectedBitKeys.add(bitKey)) {
             selectedBitKeys.remove(bitKey);
-            changes.firePropertyChange(BIT_UNSELECTED, null, currentLayer.getBit3D(bitKey));
+            changes.firePropertyChange(BIT_UNSELECTED, null, getCurrentLayer().getBit3D(bitKey));
         } else
-            changes.firePropertyChange(BIT_SELECTED, null, currentLayer.getBit3D(bitKey));
+            changes.firePropertyChange(BIT_SELECTED, null, getCurrentLayer().getBit3D(bitKey));
         // Notify the core
         setChanged();
         notifyObservers();

@@ -36,11 +36,13 @@ sourceCompatibility = 1.8
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
+    implementation 'org.jetbrains:annotations:19.0.0'
     compile 'org.processing:core:3.3.5'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
     compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
     testCompile 'org.json:json:20180130'
-    compile files('libs/proscene.jar', 'libs/controlP5.jar')
+    compile files('libs/proscene.jar', 'libs/controlP5.jar', 'libs/xchart-3.6.5.jar','libs/commons-math3-3.3.jar')
+    compile group: 'org.knowm.xchart', name: 'xchart', version: '3.6.5'
 
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
     runtime "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
