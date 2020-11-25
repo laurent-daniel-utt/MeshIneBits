@@ -100,7 +100,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             PApplet.main(ProcessingModelView.class.getCanonicalName());
         }
     }
-
     public void settings() {
         currentInstance = this;
         size(800, 450, P3D);
@@ -408,9 +407,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private void rotateShape(float angleX, float angleY, float angleZ) {
         applied = false;
         Quat r = new Quat();
-        float angXRad = (float) Math.toRadians((double) angleX);
-        float angYRad = (float) Math.toRadians((double) angleY);
-        float angZRad = (float) Math.toRadians((double) angleZ);
+        float angXRad = (float) Math.toRadians( angleX);
+        float angYRad = (float) Math.toRadians( angleY);
+        float angZRad = (float) Math.toRadians( angleZ);
         r.fromEulerAngles(angXRad, angYRad, angZRad);
         frame.rotate(r);
         applyGravity();
@@ -620,37 +619,37 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      */
     @SuppressWarnings("unused")
     public void RotationX(String theValue) {
-        float angle = Float.valueOf(theValue);
+        float angle = Float.parseFloat(theValue);
         rotateShape(angle, 0, 0);
     }
 
     @SuppressWarnings("unused")
     public void RotationY(String theValue) {
-        float angle = Float.valueOf(theValue);
+        float angle = Float.parseFloat(theValue);
         rotateShape(0, angle, 0);
     }
 
     @SuppressWarnings("unused")
     public void RotationZ(String theValue) {
-        float angle = Float.valueOf(theValue);
+        float angle = Float.parseFloat(theValue);
         rotateShape(0, 0, angle);
     }
 
     @SuppressWarnings("unused")
     public void PositionX(String theValue) {
-        float pos = Float.valueOf(theValue);
+        float pos = Float.parseFloat(theValue);
         translateShape(pos, 0, 0);
     }
 
     @SuppressWarnings("unused")
     public void PositionY(String theValue) {
-        float pos = Float.valueOf(theValue);
+        float pos = Float.parseFloat(theValue);
         translateShape(0, pos, 0);
     }
 
     @SuppressWarnings("unused")
     public void PositionZ(String theValue) {
-        float pos = Float.valueOf(theValue);
+        float pos = Float.parseFloat(theValue);
         translateShape(0, 0, pos);
     }
 

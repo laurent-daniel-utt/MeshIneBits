@@ -20,7 +20,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package meshIneBits.util;
+package meshIneBits.util.supportExportFile;
 
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
@@ -29,6 +29,9 @@ import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.scheduler.BasicScheduler;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
+import meshIneBits.util.Vector3;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -40,6 +43,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * this XML tool isn't recommended to use
+ * @deprecated
+ */
+@Deprecated
 public class XmlTool2  {
 
     private Mesh part;
@@ -268,5 +276,6 @@ public class XmlTool2  {
             writer.close();
         }
     }
+
 
 }
