@@ -38,6 +38,7 @@ import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -128,6 +129,7 @@ public static class SerializeArea {
     public void convertPath2DtoHorizontalArea(){
         this.horizontalArea=SerializeArea.toArea(this.horizontalAreaConvert);
     }
+
 
     /**
      * Rebuild the whole layer. To be called after overall changes made on this
@@ -232,6 +234,8 @@ public static class SerializeArea {
         });
         return keySet;
     }
+
+
 
     /**
      * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of

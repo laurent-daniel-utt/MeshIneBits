@@ -9,10 +9,8 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Vector;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AScheduler extends Observable implements Serializable, Runnable {
     protected Mesh mesh = null;
@@ -77,6 +75,15 @@ public abstract class AScheduler extends Observable implements Serializable, Run
         schedule();
         Logger.updateStatus("Bits cut & place scheduling is over.");
         notifyObservers(MeshEvents.SCHEDULED);
+    }
+
+    public static List<Bit3D> getListBit3DsSortedFrom (Vector<Pair<Bit3D, Vector2>> arg){
+        Set<Bit3D> setBit = new HashSet<>();
+        List<Bit3D> result = new ArrayList<>();
+        for(Pair<Bit3D,Vector2> ele : arg){
+            if(!result.contains(ele.getKey()))result.add(ele.getKey());
+        }
+        return result;
     }
 
 
