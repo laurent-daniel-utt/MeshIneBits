@@ -28,6 +28,7 @@ import meshIneBits.scheduler.AScheduler;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.*;
+import meshIneBits.util.supportExportFile.MeshXMLTool;
 
 import java.awt.geom.Area;
 import java.io.*;
@@ -734,8 +735,8 @@ public class Mesh extends Observable implements Observer, Serializable {
         public void run() {
 //            XmlTool2 xt = new XmlTool2(Mesh.this, file.toPath());
 //            xt.writeXmlCode();
-            XMLTool xt = XMLTool.getInstance();
-            xt.writeMeshToXML(Mesh.this,file.toPath());
+            MeshXMLTool xt = new MeshXMLTool(file.toPath());
+            xt.writeMeshToXML(Mesh.this);
             setChanged();
             notifyObservers(MeshEvents.EXPORTED);
         }

@@ -87,8 +87,6 @@ public class BasicScheduler extends AScheduler {
         if(bits.size()>0){
             xMin = bits.get(0).getValue().x;
             bits = this.sortBits(bits, Math.abs(xMin));
-            System.out.println(bits.size());
-//                this.firstLayerBits.add(bits.firstElement().getKey());
         }
         return bits;
     }
@@ -119,4 +117,5 @@ public class BasicScheduler extends AScheduler {
     {
         return "Basic";
     }
+
 }

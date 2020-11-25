@@ -24,8 +24,12 @@ package meshIneBits;
 
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
+import meshIneBits.util.CutPathUtil;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
+import remixlab.dandelion.geom.Vec;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
@@ -64,12 +68,17 @@ public class Bit3D implements Serializable, Cloneable {
      * List two points correspond  areas in key
      * In {@link #bit2dToExtrude} coordinate system
      */
-    private Map<Area,List<Vector2>> listTwoDistantPoints =new HashMap<>();
+    private Vector<Vector<Vector2>>listTwoDistantPoints =new Vector<>();
 
     private boolean irregular = false;
     private double lowerAltitude;
     private double higherAltitude;
 
+    private boolean reverseInCut;
+
+    public boolean isReverseInCut() {
+        return reverseInCut;
+    }
 
     /**
      * Construct bit 3D from horizontal section and calculate lift points
@@ -83,6 +92,7 @@ public class Bit3D implements Serializable, Cloneable {
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
         rawCutPathsSeparate=baseBit.getCutPathsSeparate();
+        reverseInCut=baseBit.getReverseInCut();
         computeLiftPoints();
         computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = layer.getLowerAltitude();
@@ -98,6 +108,7 @@ public class Bit3D implements Serializable, Cloneable {
         computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = bit3D.getLowerAltitude();
         higherAltitude = bit3D.getHigherAltitude();
+        reverseInCut=bit3D.isReverseInCut();
     }
 
     private Vector2 computeLiftPoint(Area subBit) {
@@ -177,24 +188,10 @@ public class Bit3D implements Serializable, Cloneable {
     }
 
     public void computeTwoPointNearTwoPointMostDistantOnBit(){
-//        double radius = CraftConfig.suckerDiameter/4;
-//        while (radius<CraftConfig.suckerDiameter){
-//            for (Area area : bit2dToExtrude.getRawAreas()){
-//                if(!listTwoDistantPoints.keySet().contains(area)){
-//                    Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area,radius);
-//                    if (listPoint != null) {
-//                        listTwoDistantPoints.put(area,listPoint);
-//                    }
-//                }
-//            }
-//            radius++;
-//        }
         for (Area area : bit2dToExtrude.getRawAreas()){
-            if(!listTwoDistantPoints.containsKey(area)){
-                Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area,CraftConfig.suckerDiameter/4);
-                if (listPoint != null) {
-                    listTwoDistantPoints.put(area,listPoint);
-                }
+            Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area,CraftConfig.suckerDiameter/4);
+            if (listPoint != null) {
+                listTwoDistantPoints.add(listPoint);
             }
         }
     }
@@ -217,7 +214,50 @@ public class Bit3D implements Serializable, Cloneable {
 
     public Vector<Vector2> getListTwoDistantPoints() {
         Vector<Vector2> listPoints = new Vector<>();
-        listTwoDistantPoints.values().forEach(list -> list.forEach(ele->listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
+        listTwoDistantPoints.forEach(list -> list.forEach(ele->listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
         return listPoints;
+    }
+    /**
+     * In {@link Mesh} coordinate
+     * @return value radian
+     */
+    public double getAnglesTwoDistantPointsWithAxeOx(){
+        if(listTwoDistantPoints.size()>0){
+            Vector<Double> valueAngles = new Vector<>();
+            for (Vector<Vector2> points : listTwoDistantPoints){
+                //calcul sub vector, we know that points contains 2 elements
+                Vector2 v = points.firstElement().sub(points.lastElement());
+                valueAngles.add(Vector2.calcAngleBetweenVectorAndAxeX(v));
+            }
+        }else{
+            Logger.error("This Bit Id hasn't points to calculate");
+        }
+        return 0;
+    }
+    public Bit3D getNewBitToExportToXML(){
+        Bit3D bit3D = this.clone();
+        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
+        if(!reverseInCut)return bit3D;
+        else{
+            AffineTransform matrixReverseBit = new AffineTransform();
+            matrixReverseBit.rotate(Math.PI);
+
+            Vector<Path2D> cutPaths = new Vector<>(bit3D.getRawCutPaths());
+            bit3D.getRawCutPaths().clear();
+            for(int i = cutPaths.size()-1;i>=0;i--){
+                bit3D.getRawCutPaths().add(CutPathUtil.transformPath2D(cutPaths.get(i),matrixReverseBit));
+            }
+            Vector<Vector2> liftPoints = new Vector<>(bit3D.getRawLiftPoints());
+            bit3D.getRawLiftPoints().clear();
+            for(Vector2 point : liftPoints){
+                bit3D.getRawLiftPoints().add(point.getTransformed(matrixReverseBit));
+            }
+            Vector<Vector2> twoDistantPoint = new Vector<>(bit3D.getListTwoDistantPoints());
+            bit3D.getListTwoDistantPoints().clear();
+            for(Vector2 point : twoDistantPoint){
+                bit3D.getListTwoDistantPoints().add(point.getTransformed(matrixReverseBit));
+            }
+            return bit3D;
+        }
     }
 }

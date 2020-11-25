@@ -1,5 +1,5 @@
 .gradletasknamecache
-.gradle/
+
 build/
 bin/
 .classpath

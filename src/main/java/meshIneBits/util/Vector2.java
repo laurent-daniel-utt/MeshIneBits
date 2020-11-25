@@ -55,6 +55,30 @@ public class Vector2 implements Serializable {
         return new Vector2(Rounder.round(Math.cos(angleRadian), CraftConfig.errorAccepted),
                 Rounder.round(Math.sin(angleRadian), CraftConfig.errorAccepted));
     }
+    public static double calcAngleBetweenVectorAndAxeX(Vector2 v){
+        double angle = calcAngleBetweenTwoVector(v,new Vector2(1,0))*180/Math.PI;
+        return v.y>0? angle : -angle;
+    }
+    /**
+     * Calculate angle in radian between 2 vector
+     * @param point1 coordinate vector
+     * @param point2 coordinate vector
+     * @return angle in radian
+     */
+    public static double calcAngleBetweenTwoVector(Vector2 point1,Vector2 point2){
+        double num = (point1.x*point2.x + point1.y*point2.y);
+        double den = (Math.sqrt(Math.pow(point1.x, 2) + Math.pow(point1.y, 2)) * (Math.sqrt(Math.pow(point2.x, 2) + Math.pow(point2.y, 2))) );
+        double cos =  num / den;
+        System.out.println(Math.acos(cos));
+        return Math.acos(cos);
+    }
+
+    public static void main(String[] args) {
+        Vector2 point1 = new Vector2(1,-1);
+        Vector2 point2 = new Vector2(1,0);
+        calcAngleBetweenVectorAndAxeX(point1);
+        System.out.println( point1.y>0 ? calcAngleBetweenVectorAndAxeX(point1)*180/Math.PI : -calcAngleBetweenVectorAndAxeX(point1)*180/Math.PI);
+    }
 
     public Vector2(double x, double y) {
         this.x = x;
