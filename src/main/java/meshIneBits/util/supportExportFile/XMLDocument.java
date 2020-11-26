@@ -1,6 +1,5 @@
 package meshIneBits.util.supportExportFile;
 
-import com.sun.xml.internal.ws.handler.HandlerException;
 import meshIneBits.util.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -79,7 +78,7 @@ public abstract class XMLDocument<T> {
         try {
 
             if (obj == null) {
-                throw new HandlerException(new NullPointerException(obj.getClass().getName()+" can't be null"));
+                throw new NullPointerException(obj.getClass().getName()+" can't be null");
             }
             Element meshElement = buildElementResult(obj);
             appendChild(meshElement);

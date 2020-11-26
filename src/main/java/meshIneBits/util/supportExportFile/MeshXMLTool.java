@@ -1,7 +1,7 @@
 package meshIneBits.util.supportExportFile;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.xml.internal.ws.handler.HandlerException;
+//import com.sun.istack.internal.NotNull;
+//import com.sun.xml.internal.ws.handler.HandlerException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -48,7 +48,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
 
     @Override
-    public void writeMeshToXML(@NotNull Mesh mesh) {
+    public void writeMeshToXML( Mesh mesh) {
         initialize(mesh);
         writeObjectToXML(mesh);
     }
@@ -108,7 +108,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     public Element buildLayerElement(Layer layer) {
         if (mMesh == null) {
-            throw new HandlerException(new NullPointerException("Mesh object hasn't be declared yet"));
+            throw new NullPointerException("Mesh object hasn't be declared yet");
         }
         // Layer element
         Element layerElement = createElement(MeshTagXML.LAYER);
@@ -179,7 +179,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     public Element buildBitElement(Bit3D bit3D) {
         if (mMesh == null) {
-            throw new HandlerException(new NullPointerException("Mesh object hasn't be declared yet"));
+            throw new NullPointerException("Mesh object hasn't be declared yet");
         }
         Element bit = createElement(MeshTagXML.BIT);
         //bit's ID element
@@ -215,7 +215,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
      */
     private void writeSubBitElementToBit(Element bit, Bit3D bit3D) {
         if (mMesh == null) {
-            throw new HandlerException(new NullPointerException("Mesh object hasn't be declared yet"));
+            throw new NullPointerException("Mesh object hasn't be declared yet");
         }
         Vector<Vector2> listTwoPoints = bit3D.getListTwoDistantPoints();
         for (int i = 0; i < bit3D.getRawLiftPoints().size(); i++) {
