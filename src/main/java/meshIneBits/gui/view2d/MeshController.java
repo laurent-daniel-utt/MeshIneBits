@@ -31,6 +31,9 @@ import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.*;
+import meshIneBits.util.supportUndoRedo.ActionOfUserMoveBit;
+import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
+import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -50,7 +53,7 @@ import java.util.stream.Collectors;
  * and {@link ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer, HandlerRedoUndo.UndoFunction {
+public class MeshController extends Observable implements Observer, HandlerRedoUndo.UndoRedoListener {
 
     public static final String SHOW_SLICE = "showSlice";
     public static final String SHOW_LIFT_POINTS = "showLiftPoints";
@@ -76,7 +79,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public static final String UNDO_BIT_ACTION = "undoBitAction";
 
-    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo();
+    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo(this);
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -337,7 +340,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         this.getSelectedBits().forEach(bitKey->map.put(bitKey.getOrigin(),new Double[]{bitKey.getBaseBit().getLength(),bitKey.getBaseBit().getWidth()}));
 //        LinkedList<Double> listsLengthBefore= this.getSelectedBits().stream().map(bit->bit.getBaseBit().getLength()).collect(Collectors.toCollection(LinkedList::new));
 //        LinkedList<Double> listsWidthBefore= this.getSelectedBits().stream().map(bit->bit.getBaseBit().getWidth()).collect(Collectors.toCollection(LinkedList::new));
-        HandlerRedoUndo.ActionOfUserScaleBit actionOfUserScaleBit=new HandlerRedoUndo.ActionOfUserScaleBit(map,percentageLength,percentageWidth);
+        ActionOfUserScaleBit actionOfUserScaleBit=new ActionOfUserScaleBit(map,percentageLength,percentageWidth);
         this.handlerRedoUndo.addActionBit(actionOfUserScaleBit);
         if (this.getSelectedBitKeys().isEmpty()) {
             Logger.warning("There is no bit selected");
@@ -453,7 +456,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         //save action before doing
         Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
         Set<Bit3D> bit3DSet = this.getSelectedBits();
-        handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(bit3DSet,previousKeys,null,null, this.getCurrentLayer().getLayerNumber()));
+        handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet,previousKeys,null,null, this.getCurrentLayer().getLayerNumber()));
 
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
         getCurrentLayer().removeBits(selectedBitKeys, true);
@@ -507,7 +510,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
         Vector2 origin = new Vector2(position.x, position.y);
         //save origin of new bit
-        Set<Vector2> resultKey = new HashSet<Vector2>();
+        Set<Vector2> resultKey = new HashSet<>();
         resultKey.add(origin);
         //add new bit
         Bit2D newBit = new Bit2D(origin, lOrientation,
@@ -519,7 +522,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         getCurrentLayer().addBit(newBit, true);
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(), getCurrentLayer().getLayerNumber()));
+        this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey,this.getSelectedBits(), getCurrentLayer().getLayerNumber()));
     }
 
     public void addBit3Ds(Collection<Bit3D> bits3d) {
@@ -913,16 +916,14 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     public void moveSelectedBits(Vector2 direction) {
         // Save before doing
         Set<Bit3D> cloned = getSelectedBits();
-        Set<Vector2> previousSelectedBits = new HashSet<Vector2>();
-        previousSelectedBits.addAll(this.getSelectedBitKeys());
+        Set<Vector2> previousSelectedBits = new HashSet<>(this.getSelectedBitKeys());
         //move bits
         setSelectedBitKeys(getCurrentLayer().moveBits(getSelectedBits(), direction));
         Set<Bit3D> bits3D = this.getSelectedBits();
         //Save after moved
-        Set<Vector2> resultKeys = new HashSet<Vector2>();
-        resultKeys.addAll(getSelectedBitKeys());
+        Set<Vector2> resultKeys = new HashSet<>(getSelectedBitKeys());
         //create new ActionMoveBit for save action
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys,bits3D, getCurrentLayer().getLayerNumber()));
+        this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys,bits3D, getCurrentLayer().getLayerNumber()));
     }
 
     /**
@@ -1021,18 +1022,25 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     /**
      * Call to back to step previous
      */
-    @Override
     public void undo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && !handlerRedoUndo.getPreviousActionOfUserBits().isEmpty()) {
             handlerRedoUndo.undo(this);
         }
     }
 
-    @Override
     public void redo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && handlerRedoUndo.getAfterActionOfUserBits().size()!=0) {
             handlerRedoUndo.redo(this);
         }
     }
 
+    @Override
+    public void onUndoListener(HandlerRedoUndo.ActionOfUser a) {
+        a.runUndo(this);
+    }
+
+    @Override
+    public void onRedoListener(HandlerRedoUndo.ActionOfUser a) {
+        a.runRedo(this);
+    }
 }
