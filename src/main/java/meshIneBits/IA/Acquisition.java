@@ -17,7 +17,8 @@ public class Acquisition {
     public boolean storeNewBits = false;
     private Map<Bit2D, Description> storedExamplesBits;
     private AI_Tool ai_tool;
-    public Vector2 startPoint = new Vector2(0, 0);
+    public Vector2 startPoint = new Vector2(0, 0);//debugOnly
+    private Bit2D lastPlacedBit; //useful for delete last placed bit
 
 
     public Acquisition(AI_Tool ai_tool) {
@@ -25,13 +26,17 @@ public class Acquisition {
     }
 
     public void startStoringBits() {
-        this.storeNewBits = true;
-        this.storedExamplesBits = new LinkedHashMap<>();
+        storeNewBits = true;
+        storedExamplesBits = new LinkedHashMap<>();
     }
 
     public void stopStoringBits() {
-        this.storeNewBits = false;
+        storeNewBits = false;
         saveExamples();
+    }
+
+    public void deleteLastPlacedBit() {
+        storedExamplesBits.remove(lastPlacedBit);
     }
 
     private void saveExamples() {
@@ -58,7 +63,10 @@ public class Acquisition {
     }
 
     public void storeNewExampleBit(Bit2D bit) throws AI_Exception {
-        this.storedExamplesBits.put(bit, getDescription(bit));
+        storedExamplesBits.put(bit, getDescription(bit));
+        lastPlacedBit = bit;
+
+
         Vector<Vector2> pointList = new Vector<>();//debugOnly, on teste si la recherche du point suivant marche bien
         Vector<Slice> slicesList = ai_tool.getMeshController().getMesh().getSlices();
         Vector<Segment2D> segment2DVector = slicesList.get(0).getSegmentList();
@@ -79,4 +87,5 @@ public class Acquisition {
         Description description = new Description(points, coeffs);
         return description;
     }
+
 }

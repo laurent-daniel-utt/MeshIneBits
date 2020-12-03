@@ -22,8 +22,6 @@
 
 package meshIneBits.gui.view2d;
 
-import javafx.scene.shape.Line;
-import javafx.util.Pair;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -522,7 +520,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
 
         g2d.setColor(Color.CYAN);
-        drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
+        //drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
 
         g2d.setColor(Color.RED);
         g2d.setStroke(new BasicStroke(5f));

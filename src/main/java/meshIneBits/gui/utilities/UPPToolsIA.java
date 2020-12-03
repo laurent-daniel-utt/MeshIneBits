@@ -36,7 +36,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
     public UPPToolsIA(MeshController meshController) {
             super("AI-Tools");
             // Init components
-            meshController.ai_Tool = new AI_Tool();
+            meshController.ai_Tool = new AI_Tool(meshController);
             JPanel parametersPanel = new JPanel();
             parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
             parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
@@ -45,9 +45,8 @@ public class UPPToolsIA extends UtilityParametersPanel {
             JButton startButton = new JButton("Start AI Pavement");
             startButton.addActionListener(e -> {
                 try {
-                    AI_Tool ai_Tool = new AI_Tool(); //todo Etienne : else throw error "Mesh not found or Mesh not sliced"
-                    ai_Tool.startAI(meshController);
-                    meshController.ai_Tool = ai_Tool;
+                    //todo Etienne : else throw error "Mesh not found or Mesh not sliced"
+                    meshController.ai_Tool.startAI();
                 } catch (Exception e1) {
                     meshController.handleException(e1);
                 }
@@ -64,13 +63,13 @@ public class UPPToolsIA extends UtilityParametersPanel {
 
             JButton deleteLastButton = new JButton("Delete last bit placed");
         deleteLastButton.setEnabled(false);
-            startButton.addActionListener(_e -> {
-                try {
-                    meshController.ai_Tool.startAI(meshController);
-                } catch (Exception _e1) {
-                    meshController.handleException(_e1);
-                }
-            });
+        deleteLastButton.addActionListener(_e -> {
+            try {
+                meshController.ai_Tool.acquisition.deleteLastPlacedBit();
+            } catch (Exception _e1) {
+                meshController.handleException(_e1);
+            }
+        });
 
             JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
             storeButton.addActionListener(e -> {

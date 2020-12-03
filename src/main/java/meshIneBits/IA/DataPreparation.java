@@ -10,7 +10,6 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
-import remixlab.dandelion.geom.Vec;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -37,38 +36,6 @@ public class DataPreparation {
     public DataPreparation(AI_Tool ai_tool) {
         this.ai_tool = ai_tool;
     }
-
-    /**
-     * @param bitPos           position of a bit, that comes from the neural network's output
-     * @param bitAngle         angle of a bit, that comes from the neural network's output
-     * @param posLocalSystem   position of the local coordinate system's origin used to prepare data for the neural network
-     * @param angleLocalSystem angle of the local coordinate system used to prepare data for the neural network
-     * @return the bit's center position in global coordinate system
-     */
-    public Vector2 getBitPositionInGlobalCoordinateSystem(double bitPos, Vector2 bitAngle, Vector2 posLocalSystem, Vector2 angleLocalSystem) {
-
-        // bit's colinear and orthogonal unit vectors computation
-        Vector2 colinear = bitAngle.normal();
-        Vector2 orthogonal = colinear.rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
-
-        // bit's center's position in local coordinate system
-        Vector2 positionLocal = colinear.mul(CraftConfig.bitLength / 2)
-                .add(orthogonal.mul(CraftConfig.bitWidth / 2))
-                .sub(orthogonal.mul(bitPos));
-
-        // bits center's position in global coordinate system
-        Vector2 positionGlobal = positionLocal.rotate(angleLocalSystem).add(posLocalSystem);
-
-        System.out.println("colinear = " + colinear);
-        System.out.println("orth = " + orthogonal);
-        System.out.println("position local =" + positionLocal);
-
-        return positionGlobal;
-    }
-
-
-    //todo reformuler
-    //uses the current slice to return a Vector as many groups of points than there are polygons in the slice.
 
     /**
      * Renvoie les points de chaque contour d'une Slice. Les points sont réarrangés pour être à nouveau dans l'ordre.
@@ -155,7 +122,7 @@ public class DataPreparation {
     public Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> points) {
 
         //map for more accurate result
-        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30,points);
+        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, points);
 
         //get an angle
         double angle = getCoordinateSystemOrientation(mappedPoints);
@@ -337,8 +304,6 @@ public class DataPreparation {
 
         //  gr.displayGraph(x);
         //  gr.displayGraph(y);
-
-
         return coefs;
     }
 
@@ -351,6 +316,7 @@ public class DataPreparation {
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
     public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> points) throws AI_Exception {
+        //todo ajuster pour que ca marche pour des demi/quarts.. de bits
         this.bit = bit;
         Polygon rectangle = new Polygon();
         getBitSidesSegments(bit).forEach(rectangle::addEnd);
@@ -398,43 +364,52 @@ public class DataPreparation {
         throw new AI_Exception("The next bit start point has not been found.");
     }
 
+    /**
+     * Repopulate a section a points with new points.
+     * It adds <code>n</code> points between each point given. With for each segment between 2 points <code>n=1 + segmentSize / CraftConfig.bitWidth</code>.
+     * The longer the segment is, the more new points will be placed.
+     *
+     * @param pointsToPopulate the section of points to repopulate
+     * @return the section repopulated with new points.
+     */
     private Vector<Vector2> repopulateSection(Vector<Vector2> pointsToPopulate) {
         Vector<Vector2> newPoints = new Vector<>();
-        for (int i = 0; i < pointsToPopulate.size()-1; i++) {
+        for (int i = 0; i < pointsToPopulate.size() - 1; i++) {
             int nbPoints;
-            double segmentSize = getDistance(pointsToPopulate.get(i), pointsToPopulate.get(i+1));
+            double segmentSize = getDistance(pointsToPopulate.get(i), pointsToPopulate.get(i + 1));
             double bitWidth = CraftConfig.bitWidth;
-            nbPoints = (int) (Math.ceil(segmentSize/bitWidth) + 1);
+            nbPoints = (int) (Math.ceil(segmentSize / bitWidth) + 1);
 
             Vector<Vector2> segment = new Vector<>();
             segment.add(pointsToPopulate.get(i));
-            segment.add(pointsToPopulate.get(i+1));
+            segment.add(pointsToPopulate.get(i + 1));
 
             newPoints.addAll(repopulateWithNewPoints(nbPoints, segment));
-            newPoints.remove(newPoints.size()-1);
+            newPoints.remove(newPoints.size() - 1);
         }
 
         return newPoints;
     }
 
     /**
-     * Repopulate a section with new points. Doesn't keep old points.
-     * @param nbNewPoints the number of points in total
-     * @param points
-     * @return
+     * Repopulate a section a points with new points. Doesn't keep old points.
+     *
+     * @param nbNewPoints the number of points to add between two points.
+     * @param points      the section of points to repopulate
+     * @return the section repopulated with new points.
      */
-    public Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points){
+    public Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points) {
 
         Vector<Vector2> newPoints = new Vector<>();
 
         Vector<Double> segmentLength = new Vector<>();
         // faire un tableau de longueurs des segments initiaux
-        for(int i=0; i<points.size()-1; i++){
-            double size =Math.sqrt(Math.pow(points.get(i).x - points.get(i+1).x, 2)
-                    + Math.pow(points.get(i).y - points.get(i+1).y, 2));
+        for (int i = 0; i < points.size() - 1; i++) {
+            double size = Math.sqrt(Math.pow(points.get(i).x - points.get(i + 1).x, 2)
+                    + Math.pow(points.get(i).y - points.get(i + 1).y, 2));
             segmentLength.add(size);
         }
-        double spacing = segmentLength.stream().mapToDouble(Double::valueOf).sum()/(nbNewPoints-1);
+        double spacing = segmentLength.stream().mapToDouble(Double::valueOf).sum() / (nbNewPoints - 1);
 
         double baseSegmentSum = 0;
         double newSegmentSum = 0;
@@ -442,44 +417,42 @@ public class DataPreparation {
 
         // --- Placer chaque nouveau point l'un après l'autre ---
 
-        for(int i=0; i<nbNewPoints; i++){ // Placer un nouveau point
+        for (int i = 0; i < nbNewPoints; i++) { // Placer un nouveau point
 
             double absNewPoint;
             double ordNewPoint;
 
             // --- selection du segment initial sur lequel on va placer le nouveau point---
             //System.out.println("baseSegmentSum + segmentLength = " + baseSegmentSum + segmentLength[basePointsIndex] + " newSegmentSum = " + newSegmentSum);
-            while(basePointsIndex<points.size()-2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum){
-                baseSegmentSum+=segmentLength.get(basePointsIndex);
-                basePointsIndex+=1;
+            while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
+                baseSegmentSum += segmentLength.get(basePointsIndex);
+                basePointsIndex += 1;
             }
 
             //Calculer l'angle du segment par rapport à l'horizontale
             double segmentAngle;
-            if(points.get(basePointsIndex).x==points.get(basePointsIndex+1).x
-                    && points.get(basePointsIndex).y<=points.get(basePointsIndex+1).y){ // alors segment vertical vers le haut
-                segmentAngle =  Math.PI/2;
-            }
-            else if(points.get(basePointsIndex).x==points.get(basePointsIndex+1).x
-                    && points.get(basePointsIndex).y<=points.get(basePointsIndex+1).y){ // alors segment vertical vers le haut)
-                segmentAngle =  -Math.PI/2;
-            }
-            else{
-                segmentAngle = Math.atan( (points.get(basePointsIndex+1).y - points.get(basePointsIndex).y)
-                        / (points.get(basePointsIndex+1).x - points.get(basePointsIndex).x) ) ; // Coef directeur du segment
+            if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
+                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut
+                segmentAngle = Math.PI / 2;
+            } else if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
+                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut)
+                segmentAngle = -Math.PI / 2;
+            } else {
+                segmentAngle = Math.atan((points.get(basePointsIndex + 1).y - points.get(basePointsIndex).y)
+                        / (points.get(basePointsIndex + 1).x - points.get(basePointsIndex).x)); // Coef directeur du segment
             }
 
             int sign = 1;
-            if(points.get(basePointsIndex+1).x < points.get(basePointsIndex).x){
+            if (points.get(basePointsIndex + 1).x < points.get(basePointsIndex).x) {
                 sign = -1;
             }
 
-            absNewPoint = points.get(basePointsIndex).x + sign * (newSegmentSum-baseSegmentSum) * Math.cos(segmentAngle);
-            ordNewPoint = points.get(basePointsIndex).y + sign * (newSegmentSum-baseSegmentSum) * Math.sin(segmentAngle);
+            absNewPoint = points.get(basePointsIndex).x + sign * (newSegmentSum - baseSegmentSum) * Math.cos(segmentAngle);
+            ordNewPoint = points.get(basePointsIndex).y + sign * (newSegmentSum - baseSegmentSum) * Math.sin(segmentAngle);
 
             newPoints.add(new Vector2(absNewPoint, ordNewPoint));
 
-            newSegmentSum+=spacing;
+            newSegmentSum += spacing;
 
         }
         return newPoints;
@@ -548,26 +521,23 @@ public class DataPreparation {
      * @return <code>true</code> if the segment contains the point. <code>false</code> otherwise
      */
     private boolean contains(Segment2D seg, Vector2 point) {
-        if (seg.start.x<seg.end.x) {
-            if (seg.start.y<seg.end.y) {
+        if (seg.start.x < seg.end.x) {
+            if (seg.start.y < seg.end.y) {
                 if (seg.start.x <= point.x && point.x <= seg.end.x && seg.start.y <= point.y && point.y <= seg.end.y) {
                     return true;
                 }
-            }
-            else {
+            } else {
                 if (seg.start.x <= point.x && point.x <= seg.end.x && seg.start.y >= point.y && point.y >= seg.end.y) {
                     return true;
                 }
             }
 
-        }
-        else {
-            if (seg.start.y<seg.end.y) {
+        } else {
+            if (seg.start.y < seg.end.y) {
                 if (seg.start.x >= point.x && point.x >= seg.end.x && seg.start.y <= point.y && point.y <= seg.end.y) {
                     return true;
                 }
-            }
-            else {
+            } else {
                 if (seg.start.x >= point.x && point.x >= seg.end.x && seg.start.y >= point.y && point.y >= seg.end.y) {
                     return true;
                 }

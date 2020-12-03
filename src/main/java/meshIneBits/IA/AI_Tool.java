@@ -18,17 +18,21 @@ public class AI_Tool {
     public Training training;
     public Exploitation exploitation;
 
-    //todo startAI doit permettre de paver entièrement un modèle
-    public void startAI(MeshController MC) { //started when pushing button on UI
+    public AI_Tool(MeshController MC) {
         this.meshController = MC;
         this.acquisition = new Acquisition(this);
         this.training = new Training(this);
         this.exploitation = new Exploitation(this);
+    }
+
+    //todo startAI doit permettre de paver entièrement un modèle
+    public void startAI() { //started when pushing button on UI
+
 
         System.out.println("Starting IA pavement");
         System.out.println("Computing points of each slice");
 
-        Vector<Slice> slicesList = MC.getMesh().getSlices();
+        Vector<Slice> slicesList = meshController.getMesh().getSlices();
         System.out.println(slicesList.size() + " slices to pave");
 
         for (Slice currentSlice : slicesList) {
