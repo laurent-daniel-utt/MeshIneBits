@@ -69,16 +69,12 @@ public class BasicScheduler extends AScheduler {
             Vector<Pair<Bit3D, Vector2>> bits = curLayer.sortBits();
             bits=this.filterBits(bits);
             if (bits.size()>0) {
-                System.out.println(bits.size());
                 this.sortedBits.addAll(bits);
                 this.firstLayerBits.put(i,bits.firstElement().getKey());
             }
-//                this.firstLayerBits.add(bits.firstElement().getKey());
             Logger.setProgress(curLayer.getLayerNumber()+1, this.mesh.getLayers().size());
             i++;
         }
-        System.out.println("size of firstlayerBits: "+firstLayerBits.size()+", first value: "+firstLayerBits.get(0));
-        System.out.println("Size of SOrtedBits: "+sortedBits.size());
         System.out.println("Basic scheduler end scheduling");
         return true;
     }

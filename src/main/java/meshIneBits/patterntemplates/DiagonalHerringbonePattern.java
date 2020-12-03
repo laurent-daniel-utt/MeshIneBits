@@ -90,10 +90,10 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
     private Collection<Bit2D> pave(int layerNumber, Vector2 patternStart, Vector2 patternEnd) {
         // Setup parameters
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
-        double paddle = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
+        double paddle = Math.max(CraftConfig.bitLengthNormal, CraftConfig.bitWidth);
         // Start
         Vector<Bit2D> bits = new Vector<>();
-        double xOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLength + bitsOffset;
+        double xOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitLengthNormal + bitsOffset;
         double yOffSet = Math.sqrt(2.0) / 2.0 * CraftConfig.bitWidth + bitsOffset;
         for (double i = patternStart.x - paddle; i <= patternEnd.x + paddle; i = i + 2 * xOffSet) {
             for (double j = patternStart.y - paddle; j <= patternEnd.y + paddle; j = j + 2 * yOffSet) {

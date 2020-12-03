@@ -31,14 +31,11 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -336,7 +333,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
+            distance = CraftConfig.bitLengthNormal / 2;
         }
         Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
         rebuild(newCoordinate);
@@ -366,7 +363,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
+            distance = CraftConfig.bitLengthNormal / 2;
         }
 
         // Move bits
@@ -473,7 +470,7 @@ public static class SerializeArea {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength of {@link CraftConfig#bitLength}
+     * @param percentageLength of {@link CraftConfig#bitLengthNormal}
      * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.

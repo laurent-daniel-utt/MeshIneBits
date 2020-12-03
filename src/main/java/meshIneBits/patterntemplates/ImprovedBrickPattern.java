@@ -118,7 +118,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
         double diffyOffset = (double) config.get("diffyOffset").getCurrentValue();
         // The first bit is displaced by multiples of diffxOffset and
         // diffyOffset
-        Vector2 _1stBit = new Vector2(diffxOffset * layerNumber % CraftConfig.bitLength,
+        Vector2 _1stBit = new Vector2(diffxOffset * layerNumber % CraftConfig.bitLengthNormal,
                 diffyOffset * layerNumber % CraftConfig.bitWidth);
         // Fill out the square
         int lineNum = 0;// Initialize
@@ -135,7 +135,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                         patternEnd);
             } else {
                 fillHorizontally(
-                        new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+                        new Vector2(_1stBit.x + CraftConfig.bitLengthNormal / 2 + bitsWidthSpace / 2,
                                 _1stBit.y + lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
                         bits,
                         patternStart,
@@ -157,7 +157,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                         patternEnd);
             } else {
                 fillHorizontally(
-                        new Vector2(_1stBit.x + CraftConfig.bitLength / 2 + bitsWidthSpace / 2,
+                        new Vector2(_1stBit.x + CraftConfig.bitLengthNormal / 2 + bitsWidthSpace / 2,
                                 _1stBit.y - lineNum * (CraftConfig.bitWidth + bitsLengthSpace)),
                         bits,
                         patternStart,
@@ -177,17 +177,17 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * @param patternEnd    limit to the right
      */
     private void fillHorizontally(Vector2 _1stBitOrigin, Vector<Bit2D> bits, Vector2 patternStart, Vector2 patternEnd) {
-        double L = CraftConfig.bitLength;
+        double L = CraftConfig.bitLengthNormal;
         double f = bitsWidthSpace;
         // To the right
         int colNum = 0; // Initialize
-        while (_1stBitOrigin.x - L / 2 + colNum * (L + f) <= patternEnd.x + CraftConfig.bitLength / 2) {
+        while (_1stBitOrigin.x - L / 2 + colNum * (L + f) <= patternEnd.x + CraftConfig.bitLengthNormal / 2) {
             bits.add(new Bit2D(new Vector2(_1stBitOrigin.x + colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
             colNum++;
         }
         // To the left
         colNum = 1; // Reinitialize
-        while (_1stBitOrigin.x + L / 2 - colNum * (L + f) >= patternStart.x - CraftConfig.bitLength / 2) {
+        while (_1stBitOrigin.x + L / 2 - colNum * (L + f) >= patternStart.x - CraftConfig.bitLengthNormal / 2) {
             bits.add(new Bit2D(new Vector2(_1stBitOrigin.x - colNum * (L + f), _1stBitOrigin.y), new Vector2(1, 0)));
             colNum++;
         }
@@ -307,7 +307,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                           Slice boundary,
                           Bit2D movedBit,
                           Vector2 localDirectionToMove) {
-        if ((movedBit.getLength() == CraftConfig.bitLength
+        if ((movedBit.getLength() == CraftConfig.bitLengthNormal
                 && localDirectionToMove.y == 0) // right or left
                 || (movedBit.getWidth() == CraftConfig.bitWidth
                 && localDirectionToMove.x == 0)) { // up or down
@@ -331,7 +331,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * To push forward a bit into one direction.
      * <p>
      * Automatically reduce back every bit in front of it. The step of push is
-     * determined by direction, either a half of {@link CraftConfig#bitLength} or
+     * determined by direction, either a half of {@link CraftConfig#bitLengthNormal} or
      * {@link CraftConfig#bitWidth}
      *
      * @param actualState          current situation
@@ -356,17 +356,17 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 additionalVerticalDisplacement,
                 additionalHorizontalDisplacement,
                 // quart bit to cover
-                coveringBitLength = CraftConfig.bitLength / 2,
+                coveringBitLength = CraftConfig.bitLengthNormal / 2,
                 coveringBitWidth = CraftConfig.bitWidth / 2;
         if (localDirectionToPush.x == 0) {
             // If we push up and down
             verticalDisplacement = CraftConfig.bitWidth / 2;
-            horizontalDisplacement = CraftConfig.bitLength / 2;
+            horizontalDisplacement = CraftConfig.bitLengthNormal / 2;
             additionalVerticalDisplacement = bitsLengthSpace / 2;
             additionalHorizontalDisplacement = bitsWidthSpace / 2;
         } else {
             // If we push right or left
-            verticalDisplacement = CraftConfig.bitLength / 2;
+            verticalDisplacement = CraftConfig.bitLengthNormal / 2;
             horizontalDisplacement = CraftConfig.bitWidth / 2;
             additionalVerticalDisplacement = bitsWidthSpace / 2;
             additionalHorizontalDisplacement = bitsLengthSpace / 2;
@@ -434,7 +434,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                     bitToPush.getCenter(),
                     localDirectionToPush.rotate(initialOrientation), // in Mesh coordinate system
                     bitToReduce.getCenter());
-            if (bitToReduce.getLength() == CraftConfig.bitLength
+            if (bitToReduce.getLength() == CraftConfig.bitLengthNormal
                     && bitToReduce.getWidth() == CraftConfig.bitWidth)
                 // If the initial bit is full
                 coveringCenter = initialCenter.add(
@@ -483,7 +483,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
      * @param localDirectionToReduce in the coordinate system of bit. Should be either (0, 1), (0, -1),
      *                               (1, 0), (-1, 0).
      * @param lengthToReduce         in millimeter. If greater than sides, the bit will be removed.
-     *                               Half of {@link CraftConfig#bitLength} or {@link CraftConfig#bitWidth}
+     *                               Half of {@link CraftConfig#bitLengthNormal} or {@link CraftConfig#bitWidth}
      */
     private void reduceBit(Vector2 bitKey,
                            Pavement actualState,
@@ -565,7 +565,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
         }
 
         // Secondly, we check if they are not too far
-        if (distX < (length1 + length2) / 2 + CraftConfig.bitLength / 2
+        if (distX < (length1 + length2) / 2 + CraftConfig.bitLengthNormal / 2
                 && distY < (width1 + width2) / 2) {
             return true;
         }
@@ -734,7 +734,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
     public boolean ready(Mesh mesh) {
         // Setting the skirtRadius and starting/ending points
         double skirtRadius = mesh.getSkirtRadius();
-        double maxiSide = Math.max(CraftConfig.bitLength, CraftConfig.bitWidth);
+        double maxiSide = Math.max(CraftConfig.bitLengthNormal, CraftConfig.bitWidth);
         this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
         this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
         return true;

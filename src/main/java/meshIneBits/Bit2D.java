@@ -27,6 +27,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathUtil;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <img src="./doc-files/bit2d.png" alt="">
  * <br/>
  * We always take the upper left corner as
- * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+ * (- {@link CraftConfig#bitLengthNormal bitLength} / 2, - {@link CraftConfig#bitWidth
  * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
@@ -73,6 +74,7 @@ public class Bit2D implements Cloneable, Serializable {
 
 
     private Boolean reverseInCut = false;
+    private Boolean checkFullLength = false;
 
     /**
      * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
@@ -84,7 +86,7 @@ public class Bit2D implements Cloneable, Serializable {
     public Bit2D(Vector2 origin, Vector2 orientation) {
         this.origin = origin;
         this.orientation = orientation;
-        length = CraftConfig.bitLength;
+        length = CraftConfig.bitLengthNormal;
         width = CraftConfig.bitWidth;
 
         setTransfoMatrix();
@@ -123,7 +125,7 @@ public class Bit2D implements Cloneable, Serializable {
                 .sub(
                         // Vector distance in Bit coordinate system
                         new Vector2(
-                                -CraftConfig.bitLength / 2 + length / 2,
+                                -CraftConfig.bitLengthNormal / 2 + length / 2,
                                 -CraftConfig.bitWidth / 2 + width / 2
                         )
                                 // Rotate into Mesh coordinate system
@@ -180,12 +182,12 @@ public class Bit2D implements Cloneable, Serializable {
      * Create the area of the bit. This is
      * necessary when the bit has been reduced manually.<br/>
      * <b>Note</b>: We always take the upper left corner as
-     * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+     * (- {@link CraftConfig#bitLengthNormal bitLength} / 2, - {@link CraftConfig#bitWidth
      * bitWidth} / 2 ). The bit's boundary is a rectangle.
      */
     private void buildBoundaries() {
         Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.bitLength / 2,
+                -CraftConfig.bitLengthNormal / 2,
                 -CraftConfig.bitWidth / 2,
                 length,
                 width
@@ -304,7 +306,7 @@ public class Bit2D implements Cloneable, Serializable {
         return origin.sub(
                 // Vector distance in Bit coordinate system
                 new Vector2(
-                        CraftConfig.bitLength / 2 - length / 2,
+                        CraftConfig.bitLengthNormal / 2 - length / 2,
                         CraftConfig.bitWidth / 2 - width / 2
                 )
                         // Rotate into Mesh coordinate system
@@ -374,12 +376,11 @@ public class Bit2D implements Cloneable, Serializable {
      *
      * @param transformedArea a bit of surface in real
      */
-    public void updateBoundaries(Area transformedArea) {
+    public void updateBoundaries(@NotNull Area transformedArea) {
         areas.clear();
         Area newArea = (Area) transformedArea.clone();
         newArea.transform(inverseTransfoMatrix);
         areas.addAll(AreaTool.segregateArea(newArea));
-
     }
 
     /**
@@ -389,7 +390,7 @@ public class Bit2D implements Cloneable, Serializable {
      * @param newPercentageWidth  100 means retain 100% of normal bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
-        length = CraftConfig.bitLength * newPercentageLength / 100;
+        length = CraftConfig.bitLengthNormal * newPercentageLength / 100;
         width = CraftConfig.bitWidth * newPercentageWidth / 100;
         // Rebuild the boundary
         buildBoundaries();
@@ -440,7 +441,7 @@ public class Bit2D implements Cloneable, Serializable {
         this.cutPathsSeparate.clear();
         Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
         // Define 4 corners
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
+        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLengthNormal / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
         Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
         Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
@@ -497,7 +498,6 @@ public class Bit2D implements Cloneable, Serializable {
                 Segment2D currentEdge = polygon.get(i);
                 if (i == 0 || !(currentEdge.start.asGoodAsEqual(polygon.get(i - 1).end))) {
                     cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
-                    moveToCurrent = new Point2D.Double(currentEdge.start.x, currentEdge.start.y);
                 }
                 cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
                 // Some edges may have been deleted
@@ -582,6 +582,7 @@ public class Bit2D implements Cloneable, Serializable {
     }
 
 
-
-
+    public void setCheckFullLength(Boolean checkFullLength) {
+        this.checkFullLength = checkFullLength;
+    }
 }

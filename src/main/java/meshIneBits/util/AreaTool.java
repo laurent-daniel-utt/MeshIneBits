@@ -22,10 +22,7 @@
 
 package meshIneBits.util;
 
-import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
-import org.jetbrains.annotations.Nullable;
-import remixlab.dandelion.geom.Vec;
 
 import java.awt.geom.*;
 import java.util.*;
@@ -364,7 +361,7 @@ public class AreaTool {
         if (area.contains(barycenter.x, barycenter.y)) {
             // To be sure every other
             // distances will be smaller
-            double minDist = CraftConfig.bitLength * 2;
+            double minDist = CraftConfig.bitLengthNormal * 2;
             for (Vector<Segment2D> polygon : segments) {
                 for (Segment2D segment : polygon) {
                     double dist = segment.distFromPoint(barycenter);
@@ -429,7 +426,7 @@ public class AreaTool {
         Vector2 liftPoint = null;
         for (Vector2 p : sortedPoints) {
             // To be sure every other distances will be smaller
-            double minDistFromBounds = CraftConfig.bitLength * 2;
+            double minDistFromBounds = CraftConfig.bitLengthNormal * 2;
             for (Vector<Segment2D> polygon : segments) {
                 for (Segment2D segment : polygon) {
                     double dist = segment.distFromPoint(new Vector2(p.x, p.y));
@@ -684,9 +681,6 @@ public class AreaTool {
                     positionTwoMostDistantPoint.add(v1);
                     positionTwoMostDistantPoint.add(v2);
                     longestDistance = Vector2.dist(v1, v2);
-                    System.out.println(v1.x+"-"+v1.y);
-                    System.out.println(v2.x+"-"+v2.y);
-                    System.out.println(longestDistance);
                 }
             }
         }
@@ -729,7 +723,7 @@ public class AreaTool {
     public static Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,double radius) {
         Vector<Vector2> twoDistantPoints=new Vector<>();
         Vector<Vector2> positionTwoMostDistantPoint = getTwoMostDistantPointFromArea(area);
-        if (positionTwoMostDistantPoint == null) return null;
+        if (positionTwoMostDistantPoint == null) return twoDistantPoints;
         Vector2 point1 = positionTwoMostDistantPoint.firstElement();
         Vector2 point2 = positionTwoMostDistantPoint.lastElement();
         Rectangle2D rectangle2D = area.getBounds2D();
@@ -744,20 +738,18 @@ public class AreaTool {
         double distant1;
         double distant2;
 
-        System.out.println(rectangle2D.getWidth()+":::"+rectangle2D.getHeight());
 
         //Find a point near first point of two most distant points
         while (radius<10 && !(foundFirstPoint && foundSecondPoint)) {
-            for (double x = startX; x < endX; x += 0.1) {
-                for (double y = startY; y < endY; y += 0.1) {
+            for (double x = startX; x < endX; x += 1) {
+                for (double y = startY; y < endY; y += 1) {
                     if (area.contains(x, y)
-                            && !(x == CraftConfig.bitLength / 2 || x == -CraftConfig.bitLength / 2)
+                            && !(x == CraftConfig.bitLengthNormal / 2 || x == -CraftConfig.bitLengthNormal / 2)
                             && !(y == CraftConfig.bitWidth / 2 || y == -CraftConfig.bitWidth / 2)) {
                         if (!foundFirstPoint) {
                             distant1 = Math.sqrt(((x - point1.x) * (x - point1.x)) + ((y - point1.y) * (y - point1.y)));
                             if (pointResult2 == null || (x != pointResult2.x && y != pointResult2.y)) {
                                 if (distant1 > radius && distant1 <= radius * 3) {
-//                                System.out.println("distant 1: "+distant1);
                                     if (checkPointInsideAreaWithRadius(x, y, area, CraftConfig.suckerDiameter/4)) {
                                         pointResult1 = new Vector2(x, y);
                                         foundFirstPoint = true;
@@ -784,9 +776,6 @@ public class AreaTool {
             if (pointResult1 != null && pointResult2 != null) {
                 twoDistantPoints.add(pointResult1);
                 twoDistantPoints.add(pointResult2);
-//                System.out.println("Distant result: " + Vector2.dist(pointResult1, pointResult2));
-//                System.out.println(pointResult1.x + "-" + pointResult1.y);
-//                System.out.println(pointResult2.x + "-" + pointResult2.y);
                 return twoDistantPoints;
             }
             radius++;
@@ -846,7 +835,7 @@ public class AreaTool {
         double startY = rectangle2D.getMinY();
         double endX = rectangle2D.getMaxX();
         double endY = rectangle2D.getMaxY();
-        double distantMin=Math.sqrt(CraftConfig.bitLength*CraftConfig.bitLength+CraftConfig.bitWidth*CraftConfig.bitWidth);
+        double distantMin=Math.sqrt(CraftConfig.bitLengthNormal *CraftConfig.bitLengthNormal +CraftConfig.bitWidth*CraftConfig.bitWidth);
         double distant;
         Vector2 pointResult=null;
         for(double x = startX;x<endX;x+=0.1){

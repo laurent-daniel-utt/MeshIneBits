@@ -77,8 +77,7 @@ public abstract class AScheduler extends Observable implements Serializable, Run
         notifyObservers(MeshEvents.SCHEDULED);
     }
 
-    public static List<Bit3D> getListBit3DsSortedFrom (Vector<Pair<Bit3D, Vector2>> arg){
-        Set<Bit3D> setBit = new HashSet<>();
+    public static List<Bit3D> getSetBit3DsSortedFrom(Vector<Pair<Bit3D, Vector2>> arg){
         List<Bit3D> result = new ArrayList<>();
         for(Pair<Bit3D,Vector2> ele : arg){
             if(!result.contains(ele.getKey()))result.add(ele.getKey());

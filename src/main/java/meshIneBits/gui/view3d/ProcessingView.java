@@ -184,10 +184,10 @@ public class ProcessingView extends PApplet implements Observer, SubWindow {
      */
     private void getUncutBitPShape(float extrudeDepth) {
 
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
+        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLengthNormal / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + CraftConfig.bitWidth);
-        Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - CraftConfig.bitLength, cornerUpRight.y);
-        Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.bitLength, cornerDownRight.y);
+        Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - CraftConfig.bitLengthNormal, cornerUpRight.y);
+        Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.bitLengthNormal, cornerDownRight.y);
 
         Vector<int[]> pointList = new Vector<>();
         pointList.add(new int[]{(int) cornerUpRight.x, (int) cornerUpRight.y, 0});

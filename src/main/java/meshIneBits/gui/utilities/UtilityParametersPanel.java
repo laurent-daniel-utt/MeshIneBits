@@ -25,10 +25,14 @@ package meshIneBits.gui.utilities;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class UtilityParametersPanel extends JPanel {
+public class UtilityParametersPanel extends JPanel{
 
     public UtilityParametersPanel(String title) {
+        super();
         TitledBorder titledBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
                 title);
@@ -36,6 +40,13 @@ public class UtilityParametersPanel extends JPanel {
         titledBorder.setTitleFont(new Font(this.getFont().toString(), Font.BOLD, 12));
         titledBorder.setTitleColor(Color.GRAY);
         this.setBorder(titledBorder);
+//        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"deletePanel");
+//        getActionMap().put("deletePanel", new AbstractAction() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                UtilityParametersPanel.this.setVisible(false);
+//            }
+//        });
     }
 
     @Override
@@ -47,4 +58,6 @@ public class UtilityParametersPanel extends JPanel {
     public Dimension getMinimumSize() {
         return new Dimension(getWidth(), 100);
     }
+
+
 }

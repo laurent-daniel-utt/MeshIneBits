@@ -36,10 +36,7 @@ import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
 
 import java.awt.*;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -86,8 +83,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "newBitLength",
             "Bit length",
             "Length of bits to add",
-            1.0, CraftConfig.bitLength,
-            CraftConfig.bitLength, 1.0);
+            1.0, CraftConfig.bitLengthNormal,
+            CraftConfig.bitLengthNormal, 1.0);
     private final DoubleParam newBitsWidthParam = new DoubleParam(
             "newBitWidth",
             "Bit width",
@@ -116,6 +113,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "Prohibit adding irregular bit",
             true
     );
+
     private final MeshWindow meshWindow;
     private Mesh mesh;
     private int layerNumber = -1;
@@ -135,11 +133,25 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * In {@link Mesh}'s coordinate system
      */
     private Area bitAreaPreview;
+
     private boolean selectingRegion;
     private boolean selectedRegion;
     private List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    private Point2D currentPoint;
+    private boolean fullLength=true;
+    private Area areaHoldingCut;
+
+
+    public boolean isFullLength() {
+        return fullLength;
+    }
+
+    public void setCurrentPoint(Point2D currentPoint) {
+        this.currentPoint = currentPoint;
+    }
+
     /**
      * In real coordinate system
      */
@@ -388,6 +400,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * @param file location of saved mesh
      */
     public void openMesh(File file) throws SimultaneousOperationsException {
+        resetAll();
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
@@ -424,6 +437,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void newMesh(File file) throws SimultaneousOperationsException {
+        resetAll();
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
@@ -486,11 +500,37 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public Area getAvailableBitAreaFrom(Shape bitPreviewInReal) {
         Area a = new Area(bitPreviewInReal);
+
         // Intersect
         a.intersect(availableArea);
+        calcBitFullLengthOrNormal(a);
         // Cache
         bitAreaPreview = (Area) a.clone();
         return a;
+    }
+    private void calcBitFullLengthOrNormal(Area a){
+        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.bitLengthNormal /2+CraftConfig.incertitude
+                ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
+                ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
+                ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
+        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.bitLengthNormal /2-CraftConfig.sectionHoldingToCut+CraftConfig.incertitude
+                ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
+                ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
+                ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
+        AffineTransform affineTransform = new AffineTransform();
+        affineTransform.translate(currentPoint.getX(),currentPoint.getY());
+        Vector2 lOrientation = Vector2.getEquivalentVector(
+                newBitsOrientationParam.getCurrentValue());
+        affineTransform.rotate(lOrientation.x,lOrientation.y);
+        updateSectionHoldingCut(affineTransform);
+        try {
+            AffineTransform inverseAffine=affineTransform.createInverse();
+            a.transform(inverseAffine);
+            fullLength= a.contains(leftArea) || a.contains(rightArea);
+            a.transform(affineTransform);
+        } catch (NoninvertibleTransformException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -503,6 +543,13 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 || bitAreaPreview.isEmpty()
         )
             return;
+//        if(fullLength){
+//            currentPoint=position;
+//            calcBitFullLengthOrNormal(bitAreaPreview);
+//        }
+//        if(!fullLength){
+//            removeSectionHoldingCut();
+//        }
         // Do not add new irregular bit
         if (DetectorTool.checkIrregular(bitAreaPreview)
                 && prohibitAddingIrregularBitParam.getCurrentValue())
@@ -516,6 +563,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue());
+        newBit.setCheckFullLength(true);
         if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
         }
@@ -694,7 +742,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
-        newBitsLengthParam.setCurrentValue(CraftConfig.bitLength * lengthPercentage / 100);
+        newBitsLengthParam.setCurrentValue(CraftConfig.bitLengthNormal * lengthPercentage / 100);
         newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
         setChanged();
         notifyObservers();
@@ -1034,6 +1082,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         }
     }
 
+
     @Override
     public void onUndoListener(HandlerRedoUndo.ActionOfUser a) {
         a.runUndo(this);
@@ -1043,4 +1092,35 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     public void onRedoListener(HandlerRedoUndo.ActionOfUser a) {
         a.runRedo(this);
     }
+    public void resetAll(){
+        resetMesh();
+//        reset();
+        layerNumber=-1;
+        selectedBitKeys.clear();
+        zoom=1;
+        showSlice=true;
+        showLiftPoints = false;
+        showPreviousLayer = false;
+        showCutPaths = false;
+        showIrregularBits = false;
+        addingBits = false;
+        regionVertices.clear();
+        currentSelectedRegion=new Path2D.Double();
+        availableArea=null;
+        bitAreaPreview=null;
+        setChanged();
+        notifyObservers();
+    }
+    private void removeSectionHoldingCut(){
+        bitAreaPreview.subtract(areaHoldingCut);
+    }
+    private void updateSectionHoldingCut(AffineTransform affineTransform){
+        areaHoldingCut=new Area(new Rectangle2D.Double(
+                CraftConfig.bitLengthNormal /2-CraftConfig.sectionHoldingToCut
+                ,-CraftConfig.bitWidth/2
+                ,CraftConfig.sectionHoldingToCut
+                ,CraftConfig.bitWidth));
+        areaHoldingCut.transform(affineTransform);
+    }
+
 }

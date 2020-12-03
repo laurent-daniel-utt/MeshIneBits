@@ -67,8 +67,10 @@ public class CraftConfigLoader {
                 if (dAnno != null) {
                     try {
                         double val = Double.parseDouble(craftProperties.getProperty(field.getName()));
-                        if (val < dAnno.minValue() || val > dAnno.maxValue())
+//                        System.out.println("Value: " + field.getName() + ":" + val);
+                        if (val < dAnno.minValue() || val > dAnno.maxValue()) {
                             val = field.getDouble(null);
+                        }
                         field.setDouble(null, val);
                     } catch (NullPointerException | NumberFormatException e) {
                         Logger.error("Cannot read property of " + field.getName() + ". " + e.getMessage());
@@ -188,5 +190,11 @@ public class CraftConfigLoader {
             Logger.message(e.getMessage());
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+        CraftConfigLoader.saveConfig(null);
+        CraftConfigLoader.loadConfig(null);
+        System.out.println("Update new config");
     }
 }

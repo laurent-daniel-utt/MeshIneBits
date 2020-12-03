@@ -27,7 +27,6 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathUtil;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
-import remixlab.dandelion.geom.Vec;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -212,10 +211,13 @@ public class Bit3D implements Serializable, Cloneable {
         return rawCutPathsSeparate;
     }
 
-    public Vector<Vector2> getListTwoDistantPoints() {
+    public Vector<Vector2> getTwoDistantPoints() {
         Vector<Vector2> listPoints = new Vector<>();
         listTwoDistantPoints.forEach(list -> list.forEach(ele->listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
         return listPoints;
+    }
+    public Vector<Vector<Vector2>> getListTwoDistantPoints(){
+        return listTwoDistantPoints;
     }
     /**
      * In {@link Mesh} coordinate
@@ -236,7 +238,7 @@ public class Bit3D implements Serializable, Cloneable {
     }
     public Bit3D getNewBitToExportToXML(){
         Bit3D bit3D = this.clone();
-        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
+//        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
         if(!reverseInCut)return bit3D;
         else{
             AffineTransform matrixReverseBit = new AffineTransform();
@@ -252,10 +254,10 @@ public class Bit3D implements Serializable, Cloneable {
             for(Vector2 point : liftPoints){
                 bit3D.getRawLiftPoints().add(point.getTransformed(matrixReverseBit));
             }
-            Vector<Vector2> twoDistantPoint = new Vector<>(bit3D.getListTwoDistantPoints());
-            bit3D.getListTwoDistantPoints().clear();
+            Vector<Vector2> twoDistantPoint = new Vector<>(bit3D.getTwoDistantPoints());
+            bit3D.getTwoDistantPoints().clear();
             for(Vector2 point : twoDistantPoint){
-                bit3D.getListTwoDistantPoints().add(point.getTransformed(matrixReverseBit));
+                bit3D.getTwoDistantPoints().add(point.getTransformed(matrixReverseBit));
             }
             return bit3D;
         }

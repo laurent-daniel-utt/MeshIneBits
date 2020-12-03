@@ -68,7 +68,7 @@ public class ButtonIcon extends JButton {
         super(meshAction);
         setHideActionText(true);
         setToolTipText(meshAction.getToolTipText());
-        setContentAreaFilled(false);
+        setContentAreaFilled(true);
         setBorder(new EmptyBorder(3, 3, 3, 3));
         addMouseListener(new java.awt.event.MouseAdapter() {
             @Override

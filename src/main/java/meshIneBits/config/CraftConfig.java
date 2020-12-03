@@ -106,18 +106,54 @@ public class CraftConfig {
     )
     public static double bitWidth = 24.0;
 
+
     @DoubleSetting(
             title = "Bit length (mm)",
             description = "Length of the bits",
             minValue = 1.0,
             maxValue = 1000.0,
-            defaultValue = 120.0
+            defaultValue = 160.0
     )
     @BitSetting(
             order = 2
     )
-    public static double bitLength = 120.0;
+    public static double bitLengthNormal = 150.0;
 
+
+    @DoubleSetting(
+            title = "Bit full length  (mm)",
+            description = "Length full of the bits",
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 160.0
+    )
+    @BitSetting(
+            order = 2
+    )
+    public static double bitLengthFullLength = 160.0;
+
+    @DoubleSetting(
+            title = "section holding to cut (mm)",
+            description = "section holding to cut",
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 160.0
+    )
+    @BitSetting(
+            order = 2
+    )
+    public static double sectionHoldingToCut = 10.0;
+    @DoubleSetting(
+            title = "incertitude ",
+            description = "incertitude of length bits",
+            minValue = 0.0001,
+            maxValue = 100.0,
+            defaultValue = 1.0
+    )
+    @BitSetting(
+            order = 2
+    )
+    public static double incertitude = 0.001;
     // Pattern choices
 
     /**

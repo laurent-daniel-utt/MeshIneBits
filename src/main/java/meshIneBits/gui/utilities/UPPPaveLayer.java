@@ -27,9 +27,11 @@ import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Arrays;
 
-public class UPPPaveLayer extends UtilityParametersPanel {
+public class UPPPaveLayer extends UtilityParametersPanel  {
     public UPPPaveLayer(MeshController meshController) {
         super("Pave Layer");
         // Init components
@@ -77,5 +79,6 @@ public class UPPPaveLayer extends UtilityParametersPanel {
         c.weightx = 1;
         c.anchor = GridBagConstraints.LINE_START;
         add(parametersPanel, c);
+
     }
 }

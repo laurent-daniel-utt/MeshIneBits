@@ -60,6 +60,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         meshElement.appendChild(config);
         Logger.message("Generating XML file");
         for (int i = 0; i < mesh.getLayers().size(); i++) {
+            System.out.println("layer "+i);
             Element layer = buildLayerElement(mesh.getLayers().get(i));
             Logger.setProgress(i, mesh.getLayers().size() - 1);
             if (layer != null) meshElement.appendChild(layer);
@@ -92,7 +93,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element width = createElement(MeshTagXML.BIT_WIDTH, Double.toString(CraftConfig.bitWidth));
         dimension.appendChild(width);
         //length element
-        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.bitLength));
+        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.bitLengthNormal));
         dimension.appendChild(length);
         config.appendChild(dimension);
 
@@ -114,18 +115,21 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element layerElement = createElement(MeshTagXML.LAYER);
         AScheduler scheduler = mMesh.getScheduler();
         if (scheduler.getFirstLayerBits().get(layer.getLayerNumber()) != null) {
-            Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
-            int startIndex = scheduler.getBitIndex(startBit);
-            List<Bit3D> listBit3DsCurrentLayer = AScheduler.getListBit3DsSortedFrom(((BasicScheduler) scheduler).filterBits(layer.sortBits()));
-            int endIndex = listBit3DsCurrentLayer.size();
-            List<Bit3D> listAllBit3D = AScheduler.getListBit3DsSortedFrom(scheduler.getSortedBits()).subList(startIndex, startIndex + endIndex);
+//            Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
+//            int startIndex = scheduler.getBitIndex(startBit);
+            List<Bit3D> listBit3DsCurrentLayer = AScheduler.getSetBit3DsSortedFrom(((BasicScheduler) scheduler).filterBits(layer.sortBits()));
+//            int endIndex = listBit3DsCurrentLayer.size();
+//            List<Bit3D> test =AScheduler.getListBit3DsSortedFrom(scheduler.getSortedBits());
+//            System.out.println("start: "+startIndex+",end: "+endIndex+",size "+test.size()+",size 2: "+((BasicScheduler) scheduler).filterBits(layer.sortBits()).size());
+//            compteur+=endIndex;
+            List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
             Vector3 modelTranslation = mMesh.getModel().getPos();
 
             //height of layer
             Element height = createElement(MeshTagXML.LAYER_HEIGHT, Double.toString((layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset))));
             layerElement.appendChild(height);
 
-            for (Bit3D bit3D : listAllBit3D) {
+            for (Bit3D bit3D : listBit3DsCurrentLayer) {
                 // translating the bits - they are generated at the origin of the world coordinate system;
                 for (int j = 0; j < bit3D.getRawLiftPoints().size(); j++) {
                     if (bit3D.getRawLiftPoints().get(j) != null) {
@@ -217,7 +221,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
         }
-        Vector<Vector2> listTwoPoints = bit3D.getListTwoDistantPoints();
+//        Vector<Vector2> listTwoPoints = bit3D.getListTwoDistantPoints();
+        Vector<Vector<Vector2>> listTwoPoints = bit3D.getListTwoDistantPoints();
         for (int i = 0; i < bit3D.getRawLiftPoints().size(); i++) {
             //Subit element i
             Element subBit = createElement(MeshTagXML.SUB_BIT);
@@ -256,9 +261,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             subBit.appendChild(positionSubBit);
 
             //Two distant point of SubBit
-            if (listTwoPoints.size() >=2*i) {
+            if (listTwoPoints.get(i).size() >=2) {
                 for (int j = 0; j < 2; j++) {
-                    Vector2 point = listTwoPoints.get(2*i+j);
+                    Vector2 point = listTwoPoints.get(i).get(j);
                     point=point.getTransformed(bit3D.getBaseBit().getInverseTransfoMatrix());
                     Element pointElement = createElement(MeshTagXML.POINT);
                     Element pointIdElement = createElement(MeshTagXML.POINT_ID, Integer.toString(j));
@@ -269,7 +274,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                     pointElement.appendChild(pointYELement);
                     subBit.appendChild(pointElement);
                 }
-                double angle=calculateAngleOfTwoPoint(bit3D.getListTwoDistantPoints().get(2*i+0),bit3D.getListTwoDistantPoints().get(2*i+1));
+                double angle=calculateAngleOfTwoPoint(bit3D.getTwoDistantPoints().get(2*i+0),bit3D.getTwoDistantPoints().get(2*i+1));
                 Element rotation2 = createElement(MeshTagXML.ROTATION_SUB_BIT_SECOND,Double.toString(angle));
                 subBit.appendChild(rotation2);
             }
