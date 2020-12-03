@@ -26,7 +26,6 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.ProcessingModelView;
-import meshIneBits.slicer.AI_Tool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 
@@ -390,17 +389,24 @@ public class MeshWindow extends JFrame {
 
         MeshAction paveMeshAI = new MeshAction(
                 "paveMeshAI",
-                "AI Pave Mesh",
-                "mesh-pave.png",
-                "Pave the whole mesh with AI",
+                "AI Tools",
+                "ia-light-bulb.png",
+                "Access to AI tools",
                 "alt A",
-                () -> {
-                    if (meshController.getMesh() != null && meshController.getMesh().isSliced()) {
-                        AI_Tool ai_Tool = new AI_Tool(); //todo else throw error "Mesh not found or Mesh not sliced"
-                        ai_Tool.startAI(meshController);
-                        meshController.ai_Tool = ai_Tool;
+                null) {
+
+                UPPToolsIA uppToolsIA = new UPPToolsIA(meshController);
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Check validity
+                    if (meshController.getMesh() == null &&
+                            !meshController.getMesh().isSliced()) return;
+                    else {
+                        toggleUtilityParametersPanel(uppToolsIA);
                     }
-                });
+                }
+                };
         meshActionList.add(paveMeshAI);
 
         MeshAction exportMeshXML = new MeshAction(

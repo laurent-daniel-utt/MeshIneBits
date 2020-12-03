@@ -23,6 +23,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
+import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
@@ -30,7 +31,7 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.slicer.AI_Tool;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.util.*;
 
 import java.awt.*;
@@ -453,7 +454,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     public void sliceMesh() throws Exception {
         if (mesh == null) throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
-            throw new SimultaneousOperationsException(mesh); //todo this exception is redundant with Mesh.slice()
+            throw new SimultaneousOperationsException(mesh);
         mesh.slice();
     }
 
@@ -537,6 +538,14 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
         this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
+
+        if (ai_Tool!=null && ai_Tool.acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
+            try {
+                ai_Tool.acquisition.storeNewExampleBit(newBit);
+            } catch (AI_Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void addBit3Ds(Collection<Bit3D> bits3d) {

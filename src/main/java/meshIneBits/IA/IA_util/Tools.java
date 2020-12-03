@@ -1,9 +1,11 @@
-package meshIneBits.slicer.IA_util;
+package meshIneBits.IA.IA_util;
 
+import meshIneBits.Bit2D;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.stream.IntStream;
@@ -71,7 +73,7 @@ public class Tools {
 
 
     //divide a pointlist and return a vector of pointlist
-    public Vector<Vector<Vector2>> splitSections(Vector<Vector2> pointList) {
+    public Vector<Vector<Vector2>> splitInSections(Vector<Vector2> pointList) {
         Vector<Vector<Vector2>> areaList = new Vector<>(); //contains different pointLists
 
         int PointsIndex;
@@ -153,5 +155,19 @@ public class Tools {
             if (Double.isNaN(coeff) || Double.isInfinite(coeff))
                 throw new Exception("A coefficient returned is NaN or Infinite.");
         }
+    }
+
+    /**
+     * Permet de savoir si poly1 est dans poly2
+     * @param poly1 Un Polygon
+     * @param poly2 Un Polygon
+     * @return      poly1 est dans poly2
+     */
+    public boolean isPolygon1InPolygon2(Polygon poly1, Polygon poly2) {
+        Area area1 = new Area(poly1.toPath2D());
+        Area area2 = new Area(poly2.toPath2D());
+        Area intersection = (Area) area1.clone();
+        intersection.intersect(area2);
+        return intersection.equals(area1);
     }
 }

@@ -22,6 +22,7 @@
 
 package meshIneBits.gui.view2d;
 
+import javafx.scene.shape.Line;
 import javafx.util.Pair;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
@@ -33,6 +34,7 @@ import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import javax.swing.*;
@@ -316,10 +318,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         // If current layer is only sliced (not paved yet), draw the slice
         if (!meshController.getCurrentLayer().isPaved()) {
             paintLayerBorder(g2d);
+        } else {
             if (meshController.AIneedPaint) {//debugOnly
                 paintPathsAI(g2d);
             }
-        } else {
             // Draw the border of layer
             if (meshController.showingSlice()) {
                 paintLayerBorder(g2d);
@@ -495,7 +497,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         Color[] colors = {Color.BLUE, Color.GREEN, Color.MAGENTA, Color.orange, Color.RED, Color.YELLOW, Color.CYAN, Color.PINK};
         g2d.setStroke(new BasicStroke(2f));
         Slice slice = meshController.getCurrentLayer().getHorizontalSection();
-        Pair<Vector<Polygon>, Vector2> pair = meshController.ai_Tool.getactualPolygons_StartPoint(slice);
+       /* Pair<Vector<Polygon>, Vector2> pair = meshController.ai_Tool.getactualPolygons_StartPoint(slice);
         Vector<Polygon> polys = pair.getKey();
 
         //draw start point of the first polygon
@@ -508,6 +510,44 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.setColor(colors[iColor]);
             drawModelPath2D(g2d, p.toPath2D());
             iColor++;
+        }*/
+        Vector2 startPoint = meshController.ai_Tool.acquisition.startPoint;
+        if (startPoint!=null)
+            drawModelCircle(g2d, startPoint.x, startPoint.y, 5);
+        g2d.setColor(Color.GREEN);
+        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x,meshController.ai_Tool.dataPrep.A.y,10);
+        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.B.x,meshController.ai_Tool.dataPrep.B.y,10);
+        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.C.x,meshController.ai_Tool.dataPrep.C.y,10);
+        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.D.x,meshController.ai_Tool.dataPrep.D.y,10);
+
+
+        g2d.setColor(Color.CYAN);
+        drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
+
+        g2d.setColor(Color.RED);
+        g2d.setStroke(new BasicStroke(5f));
+        Path2D path = new GeneralPath();
+        Segment2D seg = meshController.ai_Tool.dataPrep.currentSegToDraw;
+        Shape shape = new Line2D.Double(seg.start.x,seg.start.y,seg.end.x,seg.end.y);
+        path.append(shape,false);
+        drawModelPath2D(g2d,path);
+
+        meshController.ai_Tool.dataPrep.transformArea = realToView;
+        Area area = meshController.ai_Tool.dataPrep.area;
+        Bit2D bit = meshController.ai_Tool.dataPrep.bit;
+        //area.transform(bit.getTransfoMatrix());
+        area.transform(realToView);
+        g2d.fill(area);
+        g2d.draw(area);
+
+        g2d.setColor(Color.BLUE);
+        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsADessiner) {
+            drawModelCircle(g2d, vector2.x, vector2.y, 4);
+        }
+
+        g2d.setColor(Color.MAGENTA);
+        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsContenus) {
+            drawModelCircle(g2d, vector2.x, vector2.y, 6);
         }
     }
 

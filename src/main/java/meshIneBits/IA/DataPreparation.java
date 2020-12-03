@@ -1,0 +1,578 @@
+package meshIneBits.IA;
+
+import meshIneBits.Bit2D;
+import meshIneBits.IA.IA_util.AI_Exception;
+import meshIneBits.IA.IA_util.Curve;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.Polygon;
+import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
+import org.apache.commons.math3.fitting.PolynomialCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoints;
+import remixlab.dandelion.geom.Vec;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.util.Map;
+import java.util.Vector;
+import java.util.stream.IntStream;
+
+public class DataPreparation {
+    public Vector2 A = new Vector2(0, 0);
+    public Vector2 B = new Vector2(0, 0);
+    public Vector2 C = new Vector2(0, 0);
+    public Vector2 D = new Vector2(0, 0);
+    public AffineTransform transformArea = new AffineTransform();
+
+    public Vector<Vector2> pointsContenus = new Vector<>();
+    public Vector<Vector2> pointsADessiner = new Vector<>();
+
+    public Segment2D currentSegToDraw = new Segment2D(A, B);
+    public Polygon poly = new Polygon();
+    public Bit2D bit = new Bit2D(A, B);
+    public AI_Tool ai_tool;
+    public Area area = new Area();
+
+    public DataPreparation(AI_Tool ai_tool) {
+        this.ai_tool = ai_tool;
+    }
+
+    /**
+     * @param bitPos           position of a bit, that comes from the neural network's output
+     * @param bitAngle         angle of a bit, that comes from the neural network's output
+     * @param posLocalSystem   position of the local coordinate system's origin used to prepare data for the neural network
+     * @param angleLocalSystem angle of the local coordinate system used to prepare data for the neural network
+     * @return the bit's center position in global coordinate system
+     */
+    public Vector2 getBitPositionInGlobalCoordinateSystem(double bitPos, Vector2 bitAngle, Vector2 posLocalSystem, Vector2 angleLocalSystem) {
+
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = bitAngle.normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
+
+        // bit's center's position in local coordinate system
+        Vector2 positionLocal = colinear.mul(CraftConfig.bitLength / 2)
+                .add(orthogonal.mul(CraftConfig.bitWidth / 2))
+                .sub(orthogonal.mul(bitPos));
+
+        // bits center's position in global coordinate system
+        Vector2 positionGlobal = positionLocal.rotate(angleLocalSystem).add(posLocalSystem);
+
+        System.out.println("colinear = " + colinear);
+        System.out.println("orth = " + orthogonal);
+        System.out.println("position local =" + positionLocal);
+
+        return positionGlobal;
+    }
+
+
+    //todo reformuler
+    //uses the current slice to return a Vector as many groups of points than there are polygons in the slice.
+
+    /**
+     * Renvoie les points de chaque contour d'une Slice. Les points sont réarrangés pour être à nouveau dans l'ordre.
+     *
+     * @param sliceMap
+     * @param currentSlice
+     * @return
+     */
+    public Vector<Vector<Vector2>> getContours(Map<Slice, Vector<Segment2D>> sliceMap, Slice currentSlice) {
+
+        Vector<Vector<Vector2>> contourList = new Vector<>(); //todo rename contour
+
+        //gets Segment2Ds lists
+        Vector<Segment2D> segment2DList = sliceMap.get(currentSlice);
+        segment2DList = (Vector<Segment2D>) segment2DList.clone();
+        Vector<Vector<Segment2D>> borderList = rearrangeSegments(segment2DList);
+
+        for (Vector<Segment2D> border : borderList) {
+            Vector<Vector2> unorderedPoints = computePoints(border);
+            contourList.add(rearrangePoints(unorderedPoints));
+        }
+        return contourList;
+    }
+
+    public Vector<Vector<Segment2D>> rearrangeSegments(Vector<Segment2D> segmentList) { //return more than one Vector<Segment2D>, if there's more than one border on the slice
+        Vector<Vector<Segment2D>> list = new Vector<>();
+        Vector<Segment2D> newSegmentList = new Vector<>();
+        newSegmentList.add(segmentList.get(0));
+        list.add(newSegmentList);
+
+        while (!segmentList.isEmpty()) {
+            searchNextSegment(segmentList.get(0), segmentList, newSegmentList);
+            newSegmentList = new Vector<>();
+            list.add(newSegmentList);
+        }
+        list.removeIf(Vector::isEmpty);
+        return list;
+    }
+
+    public Vector<Vector2> rearrangePoints(Vector<Vector2> pointList) {
+        Vector<Vector2> newPointList = new Vector<>();
+        int PointIndex;
+        double maxX = -1000000000;
+        int indexMax = 0;
+
+        for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
+            Vector2 actualPoint = pointList.get(PointIndex);
+            if (actualPoint.x > maxX) {
+                maxX = actualPoint.x;
+                indexMax = PointIndex;
+            }
+        }
+
+        IntStream.range(indexMax, pointList.size()).mapToObj(pointList::get).forEachOrdered(newPointList::add);
+        IntStream.range(0, indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
+
+        return newPointList;
+    }
+
+    //compute a pointList from a segmentList
+    public Vector<Vector2> computePoints(Vector<Segment2D> segmentList) {
+        Vector<Vector2> pointList = new Vector<>();
+        for (Segment2D segment : segmentList) {
+            pointList.add(new Vector2(segment.start.x, segment.start.y));
+        }
+        pointList.remove(0);
+        return pointList;
+    }
+
+
+    public Vector<Segment2D> searchNextSegment(Segment2D segment, Vector<Segment2D> segmentList, Vector<Segment2D> newSegmentList) {
+        for (Segment2D segmentSearch : segmentList) {
+            if (segmentSearch.start == segment.end) {
+                newSegmentList.add(segmentSearch);
+                segmentList.remove(segmentSearch);
+                newSegmentList = searchNextSegment(segmentSearch, segmentList, newSegmentList);
+                return newSegmentList;
+            }
+        }
+        return newSegmentList;
+    }
+
+
+    public Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> points) {
+
+        //map for more accurate result
+        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30,points);
+
+        //get an angle
+        double angle = getCoordinateSystemOrientation(mappedPoints);
+
+        //transform mapped points in local system
+        Vector<Vector2> transformedMappedPoints = transformCoordinateSystem(mappedPoints, angle);
+
+        //check if abscissa axe and and section are directed in the same direction.
+        if (!arePointsMostlyToTheRight(transformedMappedPoints)) {
+            angle += Math.PI; //rotate coordinate system
+        }
+
+        return transformCoordinateSystem(points, angle);
+    }
+
+
+    public Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
+        Vector<Vector2> finalPoints = new Vector<>();
+        finalPoints.add(new Vector2(0, 0)); // first point is always on origin
+        double translatX = points.firstElement().x * Math.cos(angle) + points.firstElement().y * Math.sin(angle);
+        double translatY = -points.firstElement().x * Math.sin(angle) + points.firstElement().y * Math.cos(angle);
+        for (int i = 1; i < points.size(); i++) {
+            double x = points.get(i).x * Math.cos(angle) + points.get(i).y * Math.sin(angle) - translatX;
+            double y = -points.get(i).x * Math.sin(angle) + points.get(i).y * Math.cos(angle) + -translatY;
+            finalPoints.add(new Vector2(x, y));
+        }
+        return finalPoints;
+    }
+
+    public Double getCoordinateSystemOrientation(Vector<Vector2> points) {
+
+        // prepare fitting
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degré
+        WeightedObservedPoints weightedObservedPoints = new WeightedObservedPoints();
+
+        weightedObservedPoints.add(1000, points.firstElement().x, points.firstElement().y);
+        for (int i = 1; i < points.size(); i++) {
+            weightedObservedPoints.add(points.get(i).x, points.get(i).y);
+        }
+
+        // fit
+        double[] coefs_inverse = fitter.fit(weightedObservedPoints.toList());
+
+        return Math.atan(coefs_inverse[1]);
+
+    }
+
+
+    /**
+     * Takes a list of points, and returns the part of the polygon which can be used to place a bit.
+     * Section acquisition is done clockwise.
+     *
+     * @param polyPoints the points on which the bit will be placed
+     * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
+     * @return a vector of vector2, the part of the polygon which can be used to place a bit
+     */
+    public Vector<Vector2> getPolygonSection(Vector<Vector2> polyPoints, Vector2 startPoint) {
+        int startIndex = 0;
+        for (int i = 1; i < polyPoints.size(); i++) {
+            Segment2D segment2D = new Segment2D(polyPoints.get(i - 1), polyPoints.get(i));
+            if (startPoint.isOnSegment(segment2D)) {
+                startIndex = i - 1;
+                break;
+            }
+        }
+        double bitLength = CraftConfig.bitLength;
+        Vector<Vector2> sectionPoints = new Vector<>();
+        // direct distance between start point and selected point.
+        double d = 0;
+        int i = 0;
+        while (d < bitLength) {
+            sectionPoints.add(polyPoints.get(i));
+            i++;
+            d = getDistance(polyPoints.get(startIndex), polyPoints.get(i));
+        }
+        //place the last point of the segment at the distance of one bit from start point.
+        sectionPoints.add(circleAndSegmentIntersection(polyPoints.get(startIndex), bitLength,
+                polyPoints.get(i - 1), polyPoints.get(i)));
+        return sectionPoints;
+    }
+
+
+    // calculates the distance between 2 points
+    public double getDistance(Vector2 p1, Vector2 p2) {
+        return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+    }
+
+
+    // Initial conditions : intersection exists,the segment is cutting
+    // the circle at one unique point.
+    //parameters : circle center, segment's first and second point.
+    public Vector2 circleAndSegmentIntersection(Vector2 center, double radius, Vector2 p0, Vector2 p1) {
+        //we express the segment's equation as x(t) and y(t) where t is between 0 and 1.
+        //roots of this polynomial are values of t where the circle and the segment intersect:
+        //double a = Math.pow((p1.x-p0.x), 2) + Math.pow((p1.y-p0.y), 2);
+        //double b = 2*((p1.x-p0.x)*(p0.x-center.x) + (p1.y-p0.y)*(p0.y-center.y));
+        //double c = -2*p0.x*center.x + center.x*center.x -2*p0.y*center.y + center.y*center.y;
+        double a = Math.pow((p1.x - p0.x), 2) + Math.pow((p1.y - p0.y), 2);
+        double b = 2 * ((p1.x - p0.x) * (p0.x - center.x) + (p1.y - p0.y) * (p0.y - center.y));
+        double c = Math.pow(p0.x - center.x, 2) + Math.pow(p0.y - center.y, 2) - radius * radius;
+
+        //TODO improve the following part
+        double delta = b * b - 4 * a * c;
+        double t;
+        if (delta == 0) { // le point est situé sur le cercle
+            t = -b / (2d * a);
+        } else {
+            t = (-b - Math.sqrt(delta)) / (2d * a);
+            if (t <= 0 || t >= 1) {
+                t = (-b + Math.sqrt(delta)) / (2d * a);
+            }
+        }
+        //compute coordinates
+        double x = p0.x + t * ((p1.x - p0.x));
+        double y = p0.y + t * ((p1.y - p0.y));
+        return new Vector2(x, y);
+    }
+
+
+    public boolean arePointsMostlyToTheRight(Vector<Vector2> points) {
+        int leftPoints = 0;
+        int rightPoints = 0;
+        for (Vector2 point : points) {
+            if (point.x < 0) {
+                leftPoints++;
+            } else {
+                rightPoints++;
+            }
+        }
+        return leftPoints < rightPoints;
+    }
+
+
+    public Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
+        int nbPoints = 30;
+        return repopulateWithNewPoints(nbPoints, sectionPoints);
+    }
+
+
+    public Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
+        Curve inputCurve = new Curve("input curve");
+        inputCurve.generateCurve(sectionPoints);
+        Curve[] splitCurve = inputCurve.splitCurveInTwo();
+        Curve xCurve = splitCurve[0];
+        Curve yCurve = splitCurve[1];
+
+        /*Grapheur gr = new Grapheur();
+        gr.displayGraph(xCurve);
+        gr.displayGraph(yCurve);*/
+
+        // prepare fitting
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degré
+        WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
+        WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
+        for (int i = 0; i < inputCurve.getN_points(); i++) {
+            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
+        }
+        // fit
+        double[] coefs_inverseX = fitter.fit(weightedObservedPointsX.toList());
+        double[] coefs_inverseY = fitter.fit(weightedObservedPointsY.toList());
+        // invert coefficients
+        Vector<Double> coefsX = new Vector<>();
+        Vector<Double> coefsY = new Vector<>();
+        for (int i = 0; i < coefs_inverseX.length; i++) {
+            coefsX.add(coefs_inverseX[coefs_inverseX.length - i - 1]);
+            coefsY.add(coefs_inverseY[coefs_inverseX.length - i - 1]);
+        }
+        // return result
+        Vector<Vector> coefs = new Vector<>();
+        coefs.add(coefsX);
+        coefs.add(coefsY);
+
+        Curve x = new Curve("x model");
+        Curve y = new Curve("y model");
+
+        x.generateCurve(coefs.get(0), 0, 20, 10);
+        y.generateCurve(coefs.get(1), 0, 20, 10);
+
+        //  gr.displayGraph(x);
+        //  gr.displayGraph(y);
+
+
+        return coefs;
+    }
+
+
+    /**
+     * Return the next Bit2D start point.
+     *
+     * @param bit    the current Bit2D (the last placed Bit2D by AI).
+     * @param points the points of the bounds on which stands the bit.
+     * @return the next bit start point. Returns <code>null</code> if none was found.
+     */
+    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> points) throws AI_Exception {
+        this.bit = bit;
+        Polygon rectangle = new Polygon();
+        getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        area = new Area(rectangle.toPath2D());
+        points = (Vector<Vector2>) points.clone();
+        points = repopulateSection(points);
+        for (Vector2 point : points) {
+            pointsADessiner.add(point);
+        }
+
+        //We are first looking for the first point (at index i) contained by the Area of the bit
+        int i;
+        for (i = 0; i < points.size() - 1; i++) {
+            if (area.contains(points.get(i).x, points.get(i).y)) {
+                break;
+            }
+        }
+
+        //We are now looking for the first point not contained by the Area of the bit.
+        //We start from point i.
+        for (; i < points.size() - 1; i++) {
+            if (!area.contains(points.get(i).x, points.get(i).y))
+                break;
+        }
+        Segment2D outGoingSegment = new Segment2D(points.get(i - 1), points.get(i));
+
+        //We are looking for the intersection between the outGoingSegment and the bounds of the Slice
+        Vector2 intersectionPoint;
+        Vector<Segment2D> sides = getBitSidesSegments(bit);
+        this.currentSegToDraw = outGoingSegment; //debugOnly
+        pointsADessiner.clear();//debugOnly
+
+        for (Segment2D bitSides : sides) {
+            intersectionPoint = bitSides.intersect(outGoingSegment); //null if parallel
+
+            if (intersectionPoint != null) {
+                if (contains(bitSides, intersectionPoint)) {
+                    if (contains(outGoingSegment, intersectionPoint)) {
+                        pointsADessiner.add(intersectionPoint); //debugOnly
+                        return intersectionPoint;
+                    }
+                }
+            }
+        }
+        throw new AI_Exception("The next bit start point has not been found.");
+    }
+
+    private Vector<Vector2> repopulateSection(Vector<Vector2> pointsToPopulate) {
+        Vector<Vector2> newPoints = new Vector<>();
+        for (int i = 0; i < pointsToPopulate.size()-1; i++) {
+            int nbPoints;
+            double segmentSize = getDistance(pointsToPopulate.get(i), pointsToPopulate.get(i+1));
+            double bitWidth = CraftConfig.bitWidth;
+            nbPoints = (int) (Math.ceil(segmentSize/bitWidth) + 1);
+
+            Vector<Vector2> segment = new Vector<>();
+            segment.add(pointsToPopulate.get(i));
+            segment.add(pointsToPopulate.get(i+1));
+
+            newPoints.addAll(repopulateWithNewPoints(nbPoints, segment));
+            newPoints.remove(newPoints.size()-1);
+        }
+
+        return newPoints;
+    }
+
+    /**
+     * Repopulate a section with new points. Doesn't keep old points.
+     * @param nbNewPoints the number of points in total
+     * @param points
+     * @return
+     */
+    public Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points){
+
+        Vector<Vector2> newPoints = new Vector<>();
+
+        Vector<Double> segmentLength = new Vector<>();
+        // faire un tableau de longueurs des segments initiaux
+        for(int i=0; i<points.size()-1; i++){
+            double size =Math.sqrt(Math.pow(points.get(i).x - points.get(i+1).x, 2)
+                    + Math.pow(points.get(i).y - points.get(i+1).y, 2));
+            segmentLength.add(size);
+        }
+        double spacing = segmentLength.stream().mapToDouble(Double::valueOf).sum()/(nbNewPoints-1);
+
+        double baseSegmentSum = 0;
+        double newSegmentSum = 0;
+        int basePointsIndex = 0;
+
+        // --- Placer chaque nouveau point l'un après l'autre ---
+
+        for(int i=0; i<nbNewPoints; i++){ // Placer un nouveau point
+
+            double absNewPoint;
+            double ordNewPoint;
+
+            // --- selection du segment initial sur lequel on va placer le nouveau point---
+            //System.out.println("baseSegmentSum + segmentLength = " + baseSegmentSum + segmentLength[basePointsIndex] + " newSegmentSum = " + newSegmentSum);
+            while(basePointsIndex<points.size()-2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum){
+                baseSegmentSum+=segmentLength.get(basePointsIndex);
+                basePointsIndex+=1;
+            }
+
+            //Calculer l'angle du segment par rapport à l'horizontale
+            double segmentAngle;
+            if(points.get(basePointsIndex).x==points.get(basePointsIndex+1).x
+                    && points.get(basePointsIndex).y<=points.get(basePointsIndex+1).y){ // alors segment vertical vers le haut
+                segmentAngle =  Math.PI/2;
+            }
+            else if(points.get(basePointsIndex).x==points.get(basePointsIndex+1).x
+                    && points.get(basePointsIndex).y<=points.get(basePointsIndex+1).y){ // alors segment vertical vers le haut)
+                segmentAngle =  -Math.PI/2;
+            }
+            else{
+                segmentAngle = Math.atan( (points.get(basePointsIndex+1).y - points.get(basePointsIndex).y)
+                        / (points.get(basePointsIndex+1).x - points.get(basePointsIndex).x) ) ; // Coef directeur du segment
+            }
+
+            int sign = 1;
+            if(points.get(basePointsIndex+1).x < points.get(basePointsIndex).x){
+                sign = -1;
+            }
+
+            absNewPoint = points.get(basePointsIndex).x + sign * (newSegmentSum-baseSegmentSum) * Math.cos(segmentAngle);
+            ordNewPoint = points.get(basePointsIndex).y + sign * (newSegmentSum-baseSegmentSum) * Math.sin(segmentAngle);
+
+            newPoints.add(new Vector2(absNewPoint, ordNewPoint));
+
+            newSegmentSum+=spacing;
+
+        }
+        return newPoints;
+    }
+
+
+    /**
+     * Returns the four segments of a Bit2D (a Bit2D not cut by cut paths)
+     *
+     * @param bit the Bit2D
+     * @return a Vector of the four segments.
+     */
+    private Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+
+        Vector<Segment2D> sides = new Vector<>();
+        //generates the 4 points which makes the rectangular bit
+        Vector2 bitOrigin = bit.getOrigin();
+        Vector2 A = new Vector2(
+                bit.getLength() / 2,
+                bit.getWidth() / 2)
+                .rotate(bit.getOrientation())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+        Vector2 B = new Vector2(
+                bit.getLength() / 2,
+                -bit.getWidth() / 2)
+                .rotate(bit.getOrientation())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        Vector2 C = new Vector2(
+                -bit.getLength() / 2,
+                -bit.getWidth() / 2)
+                .rotate(bit.getOrientation())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        Vector2 D = new Vector2(
+                -bit.getLength() / 2,
+                bit.getWidth() / 2)
+                .rotate(bit.getOrientation())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        sides.add(new Segment2D(A, B));
+        sides.add(new Segment2D(B, C));
+        sides.add(new Segment2D(C, D));
+        sides.add(new Segment2D(D, A));
+
+        return sides;
+    }
+
+    /**
+     * Check if a Segment2D contains a point.
+     *
+     * @param seg   the segment
+     * @param point the point we want to test
+     * @return <code>true</code> if the segment contains the point. <code>false</code> otherwise
+     */
+    private boolean contains(Segment2D seg, Vector2 point) {
+        if (seg.start.x<seg.end.x) {
+            if (seg.start.y<seg.end.y) {
+                if (seg.start.x <= point.x && point.x <= seg.end.x && seg.start.y <= point.y && point.y <= seg.end.y) {
+                    return true;
+                }
+            }
+            else {
+                if (seg.start.x <= point.x && point.x <= seg.end.x && seg.start.y >= point.y && point.y >= seg.end.y) {
+                    return true;
+                }
+            }
+
+        }
+        else {
+            if (seg.start.y<seg.end.y) {
+                if (seg.start.x >= point.x && point.x >= seg.end.x && seg.start.y <= point.y && point.y <= seg.end.y) {
+                    return true;
+                }
+            }
+            else {
+                if (seg.start.x >= point.x && point.x >= seg.end.x && seg.start.y >= point.y && point.y >= seg.end.y) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}

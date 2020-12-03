@@ -37,6 +37,9 @@ sourceCompatibility = 1.8
 // In this section you declare the dependencies for your production and test code
 dependencies {
     implementation 'org.jetbrains:annotations:19.0.0'
+    implementation 'org.deeplearning4j:deeplearning4j-core:1.0.0-beta7'
+    implementation 'org.nd4j:nd4j-native-platform:1.0.0-beta7'
+
     compile 'org.processing:core:3.3.5'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
     compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
