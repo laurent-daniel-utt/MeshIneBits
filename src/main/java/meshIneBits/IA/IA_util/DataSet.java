@@ -41,7 +41,7 @@ public class DataSet {
     }
 
 
-    public DataSetEntry getEntry(long lineNumber) {
+    public DataSetEntry getEntryFromFile(long lineNumber) {
         String line;
         try (Stream<String> lines = Files.lines(Paths.get(datasetFilePath))) {
             line = lines.skip(lineNumber - 1).findFirst().get();
@@ -53,7 +53,7 @@ public class DataSet {
     }
 
 
-    public Vector<DataSetEntry> getAllEntries() {
+    public Vector<DataSetEntry> getAllEntriesFromFile() {
 
         Vector<String> lines = new Vector<>();
 

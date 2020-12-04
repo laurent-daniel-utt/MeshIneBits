@@ -1,14 +1,9 @@
 package meshIneBits.IA;
 
-import meshIneBits.Bit2D;
-import meshIneBits.IA.IA_util.Description;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.Segment2D;
+import meshIneBits.IA.IA_util.DataSet;
+import meshIneBits.IA.IA_util.DataSetEntry;
 import meshIneBits.util.Vector2;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Vector;
 
 public class Training {
@@ -18,11 +13,20 @@ public class Training {
         this.ai_tool = ai_tool;
     }
 
-    //todo finalement on va ajouter les points bruts au fichier
+    /**
+     * Train the neural network with the data from the txt file.
+     */
     public void trainNN() {
-        //todo appeller les fonctions de traitement de points
-        //placeBitsOnSlices(sliceMap);
-        //todo ajouter les nouveaux exemples au réseau pour l'entrainer
+        DataSet dataset = ai_tool.dataSet;
+        Vector<DataSetEntry> dataSetEntries = dataset.getAllEntriesFromFile();
+
+        for (DataSetEntry entry : dataSetEntries) {
+            Vector<Vector2> pointsInLocalCS = ai_tool.dataPrep.getSectionInLocalCoordinateSystem(entry.getPoints());
+            Vector2 position = entry.getBitPosition();
+            Vector2 orientation = entry.getBitOrientation();
+
+            //todo train NN with data
+        }
     }
 
 }

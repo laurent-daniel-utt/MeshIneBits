@@ -98,7 +98,12 @@ public class DataPreparation {
         return newPointList;
     }
 
-    //compute a pointList from a segmentList
+    /**
+     * Returns a point list from a segment list
+     *
+     * @param segmentList
+     * @return
+     */
     public Vector<Vector2> computePoints(Vector<Segment2D> segmentList) {
         Vector<Vector2> pointList = new Vector<>();
         for (Segment2D segment : segmentList) {
@@ -142,7 +147,7 @@ public class DataPreparation {
     }
 
 
-    public Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
+    private Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
         Vector<Vector2> finalPoints = new Vector<>();
         finalPoints.add(new Vector2(0, 0)); // first point is always on origin
         double translatX = points.firstElement().x * Math.cos(angle) + points.firstElement().y * Math.sin(angle);
@@ -155,7 +160,7 @@ public class DataPreparation {
         return finalPoints;
     }
 
-    public Double getCoordinateSystemOrientation(Vector<Vector2> points) {
+    private Double getCoordinateSystemOrientation(Vector<Vector2> points) {
 
         // prepare fitting
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degré
