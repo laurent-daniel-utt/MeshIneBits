@@ -2,12 +2,11 @@ package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
-import meshIneBits.IA.IA_util.Description;
+import meshIneBits.IA.IA_util.DataSetEntry;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.Vector;
 
 public class Acquisition {
     public boolean storeNewBits = false;
-    private Map<Bit2D, Description> storedExamplesBits;
+    private Map<Bit2D, Vector<Vector2>> storedExamplesBits;
     private AI_Tool ai_tool;
     public Vector2 startPoint = new Vector2(0, 0);//debugOnly
     private Bit2D lastPlacedBit; //useful for delete last placed bit
@@ -30,7 +29,7 @@ public class Acquisition {
         storedExamplesBits = new LinkedHashMap<>();
     }
 
-    public void stopStoringBits() {
+    public void stopStoringBits() throws IOException {
         storeNewBits = false;
         saveExamples();
     }
@@ -39,53 +38,28 @@ public class Acquisition {
         storedExamplesBits.remove(lastPlacedBit);
     }
 
-    private void saveExamples() {
-        try {
-            /*
-            On enregistre dans notre fichier sous la forme :
-            positionX , positionY , orientationX, orientationY //todo enregistrer aussi les données de la courbe
-             */
-
-            String filename = "storedBits.txt"; //todo enregistrer le fichier dans le package IA plutot
-            FileWriter fw = new FileWriter(filename, true);
-            for (Bit2D bit : this.storedExamplesBits.keySet()) {
-                String text = "";
-                text += bit.getOrigin().x + ","
-                        + bit.getOrigin().y + ","
-                        + bit.getOrientation().x + ","
-                        + bit.getOrientation().y;
-                fw.write(text + "\n");
-            }
-            fw.close();
-        } catch (IOException ioe) {
-            System.err.println("IOException:" + ioe.getMessage());
+    private void saveExamples() throws IOException {
+        for (Bit2D bit : storedExamplesBits.keySet()) {
+            DataSetEntry entry = new DataSetEntry(bit, storedExamplesBits.get(bit));
+            ai_tool.dataSet.saveEntry(entry);
         }
     }
 
-    public void storeNewExampleBit(Bit2D bit) throws AI_Exception {
-        storedExamplesBits.put(bit, getDescription(bit));
+    public void addNewExampleBit(Bit2D bit) throws AI_Exception {
+        storedExamplesBits.put(bit, ai_tool.dataPrep.getBitAssociatedPoints(bit));
         lastPlacedBit = bit;
 
-
-        Vector<Vector2> pointList = new Vector<>();//debugOnly, on teste si la recherche du point suivant marche bien
+//debugOnly, on teste si la recherche du point suivant marche bien
+        Vector<Vector2> pointList = new Vector<>();
         Vector<Slice> slicesList = ai_tool.getMeshController().getMesh().getSlices();
         Vector<Segment2D> segment2DVector = slicesList.get(0).getSegmentList();
         for (Segment2D seg : segment2DVector) {
             pointList.add(new Vector2(seg.end.x, seg.end.y));
         }
-        pointList = ai_tool.dataPrep.getContours(ai_tool.getSliceMap(), ai_tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+        pointList = ai_tool.dataPrep.getBoundsAndRearrange(ai_tool.getSliceMap(), ai_tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
         //todo modifier : ici on fait que du .get(0)
 
         startPoint = ai_tool.dataPrep.getNextBitStartPoint(bit, pointList);
+//fin debugOnly
     }
-
-    private Description getDescription(Bit2D bit) {
-        //todo get la liste des points concernés
-        //todo get la liste des coefficients du modèle des points concernés
-        Vector<Vector2> points = new Vector<>();
-        Vector<Double> coeffs = new Vector<>();
-        Description description = new Description(points, coeffs);
-        return description;
-    }
-
 }

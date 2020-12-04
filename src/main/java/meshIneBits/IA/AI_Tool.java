@@ -1,5 +1,6 @@
 package meshIneBits.IA;
 
+import meshIneBits.IA.IA_util.DataSet;
 import meshIneBits.IA.IA_util.Tools;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
@@ -17,41 +18,51 @@ public class AI_Tool {
     public Acquisition acquisition;
     public Training training;
     public Exploitation exploitation;
+    public DataSet dataSet;
 
+    /**
+     * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
+     * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
+     *
+     * @param MC the instance of meshController currently running.
+     */
     public AI_Tool(MeshController MC) {
         this.meshController = MC;
         this.acquisition = new Acquisition(this);
         this.training = new Training(this);
         this.exploitation = new Exploitation(this);
+        this.dataPrep = new DataPreparation(this);
+        this.tools = new Tools();
+        this.dataSet = new DataSet();
     }
 
-    //todo startAI doit permettre de paver entièrement un modèle
+    /**
+     * Pave the whole mesh with AI.
+     */
     public void startAI() { //started when pushing button on UI
-
-
-        System.out.println("Starting IA pavement");
-        System.out.println("Computing points of each slice");
-
+        //todo startAI doit permettre de paver entièrement un modèle
         Vector<Slice> slicesList = meshController.getMesh().getSlices();
-        System.out.println(slicesList.size() + " slices to pave");
-
         for (Slice currentSlice : slicesList) {
-            sliceMap.put(currentSlice, (Vector<Segment2D>) currentSlice.getSegmentList().clone());
+            sliceMap.put(
+                    currentSlice,
+                    (Vector<Segment2D>) currentSlice.getSegmentList().clone()
+            );
         }
 
         meshController.AIneedPaint = true; //debugOnly
-        this.tools = new Tools();
-        this.dataPrep = new DataPreparation(this);
         //placeBitsOnSlices(sliceMap);
-
-        //debugOnly pour vérifier que la fonction qui obtient le prochain Bit fonctionne
-        //   Bit2D bitTest = new Bit2D(new Vector2(0,245), new Vector2(0,0));
-
     }
 
+    /**
+     * @return the meshController
+     */
     public MeshController getMeshController() {
         return meshController;
     }
+
+    /**
+     * @return the map of the slices, with Vector of Segment2D associated to each Slice
+     */
     public Map<Slice, Vector<Segment2D>> getSliceMap() {
         return sliceMap;
     }

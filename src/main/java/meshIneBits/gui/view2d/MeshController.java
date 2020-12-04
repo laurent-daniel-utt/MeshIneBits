@@ -23,6 +23,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -31,7 +32,6 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.util.*;
 
 import java.awt.*;
@@ -541,7 +541,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
 
         if (ai_Tool!=null && ai_Tool.acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
             try {
-                ai_Tool.acquisition.storeNewExampleBit(newBit);
+                ai_Tool.acquisition.addNewExampleBit(newBit);
             } catch (AI_Exception e) {
                 e.printStackTrace();
             }
