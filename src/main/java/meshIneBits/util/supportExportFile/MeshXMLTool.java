@@ -30,6 +30,8 @@ import java.util.*;
 public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     private static MeshXMLTool XML_TOOL;
     private Mesh mMesh;
+    private Bit3D currentBit;
+
     //Parameter
     public int remainingBits = CraftConfig.nbBits;
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
@@ -185,10 +187,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
         }
-        Element bit = createElement(MeshTagXML.BIT);
+        Element elementBit = createElement(MeshTagXML.BIT);
         //bit's ID element
         Element bitId = createElement(MeshTagXML.BIT_ID, Integer.toString(mMesh.getScheduler().getBitIndex(bit3D)));
-        bit.appendChild(bitId);
+        elementBit.appendChild(bitId);
         //Cut bit element
         Element cut = createElement(MeshTagXML.CUT_BIT);
 //        if (bit3D.getRawCutPathsSeparate() != null && bit3D.getRawCutPathsSeparate().size() > 0) {
@@ -198,26 +200,26 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 //                cut.appendChild(cutPathsElement);
 //            }
 //        }
-        Bit3D bit3DToExport = bit3D.getNewBitToExportToXML();
+         prepareBitToExport(bit3D);
 //        Bit3D bit3DToExport = bit3D;
-        for (Path2D cutPath : bit3DToExport.getRawCutPaths()) {
+        for (Path2D cutPath : bit3D.getRawCutPaths()) {
             Element cutPathElement = writeCutPathElement(cutPath);
             cut.appendChild(cutPathElement);
         }
-        bit.appendChild(cut);
+        elementBit.appendChild(cut);
 
         //sub bit of bit
-        writeSubBitElementToBit(bit, bit3DToExport);
-        return bit;
+        writeSubBitElementToBit(elementBit, bit3D);
+        return elementBit;
     }
 
     /**
      * write list <subbit> into element <bit>
      *
-     * @param bit   element bit that will add elements subbits
+     * @param elementBit   element bit that will add elements subbits
      * @param bit3D object Bit3D {@link Bit3D}
      */
-    private void writeSubBitElementToBit(Element bit, Bit3D bit3D) {
+    private void writeSubBitElementToBit(Element elementBit, Bit3D bit3D) {
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
         }
@@ -264,7 +266,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             if (listTwoPoints.get(i).size() >=2) {
                 for (int j = 0; j < 2; j++) {
                     Vector2 point = listTwoPoints.get(i).get(j);
-                    point=point.getTransformed(bit3D.getBaseBit().getInverseTransfoMatrix());
+//                    point=point.getTransformed(bit3D.getBaseBit().getInverseTransfoMatrix());
                     Element pointElement = createElement(MeshTagXML.POINT);
                     Element pointIdElement = createElement(MeshTagXML.POINT_ID, Integer.toString(j));
                     pointElement.appendChild(pointIdElement);
@@ -274,14 +276,17 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                     pointElement.appendChild(pointYELement);
                     subBit.appendChild(pointElement);
                 }
-                double angle=calculateAngleOfTwoPoint(bit3D.getTwoDistantPoints().get(2*i+0),bit3D.getTwoDistantPoints().get(2*i+1));
-                Element rotation2 = createElement(MeshTagXML.ROTATION_SUB_BIT_SECOND,Double.toString(angle));
+
+            }
+            if(bit3D.getListAngles().get(i)!=null){
+                Element rotation2 = createElement(MeshTagXML.ROTATION_SUB_BIT_SECOND,Double.toString(bit3D.getListAngles().get(i)));
                 subBit.appendChild(rotation2);
             }
 
+
             //TODO
             //Add subBit element into bit element
-            bit.appendChild(subBit);
+            elementBit.appendChild(subBit);
         }
 
     }
@@ -294,6 +299,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 //        }
 //        for (Path2D path : cutPaths) {
         int countMoveTo = 0;
+        Element currentFallType=null;
+//        Element newFallType;
         for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
             double[] coords = new double[2];
             int type = pi.currentSegment(coords);
@@ -302,6 +309,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             Element y = createElement(MeshTagXML.CORDINATE_Y, Double.toString(coords[1]));
             switch (type) {
                 case PathIterator.SEG_MOVETO:
+                    if(countMoveTo>0){
+                        appendTextNode(currentFallType,MeshTagXML.CHUTE_TYPE);
+                    }
+                    currentFallType=createElement(MeshTagXML.FALL_TYPE);
+                    cutPathsElement.appendChild(currentFallType);
                     countMoveTo++;
                     parentTag = createElement(MeshTagXML.MOVE_TO_POSITION);
                     break;
@@ -314,26 +326,26 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             }
             parentTag.appendChild(x);
             parentTag.appendChild(y);
-            if (parentTag.getTagName().equals(MeshTagXML.MOVE_TO_POSITION) && countMoveTo > 1) {
-                cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.CHUTE_TYPE));
-            }
+//            if (parentTag.getTagName().equals(MeshTagXML.MOVE_TO_POSITION) && countMoveTo > 1) {
+//            }
             cutPathsElement.appendChild(parentTag);
         }
-        cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.SUB_BIT));
+        if(currentBit.checkIfLastCutPath(cutPath)&&currentBit.isHoldedInCUt()){
+//            cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.CHUTE_TYPE));
+            appendTextNode(currentFallType,MeshTagXML.CHUTE_TYPE);
+            cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE,MeshTagXML.SUB_BIT));
+            cutPathsElement.appendChild(createElement(MeshTagXML.DROP));
+        }else  appendTextNode(currentFallType,MeshTagXML.SUB_BIT);
+
+
+//        cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.SUB_BIT));
 
 //        }
         return cutPathsElement;
     }
-
-    /**
-     * Only use to calculate angle between 2 point for file exported
-     * @param point1
-     * @param point2
-     * @return
-     */
-    private static double calculateAngleOfTwoPoint(Vector2 point1,Vector2 point2){
-        Vector2 vectorResult = new Vector2(point2.x-point1.x,point2.y-point1.y);
-        return Vector2.calcAngleBetweenVectorAndAxeX(vectorResult);
+    private void prepareBitToExport(Bit3D bit3D){
+        bit3D.prepareBitToExport();
+        currentBit=bit3D;
     }
 
 

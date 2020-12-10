@@ -51,6 +51,7 @@ public class MeshTagXML {
     public static final String FALL_TYPE ="fall-type";
     public static final String CHUTE_TYPE ="chute";
     public static final String SUB_BIT_TYPE ="chute";
+    public static final String DROP="drop";
 
 
 

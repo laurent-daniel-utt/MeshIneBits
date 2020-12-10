@@ -2,7 +2,7 @@
 <mesh>
     <config>
         <name>test</name>
-        <date>Thu Dec 03 15:15:02 CET 2020</date>
+        <date>Thu Dec 10 15:39:55 CET 2020</date>
         <bit-dimension>
             <height>8.0</height>
             <width>24.0</width>
@@ -17,42 +17,51 @@
         <layer-height>0.0</layer-height>
         <move-working-space>
             <go-to>
-                <x>262.1386496100988</x>
+                <x>178.98232913024472</x>
+            </go-to>
+            <go-to>
+                <x>263.68863350849733</x>
             </go-to>
         </move-working-space>
         <bit>
             <bit-id>0</bit-id>
             <cut>
                 <cut-paths>
+                    <fall-type>chute</fall-type>
                     <move-to>
-                        <x>-74.9999999999999</x>
-                        <y>6.990825178450791</y>
+                        <x>-75.0</x>
+                        <y>-3.0</y>
                     </move-to>
                     <cut-to>
-                        <x>-56.995134100554836</x>
-                        <y>0.026648782774742585</y>
+                        <x>-57.60745359001481</x>
+                        <y>-3.0</y>
                     </cut-to>
                     <cut-to>
-                        <x>-12.46756020515592</x>
-                        <y>-8.524677685452872</y>
-                    </cut-to>
-                    <cut-to>
-                        <x>23.864786741513047</x>
-                        <y>-9.193968736272524</y>
-                    </cut-to>
-                    <cut-to>
-                        <x>59.11043575210962</x>
-                        <y>-4.23399714011731</y>
-                    </cut-to>
-                    <cut-to>
-                        <x>75.0</x>
-                        <y>0.5715536614609107</y>
-                    </cut-to>
-                    <cut-to>
-                        <x>75.0</x>
+                        <x>-57.60745359001481</x>
                         <y>12.0</y>
                     </cut-to>
                     <fall-type>sub-bit</fall-type>
+                    <move-to>
+                        <x>-40.41260875650522</x>
+                        <y>-12.0</y>
+                    </move-to>
+                    <cut-to>
+                        <x>-40.41260875650522</x>
+                        <y>12.0</y>
+                    </cut-to>
+                </cut-paths>
+                <cut-paths>
+                    <fall-type>chute</fall-type>
+                    <move-to>
+                        <x>-10.412608756505222</x>
+                        <y>12.0</y>
+                    </move-to>
+                    <cut-to>
+                        <x>-10.412608756505222</x>
+                        <y>-12.0</y>
+                    </cut-to>
+                    <fall-type>sub-bit</fall-type>
+                    <drop/>
                 </cut-paths>
             </cut>
             <sub-bit>
@@ -60,112 +69,50 @@
                 <batch>0</batch>
                 <plate>0</plate>
                 <position-in-bit>
-                    <x>4.877904251097321</x>
-                    <y>3.1095182306144498</y>
+                    <x>-52.41260875650522</x>
+                    <y>-2.0</y>
                 </position-in-bit>
                 <rotation>0.0</rotation>
                 <position-in-layer>
-                    <x>12.138649610098796</x>
-                    <y>-240.12545129593494</y>
+                    <x>13.688633508497333</x>
+                    <y>-43.98472060700931</y>
                 </position-in-layer>
                 <point>
                     <id>0</id>
-                    <x>-79.26074535900148</x>
-                    <y>252.04100079027685</y>
+                    <x>-43.41260875650522</x>
+                    <y>9.0</y>
                 </point>
                 <point>
                     <id>1</id>
-                    <x>60.739254640998524</x>
-                    <y>245.04100079027685</y>
+                    <x>-68.41260875650522</x>
+                    <y>-9.0</y>
                 </point>
-                <rotation-2>-2.8624052261117785</rotation-2>
-            </sub-bit>
-        </bit>
-        <move-working-space/>
-        <bit>
-            <bit-id>1</bit-id>
-            <cut>
-                <cut-paths>
-                    <move-to>
-                        <x>-15.0</x>
-                        <y>12.0</y>
-                    </move-to>
-                    <cut-to>
-                        <x>-15.0</x>
-                        <y>-12.0</y>
-                    </cut-to>
-                    <fall-type>sub-bit</fall-type>
-                </cut-paths>
-                <cut-paths>
-                    <move-to>
-                        <x>15.0</x>
-                        <y>-12.0</y>
-                    </move-to>
-                    <cut-to>
-                        <x>15.0</x>
-                        <y>12.0</y>
-                    </cut-to>
-                    <fall-type>chute</fall-type>
-                    <move-to>
-                        <x>75.0</x>
-                        <y>12.0</y>
-                    </move-to>
-                    <cut-to>
-                        <x>75.0</x>
-                        <y>-12.0</y>
-                    </cut-to>
-                    <fall-type>sub-bit</fall-type>
-                </cut-paths>
-            </cut>
-            <sub-bit>
-                <id>0</id>
-                <batch>0</batch>
-                <plate>0</plate>
-                <position-in-bit>
-                    <x>-45.0</x>
-                    <y>0.0</y>
-                </position-in-bit>
-                <rotation>-90.0</rotation>
-                <position-in-layer>
-                    <x>3.630372679500738</x>
-                    <y>-89.32378914152727</y>
-                </position-in-layer>
-                <point>
-                    <id>0</id>
-                    <x>-125.32378914152727</x>
-                    <y>-75.63037267950074</y>
-                </point>
-                <point>
-                    <id>1</id>
-                    <x>-142.32378914152727</x>
-                    <y>-24.630372679500738</y>
-                </point>
-                <rotation-2>-71.56505117707799</rotation-2>
+                <rotation-2>35.75388725443675</rotation-2>
             </sub-bit>
             <sub-bit>
                 <id>1</id>
                 <batch>0</batch>
                 <plate>0</plate>
                 <position-in-bit>
-                    <x>45.0</x>
-                    <y>0.0</y>
+                    <x>32.29369562174739</x>
+                    <y>-0.0</y>
                 </position-in-bit>
-                <rotation>-90.0</rotation>
+                <rotation>0.0</rotation>
                 <position-in-layer>
-                    <x>3.630372679500738</x>
-                    <y>-179.32378914152727</y>
+                    <x>-71.01767086975528</x>
+                    <y>-45.98472060700931</y>
                 </position-in-layer>
                 <point>
                     <id>0</id>
-                    <x>-125.32378914152727</x>
-                    <y>14.369627320499262</y>
+                    <x>72.0</x>
+                    <y>9.0</y>
                 </point>
                 <point>
                     <id>1</id>
-                    <x>-142.32378914152727</x>
-                    <y>65.36962732049926</y>
+                    <x>-4.0</x>
+                      <y>-9.0</y>
                 </point>
-                <rotation-2>-71.56505117707799</rotation-2>
+                <rotation-2>13.324531261890783</rotation-2>
             </sub-bit>
         </bit>
     </layer>

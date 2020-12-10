@@ -45,6 +45,7 @@ public class WorkspaceConfig {
      * Irrealisable bit
      */
     public static Color irregularBitColor = new Color(255, 0, 0, 100);
+    public static Color bitNotFullLength =Color.orange;
     public static Color cutpathColor = Color.BLUE.darker();
     public static Stroke cutpathStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
     public static Color liftpointColor = Color.RED;

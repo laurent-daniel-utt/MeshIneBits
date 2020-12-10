@@ -650,6 +650,16 @@ public class MeshWindow extends JFrame {
         );
         meshActionList.add(toggleLiftPoint);
 
+        MeshToggleAction toggleBitFullLength = new MeshToggleAction(
+                "toogleBitsFullLength",
+                "Show/Hide bits not full length",
+                "icon-full-length.png",
+                "Show or hide bits not use with his full length",
+                "shift 6",
+                meshController,
+                MeshController.SHOW_BITS_NOT_FULL_LENGTH);
+        meshActionList.add(toggleBitFullLength);
+
         MeshToggleAction togglePreviousLayer = new MeshToggleAction(
                 "togglePreviousLayer",
                 "Show/Hide Previous Layer",
@@ -739,6 +749,7 @@ public class MeshWindow extends JFrame {
         toolBar.addToggleButton(toggleIrregularBit);
         toolBar.addToggleButton(toggleCutPaths);
         toolBar.addToggleButton(toggleLiftPoint);
+        toolBar.addToggleButton(toggleBitFullLength);
         toolBar.addToggleButton(togglePreviousLayer);
 
         /* UtilitiesBox */

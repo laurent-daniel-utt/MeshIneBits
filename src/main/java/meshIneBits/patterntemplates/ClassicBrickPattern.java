@@ -43,7 +43,7 @@ import java.util.List;
  */
 
 public class ClassicBrickPattern extends PatternTemplate {
-
+    //lengthBit can change
     @Override
     public Pavement pave(Layer layer) {
         Area areaToPave = AreaTool.getAreaFrom(layer.getHorizontalSection());

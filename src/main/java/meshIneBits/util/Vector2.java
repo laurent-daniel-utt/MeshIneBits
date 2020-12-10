@@ -362,5 +362,8 @@ public class Vector2 implements Serializable {
             }
         }
     }
+    public Vector2 clone(){
+        return new Vector2(this.x,this.y);
+    }
 
 }

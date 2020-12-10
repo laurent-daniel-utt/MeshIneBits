@@ -567,7 +567,7 @@ public class AreaTool {
      */
     public static Area expand(Area area, Double width) {
         if (area == null || area.isEmpty())
-            return null;
+            return new Area();
         if (width == 0) return area;
 
         // Each polygon is a set of unordered segments
@@ -740,7 +740,7 @@ public class AreaTool {
 
 
         //Find a point near first point of two most distant points
-        while (radius<10 && !(foundFirstPoint && foundSecondPoint)) {
+        while (radius<20 && !(foundFirstPoint && foundSecondPoint)) {
             for (double x = startX; x < endX; x += 1) {
                 for (double y = startY; y < endY; y += 1) {
                     if (area.contains(x, y)

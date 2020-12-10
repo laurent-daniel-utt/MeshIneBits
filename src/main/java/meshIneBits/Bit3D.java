@@ -27,6 +27,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathUtil;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -34,6 +35,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by
@@ -69,6 +71,16 @@ public class Bit3D implements Serializable, Cloneable {
      */
     private Vector<Vector<Vector2>>listTwoDistantPoints =new Vector<>();
 
+    public Vector<Double> getListAngles() {
+//        if(listAngles.size()==0) throw new NullPointerException("List of angles is not calculated");
+        return listAngles;
+    }
+
+    /**
+     * contain angles made by two distants points
+     */
+    private Vector<Double> listAngles=new Vector<>();
+
     private boolean irregular = false;
     private double lowerAltitude;
     private double higherAltitude;
@@ -91,7 +103,7 @@ public class Bit3D implements Serializable, Cloneable {
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
         rawCutPathsSeparate=baseBit.getCutPathsSeparate();
-        reverseInCut=baseBit.getReverseInCut();
+        reverseInCut=baseBit.getInverseInCut();
         computeLiftPoints();
         computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = layer.getLowerAltitude();
@@ -211,55 +223,107 @@ public class Bit3D implements Serializable, Cloneable {
         return rawCutPathsSeparate;
     }
 
-    public Vector<Vector2> getTwoDistantPoints() {
+    /**
+     * Return list of distant points in {@link Mesh} coordinate.
+     * @return list of distant points in {@link Mesh} coordinate
+     */
+    public Vector<Vector2> getTwoDistantPointsInMeshCoordinate() {
         Vector<Vector2> listPoints = new Vector<>();
         listTwoDistantPoints.forEach(list -> list.forEach(ele->listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
         return listPoints;
     }
+    public Vector<Vector2> getTwoDistantPoints() {
+        Vector<Vector2> listPoints = new Vector<>();
+        listTwoDistantPoints.forEach(list -> list.forEach(ele->listPoints.add(ele)));
+        return listPoints;
+    }
+    private void calcAngles(){
+        if(listTwoDistantPoints.size()>0)
+        listTwoDistantPoints.forEach(twoDistantPoints->{
+                    if(twoDistantPoints.size()>0){
+                        listAngles.add(
+                                calculateAngleOfTwoPoint(twoDistantPoints.firstElement(),twoDistantPoints.lastElement()));
+                    }else listAngles.add(null);
+                }
+            );
+    }
     public Vector<Vector<Vector2>> getListTwoDistantPoints(){
         return listTwoDistantPoints;
     }
-    /**
-     * In {@link Mesh} coordinate
-     * @return value radian
-     */
-    public double getAnglesTwoDistantPointsWithAxeOx(){
-        if(listTwoDistantPoints.size()>0){
-            Vector<Double> valueAngles = new Vector<>();
-            for (Vector<Vector2> points : listTwoDistantPoints){
-                //calcul sub vector, we know that points contains 2 elements
-                Vector2 v = points.firstElement().sub(points.lastElement());
-                valueAngles.add(Vector2.calcAngleBetweenVectorAndAxeX(v));
-            }
-        }else{
-            Logger.error("This Bit Id hasn't points to calculate");
-        }
-        return 0;
-    }
-    public Bit3D getNewBitToExportToXML(){
-        Bit3D bit3D = this.clone();
-//        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
-        if(!reverseInCut)return bit3D;
-        else{
-            AffineTransform matrixReverseBit = new AffineTransform();
-            matrixReverseBit.rotate(Math.PI);
 
-            Vector<Path2D> cutPaths = new Vector<>(bit3D.getRawCutPaths());
-            bit3D.getRawCutPaths().clear();
-            for(int i = cutPaths.size()-1;i>=0;i--){
-                bit3D.getRawCutPaths().add(CutPathUtil.transformPath2D(cutPaths.get(i),matrixReverseBit));
-            }
-            Vector<Vector2> liftPoints = new Vector<>(bit3D.getRawLiftPoints());
-            bit3D.getRawLiftPoints().clear();
-            for(Vector2 point : liftPoints){
-                bit3D.getRawLiftPoints().add(point.getTransformed(matrixReverseBit));
-            }
-            Vector<Vector2> twoDistantPoint = new Vector<>(bit3D.getTwoDistantPoints());
-            bit3D.getTwoDistantPoints().clear();
-            for(Vector2 point : twoDistantPoint){
-                bit3D.getTwoDistantPoints().add(point.getTransformed(matrixReverseBit));
-            }
-            return bit3D;
+    public void prepareBitToExport(){
+//        Bit3D bit3D = this;
+//        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
+        calcAngles();
+        if(reverseInCut) this.inverse();
+
+    }
+
+    private void inverse() {
+        inverseCutPath();
+        inverseLiftPoint();
+        inverseDistantPoints();
+    }
+
+    private void inverseLiftPoint() {
+        AffineTransform matrixReverseBit = new AffineTransform();
+        matrixReverseBit.rotate(Math.PI);
+        Vector<Vector2> rawLiftPoints = new Vector<>(this.rawLiftPoints);
+        this.rawLiftPoints.clear();
+        Vector<Vector2> liftPoints = new Vector<>(this.liftPoints);
+        this.liftPoints.clear();
+        for(int i=rawLiftPoints.size()-1;i>=0;i--){
+            this.rawLiftPoints.add(rawLiftPoints.get(i).getTransformed(matrixReverseBit));
+            this.liftPoints.add(liftPoints.get(i));
         }
     }
+
+
+    private void inverseDistantPoints(){
+        AffineTransform matrixReverseBit = new AffineTransform();
+        matrixReverseBit.rotate(Math.PI);
+        //
+        Vector<Vector<Vector2>> listTwoDistantPoints = new Vector<>(this.listTwoDistantPoints);
+        //reverse angle array to correspond with two distants points array
+        Collections.reverse(this.listAngles);
+        this.listTwoDistantPoints.clear();
+        for(int i = listTwoDistantPoints.size()-1;i>=0;i--){
+//            System.out.println(listTwoDistantPoints.get(i).firstElement().toString()+"------"+listTwoDistantPoints.get(i).lastElement());
+            List<Vector2> list=listTwoDistantPoints.get(i).stream().map(ele->ele.getTransformed(matrixReverseBit)).collect(Collectors.toList());
+//            System.out.println(list.get(0).toString()+"------"+list.get(1).toString());
+            this.listTwoDistantPoints.add(new Vector<>(list));
+
+
+        }
+    }
+
+    public void inverseCutPath(){
+        AffineTransform matrixReverseBit = new AffineTransform();
+        matrixReverseBit.rotate(Math.PI);
+        Vector<Path2D> cutPaths = new Vector<>(this.getRawCutPaths());
+        this.getRawCutPaths().clear();
+        for(int i = cutPaths.size()-1;i>=0;i--){
+            this.getRawCutPaths().add(CutPathUtil.transformPath2D(cutPaths.get(i),matrixReverseBit));
+        }
+    }
+    public boolean isHoldedInCUt(){
+        Area bitArea = this.getRawArea();
+        Vector<Rectangle2D> twoSide = Bit2D.getTwoSideOfBit(CraftConfig.incertitude);
+        return reverseInCut ? bitArea.contains(twoSide.firstElement()) : bitArea.contains(twoSide.lastElement());
+    }
+    public boolean checkIfLastCutPath(@NotNull Path2D path2D){
+        return rawCutPaths.lastElement()==path2D;
+    }
+    /**
+     * This method return the angle of the line connecting two point and the X axis (0; 1)
+     * Only use to calculate angle between 2 point for file exported
+     * @param point1
+     * @param point2
+     * @return
+     */
+    private static double calculateAngleOfTwoPoint(Vector2 point1,Vector2 point2){
+        Vector2 vectorResult = new Vector2(point2.x-point1.x,point2.y-point1.y);
+        return Vector2.calcAngleBetweenVectorAndAxeX(vectorResult);
+    }
+
 }

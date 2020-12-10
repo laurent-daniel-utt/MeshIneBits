@@ -54,6 +54,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public static final String SHOW_SLICE = "showSlice";
     public static final String SHOW_LIFT_POINTS = "showLiftPoints";
+    public static final String SHOW_BITS_NOT_FULL_LENGTH ="showBitsNotFull";
     public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
     public static final String SHOW_CUT_PATHS = "showCutPaths";
     public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
@@ -125,6 +126,10 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private boolean addingBits = false;
+    private boolean showBitNotFull = false;
+
+
+
     /**
      * In {@link Mesh}'s coordinate system
      */
@@ -140,8 +145,9 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
     private Point2D currentPoint;
-    private boolean fullLength=true;
     private Area areaHoldingCut;
+    //this variable is used to calc bit full length when paint preview
+    private boolean fullLength=true;
 
 
     public boolean isFullLength() {
@@ -377,8 +383,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         if (newSelectedBitKeys != null) {
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
-        } else {
-            System.out.println("null");
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -829,6 +833,9 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             case SHOW_LIFT_POINTS:
                 setShowLiftPoints(!showingLiftPoints());
                 break;
+            case SHOW_BITS_NOT_FULL_LENGTH:
+                setShowBitsNotFullLength(!showBitNotFull);
+                break;
             case SHOW_PREVIOUS_LAYER:
                 setShowPreviousLayer(!showingPreviousLayer());
                 break;
@@ -869,10 +876,22 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         setChanged();
         notifyObservers();
     }
+    public void setShowBitsNotFullLength(Boolean b){
+        showBitNotFull = b;
+        changes.firePropertyChange(SHOW_BITS_NOT_FULL_LENGTH, !showBitNotFull, showBitNotFull);
+
+        setChanged();
+        notifyObservers();
+    }
 
     public boolean showingLiftPoints() {
         return showLiftPoints;
     }
+
+    public boolean showingBitNotFull() { return showBitNotFull; }
+
+    ;
+
 
     public void setShowPreviousLayer(boolean b) {
         showPreviousLayer = b;
