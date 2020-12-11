@@ -11,15 +11,14 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 public class DataSet {
-    private String datasetFilePath = "storedBits.txt";
+    private final static String datasetFilePath = "storedBits.txt";
 
-
-    public long getNumberOfEntries() throws IOException {
+    static public long getNumberOfEntries() throws IOException {
         return Files.lines(Paths.get(datasetFilePath)).count();
     }
 
 
-    public void saveEntry(DataSetEntry dataSetEntry) throws IOException {
+    static public void saveEntry(DataSetEntry dataSetEntry) throws IOException {
         String line = dataSetEntry.getBitPosition().x + ","
                 + dataSetEntry.getBitPosition().y + ","
                 + dataSetEntry.getBitOrientation().x + ","
@@ -34,14 +33,14 @@ public class DataSet {
     }
 
 
-    public void saveAllEntries(Vector<DataSetEntry> dataSetEntries) throws IOException {
+    static public void saveAllEntries(Vector<DataSetEntry> dataSetEntries) throws IOException {
         for (DataSetEntry dataSetEntry : dataSetEntries) {
             saveEntry(dataSetEntry);
         }
     }
 
 
-    public DataSetEntry getEntryFromFile(long lineNumber) {
+    static public DataSetEntry getEntryFromFile(long lineNumber) {
         String line;
         try (Stream<String> lines = Files.lines(Paths.get(datasetFilePath))) {
             line = lines.skip(lineNumber - 1).findFirst().get();
@@ -53,7 +52,7 @@ public class DataSet {
     }
 
 
-    public Vector<DataSetEntry> getAllEntriesFromFile() {
+    static public Vector<DataSetEntry> getAllEntriesFromFile() {
 
         Vector<String> lines = new Vector<>();
 
@@ -73,7 +72,7 @@ public class DataSet {
     }
 
 
-    private DataSetEntry decodeLine(String line) {
+    static private DataSetEntry decodeLine(String line) {
 
         String[] dataStr = line.split(",");
         Vector<String> data = new Vector<>();

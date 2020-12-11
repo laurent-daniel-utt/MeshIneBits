@@ -130,7 +130,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     /**
      * In {@link Mesh}'s coordinate system
      */
-    private Area availableArea;
+    public Area availableArea; //todo @Etienne repasser en private après si possible
     /**
      * In {@link Mesh}'s coordinate system
      */

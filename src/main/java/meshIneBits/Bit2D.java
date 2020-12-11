@@ -339,7 +339,7 @@ public class Bit2D implements Cloneable, Serializable {
      * Set up the matrix transformation from {@link Bit2D} coordinate system
      * into {@link Pavement}
      */
-    private void setTransfoMatrix() {
+    public void setTransfoMatrix() {
 
         transfoMatrix.translate(origin.x, origin.y);
         transfoMatrix.rotate(orientation.x, orientation.y);
@@ -413,7 +413,7 @@ public class Bit2D implements Cloneable, Serializable {
     /**
      * Reset cut paths and recalculate them after defining area
      */
-    void calcCutPath() {
+    public void calcCutPath() {
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
@@ -510,5 +510,9 @@ public class Bit2D implements Cloneable, Serializable {
 
     public AffineTransform getInverseTransfoMatrix() {
         return inverseTransfoMatrix;
+    }
+
+    public void setCutPaths(Vector<Path2D> cutPaths) {
+        this.cutPaths = cutPaths;
     }
 }
