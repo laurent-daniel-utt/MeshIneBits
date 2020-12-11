@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -71,7 +72,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         addKeyListener(this);
         setupKeyBindings();
         setFocusable(true);
-
 
 
     }
@@ -127,7 +127,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
             meshController.undo();
         }
-        if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)){
+        if ((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
             meshController.redo();
         }
         onControl = e.isControlDown();
@@ -319,6 +319,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         } else {
             if (meshController.AIneedPaint) {//debugOnly
                 paintPathsAI(g2d);
+                drawStatsGraphics(g2d);
             }
             // Draw the border of layer
             if (meshController.showingSlice()) {
@@ -354,6 +355,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             paintPreviousLayer(g2d);
         }
     }
+
 
     private void paintBulkSelectZone(Graphics2D g2d) {
         g2d.setColor(WorkspaceConfig.bulkSelectZoneColor);
@@ -508,45 +510,94 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.setColor(colors[iColor]);
             drawModelPath2D(g2d, p.toPath2D());
             iColor++;
-        }*/
+        }
         Vector2 startPoint = meshController.ai_Tool.acquisition.startPoint;
         if (startPoint!=null)
             drawModelCircle(g2d, startPoint.x, startPoint.y, 5);
-        g2d.setColor(Color.GREEN);
-        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x,meshController.ai_Tool.dataPrep.A.y,10);
-        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.B.x,meshController.ai_Tool.dataPrep.B.y,10);
-        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.C.x,meshController.ai_Tool.dataPrep.C.y,10);
-        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.D.x,meshController.ai_Tool.dataPrep.D.y,10);
+            */
 
+/*
 
         g2d.setColor(Color.CYAN);
         //drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
 
         g2d.setColor(Color.RED);
         g2d.setStroke(new BasicStroke(5f));
-        Path2D path = new GeneralPath();
-        Segment2D seg = meshController.ai_Tool.dataPrep.currentSegToDraw;
-        Shape shape = new Line2D.Double(seg.start.x,seg.start.y,seg.end.x,seg.end.y);
-        path.append(shape,false);
-        drawModelPath2D(g2d,path);
+*/
 
+
+        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x, meshController.ai_Tool.dataPrep.A.y, 10);
         meshController.ai_Tool.dataPrep.transformArea = realToView;
-        Area area = meshController.ai_Tool.dataPrep.area;
-        Bit2D bit = meshController.ai_Tool.dataPrep.bit;
-        //area.transform(bit.getTransfoMatrix());
-        area.transform(realToView);
-        g2d.fill(area);
-        g2d.draw(area);
+        //Area area = meshController.ai_Tool.genetic.currentEvolution.currentGeneration.solutions.get(0).bit.getArea();
+        try {
+            g2d.setColor(Color.RED);
+            Vector2 startPoint = meshController.ai_Tool.acquisition.startPoint;
+            drawModelCircle(g2d, startPoint.x, startPoint.y, 10);
 
-        g2d.setColor(Color.BLUE);
-        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsADessiner) {
-            drawModelCircle(g2d, vector2.x, vector2.y, 4);
+
+            Bit2D bit = meshController.ai_Tool.dataPrep.bit;
+            Area area = bit.getArea();//là je dessine l'aire du bit à l'écran pour vérifier ce que renvoie ton getBit()
+            area.transform(realToView);
+            g2d.setColor(Color.ORANGE);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            //g2d.draw(area);
+
+            g2d.setColor(Color.MAGENTA);
+            drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x, meshController.ai_Tool.dataPrep.A.y, 10);
+            //drawModelCircle(g2d, meshController.ai_Tool.dataPrep.B.x, meshController.ai_Tool.dataPrep.B.y, 10);
+            //drawModelCircle(g2d, meshController.ai_Tool.dataPrep.C.x, meshController.ai_Tool.dataPrep.C.y, 10);
+            //drawModelCircle(g2d, meshController.ai_Tool.dataPrep.D.x, meshController.ai_Tool.dataPrep.D.y, 10);
+        } catch (Exception e) {
         }
 
+        g2d.setColor(Color.BLUE);
+        int radius = 4;
+        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsADessiner) {
+            drawModelCircle(g2d, vector2.x, vector2.y, radius);
+        }
+
+
+        g2d.setColor(Color.RED);
+        g2d.setStroke(new BasicStroke(5f));
+        drawModelPath2D(g2d, meshController.ai_Tool.dataPrep.cutPathToDraw);
+
+        g2d.setColor(Color.BLUE);
+        Path2D path = new GeneralPath();
+        Segment2D seg = meshController.ai_Tool.dataPrep.currentSegToDraw;
+        Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        path.append(shape, false);
+        drawModelPath2D(g2d, path);
+
+        g2d.setColor(Color.RED);
+        Path2D path2 = new GeneralPath();
+        Segment2D seg2 = meshController.ai_Tool.dataPrep.currentSegToDraw2;
+        Shape shape2 = new Line2D.Double(seg2.start.x, seg2.start.y, seg2.end.x, seg2.end.y);
+        path2.append(shape2, false);
+        drawModelPath2D(g2d, path2);
+/*
         g2d.setColor(Color.MAGENTA);
         for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsContenus) {
             drawModelCircle(g2d, vector2.x, vector2.y, 6);
+        }*/
+    }
+
+    private void drawStatsGraphics(Graphics2D g2d) {
+        //draw a frame
+        g2d.setStroke(new BasicStroke(10f));
+        g2d.setColor(Color.WHITE);
+        Rectangle2D frame = new Rectangle(-500, -300, 200, 200);
+        drawModelArea(g2d, new Area(frame));
+
+        //draw the stats curves
+        g2d.setColor(Color.ORANGE);
+
+        double[] scores = AI_Tool.dataPrep.scores;
+        for (int i = 0; i < scores.length - 1; i++) {
+            //if (scores[i]!=0.0)
+            drawModelCircle(g2d, i * 10 - 500, -scores[i] / 100 - 200, 1);
         }
+
     }
 
     private void paintBitControls(Bit3D bit, Graphics2D g2d) {

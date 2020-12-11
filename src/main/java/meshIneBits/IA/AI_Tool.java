@@ -1,7 +1,7 @@
 package meshIneBits.IA;
 
-import meshIneBits.IA.IA_util.DataSet;
 import meshIneBits.IA.IA_util.Tools;
+import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.Vector;
 
 public class AI_Tool {
-    private Tools tools;
-    private MeshController meshController;
-    private Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
-    public DataPreparation dataPrep;
-    public Acquisition acquisition;
-    public Training training;
-    public Exploitation exploitation;
-    public DataSet dataSet;
+    public static DataPreparation dataPrep;
+    public static Acquisition acquisition;
+    public static Training training;
+    public static Exploitation exploitation;
+    public static Genetic genetic;
+    private static Tools tools;
+    private static MeshController meshController;
+    private static Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
     /**
      * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
@@ -27,20 +27,20 @@ public class AI_Tool {
      * @param MC the instance of meshController currently running.
      */
     public AI_Tool(MeshController MC) {
-        this.meshController = MC;
-        this.acquisition = new Acquisition(this);
-        this.training = new Training(this);
-        this.exploitation = new Exploitation(this);
-        this.dataPrep = new DataPreparation(this);
-        this.tools = new Tools();
-        this.dataSet = new DataSet();
+        meshController = MC;
+        acquisition = new Acquisition();
+        training = new Training();
+        exploitation = new Exploitation();
+        dataPrep = new DataPreparation();
+        tools = new Tools();
     }
 
     /**
      * Pave the whole mesh with AI.
      */
-    public void startAI() { //started when pushing button on UI
+    public static void startAI() { //started when pushing button on UI
         //todo startAI doit permettre de paver entièrement un modèle
+
         Vector<Slice> slicesList = meshController.getMesh().getSlices();
         for (Slice currentSlice : slicesList) {
             sliceMap.put(
@@ -48,22 +48,22 @@ public class AI_Tool {
                     (Vector<Segment2D>) currentSlice.getSegmentList().clone()
             );
         }
-
         meshController.AIneedPaint = true; //debugOnly
-        //placeBitsOnSlices(sliceMap);
+
+        //placeBitsOnSlices(sliceMap); //todo remettre
     }
 
     /**
      * @return the meshController
      */
-    public MeshController getMeshController() {
+    public static MeshController getMeshController() {
         return meshController;
     }
 
     /**
      * @return the map of the slices, with Vector of Segment2D associated to each Slice
      */
-    public Map<Slice, Vector<Segment2D>> getSliceMap() {
+    public static Map<Slice, Vector<Segment2D>> getSliceMap() {
         return sliceMap;
     }
 }

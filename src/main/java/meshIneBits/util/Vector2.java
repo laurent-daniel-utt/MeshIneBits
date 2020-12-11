@@ -107,7 +107,7 @@ public class Vector2 implements Serializable {
     }
 
     /**
-     * Value between 0 - 180
+     * Value between 0 - 180 //todo actually the value returned is between -90 and 90, this has to be corrected
      *
      * @return The angle between Ox and vector.
      */

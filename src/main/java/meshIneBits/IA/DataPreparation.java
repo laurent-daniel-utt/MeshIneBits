@@ -13,9 +13,13 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.util.Map;
 import java.util.Vector;
 import java.util.stream.IntStream;
+
+import static meshIneBits.IA.genetics.Evolution.NB_GEN_MAX;
+import static meshIneBits.IA.genetics.Evolution.POP_SIZE;
 
 public class DataPreparation {
     public Vector2 A = new Vector2(0, 0); //debugOnly
@@ -26,17 +30,17 @@ public class DataPreparation {
 
     public Vector<Vector2> pointsContenus = new Vector<>(); //debugOnly
     public Vector<Vector2> pointsADessiner = new Vector<>();
+    public Path2D cutPathToDraw = new Path2D.Double();
 
     public Segment2D currentSegToDraw = new Segment2D(A, B); //debugOnly
+    public Segment2D currentSegToDraw2 = new Segment2D(A, B); //debugOnly
+
     public Polygon poly = new Polygon();
-    public Bit2D bit = new Bit2D(A, B);
+    public Bit2D bit = null;
 
-    public AI_Tool ai_tool;
     public Area area = new Area();
+    public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
 
-    public DataPreparation(AI_Tool ai_tool) {
-        this.ai_tool = ai_tool;
-    }
 
     /**
      * Renvoie les points de chaque contour d'une Slice.
@@ -55,6 +59,7 @@ public class DataPreparation {
         Vector<Segment2D> segment2DList = sliceMap.get(currentSlice);
         segment2DList = (Vector<Segment2D>) segment2DList.clone();
         Vector<Vector<Segment2D>> borderList = rearrangeSegments(segment2DList);
+
 
         for (Vector<Segment2D> border : borderList) {
             Vector<Vector2> unorderedPoints = computePoints(border);
@@ -133,7 +138,7 @@ public class DataPreparation {
         Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, points);
 
         //get an angle
-        double angle = getCoordinateSystemOrientation(mappedPoints);
+        double angle = getSectionOrientation(mappedPoints);
 
         //transform mapped points in local system
         Vector<Vector2> transformedMappedPoints = transformCoordinateSystem(mappedPoints, angle);
@@ -160,7 +165,7 @@ public class DataPreparation {
         return finalPoints;
     }
 
-    private Double getCoordinateSystemOrientation(Vector<Vector2> points) {
+    public Double getSectionOrientation(Vector<Vector2> points) {
 
         // prepare fitting
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degré
@@ -332,8 +337,8 @@ public class DataPreparation {
         area = new Area(rectangle.toPath2D());
         points = (Vector<Vector2>) points.clone();
         points = repopulateSection(points);
-        for (Vector2 point : points) {
-            pointsADessiner.add(point);
+        for (Vector2 point : points) {//debugOnly
+            // pointsADessiner.add(point);
         }
 
         //We are first looking for the first point (at index i) contained by the Area of the bit
@@ -356,7 +361,7 @@ public class DataPreparation {
         Vector2 intersectionPoint;
         Vector<Segment2D> sides = getBitSidesSegments(bit);
         this.currentSegToDraw = outGoingSegment; //debugOnly
-        pointsADessiner.clear();//debugOnly
+        //pointsADessiner.clear();//debugOnly
 
         for (Segment2D bitSides : sides) {
             intersectionPoint = bitSides.intersect(outGoingSegment); //null if parallel
@@ -364,7 +369,7 @@ public class DataPreparation {
             if (intersectionPoint != null) {
                 if (contains(bitSides, intersectionPoint)) {
                     if (contains(outGoingSegment, intersectionPoint)) {
-                        pointsADessiner.add(intersectionPoint); //debugOnly
+                        // pointsADessiner.add(intersectionPoint); //debugOnly
                         return intersectionPoint;
                     }
                 }
@@ -474,7 +479,7 @@ public class DataPreparation {
      * @param bit the Bit2D
      * @return a Vector of the four segments.
      */
-    private Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+    public Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
 
         Vector<Segment2D> sides = new Vector<>();
         //generates the 4 points which makes the rectangular bit
@@ -529,7 +534,7 @@ public class DataPreparation {
      * @param point the point we want to test
      * @return <code>true</code> if the segment contains the point. <code>false</code> otherwise
      */
-    private boolean contains(Segment2D seg, Vector2 point) {
+    public boolean contains(Segment2D seg, Vector2 point) {
         if (seg.start.x < seg.end.x) {
             if (seg.start.y < seg.end.y) {
                 if (seg.start.x <= point.x && point.x <= seg.end.x && seg.start.y <= point.y && point.y <= seg.end.y) {
@@ -566,8 +571,8 @@ public class DataPreparation {
     public Vector<Vector2> getBitAssociatedPoints(Bit2D bit) throws AI_Exception {
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(
-                ai_tool.getSliceMap(),
-                ai_tool.getMeshController().getCurrentLayer().getHorizontalSection());
+                AI_Tool.getSliceMap(),
+                AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
 
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
@@ -607,11 +612,11 @@ public class DataPreparation {
      * @param startPoint The startPoint of the bit.
      * @return the associated points.
      */
-    public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint) throws AI_Exception {
+    public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint) {
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(
-                ai_tool.getSliceMap(),
-                ai_tool.getMeshController().getCurrentLayer().getHorizontalSection());
+                AI_Tool.getSliceMap(),
+                AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
 
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
@@ -634,7 +639,6 @@ public class DataPreparation {
                 break;
             }
         }
-
 
         //Checks for each point if it is in the radius of the bit from the start point
         Vector<Vector2> associatedPoints = new Vector<>();
@@ -663,7 +667,7 @@ public class DataPreparation {
         points = (Vector<Vector2>) points.clone();
         points = repopulateSection(points);
         for (Vector2 point : points) {
-            pointsADessiner.add(point);
+            // pointsADessiner.add(point);
         }
 
         //We are first looking for the first point (at index i) contained by the Area of the bit
@@ -680,7 +684,7 @@ public class DataPreparation {
         Vector2 intersectionPoint;
         Vector<Segment2D> sides = getBitSidesSegments(bit);
         this.currentSegToDraw = outGoingSegment; //debugOnly
-        pointsADessiner.clear();//debugOnly
+        // pointsADessiner.clear();//debugOnly
 
         for (Segment2D bitSides : sides) {
             intersectionPoint = bitSides.intersect(outGoingSegment); //null if parallel
@@ -688,7 +692,7 @@ public class DataPreparation {
             if (intersectionPoint != null) {
                 if (contains(bitSides, intersectionPoint)) {
                     if (contains(outGoingSegment, intersectionPoint)) {
-                        pointsADessiner.add(intersectionPoint); //debugOnly
+                        //  pointsADessiner.add(intersectionPoint); //debugOnly
                         return intersectionPoint;
                     }
                 }
@@ -696,4 +700,6 @@ public class DataPreparation {
         }
         throw new AI_Exception("The bit start point has not been found.");
     }
+
+
 }
