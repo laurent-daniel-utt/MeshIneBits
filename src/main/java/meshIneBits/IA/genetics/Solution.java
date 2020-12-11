@@ -97,7 +97,7 @@ public class Solution {
 
         this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
         System.out.println("Adding penalty for covered length");
-        //this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());//todo deboguer et remettre
+        this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());//todo deboguer et remettre
         System.out.println("penalties added");
         return this.score;
     }
@@ -184,9 +184,14 @@ public class Solution {
     public void mutate() { //todo @all tester
         if (Math.random() < 0.5) { // mutate bitPos
             bitPos += (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH;
+            if (bitPos<0)
+                bitPos = 0;
+            else if(bitPos > CraftConfig.bitWidth)
+                bitPos = CraftConfig.bitWidth;
         } else { // mutate bitAngle
             bitAngle = new Vector2(bitAngle.x + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH,
-                    bitAngle.y + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH);
+                                    bitAngle.y + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH)
+                                    .normal();
         }
     }
 
@@ -201,6 +206,7 @@ public class Solution {
         boolean bad = false;
 
         if (getNumberOfIntersections(sectionPoints) > 1) {//todo @Andre, je crois que toutes les solutions sont dégagées XD
+            //System.out.println("number of intersections = " + getNumberOfIntersections(sectionPoints));
             //bad = true;
         }
 
@@ -341,8 +347,9 @@ public class Solution {
             i_segment++; //j'ai ajouté ca aussi
         }
 
-        this.score -= LENGTH_PENALTY_STRENGTH * this.score
-                * (Vector2.dist(sectionPoints.firstElement(), firstIntersectionPoint) / CraftConfig.bitLength);
+        double distanceCovered = Vector2.dist(sectionPoints.firstElement(), firstIntersectionPoint);
+
+        this.score -= LENGTH_PENALTY_STRENGTH * this.score * distanceCovered / CraftConfig.bitLength;
     }
 
     public String toString() {
