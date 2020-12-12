@@ -5,6 +5,7 @@ import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,6 +51,14 @@ public class AI_Tool {
         }
         meshController.AIneedPaint = true; //debugOnly
 
+        Slice sliceToTest = AI_Tool.getMeshController().getMesh().getSlices().get(0);
+        Vector<Vector2> associatedPoints = new Vector<>();
+
+        Vector<Vector<Vector2>> boundsToCheckAssociated = AI_Tool.dataPrep.getBoundsAndRearrange(sliceToTest); //debugonly on fait ici que la premiere slice
+        Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);
+        for (Vector2 point : bound1) {
+            AI_Tool.dataPrep.pointsADessiner.add(point);
+        }
         //placeBitsOnSlices(sliceMap); //todo remettre
     }
 

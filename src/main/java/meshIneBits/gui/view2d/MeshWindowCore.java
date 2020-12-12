@@ -530,20 +530,20 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         meshController.ai_Tool.dataPrep.transformArea = realToView;
         //Area area = meshController.ai_Tool.genetic.currentEvolution.currentGeneration.solutions.get(0).bit.getArea();
         try {
+            Bit2D bit = AI_Tool.dataPrep.bit;
+            Area area = bit.getArea();//là je dessine l'aire du bit à l'écran pour vérifier ce que renvoie ton getBit()
+            area.transform(realToView);
+            g2d.setColor(Color.ORANGE);
+            //g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+
             g2d.setColor(Color.RED);
             Vector2 startPoint = meshController.ai_Tool.acquisition.startPoint;
             drawModelCircle(g2d, startPoint.x, startPoint.y, 10);
 
 
-            Bit2D bit = meshController.ai_Tool.dataPrep.bit;
-            Area area = bit.getArea();//là je dessine l'aire du bit à l'écran pour vérifier ce que renvoie ton getBit()
-            area.transform(realToView);
-            g2d.setColor(Color.ORANGE);
-            g2d.fill(area);
-            g2d.setColor(Color.DARK_GRAY);
-            //g2d.draw(area);
-
-            g2d.setColor(Color.MAGENTA);
+            g2d.setColor(Color.CYAN);
             drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x, meshController.ai_Tool.dataPrep.A.y, 10);
             //drawModelCircle(g2d, meshController.ai_Tool.dataPrep.B.x, meshController.ai_Tool.dataPrep.B.y, 10);
             //drawModelCircle(g2d, meshController.ai_Tool.dataPrep.C.x, meshController.ai_Tool.dataPrep.C.y, 10);
@@ -551,10 +551,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         } catch (Exception e) {
         }
 
+
         g2d.setColor(Color.BLUE);
         int radius = 4;
-        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsADessiner) {
+        for (Vector2 vector2 : AI_Tool.dataPrep.pointsADessiner) {
             drawModelCircle(g2d, vector2.x, vector2.y, radius);
+            radius++;
         }
 
 
@@ -562,24 +564,26 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         g2d.setStroke(new BasicStroke(5f));
         drawModelPath2D(g2d, meshController.ai_Tool.dataPrep.cutPathToDraw);
 
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(Color.CYAN);
         Path2D path = new GeneralPath();
         Segment2D seg = meshController.ai_Tool.dataPrep.currentSegToDraw;
         Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
         path.append(shape, false);
         drawModelPath2D(g2d, path);
 
-        g2d.setColor(Color.RED);
+        g2d.setColor(Color.CYAN);
         Path2D path2 = new GeneralPath();
-        Segment2D seg2 = meshController.ai_Tool.dataPrep.currentSegToDraw2;
+        Segment2D seg2 = AI_Tool.dataPrep.currentSegToDraw2;
         Shape shape2 = new Line2D.Double(seg2.start.x, seg2.start.y, seg2.end.x, seg2.end.y);
         path2.append(shape2, false);
         drawModelPath2D(g2d, path2);
-/*
+
         g2d.setColor(Color.MAGENTA);
-        for (Vector2 vector2 : meshController.ai_Tool.dataPrep.pointsContenus) {
-            drawModelCircle(g2d, vector2.x, vector2.y, 6);
-        }*/
+        radius = 4;
+        for (Vector2 vector2 : AI_Tool.dataPrep.pointsContenus) {
+            drawModelCircle(g2d, vector2.x, vector2.y, radius);
+            radius += 2;
+        }
     }
 
     private void drawStatsGraphics(Graphics2D g2d) {

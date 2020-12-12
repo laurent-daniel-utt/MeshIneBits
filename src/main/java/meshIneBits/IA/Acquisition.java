@@ -4,7 +4,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
-import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -55,7 +54,7 @@ public class Acquisition {
         for (Segment2D seg : segment2DVector) {
             pointList.add(new Vector2(seg.end.x, seg.end.y));
         }
-        pointList = AI_Tool.dataPrep.getBoundsAndRearrange(AI_Tool.getSliceMap(), AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+        pointList = AI_Tool.dataPrep.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
         //todo modifier : ici on fait que du .get(0)
 
         startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bit, pointList);

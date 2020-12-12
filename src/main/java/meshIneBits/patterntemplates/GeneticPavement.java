@@ -2,11 +2,9 @@ package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.genetics.Genetic;
-import meshIneBits.IA.genetics.Solution;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
 import java.util.Vector;
@@ -26,20 +24,14 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber() == 0) {
-            Area areaToPave = AreaTool.getAreaFrom(layer.getHorizontalSection());//do smthg with?
-            Genetic genetic = new Genetic();
-            bits = genetic.getSolutions();
-            System.out.println("LES SOLUTIONS :");
-            for (Bit2D bit : bits) {
-                System.out.println(bit.toString());
-            }
+        if (layer.getLayerNumber() < 1) {
+            bits = new Genetic(layer).getSolutions();
         }
         return new Pavement(bits);
     }
 
     @Override
-    public Pavement pave(Layer layer, Area area) {
+    public Pavement pave(Layer layer, Area area) { //todo @Etienne@Andre il sert à quoi lui?
         System.out.println("pave layer & area");
        /* Vector<Bit2D> bits = new Vector<>();
         if (layer.getLayerNumber()==0) {

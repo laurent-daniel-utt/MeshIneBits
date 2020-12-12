@@ -16,6 +16,7 @@ import java.util.Vector;
 
 public class Solution {
 
+    private final Vector<Vector2> bound;
     public double bitPos;
     public Vector2 bitAngle;
     public double score = 0;
@@ -24,18 +25,18 @@ public class Solution {
     private Generation generation;
 
     private double MUTATION_MAX_STRENGTH = 0.1;
-    private double ANGLE_PENALTY_STRENGTH = 0.3; // between 0 to 1 (max)
+    private double ANGLE_PENALTY_STRENGTH = 0.5; // between 0 to 1 (max)
     private double LENGTH_PENALTY_STRENGTH = 0.3; // between 0 to 1 (max)
 
     /**
      * A Solution is a Bit2D with position and rotations parameters in a local coordinate system.
      */
-    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation) {
+    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound) {
         this.bitPos = pos;
         this.bitAngle = bitAngle;
         this.startPoint = startPoint;
-        //System.out.println("new solution : "+bitPos +" "+bitAngle);
         this.generation = generation;
+        this.bound = bound;
     }
     
 
@@ -92,14 +93,14 @@ public class Solution {
 
 */
 
-        System.out.println("computing area");
+        //   System.out.println("computing area");
         this.score = computeArea(); //the used area
-        System.out.println("area computed. Adding penalty for angle...");
+        // System.out.println("area computed. Adding penalty for angle...");
 
         this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
-        System.out.println("Adding penalty for covered length");
+        //  System.out.println("Adding penalty for covered length");
         this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());//todo deboguer et remettre
-        System.out.println("penalties added");
+        // System.out.println("penalties added");
         return this.score;
     }
 
@@ -129,7 +130,6 @@ public class Solution {
                 bit.updateBoundaries(availableBitArea);
                 bit.calcCutPath();
 
-                System.out.println("BIT " + bit.toString());
                 //AI_Tool.dataPrep.bit = bit.clone();//debugOnly, et virer tous les ai_tool
 
 
@@ -162,7 +162,8 @@ public class Solution {
                     iter.currentSegment(segment);
                     Xpoints.add(segment[0]);
                     Ypoints.add(segment[1]);
-                    //System.out.println(segment[0] + " " + segment[1]); //todo pourquoi le dernier point c'est 0,0?? l'enlever
+                    //System.out.println(segment[0] + " " + segment[1]);
+                    // todo pourquoi le dernier point c'est 0,0?? l'enlever
                     npoints++;
                     iter.next();
                 }
@@ -174,7 +175,7 @@ public class Solution {
                 return Math.abs(area / 2);
             }
         } catch (Exception e) {
-            System.out.println(e.getCause());
+            System.out.println("PROBLEME SOLUTION.COMPUTE_AREA...");
         }
         return -1;
     }
@@ -185,14 +186,14 @@ public class Solution {
     public void mutate() { //todo @all tester
         if (Math.random() < 0.5) { // mutate bitPos
             bitPos += (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH;
-            if (bitPos<0)
+            if (bitPos < 0)
                 bitPos = 0;
-            else if(bitPos > CraftConfig.bitWidth)
+            else if (bitPos > CraftConfig.bitWidth)
                 bitPos = CraftConfig.bitWidth;
         } else { // mutate bitAngle
             bitAngle = new Vector2(bitAngle.x + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH,
-                                    bitAngle.y + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH)
-                                    .normal();
+                    bitAngle.y + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH)
+                    .normal();
         }
     }
 
@@ -205,16 +206,14 @@ public class Solution {
     public void deleteIfBad(Vector<Vector2> sectionPoints) {
 
         boolean bad = false;
-
         if (getNumberOfIntersections(sectionPoints) > 1) {//todo @Andre, je crois que toutes les solutions sont dégagées XD
-            //System.out.println("number of intersections = " + getNumberOfIntersections(sectionPoints));
-            //bad = true;
+            bad = true;
+        }
+        if (AI_Tool.dataPrep.getNextBitStartPoint(getBit(startPoint), bound) == null) {
+            bad = true;
         }
 
-        if (bad) {
-            generation.solutions.remove(this); //todo vérifier que ca marche
-            System.out.println("deleted");
-        }
+        if (bad) generation.solutions.remove(this);
     }
 
     /**
@@ -261,7 +260,7 @@ public class Solution {
      * @return the related Bit
      */
     private Bit2D getBit(Vector2 startPoint) {
-        AI_Tool.acquisition.startPoint = startPoint;//debugOnly
+        //AI_Tool.acquisition.startPoint = startPoint;//debugOnly
 
         //bitAngle = new Vector2(1,0);//debugONLY
         //bitPos = 0;
@@ -282,7 +281,6 @@ public class Solution {
         Bit2D bit2D = getBit(startPoint);
 
         double angleBit = Math.abs(bit2D.getOrientation().getEquivalentAngle2());
-
         double angleSection = AI_Tool.dataPrep.getSectionOrientation(sectionPoints) * (180 / Math.PI);
 
         // recenter points so the first point of the section is on the Oy axis.
@@ -290,11 +288,11 @@ public class Solution {
         Vector<Vector2> oYRecenteredPoints = new Vector();
         for (int i = 0; i < sectionPoints.size(); i++) {
             oYRecenteredPoints.add(new Vector2(
-                    sectionPoints.get(i).x - sectionPoints.firstElement().x,
+                    sectionPoints.get(i).x - sectionPoints.get(0).x,
                     sectionPoints.get(i).y));
         }
-        if (!AI_Tool.dataPrep.arePointsMostlyToTheRight(sectionPoints)) {
-            angleSection = Math.sin(angleSection) * (-180 + angleSection);
+        if (!AI_Tool.dataPrep.arePointsMostlyToTheRight(oYRecenteredPoints)) {
+            angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
 
         // now angleBit and angleSection are expressed as values between -180 and 180, so we can compute the difference.
@@ -319,38 +317,37 @@ public class Solution {
         }
 
         Vector<Segment2D> sides = AI_Tool.dataPrep.getBitSidesSegments(bit2D);
-
-        boolean firstIntersectionFound = false;
+        AI_Tool.dataPrep.bit = bit2D;
         Vector2 firstIntersectionPoint = null;
+        double coveredDistance = -1;
 
         int i_segment = 0;
-        while (i_segment < sectionSegments.size() && !firstIntersectionFound) {
+        while (i_segment < sectionSegments.size() && firstIntersectionPoint == null) {
 
-            int i_bitSide = 0;
-            while (i_bitSide < 4 && !firstIntersectionFound) {
+            for (int i_bitSide = 0; i_bitSide < 4; i_bitSide++) {
                 Vector2 intersectionPoint = sides.get(i_bitSide).intersect(sectionSegments.get(i_segment)); //null if parallel
+
                 if (intersectionPoint != null) {
                     if (AI_Tool.dataPrep.contains(sides.get(i_bitSide), intersectionPoint)) {
-                        System.out.println("sides contains");
                         if (AI_Tool.dataPrep.contains(sectionSegments.get(i_segment), intersectionPoint)) {
-                            System.out.println("section contains");
-                            firstIntersectionFound = true;
-                            firstIntersectionPoint = intersectionPoint;
+                            coveredDistance = Vector2.dist(startPoint, intersectionPoint);
+                            if (coveredDistance != 0.0) {
+                                firstIntersectionPoint = intersectionPoint;
+                                break;
+                            }
                         }
                     }
                 }
-                AI_Tool.dataPrep.A = intersectionPoint;
-                AI_Tool.dataPrep.currentSegToDraw = sides.get(i_bitSide);
-                AI_Tool.dataPrep.currentSegToDraw2 = sectionSegments.get(i_segment);
-
-                i_bitSide++;
             }
-            i_segment++; //j'ai ajouté ca aussi
+            i_segment++;
+        }
+        if (firstIntersectionPoint == null) { //arbitrary val
+            generation.solutions.remove(this);
+            return;
         }
 
-        double distanceCovered = Vector2.dist(sectionPoints.firstElement(), firstIntersectionPoint);
-
-        this.score -= LENGTH_PENALTY_STRENGTH * this.score * distanceCovered / CraftConfig.bitLength;
+        AI_Tool.dataPrep.currentSegToDraw = new Segment2D(startPoint, firstIntersectionPoint);
+        this.score -= LENGTH_PENALTY_STRENGTH * this.score * coveredDistance / CraftConfig.bitLength;
     }
 
     public String toString() {
@@ -358,7 +355,7 @@ public class Solution {
     }
 
     public Solution clone() {
-        return new Solution(this.bitPos, this.bitAngle, this.startPoint, this.generation);
+        return new Solution(this.bitPos, this.bitAngle, this.startPoint, this.generation, bound);
     }
 }
 
