@@ -7,8 +7,8 @@ import meshIneBits.util.Vector2;
 import java.util.Vector;
 
 public class Evolution {
-    public static final int NB_GEN_MAX = 10;
-    public static final int POP_SIZE = 100;
+    public static final int NB_GEN_MAX = 1;
+    public static final int POP_SIZE = 10;
     private static final double PROB_MUTATION = 0.1;
     private static final double RANK_SELECTION = 0.2;
     private static final double RANK_REPRODUCTION = 0.6;
@@ -85,11 +85,11 @@ public class Evolution {
             for (Solution solution : clonedSolutions) {
                 solution.deleteIfBad((Vector<Vector2>) pointSection.clone());
             }
-            //System.out.println("gen" + currentGenerationNumber + " evaluated");
+            System.out.println("gen" + currentGenerationNumber + " evaluated");
 
-            //System.out.println("mean score : " + currentGeneration.meanScore);
+            System.out.println("mean score : " + currentGeneration.meanScore);
             //System.out.println("max score  : " + currentGeneration.maxScore+"  "+currentGeneration.bestSolution.toString());
-            //System.out.println("population : " + currentGeneration.solutions.size() + " individus");
+            System.out.println("population : " + currentGeneration.solutions.size() + " individus");
 
             //   solutionsToCompleteWith = currentGeneration.completeWithNewSolutions((Vector<Vector2>) pointSection.clone());
             //   currentGeneration.solutions.addAll(solutionsToCompleteWith);
@@ -97,7 +97,6 @@ public class Evolution {
             scores[currentGenerationNumber] = currentGeneration.maxScore;
             AI_Tool.dataPrep.scores[currentGenerationNumber] = currentGeneration.maxScore;
             bestSolution = currentGeneration.bestSolution;
-
         }
 
         //DEBUGONLY
@@ -107,6 +106,7 @@ public class Evolution {
                 generations.get(currentGenerationNumber).solutions.remove(solution);
             }
         }
+        generations.get(currentGenerationNumber).evaluateGeneration(pointSection);
         bestSolution = generations.get(currentGenerationNumber).solutions.get(0);//devrait prendre la meilleure non supprimée
 
     }

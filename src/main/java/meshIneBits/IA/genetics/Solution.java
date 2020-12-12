@@ -24,9 +24,9 @@ public class Solution {
     public Vector2 startPoint;
     private Generation generation;
 
-    private double MUTATION_MAX_STRENGTH = 0.1;
-    private double ANGLE_PENALTY_STRENGTH = 0.5; // between 0 to 1 (max)
-    private double LENGTH_PENALTY_STRENGTH = 0.3; // between 0 to 1 (max)
+    private double MUTATION_MAX_STRENGTH = 0.2;
+    private double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
 
     /**
      * A Solution is a Bit2D with position and rotations parameters in a local coordinate system.
@@ -38,7 +38,6 @@ public class Solution {
         this.generation = generation;
         this.bound = bound;
     }
-    
 
 
     /**
@@ -47,60 +46,9 @@ public class Solution {
      * @return the score of the current solution.
      */
     public double evaluate(Vector<Vector2> pointSection) {
-        /*Vector<Double> Xpoints = new Vector<>();
-        Vector<Double> Ypoints = new Vector<>();
-
-        // We all calculate in coordinate
-        // Reset cut paths
-        int npoints=0;
-        this.cutPaths = new Vector<>();
-        Vector<Vector2> polygon = pointSection;
-        // Define 4 corners
-        Bit2D bit = getBit(startPoint);
-
-
-        // Check cut path
-        // If and edge lives on sides of the bit
-        // We remove it
-        for (int i=0;i<polygon.size()-1;i++) {
-            Segment2D currentSeg = new Segment2D(polygon.get(i),polygon.get(i+1));
-            if (sideTop.contains(currentSeg) || sideRight.contains(currentSeg)
-                    || sideBottom.contains(currentSeg) || sideLeft.contains(currentSeg)) {
-                polygon.remove(currentSeg);
-            }
-        }
-        // After filter out the edges on sides
-        // We form cut paths from these polygons
-        Path2D cutPath2D = new Path2D.Double();
-        cutPath2D.moveTo(polygon.get(0).x, polygon.get(0).y);
-        for (int i = 0; i < polygon.size()-2; i++) {
-            cutPath2D.lineTo( polygon.get(i+1).x, polygon.get(i+1).y);
-            npoints++;
-            Xpoints.add(polygon.get(i+1).x);
-            Ypoints.add(polygon.get(i+1).y);
-            // Some edges may have been deleted
-            // So we check beforehand to skip
-            if (i + 1 < polygon.size() && !polygon.contains(polygon.get(i+2))) {
-                // If the next edge has been removed
-                // We complete the path
-                this.cutPaths.add(cutPath2D);
-                // Then we create a new one
-                // And move to the start of the succeeding edge
-                cutPath2D = new Path2D.Double();
-                cutPath2D.moveTo(polygon.get(i + 1).x, polygon.get(i + 1).y);
-            }
-        }
-
-*/
-
-        //   System.out.println("computing area");
         this.score = computeArea(); //the used area
-        // System.out.println("area computed. Adding penalty for angle...");
-
         this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
-        //  System.out.println("Adding penalty for covered length");
         this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());//todo deboguer et remettre
-        // System.out.println("penalties added");
         return this.score;
     }
 
@@ -122,61 +70,61 @@ public class Solution {
         Area availableArea = AI_Tool.getMeshController().availableArea;
 
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null||
-        try {
-            if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) {
-                // Outside of border or irregular
-                //this.generation.solutions.remove(this); todo @Etienne remettre après debug
-            } else {
-                bit.updateBoundaries(availableBitArea);
-                bit.calcCutPath();
+        //try {
+        if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) {
+            // Outside of border or irregular
+            this.generation.solutions.remove(this); //todo @Etienne remettre après debug
+        } else {
+            bit.updateBoundaries(availableBitArea);
+            bit.calcCutPath();
 
-                //AI_Tool.dataPrep.bit = bit.clone();//debugOnly, et virer tous les ai_tool
+            //AI_Tool.dataPrep.bit = bit.clone();//debugOnly, et virer tous les ai_tool
 
 
-                Path2D finalCutPath = new Path2D.Double();
-                boolean isFirstPoint = true;
-                PathIterator pathIter = availableBitArea.getPathIterator(null);
-                while (!pathIter.isDone()) {
-                    final double[] segment = new double[6];
-                    pathIter.currentSegment(segment);
-                    if (isFirstPoint) {
-                        isFirstPoint = false;
-                        finalCutPath.moveTo(segment[0], segment[1]);
-                    } else {
-                        if (segment[0] != 0.0 && segment[1] != 0.0)
-                            finalCutPath.lineTo(segment[0], segment[1]);
-                    }
-                    pathIter.next();
+            Path2D finalCutPath = new Path2D.Double();
+            boolean isFirstPoint = true;
+            PathIterator pathIter = availableBitArea.getPathIterator(null);
+            while (!pathIter.isDone()) {
+                final double[] segment = new double[6];
+                pathIter.currentSegment(segment);
+                if (isFirstPoint) {
+                    isFirstPoint = false;
+                    finalCutPath.moveTo(segment[0], segment[1]);
+                } else {
+                    if (segment[0] != 0.0 && segment[1] != 0.0)
+                        finalCutPath.lineTo(segment[0], segment[1]);
                 }
-                finalCutPath.closePath();
-                AI_Tool.dataPrep.cutPathToDraw = (Path2D) finalCutPath.clone();
-
-
-                int npoints = 0;
-                Vector<Double> Xpoints = new Vector<>();
-                Vector<Double> Ypoints = new Vector<>();
-                double area = 0;
-                PathIterator iter = finalCutPath.getPathIterator(null);
-                while (!iter.isDone()) {
-                    double[] segment = new double[6];
-                    iter.currentSegment(segment);
-                    Xpoints.add(segment[0]);
-                    Ypoints.add(segment[1]);
-                    //System.out.println(segment[0] + " " + segment[1]);
-                    // todo pourquoi le dernier point c'est 0,0?? l'enlever
-                    npoints++;
-                    iter.next();
-                }
-
-                for (int i = 0; i < npoints; i++) {
-                    area += (Xpoints.get(i) * Ypoints.get((i + 1) % npoints)) - (Ypoints.get(i) * Xpoints.get((i + 1) % npoints));
-                }
-
-                return Math.abs(area / 2);
+                pathIter.next();
             }
-        } catch (Exception e) {
-            System.out.println("PROBLEME SOLUTION.COMPUTE_AREA...");
+            finalCutPath.closePath();
+            AI_Tool.dataPrep.cutPathToDraw = (Path2D) finalCutPath.clone();
+
+
+            int npoints = 0;
+            Vector<Double> Xpoints = new Vector<>();
+            Vector<Double> Ypoints = new Vector<>();
+            double area = 0;
+            PathIterator iter = finalCutPath.getPathIterator(null);
+            while (!iter.isDone()) {
+                double[] segment = new double[6];
+                iter.currentSegment(segment);
+                Xpoints.add(segment[0]);
+                Ypoints.add(segment[1]);
+                //System.out.println(segment[0] + " " + segment[1]);
+                // todo pourquoi le dernier point c'est 0,0?? l'enlever
+                npoints++;
+                iter.next();
+            }
+
+            for (int i = 0; i < npoints; i++) {
+                area += (Xpoints.get(i) * Ypoints.get((i + 1) % npoints)) - (Ypoints.get(i) * Xpoints.get((i + 1) % npoints));
+            }
+
+            return Math.abs(area / 2);
         }
+        //  } catch (Exception e) {
+        //      System.out.println("PROBLEME SOLUTION.COMPUTE_AREA...");
+        //  }
         return -1;
     }
 
@@ -299,7 +247,6 @@ public class Solution {
         double difference = Math.abs(angleSection - angleBit);
 
         // finally we add the angle penalty to the score
-
         this.score -= ANGLE_PENALTY_STRENGTH * this.score * (difference / 180);
     }
 
@@ -317,7 +264,6 @@ public class Solution {
         }
 
         Vector<Segment2D> sides = AI_Tool.dataPrep.getBitSidesSegments(bit2D);
-        AI_Tool.dataPrep.bit = bit2D;
         Vector2 firstIntersectionPoint = null;
         double coveredDistance = -1;
 
@@ -341,12 +287,11 @@ public class Solution {
             }
             i_segment++;
         }
-        if (firstIntersectionPoint == null) { //arbitrary val
+        if (firstIntersectionPoint == null) {
             generation.solutions.remove(this);
             return;
         }
 
-        AI_Tool.dataPrep.currentSegToDraw = new Segment2D(startPoint, firstIntersectionPoint);
         this.score -= LENGTH_PENALTY_STRENGTH * this.score * coveredDistance / CraftConfig.bitLength;
     }
 

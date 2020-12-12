@@ -53,7 +53,7 @@ public class Genetic {
         int nbIters = 0;
         while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) {
             nbIters++;
-            if (nbIters > 40)//nombre max d'iters avant de stopper
+            if (nbIters > 20)//nombre max d'iters avant de stopper
                 break;
             System.out.println(nbIters);
             currentEvolution = new Evolution((Vector<Vector2>) associatedPoints.clone(), startPoint, (Vector<Vector2>) bound1.clone());
@@ -70,26 +70,8 @@ public class Genetic {
                 }
             }
             //System.out.println("on a le startPoint : "+startPoint);
-            associatedPoints.clear();
+            //associatedPoints.clear();
             associatedPoints = AI_Tool.dataPrep.getBitAssociatedPoints(startPoint, (Vector<Vector2>) bound1.clone());
-            //associatedPoints = getAssociatedPoints(bound1,startPoint);
-            /*AI_Tool.dataPrep.A = startPoint;
-            isAfterStartPoint = false;
-            bound = (Vector<Vector2>) bound1.clone();
-            for (int j = 1; j < bound.size(); j++) {
-                Vector2 point = bound.get(j);
-                if (Vector2.dist(startPoint, point) <= CraftConfig.bitLength) {
-                    AI_Tool.dataPrep.pointsContenus.add(point);//debugonly
-                }
-                if (new Segment2D(point,bound.get(j-1)).contains(startPoint.x,startPoint.y) || point.asGoodAsEqual(startPoint))
-                    isAfterStartPoint = true;
-                if (isAfterStartPoint && Vector2.dist(startPoint, point) <= CraftConfig.bitLength) {
-                    System.out.println("on y est");
-                    associatedPoints.add(point);
-                }
-            }
-
-             */
         }
     }
 

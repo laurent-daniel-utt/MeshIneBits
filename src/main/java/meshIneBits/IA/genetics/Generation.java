@@ -29,7 +29,6 @@ public class Generation {
      * @param nbGensMax        the maximum number of generations.
      * @param rankSelection    the percentage of selected solutions from the previous generation to make the new one.
      * @param rankReproduction the percentage of reproduced solutions from the previous generation to make the new one.
-     * @param rankNew          the percentage of new solutions to make the new generation.
      * @param probMutation     the probability for a solution to mutate by itself at each generation.
      * @param bound
      */
@@ -68,6 +67,7 @@ public class Generation {
     private Solution createNewSolution(Vector<Vector2> pointSection) {
         //todo l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
         double position = Math.random() * CraftConfig.bitWidth;
+        position = 0;
         double angleSection = AI_Tool.dataPrep.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone()) * (180 / Math.PI);
         AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
