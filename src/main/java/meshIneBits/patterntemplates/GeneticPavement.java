@@ -2,6 +2,7 @@ package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.genetics.Genetic;
+import meshIneBits.IA.genetics.Solution;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;

@@ -10,39 +10,39 @@ import java.util.Collections;
 import java.util.Vector;
 import java.util.stream.Stream;
 
-public class DataSet {
-    private final static String datasetFilePath = "storedBits.txt";
+public final class DataLog {
+    private final static String dataLogFilePath = "storedBits.txt";
 
     static public long getNumberOfEntries() throws IOException {
-        return Files.lines(Paths.get(datasetFilePath)).count();
+        return Files.lines(Paths.get(dataLogFilePath)).count();
     }
 
 
-    static public void saveEntry(DataSetEntry dataSetEntry) throws IOException {
-        String line = dataSetEntry.getBitPosition().x + ","
-                + dataSetEntry.getBitPosition().y + ","
-                + dataSetEntry.getBitOrientation().x + ","
-                + dataSetEntry.getBitOrientation().y;
+    static public void saveEntry(DataLogEntry dataLogEntry) throws IOException {
+        String line = dataLogEntry.getBitPosition().x + ","
+                + dataLogEntry.getBitPosition().y + ","
+                + dataLogEntry.getBitOrientation().x + ","
+                + dataLogEntry.getBitOrientation().y;
 
-        for (Vector2 point : dataSetEntry.getPoints()) {
+        for (Vector2 point : dataLogEntry.getPoints()) {
             line += "," + point.x + ";" + point.y;
         }
-        FileWriter fw = new FileWriter(datasetFilePath, true);
+        FileWriter fw = new FileWriter(dataLogFilePath, true);
         fw.write(line + "\n");
         fw.close();
     }
 
 
-    static public void saveAllEntries(Vector<DataSetEntry> dataSetEntries) throws IOException {
-        for (DataSetEntry dataSetEntry : dataSetEntries) {
-            saveEntry(dataSetEntry);
+    static public void saveAllEntries(Vector<DataLogEntry> dataSetEntries) throws IOException {
+        for (DataLogEntry dataLogEntry : dataSetEntries) {
+            saveEntry(dataLogEntry);
         }
     }
 
 
-    static public DataSetEntry getEntryFromFile(long lineNumber) {
+    static public DataLogEntry getEntryFromFile(long lineNumber) {
         String line;
-        try (Stream<String> lines = Files.lines(Paths.get(datasetFilePath))) {
+        try (Stream<String> lines = Files.lines(Paths.get(dataLogFilePath))) {
             line = lines.skip(lineNumber - 1).findFirst().get();
         } catch (IOException e) {
             System.out.println(e);
@@ -52,18 +52,18 @@ public class DataSet {
     }
 
 
-    static public Vector<DataSetEntry> getAllEntriesFromFile() {
+    static public Vector<DataLogEntry> getAllEntriesFromFile() {
 
         Vector<String> lines = new Vector<>();
 
         try {
-            lines.addAll(Files.readAllLines(Paths.get(datasetFilePath)));
+            lines.addAll(Files.readAllLines(Paths.get(dataLogFilePath)));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
 
-        Vector<DataSetEntry> dataSetEntries = new Vector<>();
+        Vector<DataLogEntry> dataSetEntries = new Vector<>();
         for (String line : lines) {
             dataSetEntries.add(decodeLine(line));
         }
@@ -72,7 +72,7 @@ public class DataSet {
     }
 
 
-    static private DataSetEntry decodeLine(String line) {
+    static private DataLogEntry decodeLine(String line) {
 
         String[] dataStr = line.split(",");
         Vector<String> data = new Vector<>();
@@ -94,7 +94,7 @@ public class DataSet {
                     Double.parseDouble(pointStrSplit[1])));
         }
 
-        return new DataSetEntry(bitPos, bitOrientation, points);
+        return new DataLogEntry(bitPos, bitOrientation, points);
     }
 
 }

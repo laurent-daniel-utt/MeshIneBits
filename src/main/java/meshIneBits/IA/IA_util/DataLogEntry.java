@@ -5,20 +5,20 @@ import meshIneBits.util.Vector2;
 
 import java.util.Vector;
 
-public class DataSetEntry {
+public class DataLogEntry {
     private Vector2 bitPosition;
     private Vector2 bitOrientation;
     private Vector<Vector2> points;
 
 
-    public DataSetEntry(Vector2 bitPosition, Vector2 bitOrientation, Vector<Vector2> points) {
+    public DataLogEntry(Vector2 bitPosition, Vector2 bitOrientation, Vector<Vector2> points) {
         this.bitPosition = bitPosition;
         this.bitOrientation = bitOrientation;
         this.points = points;
 
     }
 
-    public DataSetEntry(Bit2D bit2D, Vector<Vector2> points) {
+    public DataLogEntry(Bit2D bit2D, Vector<Vector2> points) {
         this.bitPosition = bit2D.getOrigin();
         this.bitOrientation = bit2D.getOrientation();
         this.points = points;
@@ -38,7 +38,7 @@ public class DataSetEntry {
 
     @Override
     public String toString() {
-        return "DataSetEntry{" +
+        return "DataLogEntry{" +
                 "bitPosition=" + bitPosition.toString() +
                 ", bitOrientation=" + bitOrientation.toString() +
                 ", points=" + points +

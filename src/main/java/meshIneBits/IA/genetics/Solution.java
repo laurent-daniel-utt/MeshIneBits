@@ -37,6 +37,7 @@ public class Solution {
         //System.out.println("new solution : "+bitPos +" "+bitAngle);
         this.generation = generation;
     }
+    
 
 
     /**

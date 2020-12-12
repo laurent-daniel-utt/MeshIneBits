@@ -1,6 +1,8 @@
 package meshIneBits.IA.genetics;
 
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.util.*;
@@ -68,6 +70,9 @@ public class Generation {
         ).normal();
         return new Solution(position, rotation, startPoint, this);
     }
+
+
+
 
     /**
      * Create a new solution from parameters.

@@ -569,6 +569,7 @@ public class DataPreparation {
      * @return the associated points.
      */
     public Vector<Vector2> getBitAssociatedPoints(Bit2D bit) throws AI_Exception {
+
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(
                 AI_Tool.getSliceMap(),
@@ -598,7 +599,6 @@ public class DataPreparation {
             }
         }
 
-
         //Checks for each point if it is in the radius of the bit from the start point
         Vector2 startPoint = getBitStartPoint(bit, boundToCheck);
         return getBitAssociatedPoints(startPoint);
@@ -613,10 +613,14 @@ public class DataPreparation {
      * @return the associated points.
      */
     public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint) {
+
+
+
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(
                 AI_Tool.getSliceMap(),
                 AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+
 
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
@@ -640,12 +644,26 @@ public class DataPreparation {
             }
         }
 
-        //Checks for each point if it is in the radius of the bit from the start point
         Vector<Vector2> associatedPoints = new Vector<>();
+
+        // 1) add the first point (intersection between slice's contour and bit's sides)
+        associatedPoints.add(startPoint);
+
+        // 2) add interior points
+        //Checks for each point if it is in the radius of the bit from the start point
         for (Vector2 point : pointsToCheckAssociated) {
             if (getDistance(startPoint, point) <= CraftConfig.bitLength)//todo prendre en compte les quarts/demis bits
                 associatedPoints.add(point);
         }
+
+        // 3) add final point (intersection between slice's contour and bit's sides)
+        //todo : améliorer gestion erreur, + le fait qu'on ne regarde que sur le 1er contour
+        try {
+            associatedPoints.add(getNextBitStartPoint(bit, boundsList.get(0)));
+        } catch (AI_Exception e) {
+            e.printStackTrace();
+        }
+
         this.pointsContenus = associatedPoints;
         return associatedPoints;
     }
