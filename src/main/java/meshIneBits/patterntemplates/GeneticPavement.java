@@ -24,7 +24,7 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber() < 1) {
+        if (layer.getLayerNumber() < 1) {//todo paver tout
             bits = new Genetic(layer).getSolutions();
         }
         return new Pavement(bits);

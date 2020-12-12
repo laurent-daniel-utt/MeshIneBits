@@ -8,9 +8,12 @@ import meshIneBits.util.Vector2;
 import java.util.*;
 
 public class Generation {
+    /**
+     * The max angle between the section and the bit when creating a new Solution.
+     */
     private static final double MAX_ANGLE = 0;//todo mettre 30 je pense
     private final Vector<Vector2> bound;
-    public Vector2 startPoint;
+    private Vector2 startPoint;
     public double meanScore = -1;
     public double maxScore = -1;
     public Solution bestSolution;
@@ -24,6 +27,7 @@ public class Generation {
 
     /**
      * A Generation is a set of solutions.
+     * Implements methods to sort, select, reproduce, mutate and evaluate the solutions.
      *
      * @param popSize          the size of the population.
      * @param nbGensMax        the maximum number of generations.
@@ -60,14 +64,13 @@ public class Generation {
     }
 
     /**
-     * Create a new random solution.
+     * Create a new random solution. Takes in account the <code>MAX_ANGLE</code> to generate the random rotation.
      *
      * @return the new random solution.
      */
     private Solution createNewSolution(Vector<Vector2> pointSection) {
         //todo l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
         double position = Math.random() * CraftConfig.bitWidth;
-        position = 0;
         double angleSection = AI_Tool.dataPrep.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone()) * (180 / Math.PI);
         AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
@@ -90,9 +93,6 @@ public class Generation {
         AI_Tool.dataPrep.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
         return new Solution(position, rotationVector, startPoint, this, bound);
     }
-
-
-
 
     /**
      * Create a new solution from parameters.
@@ -133,7 +133,7 @@ public class Generation {
     /**
      * Select the best solutions.
      *
-     * @return the n best solutions.
+     * @return the n best solutions according to the <code>rankSelection</code>.
      */
     public Vector<Solution> select(Vector<Solution> solutionsToSelect) {
         List<Solution> solutionList = new ArrayList<>(solutionsToSelect);
@@ -148,7 +148,7 @@ public class Generation {
     /**
      * Reproduce solutions between.
      *
-     * @return the n new children solutions.
+     * @return the n new children solutions according to the <code>rankReproduction</code>.
      */
     public Vector<Solution> reproduce(Vector<Solution> solutionsToReproduce) {
         Vector<Solution> reproducedSolutions = new Vector<>();
@@ -169,7 +169,7 @@ public class Generation {
 
     /**
      * Mutate a few solutions to assure diversity.
-     *
+     * The probability for a Solution to mutate is given by <code>probMutation</code>
      * @return the solutions given with a few mutated solutions.
      */
     public Vector<Solution> mutate(Vector<Solution> solutionsToMutate) {
@@ -184,7 +184,7 @@ public class Generation {
     }
 
     /**
-     * Completes the current generation with new solutions.
+     * Completes the current generation with new solutions to get exactly <code>popSize</code> solutions.
      *
      * @return the completely new solutions.
      */

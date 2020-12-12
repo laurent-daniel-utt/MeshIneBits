@@ -7,21 +7,35 @@ import meshIneBits.util.Vector2;
 import java.util.Vector;
 
 public class Evolution {
+    /**
+     * The number of generations to do.
+     */
     public static final int NB_GEN_MAX = 1;
+    /**
+     * The size of the population of solutions.
+     */
     public static final int POP_SIZE = 10;
+    /**
+     * The probability for a Solution to mutate.
+     */
     private static final double PROB_MUTATION = 0.1;
+    /**
+     * The percentage of selected Solutions to give to the new Generation.
+     */
     private static final double RANK_SELECTION = 0.2;
+    /**
+     * The percentage of reproduced Solutions to give to the new Generation.
+     */
     private static final double RANK_REPRODUCTION = 0.6;
     private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
     private final Vector<Vector2> bound;
     public Solution bestSolution;
     public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
-    private int currentGenerationNumber;
-    private Vector<Generation> generations = new Vector<>();
+    private final Vector<Generation> generations = new Vector<>();
 
     /**
-     * An Evolution search the best solution for a given set of points.
+     * An Evolution search the best Solution for a given set of points.
      *
      * @param pointSection the points on which the Bit2D will be placed.
      */
@@ -32,7 +46,7 @@ public class Evolution {
     }
 
     /**
-     * Run the evolution process to find a solution.
+     * Runs the evolution process to find a solution.
      */
     public void run() {
         //first INIT
@@ -46,7 +60,7 @@ public class Evolution {
                 bound);
         initGeneration.initialize((Vector<Vector2>) pointSection.clone());
         //System.out.println("gen 0 initialized");
-        currentGenerationNumber = 0;
+        int currentGenerationNumber = 0;
         generations.add(initGeneration);
 
         while (currentGenerationNumber < NB_GEN_MAX) {

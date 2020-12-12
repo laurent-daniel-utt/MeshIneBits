@@ -21,15 +21,24 @@ public class Solution {
     public Vector2 bitAngle;
     public double score = 0;
     public Bit2D bit;
-    public Vector2 startPoint;
-    private Generation generation;
-
-    private double MUTATION_MAX_STRENGTH = 0.2;
-    private double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
-    private double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private final Vector2 startPoint;
+    private final Generation generation;
 
     /**
-     * A Solution is a Bit2D with position and rotations parameters in a local coordinate system.
+     * The coefficient associated to the mutation.
+     */
+    private final double MUTATION_MAX_STRENGTH = 0.2;
+    /**
+     * The coefficient associated to the angle penalty. Must be between 0 and 1.
+     */
+    private final double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    /**
+     * The coefficient associated to the length penalty. Must be between 0 and 1.
+     */
+    private final double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+
+    /**
+     * A Solution is a Bit2D with position parameter in a local coordinate system. Its position is measured from its startPoint.
      */
     public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound) {
         this.bitPos = pos;
@@ -42,6 +51,7 @@ public class Solution {
 
     /**
      * Evaluates the current solution according to its lost Area.
+     * Applies penalties to the score.
      *
      * @return the score of the current solution.
      */
@@ -54,8 +64,7 @@ public class Solution {
 
     /**
      * Calculates the area of the Bit2D.
-     * Here it is the area of the part of the Bit2D inside the Slice.
-     *
+     * It is the area of the part of the Bit2D inside the Slice.
      * @return the area.
      */
     private double computeArea() {
@@ -69,17 +78,13 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().availableArea;
 
-        availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null||
-        //try {
-        if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) {
-            // Outside of border or irregular
-            this.generation.solutions.remove(this); //todo @Etienne remettre après debug
+        availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
+
+        if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
+            this.generation.solutions.remove(this);
         } else {
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
-
-            //AI_Tool.dataPrep.bit = bit.clone();//debugOnly, et virer tous les ai_tool
-
 
             Path2D finalCutPath = new Path2D.Double();
             boolean isFirstPoint = true;
@@ -97,8 +102,6 @@ public class Solution {
                 pathIter.next();
             }
             finalCutPath.closePath();
-            AI_Tool.dataPrep.cutPathToDraw = (Path2D) finalCutPath.clone();
-
 
             int npoints = 0;
             Vector<Double> Xpoints = new Vector<>();
@@ -122,14 +125,11 @@ public class Solution {
 
             return Math.abs(area / 2);
         }
-        //  } catch (Exception e) {
-        //      System.out.println("PROBLEME SOLUTION.COMPUTE_AREA...");
-        //  }
         return -1;
     }
 
     /**
-     * Mutates parameters of a solution.
+     * Mutates parameters of the solution.
      */
     public void mutate() { //todo @all tester
         if (Math.random() < 0.5) { // mutate bitPos
@@ -149,7 +149,7 @@ public class Solution {
      * Deletes the solution if it is bad.
      * Bad Solutions criterias :
      * - there is more than one intersection between bit's edges and the section
-     * -...
+     * -...todo completer doc
      */
     public void deleteIfBad(Vector<Vector2> sectionPoints) {
 
@@ -166,7 +166,6 @@ public class Solution {
 
     /**
      * returns the number of intersections between bit's edges and the section.
-     *
      * @param sectionPoints
      * @return the number of intersections
      */
@@ -202,7 +201,7 @@ public class Solution {
 
 
     /**
-     * get BitD2 based on the values of s
+     * get the Solution's Bit2D according to the startPoint.
      *
      * @param startPoint the point where the bit's edge should be placed
      * @return the related Bit
@@ -224,6 +223,14 @@ public class Solution {
     }
 
 
+    /**
+     * Add a penalty to the score.
+     * The more the angle of the bit is far away from the mean angle of the section on which it is placed,
+     * the more the score will be decreased.
+     * Depends of <code>ANGLE_PENALTY_STRENGTH</code>
+     *
+     * @param sectionPoints
+     */
     private void addPenaltyForBitAngle(Vector<Vector2> sectionPoints) { //todo @all tester
 
         Bit2D bit2D = getBit(startPoint);
@@ -250,7 +257,14 @@ public class Solution {
         this.score -= ANGLE_PENALTY_STRENGTH * this.score * (difference / 180);
     }
 
-
+    /**
+     * Add a penalty to the score.
+     * The less the Bit2D follows the bound of the Slice,
+     * the more the score will be decreased.
+     * Depends of <code>LENGTH_PENALTY_STRENGTH</code>
+     *
+     * @param sectionPoints
+     */
     private void addPenaltyForSectionCoveredLength(Vector<Vector2> sectionPoints) { //todo @all tester
 
         Bit2D bit2D = getBit(startPoint);
@@ -295,16 +309,24 @@ public class Solution {
         this.score -= LENGTH_PENALTY_STRENGTH * this.score * coveredDistance / CraftConfig.bitLength;
     }
 
+    /**
+     * @return the position and the angle of the solution in a String.
+     */
     public String toString() {
         return "pos: " + this.bitPos + " , angle: " + this.bitAngle;
     }
 
+    /**
+     * @return the cloned Solution.
+     */
     public Solution clone() {
         return new Solution(this.bitPos, this.bitAngle, this.startPoint, this.generation, bound);
     }
 }
 
-
+/**
+ * Let the <code>Generation</code> compare two Solution by their scores.
+ */
 class SolutionComparator implements Comparator<Solution> {
     public int compare(Solution s1, Solution s2) {
         if (s1.score > s2.score)

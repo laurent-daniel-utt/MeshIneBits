@@ -21,7 +21,9 @@ public class Genetic {
     private Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
     /**
-     * The tool for genetic algorithms for pavement.
+     * The tool for genetic algorithms which performs the pavement on a layer.
+     *
+     * @param layer the layer to pave.
      */
     public Genetic(Layer layer) {
         System.out.println("On Pave le Layer : " + layer.getLayerNumber());
@@ -30,7 +32,7 @@ public class Genetic {
     }
 
     /**
-     * Starts the Genetic pavement and paves the whole mesh.
+     * Starts the Genetic pavement and paves the given layer.
      */
     private void start() {
         Vector<Slice> slicesList = AI_Tool.getMeshController().getMesh().getSlices();
@@ -75,6 +77,13 @@ public class Genetic {
         }
     }
 
+    /**
+     * Returns the (associated) points of the Slice in the range of the bitLength.
+     *
+     * @param bound1     the bound of the Slice on which the associated points will be searched.
+     * @param startPoint the point on which a bit will be placed.
+     * @return the associated points.
+     */
     private Vector<Vector2> getAssociatedPoints(Vector<Vector2> bound1, Vector2 startPoint) {
         Vector<Vector2> associatedPoints = new Vector<>();
         boolean isAfterStartPoint = false;
@@ -89,12 +98,22 @@ public class Genetic {
         return associatedPoints;
     }
 
+    /**
+     * Check if the bound of the Slice has been entirely paved.
+     *
+     * @param startPoint       the point of the bound on which the very first bit was placed.
+     * @param associatedPoints the points on which a bit has just been placed.
+     * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
+     */
     private boolean hasCompletedTheBound(Vector2 startPoint, Vector<Vector2> associatedPoints) {//todo déboguer hasCompletedTheBound
         if (associatedPoints.firstElement() == startPoint)
             return false;
         return associatedPoints.contains(startPoint);
     }
 
+    /**
+     * @return the best solutions
+     */
     public Vector<Bit2D> getSolutions() {
         return solutions;
     }
