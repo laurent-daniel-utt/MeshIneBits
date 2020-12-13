@@ -534,10 +534,10 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
         }
-        currentLayer.addBit(newBit, true);
+        //currentLayer.addBit(newBit, true); //todo remettre
         //add new action into HandlerRedoUndo
-        setSelectedBitKeys(resultKey);
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
+        //setSelectedBitKeys(resultKey);
+        //this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
 
         if (ai_Tool!=null && ai_Tool.acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
             try {

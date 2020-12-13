@@ -8,6 +8,7 @@ import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import javax.sound.midi.Soundbank;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -78,11 +79,18 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().availableArea;
 
+        AI_Tool.dataPrep.bit = bit;
+        //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
+
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
+
+        System.out.println("availableBitArea.isEmpty() " + availableBitArea.isEmpty());
 
         if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
+            return -1;
         } else {
+
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
@@ -122,10 +130,9 @@ public class Solution {
             for (int i = 0; i < npoints; i++) {
                 area += (Xpoints.get(i) * Ypoints.get((i + 1) % npoints)) - (Ypoints.get(i) * Xpoints.get((i + 1) % npoints));
             }
-
+            System.out.println("area = " + Math.abs(area / 2));
             return Math.abs(area / 2);
         }
-        return -1;
     }
 
     /**
@@ -169,6 +176,7 @@ public class Solution {
      * @param sectionPoints
      * @return the number of intersections
      */
+
     private int getNumberOfIntersections(Vector<Vector2> sectionPoints) {
 
         Bit2D bit = getBit(startPoint);

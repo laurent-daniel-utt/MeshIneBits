@@ -78,7 +78,7 @@ public final class DataSetGenerator { // todo il y a sans doute des classe de Da
      *                      slice border and the last placed bit's end edge
      * @return              the edgeAbscissa
      */
-    private static double getBitEdgeAbscissa(Vector2 bitPos, Vector2 bitAngle, Vector2 startPoint) {
+    public static double getBitEdgeAbscissa(Vector2 bitPos, Vector2 bitAngle, Vector2 startPoint) { //todo repasser privé
 
         // bit's colinear and orthogonal unit vectors computation
         Vector2 colinear = bitAngle.normal();

@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -506,16 +507,29 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
          */
 
         //Draw Area and/or fill it
-        /*
-        meshController.ai_Tool.dataPrep.transformArea = realToView;
-        Bit2D bit = AI_Tool.dataPrep.bit;
-        Area area = bit.getArea();
-        area.transform(realToView);
-        g2d.setColor(Color.ORANGE);
-        g2d.fill(area);
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.draw(area);
-        */
+        if (AI_Tool.dataPrep.bit!= null){
+            meshController.ai_Tool.dataPrep.transformArea = realToView;
+            Bit2D bit = AI_Tool.dataPrep.bit;
+            Area area = bit.getArea();
+            area.transform(realToView);
+            g2d.setColor(Color.RED);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+        }
+
+
+        //draw an area
+        if(AI_Tool.dataPrep.areaToDraw!=null){
+            Area area = AI_Tool.dataPrep.areaToDraw;
+            area.transform(realToView);
+            g2d.setColor(Color.BLUE);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+        }
+
+
 
         //Draw Path2D
         /*

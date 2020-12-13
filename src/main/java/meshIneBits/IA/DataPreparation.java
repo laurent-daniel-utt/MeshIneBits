@@ -40,6 +40,7 @@ public class DataPreparation {
     public Area area = new Area();
     public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
 
+    public Area areaToDraw = null;
 
     /**
      * Renvoie les points de chaque contour d'une Slice.

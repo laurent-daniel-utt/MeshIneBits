@@ -4,6 +4,9 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
+import meshIneBits.IA.IA_util.DataSetGenerator;
+import meshIneBits.IA.genetics.Generation;
+import meshIneBits.IA.genetics.Solution;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -42,10 +45,11 @@ public class Acquisition {
 
     public static void addNewExampleBit(Bit2D bit) throws AI_Exception {
 
-        storedExamplesBits.put(bit, AI_Tool.dataPrep.getBitAssociatedPoints(bit));
+        Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
+        storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
-        AI_Tool.dataPrep.pointsADessiner.addAll(AI_Tool.dataPrep.getBitAssociatedPoints(bit)); //debugOnly
+        AI_Tool.dataPrep.pointsADessiner.addAll(points); //debugOnly
 
 //debugOnly, on teste si la recherche du point suivant marche bien
         Vector<Vector2> pointList = new Vector<>();
@@ -58,6 +62,25 @@ public class Acquisition {
         //todo modifier : ici on fait que du .get(0)
 
         startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bit, pointList);
+
+
+
+        //afficher resultats scoring genetics
+        double pos = DataSetGenerator.getBitEdgeAbscissa(bit.getOrigin(), bit.getOrientation(), points.firstElement());
+
+        Generation generation = new Generation(1, 1, 1, 1, 1, new Vector2(1, 1), points);
+
+        Solution solution = new Solution(pos, bit.getOrientation(), points.firstElement(), generation, points);
+
+        System.out.println("===========DEBUG SOLUTION================");
+        solution.evaluate(points);
+        double scoreInit = solution.score;
+        //System.out.println("score init " + scoreInit);
+        //solution.addPenaltyForBitAngle(points);
+        //System.out.println("penalite angle" +  solution.score);
+        //solution.addPenaltyForSectionCoveredLength(points);
+        //System.out.println("penalite lengthy" + solution.score);
+        System.out.println("=========================================");
 //fin debugOnly
 
 
