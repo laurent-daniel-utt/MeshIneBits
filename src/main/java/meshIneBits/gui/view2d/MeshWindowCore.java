@@ -518,7 +518,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
 
         Vector<Area> areas = AI_Tool.dataPrep.Areas;
-        System.out.println("SIZE" + areas.size());
         for (int i = 0; i < areas.size(); i++) {
             Area area = areas.get(i);
             g2d.setColor(Color.RED);

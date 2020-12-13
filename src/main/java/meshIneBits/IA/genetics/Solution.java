@@ -80,7 +80,7 @@ public class Solution {
         Area availableArea = AI_Tool.getMeshController().availableArea;
 
         AI_Tool.dataPrep.bit = bit;
-        AI_Tool.dataPrep.hasNewBitToDraw = true;
+        AI_Tool.dataPrep.hasNewBitToDraw = true;//debugonly
         //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
 
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
