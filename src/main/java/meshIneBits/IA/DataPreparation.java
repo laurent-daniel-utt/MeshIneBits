@@ -39,7 +39,7 @@ public class DataPreparation {
     //DEBUGONLY END
 
     public Area areaToDraw = null;
-    public Vector<Area> Areas = new Vector<>();
+    public Vector<Bit2D> Bits = new Vector<>();
     public Vector<String> scores = new Vector<>();
     public boolean hasNewBitToDraw;
 
@@ -550,8 +550,14 @@ public class DataPreparation {
     public Vector<Vector2> getBitAssociatedPoints(Bit2D bit) throws AI_Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
-        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+        Vector<Vector<Vector2>> boundsListToPopulate = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
         //todo on veut ptet pas le current layer si?
+
+        Vector<Vector<Vector2>> boundsList = new Vector<>();
+        for (int i = 0; i < boundsListToPopulate.size(); i++) {
+            boundsList.add(repopulateSection(boundsListToPopulate.get(i)));
+        }
+
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
         getBitSidesSegments(bit).forEach(rectangle::addEnd);

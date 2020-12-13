@@ -29,7 +29,7 @@ public class Acquisition {
         storeNewBits = false;
         saveExamples();
         AI_Tool.dataPrep.scores.clear(); //debugonly
-        AI_Tool.dataPrep.Areas.clear();//Debugonly
+        AI_Tool.dataPrep.Bits.clear();//Debugonly
     }
 
     public static void deleteLastPlacedBit() {
