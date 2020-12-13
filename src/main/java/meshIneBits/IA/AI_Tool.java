@@ -11,30 +11,25 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
+/**
+ * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
+ * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
+ */
 public class AI_Tool {
-    public static DataPreparation dataPrep;
-    public static Acquisition acquisition;
-    public static Training training;
-    public static Exploitation exploitation;
+    public static DataPreparation dataPrep = new DataPreparation();
+    public static Acquisition acquisition = new Acquisition();
+    public static Training training = new Training();
+    public static Exploitation exploitation = new Exploitation();
     public static Genetic genetic;
-    private static Tools tools;
+    private static Tools tools = new Tools();
     private static MeshController meshController;
     private static Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
-    /**
-     * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
-     * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
-     *
-     * @param MC the instance of meshController currently running.
-     */
-    public AI_Tool(MeshController MC) {
-        meshController = MC;
-        acquisition = new Acquisition();
-        training = new Training();
-        exploitation = new Exploitation();
-        dataPrep = new DataPreparation();
-        tools = new Tools();
+
+    public void setMeshController(MeshController meshController) {
+        this.meshController = meshController;
     }
+
 
     /**
      * Pave the whole mesh with AI.

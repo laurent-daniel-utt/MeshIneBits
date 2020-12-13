@@ -63,7 +63,7 @@ public class Genetic {
             bestBit = currentEvolution.bestSolution.bit;
             solutions.add(bestBit);
 
-
+            System.out.println("best bit " + bestBit);
             startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
             if (startPoint == null) {
                 try {

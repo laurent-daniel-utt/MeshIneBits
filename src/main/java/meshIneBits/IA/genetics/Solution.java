@@ -65,6 +65,7 @@ public class Solution {
     /**
      * Calculates the area of the Bit2D.
      * It is the area of the part of the Bit2D inside the Slice.
+     *
      * @return the area.
      */
     private double computeArea() {
@@ -78,11 +79,19 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().availableArea;
 
+        AI_Tool.dataPrep.bit = bit;
+        AI_Tool.dataPrep.hasNewBitToDraw = true;
+        //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
+
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
+
+        System.out.println("availableBitArea.isEmpty() " + availableBitArea.isEmpty());
 
         if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
+            return -1;
         } else {
+
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
@@ -119,13 +128,19 @@ public class Solution {
                 iter.next();
             }
 
-            for (int i = 0; i < npoints; i++) {
-                area += (Xpoints.get(i) * Ypoints.get((i + 1) % npoints)) - (Ypoints.get(i) * Xpoints.get((i + 1) % npoints));
-            }
 
+            Xpoints.remove(Xpoints.lastElement());
+            Ypoints.remove(Ypoints.lastElement());
+            npoints = Xpoints.size();
+            for (int i = 0; i < npoints; i++) {
+                System.out.println(Xpoints.get(i) + " : " + Ypoints.get(i));
+            }
+            for (int i = 0; i < npoints - 1; i++) {
+                area += (Xpoints.get(i) * Ypoints.get(i + 1)) - (Ypoints.get(i) * Xpoints.get(i + 1));
+            }
+            System.out.println("area = " + Math.abs(area / 2));
             return Math.abs(area / 2);
         }
-        return -1;
     }
 
     /**
@@ -166,9 +181,11 @@ public class Solution {
 
     /**
      * returns the number of intersections between bit's edges and the section.
+     *
      * @param sectionPoints
      * @return the number of intersections
      */
+
     private int getNumberOfIntersections(Vector<Vector2> sectionPoints) {
 
         Bit2D bit = getBit(startPoint);
@@ -269,6 +286,7 @@ public class Solution {
 
         Bit2D bit2D = getBit(startPoint);
         AI_Tool.dataPrep.bit = bit2D;
+        AI_Tool.dataPrep.hasNewBitToDraw = true;
         Vector<Segment2D> sectionSegments = new Vector<>();
         for (int i = 0; i < sectionPoints.size() - 1; i++) {
             sectionSegments.add(new Segment2D(
@@ -303,6 +321,7 @@ public class Solution {
         }
         if (firstIntersectionPoint == null) {
             generation.solutions.remove(this);
+            System.out.print("    deleted because firstIntersectionPoint is null");
             return;
         }
 

@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -45,7 +46,7 @@ import java.util.*;
  */
 class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener, Observer {
     private double viewOffsetX, viewOffsetY;
-    private Map<Bit3D, BitControls> bitMovers = new HashMap<>();
+    private final Map<Bit3D, BitControls> bitMovers = new HashMap<>();
     private int oldX, oldY;
     private boolean rightClickPressed = false;
     private double defaultZoom = 1;
@@ -53,7 +54,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private boolean onControl;
     private AffineTransform realToView;
     private AffineTransform viewToReal;
-    private MeshController meshController;
+    private final MeshController meshController;
 
     MeshWindowCore(MeshController meshController) {
 
@@ -506,16 +507,41 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
          */
 
         //Draw Area and/or fill it
-        /*
-        meshController.ai_Tool.dataPrep.transformArea = realToView;
-        Bit2D bit = AI_Tool.dataPrep.bit;
-        Area area = bit.getArea();
-        area.transform(realToView);
-        g2d.setColor(Color.ORANGE);
-        g2d.fill(area);
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.draw(area);
-        */
+        if (AI_Tool.dataPrep.hasNewBitToDraw) {
+            AI_Tool.dataPrep.transformArea = realToView;
+            Bit2D bit = AI_Tool.dataPrep.bit;
+            Area area = bit.getArea();
+            area.transform(realToView);
+            AI_Tool.dataPrep.Areas.add(area);
+            AI_Tool.dataPrep.hasNewBitToDraw = false;
+        }
+
+
+        Vector<Area> areas = AI_Tool.dataPrep.Areas;
+        System.out.println("SIZE" + areas.size());
+        for (int i = 0; i < areas.size(); i++) {
+            Area area = areas.get(i);
+            g2d.setColor(Color.RED);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+            int x = area.getBounds().x + area.getBounds().width / 4;
+            int y = area.getBounds().y - area.getBounds().height / 2;
+            g2d.drawString(AI_Tool.dataPrep.scores.get(i), x, y);
+        }
+
+
+        //draw an area
+        if(AI_Tool.dataPrep.areaToDraw!=null){
+            Area area = AI_Tool.dataPrep.areaToDraw;
+            area.transform(realToView);
+            g2d.setColor(Color.BLUE);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+        }
+
+
 
         //Draw Path2D
         /*

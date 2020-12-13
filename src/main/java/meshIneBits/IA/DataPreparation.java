@@ -17,29 +17,31 @@ import java.awt.geom.Path2D;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
-import static meshIneBits.IA.genetics.Evolution.NB_GEN_MAX;
-import static meshIneBits.IA.genetics.Evolution.POP_SIZE;
-
 public class DataPreparation {
-    public Vector2 A = new Vector2(0, 0); //debugOnly
+    //DEBUGONLY
+    public Vector2 A = new Vector2(0, 0);
     public Vector2 B = new Vector2(0, 0);
     public Vector2 C = new Vector2(0, 0);
     public Vector2 D = new Vector2(0, 0);
     public AffineTransform transformArea = new AffineTransform();
 
-    public Vector<Vector2> pointsContenus = new Vector<>(); //debugOnly
+    public Vector<Vector2> pointsContenus = new Vector<>();
     public Vector<Vector2> pointsADessiner = new Vector<>();
     public Path2D cutPathToDraw = new Path2D.Double();
 
-    public Segment2D currentSegToDraw = new Segment2D(A, B); //debugOnly
-    public Segment2D currentSegToDraw2 = new Segment2D(A, B); //debugOnly
+    public Segment2D currentSegToDraw = new Segment2D(A, B);
+    public Segment2D currentSegToDraw2 = new Segment2D(A, B);
 
     public Polygon poly = new Polygon();
     public Bit2D bit = null;
 
     public Area area = new Area();
-    public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
+    //DEBUGONLY END
 
+    public Area areaToDraw = null;
+    public Vector<Area> Areas = new Vector<>();
+    public Vector<String> scores = new Vector<>();
+    public boolean hasNewBitToDraw;
 
     /**
      * Renvoie les points de chaque contour d'une Slice.
@@ -165,7 +167,7 @@ public class DataPreparation {
      * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
-    //todo on peut surement l'enlever cette méthode? pareil pour circleAndSegmentIntersection()
+    //todo @Andre on peut surement l'enlever cette méthode? pareil pour circleAndSegmentIntersection()
     public static Vector<Vector2> getSectionToPlaceNewBit(Vector<Vector2> polyPoints, Vector2 startPoint) {
         int startIndex = 0;
         for (int i = 1; i < polyPoints.size(); i++) {
@@ -314,15 +316,11 @@ public class DataPreparation {
      */
     public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> points) {
         //todo ajuster pour que ca marche pour des demi/quarts.. de bits
-        this.bit = bit.clone();
         Polygon rectangle = new Polygon();
         getBitSidesSegments(bit.clone()).forEach(rectangle::addEnd);
         area = new Area(rectangle.toPath2D());
         Vector<Vector2> clonedPoints = (Vector<Vector2>) points.clone();
         clonedPoints = repopulateSection(clonedPoints);
-        for (Vector2 point : clonedPoints) {//debugOnly
-            // pointsADessiner.add(point);
-        }
 
         //We are first looking for the first point (at index i) contained by the Area of the bit
         int i;
@@ -337,14 +335,12 @@ public class DataPreparation {
         for (; i < clonedPoints.size() - 1; i++) {
             if (!area.contains(clonedPoints.get(i).x, clonedPoints.get(i).y))
                 break;
-        } //todo merge avec getBitStart point, il n'y a que ce for qui change
+        } //todo @Etienne merge avec getBitStart point, il n'y a que ce for qui change
         Segment2D outGoingSegment = new Segment2D(clonedPoints.get(i - 1), clonedPoints.get(i));
 
         //We are looking for the intersection between the outGoingSegment and the bounds of the Slice
         Vector2 intersectionPoint;
         Vector<Segment2D> sides = getBitSidesSegments(bit.clone());
-        // this.currentSegToDraw = outGoingSegment; //debugOnly
-        //pointsADessiner.clear();//debugOnly
 
 
         Vector<Segment2D> clonedBitSides = (Vector<Segment2D>) sides.clone();
@@ -354,7 +350,6 @@ public class DataPreparation {
             if (intersectionPoint != null) {
                 if (contains(bitSide, intersectionPoint)) {
                     if (contains(outGoingSegment, intersectionPoint)) {
-                        // pointsADessiner.add(intersectionPoint); //debugOnly
                         return intersectionPoint;
                     }
                 }
@@ -400,7 +395,6 @@ public class DataPreparation {
     public Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points) {
 
         Vector<Vector2> newPoints = new Vector<>();
-
         Vector<Double> segmentLength = new Vector<>();
         // faire un tableau de longueurs des segments initiaux
         for (int i = 0; i < points.size() - 1; i++) {
@@ -557,7 +551,7 @@ public class DataPreparation {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
-
+        //todo on veut ptet pas le current layer si?
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
         getBitSidesSegments(bit).forEach(rectangle::addEnd);
@@ -596,11 +590,9 @@ public class DataPreparation {
      * @return the associated points.
      */
     public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint) {
-
-
-
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+        //todo on veut ptet pas le current layer si?
 
 
         //We search which bound intersects with the bit.
@@ -704,8 +696,6 @@ public class DataPreparation {
         //We are looking for the intersection between the outGoingSegment and the bounds of the Slice
         Vector2 intersectionPoint;
         Vector<Segment2D> sides = getBitSidesSegments(bit);
-        //this.currentSegToDraw = outGoingSegment; //debugOnly
-        // pointsADessiner.clear();//debugOnly
 
         for (Segment2D bitSides : sides) {
             intersectionPoint = bitSides.intersect(outGoingSegment); //null if parallel
@@ -713,7 +703,6 @@ public class DataPreparation {
             if (intersectionPoint != null) {
                 if (contains(bitSides, intersectionPoint)) {
                     if (contains(outGoingSegment, intersectionPoint)) {
-                        //  pointsADessiner.add(intersectionPoint); //debugOnly
                         return intersectionPoint;
                     }
                 }

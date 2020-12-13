@@ -34,19 +34,20 @@ public class UPPToolsIA extends UtilityParametersPanel {
     private final static String TEXT_TOGGLE_TRUE = "Recording new inputs..";
 
     public UPPToolsIA(MeshController meshController) {
-            super("AI-Tools");
-            // Init components
-            meshController.ai_Tool = new AI_Tool(meshController);
-            JPanel parametersPanel = new JPanel();
-            parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-            parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        super("AI-Tools");
+        // Init components
+        meshController.ai_Tool = new AI_Tool();
+        meshController.ai_Tool.setMeshController(meshController);
+        JPanel parametersPanel = new JPanel();
+        parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
 
-            JButton startButton = new JButton("Start AI Pavement");
-            startButton.addActionListener(e -> {
-                try {
-                    //todo Etienne : else throw error "Mesh not found or Mesh not sliced"
-                    meshController.ai_Tool.startAI();
+        JButton startButton = new JButton("Start AI Pavement");
+        startButton.addActionListener(e -> {
+            try {
+                //todo Etienne : else throw error "Mesh not found or Mesh not sliced"
+                meshController.ai_Tool.startAI();
                 } catch (Exception e1) {
                     meshController.handleException(e1);
                 }

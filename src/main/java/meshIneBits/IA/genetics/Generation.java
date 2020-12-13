@@ -136,11 +136,7 @@ public class Generation {
      * @return the n best solutions according to the <code>rankSelection</code>.
      */
     public Vector<Solution> select(Vector<Solution> solutionsToSelect) {
-        List<Solution> solutionList = new ArrayList<>(solutionsToSelect);
-
-        Comparator<Solution> comparator = new SolutionComparator();
-        solutionList.sort(comparator);
-
+        List<Solution> solutionList = sortSolutions(solutionsToSelect);
         int nbOfSelecteds = (int) (this.popSize * this.rankSelection);
         return new Vector<>(solutionList.subList(0, nbOfSelecteds));
     }
@@ -198,5 +194,14 @@ public class Generation {
     }
 
 
+    public List<Solution> sortSolutions(Vector<Solution> solutions) {
+        List<Solution> solutionList = new ArrayList<>(solutions);
+        Comparator<Solution> comparator = new SolutionComparator();
+        solutionList.sort(comparator);
+        bestSolution = solutionList.get(0);
+        System.out.println("best score : " + bestSolution.score);
+        System.out.println("");
+        return solutionList;
+    }
 }
 

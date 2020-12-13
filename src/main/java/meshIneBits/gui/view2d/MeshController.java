@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.Acquisition;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -534,14 +535,14 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
         }
-        currentLayer.addBit(newBit, true);
+        //currentLayer.addBit(newBit, true); //todo remettre
         //add new action into HandlerRedoUndo
-        setSelectedBitKeys(resultKey);
-        this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
+        //setSelectedBitKeys(resultKey);
+        //this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
 
-        if (ai_Tool!=null && ai_Tool.acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
+        if (Acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
             try {
-                ai_Tool.acquisition.addNewExampleBit(newBit);
+                Acquisition.addNewExampleBit(newBit);
             } catch (AI_Exception e) {
                 e.printStackTrace();
             }

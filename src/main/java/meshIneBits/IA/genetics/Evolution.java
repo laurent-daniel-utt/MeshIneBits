@@ -1,7 +1,6 @@
 package meshIneBits.IA.genetics;
 
 
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
@@ -75,11 +74,13 @@ public class Evolution {
                     bound);
             currentGenerationNumber++;
             generations.add(currentGeneration);
+            System.out.println("pop after init : " + currentGeneration.solutions.size());
 
             //System.out.println("gen " + currentGenerationNumber + " generated");
             Vector<Solution> mutatedSolutionsFromLastGen = currentGeneration.mutate((Vector<Solution>) generations.get(currentGenerationNumber - 1).solutions.clone());
             Vector<Solution> sortedSolutions = currentGeneration.select((Vector<Solution>) mutatedSolutionsFromLastGen.clone());
             Vector<Solution> reproducedSolutions = currentGeneration.reproduce((Vector<Solution>) mutatedSolutionsFromLastGen.clone());
+            System.out.println("pop after generating solutions : " + currentGeneration.solutions.size());
 
             Vector<Solution> newSolutions = new Vector<>();
             newSolutions.addAll(sortedSolutions);
@@ -88,6 +89,7 @@ public class Evolution {
             //System.out.println("new gen individus : "+currentGeneration.solutions.size());
             Vector<Solution> solutionsToCompleteWith = currentGeneration.completeWithNewSolutions((Vector<Vector2>) pointSection.clone());
             currentGeneration.solutions.addAll(solutionsToCompleteWith);
+            System.out.println("pop after adding : " + currentGeneration.solutions.size());
 
             //System.out.println("gen" + currentGenerationNumber + " initialized");
             //System.out.println("population : " + currentGeneration.solutions.size() + " individus");
@@ -95,25 +97,28 @@ public class Evolution {
             //System.out.println("gen" + currentGenerationNumber + " evaluation...");
             //evaluates and delete bad solutions
             currentGeneration.evaluateGeneration((Vector<Vector2>) pointSection.clone());
+            System.out.println("\npop after evaluation : " + currentGeneration.solutions.size());
             Vector<Solution> clonedSolutions = (Vector<Solution>) currentGeneration.solutions.clone();
             for (Solution solution : clonedSolutions) {
                 solution.deleteIfBad((Vector<Vector2>) pointSection.clone());
             }
+            System.out.println("pop after deleting : " + currentGeneration.solutions.size());
             System.out.println("gen" + currentGenerationNumber + " evaluated");
 
             System.out.println("mean score : " + currentGeneration.meanScore);
-            //System.out.println("max score  : " + currentGeneration.maxScore+"  "+currentGeneration.bestSolution.toString());
+            System.out.println("max score  : " + currentGeneration.maxScore + "  " + currentGeneration.bestSolution.toString());
             System.out.println("population : " + currentGeneration.solutions.size() + " individus");
 
-            //   solutionsToCompleteWith = currentGeneration.completeWithNewSolutions((Vector<Vector2>) pointSection.clone());
-            //   currentGeneration.solutions.addAll(solutionsToCompleteWith);
-
+            solutionsToCompleteWith = currentGeneration.completeWithNewSolutions((Vector<Vector2>) pointSection.clone());
+            currentGeneration.solutions.addAll(solutionsToCompleteWith);
             scores[currentGenerationNumber] = currentGeneration.maxScore;
-            AI_Tool.dataPrep.scores[currentGenerationNumber] = currentGeneration.maxScore;
-            bestSolution = currentGeneration.bestSolution;
+            currentGeneration.sortSolutions(currentGeneration.solutions);
+            bestSolution = currentGeneration.bestSolution.clone();
+            System.out.println("pop after completing : " + currentGeneration.solutions.size());
         }
 
         //DEBUGONLY
+/*
         Vector<Solution> clonedSolutions = (Vector<Solution>) generations.get(currentGenerationNumber).solutions.clone();
         for (Solution solution : clonedSolutions) {
             if (AI_Tool.dataPrep.getNextBitStartPoint(solution.bit, bound) == null) {
@@ -121,7 +126,8 @@ public class Evolution {
             }
         }
         generations.get(currentGenerationNumber).evaluateGeneration(pointSection);
-        bestSolution = generations.get(currentGenerationNumber).solutions.get(0);//devrait prendre la meilleure non supprimée
-
+        bestSolution = generations.get(currentGenerationNumber).bestSolution;//devrait prendre la meilleure non supprimée
+        //FIXME on perd des indivs
+*/
     }
 }
