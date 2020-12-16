@@ -44,12 +44,18 @@ public class Acquisition {
     }
 
     public static void addNewExampleBit(Bit2D bit) throws AI_Exception {
+
+
         Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
-        System.out.println("bit : " + bit);
 
-        AI_Tool.dataPrep.pointsADessiner.addAll(points); //debugOnly
+        System.out.println("premier point "+ points.firstElement().toString());
+
+
+
+
+        //AI_Tool.dataPrep.tests(bit);
 
 
 //debugOnly, on teste si la recherche du point suivant marche bien
@@ -68,6 +74,7 @@ public class Acquisition {
 
 
         //afficher resultats scoring genetics
+        /*
         double pos = DataSetGenerator.getBitEdgeAbscissa(bit.getOrigin(), bit.getOrientation(), points.firstElement());
 
         Generation generation = new Generation(1, 1, 1, 1, 1, new Vector2(1, 1), points);
@@ -84,6 +91,8 @@ public class Acquisition {
         //solution.addPenaltyForSectionCoveredLength(points);
         //System.out.println("penalite lengthy" + solution.score);
         System.out.println("=========================================");
+
+         */
 //fin debugOnly
 
 

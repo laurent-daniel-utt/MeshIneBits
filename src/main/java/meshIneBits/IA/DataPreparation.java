@@ -10,9 +10,7 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
-import remixlab.dandelion.geom.Vec;
 
-import javax.naming.BinaryRefAddr;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -35,7 +33,6 @@ public class DataPreparation {
     public Segment2D currentSegToDraw2 = new Segment2D(A, B);
 
     public Polygon poly = new Polygon();
-    public Bit2D bit = null;
 
     public Area area = new Area();
     //DEBUGONLY END
@@ -180,17 +177,18 @@ public class DataPreparation {
         Vector2 C = seg2.start;
         Vector2 D = seg2.end;
 
-        double DAB = getAngle(D, A, B);
-        double ABC = getAngle(A, B, C);
-        double BCD = getAngle(B, C, D);
-        double CDA = getAngle(C, D, A);
+        double DAC = getAngle(D, A, C);
+        double ACB = getAngle(A, C, B);
+        double CBD = getAngle(C, B, D);
+        double BDA = getAngle(B, D, A);
 
-        double sum = Math.abs(DAB) + Math.abs(ABC) + Math.abs(BCD) + Math.abs(CDA);
+
+        double sum = Math.abs(DAC) + Math.abs(ACB) + Math.abs(CBD) + Math.abs(BDA);
 
         // if sum is not 2pi, then ABCD is a complex quadrilateral (2 edges cross themselves).
         // This means that segments intersect
         double errorThreshold = 0.1;
-        return !(Math.abs(360 - sum) < errorThreshold);
+        return Math.abs(360 - sum) < errorThreshold;
     }
 
     public static Vector2 getIntersectionPoint(Segment2D seg1, Segment2D seg2) {
@@ -216,8 +214,6 @@ public class DataPreparation {
         }
         return null;
     }
-
-
 
 
     /**
@@ -285,8 +281,6 @@ public class DataPreparation {
         return new Vector2(x, y);
     }
 
-
-    // ===============================================================================
 
     public Double getSectionOrientation(Vector<Vector2> points) {
         // prepare fitting
@@ -376,46 +370,16 @@ public class DataPreparation {
      * It is the intersection between the slice and the end side of the Bit2D.
      *
      * @param bit    the current Bit2D (the last placed Bit2D by AI).
-     * @param points the points of the bounds on which stands the bit.
+     * @param contourPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> points) {
-        //todo ajuster pour que ca marche pour des demi/quarts.. de bits
-        Polygon rectangle = new Polygon();
-        getBitSidesSegments(bit.clone()).forEach(rectangle::addEnd);
-        area = new Area(rectangle.toPath2D());
-        Vector<Vector2> clonedPoints = (Vector<Vector2>) points.clone();
-        clonedPoints = repopulateSection(clonedPoints);
+    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> contourPoints) throws AI_Exception {
 
-        //We are first looking for the first point (at index i) contained by the Area of the bit
-        int i;
-        for (i = 0; i < clonedPoints.size() - 1; i++) {
-            if (area.contains(clonedPoints.get(i).x, clonedPoints.get(i).y)) {
-                break;
-            }
+        Vector<Vector2> contourPointsReverted = new Vector<>();
+        for (int i = contourPoints.size() - 1; i >= 0; i--){
+            contourPointsReverted.add(contourPoints.get(i));
         }
-
-        //We are now looking for the first point not contained by the Area of the bit.
-        //We start from point i.
-        for (; i < clonedPoints.size() - 1; i++) {
-            if (!area.contains(clonedPoints.get(i).x, clonedPoints.get(i).y))
-                break;
-        } //todo @Etienne merge avec getBitStart point, il n'y a que ce for qui change
-        Segment2D outGoingSegment = new Segment2D(clonedPoints.get(i - 1), clonedPoints.get(i));
-
-        //We are looking for the intersection between the outGoingSegment and the bounds of the Slice
-        Vector2 intersectionPoint;
-        Vector<Segment2D> sides = getBitSidesSegments(bit.clone());
-
-
-        Vector<Segment2D> clonedBitSides = (Vector<Segment2D>) sides.clone();
-        for (Segment2D bitSide : clonedBitSides) {
-            intersectionPoint = getIntersectionPoint(bitSide, outGoingSegment);
-            if (intersectionPoint != null){
-                return intersectionPoint;
-            }
-        }
-        return null;
+        return getBitAndContourFirstIntersectionPoint(bit, contourPointsReverted);
     }
 
     /**
@@ -604,12 +568,12 @@ public class DataPreparation {
      * Points associated are the points of the Slice from the startPoint of the Bit2D,
      * till the distance with the point become greater than the lengh of a Bit2D.
      *
-     * @param bit The Bit2D we want to get the points associated with.
+     * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit) throws AI_Exception {
+    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D) throws AI_Exception {
 
-        //First we get all the points of the Slice. getContours returns the points already rearranged.
+    //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsListToPopulate = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
         //todo on veut ptet pas le current layer si?
 
@@ -620,11 +584,12 @@ public class DataPreparation {
 
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
-        getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        getBitSidesSegments(bit2D).forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         Vector<Vector2> boundToCheck = new Vector<>();
         boolean hasBeenUnderBit = false;
+
         Vector<Vector2> pointsToCheckAssociated = new Vector<>(); //Will be just the part of a bound from the first point contained by the bit
         for (Vector<Vector2> bound : boundsList) {
             bound = repopulateSection(bound); //todo faire en sorte que le nb de points à ajouté soit choisi par l'user, mais > au min
@@ -643,8 +608,8 @@ public class DataPreparation {
         }
 
         //Checks for each point if it is in the radius of the bit from the start point
-        Vector2 startPoint = getBitStartPoint(bit, boundToCheck);
-        return getBitAssociatedPoints(startPoint);
+        Vector2 startPoint = getBitAndContourFirstIntersectionPoint(bit2D, boundToCheck);
+        return getBitAssociatedPoints(bit2D, startPoint);
     }
 
     /**
@@ -655,7 +620,7 @@ public class DataPreparation {
      * @param startPoint The startPoint of the bit.
      * @return the associated points.
      */
-    public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint) {
+    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D, Vector2 startPoint) {
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
         //todo on veut ptet pas le current layer si?
@@ -663,7 +628,7 @@ public class DataPreparation {
 
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
-        getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        getBitSidesSegments(bit2D).forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         boolean hasBeenUnderBit = false;
@@ -700,11 +665,11 @@ public class DataPreparation {
     }
 
 
-    public Vector<Vector2> getBitAssociatedPoints(Vector2 startPoint, Vector<Vector2> points) {
+    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D, Vector2 startPoint, Vector<Vector2> points) {
         Vector<Vector2> bound = (Vector<Vector2>) points.clone();
         //We search which bound intersects with the bit.
         Polygon rectangle = new Polygon();
-        getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        getBitSidesSegments(bit2D).forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         boolean hasBeenUnderBit = false;
@@ -730,45 +695,110 @@ public class DataPreparation {
     }
 
     /**
-     * Return the Bit2D start point.
-     * It is the intersection between the slice and the start side of the Bit2D.
-     *
-     * @param bit    the current Bit2D (the last placed Bit2D by AI).
-     * @param points the points of the bounds on which stands the bit.
-     * @return the bit start point. Returns <code>null</code> if none was found.
+     * returns the first intersection point between the contour and bit's edges
+     * @param bit a bit
+     * @param contourPoints the points of the contour
+     * @return the first intersection point between the contour and bit's edges
+     * @throws AI_Exception if no point has been found
      */
-    public Vector2 getBitStartPoint(Bit2D bit, Vector<Vector2> points) throws AI_Exception {
-        //todo ajuster pour que ca marche pour des demi/quarts.. de bits (copier la modif de getNextBitStartPoint probablement)
-        this.bit = bit;
+    public Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> contourPoints) throws AI_Exception {
+
+        // get sides of the bit as Segment2Ds (will be used later)
+        Vector<Segment2D> bitSides = getBitSidesSegments(bit);
+
+
+        // first we fill an array of segments with the points of the contour :
+        Vector<Segment2D> contourSegments = new Vector<>();
+        for (int i = 0; i < contourPoints.size() - 1; i++) {
+            contourSegments.add(
+                    new Segment2D(contourPoints.get(i), contourPoints.get(i + 1)));
+        }
+
+        // We will have to scan each segment of the contour, to check if an edge of the bit intersects with it.
+        // But we have to start scanning by a segment whose its start is not under the bit, otherwise the intersection
+        // point found won't be the good one.
+        // So first we have to find a segment whose its start is not under the bit.
+
         Polygon rectangle = new Polygon();
         getBitSidesSegments(bit).forEach(rectangle::addEnd);
-        area = new Area(rectangle.toPath2D());
-        points = (Vector<Vector2>) points.clone();
-        points = repopulateSection(points);
+        Area bitRectangleArea = new Area(rectangle.toPath2D());
 
-        //We are first looking for the first point (at index i) contained by the Area of the bit
-        int i;
-        for (i = 0; i < points.size() - 1; i++) {
-            if (area.contains(points.get(i).x, points.get(i).y)) {
-                break;
+        int startSegIndex = 0;
+
+        while (bitRectangleArea.contains(contourSegments.get(startSegIndex).start.x,
+                contourSegments.get(startSegIndex).start.y)) {
+            startSegIndex++;
+        }
+
+
+        // finally we can scan the contour, starting with segment at index startSegIndex.
+        boolean scanCompleted = false;
+        int iSeg = startSegIndex;
+
+        while (!scanCompleted) { //look for an intersecion
+
+
+            // sometimes there will be more than 1 bit's edges intersecting a segment. We have to make sure that
+            // we return the first of theses intersections. So we will store all intersection points and return
+            // the one which its distance with segment's start is the lowest.
+            Vector<Vector2> intersectionPoints = new Vector<>();
+
+
+            //fill intersectionPoints Vector<> by checking intersections with all bit's sides
+            for (Segment2D bitSide : bitSides) {
+                Vector2 intersectionPoint = getIntersectionPoint(bitSide, contourSegments.get(iSeg));
+                if (intersectionPoint != null) { // then we store this intersection
+                    intersectionPoints.add(intersectionPoint);
+                }
+            }
+
+            // if we have some intersections we have to return the first one (as explained above)
+            if (! intersectionPoints.isEmpty()){
+                double maxDist2 = 1000000;
+                Vector2 firstIntersectionPoint = null; // can't be null
+                for(Vector2 intersectPoint : intersectionPoints){
+
+                    double dist2 = Vector2.dist2(contourSegments.get(iSeg).start, intersectPoint);
+                    if (dist2 < maxDist2){
+                        maxDist2 = dist2;
+                        firstIntersectionPoint = intersectPoint;
+                    }
+
+                }
+                AI_Tool.dataPrep.pointsADessiner.add(firstIntersectionPoint);
+                return firstIntersectionPoint;
+            }
+
+
+            // increment
+            iSeg++;
+            if (iSeg == contourSegments.size()) {
+                iSeg = 0;
+            }
+
+            // check if scan completed = we reached the segment at index startSegIndex again
+            if (iSeg == startSegIndex) {
+                scanCompleted = true;
             }
         }
 
-        Segment2D outGoingSegment = new Segment2D(points.get(i - 1), points.get(i));
-
-        //We are looking for the intersection between the outGoingSegment and the bounds of the Slice
-        Vector2 intersectionPoint;
-        Vector<Segment2D> sides = getBitSidesSegments(bit);
-
-        for (Segment2D bitSides : sides) {
-            intersectionPoint = getIntersectionPoint(bitSides, outGoingSegment);
-            if (intersectionPoint != null){
-                return intersectionPoint;
-            }
-        }
-
+        // reached only if no intersection has been found
         throw new AI_Exception("The bit start point has not been found.");
     }
 
+
+    // just for tests
+    public void tests(Bit2D bit2D){
+
+        Vector<Vector2> contourPoints = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+
+        try {
+            Vector2 startPoint = getNextBitStartPoint(bit2D, contourPoints);
+        } catch (AI_Exception e) {
+            e.printStackTrace();
+            System.out.println("nextBitstartpoint pas trouvé");
+        }
+
+    }
 
 }

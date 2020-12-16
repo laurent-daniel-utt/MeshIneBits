@@ -508,12 +508,15 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
          */
 
         //Draw Area and/or fill it
+        /*
         if (AI_Tool.dataPrep.hasNewBitToDraw) {
             AI_Tool.dataPrep.transformArea = realToView;
             Bit2D bit = AI_Tool.dataPrep.bit;
             AI_Tool.dataPrep.Bits.add(bit);
             AI_Tool.dataPrep.hasNewBitToDraw = false;
         }
+
+         */
 
 
         Vector<Bit2D> bits = AI_Tool.dataPrep.Bits;

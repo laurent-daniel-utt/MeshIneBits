@@ -64,7 +64,12 @@ public class Genetic {
             solutions.add(bestBit);
 
             System.out.println("best bit " + bestBit);
-            startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
+            try {
+                startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
+            } catch (AI_Exception e) {
+                e.printStackTrace();
+                System.out.println("nextBitStartPoint non trouvé dans Genetics");
+            }
             if (startPoint == null) {
                 try {
                     throw new AI_Exception("AIE AIE AIE");
@@ -73,7 +78,7 @@ public class Genetic {
             }
             //System.out.println("on a le startPoint : "+startPoint);
             //associatedPoints.clear();
-            associatedPoints = AI_Tool.dataPrep.getBitAssociatedPoints(startPoint, (Vector<Vector2>) bound1.clone());
+            associatedPoints = AI_Tool.dataPrep.getBitAssociatedPoints(bestBit, startPoint, (Vector<Vector2>) bound1.clone());
         }
     }
 
