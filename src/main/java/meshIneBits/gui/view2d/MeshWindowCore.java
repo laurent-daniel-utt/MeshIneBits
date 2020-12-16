@@ -34,6 +34,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
+import remixlab.dandelion.geom.Vec;
 
 import javax.swing.*;
 import java.awt.*;
@@ -537,6 +538,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.fill(area);
             g2d.setColor(Color.DARK_GRAY);
             g2d.draw(area);
+        }
+
+        for (Vector2 point : AI_Tool.dataPrep.pointsADessiner){
+            drawModelCircle(g2d, point.x, point.y, 4);
         }
 
 

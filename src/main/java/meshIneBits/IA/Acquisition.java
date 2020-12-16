@@ -47,8 +47,10 @@ public class Acquisition {
         Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
+        System.out.println("bit : " + bit);
 
         AI_Tool.dataPrep.pointsADessiner.addAll(points); //debugOnly
+
 
 //debugOnly, on teste si la recherche du point suivant marche bien
         /*

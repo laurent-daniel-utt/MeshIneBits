@@ -52,7 +52,7 @@ public class AI_Tool {
         Vector<Vector<Vector2>> boundsToCheckAssociated = AI_Tool.dataPrep.getBoundsAndRearrange(sliceToTest); //debugonly on fait ici que la premiere slice
         Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);
         for (Vector2 point : bound1) {
-            AI_Tool.dataPrep.pointsADessiner.add(point);
+            //AI_Tool.dataPrep.pointsADessiner.add(point);
         }
         //placeBitsOnSlices(sliceMap); //todo remettre
     }

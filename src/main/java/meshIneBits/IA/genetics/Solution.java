@@ -85,8 +85,6 @@ public class Solution {
 
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
 
-        System.out.println("availableBitArea.isEmpty() " + availableBitArea.isEmpty());
-
         if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
             return -1;

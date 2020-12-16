@@ -10,7 +10,9 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
+import remixlab.dandelion.geom.Vec;
 
+import javax.naming.BinaryRefAddr;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -159,6 +161,65 @@ public class DataPreparation {
         return finalPoints;
     }
 
+
+    public static double getAngle(Vector2 A, Vector2 B, Vector2 C) {
+        Vector2 AB = B.sub(A);
+        Vector2 BC = B.sub(C);
+
+        //double angle = Math.abs( AB.getEquivalentAngle2() - BC.getEquivalentAngle2() );
+        double angle = Math.acos((Vector2.dist2(B, A) + Vector2.dist2(B, C) - Vector2.dist2(A, C))
+                / (2 * (Vector2.dist(B, A) * Vector2.dist(B, C))));
+        return Math.toDegrees(angle);
+    }
+
+
+    public static boolean doIntersect(Segment2D seg1, Segment2D seg2) {
+        // points
+        Vector2 A = seg1.start;
+        Vector2 B = seg1.end;
+        Vector2 C = seg2.start;
+        Vector2 D = seg2.end;
+
+        double DAB = getAngle(D, A, B);
+        double ABC = getAngle(A, B, C);
+        double BCD = getAngle(B, C, D);
+        double CDA = getAngle(C, D, A);
+
+        double sum = Math.abs(DAB) + Math.abs(ABC) + Math.abs(BCD) + Math.abs(CDA);
+
+        // if sum is not 2pi, then ABCD is a complex quadrilateral (2 edges cross themselves).
+        // This means that segments intersect
+        double errorThreshold = 0.1;
+        return !(Math.abs(360 - sum) < errorThreshold);
+    }
+
+    public static Vector2 getIntersectionPoint(Segment2D seg1, Segment2D seg2) {
+        // points
+        Vector2 A = seg1.start;
+        Vector2 B = seg1.end;
+        Vector2 C = seg2.start;
+        Vector2 D = seg2.end;
+
+        if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
+            return A;
+        }
+        else if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)){
+            return B;
+        }
+        else if (doIntersect(seg1, seg2)) {
+
+            double AD = Vector2.dist(A, D);
+            double AID = 180 - getAngle(D, A, B) - getAngle(C, D, A);
+            double IA =  (AD/Math.sin(Math.toRadians(AID))) * Math.sin(Math.toRadians(getAngle(A, D, C)));
+
+            return   A.add(B.sub(A).normal().mul(IA));
+        }
+        return null;
+    }
+
+
+
+
     /**
      * Takes a list of points, and returns the part of the polygon which can be used to place a bit.
      * Section acquisition is done clockwise.
@@ -168,7 +229,7 @@ public class DataPreparation {
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
     //todo @Andre on peut surement l'enlever cette méthode? pareil pour circleAndSegmentIntersection()
-    public static Vector<Vector2> getSectionToPlaceNewBit(Vector<Vector2> polyPoints, Vector2 startPoint) {
+    public static Vector<Vector2> getSectionPoints(Vector<Vector2> polyPoints, Vector2 startPoint) {
         int startIndex = 0;
         for (int i = 1; i < polyPoints.size(); i++) {
             Segment2D segment2D = new Segment2D(polyPoints.get(i - 1), polyPoints.get(i));
@@ -192,6 +253,7 @@ public class DataPreparation {
                 polyPoints.get(i - 1), polyPoints.get(i)));
         return sectionPoints;
     }
+
 
     // Initial conditions : intersection exists,the segment is cutting
     // the circle at one unique point.
@@ -222,6 +284,9 @@ public class DataPreparation {
         double y = p0.y + t * ((p1.y - p0.y));
         return new Vector2(x, y);
     }
+
+
+    // ===============================================================================
 
     public Double getSectionOrientation(Vector<Vector2> points) {
         // prepare fitting
@@ -345,14 +410,9 @@ public class DataPreparation {
 
         Vector<Segment2D> clonedBitSides = (Vector<Segment2D>) sides.clone();
         for (Segment2D bitSide : clonedBitSides) {
-            intersectionPoint = bitSide.intersect(outGoingSegment); //null if parallel
-
-            if (intersectionPoint != null) {
-                if (contains(bitSide, intersectionPoint)) {
-                    if (contains(outGoingSegment, intersectionPoint)) {
-                        return intersectionPoint;
-                    }
-                }
+            intersectionPoint = getIntersectionPoint(bitSide, outGoingSegment);
+            if (intersectionPoint != null){
+                return intersectionPoint;
             }
         }
         return null;
@@ -635,9 +695,6 @@ public class DataPreparation {
                 associatedPoints.add(point);
         }
 
-        // 3) add final point (intersection between slice's contour and bit's sides)
-        //todo : améliorer gestion erreur, + le fait qu'on ne regarde que sur le 1er contour
-        associatedPoints.add(getNextBitStartPoint(bit, boundsList.get(0)));
         this.pointsContenus = (Vector<Vector2>) associatedPoints.clone();
         return associatedPoints;
     }
@@ -704,16 +761,12 @@ public class DataPreparation {
         Vector<Segment2D> sides = getBitSidesSegments(bit);
 
         for (Segment2D bitSides : sides) {
-            intersectionPoint = bitSides.intersect(outGoingSegment); //null if parallel
-
-            if (intersectionPoint != null) {
-                if (contains(bitSides, intersectionPoint)) {
-                    if (contains(outGoingSegment, intersectionPoint)) {
-                        return intersectionPoint;
-                    }
-                }
+            intersectionPoint = getIntersectionPoint(bitSides, outGoingSegment);
+            if (intersectionPoint != null){
+                return intersectionPoint;
             }
         }
+
         throw new AI_Exception("The bit start point has not been found.");
     }
 

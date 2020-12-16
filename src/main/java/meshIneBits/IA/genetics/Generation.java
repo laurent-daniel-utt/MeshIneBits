@@ -73,7 +73,7 @@ public class Generation {
         double position = Math.random() * CraftConfig.bitWidth;
         double angleSection = AI_Tool.dataPrep.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone()) * (180 / Math.PI);
-        AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
+        //AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
         // recenter points so the first point of the section is on the Oy axis.
         // This way we'll be able to use arePointsMostlyToTheRight method
         Vector<Vector2> oYRecenteredPoints = new Vector();
