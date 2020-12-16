@@ -46,16 +46,11 @@ public class Acquisition {
     public static void addNewExampleBit(Bit2D bit) throws AI_Exception {
 
 
+
         Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
-        System.out.println("premier point "+ points.firstElement().toString());
-
-
-
-
-        //AI_Tool.dataPrep.tests(bit);
 
 
 //debugOnly, on teste si la recherche du point suivant marche bien

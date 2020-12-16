@@ -1,5 +1,6 @@
 package meshIneBits.IA;
 
+import jogamp.graph.font.typecast.ot.table.GsubTable;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.Curve;
@@ -11,6 +12,7 @@ import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 
+import javax.swing.text.Segment;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -226,35 +228,67 @@ public class DataPreparation {
      */
     //todo @Andre on peut surement l'enlever cette méthode? pareil pour circleAndSegmentIntersection()
     public static Vector<Vector2> getSectionPoints(Vector<Vector2> polyPoints, Vector2 startPoint) {
+
+        double bitLength = CraftConfig.bitLength;
+
+        // first we look for the segment on which the startPoint is.
         int startIndex = 0;
-        for (int i = 1; i < polyPoints.size(); i++) {
-            Segment2D segment2D = new Segment2D(polyPoints.get(i - 1), polyPoints.get(i));
-            if (startPoint.isOnSegment(segment2D)) {
-                startIndex = i - 1;
+        for (int i = 0; i < polyPoints.size(); i++) {
+            Segment2D segment2D = new Segment2D(polyPoints.get(i), polyPoints.get(i+1));
+            if (isPointOnSegment(startPoint, segment2D)) {
+                startIndex = i+1;
                 break;
             }
         }
-        double bitLength = CraftConfig.bitLength;
+        System.out.println("startIndex " + startIndex);
+        System.out.println("point " + polyPoints.get(startIndex));
+        //AI_Tool.dataPrep.pointsADessiner.add(polyPoints.get(startIndex));
+
+        // so we will get points situated on and after point at startIndex and add them to sectionPoints Vector, plus the startPoint
         Vector<Vector2> sectionPoints = new Vector<>();
+        sectionPoints.add(startPoint); // first we add the startPoint which is the first point of the section
+
         // direct distance between start point and selected point.
-        double d = 0;
-        int i = 0;
-        while (d < bitLength) {
-            sectionPoints.add(polyPoints.get(i));
-            i++;
-            d = Vector2.dist(polyPoints.get(startIndex), polyPoints.get(i));
+        double d = Vector2.dist(startPoint, polyPoints.get(startIndex));
+        int iPoint = startIndex;
+
+        while (d < bitLength) { // we add all the point that are at less than bitLength distance from the startPoint
+            sectionPoints.add(polyPoints.get(iPoint));
+            iPoint++;
+            if(iPoint==polyPoints.size()){ // coma back to index 0
+                iPoint = 0;
+            }
+            d = Vector2.dist(startPoint, polyPoints.get(iPoint));
         }
-        //place the last point of the segment at the distance of one bit from start point.
-        sectionPoints.add(circleAndSegmentIntersection(polyPoints.get(startIndex), bitLength,
-                polyPoints.get(i - 1), polyPoints.get(i)));
+
+        // this segment intersects with a circle : center -> startPoint; radius -> bitLength
+        Segment2D segment = new Segment2D(polyPoints.get(iPoint-1), polyPoints.get(iPoint));
+
+        // find this intersection : this is the last point of the section
+        sectionPoints.add(circleAndSegmentIntersection(startPoint, bitLength,
+                segment));
+
+        AI_Tool.dataPrep.pointsADessiner.addAll(sectionPoints);
+
+
         return sectionPoints;
+    }
+
+
+    private static boolean isPointOnSegment(Vector2 p, Segment2D s){
+        double errorAccepted = 5;
+        return Math.abs(Vector2.dist(s.start, p) + Vector2.dist(s.end, p) - s.getLength()) < errorAccepted;
     }
 
 
     // Initial conditions : intersection exists,the segment is cutting
     // the circle at one unique point.
     //parameters : circle center, segment's first and second point.
-    public static Vector2 circleAndSegmentIntersection(Vector2 center, double radius, Vector2 p0, Vector2 p1) {
+    public static Vector2 circleAndSegmentIntersection2(Vector2 center, double radius, Segment2D segment2D) {
+
+        Vector2 p0 = segment2D.start;
+        Vector2 p1 = segment2D.end;
+
         //we express the segment's equation as x(t) and y(t) where t is between 0 and 1.
         //roots of this polynomial are values of t where the circle and the segment intersect:
         //double a = Math.pow((p1.x-p0.x), 2) + Math.pow((p1.y-p0.y), 2);
@@ -278,6 +312,28 @@ public class DataPreparation {
         //compute coordinates
         double x = p0.x + t * ((p1.x - p0.x));
         double y = p0.y + t * ((p1.y - p0.y));
+        return new Vector2(x, y);
+    }
+
+
+    public static Vector2 circleAndSegmentIntersection(Vector2 center, double radius, Segment2D seg){
+
+        double bitLength = CraftConfig.bitLength;
+
+        double step = 0.01;
+
+        double t = 1;
+        double x = seg.end.x;
+        double y = seg.end.y;
+        double dist = Vector2.dist(center, new Vector2(x, y));
+
+        while(dist>bitLength) {
+            t = t - step;
+            x = seg.start.x + t*(seg.end.x-seg.start.x);
+            y = seg.start.y + t*(seg.end.y-seg.start.y);
+            dist = Vector2.dist(center, new Vector2(x, y));
+        }
+
         return new Vector2(x, y);
     }
 
@@ -609,7 +665,9 @@ public class DataPreparation {
 
         //Checks for each point if it is in the radius of the bit from the start point
         Vector2 startPoint = getBitAndContourFirstIntersectionPoint(bit2D, boundToCheck);
-        return getBitAssociatedPoints(bit2D, startPoint);
+
+        Vector<Vector2> contourPoints = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+        return getSectionPoints(contourPoints, startPoint);
     }
 
     /**
@@ -660,11 +718,15 @@ public class DataPreparation {
                 associatedPoints.add(point);
         }
 
+        // 3) add last point
+        //associatedPoints.add(circleAndSegmentIntersection(startPoint, CraftConfig.bitLength, ))
+
         this.pointsContenus = (Vector<Vector2>) associatedPoints.clone();
         return associatedPoints;
     }
 
 
+    // inly used in Genetic
     public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D, Vector2 startPoint, Vector<Vector2> points) {
         Vector<Vector2> bound = (Vector<Vector2>) points.clone();
         //We search which bound intersects with the bit.
@@ -765,7 +827,6 @@ public class DataPreparation {
                     }
 
                 }
-                AI_Tool.dataPrep.pointsADessiner.add(firstIntersectionPoint);
                 return firstIntersectionPoint;
             }
 
@@ -792,12 +853,14 @@ public class DataPreparation {
 
         Vector<Vector2> contourPoints = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
+        Vector2 startPoint = null;
         try {
-            Vector2 startPoint = getNextBitStartPoint(bit2D, contourPoints);
+            startPoint = getBitAndContourFirstIntersectionPoint(bit2D, contourPoints);
         } catch (AI_Exception e) {
             e.printStackTrace();
-            System.out.println("nextBitstartpoint pas trouvé");
         }
+        getSectionPoints(contourPoints, startPoint);
+        //AI_Tool.dataPrep.pointsADessiner.addAll(getSectionPoints(contourPoints, startPoint));
 
     }
 
