@@ -163,7 +163,7 @@ public class DeepL {
     }
 
 
-    public static Bit2D getBitPlacement(Vector<Vector2> sectionPoints, Vector2 startPoint, double sectionAngle) throws IOException, InterruptedException {
+    public static Bit2D getBitPlacement(Vector<Vector2> sectionPoints, Vector2 startPoint, double angleLocalSystem) throws IOException, InterruptedException {
         Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(sectionPoints);
         Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
         System.out.println("SECTION POINTS SIZE " + pointsForDl.size());
@@ -204,7 +204,7 @@ public class DeepL {
         double bitPos = prediction.getDouble(0);
         double bitAngle = prediction.getDouble(1);
 
-        Bit2D bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, sectionAngle);
+        Bit2D bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         return bit;

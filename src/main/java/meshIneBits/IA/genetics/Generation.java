@@ -75,17 +75,8 @@ public class Generation {
         double angleSection = DataPreparation.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone());
         //AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
-        // recenter points so the first point of the section is on the Oy axis.
-        // This way we'll be able to use arePointsMostlyToTheRight method
-        Vector<Vector2> oYRecenteredPoints = new Vector();
-        Vector<Vector2> clonedPointSection = (Vector<Vector2>) pointSection.clone();
-        for (int i = 0; i < clonedPointSection.size(); i++) {
-            oYRecenteredPoints.add(new Vector2(
-                    clonedPointSection.get(i).x - clonedPointSection.get(0).x,
-                    clonedPointSection.get(i).y));
-        }
 
-        if (!DataPreparation.arePointsMostlyToTheRight(oYRecenteredPoints)) {
+        if (!DataPreparation.arePointsMostlyOrientedToTheRight(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;

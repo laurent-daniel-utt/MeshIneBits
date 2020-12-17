@@ -1,5 +1,6 @@
 package meshIneBits.IA.IA_util;
 
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
@@ -40,13 +41,14 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
             Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(entry.getPoints());
             Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
-            double orientation = entry.getBitOrientation().getEquivalentAngle2();
+            double bitOrientation = entry.getBitOrientation().getEquivalentAngle2() - DataPreparation.getSectionOrientation(entry.getPoints());
+            // ==> bit orientation in local coordinate system = bit orientation in global minus angle of sectiojn in global (= angle of local coordinate system
 
             //generates one line (corresponds to the data of one bit)
             String csvLine = ""
                     + edgeAbscissa // adds position
                     + ","
-                    + orientation; //adds orientation
+                    + bitOrientation; //adds bitOrientation
             for (Vector2 point : pointsForDl) { // add points
                 csvLine += "," + point.x;
                 csvLine += "," + point.y;
@@ -70,21 +72,28 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
      * a startPoint and an abscissa related to one bit's vertex. This is helpful for automatic placement on
      * slice's borders,because it guarantees that the bit covers the startPoint, as bit's position is related to it.
      *
-     * @param bitPos     usual (x, y) coordinates of bit's center
+     * @param bitOrigin     usual (x, y) coordinates of bit's center
      * @param bitAngle   bit's angle as a vector
      * @param startPoint the startPoint on which the new bit's end should be placed : the intersection between the
      *                   slice border and the last placed bit's end edge
      * @return the edgeAbscissa
      */
-    public static double getBitEdgeAbscissa(Vector2 bitPos, Vector2 bitAngle, Vector2 startPoint) {
-        //todo repasser privé et non static
-        // bit's colinear and orthogonal unit vectors computation
+    public static double getBitEdgeAbscissa(Vector2 bitOrigin, Vector2 bitAngle, Vector2 startPoint) {
+
         Vector2 colinear = bitAngle.normal();
-        Vector2 orthogonal = colinear.rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
 
         //this point is used as a local origin for the new coordinate system
-        Vector2 originVertex = bitPos.add(orthogonal.mul(CraftConfig.bitWidth / 2))
+        Vector2 originVertex = bitOrigin.add(orthogonal.mul(CraftConfig.bitWidth / 2))
                 .sub(colinear.mul(CraftConfig.bitLength / 2));
+
+
+        if(Vector2.dist(originVertex, startPoint)>CraftConfig.bitWidth){
+            //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
+            originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
+                    .add(colinear.mul(CraftConfig.bitLength / 2));
+        }
+
 
         // edgeAbscissa is the distance between the startPoint and the originVertex
         // the startPoint on which the new bit should be placed : the intersection between the slice border
@@ -92,7 +101,39 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
         // todo: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
         double edgeAbscissa = Vector2.dist(originVertex, startPoint);
 
+
+        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin);
+        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(colinear.mul(10)));
+        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(orthogonal.mul(10)));
+
+        //AI_Tool.dataPrep.pointsADessiner.add(originVertex);
+        //AI_Tool.dataPrep.pointsADessiner.add(startPoint);
+
+
         return edgeAbscissa;
+    }
+
+    /**
+     *
+     * @param bitAngle the angle of the bit in the global coordinate system
+     * @param sectionPoints the points saved by DataLog
+     * @return the angle of the bit in the local coordinate system. Note that the angle is expressed
+     * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
+     * the angles -100 and -10 degrees (for example) would have been equivalent.
+     */
+    public static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints){
+
+        double localCoordinateSystemAngle = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
+
+        double bitAngleLocal = bitAngle.getEquivalentAngle2() -  localCoordinateSystemAngle;
+
+        if (bitAngleLocal > 90) {
+            bitAngleLocal -= 180;
+        }
+        if (bitAngleLocal < -90){
+            bitAngleLocal += 180;
+        }
+        return bitAngleLocal;
     }
 
     public static void main(String[] args) {

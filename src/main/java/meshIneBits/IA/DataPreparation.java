@@ -125,23 +125,32 @@ public class DataPreparation {
     }
 
 
-    public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> points) {
+    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionpoints){
 
         //map for more accurate result
-        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, points);
+        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionpoints);
 
         //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
 
-        //transform mapped points in local system
-        Vector<Vector2> transformedMappedPoints = transformCoordinateSystem(mappedPoints, angle);
-
-        //check if abscissa axe and and section are directed in the same direction.
-        if (!arePointsMostlyToTheRight(transformedMappedPoints)) {
-            angle += Math.PI; //rotate coordinate system
+        //check if abscissa axe of local coordinate system and and section are directed in the same direction.
+        if (!arePointsMostlyOrientedToTheRight(sectionpoints, sectionpoints.firstElement())) {
+            angle += 180; //rotate coordinate system
         }
 
-        return transformCoordinateSystem(points, angle);
+        if (angle>180){ // make sure that the angle is between -180 and 180 degrees
+            angle -= 360;
+        }
+
+        return angle;
+    }
+
+
+    public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> sectionPoints) {
+
+        double angle = getLocalCoordinateSystemAngle(sectionPoints);
+
+        return transformCoordinateSystem(sectionPoints, angle);
     }
 
 
@@ -271,7 +280,7 @@ public class DataPreparation {
         sectionPoints.add(circleAndSegmentIntersection(startPoint, bitLength,
                 segment));
 
-        AI_Tool.dataPrep.pointsADessiner.addAll(sectionPoints);
+        //AI_Tool.dataPrep.pointsADessiner.addAll(sectionPoints);
 
 
         return sectionPoints;
@@ -359,11 +368,12 @@ public class DataPreparation {
     }
 
 
-    public static boolean arePointsMostlyToTheRight(Vector<Vector2> points) {
+    public static boolean arePointsMostlyOrientedToTheRight(Vector<Vector2> points, Vector2 refPoint) {
+
         int leftPoints = 0;
         int rightPoints = 0;
         for (Vector2 point : points) {
-            if (point.x < 0) {
+            if (point.x < refPoint.x) {
                 leftPoints++;
             } else {
                 rightPoints++;
@@ -541,7 +551,7 @@ public class DataPreparation {
      * @param bit the Bit2D
      * @return a Vector of the four segments.
      */
-    public Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+    public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
 
         Vector<Segment2D> sides = new Vector<>();
         //generates the 4 points which makes the rectangular bit
@@ -765,7 +775,7 @@ public class DataPreparation {
      * @throws AI_Exception if no point has been found
      */
     public Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> contourPoints) throws AI_Exception {
-
+        // todo parfois c'est le second point qui est trouvé, il faut régler ça
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = getBitSidesSegments(bit);
 

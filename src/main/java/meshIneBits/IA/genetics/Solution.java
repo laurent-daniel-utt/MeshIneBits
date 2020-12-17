@@ -255,15 +255,7 @@ public class Solution {
         double angleBit = Math.abs(bit2D.getOrientation().getEquivalentAngle2());
         double angleSection = DataPreparation.getSectionOrientation(sectionPoints);
 
-        // recenter points so the first point of the section is on the Oy axis.
-        // This way we'll can use arePointsMostlyToTheRight method
-        Vector<Vector2> oYRecenteredPoints = new Vector<>();
-        for (Vector2 sectionPoint : sectionPoints) {
-            oYRecenteredPoints.add(new Vector2(
-                    sectionPoint.x - sectionPoints.get(0).x,
-                    sectionPoint.y));
-        }
-        if (!DataPreparation.arePointsMostlyToTheRight(oYRecenteredPoints)) {
+        if (!DataPreparation.arePointsMostlyOrientedToTheRight(sectionPoints, sectionPoints.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
 

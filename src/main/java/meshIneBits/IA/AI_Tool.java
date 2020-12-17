@@ -59,13 +59,10 @@ public class AI_Tool {
         Vector2 startPoint = bound1.get(40);
 
         Vector<Vector2> sectionPoints = DataPreparation.getSectionPoints(bound1, startPoint);
-        //just to get the angle //todo @Andre, ici j'ai réecrit les deux premieres fonctions déjà apellées dans getSectionInLocalCoo... pour avoir l'angle, on doit pouvoir optimiser
-        Vector<Vector2> mappedPoints = DataPreparation.repopulateWithNewPoints(30, sectionPoints);
-        double angleSection = DataPreparation.getSectionOrientation(mappedPoints);
-        sectionPoints = DataPreparation.getSectionInLocalCoordinateSystem(sectionPoints);
-        sectionPoints = DataPreparation.getInputPointsForDL(sectionPoints);
 
-        Bit2D bit = DeepL.getBitPlacement(sectionPoints, startPoint, angleSection);
+        double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
+
+        Bit2D bit = DeepL.getBitPlacement(sectionPoints, startPoint, angleLocalSystem);
 
         bits.add(bit);
     }
