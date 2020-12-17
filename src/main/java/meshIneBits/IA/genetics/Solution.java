@@ -3,6 +3,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.DataPreparation;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
@@ -185,7 +186,7 @@ public class Solution {
     /**
      * returns the number of intersections between bit's edges and the section.
      *
-     * @param sectionPoints
+     * @param sectionPoints the section of the Slice
      * @return the number of intersections
      */
 
@@ -209,8 +210,8 @@ public class Solution {
             for (Segment2D bitSides : sides) {
                 Vector2 intersectionPoint = bitSides.intersect(sectionSegment); //null if parallel
                 if (intersectionPoint != null) {
-                    if (AI_Tool.dataPrep.contains(bitSides, intersectionPoint)) {
-                        if (AI_Tool.dataPrep.contains(sectionSegment, intersectionPoint)) {
+                    if (intersectionPoint.isOnSegment(bitSides)) {
+                        if (intersectionPoint.isOnSegment(sectionSegment)) {
                             intersectionCount += 1;
                         }
                     }
@@ -227,10 +228,6 @@ public class Solution {
      * @return the related Bit
      */
     private Bit2D getBit(Vector2 startPoint) {
-        //AI_Tool.acquisition.startPoint = startPoint;//debugOnly
-
-        //bitAngle = new Vector2(1,0);//debugONLY
-        //bitPos = 0;
         Vector2 colinear = this.bitAngle.normal();
         Vector2 orthogonal = colinear
                 .rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
@@ -249,24 +246,24 @@ public class Solution {
      * the more the score will be decreased.
      * Depends of <code>ANGLE_PENALTY_STRENGTH</code>
      *
-     * @param sectionPoints
+     * @param sectionPoints the section of the Slice
      */
     private void addPenaltyForBitAngle(Vector<Vector2> sectionPoints) { //todo @all tester
 
         Bit2D bit2D = getBit(startPoint);
 
         double angleBit = Math.abs(bit2D.getOrientation().getEquivalentAngle2());
-        double angleSection = AI_Tool.dataPrep.getSectionOrientation(sectionPoints) * (180 / Math.PI);
+        double angleSection = DataPreparation.getSectionOrientation(sectionPoints);
 
         // recenter points so the first point of the section is on the Oy axis.
         // This way we'll can use arePointsMostlyToTheRight method
-        Vector<Vector2> oYRecenteredPoints = new Vector();
-        for (int i = 0; i < sectionPoints.size(); i++) {
+        Vector<Vector2> oYRecenteredPoints = new Vector<>();
+        for (Vector2 sectionPoint : sectionPoints) {
             oYRecenteredPoints.add(new Vector2(
-                    sectionPoints.get(i).x - sectionPoints.get(0).x,
-                    sectionPoints.get(i).y));
+                    sectionPoint.x - sectionPoints.get(0).x,
+                    sectionPoint.y));
         }
-        if (!AI_Tool.dataPrep.arePointsMostlyToTheRight(oYRecenteredPoints)) {
+        if (!DataPreparation.arePointsMostlyToTheRight(oYRecenteredPoints)) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
 
@@ -283,7 +280,7 @@ public class Solution {
      * the more the score will be decreased.
      * Depends of <code>LENGTH_PENALTY_STRENGTH</code>
      *
-     * @param sectionPoints
+     * @param sectionPoints the section of the Slice
      */
     private void addPenaltyForSectionCoveredLength(Vector<Vector2> sectionPoints) { //todo @all tester
 
@@ -308,8 +305,8 @@ public class Solution {
                 Vector2 intersectionPoint = sides.get(i_bitSide).intersect(sectionSegments.get(i_segment)); //null if parallel
 
                 if (intersectionPoint != null) {
-                    if (AI_Tool.dataPrep.contains(sides.get(i_bitSide), intersectionPoint)) {
-                        if (AI_Tool.dataPrep.contains(sectionSegments.get(i_segment), intersectionPoint)) {
+                    if (intersectionPoint.isOnSegment(sides.get(i_bitSide))) {
+                        if (intersectionPoint.isOnSegment(sectionSegments.get(i_segment))) {
                             coveredDistance = Vector2.dist(startPoint, intersectionPoint);
                             if (coveredDistance != 0.0) {
                                 firstIntersectionPoint = intersectionPoint;
@@ -350,11 +347,6 @@ public class Solution {
  */
 class SolutionComparator implements Comparator<Solution> {
     public int compare(Solution s1, Solution s2) {
-        if (s1.score > s2.score)
-            return -1;
-        if (s1.score < s2.score) {
-            return 1;
-        }
-        return 0;
+        return Double.compare(s2.score, s1.score);
     }
 }

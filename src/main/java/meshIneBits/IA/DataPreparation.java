@@ -1,6 +1,5 @@
 package meshIneBits.IA;
 
-import jogamp.graph.font.typecast.ot.table.GsubTable;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.Curve;
@@ -12,7 +11,6 @@ import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 
-import javax.swing.text.Segment;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -127,12 +125,12 @@ public class DataPreparation {
     }
 
 
-    public Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> points) {
+    public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> points) {
 
         //map for more accurate result
         Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, points);
 
-        //get an angle
+        //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
 
         //transform mapped points in local system
@@ -147,7 +145,13 @@ public class DataPreparation {
     }
 
 
-    private Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
+    /**
+     * @param points
+     * @param angle  in degrees
+     * @return
+     */
+    private static Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
+        angle = Math.toRadians(angle);
         Vector<Vector2> finalPoints = new Vector<>();
         finalPoints.add(new Vector2(0, 0)); // first point is always on origin
         double translatX = points.firstElement().x * Math.cos(angle) + points.firstElement().y * Math.sin(angle);
@@ -226,7 +230,6 @@ public class DataPreparation {
      * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
-    //todo @Andre on peut surement l'enlever cette méthode? pareil pour circleAndSegmentIntersection()
     public static Vector<Vector2> getSectionPoints(Vector<Vector2> polyPoints, Vector2 startPoint) {
 
         double bitLength = CraftConfig.bitLength;
@@ -338,7 +341,7 @@ public class DataPreparation {
     }
 
 
-    public Double getSectionOrientation(Vector<Vector2> points) {
+    public static Double getSectionOrientation(Vector<Vector2> points) {
         // prepare fitting
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degré
         WeightedObservedPoints weightedObservedPoints = new WeightedObservedPoints();
@@ -351,12 +354,12 @@ public class DataPreparation {
         // fit
         double[] coefs_inverse = fitter.fit(weightedObservedPoints.toList());
 
-        return Math.atan(coefs_inverse[1]);
+        return Math.toDegrees(Math.atan(coefs_inverse[1]));
 
     }
 
 
-    public boolean arePointsMostlyToTheRight(Vector<Vector2> points) {
+    public static boolean arePointsMostlyToTheRight(Vector<Vector2> points) {
         int leftPoints = 0;
         int rightPoints = 0;
         for (Vector2 point : points) {
@@ -370,7 +373,7 @@ public class DataPreparation {
     }
 
 
-    public Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
+    public static Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
         int nbPoints = 30;
         return repopulateWithNewPoints(nbPoints, sectionPoints);
     }
@@ -472,7 +475,7 @@ public class DataPreparation {
      * @param points      the section of points to repopulate
      * @return the section repopulated with new points.
      */
-    public Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points) {
+    public static Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points) {
 
         Vector<Vector2> newPoints = new Vector<>();
         Vector<Double> segmentLength = new Vector<>();
@@ -665,9 +668,7 @@ public class DataPreparation {
 
         //Checks for each point if it is in the radius of the bit from the start point
         Vector2 startPoint = getBitAndContourFirstIntersectionPoint(bit2D, boundToCheck);
-
-        Vector<Vector2> contourPoints = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
-        return getSectionPoints(contourPoints, startPoint);
+        return getBitAssociatedPoints(bit2D, startPoint);
     }
 
     /**
@@ -726,7 +727,7 @@ public class DataPreparation {
     }
 
 
-    // inly used in Genetic
+    // only used in Genetic
     public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D, Vector2 startPoint, Vector<Vector2> points) {
         Vector<Vector2> bound = (Vector<Vector2>) points.clone();
         //We search which bound intersects with the bit.

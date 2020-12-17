@@ -4,9 +4,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
-import meshIneBits.IA.IA_util.DataSetGenerator;
-import meshIneBits.IA.genetics.Generation;
-import meshIneBits.IA.genetics.Solution;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -92,8 +89,6 @@ public class Acquisition {
 
 
         System.out.println("example added");
-
-
 
     }
 }

@@ -130,6 +130,7 @@ public class CraftConfig {
             new ImprovedBrickPattern(),
             new EconomicPattern(),
             new UnitSquarePattern(),
+            new AI_Pavement(),
             new GeneticPavement()
     };
 

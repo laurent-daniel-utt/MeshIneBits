@@ -24,6 +24,8 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.Acquisition;
+import meshIneBits.IA.DeepL;
 import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;
@@ -46,9 +48,9 @@ public class UPPToolsIA extends UtilityParametersPanel {
         JButton startButton = new JButton("Start AI Pavement");
         startButton.addActionListener(e -> {
             try {
-                //todo Etienne : else throw error "Mesh not found or Mesh not sliced"
-                meshController.ai_Tool.startAI();
-                } catch (Exception e1) {
+                //todo @Etienne : else throw error "Mesh not found or Mesh not sliced"
+                AI_Tool.startAI(meshController.getMesh().getSlices().get(0)); //DEBUGONLY
+            } catch (Exception e1) {
                     meshController.handleException(e1);
                 }
             });
@@ -56,7 +58,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
         JButton trainButton = new JButton("Train AI");
         trainButton.addActionListener(e -> {
             try {
-                meshController.ai_Tool.training.trainNN();
+                DeepL.trainWithCsvDataSet();
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }
@@ -66,7 +68,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
         deleteLastButton.setEnabled(false);
         deleteLastButton.addActionListener(_e -> {
             try {
-                meshController.ai_Tool.acquisition.deleteLastPlacedBit();
+                Acquisition.deleteLastPlacedBit();
             } catch (Exception _e1) {
                 meshController.handleException(_e1);
             }
@@ -78,12 +80,12 @@ public class UPPToolsIA extends UtilityParametersPanel {
                     if (storeButton.getText()==TEXT_TOGGLE_FALSE) {
                         storeButton.setText(TEXT_TOGGLE_TRUE);
                         deleteLastButton.setEnabled(true);
-                        meshController.ai_Tool.acquisition.startStoringBits();
+                        Acquisition.startStoringBits();
                     }
                     else {
                         storeButton.setText(TEXT_TOGGLE_FALSE);
                         deleteLastButton.setEnabled(false);
-                        meshController.ai_Tool.acquisition.stopStoringBits();
+                        Acquisition.stopStoringBits();
                     }
                 } catch (Exception e1) {
                     meshController.handleException(e1);

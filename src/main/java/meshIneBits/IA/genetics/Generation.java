@@ -1,6 +1,7 @@
 package meshIneBits.IA.genetics;
 
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -13,17 +14,17 @@ public class Generation {
      */
     private static final double MAX_ANGLE = 0;//todo mettre 30 je pense
     private final Vector<Vector2> bound;
-    private Vector2 startPoint;
+    private final Vector2 startPoint;
     public double meanScore = -1;
     public double maxScore = -1;
     public Solution bestSolution;
     public Vector<Solution> solutions;
-    private int popSize;
-    private int nbGensMax;
-    private double rankSelection;
-    private double rankReproduction;
+    private final int popSize;
+    private final int nbGensMax;
+    private final double rankSelection;
+    private final double rankReproduction;
     private double rankNew;
-    private double probMutation;
+    private final double probMutation;
 
     /**
      * A Generation is a set of solutions.
@@ -71,8 +72,8 @@ public class Generation {
     private Solution createNewSolution(Vector<Vector2> pointSection) {
         //todo l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
         double position = Math.random() * CraftConfig.bitWidth;
-        double angleSection = AI_Tool.dataPrep.
-                getSectionOrientation((Vector<Vector2>) pointSection.clone()) * (180 / Math.PI);
+        double angleSection = DataPreparation.
+                getSectionOrientation((Vector<Vector2>) pointSection.clone());
         //AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
         // recenter points so the first point of the section is on the Oy axis.
         // This way we'll be able to use arePointsMostlyToTheRight method
@@ -84,7 +85,7 @@ public class Generation {
                     clonedPointSection.get(i).y));
         }
 
-        if (!AI_Tool.dataPrep.arePointsMostlyToTheRight(oYRecenteredPoints)) {
+        if (!DataPreparation.arePointsMostlyToTheRight(oYRecenteredPoints)) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;
@@ -200,7 +201,7 @@ public class Generation {
         solutionList.sort(comparator);
         bestSolution = solutionList.get(0);
         System.out.println("best score : " + bestSolution.score);
-        System.out.println("");
+        System.out.println();
         return solutionList;
     }
 }

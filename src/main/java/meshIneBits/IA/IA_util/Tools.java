@@ -1,6 +1,5 @@
 package meshIneBits.IA.IA_util;
 
-import meshIneBits.Bit2D;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -20,55 +19,6 @@ public class Tools {
         }
         pointList.remove(0);
         return pointList;
-    }
-
-    public Vector<Vector<Segment2D>> rearrangeSegments(Vector<Segment2D> segmentList) { //return more than one Vector<Segment2D>, if there's more than one border on the slice
-        Vector<Vector<Segment2D>> list = new Vector<>();
-        Vector<Segment2D> newSegmentList = new Vector<>();
-        newSegmentList.add(segmentList.get(0));
-        list.add(newSegmentList);
-
-        while (!segmentList.isEmpty()) {
-            searchNextSegment(segmentList.get(0), segmentList, newSegmentList);
-            newSegmentList = new Vector<>();
-            list.add(newSegmentList);
-        }
-        list.removeIf(Vector::isEmpty);
-        return list;
-    }
-
-
-    public Vector<Segment2D> searchNextSegment(Segment2D segment, Vector<Segment2D> segmentList, Vector<Segment2D> newSegmentList) {
-        for (Segment2D segmentSearch : segmentList) {
-            if (segmentSearch.start == segment.end) {
-                newSegmentList.add(segmentSearch);
-                segmentList.remove(segmentSearch);
-                newSegmentList = searchNextSegment(segmentSearch, segmentList, newSegmentList);
-                return newSegmentList;
-            }
-        }
-        return newSegmentList;
-    }
-
-
-    public Vector<Vector2> rearrangePoints(Vector<Vector2> pointList) {
-        Vector<Vector2> newPointList = new Vector<>();
-        int PointIndex;
-        double maxX = -1000000000;
-        int indexMax = 0;
-
-        for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
-            Vector2 actualPoint = pointList.get(PointIndex);
-            if (actualPoint.x > maxX) {
-                maxX = actualPoint.x;
-                indexMax = PointIndex;
-            }
-        }
-
-        IntStream.range(indexMax, pointList.size()).mapToObj(pointList::get).forEachOrdered(newPointList::add);
-        IntStream.range(0, indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
-
-        return newPointList;
     }
 
 

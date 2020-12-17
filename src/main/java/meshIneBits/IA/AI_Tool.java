@@ -1,5 +1,6 @@
 package meshIneBits.IA;
 
+import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.Tools;
 import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.gui.view2d.MeshController;
@@ -7,6 +8,7 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -25,6 +27,7 @@ public class AI_Tool {
     private static MeshController meshController;
     private static Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
+    private static Vector<Bit2D> bits = new Vector<>(); //the bits placed by the AI
 
     public void setMeshController(MeshController meshController) {
         this.meshController = meshController;
@@ -34,8 +37,8 @@ public class AI_Tool {
     /**
      * Pave the whole mesh with AI.
      */
-    public static void startAI() { //started when pushing button on UI
-        //todo startAI doit permettre de paver entièrement un modèle
+    public static void startAI(Slice slice) throws IOException, InterruptedException {
+        bits.clear();
 
         Vector<Slice> slicesList = meshController.getMesh().getSlices();
         for (Slice currentSlice : slicesList) {
@@ -46,15 +49,25 @@ public class AI_Tool {
         }
         meshController.AIneedPaint = true; //debugOnly
 
-        Slice sliceToTest = AI_Tool.getMeshController().getMesh().getSlices().get(0);
+        //DEBUGONLY todo ici on teste juste en placant le bit 1
+        //todo startAI doit permettre de paver entièrement une slice
+
         Vector<Vector2> associatedPoints = new Vector<>();
 
-        Vector<Vector<Vector2>> boundsToCheckAssociated = AI_Tool.dataPrep.getBoundsAndRearrange(sliceToTest); //debugonly on fait ici que la premiere slice
-        Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);
-        for (Vector2 point : bound1) {
-            //AI_Tool.dataPrep.pointsADessiner.add(point);
-        }
-        //placeBitsOnSlices(sliceMap); //todo remettre
+        Vector<Vector<Vector2>> bounds = AI_Tool.dataPrep.getBoundsAndRearrange(slice);
+        Vector<Vector2> bound1 = bounds.get(0);
+        Vector2 startPoint = bound1.get(40);
+
+        Vector<Vector2> sectionPoints = DataPreparation.getSectionPoints(bound1, startPoint);
+        //just to get the angle //todo @Andre, ici j'ai réecrit les deux premieres fonctions déjà apellées dans getSectionInLocalCoo... pour avoir l'angle, on doit pouvoir optimiser
+        Vector<Vector2> mappedPoints = DataPreparation.repopulateWithNewPoints(30, sectionPoints);
+        double angleSection = DataPreparation.getSectionOrientation(mappedPoints);
+        sectionPoints = DataPreparation.getSectionInLocalCoordinateSystem(sectionPoints);
+        sectionPoints = DataPreparation.getInputPointsForDL(sectionPoints);
+
+        Bit2D bit = DeepL.getBitPlacement(sectionPoints, startPoint, angleSection);
+
+        bits.add(bit);
     }
 
     /**
@@ -69,5 +82,9 @@ public class AI_Tool {
      */
     public static Map<Slice, Vector<Segment2D>> getSliceMap() {
         return sliceMap;
+    }
+
+    public static Vector<Bit2D> getBits() {
+        return bits;
     }
 }

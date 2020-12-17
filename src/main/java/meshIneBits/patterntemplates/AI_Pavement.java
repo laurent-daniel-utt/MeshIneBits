@@ -1,15 +1,16 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.genetics.Genetic;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 
 import java.awt.geom.Area;
+import java.io.IOException;
 import java.util.Vector;
 
-public class GeneticPavement extends PatternTemplate {
+public class AI_Pavement extends PatternTemplate {
 
     @Override
     protected void initiateConfig() {
@@ -25,7 +26,12 @@ public class GeneticPavement extends PatternTemplate {
     public Pavement pave(Layer layer) {
         Vector<Bit2D> bits = new Vector<>();
         if (layer.getLayerNumber() < 1) {//todo paver tout
-            bits = new Genetic(layer).getSolutions();
+            try {
+                AI_Tool.startAI(layer.getHorizontalSection());
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            bits = AI_Tool.getBits();
         }
         return new Pavement(bits);
     }
@@ -52,18 +58,18 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Genetic pavement";
+        return "AI pavement";
     }
 
     @Override
     public String getIconName() {
         //todo @Etienne@Andre change icon
-        return "pattern-genetic.png";
+        return "pattern-AI.png";
     }
 
     @Override
     public String getDescription() {
-        return "Paves the bounds of the slices with genetic algorithms.";
+        return "Paves the bounds of the slices with a neural network";
     }
 
     @Override
