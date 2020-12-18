@@ -5,7 +5,6 @@ import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -40,6 +39,7 @@ public class Acquisition {
             DataLogEntry entry = new DataLogEntry(bit, storedExamplesBits.get(bit));
             DataLog.saveEntry(entry);
         }
+        DataSetGenerator.generateCsvFile();
     }
 
     public static void addNewExampleBit(Bit2D bit) throws AI_Exception {
