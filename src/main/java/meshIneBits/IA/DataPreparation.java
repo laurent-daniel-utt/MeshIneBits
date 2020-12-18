@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 
 public class DataPreparation {
     //DEBUGONLY
-    public Vector2 A = new Vector2(0, 0);
+    public static Vector2 A = new Vector2(0, 0);
     public Vector2 B = new Vector2(0, 0);
     public Vector2 C = new Vector2(0, 0);
     public Vector2 D = new Vector2(0, 0);

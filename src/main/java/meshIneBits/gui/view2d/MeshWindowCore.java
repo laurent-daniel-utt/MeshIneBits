@@ -25,6 +25,7 @@ package meshIneBits.gui.view2d;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.DataPreparation;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -34,7 +35,6 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Vector2;
-import remixlab.dandelion.geom.Vec;
 
 import javax.swing.*;
 import java.awt.*;
@@ -317,9 +317,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if (!meshController.getCurrentLayer().isPaved()) {
             paintLayerBorder(g2d);
         } else {
-            if (meshController.AIneedPaint) {//debugOnly
-                AIpaintForDebug(g2d);
-            }
             // Draw the border of layer
             if (meshController.showingSlice()) {
                 paintLayerBorder(g2d);
@@ -343,7 +340,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 paintBulkSelectZone(g2d);
             }
         }
-
+        if (meshController.AIneedPaint) {//debugOnly
+            AIpaintForDebug(g2d);
+        }
         // Draw selected region
         if (meshController.isSelectingRegion()
                 || meshController.hasSelectedRegion())
@@ -543,11 +542,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
         }
 
-        for (Vector2 point : AI_Tool.dataPrep.pointsADessiner){
+        for (Vector2 point : AI_Tool.dataPrep.pointsADessiner) {
             drawModelCircle(g2d, point.x, point.y, 4);
         }
 
-
+        g2d.setColor(Color.RED);
+        drawModelCircle(g2d, DataPreparation.A.x, DataPreparation.A.y, 4);
 
         //Draw Path2D
         /*

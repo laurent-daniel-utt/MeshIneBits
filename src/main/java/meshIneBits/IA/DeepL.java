@@ -32,11 +32,12 @@ import java.util.Vector;
 public class DeepL {
     public static final int BATCH_SIZE = 30;    //le nombre d'exemples
     public static final int HIDDEN_NEURONS_COUNT = 10; //le nombre de neurones dans une couche cachée
+    //j'ai l'impression que plus on augmente, plus ca fluctue, même si ca converge
     private static final int CLASSES_COUNT = 2;  //le nombre de classes possibles en sortie
     private static final int FEATURES_COUNT = 60; //le nombre de paramètres en entrée
     private static final String PATH_NAME_TRAIN = "dataSet.csv";
     private static final String PATH_NAME_PREDICT = "dataToPredict.csv";
-    private static final int N_EPOCHS = 10000;
+    private static final int N_EPOCHS = 100000;
     private static DataNormalization normalizer;
     private static MultiLayerNetwork model;
 
@@ -95,9 +96,9 @@ public class DeepL {
 */
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
-                .activation(Activation.TANH)//todo c'est quoi, tester
-                .weightInit(WeightInit.XAVIER)//todo c'est quoi, tester
-                .updater(new Adam(0.0001))//todo c'est quoi, tester
+                .activation(Activation.TANH)//todo c'est quoi tanh, tester d'autres
+                .weightInit(WeightInit.XAVIER)//todo c'est quoi Xavier, tester d'autres
+                .updater(new Adam(0.0001))//todo c'est quoi Adam, tester d'autres
                 .l2(0.005)//todo tester, c'est quoi?
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(HIDDEN_NEURONS_COUNT)
@@ -126,7 +127,22 @@ public class DeepL {
                 .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .activation(Activation.IDENTITY)
                         .build())
-                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(9, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.IDENTITY)
+                        .build())
+                .layer(10, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.IDENTITY)
+                        .build())
+                .layer(11, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.IDENTITY)
+                        .build())
+                .layer(12, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.IDENTITY)
+                        .build())
+                .layer(13, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.IDENTITY)
+                        .build())
+                .layer(14, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(HIDDEN_NEURONS_COUNT)
                         .nOut(CLASSES_COUNT)
@@ -207,6 +223,8 @@ public class DeepL {
         Bit2D bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
+        System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
+        DataPreparation.A = bit.getOrigin();
         return bit;
 
     }

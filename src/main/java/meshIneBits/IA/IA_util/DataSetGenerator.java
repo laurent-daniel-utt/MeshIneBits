@@ -1,6 +1,5 @@
 package meshIneBits.IA.IA_util;
 
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
@@ -134,10 +133,6 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
             bitAngleLocal += 180;
         }
         return bitAngleLocal;
-    }
-
-    public static void main(String[] args) {
-        DataSetGenerator.generateCsvFile();
     }
 
 

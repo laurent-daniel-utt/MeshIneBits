@@ -63,8 +63,8 @@ public class AI_Tool {
         double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 
         Bit2D bit = DeepL.getBitPlacement(sectionPoints, startPoint, angleLocalSystem);
-
         bits.add(bit);
+        System.out.println("size:" + bits.size());
     }
 
     /**
