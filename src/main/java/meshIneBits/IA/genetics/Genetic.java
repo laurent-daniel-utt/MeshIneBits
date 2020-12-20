@@ -73,7 +73,7 @@ public class Genetic {
             if (startPoint == null) {
                 try {
                     throw new AI_Exception("AIE AIE AIE");
-                } catch (AI_Exception e) {
+                } catch (AI_Exception ignored) {
                 }
             }
             //System.out.println("on a le startPoint : "+startPoint);

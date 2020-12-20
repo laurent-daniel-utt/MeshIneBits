@@ -39,9 +39,10 @@ dependencies {
     implementation 'org.jetbrains:annotations:19.0.0'
 
     implementation "org.nd4j:nd4j-native-platform:1.0.0-beta6"
-    implementation 'org.apache.cassandra:cassandra-all:1.1.4'
     implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-beta6"
     implementation "ch.qos.logback:logback-classic:1.0.11"
+    implementation "org.deeplearning4j:deeplearning4j-ui:1.0.0-beta6"
+
 
     compile 'org.processing:core:3.3.5'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
