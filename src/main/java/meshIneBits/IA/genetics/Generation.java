@@ -15,16 +15,16 @@ public class Generation {
     private static final double MAX_ANGLE = 0;//todo mettre 30 je pense
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
-    public double meanScore = -1;
-    public double maxScore = -1;
-    public Solution bestSolution;
-    public Vector<Solution> solutions;
     private final int popSize;
     private final int nbGensMax;
     private final double rankSelection;
     private final double rankReproduction;
-    private double rankNew;
     private final double probMutation;
+    public double meanScore = -1;
+    public double maxScore = -1;
+    public Solution bestSolution;
+    public Vector<Solution> solutions;
+    private double rankNew;
 
     /**
      * A Generation is a set of solutions.
@@ -158,6 +158,7 @@ public class Generation {
     /**
      * Mutate a few solutions to assure diversity.
      * The probability for a Solution to mutate is given by <code>probMutation</code>
+     *
      * @return the solutions given with a few mutated solutions.
      */
     public Vector<Solution> mutate(Vector<Solution> solutionsToMutate) {

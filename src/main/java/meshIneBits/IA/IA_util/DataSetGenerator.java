@@ -44,13 +44,13 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
             // ==> bit orientation in local coordinate system = bit orientation in global minus angle of sectiojn in global (= angle of local coordinate system
 
             //generates one line (corresponds to the data of one bit)
-            String csvLine = ""
+            StringBuilder csvLine = new StringBuilder(""
                     + edgeAbscissa // adds position
                     + ","
-                    + bitOrientation; //adds bitOrientation
+                    + bitOrientation); //adds bitOrientation
             for (Vector2 point : pointsForDl) { // add points
-                csvLine += "," + point.x;
-                csvLine += "," + point.y;
+                csvLine.append(",").append(point.x);
+                csvLine.append(",").append(point.y);
             }
 
             try {
@@ -71,7 +71,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
      * a startPoint and an abscissa related to one bit's vertex. This is helpful for automatic placement on
      * slice's borders,because it guarantees that the bit covers the startPoint, as bit's position is related to it.
      *
-     * @param bitOrigin     usual (x, y) coordinates of bit's center
+     * @param bitOrigin  usual (x, y) coordinates of bit's center
      * @param bitAngle   bit's angle as a vector
      * @param startPoint the startPoint on which the new bit's end should be placed : the intersection between the
      *                   slice border and the last placed bit's end edge
@@ -87,7 +87,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
                 .sub(colinear.mul(CraftConfig.bitLength / 2));
 
 
-        if(Vector2.dist(originVertex, startPoint)>CraftConfig.bitWidth){
+        if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
                     .add(colinear.mul(CraftConfig.bitLength / 2));
@@ -98,38 +98,26 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
         // the startPoint on which the new bit should be placed : the intersection between the slice border
         // and the last placed bit's end edge
         // todo: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
-        double edgeAbscissa = Vector2.dist(originVertex, startPoint);
-
-
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin);
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(colinear.mul(10)));
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(orthogonal.mul(10)));
-
-        //AI_Tool.dataPrep.pointsADessiner.add(originVertex);
-        //AI_Tool.dataPrep.pointsADessiner.add(startPoint);
-
-
-        return edgeAbscissa;
+        return Vector2.dist(originVertex, startPoint);
     }
 
     /**
-     *
-     * @param bitAngle the angle of the bit in the global coordinate system
+     * @param bitAngle      the angle of the bit in the global coordinate system
      * @param sectionPoints the points saved by DataLog
      * @return the angle of the bit in the local coordinate system. Note that the angle is expressed
      * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
-    public static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints){
+    public static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints) {
 
         double localCoordinateSystemAngle = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 
-        double bitAngleLocal = bitAngle.getEquivalentAngle2() -  localCoordinateSystemAngle;
+        double bitAngleLocal = bitAngle.getEquivalentAngle2() - localCoordinateSystemAngle;
 
         if (bitAngleLocal > 90) {
             bitAngleLocal -= 180;
         }
-        if (bitAngleLocal < -90){
+        if (bitAngleLocal < -90) {
             bitAngleLocal += 180;
         }
         return bitAngleLocal;

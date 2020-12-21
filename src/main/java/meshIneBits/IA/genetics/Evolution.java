@@ -29,9 +29,9 @@ public class Evolution {
     private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
     private final Vector<Vector2> bound;
+    private final Vector<Generation> generations = new Vector<>();
     public Solution bestSolution;
     public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
-    private final Vector<Generation> generations = new Vector<>();
 
     /**
      * An Evolution search the best Solution for a given set of points.

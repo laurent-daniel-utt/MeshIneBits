@@ -4,7 +4,6 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
-import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Segment2D;
@@ -19,13 +18,8 @@ import java.util.Vector;
 public class Solution {
 
     private final Vector<Vector2> bound;
-    public double bitPos;
-    public Vector2 bitAngle;
-    public double score = 0;
-    public Bit2D bit;
     private final Vector2 startPoint;
     private final Generation generation;
-
     /**
      * The coefficient associated to the mutation.
      */
@@ -38,6 +32,10 @@ public class Solution {
      * The coefficient associated to the length penalty. Must be between 0 and 1.
      */
     private final double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    public double bitPos;
+    public Vector2 bitAngle;
+    public double score = 0;
+    public Bit2D bit;
 
     /**
      * A Solution is a Bit2D with position parameter in a local coordinate system. Its position is measured from its startPoint.
@@ -175,7 +173,7 @@ public class Solution {
             if (AI_Tool.dataPrep.getNextBitStartPoint(getBit(startPoint), bound) == null) {
                 bad = true;
             }
-        } catch (AI_Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("nextBitStartPoint non trouvé dans Solution");
         }
@@ -202,7 +200,7 @@ public class Solution {
             ));
         }
 
-        Vector<Segment2D> sides = AI_Tool.dataPrep.getBitSidesSegments(bit);
+        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit);
 
         int intersectionCount = 0;
 
@@ -286,7 +284,7 @@ public class Solution {
             ));
         }
 
-        Vector<Segment2D> sides = AI_Tool.dataPrep.getBitSidesSegments(bit2D);
+        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit2D);
         Vector2 firstIntersectionPoint = null;
         double coveredDistance = -1;
 

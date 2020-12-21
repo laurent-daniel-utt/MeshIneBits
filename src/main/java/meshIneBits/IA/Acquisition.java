@@ -1,7 +1,6 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
@@ -42,8 +41,7 @@ public class Acquisition {
         DataSetGenerator.generateCsvFile();
     }
 
-    public static void addNewExampleBit(Bit2D bit) throws AI_Exception {
-
+    public static void addNewExampleBit(Bit2D bit) throws Exception {
 
 
         Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
@@ -93,8 +91,6 @@ public class Acquisition {
             bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
         }
          */
-
-
 
 
 //debugOnly, on teste si la recherche du point suivant marche bien

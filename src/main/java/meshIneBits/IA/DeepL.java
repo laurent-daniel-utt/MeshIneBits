@@ -1,6 +1,7 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -214,6 +215,7 @@ public class DeepL {
             e.printStackTrace();
         }
 
+//TEST N°1, avec un csv une ligne
         DataSet oneData = readCSVDataset(PATH_NAME_PREDICT, 0, 1);
         normalizer = new NormalizerStandardize();
         normalizer.fit(oneData);
@@ -228,13 +230,13 @@ public class DeepL {
         double bitPos = prediction.getDouble(0);
         double bitAngle = prediction.getDouble(1);
 
-        Bit2D bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
+        Bit2D bit = getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
         DataPreparation.A = bit.getOrigin();
 
-        //TEST N°2, avec un dataset en double[]
+//TEST N°2, avec un dataset en double[]
         double[][] featuresTab = new double[1][pointsForDl.size() * 2];
         int j = 0;
         for (Vector2 point : pointsForDl) {
@@ -257,12 +259,43 @@ public class DeepL {
         bitPos = prediction.getDouble(0);
         bitAngle = prediction.getDouble(1);
 
-        bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
+        bit = getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
         DataPreparation.A = bit.getOrigin();
         return bit;
 
+    }
+
+
+    /**
+     * @param edgeAbscissa     position of a bit, that comes from the neural network's output
+     * @param bitLocalAngle    angle of a bit, that comes from the neural network's output
+     * @param posLocalSystem   position of the local coordinate system's origin used to prepare data for the neural network
+     * @param angleLocalSystem angle of the local coordinate system used to prepare data for the neural network
+     * @return the bit's center position in global coordinate system
+     */
+    public static Bit2D getBitFromNeuralNetworkOutput(double edgeAbscissa, double bitLocalAngle, Vector2 posLocalSystem, double angleLocalSystem) {
+
+        // convert angles in Vector2
+        Vector2 bitAngleLocalV2 = Vector2.getEquivalentVector(bitLocalAngle);
+        Vector2 angleLocalSystemV2 = Vector2.getEquivalentVector(angleLocalSystem);
+
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = bitAngleLocalV2.normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
+
+        // bit's center's position in local coordinate system
+        Vector2 positionLocal = orthogonal.mul(edgeAbscissa)
+                .add(colinear.mul(CraftConfig.bitLength / 2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
+
+        // bits center's position in global coordinate system
+        Vector2 positionGlobal = positionLocal.rotate(angleLocalSystemV2).add(posLocalSystem);
+
+        Vector2 orientationGlobal = bitAngleLocalV2.rotate(angleLocalSystemV2);
+
+        return new Bit2D(positionGlobal, orientationGlobal);
     }
 }

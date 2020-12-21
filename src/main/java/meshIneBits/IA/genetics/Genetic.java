@@ -3,7 +3,6 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
-import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -17,8 +16,8 @@ import java.util.Vector;
 public class Genetic {
     private final Layer layer;
     public Evolution currentEvolution;
-    private Vector<Bit2D> solutions = new Vector<>();
-    private Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
+    private final Vector<Bit2D> solutions = new Vector<>();
+    private final Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
     /**
      * The tool for genetic algorithms which performs the pavement on a layer.
@@ -66,15 +65,9 @@ public class Genetic {
             System.out.println("best bit " + bestBit);
             try {
                 startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
-            } catch (AI_Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("nextBitStartPoint non trouvé dans Genetics");
-            }
-            if (startPoint == null) {
-                try {
-                    throw new AI_Exception("AIE AIE AIE");
-                } catch (AI_Exception ignored) {
-                }
             }
             //System.out.println("on a le startPoint : "+startPoint);
             //associatedPoints.clear();
