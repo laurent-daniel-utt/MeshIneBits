@@ -5,6 +5,7 @@ import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class Acquisition {
     public static void startStoringBits() {
         storeNewBits = true;
         storedExamplesBits = new LinkedHashMap<>();
+
     }
 
     public static void stopStoringBits() throws IOException {
@@ -50,6 +52,9 @@ public class Acquisition {
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
+
+
+        // on garde ça pour l'instant, ça peut toujours servir pour déboguer si oon trouve d'autres problèmes
         /*
 
         // test coordinate system transformations
@@ -60,7 +65,6 @@ public class Acquisition {
         double edgeAbscissa = DataSetGenerator.getBitEdgeAbscissa(bit.getCenter(), bit.getOrientation(), startPointGlobal);
         double bitOrientationLocal = DataSetGenerator.getBitAngleInLocalSystem(bit.getOrientation(), points);
 
-        System.out.println("bitOrientationLocal " + bitOrientationLocal);
 
 
         // reverse
@@ -76,23 +80,23 @@ public class Acquisition {
         AI_Tool.dataPrep.pointsADessiner.add(segs.get(3).start);
 
 
+
+        //AI_Tool.dataPrep.pointsADessiner.add(Vector2.getEquivalentVector(bitOrientationLocal).mul(50));
+
+
         AI_Tool.dataPrep.pointsADessiner.add(startPointGlobal);
         AI_Tool.dataPrep.pointsADessiner.add(startPointGlobal.add(Vector2.getEquivalentVector(angleLocalSystem).mul(120)));
 
         System.out.println("edgeAbscissa = " + edgeAbscissa);
+        System.out.println("angle bit local = " + bitOrientationLocal);
         System.out.println("angle Repere local = " + angleLocalSystem);
 
+
          */
 
 
 
-        /*
-                // if bitAngle vector has it's x cooordinate negative, we take the opposite vector because we
-        // don't need a -180 to 180 degrees orientation but only a -90 to 90 rotation
-        if (bitAngle.x<0){
-            bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
-        }
-         */
+
 
 
 

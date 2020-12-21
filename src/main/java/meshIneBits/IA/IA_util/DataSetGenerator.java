@@ -1,8 +1,10 @@
 package meshIneBits.IA.IA_util;
 
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
+import org.opencv.core.Mat;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,16 +22,13 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
      *
      * @return todo @andre, donner le cas -1 aussi
      */
-    public static int generateCsvFile() {
+    public static void generateCsvFile() throws IOException {
 
         long dataLogSize;
-        try {
-            dataLogSize = DataLog.getNumberOfEntries();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        }
 
+        dataLogSize = DataLog.getNumberOfEntries();
+
+        FileWriter fw = new FileWriter(dataSetFilePath, false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 
@@ -37,11 +36,12 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
 
             // format data for dl
             Vector2 startPoint = entry.getPoints().firstElement();
+
             Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(entry.getPoints());
             Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
+
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
-            double bitOrientation = entry.getBitOrientation().getEquivalentAngle2() - DataPreparation.getSectionOrientation(entry.getPoints());
-            // ==> bit orientation in local coordinate system = bit orientation in global minus angle of sectiojn in global (= angle of local coordinate system
+            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getPoints());
 
             //generates one line (corresponds to the data of one bit)
             String csvLine = ""
@@ -53,16 +53,14 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
                 csvLine += "," + point.y;
             }
 
-            try {
-                FileWriter fw = new FileWriter(dataSetFilePath, true);
-                fw.write(csvLine + "\n");
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return -1;
-            }
+
+
+            fw.write(csvLine + "\n");
+
+
         }
-        return 0;
+
+        fw.close();
     }
 
 
@@ -101,14 +99,6 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
         double edgeAbscissa = Vector2.dist(originVertex, startPoint);
 
 
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin);
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(colinear.mul(10)));
-        //AI_Tool.dataPrep.pointsADessiner.add(bitOrigin.add(orthogonal.mul(10)));
-
-        //AI_Tool.dataPrep.pointsADessiner.add(originVertex);
-        //AI_Tool.dataPrep.pointsADessiner.add(startPoint);
-
-
         return edgeAbscissa;
     }
 
@@ -122,18 +112,54 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
      */
     public static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints){
 
-        double localCoordinateSystemAngle = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 
-        double bitAngleLocal = bitAngle.getEquivalentAngle2() -  localCoordinateSystemAngle;
+        Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(DataPreparation.getLocalCoordinateSystemAngle(sectionPoints));
 
-        if (bitAngleLocal > 90) {
-            bitAngleLocal -= 180;
+        System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
+
+
+        AI_Tool.dataPrep.pointsADessiner.add(localCoordinateSystemAngle.mul((50)));
+        AI_Tool.dataPrep.pointsADessiner.add(bitAngle.mul((100)));
+
+
+
+        // = if angle between the vector is more than 90 degrees
+        // (the point of rotation is the center of the bit, so both angles are equivalent)
+        if (bitAngle.dot(localCoordinateSystemAngle)<0){
+            bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
         }
-        if (bitAngleLocal < -90){
-            bitAngleLocal += 180;
-        }
-        return bitAngleLocal;
+
+
+
+        double x1 = localCoordinateSystemAngle.x;
+        double y1 = localCoordinateSystemAngle.y;
+        double x2 = bitAngle.x;
+        double y2 = bitAngle.y;
+        double l1 = localCoordinateSystemAngle.vSize();
+        double l2 = bitAngle.vSize();
+
+        //double bitAngleLocal = Math.atan2(x1*y2-y1*x2,
+                //x1*x2+y1*y2);
+
+
+
+        double bitAngleLocal = Math.asin ( (x1*y2-y1*x2) / (l1*l2) );
+
+        return Math.toDegrees(bitAngleLocal);
     }
+
+
+    public static void main(String[] args) {
+        DataSetGenerator dataSetGenerator = new DataSetGenerator();
+        try {
+            dataSetGenerator.generateCsvFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("pb generation dataset");
+        }
+    }
+
+
 
 
 }

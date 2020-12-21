@@ -133,10 +133,12 @@ public class DataPreparation {
         //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
 
+
         //check if abscissa axe of local coordinate system and and section are directed in the same direction.
         if (!arePointsMostlyOrientedToTheRight(sectionpoints, sectionpoints.firstElement())) {
             angle += 180; //rotate coordinate system
         }
+
 
         if (angle>180){ // make sure that the angle is between -180 and 180 degrees
             angle -= 360;
@@ -349,7 +351,11 @@ public class DataPreparation {
         return new Vector2(x, y);
     }
 
-
+    /**
+     *
+     * @param points
+     * @return an angle between -90 and 90 degrees
+     */
     public static Double getSectionOrientation(Vector<Vector2> points) {
         // prepare fitting
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degré
@@ -359,7 +365,6 @@ public class DataPreparation {
         for (int i = 1; i < points.size(); i++) {
             weightedObservedPoints.add(points.get(i).x, points.get(i).y);
         }
-
         // fit
         double[] coefs_inverse = fitter.fit(weightedObservedPoints.toList());
 
@@ -509,7 +514,6 @@ public class DataPreparation {
             double ordNewPoint;
 
             // --- selection du segment initial sur lequel on va placer le nouveau point---
-            //System.out.println("baseSegmentSum + segmentLength = " + baseSegmentSum + segmentLength[basePointsIndex] + " newSegmentSum = " + newSegmentSum);
             while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
