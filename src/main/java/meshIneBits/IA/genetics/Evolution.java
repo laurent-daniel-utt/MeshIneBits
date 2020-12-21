@@ -127,7 +127,7 @@ public class Evolution {
         }
         generations.get(currentGenerationNumber).evaluateGeneration(pointSection);
         bestSolution = generations.get(currentGenerationNumber).bestSolution;//devrait prendre la meilleure non supprimée
-        //FIXME on perd des indivs
+        //FIXME @Etienne on perd des indivs
 */
     }
 }

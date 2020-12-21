@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class DeepL {
-    public static final int BATCH_SIZE = 50;    //todo, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
+    public static final int BATCH_SIZE = 50;    //todo @ALL, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
     /**
      * The number of neurons in an hidden layer
      */
@@ -52,16 +52,16 @@ public class DeepL {
      * The name and location of the csv file which contains the dataSet.
      */
     private static final String PATH_NAME_TRAIN = "dataSet.csv";
-    private static final String PATH_NAME_PREDICT = "dataToPredict.csv"; //todo virer
+    private static final String PATH_NAME_PREDICT = "dataToPredict.csv"; //todo @Etienne virer
     /**
      * The number of iterations to train the neural network.
      */
     private static final int N_EPOCHS = 10000;
-    private static final Activation ACTIVATION_FUNCTION = Activation.IDENTITY; //todo virer
+    private static final Activation ACTIVATION_FUNCTION = Activation.IDENTITY; //todo @Etienne virer
     private static DataNormalization normalizer;
     private static MultiLayerNetwork model;
 
-    //todo main temporaire, enlever après
+    //todo @Etienne main temporaire, enlever après
     public static void main(String[] args) {
         try {
             trainWithCsvDataSet();
@@ -96,17 +96,17 @@ public class DeepL {
         normalizer.fit(allData);
         normalizer.transform(allData);
 
-        //todo à l'avenir, on est pas obligés de garder les 35% de test si?
+        //todo @Andre à l'avenir, on est pas obligés de garder les 35% de test si?
         SplitTestAndTrain testAndTrain = allData.splitTestAndTrain(0.65); // 65% for training and 35% for testing
         DataSet trainingData = testAndTrain.getTrain();
         DataSet testingData = testAndTrain.getTest();
 
-
+//todo @all tester les différentes configs et se renseigner pour trouver la meilleure
         //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
-                .activation(Activation.TANH)//todo c'est quoi tanh, tester d'autres
-                .weightInit(WeightInit.XAVIER)//todo c'est quoi Xavier, tester d'autres
-                .updater(new Adam(0.001))//todo c'est quoi Adam, tester d'autres
+                .activation(Activation.TANH)
+                .weightInit(WeightInit.XAVIER)
+                .updater(new Adam(0.001))
                 .l2(1e-5)
                 .list()
 
@@ -179,7 +179,7 @@ public class DeepL {
         // ModelSerializer.writeModel(model, locationToSave, saveUpdater);
 
         //System.out.print("Saved");
-        //todo sauvegarder le modèle pour pas avoir à réapprendre à chaque fois
+        //todo @Etienne sauvegarder le modèle pour pas avoir à réapprendre à chaque fois
     }
 
 

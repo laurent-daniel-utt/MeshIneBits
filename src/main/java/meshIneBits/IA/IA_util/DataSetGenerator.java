@@ -4,7 +4,6 @@ import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
-import org.opencv.core.Mat;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.util.Vector;
  * generates a .csv dataset
  * format of a line : edge abscissa, bit's angle, point 0 x, point 0 y, point 1 x, point 1 y,...
  */
-public final class DataSetGenerator { // todo il y a sans doute des méthodes de DataPreparation qui auraient leur place ds cette classe
+public final class DataSetGenerator {
     final static String dataSetFilePath = "dataSet.csv";
 
     /**
@@ -32,7 +31,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 
-            DataLogEntry entry = DataLog.getEntryFromFile(logLine); //todo : gérer le cas ou ça return null
+            DataLogEntry entry = DataLog.getEntryFromFile(logLine); //todo @Andre: gérer le cas ou ça return null
 
             // format data for dl
             Vector2 startPoint = entry.getPoints().firstElement();
@@ -44,19 +43,16 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
             double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getPoints());
 
             //generates one line (corresponds to the data of one bit)
-            String csvLine = ""
+            StringBuilder csvLine = new StringBuilder(""
                     + edgeAbscissa // adds position
                     + ","
-                    + bitOrientation; //adds bitOrientation
+                    + bitOrientation); //adds bitOrientation
             for (Vector2 point : pointsForDl) { // add points
-                csvLine += "," + point.x;
-                csvLine += "," + point.y;
+                csvLine.append(",").append(point.x);
+                csvLine.append(",").append(point.y);
             }
 
-
-
             fw.write(csvLine + "\n");
-
 
         }
 
@@ -75,7 +71,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
      *                   slice border and the last placed bit's end edge
      * @return the edgeAbscissa
      */
-    public static double getBitEdgeAbscissa(Vector2 bitOrigin, Vector2 bitAngle, Vector2 startPoint) {
+    private static double getBitEdgeAbscissa(Vector2 bitOrigin, Vector2 bitAngle, Vector2 startPoint) {
 
         Vector2 colinear = bitAngle.normal();
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
@@ -85,7 +81,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
                 .sub(colinear.mul(CraftConfig.bitLength / 2));
 
 
-        if(Vector2.dist(originVertex, startPoint)>CraftConfig.bitWidth){
+        if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
                     .add(colinear.mul(CraftConfig.bitLength / 2));
@@ -95,24 +91,18 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
         // edgeAbscissa is the distance between the startPoint and the originVertex
         // the startPoint on which the new bit should be placed : the intersection between the slice border
         // and the last placed bit's end edge
-        // todo: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
-        double edgeAbscissa = Vector2.dist(originVertex, startPoint);
-
-
-        return edgeAbscissa;
+        // todo @Andre: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
+        return Vector2.dist(originVertex, startPoint);
     }
 
     /**
-     *
-     * @param bitAngle the angle of the bit in the global coordinate system
+     * @param bitAngle      the angle of the bit in the global coordinate system
      * @param sectionPoints the points saved by DataLog
      * @return the angle of the bit in the local coordinate system. Note that the angle is expressed
      * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
-    public static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints){
-
-
+    private static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints) {
         Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(DataPreparation.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
@@ -139,8 +129,7 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
         double l2 = bitAngle.vSize();
 
         //double bitAngleLocal = Math.atan2(x1*y2-y1*x2,
-                //x1*x2+y1*y2);
-
+        //x1*x2+y1*y2); //todo @Andre virer ?
 
 
         double bitAngleLocal = Math.asin ( (x1*y2-y1*x2) / (l1*l2) );
@@ -150,9 +139,8 @@ public final class DataSetGenerator { // todo il y a sans doute des méthodes de
 
 
     public static void main(String[] args) {
-        DataSetGenerator dataSetGenerator = new DataSetGenerator();
         try {
-            dataSetGenerator.generateCsvFile();
+            generateCsvFile();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("pb generation dataset");

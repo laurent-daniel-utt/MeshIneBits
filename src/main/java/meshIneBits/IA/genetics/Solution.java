@@ -58,7 +58,7 @@ public class Solution {
     public double evaluate(Vector<Vector2> pointSection) {
         this.score = computeArea(); //the used area
         this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
-        this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());//todo deboguer et remettre
+        this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());
         return this.score;
     }
 
@@ -77,7 +77,7 @@ public class Solution {
 
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
-        Area availableArea = AI_Tool.getMeshController().availableArea;
+        Area availableArea = AI_Tool.getMeshController().getAvailableArea();
 
         AI_Tool.dataPrep.hasNewBitToDraw = true;//debugonly
         //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
@@ -120,7 +120,7 @@ public class Solution {
                 Xpoints.add(segment[0]);
                 Ypoints.add(segment[1]);
                 //System.out.println(segment[0] + " " + segment[1]);
-                // todo pourquoi le dernier point c'est 0,0?? l'enlever
+                // todo @all pourquoi le dernier point c'est 0,0?? l'enlever
                 npoints++;
                 iter.next();
             }
@@ -161,7 +161,7 @@ public class Solution {
      * Deletes the solution if it is bad.
      * Bad Solutions criterias :
      * - there is more than one intersection between bit's edges and the section
-     * -...todo completer doc
+     * -...todo @all completer doc (et même toutes d'ailleurs)
      */
     public void deleteIfBad(Vector<Vector2> sectionPoints) {
 

@@ -127,10 +127,11 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private boolean addingBits = false;
+
     /**
      * In {@link Mesh}'s coordinate system
      */
-    public Area availableArea; //todo @Etienne repasser en private après si possible
+    private Area availableArea;
     /**
      * In {@link Mesh}'s coordinate system
      */
@@ -162,14 +163,19 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         this.mesh = mesh;
         mesh.addObserver(this);
     }
-    public void resetMesh(){
-        this.mesh=null;
+
+    public void resetMesh() {
+        this.mesh = null;
         this.setChanged();
         this.notifyObservers();
     }
 
     public int getLayerNumber() {
         return layerNumber;
+    }
+
+    public Area getAvailableArea() {
+        return availableArea;
     }
 
     @Override
@@ -382,7 +388,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
         } else {
-            //        System.out.println("null"); //todo sert à quoi?
+            //        System.out.println("null"); //todo il sert à quoi?
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());

@@ -4,7 +4,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -46,14 +45,13 @@ public class Acquisition {
     public static void addNewExampleBit(Bit2D bit) throws Exception {
 
 
-        Vector<Vector2> points = AI_Tool.dataPrep.getBitAssociatedPoints(bit);
+        Vector<Vector2> points = AI_Tool.dataPrep.getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
 
-
-        // on garde ça pour l'instant, ça peut toujours servir pour déboguer si oon trouve d'autres problèmes
-        /*
+/*
+         //debugonly on garde ça pour l'instant, ça peut toujours servir pour déboguer si oon trouve d'autres problèmes
 
         // test coordinate system transformations
 
@@ -106,7 +104,7 @@ public class Acquisition {
             pointList.add(new Vector2(seg.end.x, seg.end.y));
         }
         pointList = AI_Tool.dataPrep.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
-        //todo modifier : ici on fait que du .get(0)
+        //todo @Etienne modifier : ici on fait que du .get(0)
 
         startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bit, pointList);
 */

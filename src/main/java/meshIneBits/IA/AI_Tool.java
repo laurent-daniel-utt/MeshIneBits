@@ -40,8 +40,8 @@ public class AI_Tool {
         }
         meshController.AIneedPaint = true; //debugOnly
 
-        //DEBUGONLY todo ici on teste juste en placant le bit 1
-        //todo startAI doit permettre de paver entièrement une slice
+        //DEBUGONLY todo @Etienne ici on teste juste en placant le bit 1
+        //todo @Etienne startAI doit permettre de paver entièrement une slice
 
         Vector<Vector2> associatedPoints = new Vector<>();
 

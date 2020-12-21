@@ -7,7 +7,7 @@ import java.util.Vector;
 public class Curve {
     //todo @Andre : doc
     private final String name;
-    private Vector<Vector2> points = new Vector();
+    private Vector<Vector2> points = new Vector<>();
 
     //Courbe non définie
     public Curve(String name) {
@@ -60,10 +60,10 @@ public class Curve {
 
     @Override
     public String toString() {
-        String str = "name = " + name + "\n";
+        StringBuilder str = new StringBuilder("name = " + name + "\n");
         for (Vector2 v : points) {
-            str += v.x + "\t" + v.y + "\n";
+            str.append(v.x).append("\t").append(v.y).append("\n");
         }
-        return str;
+        return str.toString();
     }
 }

@@ -12,7 +12,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 0;//todo mettre 30 je pense
+    private static final double MAX_ANGLE = 0;//todo @all commbien on mets, 30° de base?
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -24,7 +24,6 @@ public class Generation {
     public double maxScore = -1;
     public Solution bestSolution;
     public Vector<Solution> solutions;
-    private double rankNew;
 
     /**
      * A Generation is a set of solutions.
@@ -70,7 +69,7 @@ public class Generation {
      * @return the new random solution.
      */
     private Solution createNewSolution(Vector<Vector2> pointSection) {
-        //todo l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
+        //todo @all l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
         double position = Math.random() * CraftConfig.bitWidth;
         double angleSection = DataPreparation.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone());
@@ -115,7 +114,7 @@ public class Generation {
                 bestSolution = solution;
             }
 
-            bestSolution = solution;//DEBUGONLY //FIXME A ENLEVER
+            //bestSolution = solution;//DEBUGONLY //FIXME A ENLEVER
             this.meanScore += score;
         }
 

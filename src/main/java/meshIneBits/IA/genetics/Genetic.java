@@ -44,7 +44,7 @@ public class Genetic {
 
         Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugonly on fait ici que la premiere slice
         Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugonly on fait ici que le premier contour
-        Vector2 startPoint = bound1.get(10);//todo ne jamais partir du point 0 ou -1
+        Vector2 startPoint = bound1.get(10);//should never start from point 0 or -1
         Vector2 veryFirstStartPoint = startPoint;
         Vector<Vector2> associatedPoints = getAssociatedPoints(bound1, startPoint);
 
@@ -71,7 +71,7 @@ public class Genetic {
             }
             //System.out.println("on a le startPoint : "+startPoint);
             //associatedPoints.clear();
-            associatedPoints = AI_Tool.dataPrep.getBitAssociatedPoints(bestBit, startPoint, (Vector<Vector2>) bound1.clone());
+            associatedPoints = AI_Tool.dataPrep.getCurrentLayerBitAssociatedPoints(bestBit, startPoint, (Vector<Vector2>) bound1.clone());
         }
     }
 
@@ -103,7 +103,8 @@ public class Genetic {
      * @param associatedPoints the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    private boolean hasCompletedTheBound(Vector2 startPoint, Vector<Vector2> associatedPoints) {//todo déboguer hasCompletedTheBound
+    private boolean hasCompletedTheBound(Vector2 startPoint, Vector<Vector2> associatedPoints) {
+        //todo @Etienne déboguer hasCompletedTheBound
         if (associatedPoints.firstElement() == startPoint)
             return false;
         return associatedPoints.contains(startPoint);
