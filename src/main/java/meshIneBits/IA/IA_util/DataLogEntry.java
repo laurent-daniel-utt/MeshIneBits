@@ -6,9 +6,9 @@ import meshIneBits.util.Vector2;
 import java.util.Vector;
 
 public class DataLogEntry {
-    private Vector2 bitPosition;
-    private Vector2 bitOrientation;
-    private Vector<Vector2> points;
+    private final Vector2 bitPosition;
+    private final Vector2 bitOrientation;
+    private final Vector<Vector2> points;
 
 
     public DataLogEntry(Vector2 bitPosition, Vector2 bitOrientation, Vector<Vector2> points) {

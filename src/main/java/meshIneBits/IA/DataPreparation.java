@@ -125,7 +125,7 @@ public class DataPreparation {
     }
 
 
-    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionpoints){
+    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionpoints) {
 
         //map for more accurate result
         Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionpoints);
@@ -365,6 +365,7 @@ public class DataPreparation {
         for (int i = 1; i < points.size(); i++) {
             weightedObservedPoints.add(points.get(i).x, points.get(i).y);
         }
+
         // fit
         double[] coefs_inverse = fitter.fit(weightedObservedPoints.toList());
 
@@ -391,96 +392,6 @@ public class DataPreparation {
     public static Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
         int nbPoints = 30;
         return repopulateWithNewPoints(nbPoints, sectionPoints);
-    }
-
-
-    public Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
-        Curve inputCurve = new Curve("input curve");
-        inputCurve.generateCurve(sectionPoints);
-        Curve[] splitCurve = inputCurve.splitCurveInTwo();
-        Curve xCurve = splitCurve[0];
-        Curve yCurve = splitCurve[1];
-
-        /*Grapheur gr = new Grapheur();
-        gr.displayGraph(xCurve);
-        gr.displayGraph(yCurve);*/
-
-        // prepare fitting
-        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degré
-        WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
-        WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
-        for (int i = 0; i < inputCurve.getN_points(); i++) {
-            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
-            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
-        }
-        // fit
-        double[] coefs_inverseX = fitter.fit(weightedObservedPointsX.toList());
-        double[] coefs_inverseY = fitter.fit(weightedObservedPointsY.toList());
-        // invert coefficients
-        Vector<Double> coefsX = new Vector<>();
-        Vector<Double> coefsY = new Vector<>();
-        for (int i = 0; i < coefs_inverseX.length; i++) {
-            coefsX.add(coefs_inverseX[coefs_inverseX.length - i - 1]);
-            coefsY.add(coefs_inverseY[coefs_inverseX.length - i - 1]);
-        }
-        // return result
-        Vector<Vector> coefs = new Vector<>();
-        coefs.add(coefsX);
-        coefs.add(coefsY);
-
-        Curve x = new Curve("x model");
-        Curve y = new Curve("y model");
-
-        x.generateCurve(coefs.get(0), 0, 20, 10);
-        y.generateCurve(coefs.get(1), 0, 20, 10);
-
-        //  gr.displayGraph(x);
-        //  gr.displayGraph(y);
-        return coefs;
-    }
-
-    /**
-     * Return the next Bit2D start point.
-     * It is the intersection between the slice and the end side of the Bit2D.
-     *
-     * @param bit    the current Bit2D (the last placed Bit2D by AI).
-     * @param contourPoints the points of the bounds on which stands the bit.
-     * @return the next bit start point. Returns <code>null</code> if none was found.
-     */
-    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> contourPoints) throws AI_Exception {
-
-        Vector<Vector2> contourPointsReverted = new Vector<>();
-        for (int i = contourPoints.size() - 1; i >= 0; i--){
-            contourPointsReverted.add(contourPoints.get(i));
-        }
-        return getBitAndContourFirstIntersectionPoint(bit, contourPointsReverted);
-    }
-
-    /**
-     * Repopulate a section a points with new points.
-     * It adds <code>n</code> points between each point given. With for each segment between 2 points <code>n=1 + segmentSize / CraftConfig.bitWidth</code>.
-     * The longer the segment is, the more new points will be placed.
-     *
-     * @param pointsToPopulate the section of points to repopulate
-     * @return the section repopulated with new points.
-     */
-    private Vector<Vector2> repopulateSection(Vector<Vector2> pointsToPopulate) {
-        Vector<Vector2> newPoints = new Vector<>();
-        for (int i = 0; i < pointsToPopulate.size() - 1; i++) {
-            int nbPoints;
-            double segmentSize = Vector2.dist(pointsToPopulate.get(i), pointsToPopulate.get(i + 1));
-            double bitWidth = CraftConfig.bitWidth; //todo faire que ca dépende de si on prend un quart/demi bit
-            nbPoints = (int) (Math.ceil(segmentSize / bitWidth) + 1);
-
-            Vector<Vector2> segment = new Vector<>();
-            segment.add(pointsToPopulate.get(i));
-            segment.add(pointsToPopulate.get(i + 1));
-
-            newPoints.addAll(repopulateWithNewPoints(nbPoints, segment));
-            newPoints.remove(newPoints.size() - 1);
-        }
-
-        return newPoints;
     }
 
     /**
@@ -514,6 +425,7 @@ public class DataPreparation {
             double ordNewPoint;
 
             // --- selection du segment initial sur lequel on va placer le nouveau point---
+            //System.out.println("baseSegmentSum + segmentLength = " + baseSegmentSum + segmentLength[basePointsIndex] + " newSegmentSum = " + newSegmentSum);
             while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
@@ -547,7 +459,6 @@ public class DataPreparation {
         }
         return newPoints;
     }
-
 
     /**
      * Returns the four segments of a Bit2D (a Bit2D not cut by cut paths)
@@ -603,6 +514,82 @@ public class DataPreparation {
         return sides;
     }
 
+    public Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
+        Curve inputCurve = new Curve("input curve");
+        inputCurve.generateCurve(sectionPoints);
+        Curve[] splitCurve = inputCurve.splitCurveInTwo();
+        Curve xCurve = splitCurve[0];
+        Curve yCurve = splitCurve[1];
+
+        // prepare fitting
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degré
+        WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
+        WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
+        for (int i = 0; i < inputCurve.getN_points(); i++) {
+            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
+        }
+        // fit
+        double[] coefs_inverseX = fitter.fit(weightedObservedPointsX.toList());
+        double[] coefs_inverseY = fitter.fit(weightedObservedPointsY.toList());
+        // invert coefficients
+        Vector<Double> coefsX = new Vector<>();
+        Vector<Double> coefsY = new Vector<>();
+        for (int i = 0; i < coefs_inverseX.length; i++) {
+            coefsX.add(coefs_inverseX[coefs_inverseX.length - i - 1]);
+            coefsY.add(coefs_inverseY[coefs_inverseX.length - i - 1]);
+        }
+        // return result
+        Vector<Vector> coefs = new Vector<>();
+        coefs.add(coefsX);
+        coefs.add(coefsY);
+        return coefs;
+    }
+
+    /**
+     * Return the next Bit2D start point.
+     * It is the intersection between the slice and the end side of the Bit2D.
+     *
+     * @param bit           the current Bit2D (the last placed Bit2D by AI).
+     * @param contourPoints the points of the bounds on which stands the bit.
+     * @return the next bit start point. Returns <code>null</code> if none was found.
+     */
+    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> contourPoints) throws Exception {
+
+        Vector<Vector2> contourPointsReverted = new Vector<>();
+        for (int i = contourPoints.size() - 1; i >= 0; i--) {
+            contourPointsReverted.add(contourPoints.get(i));
+        }
+        return getBitAndContourFirstIntersectionPoint(bit, contourPointsReverted);
+    }
+
+    /**
+     * Repopulate a section a points with new points.
+     * It adds <code>n</code> points between each point given. With for each segment between 2 points <code>n=1 + segmentSize / CraftConfig.bitWidth</code>.
+     * The longer the segment is, the more new points will be placed.
+     *
+     * @param pointsToPopulate the section of points to repopulate
+     * @return the section repopulated with new points.
+     */
+    private Vector<Vector2> repopulateSection(Vector<Vector2> pointsToPopulate) {
+        Vector<Vector2> newPoints = new Vector<>();
+        for (int i = 0; i < pointsToPopulate.size() - 1; i++) {
+            int nbPoints;
+            double segmentSize = Vector2.dist(pointsToPopulate.get(i), pointsToPopulate.get(i + 1));
+            double bitWidth = CraftConfig.bitWidth; //todo faire que ca dépende de si on prend un quart/demi bit
+            nbPoints = (int) (Math.ceil(segmentSize / bitWidth) + 1);
+
+            Vector<Vector2> segment = new Vector<>();
+            segment.add(pointsToPopulate.get(i));
+            segment.add(pointsToPopulate.get(i + 1));
+
+            newPoints.addAll(repopulateWithNewPoints(nbPoints, segment));
+            newPoints.remove(newPoints.size() - 1);
+        }
+
+        return newPoints;
+    }
+
     /**
      * Check if a Segment2D contains a point.
      *
@@ -644,9 +631,9 @@ public class DataPreparation {
      * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D) throws AI_Exception {
+    public Vector<Vector2> getBitAssociatedPoints(Bit2D bit2D) throws Exception {
 
-    //First we get all the points of the Slice. getContours returns the points already rearranged.
+        //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsListToPopulate = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
         //todo on veut ptet pas le current layer si?
 
@@ -773,12 +760,13 @@ public class DataPreparation {
 
     /**
      * returns the first intersection point between the contour and bit's edges
-     * @param bit a bit
+     *
+     * @param bit           a bit
      * @param contourPoints the points of the contour
      * @return the first intersection point between the contour and bit's edges
-     * @throws AI_Exception if no point has been found
+     * @throws Exception if no point has been found
      */
-    public Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> contourPoints) throws AI_Exception {
+    public Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> contourPoints) throws Exception {
         // todo parfois c'est le second point qui est trouvé, il faut régler ça
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = getBitSidesSegments(bit);
@@ -830,13 +818,13 @@ public class DataPreparation {
             }
 
             // if we have some intersections we have to return the first one (as explained above)
-            if (! intersectionPoints.isEmpty()){
+            if (!intersectionPoints.isEmpty()) {
                 double maxDist2 = 1000000;
                 Vector2 firstIntersectionPoint = null; // can't be null
-                for(Vector2 intersectPoint : intersectionPoints){
+                for (Vector2 intersectPoint : intersectionPoints) {
 
                     double dist2 = Vector2.dist2(contourSegments.get(iSeg).start, intersectPoint);
-                    if (dist2 < maxDist2){
+                    if (dist2 < maxDist2) {
                         maxDist2 = dist2;
                         firstIntersectionPoint = intersectPoint;
                     }
@@ -859,19 +847,19 @@ public class DataPreparation {
         }
 
         // reached only if no intersection has been found
-        throw new AI_Exception("The bit start point has not been found.");
+        throw new Exception("The bit start point has not been found.");
     }
 
 
     // just for tests
-    public void tests(Bit2D bit2D){
+    public void tests(Bit2D bit2D) {
 
         Vector<Vector2> contourPoints = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
         Vector2 startPoint = null;
         try {
             startPoint = getBitAndContourFirstIntersectionPoint(bit2D, contourPoints);
-        } catch (AI_Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         getSectionPoints(contourPoints, startPoint);

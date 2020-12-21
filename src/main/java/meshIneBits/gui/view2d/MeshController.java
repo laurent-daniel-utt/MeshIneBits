@@ -25,7 +25,6 @@ package meshIneBits.gui.view2d;
 import meshIneBits.*;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.Acquisition;
-import meshIneBits.IA.IA_util.AI_Exception;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
@@ -543,7 +542,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (Acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
             try {
                 Acquisition.addNewExampleBit(newBit);
-            } catch (AI_Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

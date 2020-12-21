@@ -1,6 +1,7 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -34,17 +35,33 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class DeepL {
-    public static final int BATCH_SIZE = 30;    //le nombre d'exemples
-    public static final int HIDDEN_NEURONS_COUNT = 20; //le nombre de neurones dans une couche cachée
-    private static final int CLASSES_COUNT = 2;  //le nombre de classes possibles en sortie
-    private static final int FEATURES_COUNT = 60; //le nombre de paramètres en entrée
+    public static final int BATCH_SIZE = 50;    //todo, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
+    /**
+     * The number of neurons in an hidden layer
+     */
+    public static final int HIDDEN_NEURONS_COUNT = 20;
+    /**
+     * The number of labels for the outputs. Here it is the position and the rotation.
+     */
+    private static final int CLASSES_COUNT = 2;
+    /**
+     * The number of parameters for the inputs.
+     */
+    private static final int FEATURES_COUNT = 60;
+    /**
+     * The name and location of the csv file which contains the dataSet.
+     */
     private static final String PATH_NAME_TRAIN = "dataSet.csv";
-    private static final String PATH_NAME_PREDICT = "dataToPredict.csv";
+    private static final String PATH_NAME_PREDICT = "dataToPredict.csv"; //todo virer
+    /**
+     * The number of iterations to train the neural network.
+     */
     private static final int N_EPOCHS = 10000;
-    private static final Activation ACTIVATION_FUNCTION = Activation.IDENTITY;
+    private static final Activation ACTIVATION_FUNCTION = Activation.IDENTITY; //todo virer
     private static DataNormalization normalizer;
     private static MultiLayerNetwork model;
 
+    //todo main temporaire, enlever après
     public static void main(String[] args) {
         try {
             trainWithCsvDataSet();
@@ -53,7 +70,17 @@ public class DeepL {
         }
     }
 
+    /**
+     * Reads a .csv file and returns the DataSetIterator
+     *
+     * @param filename       the file to read
+     * @param labelIndexFrom the first index of the labels
+     * @param labelIndexTo   the last index of the labels
+     * @return the DataSetIterator to iterate over all data from the DataSet
+     */
     private static DataSet readCSVDataset(String filename, int labelIndexFrom, int labelIndexTo) throws IOException, InterruptedException {
+        FileSplit fs = new FileSplit((new File(filename)));
+
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filename)));
 
@@ -62,43 +89,20 @@ public class DeepL {
     }
 
     public static void trainWithCsvDataSet() throws IOException, InterruptedException {
-        DataSet allData = readCSVDataset(PATH_NAME_TRAIN, 0, 1);
+        DataSet allData = readCSVDataset(PATH_NAME_TRAIN, 0, 1); //the first two columns of the .csv are the labels
         allData.shuffle(123);
 
         normalizer = new NormalizerStandardize();
         normalizer.fit(allData);
         normalizer.transform(allData);
 
-        SplitTestAndTrain testAndTrain = allData.splitTestAndTrain(0.65);
+        //todo à l'avenir, on est pas obligés de garder les 35% de test si?
+        SplitTestAndTrain testAndTrain = allData.splitTestAndTrain(0.65); // 65% for training and 35% for testing
         DataSet trainingData = testAndTrain.getTrain();
         DataSet testingData = testAndTrain.getTest();
 
 
-       /* MultiLayerConfiguration netConf = new NeuralNetConfiguration.Builder()
-                .seed(123)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .weightInit(WeightInit.XAVIER)
-                .updater(Updater.NESTEROVS)
-
-                .list()
-                .layer(0, new DenseLayer.Builder()
-                        .nIn(FEATURES_COUNT)
-                        .nOut(nHidden)
-                        .activation(Activation.RELU)
-                        .build())
-                .layer(1, new DenseLayer.Builder()
-                        .nIn(nHidden)
-                        .nOut(nHidden)
-                        .activation(Activation.RELU)
-                        .build())
-                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation(Activation.IDENTITY)
-                        .nIn(nHidden)
-                        .nOut(CLASSES_COUNT)
-                        .build())
-                .build();
-*/
-
+        //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .activation(Activation.TANH)//todo c'est quoi tanh, tester d'autres
                 .weightInit(WeightInit.XAVIER)//todo c'est quoi Xavier, tester d'autres
@@ -149,23 +153,19 @@ public class DeepL {
         model.init();
 
 
-        //Initialize the user interface backend
         UIServer uiServer = UIServer.getInstance();
-        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        //Configures where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
         StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
-        model.setListeners(new StatsListener(statsStorage)); //Les logs UI
 
-        //todo @André http://localhost:9000/train/overview : c'est l'adresse pour visualiser l'UI, tu peux enlever le todo, et laisser juste un commentaire quand t'as vu ^^
-        // model.setListeners(new ScoreIterationListener(100)); //Les logs console
+        //Choice between console logs and UI logs.
+        //model.setListeners(new ScoreIterationListener(100)); //logs console
+        model.setListeners(new StatsListener(statsStorage)); //logs UI
+        System.out.println("\n To visualize the training, go to http://localhost:9000/train/overview in your browser");
 
+        //the training
         for (int i = 0; i < N_EPOCHS; i++) {
             model.fit(trainingData);
-
-            //      INDArray features = testingData.getFeatures();
-            //      INDArray labels = testingData.getLabels();//todo do something with it
-            //      INDArray predicted = model.output(features, false);
         }
 
         INDArray features = testingData.getFeatures();
@@ -183,6 +183,14 @@ public class DeepL {
     }
 
 
+    /**
+     * Once the neural network is trained, predicts the placement of a Bit2D from the sectionPoints.
+     *
+     * @param sectionPoints    the points on which the bit should be placed.
+     * @param startPoint       the first point on which the bound of the bit will be placed.
+     * @param angleLocalSystem the angle of the local coordinate system.
+     * @return the bit, with predicted placement and orientation.
+     */
     public static Bit2D getBitPlacement(Vector<Vector2> sectionPoints, Vector2 startPoint, double angleLocalSystem) throws IOException, InterruptedException {
         Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(sectionPoints);
         Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
@@ -207,6 +215,7 @@ public class DeepL {
             e.printStackTrace();
         }
 
+//TEST N°1, avec un csv une ligne
         DataSet oneData = readCSVDataset(PATH_NAME_PREDICT, 0, 1);
         normalizer = new NormalizerStandardize();
         normalizer.fit(oneData);
@@ -221,13 +230,13 @@ public class DeepL {
         double bitPos = prediction.getDouble(0);
         double bitAngle = prediction.getDouble(1);
 
-        Bit2D bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
+        Bit2D bit = getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
         DataPreparation.A = bit.getOrigin();
 
-        //TEST N°2, avec un dataset en double[]
+//TEST N°2, avec un dataset en double[]
         double[][] featuresTab = new double[1][pointsForDl.size() * 2];
         int j = 0;
         for (Vector2 point : pointsForDl) {
@@ -250,12 +259,43 @@ public class DeepL {
         bitPos = prediction.getDouble(0);
         bitAngle = prediction.getDouble(1);
 
-        bit = Exploitation.getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
+        bit = getBitFromNeuralNetworkOutput(bitPos, bitAngle, startPoint, angleLocalSystem);
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
         DataPreparation.A = bit.getOrigin();
         return bit;
 
+    }
+
+
+    /**
+     * @param edgeAbscissa     position of a bit, that comes from the neural network's output
+     * @param bitLocalAngle    angle of a bit, that comes from the neural network's output
+     * @param posLocalSystem   position of the local coordinate system's origin used to prepare data for the neural network
+     * @param angleLocalSystem angle of the local coordinate system used to prepare data for the neural network
+     * @return the bit's center position in global coordinate system
+     */
+    public static Bit2D getBitFromNeuralNetworkOutput(double edgeAbscissa, double bitLocalAngle, Vector2 posLocalSystem, double angleLocalSystem) {
+
+        // convert angles in Vector2
+        Vector2 bitAngleLocalV2 = Vector2.getEquivalentVector(bitLocalAngle);
+        Vector2 angleLocalSystemV2 = Vector2.getEquivalentVector(angleLocalSystem);
+
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = bitAngleLocalV2.normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
+
+        // bit's center's position in local coordinate system
+        Vector2 positionLocal = orthogonal.mul(edgeAbscissa)
+                .add(colinear.mul(CraftConfig.bitLength / 2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
+
+        // bits center's position in global coordinate system
+        Vector2 positionGlobal = positionLocal.rotate(angleLocalSystemV2).add(posLocalSystem);
+
+        Vector2 orientationGlobal = bitAngleLocalV2.rotate(angleLocalSystemV2);
+
+        return new Bit2D(positionGlobal, orientationGlobal);
     }
 }
