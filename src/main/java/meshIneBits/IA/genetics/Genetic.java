@@ -64,14 +64,11 @@ public class Genetic {
 
             System.out.println("best bit " + bestBit);
             try {
-                startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
+                startPoint = DataPreparation.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("nextBitStartPoint non trouvé dans Genetics");
             }
-            //System.out.println("on a le startPoint : "+startPoint);
-            //associatedPoints.clear();
-            associatedPoints = AI_Tool.dataPrep.getCurrentLayerBitAssociatedPoints(bestBit, startPoint, (Vector<Vector2>) bound1.clone());
         }
     }
 

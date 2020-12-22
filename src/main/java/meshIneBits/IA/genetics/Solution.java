@@ -4,6 +4,8 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
+import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Segment2D;
@@ -79,8 +81,7 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().getAvailableArea();
 
-        AI_Tool.dataPrep.hasNewBitToDraw = true;//debugonly
-        //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
+        DebugTools.hasNewBitToDraw = true;//debugonly
 
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
 
@@ -170,7 +171,7 @@ public class Solution {
             bad = true;
         }
         try {
-            if (AI_Tool.dataPrep.getNextBitStartPoint(getBit(startPoint), bound) == null) {
+            if (DataPreparation.getNextBitStartPoint(getBit(startPoint), bound) == null) {
                 bad = true;
             }
         } catch (Exception e) {
@@ -200,7 +201,7 @@ public class Solution {
             ));
         }
 
-        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit);
+        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
 
         int intersectionCount = 0;
 
@@ -275,7 +276,7 @@ public class Solution {
     private void addPenaltyForSectionCoveredLength(Vector<Vector2> sectionPoints) { //todo @all tester
 
         Bit2D bit2D = getBit(startPoint);
-        AI_Tool.dataPrep.hasNewBitToDraw = true;
+        DebugTools.hasNewBitToDraw = true;
         Vector<Segment2D> sectionSegments = new Vector<>();
         for (int i = 0; i < sectionPoints.size() - 1; i++) {
             sectionSegments.add(new Segment2D(
@@ -284,7 +285,7 @@ public class Solution {
             ));
         }
 
-        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit2D);
+        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit2D);
         Vector2 firstIntersectionPoint = null;
         double coveredDistance = -1;
 

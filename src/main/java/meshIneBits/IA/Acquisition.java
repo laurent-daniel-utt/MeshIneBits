@@ -26,8 +26,8 @@ public class Acquisition {
     public static void stopStoringBits() throws IOException {
         storeNewBits = false;
         saveExamples();
-        AI_Tool.dataPrep.scores.clear(); //debugonly
-        AI_Tool.dataPrep.Bits.clear();//Debugonly
+        DebugTools.scores.clear(); //debugonly
+        DebugTools.Bits.clear();//Debugonly
     }
 
     public static void deleteLastPlacedBit() {
@@ -45,12 +45,18 @@ public class Acquisition {
     public static void addNewExampleBit(Bit2D bit) throws Exception {
 
 
-        Vector<Vector2> points = AI_Tool.dataPrep.getCurrentLayerBitAssociatedPoints(bit);
+        Vector<Vector2> points = DataPreparation.getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
 
-/*
+
+        // debugOnly afficher les points enregistrés
+
+        DebugTools.pointsADessiner.addAll(points);
+
+
+        /*
          //debugonly on garde ça pour l'instant, ça peut toujours servir pour déboguer si oon trouve d'autres problèmes
 
         // test coordinate system transformations

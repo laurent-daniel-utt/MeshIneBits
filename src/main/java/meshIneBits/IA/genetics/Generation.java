@@ -2,6 +2,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -73,7 +74,6 @@ public class Generation {
         double position = Math.random() * CraftConfig.bitWidth;
         double angleSection = DataPreparation.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone());
-        //AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
 
         if (!DataPreparation.arePointsMostlyOrientedToTheRight(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
@@ -81,7 +81,7 @@ public class Generation {
         int dir = Math.random() > 0.5 ? 1 : -1;
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir; //plus ou moins 30°
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
-        AI_Tool.dataPrep.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
+        DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
         return new Solution(position, rotationVector, startPoint, this, bound);
     }
 

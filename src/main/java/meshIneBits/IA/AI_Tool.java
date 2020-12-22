@@ -17,7 +17,6 @@ import java.util.Vector;
  * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
  */
 public class AI_Tool {
-    public static DataPreparation dataPrep = new DataPreparation();
     public static Acquisition acquisition = new Acquisition();
     public static Genetic genetic;
     private static MeshController meshController;
@@ -45,11 +44,11 @@ public class AI_Tool {
 
         Vector<Vector2> associatedPoints = new Vector<>();
 
-        Vector<Vector<Vector2>> bounds = AI_Tool.dataPrep.getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
         Vector<Vector2> bound1 = bounds.get(0);
         Vector2 startPoint = bound1.get(40);
 
-        Vector<Vector2> sectionPoints = DataPreparation.getSectionPoints(bound1, startPoint);
+        Vector<Vector2> sectionPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
 
         double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 

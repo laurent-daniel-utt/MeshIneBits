@@ -234,7 +234,7 @@ public class DeepL {
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
-        DataPreparation.A = bit.getOrigin();
+        DebugTools.A = bit.getOrigin();
 
 //TEST N°2, avec un dataset en double[]
         double[][] featuresTab = new double[1][pointsForDl.size() * 2];
@@ -263,7 +263,7 @@ public class DeepL {
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
-        DataPreparation.A = bit.getOrigin();
+        DebugTools.A = bit.getOrigin();
         return bit;
 
     }
