@@ -4,10 +4,13 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
+import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -23,15 +26,15 @@ public class Solution {
     /**
      * The coefficient associated to the mutation.
      */
-    private final double MUTATION_MAX_STRENGTH = 0.2;
+    private static final double MUTATION_MAX_STRENGTH = 0.2;
     /**
      * The coefficient associated to the angle penalty. Must be between 0 and 1.
      */
-    private final double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private static final double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
     /**
      * The coefficient associated to the length penalty. Must be between 0 and 1.
      */
-    private final double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private static final double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
     public double bitPos;
     public Vector2 bitAngle;
     public double score = 0;
@@ -69,18 +72,17 @@ public class Solution {
      * @return the area.
      */
     private double computeArea() {
-
-        //en gros pour évaluer le score, on créé un nouveau bit avec getBit()
-        //ensuite on affecte des cutsPaths à ce bit, on le découpe quoi
-        //on obtient l'aire découpée, dont on calcule la surface
-        //après le score c'est l'aire du bit découpé
+        /*
+        To evaluate the score, we create a new bit with getBit()
+        We cut it with cutPaths, we next get the cut Area and we compute its surface
+        The score is the computed surface of the cut Bit.
+         */
 
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().getAvailableArea();
 
-        AI_Tool.dataPrep.hasNewBitToDraw = true;//debugonly
-        //AI_Tool.dataPrep.areaToDraw = (Area) availableArea.clone();
+        DebugTools.hasNewBitToDraw = true;//debugOnly
 
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
 
@@ -109,31 +111,31 @@ public class Solution {
             }
             finalCutPath.closePath();
 
-            int npoints = 0;
-            Vector<Double> Xpoints = new Vector<>();
-            Vector<Double> Ypoints = new Vector<>();
+            int nPoints = 0;
+            Vector<Double> XPoints = new Vector<>();
+            Vector<Double> YPoints = new Vector<>();
             double area = 0;
             PathIterator iter = finalCutPath.getPathIterator(null);
             while (!iter.isDone()) {
                 double[] segment = new double[6];
                 iter.currentSegment(segment);
-                Xpoints.add(segment[0]);
-                Ypoints.add(segment[1]);
+                XPoints.add(segment[0]);
+                YPoints.add(segment[1]);
                 //System.out.println(segment[0] + " " + segment[1]);
-                // todo @all pourquoi le dernier point c'est 0,0?? l'enlever
-                npoints++;
+                //todo @all why is the last point (0,0) ?? remove it
+                nPoints++;
                 iter.next();
             }
 
 
-            Xpoints.remove(Xpoints.lastElement());
-            Ypoints.remove(Ypoints.lastElement());
-            npoints = Xpoints.size();
-            for (int i = 0; i < npoints; i++) {
-                System.out.println(Xpoints.get(i) + " : " + Ypoints.get(i));
+            XPoints.remove(XPoints.lastElement());
+            YPoints.remove(YPoints.lastElement());
+            nPoints = XPoints.size();
+            for (int i = 0; i < nPoints; i++) {
+                System.out.println(XPoints.get(i) + " : " + YPoints.get(i));
             }
-            for (int i = 0; i < npoints - 1; i++) {
-                area += (Xpoints.get(i) * Ypoints.get(i + 1)) - (Ypoints.get(i) * Xpoints.get(i + 1));
+            for (int i = 0; i < nPoints - 1; i++) {
+                area += (XPoints.get(i) * YPoints.get(i + 1)) - (YPoints.get(i) * XPoints.get(i + 1));
             }
             System.out.println("area = " + Math.abs(area / 2));
             return Math.abs(area / 2);
@@ -159,18 +161,19 @@ public class Solution {
 
     /**
      * Deletes the solution if it is bad.
-     * Bad Solutions criterias :
+     * Bad Solutions criteria :
      * - there is more than one intersection between bit's edges and the section
-     * -...todo @all completer doc (et même toutes d'ailleurs)
+     * -...todo @all completer doc
      */
     public void deleteIfBad(Vector<Vector2> sectionPoints) {
 
         boolean bad = false;
-        if (getNumberOfIntersections(sectionPoints) > 1) {//todo @Andre, je crois que toutes les solutions sont dégagées XD
+        if (getNumberOfIntersections(sectionPoints) > 1) {
+            //todo @Andre, je crois que toutes les solutions sont dégagées XD
             bad = true;
         }
         try {
-            if (AI_Tool.dataPrep.getNextBitStartPoint(getBit(startPoint), bound) == null) {
+            if (DataPreparation.getNextBitStartPoint(getBit(startPoint), bound) == null) {
                 bad = true;
             }
         } catch (Exception e) {
@@ -192,15 +195,8 @@ public class Solution {
 
         Bit2D bit = getBit(startPoint);
 
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < sectionPoints.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(
-                    sectionPoints.get(i),
-                    sectionPoints.get(i + 1)
-            ));
-        }
-
-        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit);
+        Vector<Segment2D> sectionSegments = getSegment2DS(sectionPoints);
+        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
 
         int intersectionCount = 0;
 
@@ -226,12 +222,12 @@ public class Solution {
      * @return the related Bit
      */
     private Bit2D getBit(Vector2 startPoint) {
-        Vector2 colinear = this.bitAngle.normal();
-        Vector2 orthogonal = colinear
+        Vector2 collinear = this.bitAngle.normal();
+        Vector2 orthogonal = collinear
                 .rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
         Vector2 position = startPoint
                 .add(orthogonal.mul(this.bitPos))
-                .add(colinear.mul(CraftConfig.bitLength / 2))
+                .add(collinear.mul(CraftConfig.bitLength / 2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
         return new Bit2D(position, this.bitAngle);
@@ -275,16 +271,10 @@ public class Solution {
     private void addPenaltyForSectionCoveredLength(Vector<Vector2> sectionPoints) { //todo @all tester
 
         Bit2D bit2D = getBit(startPoint);
-        AI_Tool.dataPrep.hasNewBitToDraw = true;
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < sectionPoints.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(
-                    sectionPoints.get(i),
-                    sectionPoints.get(i + 1)
-            ));
-        }
+        DebugTools.hasNewBitToDraw = true;
+        Vector<Segment2D> sectionSegments = getSegment2DS(sectionPoints);
 
-        Vector<Segment2D> sides = DataPreparation.getBitSidesSegments(bit2D);
+        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit2D);
         Vector2 firstIntersectionPoint = null;
         double coveredDistance = -1;
 
@@ -315,6 +305,18 @@ public class Solution {
         }
 
         this.score -= LENGTH_PENALTY_STRENGTH * this.score * coveredDistance / CraftConfig.bitLength;
+    }
+
+    @NotNull
+    private Vector<Segment2D> getSegment2DS(Vector<Vector2> sectionPoints) {
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < sectionPoints.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(
+                    sectionPoints.get(i),
+                    sectionPoints.get(i + 1)
+            ));
+        }
+        return sectionSegments;
     }
 
     /**

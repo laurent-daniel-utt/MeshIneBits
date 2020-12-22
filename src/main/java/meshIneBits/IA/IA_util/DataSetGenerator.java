@@ -1,7 +1,7 @@
 package meshIneBits.IA.IA_util;
 
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 
@@ -108,8 +108,8 @@ public final class DataSetGenerator {
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
 
 
-        AI_Tool.dataPrep.pointsADessiner.add(localCoordinateSystemAngle.mul((50)));
-        AI_Tool.dataPrep.pointsADessiner.add(bitAngle.mul((100)));
+        DebugTools.pointsADessiner.add(localCoordinateSystemAngle.mul((50)));
+        DebugTools.pointsADessiner.add(bitAngle.mul((100)));
 
 
 

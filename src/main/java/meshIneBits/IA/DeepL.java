@@ -79,8 +79,6 @@ public class DeepL {
      * @return the DataSetIterator to iterate over all data from the DataSet
      */
     private static DataSet readCSVDataset(String filename, int labelIndexFrom, int labelIndexTo) throws IOException, InterruptedException {
-        FileSplit fs = new FileSplit((new File(filename)));
-
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(filename)));
 
@@ -195,17 +193,17 @@ public class DeepL {
         Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(sectionPoints);
         Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
         System.out.println("SECTION POINTS SIZE " + pointsForDl.size());
-        String csvLine = "";
-        csvLine += "0,0,"; //todo @Etienne faire mieux
+        StringBuilder csvLine = new StringBuilder();
+        csvLine.append("0,0,"); //todo @Etienne faire mieux
         boolean firstPoint = true;
         for (Vector2 point : pointsForDl) { // add points
             if (firstPoint) {
-                csvLine += point.x;
+                csvLine.append(point.x);
                 firstPoint = false;
             } else {
-                csvLine += "," + point.x;
+                csvLine.append(",").append(point.x);
             }
-            csvLine += "," + point.y;
+            csvLine.append(",").append(point.y);
         }
         try {
             FileWriter fw = new FileWriter(PATH_NAME_PREDICT);
@@ -234,7 +232,7 @@ public class DeepL {
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
-        DataPreparation.A = bit.getOrigin();
+        DebugTools.A = bit.getOrigin();
 
 //TEST N°2, avec un dataset en double[]
         double[][] featuresTab = new double[1][pointsForDl.size() * 2];
@@ -263,7 +261,7 @@ public class DeepL {
         System.out.println("FINAL POSITION : " + bit.getOrigin().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().toString());
         System.out.println("FINAL ANGLE    : " + bit.getOrientation().getEquivalentAngle2());
-        DataPreparation.A = bit.getOrigin();
+        DebugTools.A = bit.getOrigin();
         return bit;
 
     }

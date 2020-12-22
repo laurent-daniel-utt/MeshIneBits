@@ -1,23 +1,18 @@
 package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Vector;
 
 public class Genetic {
     private final Layer layer;
     public Evolution currentEvolution;
     private final Vector<Bit2D> solutions = new Vector<>();
-    private final Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
 
     /**
      * The tool for genetic algorithms which performs the pavement on a layer.
@@ -34,29 +29,23 @@ public class Genetic {
      * Starts the Genetic pavement and paves the given layer.
      */
     private void start() {
-        Vector<Slice> slicesList = AI_Tool.getMeshController().getMesh().getSlices();
-        slicesList.forEach(currentSlice -> sliceMap.put(
-                currentSlice,
-                (Vector<Segment2D>) currentSlice.getSegmentList().clone()
-        ));
-
         Slice sliceToTest = layer.getHorizontalSection();
 
-        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugonly on fait ici que la premiere slice
-        Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugonly on fait ici que le premier contour
+        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
+        Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugOnly on fait ici que le premier contour
         Vector2 startPoint = bound1.get(10);//should never start from point 0 or -1
         Vector2 veryFirstStartPoint = startPoint;
         Vector<Vector2> associatedPoints = getAssociatedPoints(bound1, startPoint);
 
 
         Bit2D bestBit;
-        //todo @Etienne paver chaque contour aussi
-        int nbIters = 0;
+        //todo @Etienne pave each bound
+        int nbIterations = 0;
         while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) {
-            nbIters++;
-            if (nbIters > 20)//nombre max d'iters avant de stopper
+            nbIterations++;
+            if (nbIterations > 20)//number max of iterations before stopping
                 break;
-            System.out.println(nbIters);
+            System.out.println(nbIterations);
             currentEvolution = new Evolution((Vector<Vector2>) associatedPoints.clone(), startPoint, (Vector<Vector2>) bound1.clone());
             currentEvolution.run();
             bestBit = currentEvolution.bestSolution.bit;
@@ -64,14 +53,11 @@ public class Genetic {
 
             System.out.println("best bit " + bestBit);
             try {
-                startPoint = AI_Tool.dataPrep.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
+                startPoint = DataPreparation.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("nextBitStartPoint non trouvé dans Genetics");
+                System.out.println("nextBitStartPoint not found (in Genetics)"); //debugOnly
             }
-            //System.out.println("on a le startPoint : "+startPoint);
-            //associatedPoints.clear();
-            associatedPoints = AI_Tool.dataPrep.getCurrentLayerBitAssociatedPoints(bestBit, startPoint, (Vector<Vector2>) bound1.clone());
         }
     }
 
@@ -104,7 +90,7 @@ public class Genetic {
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
     private boolean hasCompletedTheBound(Vector2 startPoint, Vector<Vector2> associatedPoints) {
-        //todo @Etienne déboguer hasCompletedTheBound
+        //todo @Etienne debug hasCompletedTheBound
         if (associatedPoints.firstElement() == startPoint)
             return false;
         return associatedPoints.contains(startPoint);

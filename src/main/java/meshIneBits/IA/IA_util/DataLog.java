@@ -11,7 +11,7 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 public final class DataLog {
-    private final static String dataLogFilePath = "storedBits.txt";
+    private final static String dataLogFilePath = "storedBits.csv";
 
     static public long getNumberOfEntries() throws IOException {
         return Files.lines(Paths.get(dataLogFilePath)).count();
@@ -19,13 +19,13 @@ public final class DataLog {
 
 
     static public void saveEntry(DataLogEntry dataLogEntry) throws IOException {
-        String line = dataLogEntry.getBitPosition().x + ","
+        StringBuilder line = new StringBuilder(dataLogEntry.getBitPosition().x + ","
                 + dataLogEntry.getBitPosition().y + ","
                 + dataLogEntry.getBitOrientation().x + ","
-                + dataLogEntry.getBitOrientation().y;
+                + dataLogEntry.getBitOrientation().y);
 
         for (Vector2 point : dataLogEntry.getPoints()) {
-            line += "," + point.x + ";" + point.y;
+            line.append(",").append(point.x).append(",").append(point.y);
         }
         FileWriter fw = new FileWriter(dataLogFilePath, true);
         fw.write(line + "\n");
@@ -33,6 +33,7 @@ public final class DataLog {
     }
 
 
+    //todo @Andre never used : on laisse ou pas ?
     static public void saveAllEntries(Vector<DataLogEntry> dataSetEntries) throws IOException {
         for (DataLogEntry dataLogEntry : dataSetEntries) {
             saveEntry(dataLogEntry);
@@ -40,28 +41,18 @@ public final class DataLog {
     }
 
 
-    static public DataLogEntry getEntryFromFile(long lineNumber) {
-        String line;
-        try (Stream<String> lines = Files.lines(Paths.get(dataLogFilePath))) {
-            line = lines.skip(lineNumber - 1).findFirst().get();
-        } catch (IOException e) {
-            System.out.println(e);
-            return null;
-        }
+    static public DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
+        Stream<String> lines = Files.lines(Paths.get(dataLogFilePath));
+        String line = lines.skip(lineNumber - 1).findFirst().get(); //todo check with .isPresent() before
         return decodeLine(line);
     }
 
 
-    static public Vector<DataLogEntry> getAllEntriesFromFile() {
+    //todo @Andre never used : on laisse ou pas ?
+    static public Vector<DataLogEntry> getAllEntriesFromFile() throws IOException {
 
-        Vector<String> lines = new Vector<>();
+        Vector<String> lines = new Vector<>(Files.readAllLines(Paths.get(dataLogFilePath)));
 
-        try {
-            lines.addAll(Files.readAllLines(Paths.get(dataLogFilePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
 
         Vector<DataLogEntry> dataSetEntries = new Vector<>();
         for (String line : lines) {
@@ -87,11 +78,10 @@ public final class DataLog {
         Vector2 bitOrientation = new Vector2(bitOrientationX, bitOrientationY);
 
         Vector<Vector2> points = new Vector<>();
-        for (String pointStr : data) {
-            String[] pointStrSplit = pointStr.split(";");
+        while (! data.isEmpty()) {
             points.add(new Vector2(
-                    Double.parseDouble(pointStrSplit[0]),
-                    Double.parseDouble(pointStrSplit[1])));
+                    Double.parseDouble(data.remove(0)),
+                    Double.parseDouble(data.remove(0))));
         }
 
         return new DataLogEntry(bitPos, bitOrientation, points);

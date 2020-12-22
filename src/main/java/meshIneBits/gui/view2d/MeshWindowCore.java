@@ -26,6 +26,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -518,7 +519,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
          */
 
 
-        Vector<Bit2D> bits = AI_Tool.dataPrep.Bits;
+        Vector<Bit2D> bits = DebugTools.Bits;
         for (int i = 0; i < bits.size(); i++) {
             Area area = bits.get(i).getArea();
             area.transform(realToView);
@@ -528,13 +529,13 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
             int x = area.getBounds().x + area.getBounds().width / 4;
             int y = area.getBounds().y - area.getBounds().height / 2;
-            g2d.drawString(AI_Tool.dataPrep.scores.get(i), x, y);
+            g2d.drawString(DebugTools.scores.get(i), x, y);
         }
 
 
         //draw an area
-        if(AI_Tool.dataPrep.areaToDraw!=null){
-            Area area = AI_Tool.dataPrep.areaToDraw;
+        if(DebugTools.areaToDraw!=null){
+            Area area = DebugTools.areaToDraw;
             area.transform(realToView);
             g2d.setColor(Color.BLUE);
             g2d.fill(area);
@@ -542,7 +543,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
         }
 
-        for (Vector2 point : AI_Tool.dataPrep.pointsADessiner) {
+        for (Vector2 point : DebugTools.pointsADessiner) {
             drawModelCircle(g2d, point.x, point.y, 4);
         }
 

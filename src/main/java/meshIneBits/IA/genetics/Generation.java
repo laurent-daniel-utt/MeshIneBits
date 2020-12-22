@@ -1,7 +1,7 @@
 package meshIneBits.IA.genetics;
 
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -16,7 +16,6 @@ public class Generation {
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
-    private final int nbGensMax;
     private final double rankSelection;
     private final double rankReproduction;
     private final double probMutation;
@@ -30,16 +29,15 @@ public class Generation {
      * Implements methods to sort, select, reproduce, mutate and evaluate the solutions.
      *
      * @param popSize          the size of the population.
-     * @param nbGensMax        the maximum number of generations.
      * @param rankSelection    the percentage of selected solutions from the previous generation to make the new one.
      * @param rankReproduction the percentage of reproduced solutions from the previous generation to make the new one.
      * @param probMutation     the probability for a solution to mutate by itself at each generation.
-     * @param bound
+     * @param startPoint       the point on which the bit has to be placed
+     * @param bound            the bound on which the bit has to be placed
      */
-    public Generation(int popSize, int nbGensMax, double rankSelection, double rankReproduction, double probMutation, Vector2 startPoint, Vector<Vector2> bound) {
+    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, Vector2 startPoint, Vector<Vector2> bound) {
         this.popSize = popSize;
         this.solutions = new Vector<>(popSize);
-        this.nbGensMax = nbGensMax;
         this.rankSelection = rankSelection;
         this.rankReproduction = rankReproduction;
         this.probMutation = probMutation;
@@ -73,7 +71,6 @@ public class Generation {
         double position = Math.random() * CraftConfig.bitWidth;
         double angleSection = DataPreparation.
                 getSectionOrientation((Vector<Vector2>) pointSection.clone());
-        //AI_Tool.dataPrep.pointsADessiner.clear();//debugOnly
 
         if (!DataPreparation.arePointsMostlyOrientedToTheRight(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
@@ -81,7 +78,7 @@ public class Generation {
         int dir = Math.random() > 0.5 ? 1 : -1;
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir; //plus ou moins 30°
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
-        AI_Tool.dataPrep.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
+        DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
         return new Solution(position, rotationVector, startPoint, this, bound);
     }
 

@@ -51,7 +51,6 @@ public class Evolution {
         //first INIT
         Generation initGeneration = new Generation(
                 POP_SIZE,
-                NB_GEN_MAX,
                 RANK_SELECTION,
                 RANK_REPRODUCTION,
                 PROB_MUTATION,
@@ -66,7 +65,6 @@ public class Evolution {
             //System.out.println("gen " + currentGenerationNumber + " generation...");
             Generation currentGeneration = new Generation(
                     POP_SIZE,
-                    NB_GEN_MAX,
                     RANK_SELECTION,
                     RANK_REPRODUCTION,
                     PROB_MUTATION,
