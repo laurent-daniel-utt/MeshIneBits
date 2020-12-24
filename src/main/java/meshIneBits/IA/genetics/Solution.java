@@ -4,7 +4,6 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DataPreparation;
-import meshIneBits.IA.DebugTools;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
@@ -20,21 +19,21 @@ import java.util.Vector;
 
 public class Solution {
 
-    private final Vector<Vector2> bound;
-    private final Vector2 startPoint;
-    private final Generation generation;
     /**
      * The coefficient associated to the mutation.
      */
     private static final double MUTATION_MAX_STRENGTH = 0.2;
     /**
-     * The coefficient associated to the angle penalty. Must be between 0 and 1.
+     * The coefficient associated to the angle penalty.
      */
-    private static final double ANGLE_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private static final int ANGLE_PENALTY_STRENGTH = 5000;
     /**
-     * The coefficient associated to the length penalty. Must be between 0 and 1.
+     * The coefficient associated to the length penalty.
      */
-    private static final double LENGTH_PENALTY_STRENGTH = 0; // between 0 to 1 (max)
+    private static final int LENGTH_PENALTY_STRENGTH = 50000;
+    private final Vector<Vector2> bound;
+    private final Vector2 startPoint;
+    private final Generation generation;
     public double bitPos;
     public Vector2 bitAngle;
     public double score = 0;
@@ -48,7 +47,7 @@ public class Solution {
         this.bitAngle = bitAngle;
         this.startPoint = startPoint;
         this.generation = generation;
-        this.bound = bound;
+        this.bound = (Vector<Vector2>) bound.clone();
     }
 
 
@@ -60,8 +59,12 @@ public class Solution {
      */
     public double evaluate(Vector<Vector2> pointSection) {
         this.score = computeArea(); //the used area
-        this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
-        this.addPenaltyForSectionCoveredLength((Vector<Vector2>) pointSection.clone());
+        //this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
+        try {
+            this.addPenaltyForSectionCoveredLength();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return this.score;
     }
 
@@ -82,13 +85,11 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         Area availableArea = AI_Tool.getMeshController().getAvailableArea();
 
-        DebugTools.hasNewBitToDraw = true;//debugOnly
-
         availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
 
         if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
-            return -1;
+            return 0;
         } else {
 
             bit.updateBoundaries(availableBitArea);
@@ -131,13 +132,11 @@ public class Solution {
             XPoints.remove(XPoints.lastElement());
             YPoints.remove(YPoints.lastElement());
             nPoints = XPoints.size();
-            for (int i = 0; i < nPoints; i++) {
-                System.out.println(XPoints.get(i) + " : " + YPoints.get(i));
-            }
+
             for (int i = 0; i < nPoints - 1; i++) {
                 area += (XPoints.get(i) * YPoints.get(i + 1)) - (YPoints.get(i) * XPoints.get(i + 1));
             }
-            System.out.println("area = " + Math.abs(area / 2));
+            //System.out.println("area = " + Math.abs(area / 2));
             return Math.abs(area / 2);
         }
     }
@@ -159,58 +158,42 @@ public class Solution {
         }
     }
 
-    /**
-     * Deletes the solution if it is bad.
-     * Bad Solutions criteria :
-     * - there is more than one intersection between bit's edges and the section
-     * -...todo @all completer doc
-     */
-    public void deleteIfBad(Vector<Vector2> sectionPoints) {
-
+    public boolean isBad() {
         boolean bad = false;
-        if (getNumberOfIntersections(sectionPoints) > 1) {
-            //todo @Andre, je crois que toutes les solutions sont dégagées XD
+       /* if (getNumberOfIntersections((Vector<Vector2>) bound.clone()) != 2) { FIXME @Andre
+            bad = true;
+        }*/
+        try {
+            DataPreparation.getNextBitStartPoint(getBit(startPoint), (Vector<Vector2>) bound.clone());
+        } catch (Exception e) {
             bad = true;
         }
-        try {
-            if (DataPreparation.getNextBitStartPoint(getBit(startPoint), bound) == null) {
-                bad = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("nextBitStartPoint non trouvé dans Solution");
-        }
-
-        if (bad) generation.solutions.remove(this);
+        return bad;
     }
 
     /**
-     * returns the number of intersections between bit's edges and the section.
+     * Returns the number of intersections between bit's edges and the given bound.
      *
-     * @param sectionPoints the section of the Slice
+     * @param boundPoints the bound of the Slice
      * @return the number of intersections
      */
 
-    private int getNumberOfIntersections(Vector<Vector2> sectionPoints) {
+    private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
 
         Bit2D bit = getBit(startPoint);
 
-        Vector<Segment2D> sectionSegments = getSegment2DS(sectionPoints);
+        Vector<Segment2D> sectionSegments = getSegment2DS(boundPoints);
         Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
 
         int intersectionCount = 0;
 
         for (Segment2D sectionSegment : sectionSegments)
             for (Segment2D bitSides : sides) {
-                Vector2 intersectionPoint = bitSides.intersect(sectionSegment); //null if parallel
-                if (intersectionPoint != null) {
-                    if (intersectionPoint.isOnSegment(bitSides)) {
-                        if (intersectionPoint.isOnSegment(sectionSegment)) {
-                            intersectionCount += 1;
-                        }
-                    }
+                if (GeneralTools.getIntersectionPoint(sectionSegment, bitSides) != null) {
+                    intersectionCount++;
                 }
             }
+        System.out.println("intersectioncout " + intersectionCount);
         return intersectionCount;
     }
 
@@ -242,7 +225,7 @@ public class Solution {
      *
      * @param sectionPoints the section of the Slice
      */
-    private void addPenaltyForBitAngle(Vector<Vector2> sectionPoints) { //todo @all tester
+    private void addPenaltyForBitAngle(Vector<Vector2> sectionPoints) { //todo @all enlever ???
 
         Bit2D bit2D = getBit(startPoint);
 
@@ -257,7 +240,8 @@ public class Solution {
         double difference = Math.abs(angleSection - angleBit);
 
         // finally we add the angle penalty to the score
-        this.score -= ANGLE_PENALTY_STRENGTH * this.score * (difference / 180);
+        //this.score -= ANGLE_PENALTY_STRENGTH * this.score * (difference / 180);
+        this.score -= ANGLE_PENALTY_STRENGTH * difference / 180;
     }
 
     /**
@@ -265,46 +249,17 @@ public class Solution {
      * The less the Bit2D follows the bound of the Slice,
      * the more the score will be decreased.
      * Depends of <code>LENGTH_PENALTY_STRENGTH</code>
-     *
-     * @param sectionPoints the section of the Slice
      */
-    private void addPenaltyForSectionCoveredLength(Vector<Vector2> sectionPoints) { //todo @all tester
+    private void addPenaltyForSectionCoveredLength() throws Exception {
 
         Bit2D bit2D = getBit(startPoint);
-        DebugTools.hasNewBitToDraw = true;
-        Vector<Segment2D> sectionSegments = getSegment2DS(sectionPoints);
+        Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, (Vector<Vector2>) bound.clone());
+        double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
 
-        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit2D);
-        Vector2 firstIntersectionPoint = null;
-        double coveredDistance = -1;
-
-        int i_segment = 0;
-        while (i_segment < sectionSegments.size() && firstIntersectionPoint == null) {
-
-            for (int i_bitSide = 0; i_bitSide < 4; i_bitSide++) {
-                Vector2 intersectionPoint = sides.get(i_bitSide).intersect(sectionSegments.get(i_segment)); //null if parallel
-
-                if (intersectionPoint != null) {
-                    if (intersectionPoint.isOnSegment(sides.get(i_bitSide))) {
-                        if (intersectionPoint.isOnSegment(sectionSegments.get(i_segment))) {
-                            coveredDistance = Vector2.dist(startPoint, intersectionPoint);
-                            if (coveredDistance != 0.0) {
-                                firstIntersectionPoint = intersectionPoint;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            i_segment++;
-        }
-        if (firstIntersectionPoint == null) {
-            generation.solutions.remove(this);
-            System.out.print("    deleted because firstIntersectionPoint is null");
-            return;
-        }
-
-        this.score -= LENGTH_PENALTY_STRENGTH * this.score * coveredDistance / CraftConfig.bitLength;
+        //this.score -= LENGTH_PENALTY_STRENGTH * this.score * CraftConfig.bitLength / coveredDistance;
+        this.score -= LENGTH_PENALTY_STRENGTH / coveredDistance;
+        if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1) //todo inferieur à quoi ?
+            this.score += LENGTH_PENALTY_STRENGTH;
     }
 
     @NotNull
@@ -326,12 +281,6 @@ public class Solution {
         return "pos: " + this.bitPos + " , angle: " + this.bitAngle;
     }
 
-    /**
-     * @return the cloned Solution.
-     */
-    public Solution clone() {
-        return new Solution(this.bitPos, this.bitAngle, this.startPoint, this.generation, bound);
-    }
 }
 
 /**

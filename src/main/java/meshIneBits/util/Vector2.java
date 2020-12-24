@@ -112,7 +112,8 @@ public class Vector2 implements Serializable {
      * @return The angle between Ox and vector.
      */
     public double getEquivalentAngle() {
-        return (Math.atan(y / x) * 180) / Math.PI;
+        return Math.toDegrees((Math.atan(y / x)));//todo i think it's better
+        //return (Math.atan(y / x) * 180) / Math.PI;
     }
 
     /**
@@ -121,7 +122,8 @@ public class Vector2 implements Serializable {
      * @return The angle between Ox and vector.
      */
     public double getEquivalentAngle2() {
-        return (Math.atan2(y, x) * 180) / Math.PI;
+        return Math.toDegrees(Math.atan2(y, x)); //todo i think it's better
+        //return (Math.atan2(y, x) * 180) / Math.PI;
     }
 
     public Vector2 rotate(Vector2 additionalRotation) {

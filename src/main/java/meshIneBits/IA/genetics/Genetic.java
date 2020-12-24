@@ -3,7 +3,6 @@ package meshIneBits.IA.genetics;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.DataPreparation;
 import meshIneBits.Layer;
-import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
@@ -22,65 +21,44 @@ public class Genetic {
     public Genetic(Layer layer) {
         System.out.println("On Pave le Layer : " + layer.getLayerNumber());
         this.layer = layer;
-        this.start();
+        try {
+            this.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * Starts the Genetic pavement and paves the given layer.
      */
-    private void start() {
+    private void start() throws Exception {
         Slice sliceToTest = layer.getHorizontalSection();
 
         Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
         Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugOnly on fait ici que le premier contour
         Vector2 startPoint = bound1.get(10);//should never start from point 0 or -1
         Vector2 veryFirstStartPoint = startPoint;
-        Vector<Vector2> associatedPoints = getAssociatedPoints(bound1, startPoint);
-
+        Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);//getAssociatedPoints(bound1, startPoint);
 
         Bit2D bestBit;
         //todo @Etienne pave each bound
         int nbIterations = 0;
-        while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) {
+        while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //todo remetre
+
             nbIterations++;
-            if (nbIterations > 20)//number max of iterations before stopping
-                break;
+            if (nbIterations > 50)//number max of iterations before stopping //todo remettre
+                break; //todo enlever je pense ou trouver un nombre correct
             System.out.println(nbIterations);
             currentEvolution = new Evolution((Vector<Vector2>) associatedPoints.clone(), startPoint, (Vector<Vector2>) bound1.clone());
             currentEvolution.run();
             bestBit = currentEvolution.bestSolution.bit;
             solutions.add(bestBit);
 
-            System.out.println("best bit " + bestBit);
-            try {
-                startPoint = DataPreparation.getNextBitStartPoint(bestBit, (Vector<Vector2>) bound1.clone());
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("nextBitStartPoint not found (in Genetics)"); //debugOnly
-            }
+            associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
+            startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound1);
         }
     }
 
-    /**
-     * Returns the (associated) points of the Slice in the range of the bitLength.
-     *
-     * @param bound1     the bound of the Slice on which the associated points will be searched.
-     * @param startPoint the point on which a bit will be placed.
-     * @return the associated points.
-     */
-    private Vector<Vector2> getAssociatedPoints(Vector<Vector2> bound1, Vector2 startPoint) {
-        Vector<Vector2> associatedPoints = new Vector<>();
-        boolean isAfterStartPoint = false;
-        Vector<Vector2> bound = (Vector<Vector2>) bound1.clone();
-        for (Vector2 point : bound) {
-            if (point.equals(startPoint))
-                isAfterStartPoint = true;
-            if (isAfterStartPoint && Vector2.dist(startPoint, point) <= CraftConfig.bitLength) {
-                associatedPoints.add(point);
-            }
-        }
-        return associatedPoints;
-    }
 
     /**
      * Check if the bound of the Slice has been entirely paved.

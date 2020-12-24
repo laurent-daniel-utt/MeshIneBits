@@ -12,7 +12,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 0;//todo @all commbien on mets, 30° de base?
+    private static final double MAX_ANGLE = 30;//todo @all commbien on mets, 30° de base?
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -96,26 +96,17 @@ public class Generation {
     /**
      * Evaluates the current generation and stores scores.
      */
-    public void evaluateGeneration(Vector<Vector2> sectionPoints) {
+    public void evaluateGeneration(Vector<Vector2> sectionPoints) {//todo @Etienne utiliser sort
         this.meanScore = 0;
         this.maxScore = 0;
-
         Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone();
-
         for (Solution solution : clonedSolutions) {
-            //System.out.println("evaluating solution : " + solution.toString() + "...");
-            double score = solution.evaluate((Vector<Vector2>) sectionPoints.clone());
-            //System.out.println("score de la solution " + score + " --> " + solution.toString());
-            if (score > this.maxScore) {
-                maxScore = score;
-                bestSolution = solution;
-            }
-
-            //bestSolution = solution;//DEBUGONLY //FIXME A ENLEVER
-            this.meanScore += score;
+            meanScore += solution.evaluate((Vector<Vector2>) sectionPoints.clone());
         }
-
-        this.meanScore /= this.popSize;
+        List<Solution> solListSorted = sortSolutions(clonedSolutions);
+        bestSolution = solListSorted.get(0);
+        maxScore = solListSorted.get(0).score;
+        meanScore /= popSize;
     }
 
     /**
@@ -187,9 +178,9 @@ public class Generation {
         List<Solution> solutionList = new ArrayList<>(solutions);
         Comparator<Solution> comparator = new SolutionComparator();
         solutionList.sort(comparator);
-        bestSolution = solutionList.get(0);
-        System.out.println("best score : " + bestSolution.score);
-        System.out.println();
+        //bestSolution = solutionList.get(0);
+        //System.out.println("best score : " + bestSolution.score);
+        //System.out.println();
         return solutionList;
     }
 }

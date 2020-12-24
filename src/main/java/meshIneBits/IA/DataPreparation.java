@@ -164,17 +164,13 @@ public final class DataPreparation {
 
         // first we look for the segment on which the startPoint is.
         int startIndex = 0;
-        for (int i = 0; i < polyPoints.size(); i++) {
+        for (int i = 0; i < polyPoints.size() - 1; i++) {
             Segment2D segment2D = new Segment2D(polyPoints.get(i), polyPoints.get(i + 1));
             if (GeneralTools.isPointOnSegment(startPoint, segment2D)) {
-                System.out.println("TROUVE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                 startIndex = i + 1;
                 break;
             }
         }
-        System.out.println("startIndex " + startIndex);
-        System.out.println("point " + polyPoints.get(startIndex));
-        //AI_Tool.dataPrep.pointsADessiner.add(polyPoints.get(startIndex));
 
         // so we will get the points starting from the one situated at startIndex, and add them to sectionPoints Vector, plus the startPoint
         Vector<Vector2> sectionPoints = new Vector<>();
@@ -362,8 +358,9 @@ public final class DataPreparation {
         for (int i = boundPoints.size() - 1; i >= 0; i--) {
             boundPointsReverted.add(boundPoints.get(i));
         }
+
         Vector2 nextBitStartPoint = getBitAndContourFirstIntersectionPoint(bit, boundPointsReverted);
-        if (nextBitStartPoint != nextBitStartPoint) {
+        if (nextBitStartPoint != null) {
             return nextBitStartPoint;
         } else {
             throw new Exception("The bit start point has not been found.");
@@ -405,12 +402,12 @@ public final class DataPreparation {
     /**
      * returns the first intersection point between the bound and bit's edges
      *
-     * @param bit           a bit
+     * @param bit         a bit
      * @param boundPoints the points of the bound
      * @return the first intersection point between the bound and bit's edges
      * @throws Exception if no point has been found
      */
-    private static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
+    public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
         // FIXME @Andre parfois c'est le second point qui est trouvé, il faut régler ça
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
@@ -462,7 +459,7 @@ public final class DataPreparation {
 
             // if we have some intersections we have to return the first one (as explained above)
             if (!intersectionPoints.isEmpty()) {
-                double maxDist2 = 1000000;
+                double maxDist2 = 1000000; //todo @Andre remplacer par Double.positiveinfinity et tester
                 Vector2 firstIntersectionPoint = null; // can't be null
                 for (Vector2 intersectPoint : intersectionPoints) {
 
