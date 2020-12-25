@@ -4,12 +4,16 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
+import meshIneBits.IA.genetics.Solution;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import static meshIneBits.IA.DataPreparation.getBoundsAndRearrange;
 
 public class Acquisition {
     public static boolean storeNewBits = false;
@@ -50,9 +54,14 @@ public class Acquisition {
 
 
 
+
+
+        Vector<Vector<Vector2>> boundsList = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+        getNumberOfIntersections(boundsList.get(0), points.get(0), bit);
+
         // debugOnly afficher les points enregistrés
 
-        DebugTools.pointsADessiner.addAll(points);
+        //DebugTools.pointsADessiner.addAll(points);
 
 
         /*
@@ -130,4 +139,24 @@ public class Acquisition {
         System.out.println("example added");
 
     }
+
+    private static int getNumberOfIntersections(Vector<Vector2> boundPoints, Vector2 startPoint, Bit2D bit) {
+
+        Vector<Segment2D> sectionSegments = GeneralTools.getSegment2DS(boundPoints);
+        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
+
+        int intersectionCount = 0;
+
+        for (Segment2D sectionSegment : sectionSegments)
+            for (Segment2D bitSides : sides) {
+                Vector2 inter = GeneralTools.getIntersectionPoint(sectionSegment, bitSides);
+                if (inter != null) {
+                    intersectionCount++;
+                    DebugTools.pointsADessiner.add(inter);
+                }
+            }
+        System.out.println("intersectioncout " + intersectionCount);
+        return intersectionCount;
+    }
+
 }

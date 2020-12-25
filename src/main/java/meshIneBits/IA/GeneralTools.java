@@ -3,6 +3,7 @@ package meshIneBits.IA;
 import meshIneBits.Bit2D;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
@@ -163,6 +164,19 @@ public final class GeneralTools {
         sides.add(new Segment2D(D, A));
 
         return sides;
+    }
+
+
+    @NotNull
+    public static Vector<Segment2D> getSegment2DS(Vector<Vector2> sectionPoints) {
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < sectionPoints.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(
+                    sectionPoints.get(i),
+                    sectionPoints.get(i + 1)
+            ));
+        }
+        return sectionSegments;
     }
 
 }

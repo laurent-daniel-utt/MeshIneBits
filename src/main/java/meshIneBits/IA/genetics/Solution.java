@@ -17,6 +17,8 @@ import java.awt.geom.PathIterator;
 import java.util.Comparator;
 import java.util.Vector;
 
+import static java.lang.Double.NaN;
+
 public class Solution {
 
     /**
@@ -159,10 +161,18 @@ public class Solution {
     }
 
     public boolean isBad() {
+
+        for (Vector2 pt : bound){
+            if (Double.isNaN(pt.x) || Double.isNaN(pt.y)){
+                System.out.println("==================== QQC EST NaN ====================");
+            }
+        }
+
+
         boolean bad = false;
-       /* if (getNumberOfIntersections((Vector<Vector2>) bound.clone()) != 2) { FIXME @Andre
+        if (getNumberOfIntersections((Vector<Vector2>) bound.clone()) != 2) { //FIXME @Andre
             bad = true;
-        }*/
+        }
         try {
             DataPreparation.getNextBitStartPoint(getBit(startPoint), (Vector<Vector2>) bound.clone());
         } catch (Exception e) {
@@ -177,12 +187,11 @@ public class Solution {
      * @param boundPoints the bound of the Slice
      * @return the number of intersections
      */
-
     private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
 
         Bit2D bit = getBit(startPoint);
 
-        Vector<Segment2D> sectionSegments = getSegment2DS(boundPoints);
+        Vector<Segment2D> sectionSegments = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
 
         int intersectionCount = 0;
@@ -193,7 +202,7 @@ public class Solution {
                     intersectionCount++;
                 }
             }
-        System.out.println("intersectioncout " + intersectionCount);
+        //System.out.println("intersectioncout " + intersectionCount);
         return intersectionCount;
     }
 
@@ -207,11 +216,12 @@ public class Solution {
     private Bit2D getBit(Vector2 startPoint) {
         Vector2 collinear = this.bitAngle.normal();
         Vector2 orthogonal = collinear
-                .rotate(new Vector2(0, 1)); // 90deg anticlockwise rotation
+                .rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
         Vector2 position = startPoint
                 .add(orthogonal.mul(this.bitPos))
                 .add(collinear.mul(CraftConfig.bitLength / 2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
+
 
         return new Bit2D(position, this.bitAngle);
     }
@@ -262,17 +272,6 @@ public class Solution {
             this.score += LENGTH_PENALTY_STRENGTH;
     }
 
-    @NotNull
-    private Vector<Segment2D> getSegment2DS(Vector<Vector2> sectionPoints) {
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < sectionPoints.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(
-                    sectionPoints.get(i),
-                    sectionPoints.get(i + 1)
-            ));
-        }
-        return sectionSegments;
-    }
 
     /**
      * @return the position and the angle of the solution in a String.
