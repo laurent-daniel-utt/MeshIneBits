@@ -9,23 +9,51 @@ import java.util.Vector;
 
 public final class GeneralTools {
 
-    public static Vector2 getIntersectionPoint(Segment2D seg1, Segment2D seg2) {
+    public static Vector2 getIntersectionPoint(Segment2D AB, Segment2D CD) {
         // points
-        Vector2 A = seg1.start;
-        Vector2 B = seg1.end;
-        Vector2 C = seg2.start;
-        Vector2 D = seg2.end;
+        Vector2 A = AB.start;
+        Vector2 B = AB.end;
+        Vector2 C = CD.start;
+        Vector2 D = CD.end;
 
+        // particular cases
         if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
             return A;
         }
         if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
             return B;
         }
-        if (doesIntersect(seg1, seg2)) {
+
+        if (isPointOnSegment(A, CD)){
+            Vector2 inter = C
+                            .add((D.sub(C)).normal())
+                            .mul(Vector2.dist(A, C));
+            return inter;
+        }
+        if (isPointOnSegment(B, CD)){
+            Vector2 inter = C
+                    .add((D.sub(C)).normal())
+                    .mul(Vector2.dist(B, C));
+            return inter;
+        }
+        if (isPointOnSegment(C, AB)){
+            Vector2 inter = A
+                    .add((B.sub(A)).normal())
+                    .mul(Vector2.dist(A, C));
+            return inter;
+        }
+        if (isPointOnSegment(D, AB)){
+            Vector2 inter = A
+                    .add((B.sub(A)).normal())
+                    .mul(Vector2.dist(A, D));
+            return inter;
+        }
+
+        if (doesIntersect(AB, CD)) {
 
             double AD = Vector2.dist(A, D);
             double AID = 180 - GeneralTools.getAngle(D, A, B) - GeneralTools.getAngle(C, D, A);
+
             double IA = (AD / Math.sin(Math.toRadians(AID))) * Math.sin(Math.toRadians(GeneralTools.getAngle(A, D, C)));
 
             return A.add(B.sub(A).normal().mul(IA));
@@ -34,15 +62,21 @@ public final class GeneralTools {
     }
 
 
-    // todo : for now, this method should should only be used by getIntersectionPoint(), because doesIntersect()
-    //  doesn't handle a division by 0 case, what getIntersectionPoint() does. Once this is resolved, we could make
-    //  this method public
-    private static boolean doesIntersect(Segment2D seg1, Segment2D seg2) {
+    public static boolean doesIntersect(Segment2D seg1, Segment2D seg2) {
+
         // points
         Vector2 A = seg1.start;
         Vector2 B = seg1.end;
         Vector2 C = seg2.start;
         Vector2 D = seg2.end;
+
+        // evident situations
+        if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
+            return true;
+        }
+        if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
+            return true;
+        }
 
         double DAC = GeneralTools.getAngle(D, A, C);
         double ACB = GeneralTools.getAngle(A, C, B);
@@ -70,14 +104,14 @@ public final class GeneralTools {
     /**
      * similar to isOnSegment() of Vector2, but more reliable
      *
-     * @param p a point
+     * @param v a point
      * @param s a segment
      * @return true if the point is on the segment
      */
-    public static boolean isPointOnSegment(Vector2 p, Segment2D s){
+    public static boolean isPointOnSegment(Vector2 v, Segment2D s){
         double errorAccepted = Math.pow(10, -5);
 
-        return Math.abs(Vector2.dist(s.start, p) + Vector2.dist(s.end, p) - s.getLength()) < errorAccepted;
+        return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
     }
 
 

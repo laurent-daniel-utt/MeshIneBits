@@ -198,7 +198,7 @@ public class Solution {
 
         for (Segment2D sectionSegment : sectionSegments)
             for (Segment2D bitSides : sides) {
-                if (GeneralTools.getIntersectionPoint(sectionSegment, bitSides) != null) {
+                if (GeneralTools.doesIntersect(sectionSegment, bitSides)) {
                     intersectionCount++;
                 }
             }
