@@ -2,6 +2,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
@@ -36,9 +37,10 @@ public class Genetic {
 
         Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
         Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugOnly on fait ici que le premier contour
-        Vector2 startPoint = bound1.get(10);//should never start from point 0 or -1
+        Vector2 startPoint = bound1.get(0);
         Vector2 veryFirstStartPoint = startPoint;
         Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);//getAssociatedPoints(bound1, startPoint);
+        DebugTools.pointsADessiner.add(startPoint);
 
         Bit2D bestBit;
         //todo @Etienne pave each bound
@@ -56,6 +58,7 @@ public class Genetic {
 
             associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
             startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound1);
+            DebugTools.pointsADessiner.add(startPoint);
         }
     }
 

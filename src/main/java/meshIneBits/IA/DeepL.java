@@ -180,7 +180,6 @@ public class DeepL {
         //todo @Etienne sauvegarder le modèle pour pas avoir à réapprendre à chaque fois
     }
 
-
     /**
      * Once the neural network is trained, predicts the placement of a Bit2D from the sectionPoints.
      *

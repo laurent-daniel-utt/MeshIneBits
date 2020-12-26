@@ -53,12 +53,6 @@ public class Acquisition {
         lastPlacedBit = bit;
 
 
-
-
-
-        Vector<Vector<Vector2>> boundsList = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
-        getNumberOfIntersections(boundsList.get(0), points.get(0), bit);
-
         // debugOnly afficher les points enregistrés
 
         //DebugTools.pointsADessiner.addAll(points);
@@ -138,25 +132,6 @@ public class Acquisition {
 
         System.out.println("example added");
 
-    }
-
-    private static int getNumberOfIntersections(Vector<Vector2> boundPoints, Vector2 startPoint, Bit2D bit) {
-
-        Vector<Segment2D> sectionSegments = GeneralTools.getSegment2DS(boundPoints);
-        Vector<Segment2D> sides = GeneralTools.getBitSidesSegments(bit);
-
-        int intersectionCount = 0;
-
-        for (Segment2D sectionSegment : sectionSegments)
-            for (Segment2D bitSides : sides) {
-                Vector2 inter = GeneralTools.getIntersectionPoint(sectionSegment, bitSides);
-                if (inter != null) {
-                    intersectionCount++;
-                    DebugTools.pointsADessiner.add(inter);
-                }
-            }
-        System.out.println("intersectioncout " + intersectionCount);
-        return intersectionCount;
     }
 
 }
