@@ -1,6 +1,5 @@
 package meshIneBits.IA.genetics;
 
-
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
@@ -11,9 +10,9 @@ public class Evolution {
      */
     public static final int NB_GEN_MAX = 10;
     /**
-     * The size of the population of solutions.
+     * The size of the population of solutions. Has to be greater than 100.
      */
-    public static final int POP_SIZE = 100;//todo augmenter et tester
+    public static final int POP_SIZE = 150;//todo augmenter et tester
     /**
      * The probability for a Solution to mutate.
      */
@@ -25,16 +24,16 @@ public class Evolution {
     /**
      * The percentage of reproduced Solutions to give to the new Generation.
      */
-    private static final double RANK_REPRODUCTION = 0.6;
+    private static final double RANK_REPRODUCTION = 0.4;
     private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
     private final Vector<Vector2> bound;
     private final Vector<Generation> generations = new Vector<>();
     public Solution bestSolution;
-    public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1];
+    public double[] scores = new double[POP_SIZE * NB_GEN_MAX + 1]; //debugOnly
 
     /**
-     * An Evolution search the best Solution for a given set of points.
+     * An evolution searches the best Solution for a given set of points.
      *
      * @param pointSection the points on which the Bit2D will be placed.
      */
@@ -48,7 +47,7 @@ public class Evolution {
      * Runs the evolution process to find a solution.
      */
     public void run() {
-        //first INIT
+        //INIT
         Generation initGeneration = new Generation(
                 POP_SIZE,
                 RANK_SELECTION,

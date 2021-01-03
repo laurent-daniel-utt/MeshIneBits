@@ -10,7 +10,7 @@ import java.awt.geom.Area;
 import java.util.Vector;
 
 public class GeneticPavement extends PatternTemplate {
-
+    private int toPave = 0; //debugOnly
     @Override
     protected void initiateConfig() {
         //Nothing
@@ -24,15 +24,16 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber() < 1) {//todo paver tout
+        if (layer.getLayerNumber() == toPave) {//todo paver tout
             bits = new Genetic(layer).getSolutions();
+            toPave++;
         }
         return new Pavement(bits);
     }
 
     @Override
     public Pavement pave(Layer layer, Area area) { //todo @Etienne@Andre il sert à quoi lui?
-        System.out.println("pave layer & area");
+        System.out.println("DEBUG pave layer & area"); //debugOnly
        /* Vector<Bit2D> bits = new Vector<>();
         if (layer.getLayerNumber()==0) {
             area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));//do smthg with?
@@ -57,7 +58,6 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        //todo @Etienne@Andre change icon
         return "pattern-genetic.png";
     }
 

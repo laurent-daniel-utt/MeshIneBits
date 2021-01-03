@@ -48,12 +48,12 @@ public class Genetic {
         while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //todo remetre
 
             nbIterations++;
-            if (nbIterations > 50)//number max of iterations before stopping //todo remettre
+            if (nbIterations > 50)//number max of iterations before stopping
                 break; //todo enlever je pense ou trouver un nombre correct
             System.out.println(nbIterations);
             currentEvolution = new Evolution((Vector<Vector2>) associatedPoints.clone(), startPoint, (Vector<Vector2>) bound1.clone());
             currentEvolution.run();
-            bestBit = currentEvolution.bestSolution.bit;
+            bestBit = currentEvolution.bestSolution.getBit();
             solutions.add(bestBit);
 
             associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
