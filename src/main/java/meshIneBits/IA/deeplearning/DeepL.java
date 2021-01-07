@@ -1,6 +1,7 @@
-package meshIneBits.IA;
+package meshIneBits.IA.deeplearning;
 
 import meshIneBits.Bit2D;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.datavec.api.records.reader.RecordReader;
@@ -179,6 +180,7 @@ public class DeepL {
         //System.out.print("Saved");
         //todo @Etienne sauvegarder le modèle pour pas avoir à réapprendre à chaque fois
     }
+
 
     /**
      * Once the neural network is trained, predicts the placement of a Bit2D from the sectionPoints.

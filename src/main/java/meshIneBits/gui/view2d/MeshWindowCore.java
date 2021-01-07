@@ -24,8 +24,6 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
-import meshIneBits.IA.AI_Tool;
-import meshIneBits.IA.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;

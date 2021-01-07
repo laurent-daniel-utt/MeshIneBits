@@ -1,6 +1,6 @@
 package meshIneBits.IA.IA_util;
 
-import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
@@ -106,12 +106,6 @@ public final class DataSetGenerator {
         Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(DataPreparation.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
-
-
-        DebugTools.pointsADessiner.add(localCoordinateSystemAngle.mul((50)));
-        DebugTools.pointsADessiner.add(bitAngle.mul((100)));
-
-
 
         // = if angle between the vector is more than 90 degrees
         // (the point of rotation is the center of the bit, so both angles are equivalent)

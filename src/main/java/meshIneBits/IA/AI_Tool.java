@@ -1,6 +1,10 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
+import meshIneBits.IA.deeplearning.Acquisition;
+import meshIneBits.IA.deeplearning.DataPreparation;
+import meshIneBits.IA.deeplearning.NNExploitation;
+import meshIneBits.IA.deeplearning.NNTraining;
 import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
@@ -52,7 +56,9 @@ public class AI_Tool {
 
         double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 
-        Bit2D bit = DeepL.getBitPlacement(sectionPoints, startPoint, angleLocalSystem);
+        //Bit2D bit = NNTraining.getBitPlacement(sectionPoints, startPoint, angleLocalSystem);
+        NNExploitation nnExploitation = new NNExploitation();
+        Bit2D bit = nnExploitation.getBit(sectionPoints, startPoint, angleLocalSystem);
         bits.add(bit);
         System.out.println("size:" + bits.size());
     }

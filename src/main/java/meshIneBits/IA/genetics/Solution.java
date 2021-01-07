@@ -3,21 +3,18 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
-import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.Comparator;
 import java.util.Vector;
-
-import static java.lang.Double.NaN;
 
 public class Solution {
 

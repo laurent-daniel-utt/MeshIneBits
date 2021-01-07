@@ -24,8 +24,8 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.IA.AI_Tool;
-import meshIneBits.IA.Acquisition;
-import meshIneBits.IA.DeepL;
+import meshIneBits.IA.deeplearning.Acquisition;
+import meshIneBits.IA.deeplearning.NNTraining;
 import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;
@@ -58,7 +58,8 @@ public class UPPToolsIA extends UtilityParametersPanel {
         JButton trainButton = new JButton("Train AI");
         trainButton.addActionListener(e -> {
             try {
-                DeepL.trainWithCsvDataSet();
+                NNTraining nnTraining = new NNTraining();
+                nnTraining.train(true);
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }

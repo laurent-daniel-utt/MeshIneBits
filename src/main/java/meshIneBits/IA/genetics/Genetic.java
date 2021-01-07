@@ -1,7 +1,7 @@
 package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.slicer.Slice;

@@ -1,6 +1,8 @@
-package meshIneBits.IA;
+package meshIneBits.IA.deeplearning;
 
 import meshIneBits.Bit2D;
+import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.IA_util.Curve;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;

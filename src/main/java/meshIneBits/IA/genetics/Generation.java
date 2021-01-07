@@ -1,6 +1,6 @@
 package meshIneBits.IA.genetics;
 
-import meshIneBits.IA.DataPreparation;
+import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
