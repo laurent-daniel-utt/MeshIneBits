@@ -12,7 +12,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 30;//todo @all commbien on mets, 30° de base?
+    private static final double MAX_ANGLE = 90;//todo @all commbien on mets, 30° de base?
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -105,7 +105,7 @@ public class Generation {
         }
         List<Solution> solListSorted = sortSolutions(clonedSolutions);
         bestSolution = solListSorted.get(0);
-        maxScore = solListSorted.get(0).score;
+        maxScore = solListSorted.get(0).getScore();
         meanScore /= popSize;
     }
 
@@ -116,7 +116,7 @@ public class Generation {
      */
     public Vector<Solution> select(Vector<Solution> solutionsToSelect) {
         List<Solution> solutionList = sortSolutions(solutionsToSelect);
-        int nbOfSelecteds = (int) (this.popSize * this.rankSelection);
+        int nbOfSelecteds = (int) (solutionsToSelect.size() * rankSelection);
         return new Vector<>(solutionList.subList(0, nbOfSelecteds));
     }
 
@@ -134,8 +134,8 @@ public class Generation {
             Solution parent1 = solutionsToReproduce.get(rand.nextInt(solutionsToReproduce.size()));
             Solution parent2 = solutionsToReproduce.get(rand.nextInt(solutionsToReproduce.size()));
 
-            double childPos = (parent1.bitPos + parent2.bitPos) / 2;
-            Vector2 childAngle = (parent1.bitAngle.add(parent2.bitAngle)).mul(0.5);
+            double childPos = (parent1.getBitPos() + parent2.getBitPos()) / 2;
+            Vector2 childAngle = (parent1.getBitAngle().add(parent2.getBitAngle())).mul(0.5);
             Solution childSolution = createNewSolution(childPos, childAngle);
             reproducedSolutions.add(childSolution);
         }

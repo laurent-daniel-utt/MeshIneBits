@@ -16,6 +16,8 @@ import java.awt.geom.PathIterator;
 import java.util.Comparator;
 import java.util.Vector;
 
+import static java.lang.Double.NaN;
+
 public class Solution {
 
     /**
@@ -29,14 +31,18 @@ public class Solution {
     /**
      * The coefficient associated to the length penalty.
      */
-    private static final int LENGTH_PENALTY_STRENGTH = 50000;
+    private static final int LENGTH_PENALTY_STRENGTH = 50000;//50000
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final Generation generation;
-    public double bitPos;
-    public Vector2 bitAngle;
-    public double score = 0;
-    public Bit2D bit;
+    private boolean hasBeenEvaluated = false;
+    private boolean hasBeenCheckedBad = false;
+    private boolean bad = false;
+    private Bit2D bit;
+    private double bitPos;
+    private Vector2 bitAngle;
+    private double score = 0;
+
 
     /**
      * A Solution is a Bit2D with position parameter in a local coordinate system. Its position is measured from its startPoint.
@@ -46,7 +52,7 @@ public class Solution {
         this.bitAngle = bitAngle;
         this.startPoint = startPoint;
         this.generation = generation;
-        this.bound = (Vector<Vector2>) bound.clone();
+        this.bound = bound;
     }
 
 
@@ -56,15 +62,18 @@ public class Solution {
      *
      * @return the score of the current solution.
      */
-    public double evaluate(Vector<Vector2> pointSection) {
-        this.score = computeArea(); //the used area
+    public double evaluate(Vector<Vector2> pointSection) { //todo @all virer pointSection ?
+        if (hasBeenEvaluated)
+            return score;
+        score = computeArea(); //the used area
         //this.addPenaltyForBitAngle((Vector<Vector2>) pointSection.clone());
         try {
-            this.addPenaltyForSectionCoveredLength();
+            addPenaltyForSectionCoveredLength();
+            hasBeenEvaluated = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return this.score;
+        return score;
     }
 
     /**
@@ -155,23 +164,22 @@ public class Solution {
                     bitAngle.y + (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH)
                     .normal();
         }
+        hasBeenEvaluated = false;
+        hasBeenCheckedBad = false;
     }
 
     public boolean isBad() {
-
-        for (Vector2 pt : bound){
-            if (Double.isNaN(pt.x) || Double.isNaN(pt.y)){
-                System.out.println("==================== QQC EST NaN ====================");
+        if (hasBeenCheckedBad)
+            return bad;
+        for (Vector2 pt : bound) {
+            if (Double.isNaN(pt.x) || Double.isNaN(pt.y)) {
+                System.out.println("==================== QQC EST NaN ====================");//debugOnly
             }
         }
 
-
-        boolean bad = false;
-        if (getNumberOfIntersections((Vector<Vector2>) bound.clone()) != 2) { //FIXME @Andre
-            bad = true;
-        }
+        bad = getNumberOfIntersections(bound) != 2;//FIXME @Andre
         try {
-            DataPreparation.getNextBitStartPoint(getBit(startPoint), (Vector<Vector2>) bound.clone());
+            DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
             bad = true;
         }
@@ -199,7 +207,6 @@ public class Solution {
                     intersectionCount++;
                 }
             }
-        //System.out.println("intersectioncout " + intersectionCount);
         return intersectionCount;
     }
 
@@ -232,6 +239,7 @@ public class Solution {
      *
      * @param sectionPoints the section of the Slice
      */
+    @Deprecated
     private void addPenaltyForBitAngle(Vector<Vector2> sectionPoints) { //todo @all enlever ???
 
         Bit2D bit2D = getBit(startPoint);
@@ -260,7 +268,7 @@ public class Solution {
     private void addPenaltyForSectionCoveredLength() throws Exception {
 
         Bit2D bit2D = getBit(startPoint);
-        Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, (Vector<Vector2>) bound.clone());
+        Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
 
         //this.score -= LENGTH_PENALTY_STRENGTH * this.score * CraftConfig.bitLength / coveredDistance;
@@ -277,6 +285,21 @@ public class Solution {
         return "pos: " + this.bitPos + " , angle: " + this.bitAngle;
     }
 
+    public Bit2D getBit() {
+        return bit;
+    }
+
+    public double getBitPos() {
+        return bitPos;
+    }
+
+    public Vector2 getBitAngle() {
+        return bitAngle;
+    }
+
+    public double getScore() {
+        return score;
+    }
 }
 
 /**
@@ -284,6 +307,6 @@ public class Solution {
  */
 class SolutionComparator implements Comparator<Solution> {
     public int compare(Solution s1, Solution s2) {
-        return Double.compare(s2.score, s1.score);
+        return Double.compare(s2.getScore(), s1.getScore());
     }
 }
