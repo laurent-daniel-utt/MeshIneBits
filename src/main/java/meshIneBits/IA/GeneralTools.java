@@ -49,7 +49,7 @@ public final class GeneralTools {
             return inter;
         }
 
-        if (doesIntersect(AB, CD)) {
+        if (doSegmentsIntersect(AB, CD)) {
 
             double AD = Vector2.dist(A, D);
             double AID = 180 - GeneralTools.getAngle(D, A, B) - GeneralTools.getAngle(C, D, A);
@@ -62,7 +62,13 @@ public final class GeneralTools {
     }
 
 
-    public static boolean doesIntersect(Segment2D seg1, Segment2D seg2) {
+    /**
+     * Checks if two segments intersects
+     * @param seg1  the first segment
+     * @param seg2  the second segment
+     * @return  true if the two segments intersects. false otherwise
+     */
+    public static boolean doSegmentsIntersect(Segment2D seg1, Segment2D seg2) {
 
         // points
         Vector2 A = seg1.start;

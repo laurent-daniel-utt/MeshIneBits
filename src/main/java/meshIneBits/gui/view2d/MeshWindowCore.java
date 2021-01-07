@@ -33,6 +33,7 @@ import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import javax.swing.*;
@@ -557,13 +558,17 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
          */
 
         //Draw Segment2D
-        /*
+
         Path2D path = new GeneralPath();
-        Segment2D seg = meshController.ai_Tool.dataPrep.currentSegToDraw;
+        Segment2D seg = DebugTools.currentSegToDraw;
         Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
         path.append(shape, false);
         drawModelPath2D(g2d, path);
-         */
+
+        seg = DebugTools.currentSegToDraw2;
+        shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        path.append(shape, false);
+        drawModelPath2D(g2d, path);
 
         //Draw Text
         /*

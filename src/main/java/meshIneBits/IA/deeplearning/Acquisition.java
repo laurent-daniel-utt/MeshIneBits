@@ -2,9 +2,12 @@ package meshIneBits.IA.deeplearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.DebugTools;
+import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
+import meshIneBits.IA.genetics.Solution;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -14,7 +17,7 @@ import java.util.Vector;
 
 public class Acquisition {
     public static boolean storeNewBits = false;
-    public static Bit2D lastPlacedBit; //useful for delete last placed bit
+    public static Bit2D lastPlacedBit; //useful to delete last placed bit
     private static Map<Bit2D, Vector<Vector2>> storedExamplesBits;
 
     public static void startStoringBits() {
@@ -49,11 +52,28 @@ public class Acquisition {
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
 
+        System.out.println("example added");
+
+        //debugOnly
+        Vector<Segment2D> sectionSegments = GeneralTools.getSegment2DS(points);
+        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
+
+
+        int intersectionCount = 0;
+
+        for (Segment2D sectionSegment : sectionSegments)
+            for (Segment2D bitSide : bitSides)
+                if (GeneralTools.doSegmentsIntersect(sectionSegment, bitSide)) {
+                    intersectionCount++;
+                    DebugTools.currentSegToDraw = sectionSegment;
+                    DebugTools.currentSegToDraw2 = bitSide;
+                }
 
         DebugTools.pointsADessiner.clear();
-        DebugTools.pointsADessiner.addAll(points);
-
-        System.out.println("example added");
+        for (Segment2D seg : bitSides) {
+            DebugTools.pointsADessiner.add(seg.start);
+        }
+        System.out.println("INTERSECTIONs : "+intersectionCount);
 
     }
 

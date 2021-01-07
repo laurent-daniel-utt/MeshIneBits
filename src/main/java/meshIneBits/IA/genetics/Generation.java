@@ -12,13 +12,14 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 90;//todo @all commbien on mets, 30° de base?
+    private static final double MAX_ANGLE = 90.0;//todo @all combien on mets, 30° de base?
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
     private final double rankSelection;
     private final double rankReproduction;
     private final double probMutation;
+    private final int length_penalty;
     public double meanScore = -1;
     public double maxScore = -1;
     public Solution bestSolution;
@@ -35,7 +36,7 @@ public class Generation {
      * @param startPoint       the point on which the bit has to be placed
      * @param bound            the bound on which the bit has to be placed
      */
-    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, Vector2 startPoint, Vector<Vector2> bound) {
+    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, int lengthPenalty, Vector2 startPoint, Vector<Vector2> bound) {
         this.popSize = popSize;
         this.solutions = new Vector<>(popSize);
         this.rankSelection = rankSelection;
@@ -43,6 +44,7 @@ public class Generation {
         this.probMutation = probMutation;
         this.startPoint = startPoint;
         this.bound = bound;
+        this.length_penalty = lengthPenalty;
     }
 
     /**
@@ -50,12 +52,12 @@ public class Generation {
      */
     public void initialize(Vector<Vector2> pointSection) {
         for (int pop = 0; pop < popSize; pop++) {
-            this.solutions.add(createNewSolution((Vector<Vector2>) pointSection.clone()));
+            this.solutions.add(createNewSolution(pointSection));
         }
     }
 
     /**
-     * Initialize a Generation. Appends its solutions.
+     * Initialize a Generation with given solutions.
      */
     public void initializeWith(Vector<Solution> solutionVector) {
         solutions.addAll(solutionVector);
@@ -67,19 +69,18 @@ public class Generation {
      * @return the new random solution.
      */
     private Solution createNewSolution(Vector<Vector2> pointSection) {
-        //todo @all l'user doit pouvoir choisir son +-30° et l'enregistrer dans la config de l'app
         double position = Math.random() * CraftConfig.bitWidth;
         double angleSection = DataPreparation.
-                getSectionOrientation((Vector<Vector2>) pointSection.clone());
+                getSectionOrientation(pointSection);
 
         if (!DataPreparation.arePointsMostlyOrientedToTheRight(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;
-        double rotation = angleSection + Math.random() * MAX_ANGLE * dir; //plus ou moins 30°
+        double rotation = angleSection + Math.random() * MAX_ANGLE * dir;
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
         DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
-        return new Solution(position, rotationVector, startPoint, this, bound);
+        return new Solution(position, rotationVector, startPoint, this, bound, length_penalty);
     }
 
     /**
@@ -90,18 +91,18 @@ public class Generation {
      * @return the new solution.
      */
     private Solution createNewSolution(double pos, Vector2 angle) {
-        return new Solution(pos, angle, startPoint, this, bound);
+        return new Solution(pos, angle, startPoint, this, bound, length_penalty);
     }
 
     /**
      * Evaluates the current generation and stores scores.
      */
-    public void evaluateGeneration(Vector<Vector2> sectionPoints) {//todo @Etienne utiliser sort
+    public void evaluateGeneration() {
         this.meanScore = 0;
         this.maxScore = 0;
-        Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone();
+        Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone(); //todo @Etienne eviter le clone
         for (Solution solution : clonedSolutions) {
-            meanScore += solution.evaluate((Vector<Vector2>) sectionPoints.clone());
+            meanScore += solution.evaluate();
         }
         List<Solution> solListSorted = sortSolutions(clonedSolutions);
         bestSolution = solListSorted.get(0);

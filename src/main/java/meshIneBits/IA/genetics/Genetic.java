@@ -19,11 +19,11 @@ public class Genetic {
      *
      * @param layer the layer to pave.
      */
-    public Genetic(Layer layer) {
+    public Genetic(Layer layer, double genNumber, double popSize, double lengthPenalty) {
         System.out.println("On Pave le Layer : " + layer.getLayerNumber());
         this.layer = layer;
         try {
-            this.start();
+            this.start((int)genNumber, (int)popSize, (int)lengthPenalty);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -32,7 +32,7 @@ public class Genetic {
     /**
      * Starts the Genetic pavement and paves the given layer.
      */
-    private void start() throws Exception {
+    private void start(int genNumber, int popSize, int lengthPenalty) throws Exception {
         Slice sliceToTest = layer.getHorizontalSection();
 
         Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
@@ -40,25 +40,27 @@ public class Genetic {
         Vector2 startPoint = bound1.get(0);
         Vector2 veryFirstStartPoint = startPoint;
         Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);//getAssociatedPoints(bound1, startPoint);
-        DebugTools.pointsADessiner.add(startPoint);
 
         Bit2D bestBit;
         //todo @Etienne pave each bound
         int nbIterations = 0;
-        while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //todo remetre
+        while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //Add each bit on the bound
 
             nbIterations++;
-            if (nbIterations > 50)//number max of iterations before stopping
-                break; //todo enlever je pense ou trouver un nombre correct
-            System.out.println(nbIterations);
-            currentEvolution = new Evolution((Vector<Vector2>) associatedPoints.clone(), startPoint, (Vector<Vector2>) bound1.clone());
+            if (nbIterations > 50)//number max of bits to place before stopping
+                break; //todo @Andre@Etienne enlever je pense ou trouver un nombre correct
+            System.out.println("bit n°"+nbIterations);
+            currentEvolution = new Evolution(associatedPoints, startPoint, bound1, genNumber, popSize, lengthPenalty);
             currentEvolution.run();
             bestBit = currentEvolution.bestSolution.getBit();
             solutions.add(bestBit);
 
             associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
             startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound1);
-            DebugTools.pointsADessiner.add(startPoint);
+            for (double score : currentEvolution.scores) {
+                System.out.print(score+" : ");
+            }
+            System.out.println();
         }
     }
 

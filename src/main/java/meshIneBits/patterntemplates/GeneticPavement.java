@@ -5,15 +5,44 @@ import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
+import java.util.Collection;
 import java.util.Vector;
 
 public class GeneticPavement extends PatternTemplate {
     private int toPave = 0; //debugOnly
+
     @Override
     protected void initiateConfig() {
-        //Nothing
+        config.add(new DoubleParam(
+                "genNumber",
+                "Number of generations",
+                "The number of generations",
+                1.0,
+                50.0,
+                10.0,
+                1.0));
+
+        config.add(new DoubleParam(
+                "popSize",
+                "Size of the population",
+                "The size of population to generate",
+                100.0,
+                100000.0,
+                150.0,
+                1.0));
+
+        config.add(new DoubleParam(
+                "lengthPenalty",
+                "Length Penalty %",
+                "The greater the penalty, the greater the distance covered by the bit will be",
+                1.0,
+                100.0,
+                90.0,
+                1.0));
     }
 
     @Override
@@ -23,26 +52,26 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
-        Vector<Bit2D> bits = new Vector<>();
+        Collection<Bit2D> bits;
         if (layer.getLayerNumber() == toPave) {//todo paver tout
-            bits = new Genetic(layer).getSolutions();
+            bits = new Genetic(
+                    layer,
+                    (double) config.get("genNumber").getCurrentValue(),
+                    (double) config.get("popSize").getCurrentValue(),
+                    (double) config.get("lengthPenalty").getCurrentValue())
+            .getSolutions();
             toPave++;
+            Pavement pavement = new Pavement(bits);
+            pavement.computeBits(layer.getHorizontalSection());
+            return pavement;
         }
-        return new Pavement(bits);
+        else
+            return new Pavement(new Vector<>());
     }
 
     @Override
-    public Pavement pave(Layer layer, Area area) { //todo @Etienne@Andre il sert à quoi lui?
-        System.out.println("DEBUG pave layer & area"); //debugOnly
-       /* Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber()==0) {
-            area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));//do smthg with?
-            Genetic genetic = new Genetic();
-            bits = genetic.getSolutions();
-        }
-        Pavement pavement = new Pavement(bits);
-        pavement.computeBits(area);
-        return pavement;*/
+    public Pavement pave(Layer layer, Area area) {
+        System.out.println("pave layer & area with genetics... Not implemented yet.");
         return null;
     }
 
@@ -70,6 +99,8 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public String getHowToUse() {
         return "";
-    } //todo @Etienne@Andre, on mets quoi
+    }
+
+
 
 }
