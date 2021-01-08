@@ -3,6 +3,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
@@ -166,13 +167,12 @@ public class Solution {
     public boolean isBad() {
         if (hasBeenCheckedBad)
             return bad;
-        if (getNumberOfIntersections(bound) != 2)//FIXME @Andre
-            bad = true;
         try {
             DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
             bad = true;
         }
+        hasBeenCheckedBad = true;
         return bad;
     }
 
@@ -186,17 +186,41 @@ public class Solution {
 
         Bit2D bit = getBit(startPoint);
 
-        Vector<Segment2D> sectionSegments = GeneralTools.getSegment2DS(boundPoints);
+        Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
+
+        Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+        Vector<Segment2D> segmentsSliceeee = GeneralTools.getSegment2DS(pointsSlice);
+
+        System.out.println();
+        //System.out.println(bound.toString());
+        System.out.println(pointsSlice.toString());
+        System.out.println(segmentsSliceeee.toString());
+
+        //DebugTools.pointsADessiner.clear();
+
+        for (Segment2D seg : bitSides) {
+            //DebugTools.pointsADessiner.add(seg.start);
+        }
+
+
 
         int intersectionCount = 0;
 
-        for (Segment2D sectionSegment : sectionSegments)
-            for (Segment2D bitSide : bitSides) {
-                if (GeneralTools.doSegmentsIntersect(sectionSegment, bitSide)) {
-                    intersectionCount++;
+        Vector2 inter;
+        for (Segment2D segmentSlice : segmentsSliceeee)
+            for (Segment2D bitSide : bitSides)
+                if (GeneralTools.doSegmentsIntersect(segmentSlice, bitSide)) {
+                    // fixme
+                    inter = GeneralTools.getIntersectionPoint(segmentSlice, bitSide);
+                    if (GeneralTools.isPointOnSegment(inter, segmentSlice)) {
+                        intersectionCount++;
+                        //DebugTools.pointsADessiner.add(inter);
+                        System.out.println("pt " + inter.toString());
+                    }
                 }
-            }
+
+        System.out.println("nb inters " + intersectionCount);;
         return intersectionCount;
     }
 

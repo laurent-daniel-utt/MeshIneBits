@@ -2,6 +2,7 @@ package meshIneBits.IA.deeplearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
+import meshIneBits.IA.DebugTools;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.IA_util.Curve;
 import meshIneBits.config.CraftConfig;
@@ -356,12 +357,8 @@ public final class DataPreparation {
      */
     public static Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
 
-        Vector<Vector2> boundPointsReverted = new Vector<>();
-        for (int i = boundPoints.size() - 1; i >= 0; i--) {
-            boundPointsReverted.add(boundPoints.get(i));
-        }
 
-        Vector2 nextBitStartPoint = getBitAndContourFirstIntersectionPoint(bit, boundPointsReverted);
+        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints);
         if (nextBitStartPoint != null) {
             return nextBitStartPoint;
         } else {
@@ -410,7 +407,6 @@ public final class DataPreparation {
      * @throws Exception if no point has been found
      */
     public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
-        // FIXME @Andre parfois c'est le second point qui est trouvé, il faut régler ça
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
 
@@ -490,5 +486,156 @@ public final class DataPreparation {
 
         return null;
     }
+
+
+    public static Vector2 getBitAndContourSecondIntersectionPoint2(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
+        // FIXME @Andre parfois c'est le second point qui est trouvé, il faut régler ça
+        // get sides of the bit as Segment2Ds (will be used later)
+        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
+
+        // first we fill an vector of segments with the points of the bound :
+        Vector<Segment2D> boundSegments = new Vector<>();
+        for (int i = 0; i < boundPoints.size() - 1; i++) {
+            boundSegments.add(
+                    new Segment2D(boundPoints.get(i), boundPoints.get(i + 1)));
+        }
+
+        // We will have to scan each segment of the bound, to check if an edge of the bit intersects with it.
+        // But we have to start scanning by a segment whose its start is not under the bit, otherwise the intersection
+        // point found won't be the good one.
+        // So first we have to find a segment whose its start is not under the bit.
+
+        Polygon rectangle = new Polygon();
+        GeneralTools.getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        Area bitRectangleArea = new Area(rectangle.toPath2D());
+
+        int startSegIndex = 0;
+
+        while (bitRectangleArea.contains(boundSegments.get(startSegIndex).start.x,
+                boundSegments.get(startSegIndex).start.y)) {
+            startSegIndex++;
+        }
+
+
+        // finally we can scan the bound, starting with segment at index startSegIndex.
+        boolean scanCompleted = false;
+        int iSeg = startSegIndex;
+
+        Vector<Vector2> allIntersectionPoints = new Vector<>();
+
+        while (!scanCompleted) { //look for an intersecion
+
+
+            // sometimes there will be more than 1 bit's edges intersecting a segment. We have to make sure that
+            // we return the first of theses intersections. So we will store all intersection points and return
+            // the one which its distance with segment's start is the lowest.
+            Vector<Vector2> newIntersectionPoints = new Vector<>();
+
+
+            //fill intersectionPoints Vector<> by checking intersections with all bit's sides
+            for (Segment2D bitSide : bitSides) {
+                Vector2 intersectionPoint = GeneralTools.getIntersectionPoint(bitSide, boundSegments.get(iSeg));
+                if (intersectionPoint != null) { // then we store this intersection
+                    newIntersectionPoints.add(intersectionPoint);
+                }
+            }
+
+            // if we have some intersections we have to return the first one (as explained above)
+            if (!newIntersectionPoints.isEmpty()) {
+
+
+                while (!newIntersectionPoints.isEmpty()) {
+                    double maxDist2 = 1000000; //todo @Andre remplacer par Double.positiveinfinity et tester
+                    Vector2 firstIntersectionPoint = null; // can't be null
+                    for (Vector2 intersectPoint : newIntersectionPoints) {
+
+                        double dist2 = Vector2.dist2(boundSegments.get(iSeg).start, intersectPoint);
+                        if (dist2 < maxDist2) {
+                            maxDist2 = dist2;
+                            firstIntersectionPoint = intersectPoint;
+                        }
+                    }
+                    allIntersectionPoints.add(firstIntersectionPoint);
+                    newIntersectionPoints.remove(firstIntersectionPoint);
+                }
+
+                double maxDist2 = 1000000; //todo @Andre remplacer par Double.positiveinfinity et tester
+                Vector2 firstIntersectionPoint = null; // can't be null
+                for (Vector2 intersectPoint : newIntersectionPoints) {
+
+                    double dist2 = Vector2.dist2(boundSegments.get(iSeg).start, intersectPoint);
+                    if (dist2 < maxDist2) {
+                        maxDist2 = dist2;
+                        firstIntersectionPoint = intersectPoint;
+                    }
+
+                }
+                return allIntersectionPoints.get(1);
+            }
+
+
+            // increment
+            iSeg++;
+            if (iSeg == boundSegments.size()) {
+                iSeg = 0;
+            }
+
+            // check if scan completed = we reached the segment at index startSegIndex again
+            if (iSeg == startSegIndex) {
+                scanCompleted = true;
+            }
+        }
+
+        return null;
+    }
+
+
+
+    public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
+
+        Vector<Segment2D> boundSegments = GeneralTools.getSegment2DS(boundPoints);
+        Vector<Segment2D> bitSegments = GeneralTools.getBitSidesSegments(bit);
+
+        Vector<Vector2> intersectionPoints = new Vector<>();
+
+        for (Segment2D boundSegment : boundSegments) {
+
+            Vector<Vector2> intersectionsWithSegment = new Vector<>();
+
+            for (Segment2D bitSegment : bitSegments) {
+                if (GeneralTools.doSegmentsIntersect(boundSegment, bitSegment)) {
+                    Vector2 inter = GeneralTools.getIntersectionPoint(bitSegment, boundSegment);
+                    if (Vector2.dist(inter, bitSegment.start) < boundSegment.getLength()) { // fixme à perfectionner
+                        intersectionsWithSegment.add(inter);
+                    }
+                }
+            }
+
+
+
+            //DebugTools.pointsADessiner.addAll(intersectionsWithSegment);
+
+            while (!intersectionsWithSegment.isEmpty()) {
+
+                double distMin = Double.POSITIVE_INFINITY;
+                Vector2 firstPoint = null;
+                for (Vector2 inter : intersectionsWithSegment) {
+                    if (Vector2.dist2(inter, boundSegment.start) < distMin) {
+                        firstPoint = inter;
+                        distMin = Vector2.dist2(inter, boundSegment.start);
+                    }
+                }
+                intersectionPoints.add(firstPoint);
+                intersectionsWithSegment.remove(firstPoint);
+            }
+
+        }
+
+        return intersectionPoints.get(1);
+
+    }
+
+
+
 
 }

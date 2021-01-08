@@ -12,7 +12,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 90.0;//todo @all combien on mets, 30° de base?
+    private static final double MAX_ANGLE = 89.0;//todo @all combien on mets, 30° de base?
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;

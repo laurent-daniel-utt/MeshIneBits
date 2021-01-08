@@ -30,7 +30,7 @@ public class GeneticPavement extends PatternTemplate {
                 "popSize",
                 "Size of the population",
                 "The size of population to generate",
-                100.0,
+                1.0,
                 100000.0,
                 150.0,
                 1.0));

@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -22,6 +23,7 @@ import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -182,12 +184,10 @@ public class NNTraining {
         for (int i = 0; i < N_EPOCHS; i++) {
             model.fit(trainingDataSet);
         }
-
-        evaluateModel();
     }
 
-    /*
-    public static void save(MultiLayerNetwork model) throws IOException {
+
+    public void save() throws IOException {
         // 1) save model
 
         // where to save the model
@@ -199,11 +199,10 @@ public class NNTraining {
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File("fileName");
+        File normalsFile = new File("normalizer_saved");
         saver.write(normalizer,normalsFile);
     }
 
-     */
 
 
     public static void main(String[] args) {
@@ -211,7 +210,13 @@ public class NNTraining {
         try {
             nnTraining.train(true);
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Neural network could not be trained");
+        }
+        nnTraining.evaluateModel();
+        try {
+            nnTraining.save();
+        } catch (IOException e) {
+            System.out.println("Training params could not be saved");
         }
     }
 }

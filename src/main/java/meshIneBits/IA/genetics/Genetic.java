@@ -1,10 +1,12 @@
 package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
+import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
@@ -61,6 +63,8 @@ public class Genetic {
                 System.out.print(score+" : ");
             }
             System.out.println();
+            DebugTools.pointsADessiner.add(startPoint);
+            System.out.println("START POINT = " + startPoint.toString());
         }
     }
 
