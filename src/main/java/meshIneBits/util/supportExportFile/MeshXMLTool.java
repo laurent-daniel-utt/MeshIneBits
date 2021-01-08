@@ -1,7 +1,5 @@
 package meshIneBits.util.supportExportFile;
 
-//import com.sun.istack.internal.NotNull;
-//import com.sun.xml.internal.ws.handler.HandlerException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -50,7 +48,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
 
     @Override
-    public void writeMeshToXML( Mesh mesh) {
+    public void writeMeshToXML(Mesh mesh) {
         initialize(mesh);
         writeObjectToXML(mesh);
     }
@@ -62,7 +60,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         meshElement.appendChild(config);
         Logger.message("Generating XML file");
         for (int i = 0; i < mesh.getLayers().size(); i++) {
-            System.out.println("layer "+i);
+            System.out.println("layer " + i);
             Element layer = buildLayerElement(mesh.getLayers().get(i));
             Logger.setProgress(i, mesh.getLayers().size() - 1);
             if (layer != null) meshElement.appendChild(layer);
@@ -95,7 +93,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element width = createElement(MeshTagXML.BIT_WIDTH, Double.toString(CraftConfig.bitWidth));
         dimension.appendChild(width);
         //length element
-        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.bitLengthNormal));
+        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.LengthFull));
         dimension.appendChild(length);
         config.appendChild(dimension);
 
@@ -117,13 +115,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element layerElement = createElement(MeshTagXML.LAYER);
         AScheduler scheduler = mMesh.getScheduler();
         if (scheduler.getFirstLayerBits().get(layer.getLayerNumber()) != null) {
-//            Bit3D startBit = scheduler.getFirstLayerBits().get(layer.getLayerNumber());
-//            int startIndex = scheduler.getBitIndex(startBit);
             List<Bit3D> listBit3DsCurrentLayer = AScheduler.getSetBit3DsSortedFrom(((BasicScheduler) scheduler).filterBits(layer.sortBits()));
-//            int endIndex = listBit3DsCurrentLayer.size();
-//            List<Bit3D> test =AScheduler.getListBit3DsSortedFrom(scheduler.getSortedBits());
-//            System.out.println("start: "+startIndex+",end: "+endIndex+",size "+test.size()+",size 2: "+((BasicScheduler) scheduler).filterBits(layer.sortBits()).size());
-//            compteur+=endIndex;
             List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
             Vector3 modelTranslation = mMesh.getModel().getPos();
 
@@ -166,14 +158,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                 if (id == 0) {
                     currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
                     Element goTo = createElement(MeshTagXML.GO_TO);
-                    Element x = createElement(MeshTagXML.CORDINATE_X, Double.toString(currentPos));
+                    Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
                     if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
                         currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
-                        Element x = createElement(MeshTagXML.CORDINATE_X, Double.toString(currentPos));
+                        Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
                         goTo.appendChild(x);
                         moveWorkingSpace.appendChild(goTo);
                     }
@@ -192,16 +184,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element bitId = createElement(MeshTagXML.BIT_ID, Integer.toString(mMesh.getScheduler().getBitIndex(bit3D)));
         elementBit.appendChild(bitId);
         //Cut bit element
-        Element cut = createElement(MeshTagXML.CUT_BIT);
-//        if (bit3D.getRawCutPathsSeparate() != null && bit3D.getRawCutPathsSeparate().size() > 0) {
-//            for (Vector<Path2D> cutPaths : bit3D.getRawCutPathsSeparate()) {
-//                //path cut element
-//                Element cutPathsElement = writeCutPathElement(cutPaths);
-//                cut.appendChild(cutPathsElement);
-//            }
-//        }
-         prepareBitToExport(bit3D);
-//        Bit3D bit3DToExport = bit3D;
+        Element cut = bit3D.getRawCutPaths().size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT) : createElement(MeshTagXML.CUT_BIT);
+        prepareBitToExport(bit3D);
         for (Path2D cutPath : bit3D.getRawCutPaths()) {
             Element cutPathElement = writeCutPathElement(cutPath);
             cut.appendChild(cutPathElement);
@@ -216,8 +200,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     /**
      * write list <subbit> into element <bit>
      *
-     * @param elementBit   element bit that will add elements subbits
-     * @param bit3D object Bit3D {@link Bit3D}
+     * @param elementBit element bit that will add elements subbits
+     * @param bit3D      object Bit3D {@link Bit3D}
      */
     private void writeSubBitElementToBit(Element elementBit, Bit3D bit3D) {
         if (mMesh == null) {
@@ -234,18 +218,18 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             subBit.appendChild(id);
 
             //subBit's batch
-            Element batch = createElement(MeshTagXML.BATCH, Integer.toString(mMesh.getScheduler().getBitBatch(bit3D)));
+            Element batch = createElement(MeshTagXML.BATCH, Integer.toString(mMesh.getScheduler().getSubBitBatch(bit3D)));
             subBit.appendChild(batch);
 
             //subBit's plate
-            Element plate = createElement(MeshTagXML.PLATE, Integer.toString(mMesh.getScheduler().getBitPlate(bit3D)));
+            Element plate = createElement(MeshTagXML.PLATE, Integer.toString(mMesh.getScheduler().getSubBitPlate(bit3D)));
             subBit.appendChild(plate);
 
             //subBit's lift point
             Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
             //LiftPoint's position in Bit coordinate system
-            Element xInBit = createElement(MeshTagXML.CORDINATE_X, Double.toString(bit3D.getRawLiftPoints().get(i).x));
-            Element yInBit = createElement(MeshTagXML.CORDINATE_Y, Double.toString(bit3D.getRawLiftPoints().get(i).y));
+            Element xInBit = createElement(MeshTagXML.COORDINATE_X, Double.toString(bit3D.getRawLiftPoints().get(i).x));
+            Element yInBit = createElement(MeshTagXML.COORDINATE_Y, Double.toString(bit3D.getRawLiftPoints().get(i).y));
             liftPoint.appendChild(xInBit);
             liftPoint.appendChild(yInBit);
             subBit.appendChild(liftPoint);
@@ -256,63 +240,52 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
             //LiftPoint's position in Mesh coordinate system
             Element positionSubBit = createElement(MeshTagXML.POSITION_MESH_COORDINATE);
-            Element xInMesh = createElement(MeshTagXML.CORDINATE_X, Double.toString(bit3D.getLiftPoints().get(i).x));
-            Element yInMesh = createElement(MeshTagXML.CORDINATE_Y, Double.toString(bit3D.getLiftPoints().get(i).y));
+            Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(bit3D.getLiftPoints().get(i).x));
+            Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(bit3D.getLiftPoints().get(i).y));
             positionSubBit.appendChild(xInMesh);
             positionSubBit.appendChild(yInMesh);
             subBit.appendChild(positionSubBit);
 
             //Two distant point of SubBit
-            if (listTwoPoints.get(i).size() >=2) {
+            if (listTwoPoints.get(i).size() >= 2) {
                 for (int j = 0; j < 2; j++) {
                     Vector2 point = listTwoPoints.get(i).get(j);
-//                    point=point.getTransformed(bit3D.getBaseBit().getInverseTransfoMatrix());
                     Element pointElement = createElement(MeshTagXML.POINT);
                     Element pointIdElement = createElement(MeshTagXML.POINT_ID, Integer.toString(j));
                     pointElement.appendChild(pointIdElement);
-                    Element pointXELement = createElement(MeshTagXML.CORDINATE_X, Double.toString(point.x));
-                    Element pointYELement = createElement(MeshTagXML.CORDINATE_Y, Double.toString(point.y));
+                    Element pointXELement = createElement(MeshTagXML.COORDINATE_X, Double.toString(point.x));
+                    Element pointYELement = createElement(MeshTagXML.COORDINATE_Y, Double.toString(point.y));
                     pointElement.appendChild(pointXELement);
                     pointElement.appendChild(pointYELement);
                     subBit.appendChild(pointElement);
                 }
 
             }
-            if(bit3D.getListAngles().get(i)!=null){
-                Element rotation2 = createElement(MeshTagXML.ROTATION_SUB_BIT_SECOND,Double.toString(bit3D.getListAngles().get(i)));
+            if (bit3D.getListAngles().get(i) != null) {
+                Element rotation2 = createElement(MeshTagXML.ROTATION_SUB_BIT_SECOND, Double.toString(bit3D.getListAngles().get(i)));
                 subBit.appendChild(rotation2);
             }
-
-
-            //TODO
-            //Add subBit element into bit element
             elementBit.appendChild(subBit);
         }
 
     }
 
     public Element writeCutPathElement(Path2D cutPath) {
-//    public Element writeCutPathElement(Vector<Path2D> cutPaths) {
         Element cutPathsElement = createElement(MeshTagXML.CUT_PATHS);
-//        if (cutPaths.size() == 0) {
-//            throw new IllegalArgumentException("cutPaths can't not be null");
-//        }
-//        for (Path2D path : cutPaths) {
         int countMoveTo = 0;
-        Element currentFallType=null;
-//        Element newFallType;
+        Element currentFallType = null;
         for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
             double[] coords = new double[2];
             int type = pi.currentSegment(coords);
             Element parentTag;
-            Element x = createElement(MeshTagXML.CORDINATE_X, Double.toString(coords[0]));
-            Element y = createElement(MeshTagXML.CORDINATE_Y, Double.toString(coords[1]));
+            Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(coords[0]));
+            Element y = createElement(MeshTagXML.COORDINATE_Y, Double.toString(coords[1]));
             switch (type) {
                 case PathIterator.SEG_MOVETO:
-                    if(countMoveTo>0){
-                        appendTextNode(currentFallType,MeshTagXML.CHUTE_TYPE);
+                    if (countMoveTo > 0) {
+                        appendTextNode(currentFallType, MeshTagXML.CHUTE_TYPE);
                     }
-                    currentFallType=createElement(MeshTagXML.FALL_TYPE);
+                    currentFallType = createElement(MeshTagXML.FALL_TYPE);
                     cutPathsElement.appendChild(currentFallType);
                     countMoveTo++;
                     parentTag = createElement(MeshTagXML.MOVE_TO_POSITION);
@@ -326,26 +299,19 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             }
             parentTag.appendChild(x);
             parentTag.appendChild(y);
-//            if (parentTag.getTagName().equals(MeshTagXML.MOVE_TO_POSITION) && countMoveTo > 1) {
-//            }
             cutPathsElement.appendChild(parentTag);
         }
-        if(currentBit.checkIfLastCutPath(cutPath)&&currentBit.isHoldedInCUt()){
-//            cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.CHUTE_TYPE));
-            appendTextNode(currentFallType,MeshTagXML.CHUTE_TYPE);
-            cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE,MeshTagXML.SUB_BIT));
+        if (currentBit.checkIfLastCutPath(cutPath) && currentBit.isHoldedInCUt()) {
+            appendTextNode(currentFallType, MeshTagXML.CHUTE_TYPE);
+            cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.SUB_BIT));
             cutPathsElement.appendChild(createElement(MeshTagXML.DROP));
-        }else  appendTextNode(currentFallType,MeshTagXML.SUB_BIT);
-
-
-//        cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.SUB_BIT));
-
-//        }
+        } else appendTextNode(currentFallType, MeshTagXML.SUB_BIT);
         return cutPathsElement;
     }
-    private void prepareBitToExport(Bit3D bit3D){
+
+    private void prepareBitToExport(Bit3D bit3D) {
         bit3D.prepareBitToExport();
-        currentBit=bit3D;
+        currentBit = bit3D;
     }
 
 

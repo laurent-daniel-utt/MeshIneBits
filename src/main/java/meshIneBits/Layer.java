@@ -333,7 +333,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLengthNormal / 2;
+            distance = CraftConfig.LengthFull / 2;
         }
         Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
         rebuild(newCoordinate);
@@ -363,7 +363,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLengthNormal / 2;
+            distance = CraftConfig.LengthFull / 2;
         }
 
         // Move bits
@@ -416,6 +416,9 @@ public static class SerializeArea {
      */
     public Bit3D getBit3D(Vector2 key) {
         return mapBits3D.get(key);
+    }
+    public List<Bit3D> getAllBit3D(){
+        return new ArrayList<>(mapBits3D.values());
     }
 
     /**
@@ -470,7 +473,7 @@ public static class SerializeArea {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength of {@link CraftConfig#bitLengthNormal}
+     * @param percentageLength of {@link CraftConfig#LengthFull}
      * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.

@@ -403,7 +403,7 @@ public class Mesh extends Observable implements Observer, Serializable {
      *
      * @param state a value from predefined list
      */
-    private void setState(MeshEvents state) {
+    public void setState(MeshEvents state) {
         this.state = state;
         setChanged();
         notifyObservers(state);

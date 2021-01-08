@@ -146,7 +146,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         shapeMap = new Vector<>();
         builder = new Builder(this);
         try {
-            builder.buildBits(shapeMap);
+//            builder.buildBits(shapeMap);
         } catch (Exception e) {
             println("Mesh not generated yet");
         }

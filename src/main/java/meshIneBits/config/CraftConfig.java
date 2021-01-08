@@ -104,20 +104,8 @@ public class CraftConfig {
     @BitSetting(
             order = 1
     )
-    public static double bitWidth = 24.0;
+    public static double bitWidth = 23.0;
 
-
-    @DoubleSetting(
-            title = "Bit length (mm)",
-            description = "Length of the bits",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 160.0
-    )
-    @BitSetting(
-            order = 2
-    )
-    public static double bitLengthNormal = 150.0;
 
 
     @DoubleSetting(
@@ -130,7 +118,20 @@ public class CraftConfig {
     @BitSetting(
             order = 2
     )
-    public static double bitLengthFullLength = 160.0;
+    public static double LengthFull = 160.0;
+
+
+    @DoubleSetting(
+            title = "Bit length (mm)",
+            description = "Length of the bits",
+            minValue = 1.0,
+            maxValue = 1000.0,
+            defaultValue = 160.0
+    )
+    @BitSetting(
+            order = 2
+    )
+    public static double lengthNormal = 150.0;
 
     @DoubleSetting(
             title = "section holding to cut (mm)",

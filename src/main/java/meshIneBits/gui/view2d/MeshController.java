@@ -84,8 +84,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "newBitLength",
             "Bit length",
             "Length of bits to add",
-            1.0, CraftConfig.bitLengthNormal,
-            CraftConfig.bitLengthNormal, 1.0);
+            1.0, CraftConfig.LengthFull,
+            CraftConfig.LengthFull, 1.0);
     private final DoubleParam newBitsWidthParam = new DoubleParam(
             "newBitWidth",
             "Bit width",
@@ -513,11 +513,11 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         return a;
     }
     private void calcBitFullLengthOrNormal(Area a){
-        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.bitLengthNormal /2+CraftConfig.incertitude
+        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.LengthFull /2+CraftConfig.incertitude
                 ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
                 ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
                 ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
-        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.bitLengthNormal /2-CraftConfig.sectionHoldingToCut+CraftConfig.incertitude
+        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut+CraftConfig.incertitude
                 ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
                 ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
                 ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
@@ -724,7 +724,9 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             throw new Exception("Mesh not paved");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        mesh.optimize();
+//        mesh.optimize();
+        OptimizedMesh optimizedMesh = new OptimizedMesh();
+        optimizedMesh.updateMesh(mesh).optimize();
     }
 
     public void optimizeLayer() throws Exception {
@@ -746,7 +748,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
-        newBitsLengthParam.setCurrentValue(CraftConfig.bitLengthNormal * lengthPercentage / 100);
+        newBitsLengthParam.setCurrentValue(CraftConfig.LengthFull * lengthPercentage / 100);
         newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
         setChanged();
         notifyObservers();
@@ -1135,7 +1137,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
     private void updateSectionHoldingCut(AffineTransform affineTransform){
         areaHoldingCut=new Area(new Rectangle2D.Double(
-                CraftConfig.bitLengthNormal /2-CraftConfig.sectionHoldingToCut
+                CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut
                 ,-CraftConfig.bitWidth/2
                 ,CraftConfig.sectionHoldingToCut
                 ,CraftConfig.bitWidth));

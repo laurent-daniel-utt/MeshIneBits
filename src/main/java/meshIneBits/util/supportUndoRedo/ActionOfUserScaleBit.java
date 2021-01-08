@@ -31,7 +31,7 @@ public class ActionOfUserScaleBit implements HandlerRedoUndo.ActionOfUser {
             Logger.warning("There is no bit selected");
         } else {
             meshController.setSelectedBitKeys(meshController.getSelectedBits().stream()
-                    .map(bit -> meshController.getCurrentLayer().scaleBit(bit,(this.keyMapLengthWidth.get(bit.getOrigin())[0]/ CraftConfig.bitLengthNormal)*100, (this.keyMapLengthWidth.get(bit.getOrigin())[1] / CraftConfig.bitWidth)*100))
+                    .map(bit -> meshController.getCurrentLayer().scaleBit(bit,(this.keyMapLengthWidth.get(bit.getOrigin())[0]/ CraftConfig.LengthFull)*100, (this.keyMapLengthWidth.get(bit.getOrigin())[1] / CraftConfig.bitWidth)*100))
                     .collect(Collectors.toSet()));
         }
     }

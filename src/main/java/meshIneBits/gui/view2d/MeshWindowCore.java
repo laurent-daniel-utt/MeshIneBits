@@ -188,7 +188,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 }
 
                 // Look for a bit which contains the clicked spot
-//                meshController.toggleInclusionOfBitHaving(clickSpot);
+                meshController.toggleInclusionOfBitHaving(clickSpot);
             }
         }
     }
@@ -225,11 +225,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 meshController.startBulkSelect(viewToReal.transform(e.getPoint(), null));
             }
         }
-        if(SwingUtilities.isLeftMouseButton(e)){
-            Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
-            viewToReal.transform(clickSpot, clickSpot);
-            meshController.toggleInclusionOfBitHaving(clickSpot);
-        }
+//        if(SwingUtilities.isLeftMouseButton(e)){
+//            Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+//            viewToReal.transform(clickSpot, clickSpot);
+//            meshController.toggleInclusionOfBitHaving(clickSpot);
+//        }
     }
 
     @Override
@@ -526,7 +526,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private void paintBitPreview(Graphics2D g2d) {
         // Bit boundary
         Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.bitLengthNormal / 2,
+                -CraftConfig.LengthFull / 2,
                 -CraftConfig.bitWidth / 2,
                 meshController.getNewBitsLengthParam().getCurrentValue(),
                 meshController.getNewBitsWidthParam().getCurrentValue());
@@ -543,7 +543,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
         Shape bitPreviewInView = realToView.createTransformedShape(bitPreviewInReal);
-        Area sectionHolding = new Area(new Rectangle2D.Double(CraftConfig.bitLengthNormal /2-CraftConfig.sectionHoldingToCut
+        Area sectionHolding = new Area(new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut
                 ,-CraftConfig.bitWidth/2
                 ,CraftConfig.sectionHoldingToCut
                 ,CraftConfig.bitWidth));
@@ -621,9 +621,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area overlapBit = new Area(
                     new Rectangle2D.Double(
-                            -CraftConfig.bitLengthNormal / 2,
+                            -CraftConfig.LengthFull / 2,
                             -CraftConfig.bitWidth / 2,
-                            CraftConfig.bitLengthNormal,
+                            CraftConfig.LengthFull,
                             CraftConfig.bitWidth));
             overlapBit.transform(bit.getBaseBit().getTransfoMatrix());
 
@@ -640,7 +640,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area leftArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(padding + (CraftConfig.bitLengthNormal / 2), 0);
+            affTrans.translate(padding + (CraftConfig.LengthFull / 2), 0);
             affTrans.rotate(0, 1);
             leftArrow.transform(affTrans);
             arrows.add(leftArrow);
@@ -656,7 +656,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area rightArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(-padding - (CraftConfig.bitLengthNormal / 2), 0);
+            affTrans.translate(-padding - (CraftConfig.LengthFull / 2), 0);
             affTrans.rotate(0, -1);
             rightArrow.transform(affTrans);
             arrows.add(rightArrow);

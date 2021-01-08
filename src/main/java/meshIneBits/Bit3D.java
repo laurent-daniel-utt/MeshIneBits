@@ -167,6 +167,9 @@ public class Bit3D implements Serializable, Cloneable {
     public Area getRawArea() {
         return bit2dToExtrude.getRawArea();
     }
+    public List<Area> getRawAreas() {
+        return bit2dToExtrude.getRawAreas();
+    }
 
     public Bit2D getBaseBit() {
         return bit2dToExtrude;

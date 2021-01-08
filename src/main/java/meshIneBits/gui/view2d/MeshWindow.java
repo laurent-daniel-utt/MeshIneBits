@@ -178,7 +178,7 @@ public class MeshWindow extends JFrame {
         /* Actions */
         MeshAction newMesh = new MeshAction(
                 "newMesh",
-                "New Mesh",
+                "New project",
                 "mesh-new.png",
                 "New Mesh",
                 "control N",
@@ -207,7 +207,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction openMesh = new MeshAction(
                 "openMesh",
-                "Open Mesh",
+                "Open project",
                 "mesh-open.png",
                 "Reload a project into workspace",
                 "control O",
@@ -236,7 +236,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction saveMesh = new MeshAction(
                 "saveMesh",
-                "Save Mesh",
+                "Save project",
                 "mesh-save.png",
                 "Save the current project",
                 "control S",

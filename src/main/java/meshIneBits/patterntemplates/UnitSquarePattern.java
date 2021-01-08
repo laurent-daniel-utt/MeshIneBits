@@ -247,7 +247,7 @@ public class UnitSquarePattern extends PatternTemplate {
     private void calcUnitSizeAndLimits() {
         this.unitLength = ((double) config.get("horizontalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
         this.unitWidth = ((double) config.get("verticalMargin").getCurrentValue()) + CraftConfig.suckerDiameter;
-        this.maxPLength = ((int) Math.ceil(CraftConfig.bitLengthNormal / this.unitLength)) * this.unitLength;
+        this.maxPLength = ((int) Math.ceil(CraftConfig.LengthFull / this.unitLength)) * this.unitLength;
         this.maxPWidth = ((int) Math.ceil(CraftConfig.bitWidth / this.unitWidth)) * this.unitWidth;
     }
 
@@ -1611,12 +1611,12 @@ public class UnitSquarePattern extends PatternTemplate {
              */
             private Vector2 getBitOrigin(Vector2 orientation, String floatpos) {
 
-                double h = CraftConfig.bitLengthNormal, v = CraftConfig.bitWidth;// horizontal and vertical length in
+                double h = CraftConfig.LengthFull, v = CraftConfig.bitWidth;// horizontal and vertical length in
                 // horizontal orientation
                 if (orientation.x == 0 && orientation.y == 1) {
                     // if the bit is in vertical orientation
                     h = CraftConfig.bitWidth;
-                    v = CraftConfig.bitLengthNormal;
+                    v = CraftConfig.LengthFull;
                 }
 
                 Vector2 origin;
@@ -1681,11 +1681,11 @@ public class UnitSquarePattern extends PatternTemplate {
                 // pos[0] would be "top" or "bottom"
                 // pos[1] would be "left" or "right"
 
-                double bitHorizontalLength = CraftConfig.bitLengthNormal,
+                double bitHorizontalLength = CraftConfig.LengthFull,
                         bitVerticalLength = CraftConfig.bitWidth;
                 if (bitOrientation.x == 0 && bitOrientation.y == 1) {// If vertical
                     bitHorizontalLength = CraftConfig.bitWidth;
-                    bitVerticalLength = CraftConfig.bitLengthNormal;
+                    bitVerticalLength = CraftConfig.LengthFull;
                 }
 
                 double horizontalMarginAroundBit;

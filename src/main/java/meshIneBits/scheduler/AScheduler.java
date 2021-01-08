@@ -43,14 +43,14 @@ public abstract class AScheduler extends Observable implements Serializable, Run
      * @param bit
      * @return
      */
-    public abstract int getBitBatch(Bit3D bit);
+    public abstract int getSubBitBatch(Bit3D bit);
 
     /**
      * Return plate index for a bit
      * @param bit
      * @return
      */
-    public abstract int getBitPlate(Bit3D bit);
+    public abstract int getSubBitPlate(Bit3D bit);
 
     /**
      * Lauch ordering process
@@ -84,6 +84,7 @@ public abstract class AScheduler extends Observable implements Serializable, Run
         }
         return result;
     }
+    public abstract Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits);
 
 
 }

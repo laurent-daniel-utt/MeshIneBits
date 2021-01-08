@@ -26,8 +26,9 @@ public class MeshTagXML {
     public static final String RETURN = "return";
 
     public static final String BIT = "bit";
-    public static final String BIT_ID = "bit-id";
+    public static final String BIT_ID = "id-bit";
     public static final String CUT_BIT = "cutting";
+    public static final String NO_CUT_BIT = "no-cutting";
     public static final String CUT_PATHS = "cut-paths";
 //    public static final String SUB_BIT="";
     public static final String MOVE_TO_POSITION = "move-to";
