@@ -199,7 +199,7 @@ public class NNTraining {
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File("normalizer_saved");
+        File normalsFile = new File("normalizer_saved.ser");
         saver.write(normalizer,normalsFile);
     }
 
