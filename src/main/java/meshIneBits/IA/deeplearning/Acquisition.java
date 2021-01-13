@@ -7,11 +7,13 @@ import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
-import meshIneBits.IA.genetics.Solution;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -24,6 +26,46 @@ public class Acquisition {
     public static void startStoringBits() {
         storeNewBits = true;
         storedExamplesBits = new LinkedHashMap<>();
+
+
+        // debugOnly
+
+
+/*        File fichier =  new File("bitSavedDebug.ser") ;
+
+        // ouverture d'un flux sur un fichier
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new FileInputStream(fichier));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // désérialization de l'objet
+        Bit2D bitRestaured = null;
+        try {
+            bitRestaured = (Bit2D)ois.readObject();
+            ois.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Vector<Segment2D> bitSidesSegments = GeneralTools.getBitSidesSegments(bitRestaured);
+        DebugTools.segmentsADessiner.addAll(bitSidesSegments);
+
+        Vector<Vector<Vector2>> boundsList = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+
+        DataPreparation.getBitAndContourSecondIntersectionPoint(bitRestaured, boundsList.get(0));
+
+        DebugTools.pointsADessinerBleus.add(boundsList.get(0).get(0));
+
+        //for (Segment2D segment : bitSidesSegments) {
+            //DebugTools.pointsADessinerVerts.add(segment.start);
+        //}
+
+        System.out.println("position bit  = " + bitRestaured.getOrigin().toString());*/
+
+        // end debugOnly
 
     }
 
@@ -49,10 +91,27 @@ public class Acquisition {
     public static void addNewExampleBit(Bit2D bit) throws Exception {
 
 
+
+        //debugOnly
+
+        Vector<Vector<Vector2>> boundsList = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+
+        //DebugTools.pointsADessiner.add(DataPreparation.getBitAndContourSecondIntersectionPoint(bit, boundsList.get(0)));
+
+        /*
+        Vector<Segment2D> bitSidesSegments = GeneralTools.getBitSidesSegments(bit);
+        for (Segment2D segment : bitSidesSegments) {
+            DebugTools.pointsADessiner.add(segment.start);
+            System.out.println("start = " + segment.start);
+        }
+
+         */
+
+        // end debugOnly
+
         Vector<Vector2> points = DataPreparation.getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
-
         System.out.println("example added");
 
         /*
@@ -90,7 +149,7 @@ public class Acquisition {
         Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);
-        DebugTools.pointsADessiner.add(nextBitStartPoint);
+        DebugTools.pointsADessinerRouges.add(nextBitStartPoint);
 
     }
 

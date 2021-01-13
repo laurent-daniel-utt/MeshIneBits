@@ -2,6 +2,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.GeneralTools;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
@@ -9,6 +10,9 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Vector;
 
 public class Genetic {
@@ -63,9 +67,57 @@ public class Genetic {
                 System.out.print(score+" : ");
             }
             System.out.println();
-            DebugTools.pointsADessiner.add(startPoint);
-            System.out.println("START POINT = " + startPoint.toString());
+
+            DebugTools.pointsADessinerRouges.add(startPoint);
+            System.out.println("le start point est : " + startPoint.toString());
+            System.out.println();
         }
+    }
+
+    private void start1 (int genNumber, int popSize, int lengthPenalty) throws Exception {
+
+
+        Vector<Vector2> boundList = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+
+
+        Slice sliceToTest = layer.getHorizontalSection();
+
+        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
+
+        Vector2 startPoint = boundList.get(0);
+
+        Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(boundList, startPoint);//getAssociatedPoints(bound1, startPoint);
+
+        Bit2D bestBit;
+
+        System.out.println("placement du but");
+        currentEvolution = new Evolution(associatedPoints, startPoint, boundList, genNumber, popSize, lengthPenalty);
+        currentEvolution.run();
+        bestBit = currentEvolution.bestSolution.getBit();
+        solutions.add(bestBit);
+
+        startPoint = DataPreparation.getNextBitStartPoint(bestBit, boundList);
+
+        DebugTools.pointsADessinerRouges.add(startPoint);
+        System.out.println("le start point est : " + startPoint.toString());
+        System.out.println();
+
+
+        Vector<Segment2D> bitSidesSegments = GeneralTools.getBitSidesSegments(bestBit);
+        for (Segment2D segment : bitSidesSegments) {
+            DebugTools.pointsADessinerRouges.add(segment.start);
+            System.out.println("longueur segment = " + segment.getLength());
+        }
+
+
+        File fichier =  new File("bitSavedDebug.ser") ;
+        // ouverture d'un flux sur un fichier
+        ObjectOutputStream oos =  new ObjectOutputStream(new FileOutputStream(fichier)) ;
+        // sérialization de l'objet
+        oos.writeObject(bestBit) ;
+        oos.close();
+
+
     }
 
 

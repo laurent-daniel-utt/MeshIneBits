@@ -542,9 +542,23 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
         }
 
-        for (Vector2 point : DebugTools.pointsADessiner) {
+        for (Vector2 point : DebugTools.pointsADessinerRouges) {
+            g2d.setColor(Color.red);
             drawModelCircle(g2d, point.x, point.y, 4);
         }
+        for (Vector2 point : DebugTools.pointsADessinerVerts) {
+            g2d.setColor(Color.green);
+            drawModelCircle(g2d, point.x, point.y, 5);
+        }
+        for (Vector2 point : DebugTools.pointsADessinerBleus) {
+            g2d.setColor(Color.blue);
+            drawModelCircle(g2d, point.x, point.y, 3);
+        }
+        for (Vector2 point : DebugTools.pointsADessinerBleus) {
+            g2d.setColor(Color.orange);
+            drawModelCircle(g2d, point.x, point.y, 2);
+        }
+        g2d.setColor(Color.green);
 
         // draw global axes
         //g2d.setColor(Color.BLUE);
@@ -569,6 +583,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
         path.append(shape, false);
         drawModelPath2D(g2d, path);
+
+        for (Segment2D segment : DebugTools.segmentsADessiner) {
+            shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+            path.append(shape, false);
+            drawModelPath2D(g2d, path);
+        }
 
         //Draw Text
         /*

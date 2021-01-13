@@ -4,7 +4,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.IA.deeplearning.Acquisition;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.deeplearning.NNExploitation;
-import meshIneBits.IA.deeplearning.NNTraining;
 import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;

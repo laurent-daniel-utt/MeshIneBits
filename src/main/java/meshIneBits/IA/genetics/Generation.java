@@ -70,6 +70,7 @@ public class Generation {
      */
     private Solution createNewSolution(Vector<Vector2> pointSection) {
         double position = Math.random() * CraftConfig.bitWidth;
+
         double angleSection = DataPreparation.
                 getSectionOrientation(pointSection);
 
@@ -136,7 +137,7 @@ public class Generation {
             Solution parent2 = solutionsToReproduce.get(rand.nextInt(solutionsToReproduce.size()));
 
             double childPos = (parent1.getBitPos() + parent2.getBitPos()) / 2;
-            Vector2 childAngle = (parent1.getBitAngle().add(parent2.getBitAngle())).mul(0.5);
+            Vector2 childAngle = (parent1.getBitAngle().add(parent2.getBitAngle())).mul(0.5).normal();
             Solution childSolution = createNewSolution(childPos, childAngle);
             reproducedSolutions.add(childSolution);
         }

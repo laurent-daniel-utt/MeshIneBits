@@ -3,7 +3,6 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
-import meshIneBits.IA.DebugTools;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
@@ -167,6 +166,8 @@ public class Solution {
     public boolean isBad() {
         if (hasBeenCheckedBad)
             return bad;
+        //if (getNumberOfIntersections(bound) != 2)//FIXME @Andre
+            //bad = true;
         try {
             DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {

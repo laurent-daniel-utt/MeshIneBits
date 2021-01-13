@@ -1,6 +1,7 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -25,28 +26,16 @@ public final class GeneralTools {
         }
 
         if (isPointOnSegment(A, CD)){
-            Vector2 inter = C
-                            .add((D.sub(C)).normal())
-                            .mul(Vector2.dist(A, C));
-            return inter;
+            return A;
         }
         if (isPointOnSegment(B, CD)){
-            Vector2 inter = C
-                    .add((D.sub(C)).normal())
-                    .mul(Vector2.dist(B, C));
-            return inter;
+            return B;
         }
         if (isPointOnSegment(C, AB)){
-            Vector2 inter = A
-                    .add((B.sub(A)).normal())
-                    .mul(Vector2.dist(A, C));
-            return inter;
+            return C;
         }
         if (isPointOnSegment(D, AB)){
-            Vector2 inter = A
-                    .add((B.sub(A)).normal())
-                    .mul(Vector2.dist(A, D));
-            return inter;
+            return D;
         }
 
         if (doSegmentsIntersect(AB, CD)) {
@@ -64,23 +53,35 @@ public final class GeneralTools {
 
     /**
      * Checks if two segments intersects
-     * @param seg1  the first segment
-     * @param seg2  the second segment
+     * @param AB  the first segment
+     * @param CD  the second segment
      * @return  true if the two segments intersects. false otherwise
      */
-    public static boolean doSegmentsIntersect(Segment2D seg1, Segment2D seg2) {
+    public static boolean doSegmentsIntersect(Segment2D AB, Segment2D CD) {
 
         // points
-        Vector2 A = seg1.start;
-        Vector2 B = seg1.end;
-        Vector2 C = seg2.start;
-        Vector2 D = seg2.end;
+        Vector2 A = AB.start;
+        Vector2 B = AB.end;
+        Vector2 C = CD.start;
+        Vector2 D = CD.end;
 
         // evident situations
         if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
             return true;
         }
         if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
+            return true;
+        }
+        if (isPointOnSegment(A, CD)){
+            return true;
+        }
+        if (isPointOnSegment(B, CD)){
+            return true;
+        }
+        if (isPointOnSegment(C, AB)){
+            return true;
+        }
+        if (isPointOnSegment(D, AB)){
             return true;
         }
 
@@ -157,8 +158,8 @@ public final class GeneralTools {
      *
      * @param bit the Bit2D
      * @return a Vector of the four segments.
-     */
-    public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+     */ // l'originale
+    public static Vector<Segment2D> getBitSidesSegments1(Bit2D bit) {
 
         Vector<Segment2D> sides = new Vector<>();
         //generates the 4 points which makes the rectangular bit
@@ -205,6 +206,93 @@ public final class GeneralTools {
 
         return sides;
     }
+
+    // l'originale debuguée
+    public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+
+        Vector<Segment2D> sides = new Vector<>();
+        //generates the 4 points which makes the rectangular bit
+        Vector2 bitOrigin = bit.getOrigin();
+        Vector2 A = new Vector2(
+                bit.getLength() / 2,
+                bit.getWidth() / 2)
+                .rotate(bit.getOrientation().normal())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+
+        Vector2 B = new Vector2(
+                bit.getLength() / 2,
+                -bit.getWidth() / 2)
+                .rotate(bit.getOrientation().normal())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        Vector2 C = new Vector2(
+                -bit.getLength() / 2,
+                -bit.getWidth() / 2)
+                .rotate(bit.getOrientation().normal())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        Vector2 D = new Vector2(
+                -bit.getLength() / 2,
+                bit.getWidth() / 2)
+                .rotate(bit.getOrientation().normal())
+                .add(new Vector2(
+                        bitOrigin.x,
+                        bitOrigin.y
+                ));
+
+        sides.add(new Segment2D(A, B));
+        sides.add(new Segment2D(B, C));
+        sides.add(new Segment2D(C, D));
+        sides.add(new Segment2D(D, A));
+
+        return sides;
+    }
+
+
+    // celle que j'ai créée
+    public static Vector<Segment2D> getBitSidesSegmentsNouvelle(Bit2D bit) {
+
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = bit.getOrientation().normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
+
+        Vector2 A = bit.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 B = bit.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 C = bit.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 D = bit.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector<Segment2D> sides = new Vector<>();
+
+        sides.add(new Segment2D(A, B));
+        sides.add(new Segment2D(B, C));
+        sides.add(new Segment2D(C, D));
+        sides.add(new Segment2D(D, A));
+
+        return sides;
+    }
+
+
 
 
     @NotNull

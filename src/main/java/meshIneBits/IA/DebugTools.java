@@ -19,9 +19,14 @@ public final class DebugTools {
     public static AffineTransform transformArea = new AffineTransform();
 
     public static Vector<Vector2> pointsContenus = new Vector<>();
-    public static Vector<Vector2> pointsADessiner = new Vector<>();
+    public static Vector<Vector2> pointsADessinerRouges = new Vector<>();
+    public static Vector<Vector2> pointsADessinerVerts = new Vector<>();
+    public static Vector<Vector2> pointsADessinerBleus = new Vector<>();
+    public static Vector<Vector2> pointsADessinerOranges = new Vector<>();
+
     public static Path2D cutPathToDraw = new Path2D.Double();
 
+    public static Vector<Segment2D> segmentsADessiner = new Vector<>();
     public static Segment2D currentSegToDraw = new Segment2D(A, B);
     public static Segment2D currentSegToDraw2 = new Segment2D(A, B);
 
