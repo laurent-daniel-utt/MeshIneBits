@@ -360,7 +360,8 @@ public class Bit2D implements Cloneable, Serializable {
         areas.clear();
         Area newArea = (Area) transformedArea.clone();
         newArea.transform(inverseTransfoMatrix);
-        areas.addAll(AreaTool.segregateArea(newArea));
+        Vector<Area> list = AreaTool.segregateArea(newArea);
+        if(list!=null) areas.addAll(list);
     }
 
     /**

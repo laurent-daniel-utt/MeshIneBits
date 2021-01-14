@@ -15,6 +15,12 @@ import java.util.Vector;
 public class GeneticPavement extends PatternTemplate {
     private int toPave = 0; //debugOnly
 
+    private final DoubleParam safeguardSpaceParam = new DoubleParam(
+            "safeguardSpace",
+            "Space around bit",
+            "In order to keep bits not overlapping or grazing each other",
+            1.0, 10.0, 3.0, 0.01);
+
     @Override
     protected void initiateConfig() {
         config.add(new DoubleParam(
@@ -59,13 +65,12 @@ public class GeneticPavement extends PatternTemplate {
                     (double) config.get("genNumber").getCurrentValue(),
                     (double) config.get("popSize").getCurrentValue(),
                     (double) config.get("lengthPenalty").getCurrentValue())
-            .getSolutions();
+                    .getSolutions();
             toPave++;
+            updateBitAreasWithSpaceAround(bits);
             Pavement pavement = new Pavement(bits);
-            pavement.computeBits(layer.getHorizontalSection());
             return pavement;
-        }
-        else
+        } else
             return new Pavement(new Vector<>());
     }
 
@@ -101,6 +106,23 @@ public class GeneticPavement extends PatternTemplate {
         return "";
     }
 
+    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
+        Area availableArea = new Area();
+        for (Bit2D bit : bits) {
+            availableArea.add(bit.getArea());
+        }
+        for (Bit2D bit : bits) {
+            if (bit.getArea() == null) continue;
+            Area bitArea = bit.getArea();
+            bitArea.intersect(availableArea);
+            if (!bitArea.isEmpty()) {
+                bit.updateBoundaries(bitArea);
+                availableArea.subtract(AreaTool.expand(
+                        bitArea, // in real
+                        safeguardSpaceParam.getCurrentValue()));
+            }
+        }
 
+    }
 
 }

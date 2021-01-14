@@ -24,6 +24,7 @@ package meshIneBits;
 
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.patterntemplates.GeneticPavement;
 import meshIneBits.patterntemplates.ManualPattern;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;

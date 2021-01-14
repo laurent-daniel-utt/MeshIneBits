@@ -300,11 +300,11 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
                 .forEach(key -> availableArea.subtract(
-                        AreaTool.expand(
-                                pavement.getBit(key)
-                                        .getArea(), // in real
-                                safeguardSpaceParam.getCurrentValue())
-                ));
+                AreaTool.expand(
+                        pavement.getBit(key)
+                                .getArea(), // in real
+                        safeguardSpaceParam.getCurrentValue())
+        ));
     }
 
     public void setLayer(int layerNum) {
