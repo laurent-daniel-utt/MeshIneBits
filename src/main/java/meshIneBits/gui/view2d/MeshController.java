@@ -513,28 +513,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         return a;
     }
     private void calcBitFullLengthOrNormal(Area a){
-        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.LengthFull /2+CraftConfig.incertitude
-                ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
-                ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
-                ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
-        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut+CraftConfig.incertitude
-                ,-CraftConfig.bitWidth/2+CraftConfig.incertitude
-                ,CraftConfig.sectionHoldingToCut-2*CraftConfig.incertitude
-                ,CraftConfig.bitWidth-2*CraftConfig.incertitude);
-        AffineTransform affineTransform = new AffineTransform();
-        affineTransform.translate(currentPoint.getX(),currentPoint.getY());
-        Vector2 lOrientation = Vector2.getEquivalentVector(
-                newBitsOrientationParam.getCurrentValue());
-        affineTransform.rotate(lOrientation.x,lOrientation.y);
-        updateSectionHoldingCut(affineTransform);
-        try {
-            AffineTransform inverseAffine=affineTransform.createInverse();
-            a.transform(inverseAffine);
-            fullLength= a.contains(leftArea) || a.contains(rightArea);
-            a.transform(affineTransform);
-        } catch (NoninvertibleTransformException e) {
-            e.printStackTrace();
-        }
+        fullLength=(Bit2D.checkSectionHoldingToCut(new Vector2(currentPoint.getX(),currentPoint.getY()),
+                Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue()),a));
     }
 
     /**
@@ -1132,16 +1112,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         setChanged();
         notifyObservers();
     }
-    private void removeSectionHoldingCut(){
-        bitAreaPreview.subtract(areaHoldingCut);
-    }
-    private void updateSectionHoldingCut(AffineTransform affineTransform){
-        areaHoldingCut=new Area(new Rectangle2D.Double(
-                CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut
-                ,-CraftConfig.bitWidth/2
-                ,CraftConfig.sectionHoldingToCut
-                ,CraftConfig.bitWidth));
-        areaHoldingCut.transform(affineTransform);
-    }
+
 
 }
