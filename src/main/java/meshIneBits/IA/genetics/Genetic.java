@@ -6,6 +6,7 @@ import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.DebugTools;
 import meshIneBits.Layer;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -39,38 +40,40 @@ public class Genetic {
      * Starts the Genetic pavement and paves the given layer.
      */
     private void start(int genNumber, int popSize, int lengthPenalty) throws Exception {
-        Slice sliceToTest = layer.getHorizontalSection();
+        Slice slice = layer.getHorizontalSection();
+        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(slice);
 
-        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(sliceToTest); //debugOnly on fait ici que la premiere slice
-        Vector<Vector2> bound1 = boundsToCheckAssociated.get(0);//debugOnly on fait ici que le premier contour
-        Vector2 startPoint = bound1.get(0);
-        Vector2 veryFirstStartPoint = startPoint;
-        Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);//getAssociatedPoints(bound1, startPoint);
+        for (Vector<Vector2> bound : boundsToCheckAssociated) {
+            Vector2 startPoint = bound.get(0);
+            Vector2 veryFirstStartPoint = startPoint;
+            Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
+            //getAssociatedPoints(bound1, startPoint);
 
-        Bit2D bestBit;
-        //todo @Etienne pave each bound
-        int nbIterations = 0;
-        while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //Add each bit on the bound
+            Bit2D bestBit;
+            //todo @Etienne pave each bound
+            int nbIterations = 0;
+            while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //Add each bit on the bound
 
-            nbIterations++;
-            if (nbIterations > 50)//number max of bits to place before stopping
-                break; //todo @Andre@Etienne enlever je pense ou trouver un nombre correct
-            System.out.println("bit n°"+nbIterations);
-            currentEvolution = new Evolution(associatedPoints, startPoint, bound1, genNumber, popSize, lengthPenalty);
-            currentEvolution.run();
-            bestBit = currentEvolution.bestSolution.getBit();
-            solutions.add(bestBit);
+                nbIterations++;
+                if (nbIterations > 50)//number max of bits to place before stopping
+                    break; //todo @Andre@Etienne enlever je pense ou trouver un nombre correct
+                System.out.println("bit n°" + nbIterations);
+                currentEvolution = new Evolution(associatedPoints, startPoint, bound, genNumber, popSize, lengthPenalty);
+                currentEvolution.run();
+                bestBit = currentEvolution.bestSolution.getBit();
+                solutions.add(bestBit);
 
-            associatedPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
-            startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound1);
-            for (double score : currentEvolution.scores) {
-                System.out.print(score+" : ");
+                associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
+                startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound);
+                for (double score : currentEvolution.scores) {
+                    System.out.print(score + " : ");
+                }
+                System.out.println();
+
+                DebugTools.pointsADessinerRouges.add(startPoint);
+                System.out.println("le start point est : " + startPoint.toString());
+                System.out.println();
             }
-            System.out.println();
-
-            DebugTools.pointsADessinerRouges.add(startPoint);
-            System.out.println("le start point est : " + startPoint.toString());
-            System.out.println();
         }
     }
 
@@ -90,7 +93,7 @@ public class Genetic {
 
         Bit2D bestBit;
 
-        System.out.println("placement du but");
+        System.out.println("placement du bit");
         currentEvolution = new Evolution(associatedPoints, startPoint, boundList, genNumber, popSize, lengthPenalty);
         currentEvolution.run();
         bestBit = currentEvolution.bestSolution.getBit();
@@ -124,15 +127,17 @@ public class Genetic {
     /**
      * Check if the bound of the Slice has been entirely paved.
      *
-     * @param startPoint       the point of the bound on which the very first bit was placed.
+     * @param veryFirststartPoint       the point of the bound on which the very first bit was placed.
      * @param associatedPoints the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    private boolean hasCompletedTheBound(Vector2 startPoint, Vector<Vector2> associatedPoints) {
+    private boolean hasCompletedTheBound(Vector2 veryFirststartPoint, Vector<Vector2> associatedPoints) {
         //todo @Etienne debug hasCompletedTheBound
-        if (associatedPoints.firstElement() == startPoint)
+        if (associatedPoints.firstElement() == veryFirststartPoint)
             return false;
-        return associatedPoints.contains(startPoint);
+        if (Vector2.dist(veryFirststartPoint,associatedPoints.firstElement())< CraftConfig.errorAccepted)
+            return true;
+        return associatedPoints.contains(veryFirststartPoint);
     }
 
     /**

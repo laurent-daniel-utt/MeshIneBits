@@ -28,7 +28,7 @@ public class AI_Pavement extends PatternTemplate {
         if (layer.getLayerNumber() < 1) {//todo paver tout
             try {
                 AI_Tool.startAI(layer.getHorizontalSection());
-            } catch (IOException | InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             bits = AI_Tool.getBits();

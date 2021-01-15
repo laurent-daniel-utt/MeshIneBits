@@ -1,6 +1,7 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
+import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -10,10 +11,10 @@ import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
 import java.util.Collection;
+import java.util.Observable;
 import java.util.Vector;
 
 public class GeneticPavement extends PatternTemplate {
-    private int toPave = 0; //debugOnly
 
     private final DoubleParam safeguardSpaceParam = new DoubleParam(
             "safeguardSpace",
@@ -59,17 +60,15 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         Collection<Bit2D> bits;
-        if (layer.getLayerNumber() == toPave) {//todo paver tout
+        if (layer.getLayerNumber() <= 1) {//todo paver tout, ici juste pour les tests
             bits = new Genetic(
                     layer,
                     (double) config.get("genNumber").getCurrentValue(),
                     (double) config.get("popSize").getCurrentValue(),
                     (double) config.get("lengthPenalty").getCurrentValue())
                     .getSolutions();
-            toPave++;
             updateBitAreasWithSpaceAround(bits);
-            Pavement pavement = new Pavement(bits);
-            return pavement;
+            return new Pavement(bits);
         } else
             return new Pavement(new Vector<>());
     }
@@ -92,7 +91,6 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        //todo @Etienne@Andre change icon
         return "pattern-genetic.png";
     }
 

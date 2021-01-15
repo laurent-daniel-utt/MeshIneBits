@@ -52,7 +52,7 @@ public class NNTraining {
      * The number of iterations to train the neural network.
      */
     private static final int N_EPOCHS = 10000;
-    private static final Activation ACTIVATION_FUNCTION = Activation.IDENTITY; //todo @Etienne virer
+    private static final Activation ACTIVATION_FUNCTION = Activation.RELU; //todo @Etienne virer
     private DataNormalization normalizer;
     private MultiLayerNetwork model;
 
@@ -99,7 +99,7 @@ public class NNTraining {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .activation(Activation.TANH)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Adam(0.001))
+                .updater(new Adam(0.0001))
                 .l2(1e-5)
                 .list()
 

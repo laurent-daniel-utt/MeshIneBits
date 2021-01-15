@@ -23,6 +23,7 @@
 package meshIneBits;
 
 import javafx.util.Pair;
+import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.GeneticPavement;
 import meshIneBits.patterntemplates.ManualPattern;
@@ -67,7 +68,7 @@ public class Layer extends Observable implements Serializable {
     private double higherAltitude;
 
 
-//    public static class AreaSerializable extends Area implements Serializable{
+    //    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
 //        public AreaSerializable(){
 //            super();
@@ -105,29 +106,36 @@ public class Layer extends Observable implements Serializable {
 //            add(new Area((Shape) in.readObject()));
 //        }
 //    }
-public static class SerializeArea {
+    public static class SerializeArea {
 
         static Path2D.Double toPath2D(final Area a) {
-        final PathIterator pi = a.getPathIterator(new AffineTransform());
-        final Path2D.Double path = new Path2D.Double();
-        switch (pi.getWindingRule()) {
-            case PathIterator.WIND_EVEN_ODD: path.setWindingRule(Path2D.WIND_EVEN_ODD); break;
-            case PathIterator.WIND_NON_ZERO: path.setWindingRule(Path2D.WIND_NON_ZERO); break;
-            default: throw new UnsupportedOperationException("Unimplemented winding rule.");
+            final PathIterator pi = a.getPathIterator(new AffineTransform());
+            final Path2D.Double path = new Path2D.Double();
+            switch (pi.getWindingRule()) {
+                case PathIterator.WIND_EVEN_ODD:
+                    path.setWindingRule(Path2D.WIND_EVEN_ODD);
+                    break;
+                case PathIterator.WIND_NON_ZERO:
+                    path.setWindingRule(Path2D.WIND_NON_ZERO);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unimplemented winding rule.");
+            }
+            path.append(pi, false);
+            return path;
         }
-        path.append(pi, false);
-        return path;
+
+        public static Area toArea(final Path2D path) {
+            return new Area(path);
+        }
     }
 
-    public static Area toArea(final Path2D path) {
-        return new Area(path);
+    public void convertHorizontalAreatoPath2D() {
+        this.horizontalAreaConvert = SerializeArea.toPath2D(this.horizontalArea);
     }
-}
-    public void convertHorizontalAreatoPath2D(){
-        this.horizontalAreaConvert=SerializeArea.toPath2D(this.horizontalArea);
-    }
-    public void convertPath2DtoHorizontalArea(){
-        this.horizontalArea=SerializeArea.toArea(this.horizontalAreaConvert);
+
+    public void convertPath2DtoHorizontalArea() {
+        this.horizontalArea = SerializeArea.toArea(this.horizontalAreaConvert);
     }
 
     /**
@@ -271,7 +279,7 @@ public static class SerializeArea {
      */
     private Area getInteriorArea(Bit2D bit2D) {
         Area bitArea = bit2D.getArea();
-        if(horizontalArea==null){
+        if (horizontalArea == null) {
             Logger.message("null valeur");
         }
         bitArea.intersect(horizontalArea);
@@ -320,7 +328,7 @@ public static class SerializeArea {
      * on the pattern template. Not use in quick succession because after each
      * move, the layer will be recalculated, slowing the process
      *
-     * @param bit3D    target
+     * @param bit3D     target
      * @param direction the direction in local coordinate system of the bit
      * @return the new origin of the moved bit
      */
@@ -442,7 +450,7 @@ public static class SerializeArea {
      * Remove multiple bits
      *
      * @param keys origin of bit in layer coordinate system
-     * @param b notify or not
+     * @param b    notify or not
      */
     public void removeBits(Collection<Vector2> keys, boolean b) {
         Collection<Bit3D> oldBit3Ds = keys

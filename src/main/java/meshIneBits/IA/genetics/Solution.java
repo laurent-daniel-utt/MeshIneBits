@@ -137,10 +137,22 @@ public class Solution {
             YPoints.remove(YPoints.lastElement());
             nPoints = XPoints.size();
 
+
+            area = 0;
+            for (int i = 0; i < nPoints - 1; i++) {
+                int j = i + 1;
+                area += XPoints.get(i) * YPoints.get(j);
+                area -= YPoints.get(i) * XPoints.get(j);
+            }
+            return Math.abs(area);
+            /*
+
             for (int i = 0; i < nPoints - 1; i++) {
                 area += (XPoints.get(i) * YPoints.get(i + 1)) - (YPoints.get(i) * XPoints.get(i + 1));
             }
             return Math.abs(area / 2);
+
+             */
         }
     }
 
@@ -166,8 +178,6 @@ public class Solution {
     public boolean isBad() {
         if (hasBeenCheckedBad)
             return bad;
-        //if (getNumberOfIntersections(bound) != 2)//FIXME @Andre
-            //bad = true;
         try {
             DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
@@ -205,7 +215,6 @@ public class Solution {
         }
 
 
-
         int intersectionCount = 0;
 
         Vector2 inter;
@@ -221,7 +230,8 @@ public class Solution {
                     }
                 }
 
-        System.out.println("nb inters " + intersectionCount);;
+        System.out.println("nb inters " + intersectionCount);
+        ;
         return intersectionCount;
     }
 
@@ -257,10 +267,17 @@ public class Solution {
         Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
 
-        if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1) //todo @Andre inferieur à quoi ?
+      /*  if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1)
             this.score += LENGTH_PENALTY_STRENGTH*score;
         else
-            this.score -= LENGTH_PENALTY_STRENGTH * score / coveredDistance;
+            this.score -= LENGTH_PENALTY_STRENGTH * score / coveredDistance;//debugOnly
+        if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1)
+            score += LENGTH_PENALTY_STRENGTH*score;
+        else*/
+        //double maxArea = CraftConfig.bitLength * CraftConfig.bitWidth;
+        //score = (0.2 * score / maxArea + 0.85 * coveredDistance / CraftConfig.bitLength);
+
+        score *= coveredDistance / CraftConfig.bitLength;
     }
 
 
