@@ -199,24 +199,9 @@ public class NNTraining {
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File("normalizer_saved.ser");
+        File normalsFile = new File("normalizer_saved.bin");
         saver.write(normalizer,normalsFile);
-    }
 
-
-
-    public static void main(String[] args) {
-        NNTraining nnTraining = new NNTraining();
-        try {
-            nnTraining.train(true);
-        } catch (IOException | InterruptedException e) {
-            System.out.println("Neural network could not be trained");
-        }
-        nnTraining.evaluateModel();
-        try {
-            nnTraining.save();
-        } catch (IOException e) {
-            System.out.println("Training params could not be saved");
-        }
+        System.out.println("Everything is saved");
     }
 }

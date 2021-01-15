@@ -32,7 +32,6 @@ public class AI_Tool {
      */
     public static void startAI(Slice slice) throws IOException, InterruptedException {
         bits.clear();
-
         Vector<Slice> slicesList = meshController.getMesh().getSlices();
         for (Slice currentSlice : slicesList) {
             sliceMap.put(
@@ -41,23 +40,18 @@ public class AI_Tool {
             );
         }
         meshController.AIneedPaint = true; //debugOnly
-
         //DEBUGONLY todo @Etienne ici on teste juste en placant le bit 1
         //todo @Etienne startAI doit permettre de paver entièrement une slice
-
         Vector<Vector2> associatedPoints = new Vector<>();
-
         Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
         Vector<Vector2> bound1 = bounds.get(0);
-        Vector2 startPoint = bound1.get(40);
-
+        Vector2 startPoint = bound1.get(3);
         Vector<Vector2> sectionPoints = DataPreparation.getSectionPointsFromBound(bound1, startPoint);
-
         double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
 
-        //Bit2D bit = NNTraining.getBitPlacement(sectionPoints, startPoint, angleLocalSystem);
         NNExploitation nnExploitation = new NNExploitation();
-        Bit2D bit = nnExploitation.getBit(sectionPoints, startPoint, angleLocalSystem);
+        Vector<Vector2> sectionPointsReg = DataPreparation.getInputPointsForDL(sectionPoints);
+        Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
         bits.add(bit);
         System.out.println("size:" + bits.size());
     }

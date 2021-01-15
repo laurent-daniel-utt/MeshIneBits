@@ -30,6 +30,7 @@ import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class UPPToolsIA extends UtilityParametersPanel {
     private final static String TEXT_TOGGLE_FALSE = "Store new inputs";
@@ -59,7 +60,17 @@ public class UPPToolsIA extends UtilityParametersPanel {
         trainButton.addActionListener(e -> {
             try {
                 NNTraining nnTraining = new NNTraining();
-                nnTraining.train(true);
+                try {
+                    nnTraining.train(true);
+                } catch (IOException | InterruptedException eTrain) {
+                    System.out.println("Neural network could not be trained");
+                }
+                nnTraining.evaluateModel();
+                try {
+                    nnTraining.save();
+                } catch (IOException eSave) {
+                    System.out.println("Training params could not be saved");
+                }
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }

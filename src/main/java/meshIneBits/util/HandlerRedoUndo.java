@@ -104,7 +104,6 @@ public class HandlerRedoUndo{
                 this.resultKeys =resultKeys;
             }
             if(currentSelectedBits!=null){
-                System.out.println("OKKK");
                 this.currentSelectedBits=new HashSet<Bit3D>(currentSelectedBits);
             }
             this.layerNum=layerNumber;
