@@ -1,6 +1,6 @@
-package meshIneBits.IA.IA_util;
+package meshIneBits.artificialIntelligence.util;
 
-import meshIneBits.IA.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 
@@ -121,8 +121,7 @@ public final class DataSetGenerator {
         double l1 = localCoordinateSystemAngle.vSize();
         double l2 = bitAngle.vSize();
 
-        //double bitAngleLocal = Math.atan2(x1*y2-y1*x2,
-        //x1*x2+y1*y2); //todo @Andre virer ?
+        //double bitAngleLocal = Math.atan2(x1*y2-y1*x2,x1*x2+y1*y2); //todo @Andre virer ?
 
 
         double bitAngleLocal = Math.asin ( (x1*y2-y1*x2) / (l1*l2) );

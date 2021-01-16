@@ -1,4 +1,4 @@
-package meshIneBits.IA.deeplearning;
+package meshIneBits.artificialIntelligence.deeplearning;
 
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
@@ -195,7 +195,7 @@ public class NNTraining {
         // boolean save Updater (set to true if you want to make further training on the model)
         boolean saveUpdater = false;
         // save the model
-        ModelSerializer.writeModel(model, locationToSave, saveUpdater);
+        ModelSerializer.writeModel(model, locationToSave, saveUpdater); //todo @Andre on a pas besoin de save l'Updater ?
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();

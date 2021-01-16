@@ -1,9 +1,9 @@
-package meshIneBits.IA.deeplearning;
+package meshIneBits.artificialIntelligence.deeplearning;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.AI_Tool;
-import meshIneBits.IA.GeneralTools;
-import meshIneBits.IA.IA_util.Curve;
+import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.util.Curve;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
@@ -17,15 +17,18 @@ import java.util.Vector;
 import java.util.stream.IntStream;
 
 public final class DataPreparation {
+    // TODO: doc en anglais
 
     /**
-     * Renvoie les points de chaque bound d'une Slice.
-     * Les points sont réarrangés pour être à nouveau dans l'ordre.
-     * Fait appel à rearrangeSegments puis rearrangePoints.
+     * Returns the points of each bound of a given Slice
+     * The points are rearranged to be in the correct order.
+     * @see #rearrangeSegments
+     * @see #rearrangePoints
      *
-     * @param currentSlice
-     * @return
+     * @param currentSlice the slice to get the bounds
+     * @return the bounds of the given slice, once rearranged
      */
+    @SuppressWarnings("unchecked")
     public static Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
         Vector<Vector<Vector2>> boundsList = new Vector<>();
         Vector<Vector<Segment2D>> borderList = rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
@@ -37,7 +40,12 @@ public final class DataPreparation {
         return boundsList;
     }
 
-    private static Vector<Vector<Segment2D>> rearrangeSegments(Vector<Segment2D> segmentList) { //return more than one Vector<Segment2D>, if there's more than one border on the slice
+    /**
+     * Rearranges the given segments so that each segment follows the previous one.
+     * @param segmentList the segments to rearranged
+     * @return the rearranged segments. Returns more than one Vector of Segment2D if there's more than one bound on the Slice
+     */
+    private static Vector<Vector<Segment2D>> rearrangeSegments(Vector<Segment2D> segmentList) {
         Vector<Vector<Segment2D>> list = new Vector<>();
         Vector<Segment2D> newSegmentList = new Vector<>();
         newSegmentList.add(segmentList.get(0));
@@ -52,6 +60,11 @@ public final class DataPreparation {
         return list;
     }
 
+    /**
+     * Rearranges the given points so that the list begins at the rightmost point
+     * @param pointList the points to be rearranged.
+     * @return  the rearranged points.
+     */
     private static Vector<Vector2> rearrangePoints(Vector<Vector2> pointList) {
         Vector<Vector2> newPointList = new Vector<>();
         int PointIndex;
@@ -75,8 +88,8 @@ public final class DataPreparation {
     /**
      * Returns a point list from a segment list
      *
-     * @param segmentList
-     * @return
+     * @param segmentList the segment list
+     * @return  the list of point computed from the segment list
      */
     private static Vector<Vector2> computePoints(Vector<Segment2D> segmentList) {
         Vector<Vector2> pointList = new Vector<>();
@@ -87,7 +100,15 @@ public final class DataPreparation {
         return pointList;
     }
 
-
+    /**
+     * Searches the next segment of the given segment, in a list of segments.
+     * And returns the rearranged list.
+     * @see #rearrangeSegments
+     * @param segment the current segment.
+     * @param segmentList   the list of all segments.
+     * @param newSegmentList the list segments that have already been rearranged.
+     * @return the rearranged list.
+     */
     private static Vector<Segment2D> searchNextSegment(Segment2D segment, Vector<Segment2D> segmentList, Vector<Segment2D> newSegmentList) {
         for (Segment2D segmentSearch : segmentList) {
             if (segmentSearch.start == segment.end) {
@@ -100,7 +121,7 @@ public final class DataPreparation {
         return newSegmentList;
     }
 
-
+    //todo doc @Andre
     public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionpoints) {
 
         //map for more accurate result
@@ -111,7 +132,7 @@ public final class DataPreparation {
 
 
         //check if abscissa axe of local coordinate system and and section are directed in the same direction.
-        if (!arePointsMostlyOrientedToTheRight(sectionpoints, sectionpoints.firstElement())) {
+        if (arePointsMostlyOrientedToTheLeft(sectionpoints, sectionpoints.firstElement())) {
             angle += 180; //rotate coordinate system
         }
 
@@ -123,7 +144,7 @@ public final class DataPreparation {
         return angle;
     }
 
-
+    //todo doc @Andre
     public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> sectionPoints) {
 
         double angle = getLocalCoordinateSystemAngle(sectionPoints);
@@ -133,9 +154,10 @@ public final class DataPreparation {
 
 
     /**
-     * @param points
-     * @param angle  in degrees
-     * @return
+     * Rotates a list of points by a given angle
+     * @param points the points to transform
+     * @param angle  the angle in degrees
+     * @return the rotated list of points
      */
     private static Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
         angle = Math.toRadians(angle);
@@ -209,7 +231,8 @@ public final class DataPreparation {
     }
 
     /**
-     * @param points
+     * Returns the angle of the line that fit a list of points
+     * @param points the points
      * @return an angle between -90 and 90 degrees
      */
     public static Double getSectionOrientation(Vector<Vector2> points) {
@@ -227,8 +250,8 @@ public final class DataPreparation {
         return Math.toDegrees(Math.atan(coefs_inverse[1]));
     }
 
-
-    public static boolean arePointsMostlyOrientedToTheRight(Vector<Vector2> points, Vector2 refPoint) {
+    //todo doc @Andre
+    public static boolean arePointsMostlyOrientedToTheLeft(Vector<Vector2> points, Vector2 refPoint) {
         int leftPoints = 0;
         int rightPoints = 0;
         for (Vector2 point : points) {
@@ -238,10 +261,11 @@ public final class DataPreparation {
                 rightPoints++;
             }
         }
-        return leftPoints < rightPoints;
+        return leftPoints >= rightPoints;
     }
 
 
+    //todo doc @Andre
     public static Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
         int nbPoints = 30;
         return repopulateWithNewPoints(nbPoints, sectionPoints);
@@ -286,7 +310,7 @@ public final class DataPreparation {
 
             //Calculer l'angle du segment par rapport à l'horizontale
             double segmentAngle;
-            //fixme @Andre la condition est en double
+            //FIXME @Andre la condition est en double !!
             if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
                     && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut
                 segmentAngle = Math.PI / 2;
@@ -315,7 +339,8 @@ public final class DataPreparation {
     }
 
 
-    @SuppressWarnings("unused")
+    //todo doc @Andre et dire comment les suivants pourraient l'utiliser
+    @SuppressWarnings({"unused", "rawtypes"})
     private static Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
         Curve inputCurve = new Curve("input curve");
         inputCurve.generateCurve(sectionPoints);
@@ -324,7 +349,7 @@ public final class DataPreparation {
         Curve yCurve = splitCurve[1];
 
         // prepare fitting
-        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degré
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degree
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
         for (int i = 0; i < inputCurve.getN_points(); i++) {
@@ -332,20 +357,20 @@ public final class DataPreparation {
             weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
         }
         // fit
-        double[] coefs_inverseX = fitter.fit(weightedObservedPointsX.toList());
-        double[] coefs_inverseY = fitter.fit(weightedObservedPointsY.toList());
+        double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
+        double[] coefficients_inverseY = fitter.fit(weightedObservedPointsY.toList());
         // invert coefficients
         Vector<Double> coefsX = new Vector<>();
         Vector<Double> coefsY = new Vector<>();
-        for (int i = 0; i < coefs_inverseX.length; i++) {
-            coefsX.add(coefs_inverseX[coefs_inverseX.length - i - 1]);
-            coefsY.add(coefs_inverseY[coefs_inverseX.length - i - 1]);
+        for (int i = 0; i < coefficients_inverseX.length; i++) {
+            coefsX.add(coefficients_inverseX[coefficients_inverseX.length - i - 1]);
+            coefsY.add(coefficients_inverseY[coefficients_inverseX.length - i - 1]);
         }
         // return result
-        Vector<Vector> coefs = new Vector<>();
-        coefs.add(coefsX);
-        coefs.add(coefsY);
-        return coefs;
+        Vector<Vector> coefficients = new Vector<>();
+        coefficients.add(coefsX);
+        coefficients.add(coefsY);
+        return coefficients;
     }
 
     /**
@@ -489,6 +514,7 @@ public final class DataPreparation {
 
 
 
+    //todo doc @Andre
     public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
 
         Vector<Segment2D> boundSegments = GeneralTools.getSegment2DS(boundPoints);
@@ -524,14 +550,6 @@ public final class DataPreparation {
             }
 
         }
-
-/*        DebugTools.pointsADessinerRouges.addAll(intersectionPoints);
-        System.out.println("nb de points trouvés  = " + intersectionPoints.size());
-        System.out.println(intersectionPoints.toString());
-
-        DebugTools.pointsADessinerVerts.add(intersectionPoints.get(1));*/
-
         return intersectionPoints.get(1);
     }
-
 }

@@ -24,7 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
-import meshIneBits.IA.DebugTools;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;

@@ -1,4 +1,4 @@
-package meshIneBits.IA.genetics;
+package meshIneBits.artificialIntelligence.genetics;
 
 import meshIneBits.util.Vector2;
 
@@ -56,7 +56,8 @@ public class Evolution {
                 LENGTH_COEFF,
                 layerAvailableArea,
                 startPoint,
-                bound);
+                bound
+        );
         initGeneration.initialize(pointSection);
         int currentGenerationNumber = 0;
         generations.add(initGeneration);
@@ -70,7 +71,8 @@ public class Evolution {
                     LENGTH_COEFF,
                     layerAvailableArea,
                     startPoint,
-                    bound);
+                    bound
+            );
             currentGenerationNumber++;
             generations.add(currentGeneration);
 

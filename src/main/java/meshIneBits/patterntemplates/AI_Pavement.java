@@ -1,7 +1,7 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.AI_Tool;
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;

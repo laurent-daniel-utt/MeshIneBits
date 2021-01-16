@@ -1,4 +1,4 @@
-package meshIneBits.IA;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.util.Polygon;
@@ -10,12 +10,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 //todo @Etienne @Andre javadoc
+@SuppressWarnings("unused")
 public final class DebugTools {
 
-    public static Vector2 A = new Vector2(0, 0);
-    public static Vector2 B = new Vector2(0, 0);
-    public static Vector2 C = new Vector2(0, 0);
-    public static Vector2 D = new Vector2(0, 0);
     public static AffineTransform transformArea = new AffineTransform();
 
     public static Vector<Vector2> pointsToDrawRED = new Vector<>();
@@ -26,8 +23,8 @@ public final class DebugTools {
     public static Path2D cutPathToDraw = new Path2D.Double();
 
     public static Vector<Segment2D> segmentsToDraw = new Vector<>();
-    public static Segment2D currentSegToDraw = new Segment2D(A, B);
-    public static Segment2D currentSegToDraw2 = new Segment2D(A, B);
+    public static Segment2D currentSegToDraw = new Segment2D(new Vector2(0,0), new Vector2(0,0));
+    public static Segment2D currentSegToDraw2 = new Segment2D(new Vector2(0,0), new Vector2(0,0));
 
     public static Polygon poly = new Polygon();
 

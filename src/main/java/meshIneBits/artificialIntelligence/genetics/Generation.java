@@ -1,7 +1,7 @@
-package meshIneBits.IA.genetics;
+package meshIneBits.artificialIntelligence.genetics;
 
-import meshIneBits.IA.deeplearning.DataPreparation;
-import meshIneBits.IA.DebugTools;
+import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -14,6 +14,7 @@ public class Generation {
      * The max angle between the section and the bit when creating a new Solution.
      */
     private static final double MAX_ANGLE = 89.0;//todo @all combien on mets, 30° de base?
+    public final Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -25,7 +26,6 @@ public class Generation {
     public double meanScore = -1;
     public double maxScore = -1;
     public Solution bestSolution;
-    public Vector<Solution> solutions;
 
     /**
      * A Generation is a set of solutions.
@@ -77,7 +77,7 @@ public class Generation {
         double angleSection = DataPreparation.
                 getSectionOrientation(pointSection);
 
-        if (!DataPreparation.arePointsMostlyOrientedToTheRight(pointSection, pointSection.firstElement())) {
+        if (DataPreparation.arePointsMostlyOrientedToTheLeft(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;
@@ -101,10 +101,11 @@ public class Generation {
     /**
      * Evaluates the current generation and stores scores.
      */
+    @SuppressWarnings("unchecked")
     public void evaluateGeneration() {
         this.meanScore = 0;
         this.maxScore = 0;
-        Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone(); //todo @Etienne eviter le clone
+        Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone();
         for (Solution solution : clonedSolutions) {
             meanScore += solution.evaluate();
         }
@@ -183,9 +184,6 @@ public class Generation {
         List<Solution> solutionList = new ArrayList<>(solutions);
         Comparator<Solution> comparator = new SolutionComparator();
         solutionList.sort(comparator);
-        //bestSolution = solutionList.get(0);
-        //System.out.println("best score : " + bestSolution.score);
-        //System.out.println();
         return solutionList;
     }
 }

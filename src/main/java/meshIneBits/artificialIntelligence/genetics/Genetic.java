@@ -1,7 +1,7 @@
-package meshIneBits.IA.genetics;
+package meshIneBits.artificialIntelligence.genetics;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -14,8 +14,8 @@ import java.util.Vector;
 public class Genetic {
     private final Layer layer;
     private final Area layerAvailableArea;
-    public Evolution currentEvolution;
     private final Vector<Bit2D> solutions = new Vector<>();
+    public Evolution currentEvolution;
 
     /**
      * The tool for genetic algorithms which performs the pavement on a layer.
@@ -71,7 +71,7 @@ public class Genetic {
      */
     private void printInfos(Vector<Vector<Vector2>> boundsToCheckAssociated, Vector<Vector2> bound, int bitNumber) {
         System.out.printf("%-11s", "Layer n°" + layer.getLayerNumber());
-        System.out.printf("%-14s", "   bound n°"+boundsToCheckAssociated.indexOf(bound));
+        System.out.printf("%-14s", "   bound n°" + boundsToCheckAssociated.indexOf(bound));
         System.out.printf("%-14s", "   bit n°" + bitNumber);
         System.out.println();
     }

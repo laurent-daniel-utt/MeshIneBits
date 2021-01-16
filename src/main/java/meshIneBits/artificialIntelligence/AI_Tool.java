@@ -1,17 +1,13 @@
-package meshIneBits.IA;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.deeplearning.DataPreparation;
-import meshIneBits.IA.deeplearning.NNExploitation;
-import meshIneBits.IA.genetics.Genetic;
+import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.deeplearning.NNExploitation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Vector;
 
 /**

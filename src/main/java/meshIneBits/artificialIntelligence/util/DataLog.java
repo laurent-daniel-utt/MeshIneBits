@@ -1,4 +1,4 @@
-package meshIneBits.IA.IA_util;
+package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.util.Vector2;
 

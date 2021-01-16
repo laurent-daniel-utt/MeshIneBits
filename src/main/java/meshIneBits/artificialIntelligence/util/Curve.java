@@ -1,4 +1,4 @@
-package meshIneBits.IA.IA_util;
+package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.util.Vector2;
 
@@ -21,12 +21,12 @@ public class Curve {
     }
 
 
+    @SuppressWarnings("SuspiciousNameCombination")
     public Curve[] splitCurveInTwo() {
 
         Vector<Vector2> pointsX = new Vector<>();
         Vector<Vector2> pointsY = new Vector<>();
         double absCurv = 0;
-
 
         pointsX.add(new Vector2(absCurv, points.get(0).x));
         pointsY.add(new Vector2(absCurv, points.get(0).y));
@@ -49,10 +49,6 @@ public class Curve {
 
     public Vector<Vector2> getPoints() {
         return points;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public int getN_points() {

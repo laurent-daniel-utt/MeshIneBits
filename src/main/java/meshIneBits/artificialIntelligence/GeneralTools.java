@@ -1,4 +1,4 @@
-package meshIneBits.IA;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.config.CraftConfig;
