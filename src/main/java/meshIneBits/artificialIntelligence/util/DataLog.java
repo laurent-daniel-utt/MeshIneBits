@@ -33,7 +33,8 @@ public final class DataLog {
     }
 
 
-    //todo @Andre never used
+
+    @SuppressWarnings("unused")
     static public void saveAllEntries(Vector<DataLogEntry> dataSetEntries) throws IOException {
         for (DataLogEntry dataLogEntry : dataSetEntries) {
             saveEntry(dataLogEntry);
@@ -45,21 +46,6 @@ public final class DataLog {
         Stream<String> lines = Files.lines(Paths.get(dataLogFilePath));
         String line = lines.skip(lineNumber - 1).findFirst().get(); //todo @Andre check with .isPresent() before (cf inspection) --> faire un if .isPresent()
         return decodeLine(line);
-    }
-
-
-    //todo @Andre never used
-    static public Vector<DataLogEntry> getAllEntriesFromFile() throws IOException {
-
-        Vector<String> lines = new Vector<>(Files.readAllLines(Paths.get(dataLogFilePath)));
-
-
-        Vector<DataLogEntry> dataSetEntries = new Vector<>();
-        for (String line : lines) {
-            dataSetEntries.add(decodeLine(line));
-        }
-
-        return dataSetEntries;
     }
 
 
