@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class NNTraining {
-    public static final int BATCH_SIZE = 50;    //todo @ALL, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
+    public static final int BATCH_SIZE = 50;    //todo @Andre, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
     /**
      * The number of neurons in an hidden layer
      */
@@ -94,7 +94,7 @@ public class NNTraining {
 
 
     public void initNeuralNetwork() {
-        //todo @all tester les différentes configs et se renseigner pour trouver la meilleure
+        //todo tester les différentes configs et se renseigner pour trouver la meilleure
         //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .activation(Activation.TANH)
@@ -162,7 +162,7 @@ public class NNTraining {
 
 
     public void evaluateModel() {
-        // todo a verifier
+        // todo @Andre a verifier
         INDArray features = testDataSet.getFeatures();
         INDArray labels = testDataSet.getLabels();
         INDArray prediction = model.output(features, false);

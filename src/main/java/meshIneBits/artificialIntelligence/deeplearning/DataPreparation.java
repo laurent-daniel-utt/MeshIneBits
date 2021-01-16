@@ -16,8 +16,8 @@ import java.awt.geom.Area;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
+//todo @Etienne@Andre documenter aussi toutes les classes
 public final class DataPreparation {
-    // TODO: doc en anglais
 
     /**
      * Returns the points of each bound of a given Slice
@@ -511,8 +511,6 @@ public final class DataPreparation {
 
         return null;
     }
-
-
 
     //todo doc @Andre
     public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {

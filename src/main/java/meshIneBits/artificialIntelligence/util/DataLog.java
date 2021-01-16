@@ -43,7 +43,7 @@ public final class DataLog {
 
     static public DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
         Stream<String> lines = Files.lines(Paths.get(dataLogFilePath));
-        String line = lines.skip(lineNumber - 1).findFirst().get(); //todo check with .isPresent() before
+        String line = lines.skip(lineNumber - 1).findFirst().get(); //todo @Andre@Etienne check with .isPresent() before (cf inspection)
         return decodeLine(line);
     }
 

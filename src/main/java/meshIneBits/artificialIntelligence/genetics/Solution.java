@@ -95,7 +95,7 @@ public class Solution {
     /**
      * Mutates parameters of the solution.
      */
-    public void mutate() { //todo @all tester
+    public void mutate() {
         if (Math.random() < 0.5) { // mutate bitPos
             bitPos += (Math.random() * 2 - 1) * MUTATION_MAX_STRENGTH;
             if (bitPos < 0)
