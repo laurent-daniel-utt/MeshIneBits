@@ -7,7 +7,6 @@ import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 
 import java.awt.geom.Area;
-import java.io.IOException;
 import java.util.Vector;
 
 public class AI_Pavement extends PatternTemplate {

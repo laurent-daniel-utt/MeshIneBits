@@ -1,7 +1,6 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.genetics.Genetic;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -11,8 +10,6 @@ import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
 import java.util.Collection;
-import java.util.Observable;
-import java.util.Vector;
 
 public class GeneticPavement extends PatternTemplate {
 
@@ -37,19 +34,28 @@ public class GeneticPavement extends PatternTemplate {
                 "popSize",
                 "Size of the population",
                 "The size of population to generate",
-                1.0,
-                100000.0,
+                100.0,
+                Double.POSITIVE_INFINITY,
                 150.0,
-                1.0));
+                50.0));
 
         config.add(new DoubleParam(
-                "lengthPenalty",
-                "Length Penalty %",
-                "The greater the penalty, the greater the distance covered by the bit will be",
-                1.0,
+                "lengthCoefficient",
+                "Length Coefficient %",
+                "Balance between area and length to calculate solutions' score",
+                2.0,
                 100.0,
-                90.0,
-                1.0));
+                80.0,
+                2.0));
+        config.add(new DoubleParam(
+                "earlyStopping",
+                "Maximum number of bits before stopping",
+                "Set a max number of bits to avoid infinite loop",
+                0.0,
+                Double.POSITIVE_INFINITY,
+                50.0,
+                5.0
+        ));
     }
 
     @Override
@@ -59,18 +65,15 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
-        Collection<Bit2D> bits;
-        if (layer.getLayerNumber() <= 1) {//todo paver tout, ici juste pour les tests
-            bits = new Genetic(
-                    layer,
-                    (double) config.get("genNumber").getCurrentValue(),
-                    (double) config.get("popSize").getCurrentValue(),
-                    (double) config.get("lengthPenalty").getCurrentValue())
-                    .getSolutions();
-            updateBitAreasWithSpaceAround(bits);
-            return new Pavement(bits);
-        } else
-            return new Pavement(new Vector<>());
+        Collection<Bit2D> bits = new Genetic(
+                layer,
+                (double) config.get("genNumber").getCurrentValue(),
+                (double) config.get("popSize").getCurrentValue(),
+                (double) config.get("lengthCoefficient").getCurrentValue(),
+                (double) config.get("earlyStopping").getCurrentValue())
+                .getSolutions();
+        updateBitAreasWithSpaceAround(bits);
+        return new Pavement(bits);
     }
 
     @Override

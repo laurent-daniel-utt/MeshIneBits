@@ -173,7 +173,7 @@ public class NNTraining {
     }
 
 
-    public void train(boolean enableMonitoring) throws IOException, InterruptedException {
+    public void train(boolean enableMonitoring) {
 
         if (enableMonitoring) {
             startMonitoring();

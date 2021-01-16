@@ -5,7 +5,8 @@ import meshIneBits.util.Vector2;
 import java.util.Vector;
 
 public class Curve {
-    //todo @Andre : doc
+    //todo @Andre : doc et passer tout en anglais
+    //todo @Andre on peut se débarasser de cette classe ?
     private final String name;
     private Vector<Vector2> points = new Vector<>();
 

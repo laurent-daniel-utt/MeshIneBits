@@ -60,11 +60,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
         trainButton.addActionListener(e -> {
             try {
                 NNTraining nnTraining = new NNTraining();
-                try {
-                    nnTraining.train(true);
-                } catch (IOException | InterruptedException eTrain) {
-                    System.out.println("Neural network could not be trained");
-                }
+                nnTraining.train(true);
                 nnTraining.evaluateModel();
                 try {
                     nnTraining.save();

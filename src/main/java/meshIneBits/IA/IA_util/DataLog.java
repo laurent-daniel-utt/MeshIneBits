@@ -1,7 +1,6 @@
 package meshIneBits.IA.IA_util;
 
 import meshIneBits.util.Vector2;
-import remixlab.dandelion.geom.Vec;
 
 import java.io.FileWriter;
 import java.io.IOException;

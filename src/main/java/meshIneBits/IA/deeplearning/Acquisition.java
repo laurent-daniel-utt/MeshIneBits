@@ -3,17 +3,12 @@ package meshIneBits.IA.deeplearning;
 import meshIneBits.Bit2D;
 import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.DebugTools;
-import meshIneBits.IA.GeneralTools;
 import meshIneBits.IA.IA_util.DataLog;
 import meshIneBits.IA.IA_util.DataLogEntry;
 import meshIneBits.IA.IA_util.DataSetGenerator;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -72,7 +67,6 @@ public class Acquisition {
     public static void stopStoringBits() throws IOException {
         storeNewBits = false;
         saveExamples();
-        DebugTools.scores.clear(); //debugonly
         DebugTools.Bits.clear();//Debugonly
     }
 
@@ -89,8 +83,6 @@ public class Acquisition {
     }
 
     public static void addNewExampleBit(Bit2D bit) throws Exception {
-
-
 
         //debugOnly
 
@@ -149,7 +141,7 @@ public class Acquisition {
         Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);
-        DebugTools.pointsADessinerRouges.add(nextBitStartPoint);
+        DebugTools.pointsToDrawRED.add(nextBitStartPoint);
 
     }
 

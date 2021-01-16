@@ -30,7 +30,6 @@ import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view3d.ProcessingModelView;
-import meshIneBits.patterntemplates.GeneticPavement;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.*;
@@ -946,14 +945,12 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     public void moveSelectedBits(Vector2 direction) {
         // Save before doing
         Set<Bit3D> cloned = getSelectedBits();
-        Set<Vector2> previousSelectedBits = new HashSet<Vector2>();
-        previousSelectedBits.addAll(this.getSelectedBitKeys());
+        Set<Vector2> previousSelectedBits = new HashSet<>(this.getSelectedBitKeys());
         //move bits
         setSelectedBitKeys(currentLayer.moveBits(getSelectedBits(), direction));
         Set<Bit3D> bits3D = this.getSelectedBits();
         //Save after moved
-        Set<Vector2> resultKeys = new HashSet<Vector2>();
-        resultKeys.addAll(getSelectedBitKeys());
+        Set<Vector2> resultKeys = new HashSet<>(getSelectedBitKeys());
         //create new ActionMoveBit for save action
         this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys,bits3D,currentLayer.getLayerNumber()));
     }

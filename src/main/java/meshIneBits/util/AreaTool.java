@@ -22,7 +22,6 @@
 
 package meshIneBits.util;
 
-import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.*;

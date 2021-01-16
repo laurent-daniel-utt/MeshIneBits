@@ -9,7 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
-
+//todo @Etienne @Andre javadoc
 public final class DebugTools {
 
     public static Vector2 A = new Vector2(0, 0);
@@ -18,15 +18,14 @@ public final class DebugTools {
     public static Vector2 D = new Vector2(0, 0);
     public static AffineTransform transformArea = new AffineTransform();
 
-    public static Vector<Vector2> pointsContenus = new Vector<>();
-    public static Vector<Vector2> pointsADessinerRouges = new Vector<>();
-    public static Vector<Vector2> pointsADessinerVerts = new Vector<>();
-    public static Vector<Vector2> pointsADessinerBleus = new Vector<>();
-    public static Vector<Vector2> pointsADessinerOranges = new Vector<>();
+    public static Vector<Vector2> pointsToDrawRED = new Vector<>();
+    public static Vector<Vector2> pointsToDrawGREEN = new Vector<>();
+    public static Vector<Vector2> pointsToDrawBLUE = new Vector<>();
+    public static Vector<Vector2> pointsToDrawORANGE = new Vector<>();
 
     public static Path2D cutPathToDraw = new Path2D.Double();
 
-    public static Vector<Segment2D> segmentsADessiner = new Vector<>();
+    public static Vector<Segment2D> segmentsToDraw = new Vector<>();
     public static Segment2D currentSegToDraw = new Segment2D(A, B);
     public static Segment2D currentSegToDraw2 = new Segment2D(A, B);
 
@@ -36,6 +35,4 @@ public final class DebugTools {
     public static Area areaToDraw = null;
 
     public static Vector<Bit2D> Bits = new Vector<>();
-    public static Vector<String> scores = new Vector<>();
-    public static boolean hasNewBitToDraw;
 }

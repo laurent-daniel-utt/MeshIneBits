@@ -23,7 +23,6 @@
 package meshIneBits;
 
 import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;

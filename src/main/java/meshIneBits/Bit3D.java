@@ -32,7 +32,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by

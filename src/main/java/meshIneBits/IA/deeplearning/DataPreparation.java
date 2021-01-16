@@ -286,6 +286,7 @@ public final class DataPreparation {
 
             //Calculer l'angle du segment par rapport à l'horizontale
             double segmentAngle;
+            //fixme @Andre la condition est en double
             if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
                     && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut
                 segmentAngle = Math.PI / 2;
@@ -314,6 +315,7 @@ public final class DataPreparation {
     }
 
 
+    @SuppressWarnings("unused")
     private static Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
         Curve inputCurve = new Curve("input curve");
         inputCurve.generateCurve(sectionPoints);
@@ -403,9 +405,8 @@ public final class DataPreparation {
      * @param bit         a bit
      * @param boundPoints the points of the bound
      * @return the first intersection point between the bound and bit's edges
-     * @throws Exception if no point has been found
      */
-    public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
+    public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
 

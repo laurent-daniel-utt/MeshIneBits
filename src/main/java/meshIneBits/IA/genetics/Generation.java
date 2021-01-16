@@ -6,6 +6,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
 import java.util.*;
 
 public class Generation {
@@ -19,7 +20,8 @@ public class Generation {
     private final double rankSelection;
     private final double rankReproduction;
     private final double probMutation;
-    private final int length_penalty;
+    private final int length_coeff;
+    private final Area layerAvailableArea;
     public double meanScore = -1;
     public double maxScore = -1;
     public Solution bestSolution;
@@ -36,7 +38,7 @@ public class Generation {
      * @param startPoint       the point on which the bit has to be placed
      * @param bound            the bound on which the bit has to be placed
      */
-    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, int lengthPenalty, Vector2 startPoint, Vector<Vector2> bound) {
+    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, int lengthCoeff, Area layerAvailableArea, Vector2 startPoint, Vector<Vector2> bound) {
         this.popSize = popSize;
         this.solutions = new Vector<>(popSize);
         this.rankSelection = rankSelection;
@@ -44,7 +46,8 @@ public class Generation {
         this.probMutation = probMutation;
         this.startPoint = startPoint;
         this.bound = bound;
-        this.length_penalty = lengthPenalty;
+        this.length_coeff = lengthCoeff;
+        this.layerAvailableArea = layerAvailableArea;
     }
 
     /**
@@ -81,7 +84,7 @@ public class Generation {
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir;
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
         DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
-        return new Solution(position, rotationVector, startPoint, this, bound, length_penalty);
+        return new Solution(position, rotationVector, startPoint, this, bound, length_coeff, layerAvailableArea);
     }
 
     /**
@@ -92,7 +95,7 @@ public class Generation {
      * @return the new solution.
      */
     private Solution createNewSolution(double pos, Vector2 angle) {
-        return new Solution(pos, angle, startPoint, this, bound, length_penalty);
+        return new Solution(pos, angle, startPoint, this, bound, length_coeff, layerAvailableArea);
     }
 
     /**

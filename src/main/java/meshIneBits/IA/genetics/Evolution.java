@@ -2,6 +2,7 @@ package meshIneBits.IA.genetics;
 
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.Area;
 import java.util.Vector;
 
 public class Evolution {
@@ -17,43 +18,43 @@ public class Evolution {
      * The percentage of reproduced Solutions to give to the new Generation.
      */
     private static final double RANK_REPRODUCTION = 0.5;
-    private final int LENGTH_PENALTY;
+    private final int LENGTH_COEFF;
     private final int NB_GEN_MAX;
     private final int POP_SIZE;
     private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
     private final Vector<Vector2> bound;
     private final Vector<Generation> generations = new Vector<>();
+    private final Area layerAvailableArea;
     public Solution bestSolution;
-    public double[] scores;  //debugOnly
 
     /**
      * An evolution searches the best Solution for a given set of points.
      *
      * @param pointSection the points on which the Bit2D will be placed.
      */
-    public Evolution(Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int genNumber, int popSize, int lengthPenalty) {
+    public Evolution(Area layerAvailableArea, Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int genNumber, int popSize, int LENGTH_COEFF) {
+        this.layerAvailableArea = layerAvailableArea;
         this.pointSection = pointSection;
         this.startPoint = startPoint;
         this.bound = bound;
         this.NB_GEN_MAX = genNumber;
         this.POP_SIZE = popSize;
-        this.LENGTH_PENALTY = lengthPenalty;
-        scores = new double[POP_SIZE * NB_GEN_MAX + 1];
+        this.LENGTH_COEFF = LENGTH_COEFF;
     }
 
     /**
      * Runs the evolution process to find a solution.
      */
     public void run() {
-        System.out.println("Generating "+NB_GEN_MAX+" generations with "+POP_SIZE+" solutions...");
         //INIT
         Generation initGeneration = new Generation(
                 POP_SIZE,
                 RANK_SELECTION,
                 RANK_REPRODUCTION,
                 PROB_MUTATION,
-                LENGTH_PENALTY,
+                LENGTH_COEFF,
+                layerAvailableArea,
                 startPoint,
                 bound);
         initGeneration.initialize(pointSection);
@@ -66,7 +67,8 @@ public class Evolution {
                     RANK_SELECTION,
                     RANK_REPRODUCTION,
                     PROB_MUTATION,
-                    LENGTH_PENALTY,
+                    LENGTH_COEFF,
+                    layerAvailableArea,
                     startPoint,
                     bound);
             currentGenerationNumber++;
@@ -94,7 +96,6 @@ public class Evolution {
             bestSolution = currentGeneration.bestSolution;
 
             currentGeneration.sortSolutions(currentGeneration.solutions);
-            scores[currentGenerationNumber] = currentGeneration.maxScore;
         }
     }
 }

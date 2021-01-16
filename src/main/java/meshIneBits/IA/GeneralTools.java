@@ -158,7 +158,8 @@ public final class GeneralTools {
      *
      * @param bit the Bit2D
      * @return a Vector of the four segments.
-     */ // l'originale
+     */ // l'originale //todo @Andre supprimer? comme t'en as créé une autre
+    @SuppressWarnings("unused")
     public static Vector<Segment2D> getBitSidesSegments1(Bit2D bit) {
 
         Vector<Segment2D> sides = new Vector<>();
@@ -260,6 +261,8 @@ public final class GeneralTools {
 
 
     // celle que j'ai créée
+    //todo @Andre beh du coup c'est celle là ou celle d'avant à utiliser ??
+    @SuppressWarnings("unused")
     public static Vector<Segment2D> getBitSidesSegmentsNouvelle(Bit2D bit) {
 
         // bit's colinear and orthogonal unit vectors computation

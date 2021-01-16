@@ -6,13 +6,10 @@ import meshIneBits.IA.AI_Tool;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.GeneralTools;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.util.DetectorTool;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
 
 import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
 import java.util.Comparator;
 import java.util.Vector;
 
@@ -22,15 +19,13 @@ public class Solution {
      * The coefficient associated to the mutation.
      */
     private static final double MUTATION_MAX_STRENGTH = 0.2;
-    /**
-     * The coefficient associated to the angle penalty.
-     */
-    private static final int ANGLE_PENALTY_STRENGTH = 5000;
 
-    private final int LENGTH_PENALTY_STRENGTH;//50000
+
+    private final int LENGTH_COEFF_STRENGTH;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final Generation generation;
+    private final Area layerAvailableArea;
     private boolean hasBeenEvaluated = false;
     private boolean hasBeenCheckedBad = false;
     private boolean bad = false;
@@ -43,13 +38,14 @@ public class Solution {
     /**
      * A Solution is a Bit2D with position parameter in a local coordinate system. Its position is measured from its startPoint.
      */
-    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound, int length_penalty) {
+    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound, int length_coeff, Area layerAvailableArea) {
         this.bitPos = pos;
         this.bitAngle = bitAngle;
         this.startPoint = startPoint;
         this.generation = generation;
         this.bound = bound;
-        this.LENGTH_PENALTY_STRENGTH = length_penalty;
+        this.LENGTH_COEFF_STRENGTH = length_coeff;
+        this.layerAvailableArea = layerAvailableArea;
     }
 
 
@@ -79,19 +75,11 @@ public class Solution {
      * @return the area.
      */
     private double computeArea() {
-        /*
-        To evaluate the score, we create a new bit with getBit()
-        We cut it with cutPaths, we next get the cut Area and we compute its surface
-        The score is the computed surface of the cut Bit.
-         */
-
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
-        Area availableArea = AI_Tool.getMeshController().getAvailableArea();
+        availableBitArea.intersect(layerAvailableArea);//todo @Etienne pb here, area could be null ?
 
-        availableBitArea.intersect(availableArea);//todo @Etienne pb here, area could be null
-
-        if (availableBitArea.isEmpty() || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
+        if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
             return 0;
         } else {
@@ -99,6 +87,8 @@ public class Solution {
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
+            return CalculateAreaSurface.approxArea(bit.getArea(),0);
+            /*
             Path2D finalCutPath = new Path2D.Double();
             boolean isFirstPoint = true;
             PathIterator pathIter = availableBitArea.getPathIterator(null);
@@ -145,7 +135,7 @@ public class Solution {
                 area -= YPoints.get(i) * XPoints.get(j);
             }
             return Math.abs(area);
-            /*
+
 
             for (int i = 0; i < nPoints - 1; i++) {
                 area += (XPoints.get(i) * YPoints.get(i + 1)) - (YPoints.get(i) * XPoints.get(i + 1));
@@ -200,6 +190,7 @@ public class Solution {
         Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
 
+        //fixme ne pas utiliser AI_Tool.getMeshController.getCurrent... faire descendre le Layer par les constructeurs
         Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
         Vector<Segment2D> segmentsSliceeee = GeneralTools.getSegment2DS(pointsSlice);
 
@@ -231,7 +222,6 @@ public class Solution {
                 }
 
         System.out.println("nb inters " + intersectionCount);
-        ;
         return intersectionCount;
     }
 
@@ -274,10 +264,13 @@ public class Solution {
         if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1)
             score += LENGTH_PENALTY_STRENGTH*score;
         else*/
-        //double maxArea = CraftConfig.bitLength * CraftConfig.bitWidth;
-        //score = (0.2 * score / maxArea + 0.85 * coveredDistance / CraftConfig.bitLength);
 
-        score *= coveredDistance / CraftConfig.bitLength;
+        //double maxArea = CraftConfig.bitLength * CraftConfig.bitWidth;
+        Rectangle2D rectangle2D = new Rectangle2D.Double(0,0,CraftConfig.bitLength,CraftConfig.bitWidth);
+        double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D),0);
+        score = ((1- LENGTH_COEFF_STRENGTH /100.0) * score / maxArea + LENGTH_COEFF_STRENGTH /100.0 * coveredDistance / CraftConfig.bitLength);
+
+        //score *= coveredDistance / CraftConfig.bitLength;
     }
 
 

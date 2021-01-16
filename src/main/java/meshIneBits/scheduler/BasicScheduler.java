@@ -1,8 +1,6 @@
 package meshIneBits.scheduler;
 
-import javafx.scene.layout.CornerRadii;
 import javafx.util.Pair;
-import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;

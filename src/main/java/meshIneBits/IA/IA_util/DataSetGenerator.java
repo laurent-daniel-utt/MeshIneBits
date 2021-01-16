@@ -1,7 +1,6 @@
 package meshIneBits.IA.IA_util;
 
 import meshIneBits.IA.deeplearning.DataPreparation;
-import meshIneBits.IA.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 

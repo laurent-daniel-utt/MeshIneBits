@@ -526,9 +526,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.fill(area);
             g2d.setColor(Color.DARK_GRAY);
             g2d.draw(area);
-            int x = area.getBounds().x + area.getBounds().width / 4;
+            /*int x = area.getBounds().x + area.getBounds().width / 4;
             int y = area.getBounds().y - area.getBounds().height / 2;
-            g2d.drawString(DebugTools.scores.get(i), x, y);
+            g2d.drawString(DebugTools.scores.get(i), x, y);*/
         }
 
 
@@ -542,19 +542,19 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
         }
 
-        for (Vector2 point : DebugTools.pointsADessinerRouges) {
+        for (Vector2 point : DebugTools.pointsToDrawRED) {
             g2d.setColor(Color.red);
             drawModelCircle(g2d, point.x, point.y, 4);
         }
-        for (Vector2 point : DebugTools.pointsADessinerVerts) {
+        for (Vector2 point : DebugTools.pointsToDrawGREEN) {
             g2d.setColor(Color.green);
             drawModelCircle(g2d, point.x, point.y, 5);
         }
-        for (Vector2 point : DebugTools.pointsADessinerBleus) {
+        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
             g2d.setColor(Color.blue);
             drawModelCircle(g2d, point.x, point.y, 3);
         }
-        for (Vector2 point : DebugTools.pointsADessinerBleus) {
+        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
             g2d.setColor(Color.orange);
             drawModelCircle(g2d, point.x, point.y, 2);
         }
@@ -584,7 +584,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         path.append(shape, false);
         drawModelPath2D(g2d, path);
 
-        for (Segment2D segment : DebugTools.segmentsADessiner) {
+        for (Segment2D segment : DebugTools.segmentsToDraw) {
             shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
             path.append(shape, false);
             drawModelPath2D(g2d, path);

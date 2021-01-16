@@ -1,7 +1,6 @@
 package meshIneBits.IA;
 
 import meshIneBits.Bit2D;
-import meshIneBits.IA.deeplearning.Acquisition;
 import meshIneBits.IA.deeplearning.DataPreparation;
 import meshIneBits.IA.deeplearning.NNExploitation;
 import meshIneBits.IA.genetics.Genetic;
@@ -11,7 +10,6 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -21,10 +19,7 @@ import java.util.Vector;
  * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
  */
 public class AI_Tool {
-    public static Genetic genetic;
     private static MeshController meshController;
-    private static final Map<Slice, Vector<Segment2D>> sliceMap = new LinkedHashMap();
-
     private static final Vector<Bit2D> bits = new Vector<>(); //the bits placed by the AI
 
     /**
@@ -32,13 +27,6 @@ public class AI_Tool {
      */
     public static void startAI(Slice slice) throws Exception {
         bits.clear();
-        Vector<Slice> slicesList = meshController.getMesh().getSlices();
-        for (Slice currentSlice : slicesList) {
-            sliceMap.put(
-                    currentSlice,
-                    (Vector<Segment2D>) currentSlice.getSegmentList().clone()
-            );
-        }
         meshController.AIneedPaint = true;
 
         Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
@@ -94,13 +82,6 @@ public class AI_Tool {
 
     public void setMeshController(MeshController meshController) {
         AI_Tool.meshController = meshController;
-    }
-
-    /**
-     * @return the map of the slices, with Vector of Segment2D associated to each Slice
-     */
-    public static Map<Slice, Vector<Segment2D>> getSliceMap() {
-        return sliceMap;
     }
 
     public static Vector<Bit2D> getBits() {
