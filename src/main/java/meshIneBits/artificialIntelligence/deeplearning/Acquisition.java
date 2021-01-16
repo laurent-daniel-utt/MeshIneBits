@@ -47,38 +47,6 @@ public class Acquisition {
         lastPlacedBit = bit;
         System.out.println("example added");
 
-        /*
-        //debugOnly
-        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
-
-
-        int intersectionCount = 0;
-
-        //DebugTools.pointsADessiner.clear();
-        Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
-        Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(pointsSlice);
-
-        for (Segment2D segmentSlice : segmentsSlice)
-            for (Segment2D bitSide : bitSides)
-                if (GeneralTools.doSegmentsIntersect(segmentSlice, bitSide)) {
-                    intersectionCount++;
-                    Vector2 inter = GeneralTools.getIntersectionPoint(segmentSlice, bitSide);
-                    //DebugTools.pointsADessiner.add(inter);
-                    System.out.println("pt " + inter.toString());
-
-                }
-
-        for (Segment2D seg : bitSides) {
-            //DebugTools.pointsADessiner.add(seg.start);
-        }
-        System.out.println("INTERSECTIONs : "+intersectionCount);
-
-
-
-    }
-
-         */
-
         Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);

@@ -52,7 +52,6 @@ public class NNTraining {
      * The number of iterations to train the neural network.
      */
     private static final int N_EPOCHS = 10000;
-    private static final Activation ACTIVATION_FUNCTION = Activation.RELU; //todo @Etienne virer
     private DataNormalization normalizer;
     private MultiLayerNetwork model;
 
@@ -60,17 +59,17 @@ public class NNTraining {
     private DataSet testDataSet;
 
 
-
+    /**
+     * Trains the neural network with the dataSet
+     */
     public NNTraining() {
-
         try {
             initDatasetsAndNormalizer();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        initNeuralNetwork();
-
+        initNeuralNetwork(); //todo @Andre, si le try échoue, on peut quand même aller dans initNeuralNetwork ? sinon le mettre dans le try aussi
     }
 
 
@@ -107,33 +106,33 @@ public class NNTraining {
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .build())
                 .layer(1, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(2, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(3, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(4, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(5, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(6, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(7, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
                 .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(ACTIVATION_FUNCTION)
+                        .activation(Activation.RELU)
                         .build())
 
                 //Output Layer
                 .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation(Activation.IDENTITY)
+                        .activation(Activation.RELU)
                         .nIn(HIDDEN_NEURONS_COUNT)
                         .nOut(CLASSES_COUNT)
                         .build())
@@ -156,7 +155,7 @@ public class NNTraining {
         //Choice between console logs and UI logs.
         //model.setListeners(new ScoreIterationListener(100)); //logs console
         model.setListeners(new StatsListener(statsStorage)); //logs UI
-        System.out.println("\n To visualize the training, go to http://localhost:9000/train/overview in your browser");
+        System.out.println("\nTo visualize the training, go to http://localhost:9000/train/overview in your browser");
 
     }
 
@@ -189,19 +188,15 @@ public class NNTraining {
 
     public void save() throws IOException {
         // 1) save model
-
-        // where to save the model
-        File locationToSave = new File("trained_model.zip");
-        // boolean save Updater (set to true if you want to make further training on the model)
-        boolean saveUpdater = false;
-        // save the model
-        ModelSerializer.writeModel(model, locationToSave, saveUpdater); //todo @Andre on a pas besoin de save l'Updater ?
+        File locationToSave = new File("trained_model.zip"); // where to save the model
+        // write the model
+        ModelSerializer.writeModel(model, locationToSave, false);
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
         File normalsFile = new File("normalizer_saved.bin");
         saver.write(normalizer,normalsFile);
 
-        System.out.println("Everything is saved");
+        System.out.println("The neural network parameters and configuration has been saved.");
     }
 }

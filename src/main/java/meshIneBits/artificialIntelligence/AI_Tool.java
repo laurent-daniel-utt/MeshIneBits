@@ -14,7 +14,7 @@ import java.util.Vector;
  * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
  * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
  */
-public class AI_Tool {
+public abstract class AI_Tool {
     private static MeshController meshController;
     private static final Vector<Bit2D> bits = new Vector<>(); //the bits placed by the AI
 
@@ -76,7 +76,7 @@ public class AI_Tool {
         return meshController;
     }
 
-    public void setMeshController(MeshController meshController) {
+    public static void setMeshController(MeshController meshController) {
         AI_Tool.meshController = meshController;
     }
 

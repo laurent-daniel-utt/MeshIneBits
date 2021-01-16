@@ -54,11 +54,10 @@ public class Solution {
      * Evaluates the current solution according to its lost surface.
      * Applies penalties to the score.
      *
-     * @return the score of the current solution.
      */
-    public double evaluate() {
+    public void evaluate() {
         if (hasBeenEvaluated)
-            return score;
+            return;
         score = computeArea(); //the used area
         try {
             score = addPenaltyForSectionCoveredLength();
@@ -66,7 +65,6 @@ public class Solution {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return score;
     }
 
     /**
@@ -114,6 +112,14 @@ public class Solution {
     public boolean isBad() {
         if (hasBeenCheckedBad)
             return bad;
+
+        /*
+        Adding getNumberOfIntersections usage will improve the performances.
+        Needs to be debugged. Works elsewhere but not here... :(
+
+        if (getNumberOfIntersections(bound) != 2)
+            bad = true;
+         */
         try {
             DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
@@ -129,36 +135,18 @@ public class Solution {
      * @param boundPoints the bound of the Slice
      * @return the number of intersections
      */
+    @SuppressWarnings("unused")
     private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
-
-        Bit2D bit = getBit(startPoint);
-
         Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
-
-        System.out.println();//debugOnly
-        //System.out.println(bound.toString());
-        System.out.println(segmentsSlice.toString());
-
-        //DebugTools.pointsADessiner.clear();
-
+        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(getBit(startPoint));
 
         int intersectionCount = 0;
 
-        Vector2 inter;
         for (Segment2D segmentSlice : segmentsSlice)
             for (Segment2D bitSide : bitSides)
-                if (GeneralTools.doSegmentsIntersect(segmentSlice, bitSide)) {
-                    // fixme @Andre, et virer tout le debug
-                    inter = GeneralTools.getIntersectionPoint(segmentSlice, bitSide);
-                    if (GeneralTools.isPointOnSegment(inter, segmentSlice)) {
-                        intersectionCount++;
-                        //DebugTools.pointsADessiner.add(inter);
-                        System.out.println("pt " + inter.toString());//debugOnly
-                    }
-                }
+                if (GeneralTools.doSegmentsIntersect(segmentSlice, bitSide))
+                    intersectionCount++;
 
-        System.out.println("nb inters " + intersectionCount);
         return intersectionCount;
     }
 

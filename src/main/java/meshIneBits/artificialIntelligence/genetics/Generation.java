@@ -21,10 +21,8 @@ public class Generation {
     private final double rankSelection;
     private final double rankReproduction;
     private final double probMutation;
-    private final int length_coeff;
+    private final int length_coefficient;
     private final Area layerAvailableArea;
-    public double meanScore = -1;
-    public double maxScore = -1;
     public Solution bestSolution;
 
     /**
@@ -46,7 +44,7 @@ public class Generation {
         this.probMutation = probMutation;
         this.startPoint = startPoint;
         this.bound = bound;
-        this.length_coeff = lengthCoeff;
+        this.length_coefficient = lengthCoeff;
         this.layerAvailableArea = layerAvailableArea;
     }
 
@@ -84,7 +82,7 @@ public class Generation {
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir;
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
         DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
-        return new Solution(position, rotationVector, startPoint, this, bound, length_coeff, layerAvailableArea);
+        return new Solution(position, rotationVector, startPoint, this, bound, length_coefficient, layerAvailableArea);
     }
 
     /**
@@ -95,7 +93,7 @@ public class Generation {
      * @return the new solution.
      */
     private Solution createNewSolution(double pos, Vector2 angle) {
-        return new Solution(pos, angle, startPoint, this, bound, length_coeff, layerAvailableArea);
+        return new Solution(pos, angle, startPoint, this, bound, length_coefficient, layerAvailableArea);
     }
 
     /**
@@ -103,16 +101,16 @@ public class Generation {
      */
     @SuppressWarnings("unchecked")
     public void evaluateGeneration() {
-        this.meanScore = 0;
-        this.maxScore = 0;
         Vector<Solution> clonedSolutions = (Vector<Solution>) solutions.clone();
         for (Solution solution : clonedSolutions) {
-            meanScore += solution.evaluate();
+            solution.evaluate();
         }
         List<Solution> solListSorted = sortSolutions(clonedSolutions);
-        bestSolution = solListSorted.get(0);
-        maxScore = solListSorted.get(0).getScore();
-        meanScore /= popSize;
+        try {
+            bestSolution = solListSorted.get(0);
+        } catch (Exception e) {
+            System.out.println("Error : not enough solutions in the population. Please increase POPULATION parameter.");
+        }
     }
 
     /**

@@ -39,22 +39,20 @@ public class UPPToolsIA extends UtilityParametersPanel {
     public UPPToolsIA(MeshController meshController) {
         super("AI-Tools");
         // Init components
-        meshController.ai_Tool = new AI_Tool();
-        meshController.ai_Tool.setMeshController(meshController);
+        AI_Tool.setMeshController(meshController);
         JPanel parametersPanel = new JPanel();
         parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
 
-        JButton startButton = new JButton("Start AI Pavement");
+       /* JButton startButton = new JButton("Start AI Pavement");
         startButton.addActionListener(e -> {
             try {
-                //todo @Etienne : else throw error "Mesh not found or Mesh not sliced"
-                AI_Tool.startAI(meshController.getMesh().getSlices().get(0)); //DEBUGONLY
+
             } catch (Exception e1) {
                     meshController.handleException(e1);
                 }
-            });
+            });*/ //todo @Etienne @Andre encore besoin de ce bouton ?
 
         JButton trainButton = new JButton("Train AI");
         trainButton.addActionListener(e -> {
@@ -65,7 +63,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
                 try {
                     nnTraining.save();
                 } catch (IOException eSave) {
-                    System.out.println("Training params could not be saved");
+                    System.out.println("Neural Network training params could not be saved !");
                 }
             } catch (Exception e1) {
                 meshController.handleException(e1);
@@ -105,12 +103,12 @@ public class UPPToolsIA extends UtilityParametersPanel {
             // Layout
             setLayout(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
-            c.gridx = 0;
+           /* c.gridx = 0;
             c.gridy = 0;
             c.weighty = 0;
             c.weightx = 0;
             c.anchor = GridBagConstraints.LINE_START;
-            add(startButton, c);
+            add(startButton, c);*/
 
             c = new GridBagConstraints();
             c.gridx = 1;

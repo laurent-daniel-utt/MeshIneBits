@@ -23,7 +23,6 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
-import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deeplearning.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -78,7 +77,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
 
     public static final String UNDO_BIT_ACTION = "undoBitAction";
 
-    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo();
+    private final HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo();
 
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
@@ -119,7 +118,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Mesh mesh;
     private int layerNumber = -1;
     private Layer currentLayer = null;
-    private Set<Vector2> selectedBitKeys = new HashSet<>();
+    private final Set<Vector2> selectedBitKeys = new HashSet<>();
     private double zoom = 1;
     private boolean showSlice = true;
     private boolean showLiftPoints = false;
@@ -138,9 +137,9 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Area bitAreaPreview;
     private boolean selectingRegion;
     private boolean selectedRegion;
-    private List<Point2D.Double> regionVertices = new ArrayList<>();
+    private final List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
-    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
     /**
      * In real coordinate system
      */
@@ -148,8 +147,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Point2D bulkSelectZoneBottomRight;
     private Rectangle2D.Double bulkSelectZone;
 
-    public boolean AIneedPaint = false; //debugonly
-    public AI_Tool ai_Tool; //debugonly
+    public boolean AIneedPaint = false; //debugOnly
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -189,8 +187,8 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             return;
         }
         if (AIneedPaint) { //debugonly
-            setChanged();
-            notifyObservers(MeshEvents.AIneedPaint);
+            setLayer(0);
+            meshWindow.initGadgets();
         }
         if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
@@ -198,7 +196,6 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     meshWindow.reset();
                     break;
                 case IMPORT_FAILED:
-
                     break;
                 case IMPORTING:
                     break;
@@ -217,14 +214,6 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
                     // Notify property panel
                     changes.firePropertyChange(MESH_SLICED, null, mesh);
                     changes.firePropertyChange(LAYER_CHOSEN, null, currentLayer);
-                    break;
-                case AIneedPaint://debugonly
-                    setLayer(0);
-                    meshWindow.initGadgets();
-                    this.AIneedPaint = true;
-                    setChanged();
-
-                    notifyObservers(MeshEvents.AIneedPaint);
                     break;
                 case PAVING_MESH:
                     Logger.updateStatus("Paving mesh");

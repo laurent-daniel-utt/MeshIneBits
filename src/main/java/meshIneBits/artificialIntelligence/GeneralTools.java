@@ -6,6 +6,7 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 public final class GeneralTools {
@@ -158,113 +159,8 @@ public final class GeneralTools {
      *
      * @param bit the Bit2D
      * @return a Vector of the four segments.
-     */ // l'originale //todo @Andre supprimer? comme t'en as créé une autre
-    @SuppressWarnings("unused")
-    public static Vector<Segment2D> getBitSidesSegments1(Bit2D bit) {
-
-        Vector<Segment2D> sides = new Vector<>();
-        //generates the 4 points which makes the rectangular bit
-        Vector2 bitOrigin = bit.getOrigin();
-        Vector2 A = new Vector2(
-                bit.getLength() / 2,
-                bit.getWidth() / 2)
-                .rotate(bit.getOrientation())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-        Vector2 B = new Vector2(
-                bit.getLength() / 2,
-                -bit.getWidth() / 2)
-                .rotate(bit.getOrientation())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        Vector2 C = new Vector2(
-                -bit.getLength() / 2,
-                -bit.getWidth() / 2)
-                .rotate(bit.getOrientation())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        Vector2 D = new Vector2(
-                -bit.getLength() / 2,
-                bit.getWidth() / 2)
-                .rotate(bit.getOrientation())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        sides.add(new Segment2D(A, B));
-        sides.add(new Segment2D(B, C));
-        sides.add(new Segment2D(C, D));
-        sides.add(new Segment2D(D, A));
-
-        return sides;
-    }
-
-    // l'originale debuguée
+     */
     public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
-
-        Vector<Segment2D> sides = new Vector<>();
-        //generates the 4 points which makes the rectangular bit
-        Vector2 bitOrigin = bit.getOrigin();
-        Vector2 A = new Vector2(
-                bit.getLength() / 2,
-                bit.getWidth() / 2)
-                .rotate(bit.getOrientation().normal())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-
-        Vector2 B = new Vector2(
-                bit.getLength() / 2,
-                -bit.getWidth() / 2)
-                .rotate(bit.getOrientation().normal())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        Vector2 C = new Vector2(
-                -bit.getLength() / 2,
-                -bit.getWidth() / 2)
-                .rotate(bit.getOrientation().normal())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        Vector2 D = new Vector2(
-                -bit.getLength() / 2,
-                bit.getWidth() / 2)
-                .rotate(bit.getOrientation().normal())
-                .add(new Vector2(
-                        bitOrigin.x,
-                        bitOrigin.y
-                ));
-
-        sides.add(new Segment2D(A, B));
-        sides.add(new Segment2D(B, C));
-        sides.add(new Segment2D(C, D));
-        sides.add(new Segment2D(D, A));
-
-        return sides;
-    }
-
-
-    // celle que j'ai créée
-    //todo @Andre beh du coup c'est celle là ou celle d'avant à utiliser ??
-    @SuppressWarnings("unused")
-    public static Vector<Segment2D> getBitSidesSegmentsNouvelle(Bit2D bit) {
-
         // bit's colinear and orthogonal unit vectors computation
         Vector2 colinear = bit.getOrientation().normal();
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
@@ -285,14 +181,11 @@ public final class GeneralTools {
                 .add(colinear.mul(CraftConfig.bitLength/2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
-        Vector<Segment2D> sides = new Vector<>();
-
-        sides.add(new Segment2D(A, B));
-        sides.add(new Segment2D(B, C));
-        sides.add(new Segment2D(C, D));
-        sides.add(new Segment2D(D, A));
-
-        return sides;
+        return new Vector<>(Arrays.asList(
+                new Segment2D(A, B),
+                new Segment2D(B, C),
+                new Segment2D(C, D),
+                new Segment2D(D, A)));
     }
 
 

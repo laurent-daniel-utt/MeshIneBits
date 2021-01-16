@@ -45,20 +45,19 @@ public class MeshWindow extends JFrame {
     private final GridBagConstraints utilityParametersPanelGBC;
     private final GridBagConstraints zoomerGBC;
     private final GridBagConstraints propertyPanelGBC;
-    private MeshWindowCore core;
-    private JMenuBar menuBar = new JMenuBar();
-    private MeshActionToolbar toolBar = new MeshActionToolbar();
+    private final MeshWindowCore core;
+    private final JMenuBar menuBar = new JMenuBar();
+    private final MeshActionToolbar toolBar = new MeshActionToolbar();
+    private final MeshActionToolbar utilitiesBox = new MeshActionToolbar();
+    private final Vector<MeshAction> meshActionList = new Vector<>();
+    private final MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
+    private final MeshController meshController = new MeshController(this);
+    private final ProcessingModelView view3DWindow = new ProcessingModelView();
     private ActionMap actionMap;
-    private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
-    private Vector<MeshAction> meshActionList = new Vector<>();
     private UtilityParametersPanel utilityParametersPanel;
     private MeshWindowZoomer zoomer;
     private MeshWindowSelector selector;
     private MeshWindowPropertyPanel propertyPanel;
-    private MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
-    private MeshController meshController = new MeshController(this);
-
-    private ProcessingModelView view3DWindow = new ProcessingModelView();
 
     public MeshWindow() throws HeadlessException {
 
@@ -186,8 +185,7 @@ public class MeshWindow extends JFrame {
                     String dir;
                     if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
                         dir = System.getProperty("user.home");
-                    }
-                    else
+                    } else
                         dir = CraftConfig.lastModel.replace("\n", "\\n");
                     fc.setSelectedFile(new File(dir));
                     int returnVal = fc.showOpenDialog(MeshWindow.this);
@@ -239,13 +237,13 @@ public class MeshWindow extends JFrame {
                 "Save the current project",
                 "control S",
                 () -> {
-                    final JFileChooser fc = new CustomFileChooser(){
+                    final JFileChooser fc = new CustomFileChooser() {
                         @Override
                         public void approveSelection() {
                             File f = getSelectedFile();
                             if (f.exists() && getDialogType() == SAVE_DIALOG) {
                                 int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
-                                switch (result){
+                                switch (result) {
                                     case JOptionPane.YES_OPTION:
                                         super.approveSelection();
                                         return;
@@ -271,21 +269,21 @@ public class MeshWindow extends JFrame {
                     fc.setSelectedFile(new File(dir));
                     if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
                         File f = fc.getSelectedFile();
-                               if (!f.getName().endsWith("." + ext)) {
-                                   f = new File(f.getPath() + "." + ext);
-                               }
-                               Logger.updateStatus("Saving the mesh at " + f.getName());
-                               try {
-                                   meshController.saveMesh(f);
-                               } catch (Exception e1) {
-                                   meshController.handleException(e1);
-                               }
+                        if (!f.getName().endsWith("." + ext)) {
+                            f = new File(f.getPath() + "." + ext);
+                        }
+                        Logger.updateStatus("Saving the mesh at " + f.getName());
+                        try {
+                            meshController.saveMesh(f);
+                        } catch (Exception e1) {
+                            meshController.handleException(e1);
+                        }
 
                     }
                 });
         meshActionList.add(saveMesh);
 
-        MeshAction closeMesh = new MeshAction("closeProject","Close Project","project-close.png","Close the current project","control Q",()->{
+        MeshAction closeMesh = new MeshAction("closeProject", "Close Project", "project-close.png", "Close the current project", "control Q", () -> {
             dispose();
             new MeshWindow();
 //            meshController.resetMesh();
@@ -375,7 +373,7 @@ public class MeshWindow extends JFrame {
                 "Pave the whole mesh with a pattern",
                 "alt P",
                 null) {
-            UPPPaveMesh uppPaveMesh = new UPPPaveMesh(meshController);
+            final UPPPaveMesh uppPaveMesh = new UPPPaveMesh(meshController);
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -395,18 +393,16 @@ public class MeshWindow extends JFrame {
                 "alt A",
                 null) {
 
-                UPPToolsIA uppToolsIA = new UPPToolsIA(meshController);
+            final UPPToolsIA uppToolsIA = new UPPToolsIA(meshController);
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Check validity
-                    if (meshController.getMesh() == null &&
-                            !meshController.getMesh().isSliced()) return;
-                    else {
-                        toggleUtilityParametersPanel(uppToolsIA);
-                    }
-                }
-                };
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Check validity
+                if (meshController.getMesh() == null
+                        || !meshController.getMesh().isSliced()) return;
+                toggleUtilityParametersPanel(uppToolsIA);
+            }
+        };
         meshActionList.add(paveMeshAI);
 
         MeshAction exportMeshXML = new MeshAction(
@@ -446,7 +442,7 @@ public class MeshWindow extends JFrame {
                 "Pave the current layer",
                 "alt shift P",
                 null) {
-            private UPPPaveLayer uppPaveLayer = new UPPPaveLayer(meshController);
+            private final UPPPaveLayer uppPaveLayer = new UPPPaveLayer(meshController);
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -465,7 +461,8 @@ public class MeshWindow extends JFrame {
                 "Choose and pave a region",
                 "",
                 null) {
-            private UPPPaveRegion uppPaveRegion = new UPPPaveRegion(meshController);
+            private final UPPPaveRegion uppPaveRegion = new UPPPaveRegion(meshController);
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (meshController.getMesh() == null) {
@@ -488,7 +485,8 @@ public class MeshWindow extends JFrame {
                 "Fill the left space with pattern",
                 "",
                 null) {
-            private UPPPaveFill uppPaveFill = new UPPPaveFill(meshController);
+            private final UPPPaveFill uppPaveFill = new UPPPaveFill(meshController);
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (meshController.getMesh() == null) {
@@ -603,7 +601,7 @@ public class MeshWindow extends JFrame {
                 "Create new bit",
                 "alt N",
                 null) {
-            private UPPNewBit uppNewBit = new UPPNewBit(meshController);
+            private final UPPNewBit uppNewBit = new UPPNewBit(meshController);
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -688,7 +686,7 @@ public class MeshWindow extends JFrame {
                 "alt I",
                 null
         ) {
-            private UPPScheduleMesh uppScheduleMesh = new UPPScheduleMesh(meshController);
+            private final UPPScheduleMesh uppScheduleMesh = new UPPScheduleMesh(meshController);
 
             @Override
             public void actionPerformed(ActionEvent e) {
