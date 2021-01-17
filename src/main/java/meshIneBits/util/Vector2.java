@@ -35,15 +35,23 @@ import java.util.Vector;
 public class Vector2 implements Serializable {
     public final double x, y;
 
+    public Vector2(double x, double y) {
+        this.x = x;
+        this.y = y;
+        if (Double.isNaN(x) || Double.isNaN(y)) {
+            throw new RuntimeException("Vector has NaN component...");
+        }
+    }
+
     public static double dist2(Vector2 v, Vector2 w) {
         return (((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y)));
     }
 
+    //
+
     public static double dist(Vector2 v, Vector2 w) {
         return Math.sqrt(dist2(v, w));
     }
-
-    //
 
     /**
      * @param angleDegrees in degrees
@@ -53,14 +61,6 @@ public class Vector2 implements Serializable {
         double angleRadian = Math.toRadians(angleDegrees);
         return new Vector2(Rounder.round(Math.cos(angleRadian), CraftConfig.errorAccepted),
                 Rounder.round(Math.sin(angleRadian), CraftConfig.errorAccepted));
-    }
-
-    public Vector2(double x, double y) {
-        this.x = x;
-        this.y = y;
-        if (Double.isNaN(x) || Double.isNaN(y)) {
-            throw new RuntimeException("Vector has NaN component...");
-        }
     }
 
     public Vector2 add(Vector2 v) {
@@ -107,23 +107,29 @@ public class Vector2 implements Serializable {
     }
 
     /**
-     * Value between 0 - 180 //todo the value returned is actually between -90 and 90, this has to be corrected
+     * Value between 0 - 180 //TODO: 2021-01-17 the value returned is actually between -90 and 90, this has to be corrected
      *
      * @return The angle between Ox and vector.
      */
     public double getEquivalentAngle() {
-        return Math.toDegrees((Math.atan(y / x)));//todo i think it's better
+        return Math.toDegrees((Math.atan(y / x)));// TODO: 2021-01-17 I think it's better ?
         //return (Math.atan(y / x) * 180) / Math.PI;
     }
 
     /**
-     * Value between 0 - 360 //todo the value returned is actually between -180 and 180, this has to be corrected
+     * Value between 0 - 360 //TODO: 2021-01-17 the value returned is actually between -180 and 180, this has to be corrected
      *
      * @return The angle between Ox and vector.
      */
     public double getEquivalentAngle2() {
-        return Math.toDegrees(Math.atan2(y, x)); //todo i think it's better
+        return Math.toDegrees(Math.atan2(y, x)); // TODO: 2021-01-17 I think it's better ?
         //return (Math.atan2(y, x) * 180) / Math.PI;
+    }
+
+    public static double getAngle(Vector2 A, Vector2 B, Vector2 C) {
+        double angle = Math.acos((dist2(B, A) + dist2(B, C) - dist2(A, C))
+                / (2 * (dist(B, A) * dist(B, C))));
+        return Math.toDegrees(angle);
     }
 
     public Vector2 rotate(Vector2 additionalRotation) {
@@ -179,11 +185,7 @@ public class Vector2 implements Serializable {
         double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
         double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
 
-        if (AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted)) {
-            return true;
-        } else {
-            return false;
-        }
+        return AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
     }
 
     /**

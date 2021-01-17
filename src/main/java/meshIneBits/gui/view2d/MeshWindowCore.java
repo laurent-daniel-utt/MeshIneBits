@@ -340,7 +340,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 paintBulkSelectZone(g2d);
             }
         }
-        if (meshController.AIneedPaint) {//debugOnly
+        if (meshController.AI_NeedPaint) {
             AIpaintForDebug(g2d);
         }
         // Draw selected region
@@ -490,7 +490,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         }
     }
 
-    //debugOnly
     private void AIpaintForDebug(Graphics2D g2d) {
         //STROKE COMMANDS
         g2d.setStroke(new BasicStroke(2f));

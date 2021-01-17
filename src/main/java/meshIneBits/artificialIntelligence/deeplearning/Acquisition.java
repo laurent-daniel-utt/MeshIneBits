@@ -2,6 +2,7 @@ package meshIneBits.artificialIntelligence.deeplearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.util.DataLog;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
@@ -26,7 +27,6 @@ public class Acquisition {
     public static void stopStoringBits() throws IOException {
         storeNewBits = false;
         saveExamples();
-        DebugTools.Bits.clear();//Debugonly
     }
 
     public static void deleteLastPlacedBit() {
@@ -42,6 +42,7 @@ public class Acquisition {
     }
 
     public static void addNewExampleBit(Bit2D bit) throws Exception {
+        //todo @Andre tester une fois, pour vérifier que ca trouve bien le startPoint. Sinon c'est le double.positiveInf
         Vector<Vector2> points = DataPreparation.getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;

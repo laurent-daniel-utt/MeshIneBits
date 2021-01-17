@@ -23,6 +23,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.deeplearning.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -147,7 +148,11 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Point2D bulkSelectZoneBottomRight;
     private Rectangle2D.Double bulkSelectZone;
 
-    public boolean AIneedPaint = false; //debugOnly
+    /**
+     * For debug, let display segments, points and areas via DebugTools.
+     * @see DebugTools
+     */
+    public boolean AI_NeedPaint = false;
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -186,7 +191,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
             notifyObservers();
             return;
         }
-        if (AIneedPaint) { //debugonly
+        if (AI_NeedPaint) {
             setLayer(0);
             meshWindow.initGadgets();
         }
@@ -376,8 +381,6 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         if (newSelectedBitKeys != null) {
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
-        } else {
-            //        System.out.println("null"); //todo il sert à quoi?
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());

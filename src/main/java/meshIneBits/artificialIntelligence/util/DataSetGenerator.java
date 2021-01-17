@@ -1,6 +1,6 @@
 package meshIneBits.artificialIntelligence.util;
 
-import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 
@@ -20,7 +20,7 @@ public final class DataSetGenerator {
      *
      * @return todo @andre, donner le cas -1 aussi
      */
-    public static void generateCsvFile() throws IOException {
+    public static void generateCsvFile() throws IOException {//todo @Andre tester une fois la génération d'un csv
 
         long dataLogSize;
 
@@ -30,7 +30,7 @@ public final class DataSetGenerator {
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 
-            DataLogEntry entry = DataLog.getEntryFromFile(logLine); //todo @Andre: gérer le cas ou ça return null
+            DataLogEntry entry = DataLog.getEntryFromFile(logLine);
 
             // format data for dl
             Vector2 startPoint = entry.getPoints().firstElement();
@@ -90,6 +90,7 @@ public final class DataSetGenerator {
         // edgeAbscissa is the distance between the startPoint and the originVertex
         // the startPoint on which the new bit should be placed : the intersection between the slice border
         // and the last placed bit's end edge
+
         // todo @Andre: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
         return Vector2.dist(originVertex, startPoint);
     }
@@ -112,18 +113,12 @@ public final class DataSetGenerator {
             bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
         }
 
-
-
         double x1 = localCoordinateSystemAngle.x;
         double y1 = localCoordinateSystemAngle.y;
         double x2 = bitAngle.x;
         double y2 = bitAngle.y;
         double l1 = localCoordinateSystemAngle.vSize();
         double l2 = bitAngle.vSize();
-
-        //double bitAngleLocal = Math.atan2(x1*y2-y1*x2,x1*x2+y1*y2); //todo @Andre virer ?
-
-
         double bitAngleLocal = Math.asin ( (x1*y2-y1*x2) / (l1*l2) );
 
         return Math.toDegrees(bitAngleLocal);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Vector;
 import java.util.stream.Stream;
 
@@ -44,7 +45,12 @@ public final class DataLog {
 
     static public DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
         Stream<String> lines = Files.lines(Paths.get(dataLogFilePath));
-        String line = lines.skip(lineNumber - 1).findFirst().get(); //todo @Andre check with .isPresent() before (cf inspection) --> faire un if .isPresent()
+        Optional<String> str = lines.skip(lineNumber - 1).findFirst();
+        String line = null;
+        if (str.isPresent()) {
+            line = str.get();
+        }
+        assert line != null;
         return decodeLine(line);
     }
 

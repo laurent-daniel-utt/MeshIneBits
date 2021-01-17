@@ -1,9 +1,7 @@
 package meshIneBits.artificialIntelligence.genetics;
 
-import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
@@ -13,7 +11,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 89.0;//todo @Andre on fait quoi du coup avec lui?
+    private static final double MAX_ANGLE = 89.0;
     public final Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
@@ -81,7 +79,6 @@ public class Generation {
         int dir = Math.random() > 0.5 ? 1 : -1;
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir;
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
-        DebugTools.currentSegToDraw2 = new Segment2D(startPoint, startPoint.add(Vector2.getEquivalentVector(angleSection).mul(100))); //debugOnly
         return new Solution(position, rotationVector, startPoint, this, bound, length_coefficient, layerAvailableArea);
     }
 

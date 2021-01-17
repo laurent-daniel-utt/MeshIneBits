@@ -1,9 +1,8 @@
 package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
 import meshIneBits.artificialIntelligence.deeplearning.NNExploitation;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
@@ -17,22 +16,28 @@ import java.util.Vector;
 public abstract class AI_Tool {
     private static MeshController meshController;
     private static final Vector<Bit2D> bits = new Vector<>(); //the bits placed by the AI
+    public static final DoubleParam paramSafeguardSpace = new DoubleParam(
+            "safeguardSpace",
+            "Space around bit",
+            "In order to keep bits not overlapping or grazing each other",
+            1.0, 10.0, 3.0, 0.01);
 
     /**
      * Pave the whole mesh with AI.
      */
-    public static void startAI(Slice slice) throws Exception {
+    public static Vector<Bit2D> startNNPavement(Slice slice) throws Exception {
         bits.clear();
-        meshController.AIneedPaint = true;
+        meshController.AI_NeedPaint = true;
 
         Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
+
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);
             Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
 
             int nbIterations = 0;
-            while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //Add each bit on the bound
+            while (hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
 
                 nbIterations++;
                 if (nbIterations > 50)//number max of bits to place before stopping
@@ -51,22 +56,22 @@ public abstract class AI_Tool {
 
             }
         }
+        return bits;
     }
 
     /**
      * Check if the bound of the Slice has been entirely paved.
      *
-     * @param veryFirststartPoint       the point of the bound on which the very first bit was placed.
-     * @param associatedPoints the points on which a bit has just been placed.
+     * @param veryFirststartPoint the point of the bound on which the very first bit was placed.
+     * @param associatedPoints    the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    private static boolean hasCompletedTheBound(Vector2 veryFirststartPoint, Vector<Vector2> associatedPoints) {
-        //todo @Etienne debug hasCompletedTheBound
-        if (associatedPoints.firstElement() == veryFirststartPoint)
-            return false;
-        if (Vector2.dist(veryFirststartPoint,associatedPoints.firstElement())< CraftConfig.errorAccepted)
+    public static boolean hasNotCompletedTheBound(Vector2 veryFirststartPoint, Vector2 startPoint, Vector<Vector2> associatedPoints) {
+        if (associatedPoints.firstElement() == veryFirststartPoint) //to avoid returning true on the first placement
             return true;
-        return associatedPoints.contains(veryFirststartPoint);
+        if (Vector2.dist(veryFirststartPoint, startPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue()*10) //standard safe distance between two bits
+            return false;
+        return !associatedPoints.contains(veryFirststartPoint);
     }
 
     /**
@@ -80,7 +85,4 @@ public abstract class AI_Tool {
         AI_Tool.meshController = meshController;
     }
 
-    public static Vector<Bit2D> getBits() {
-        return bits;
-    }
 }

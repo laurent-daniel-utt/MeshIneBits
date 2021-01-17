@@ -1,6 +1,7 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.genetics.Genetic;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -12,12 +13,6 @@ import java.awt.geom.Area;
 import java.util.Collection;
 
 public class GeneticPavement extends PatternTemplate {
-
-    private final DoubleParam safeguardSpaceParam = new DoubleParam(
-            "safeguardSpace",
-            "Space around bit",
-            "In order to keep bits not overlapping or grazing each other",
-            1.0, 10.0, 3.0, 0.01);
 
     @Override
     protected void initiateConfig() {
@@ -40,8 +35,8 @@ public class GeneticPavement extends PatternTemplate {
                 50.0));
 
         config.add(new DoubleParam(
-                "lengthCoefficient",
-                "Length Coefficient %",
+                "ratio",
+                "Length/Area ratio %",
                 "Balance between area and length to calculate solutions' score",
                 2.0,
                 100.0,
@@ -54,8 +49,8 @@ public class GeneticPavement extends PatternTemplate {
                 0.0,
                 Double.POSITIVE_INFINITY,
                 50.0,
-                5.0
-        ));
+                5.0));
+        config.add(AI_Tool.paramSafeguardSpace);
     }
 
     @Override
@@ -69,7 +64,7 @@ public class GeneticPavement extends PatternTemplate {
                 layer,
                 (double) config.get("genNumber").getCurrentValue(),
                 (double) config.get("popSize").getCurrentValue(),
-                (double) config.get("lengthCoefficient").getCurrentValue(),
+                (double) config.get("ratio").getCurrentValue(),
                 (double) config.get("earlyStopping").getCurrentValue())
                 .getSolutions();
         updateBitAreasWithSpaceAround(bits);
@@ -78,12 +73,13 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        System.out.println("pave layer & area with genetics... Not implemented yet.");
+        System.out.println("Pave layer & area with genetics... Not implemented yet.");
         return null;
     }
 
     @Override
     public int optimize(Layer actualState) {
+        // TODO: 2021-01-17 implement optimization for last bit placement as in classic brick pattern.
         return -2;
     }
 
@@ -104,7 +100,7 @@ public class GeneticPavement extends PatternTemplate {
 
     @Override
     public String getHowToUse() {
-        return "";
+        return "Choose your length covered/area ratio and your params. Choose the gap you desire.";
     }
 
     private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
@@ -120,7 +116,7 @@ public class GeneticPavement extends PatternTemplate {
                 bit.updateBoundaries(bitArea);
                 availableArea.subtract(AreaTool.expand(
                         bitArea, // in real
-                        safeguardSpaceParam.getCurrentValue()));
+                        (double) config.get("safeguardSpace").getCurrentValue()));
             }
         }
 

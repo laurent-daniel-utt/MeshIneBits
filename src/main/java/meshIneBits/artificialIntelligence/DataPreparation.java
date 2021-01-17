@@ -1,8 +1,6 @@
-package meshIneBits.artificialIntelligence.deeplearning;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.util.Curve;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -11,6 +9,7 @@ import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.util.Vector;
@@ -30,6 +29,11 @@ public final class DataPreparation {
      */
     @SuppressWarnings("unchecked")
     public static Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
+        /*
+         TODO: 2021-01-18
+        * todo this method could be replaced by the optimize method of Shape2D
+        *  Just make sure to get all "bounds" = all polygons that makes the Slice.
+        */
         Vector<Vector<Vector2>> boundsList = new Vector<>();
         Vector<Vector<Segment2D>> borderList = rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
 
@@ -190,7 +194,7 @@ public final class DataPreparation {
         int startIndex = 0;
         for (int i = 0; i < polyPoints.size() - 1; i++) {
             Segment2D segment2D = new Segment2D(polyPoints.get(i), polyPoints.get(i + 1));
-            if (GeneralTools.isPointOnSegment(startPoint, segment2D)) {
+            if (isPointOnSegment(startPoint, segment2D)) {
                 startIndex = i + 1;
                 break;
             }
@@ -222,7 +226,7 @@ public final class DataPreparation {
         Segment2D segment = new Segment2D(polyPoints.get(iPoint - 1), polyPoints.get(iPoint));
 
         // find this intersection : this is the last point of the section
-        sectionPoints.add(GeneralTools.circleAndSegmentIntersection(startPoint, bitLength,
+        sectionPoints.add(circleAndSegmentIntersection(startPoint, bitLength,
                 segment));
 
         //AI_Tool.dataPrep.pointsADessiner.addAll(sectionPoints);
@@ -340,8 +344,9 @@ public final class DataPreparation {
 
 
     //todo doc @Andre et dire comment les suivants pourraient l'utiliser
-    @SuppressWarnings({"unused", "rawtypes"})
-    private static Vector<Vector> getInputSlopesForDL(Vector<Vector2> sectionPoints) {
+    // TODO: 2021-01-18 ici on explique
+    @SuppressWarnings("unused")
+    private static Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
         Curve inputCurve = new Curve("input curve");
         inputCurve.generateCurve(sectionPoints);
         Curve[] splitCurve = inputCurve.splitCurveInTwo();
@@ -349,7 +354,7 @@ public final class DataPreparation {
         Curve yCurve = splitCurve[1];
 
         // prepare fitting
-        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(4);//degree
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
         for (int i = 0; i < inputCurve.getN_points(); i++) {
@@ -367,7 +372,7 @@ public final class DataPreparation {
             coefsY.add(coefficients_inverseY[coefficients_inverseX.length - i - 1]);
         }
         // return result
-        Vector<Vector> coefficients = new Vector<>();
+        Vector<Vector<Double>> coefficients = new Vector<>();
         coefficients.add(coefsX);
         coefficients.add(coefsY);
         return coefficients;
@@ -433,7 +438,7 @@ public final class DataPreparation {
      */
     public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
         // get sides of the bit as Segment2Ds (will be used later)
-        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(bit);
+        Vector<Segment2D> bitSides = Bit2D.getBitSidesSegments(bit);
 
         // first we fill an vector of segments with the points of the bound :
         Vector<Segment2D> boundSegments = new Vector<>();
@@ -448,7 +453,7 @@ public final class DataPreparation {
         // So first we have to find a segment whose its start is not under the bit.
 
         Polygon rectangle = new Polygon();
-        GeneralTools.getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        Bit2D.getBitSidesSegments(bit).forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         int startSegIndex = 0;
@@ -474,7 +479,7 @@ public final class DataPreparation {
 
             //fill intersectionPoints Vector<> by checking intersections with all bit's sides
             for (Segment2D bitSide : bitSides) {
-                Vector2 intersectionPoint = GeneralTools.getIntersectionPoint(bitSide, boundSegments.get(iSeg));
+                Vector2 intersectionPoint = Segment2D.getIntersectionPoint(bitSide, boundSegments.get(iSeg));
                 if (intersectionPoint != null) { // then we store this intersection
                     intersectionPoints.add(intersectionPoint);
                 }
@@ -482,7 +487,7 @@ public final class DataPreparation {
 
             // if we have some intersections we have to return the first one (as explained above)
             if (!intersectionPoints.isEmpty()) {
-                double maxDist2 = 1000000; //todo @Andre remplacer par Double.positiveinfinity et tester
+                double maxDist2 = Double.POSITIVE_INFINITY;
                 Vector2 firstIntersectionPoint = null; // can't be null
                 for (Vector2 intersectPoint : intersectionPoints) {
 
@@ -515,8 +520,8 @@ public final class DataPreparation {
     //todo doc @Andre
     public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
 
-        Vector<Segment2D> boundSegments = GeneralTools.getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSegments = GeneralTools.getBitSidesSegments(bit);
+        Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
+        Vector<Segment2D> bitSegments = Bit2D.getBitSidesSegments(bit);
 
         Vector<Vector2> intersectionPoints = new Vector<>();
 
@@ -526,8 +531,8 @@ public final class DataPreparation {
 
             for (Segment2D bitSegment : bitSegments) {
 
-                if (GeneralTools.doSegmentsIntersect(boundSegment, bitSegment)) {
-                    Vector2 inter = GeneralTools.getIntersectionPoint(bitSegment, boundSegment);
+                if (Segment2D.doSegmentsIntersect(boundSegment, bitSegment)) {
+                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment);
                     intersectionsWithSegment.add(inter);
                 }
             }
@@ -549,5 +554,59 @@ public final class DataPreparation {
 
         }
         return intersectionPoints.get(1);
+    }
+
+    @NotNull
+    public static Vector<Segment2D> getSegment2DS(Vector<Vector2> sectionPoints) {
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < sectionPoints.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(
+                    sectionPoints.get(i),
+                    sectionPoints.get(i + 1)
+            ));
+        }
+        return sectionSegments;
+    }
+
+    /**
+     * Find an approximation of the intersection point between a segment and a circle
+     * If there is more than one intersection, this method will return the point that is
+     * the closest to the end of the segment.
+     * Initial condition : an intersection should exist
+     *
+     * @param center center of the circle
+     * @param radius radius of the circle
+     * @param seg    segment
+     * @return an approximation of the intersection point between the segment and the circle
+     */
+    public static Vector2 circleAndSegmentIntersection(Vector2 center, double radius, Segment2D seg) {
+
+        double step = 0.01;
+
+        double t = 1;
+        double x = seg.end.x;
+        double y = seg.end.y;
+        double dist = Vector2.dist(center, new Vector2(x, y));
+
+        while (dist > radius) {
+            t = t - step;
+            x = seg.start.x + t * (seg.end.x - seg.start.x);
+            y = seg.start.y + t * (seg.end.y - seg.start.y);
+            dist = Vector2.dist(center, new Vector2(x, y));
+        }
+
+        return new Vector2(x, y);
+    }
+
+    /**
+     * similar to isOnSegment() of Vector2, but more reliable
+     *
+     * @param v a point
+     * @param s a segment
+     * @return true if the point is on the segment
+     */
+    public static boolean isPointOnSegment(Vector2 v, Segment2D s){
+        double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
+        return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
     }
 }

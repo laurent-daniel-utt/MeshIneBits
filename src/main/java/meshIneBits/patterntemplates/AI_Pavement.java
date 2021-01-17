@@ -1,10 +1,9 @@
 package meshIneBits.patterntemplates;
 
-import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.artificialIntelligence.AI_Tool;
 
 import java.awt.geom.Area;
 import java.util.Vector;
@@ -23,30 +22,17 @@ public class AI_Pavement extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer) {
-        Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber() < 1) {//todo paver tout
-            try {
-                AI_Tool.startAI(layer.getHorizontalSection());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            bits = AI_Tool.getBits();
+        try {
+            return new Pavement(AI_Tool.startNNPavement(layer.getHorizontalSection()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return new Pavement(bits);
+        return new Pavement(new Vector<>());
     }
 
     @Override
-    public Pavement pave(Layer layer, Area area) { //todo @Etienne@Andre il sert à quoi lui?
-        System.out.println("pave layer & area");
-       /* Vector<Bit2D> bits = new Vector<>();
-        if (layer.getLayerNumber()==0) {
-            area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));//do smthg with?
-            Genetic genetic = new Genetic();
-            bits = genetic.getSolutions();
-        }
-        Pavement pavement = new Pavement(bits);
-        pavement.computeBits(area);
-        return pavement;*/
+    public Pavement pave(Layer layer, Area area) {
+        System.out.println("Pave layer & area with AI... Not implemented yet.");
         return null;
     }
 
@@ -62,7 +48,6 @@ public class AI_Pavement extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        //todo @Etienne@Andre change icon
         return "pattern-AI.png";
     }
 
@@ -74,6 +59,5 @@ public class AI_Pavement extends PatternTemplate {
     @Override
     public String getHowToUse() {
         return "";
-    } //todo @Etienne@Andre, on mets quoi
-
+    }
 }

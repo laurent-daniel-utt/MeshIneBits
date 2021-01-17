@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -162,6 +163,40 @@ public class Bit2D implements Cloneable, Serializable {
         this.inverseTransfoMatrix = inverseTransfoMatrix;
         this.cutPaths = cutPaths;
         this.areas = areas;
+    }
+
+    /**
+     * Returns the four segments of a Bit2D (the Bit2D is not cut by cut paths)
+     *
+     * @param bit the Bit2D
+     * @return a Vector of the four segments.
+     */
+    public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = bit.getOrientation().normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
+
+        Vector2 A = bit.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 B = bit.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 C = bit.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 D = bit.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        return new Vector<>(Arrays.asList(
+                new Segment2D(A, B),
+                new Segment2D(B, C),
+                new Segment2D(C, D),
+                new Segment2D(D, A)));
     }
 
     /**

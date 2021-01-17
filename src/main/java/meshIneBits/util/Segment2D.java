@@ -22,6 +22,8 @@
 
 package meshIneBits.util;
 
+import meshIneBits.artificialIntelligence.DataPreparation;
+
 import java.io.Serializable;
 import java.util.Vector;
 
@@ -81,6 +83,94 @@ public class Segment2D extends AABBrect implements Serializable {
         super(start, end, 1.0);
 
         update(start, end);
+    }
+
+    /**
+     * Checks if two segments intersects
+     * @param AB  the first segment
+     * @param CD  the second segment
+     * @return  true if the two segments intersects. false otherwise
+     */
+    public static boolean doSegmentsIntersect(Segment2D AB, Segment2D CD) {
+        //todo @Andre V2 Seg2.doSegmentsINtersect(seg2)
+        // points
+        Vector2 A = AB.start;
+        Vector2 B = AB.end;
+        Vector2 C = CD.start;
+        Vector2 D = CD.end;
+
+        // evident situations
+        if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
+            return true;
+        }
+        if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
+            return true;
+        }
+        if (DataPreparation.isPointOnSegment(A, CD)){
+            return true;
+        }
+        if (DataPreparation.isPointOnSegment(B, CD)){
+            return true;
+        }
+        if (DataPreparation.isPointOnSegment(C, AB)){
+            return true;
+        }
+        if (DataPreparation.isPointOnSegment(D, AB)){
+            return true;
+        }
+
+        double DAC = Vector2.getAngle(D, A, C);
+        double ACB = Vector2.getAngle(A, C, B);
+        double CBD = Vector2.getAngle(C, B, D);
+        double BDA = Vector2.getAngle(B, D, A);
+
+
+        double sum = Math.abs(DAC) + Math.abs(ACB) + Math.abs(CBD) + Math.abs(BDA);
+
+        // if sum is not 2pi, then ABCD is a complex quadrilateral (2 edges cross themselves).
+        // This means that segments intersect
+        double errorThreshold = 0.1;
+        return Math.abs(360 - sum) < errorThreshold;
+    }
+
+    public static Vector2 getIntersectionPoint(Segment2D AB, Segment2D CD) {
+        // points
+        Vector2 A = AB.start;
+        Vector2 B = AB.end;
+        Vector2 C = CD.start;
+        Vector2 D = CD.end;
+
+        // particular cases
+        if (A.asGoodAsEqual(C) || A.asGoodAsEqual(D)) {
+            return A;
+        }
+        if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
+            return B;
+        }
+
+        if (DataPreparation.isPointOnSegment(A, CD)){
+            return A;
+        }
+        if (DataPreparation.isPointOnSegment(B, CD)){
+            return B;
+        }
+        if (DataPreparation.isPointOnSegment(C, AB)){
+            return C;
+        }
+        if (DataPreparation.isPointOnSegment(D, AB)){
+            return D;
+        }
+
+        if (doSegmentsIntersect(AB, CD)) {
+
+            double AD = Vector2.dist(A, D);
+            double AID = 180 - Vector2.getAngle(D, A, B) - Vector2.getAngle(C, D, A);
+
+            double IA = (AD / Math.sin(Math.toRadians(AID))) * Math.sin(Math.toRadians(Vector2.getAngle(A, D, C)));
+
+            return A.add(B.sub(A).normal().mul(IA));
+        }
+        return null;
     }
 
     public double distFromPoint(Vector2 p) {

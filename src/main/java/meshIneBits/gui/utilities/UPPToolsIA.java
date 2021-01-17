@@ -44,16 +44,6 @@ public class UPPToolsIA extends UtilityParametersPanel {
         parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-
-       /* JButton startButton = new JButton("Start AI Pavement");
-        startButton.addActionListener(e -> {
-            try {
-
-            } catch (Exception e1) {
-                    meshController.handleException(e1);
-                }
-            });*/ //todo @Etienne @Andre encore besoin de ce bouton ?
-
         JButton trainButton = new JButton("Train AI");
         trainButton.addActionListener(e -> {
             try {
@@ -70,7 +60,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
             }
         });
 
-            JButton deleteLastButton = new JButton("Delete last bit placed");
+        JButton deleteLastButton = new JButton("Delete last bit placed");
         deleteLastButton.setEnabled(false);
         deleteLastButton.addActionListener(_e -> {
             try {
@@ -80,58 +70,49 @@ public class UPPToolsIA extends UtilityParametersPanel {
             }
         });
 
-            JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
-            storeButton.addActionListener(e -> {
-                try {
-                    if (storeButton.getText()==TEXT_TOGGLE_FALSE) {
-                        storeButton.setText(TEXT_TOGGLE_TRUE);
-                        deleteLastButton.setEnabled(true);
-                        Acquisition.startStoringBits();
-                    }
-                    else {
-                        storeButton.setText(TEXT_TOGGLE_FALSE);
-                        deleteLastButton.setEnabled(false);
-                        Acquisition.stopStoringBits();
-                    }
-                } catch (Exception e1) {
-                    meshController.handleException(e1);
+        JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
+        storeButton.addActionListener(e -> {
+            try {
+                if (storeButton.getText() == TEXT_TOGGLE_FALSE) {
+                    storeButton.setText(TEXT_TOGGLE_TRUE);
+                    deleteLastButton.setEnabled(true);
+                    Acquisition.startStoringBits();
+                } else {
+                    storeButton.setText(TEXT_TOGGLE_FALSE);
+                    deleteLastButton.setEnabled(false);
+                    Acquisition.stopStoringBits();
                 }
-            });
+            } catch (Exception e1) {
+                meshController.handleException(e1);
+            }
+        });
 
 
+        // Layout
+        setLayout(new GridBagLayout());
 
-            // Layout
-            setLayout(new GridBagLayout());
-            GridBagConstraints c = new GridBagConstraints();
-           /* c.gridx = 0;
-            c.gridy = 0;
-            c.weighty = 0;
-            c.weightx = 0;
-            c.anchor = GridBagConstraints.LINE_START;
-            add(startButton, c);*/
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weighty = 0;
+        c.weightx = 0;
+        c.anchor = GridBagConstraints.LINE_START;
+        add(storeButton, c);
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.weighty = 0;
-            c.weightx = 0;
-            c.anchor = GridBagConstraints.LINE_START;
-            add(storeButton, c);
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weighty = 0;
+        c.weightx = 0;
+        c.anchor = GridBagConstraints.CENTER;
+        add(trainButton, c);
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            c.weighty = 0;
-            c.weightx = 0;
-            c.anchor = GridBagConstraints.CENTER;
-            add(trainButton, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 2;
-            c.gridy = 0;
-            c.weighty = 1;
-            c.weightx = 1;
-            c.anchor = GridBagConstraints.LINE_START;
-            add(deleteLastButton, c);
-        }
+        c = new GridBagConstraints();
+        c.gridx = 2;
+        c.gridy = 0;
+        c.weighty = 1;
+        c.weightx = 1;
+        c.anchor = GridBagConstraints.LINE_START;
+        add(deleteLastButton, c);
     }
+}

@@ -65,11 +65,11 @@ public class NNTraining {
     public NNTraining() {
         try {
             initDatasetsAndNormalizer();
+            initNeuralNetwork();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        initNeuralNetwork(); //todo @Andre, si le try échoue, on peut quand même aller dans initNeuralNetwork ? sinon le mettre dans le try aussi
     }
 
 
@@ -93,7 +93,13 @@ public class NNTraining {
 
 
     public void initNeuralNetwork() {
-        //todo tester les différentes configs et se renseigner pour trouver la meilleure
+        /*
+         TODO: 2021-01-17
+          - inquire about neural networks configuration and find the one that suit the best our application
+          - test different nn configurations (activations, weightInits, updaters, l2 regularization, neurons count, layers count, backpropagation...)
+          - propose to the user to configure nn hyper-parameters in meshineBits UI, and display the training score at the end
+         */
+
         //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .activation(Activation.TANH)
@@ -161,14 +167,12 @@ public class NNTraining {
 
 
     public void evaluateModel() {
-        // todo @Andre a verifier
         INDArray features = testDataSet.getFeatures();
         INDArray labels = testDataSet.getLabels();
         INDArray prediction = model.output(features, false);
         normalizer.revert(testDataSet);
         normalizer.revertLabels(prediction);
         System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels);
-
     }
 
 
@@ -187,7 +191,10 @@ public class NNTraining {
 
 
     public void save() throws IOException {
-        // 1) save model
+        //todo @Andre changer la destination du fichier zip
+        // aussi changer les emplacements des fichiers csv stp
+        // (à mettre dans un package resources dans le package deeplearning)
+        //1) save model
         File locationToSave = new File("trained_model.zip"); // where to save the model
         // write the model
         ModelSerializer.writeModel(model, locationToSave, false);

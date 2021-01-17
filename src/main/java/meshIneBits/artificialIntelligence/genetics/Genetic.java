@@ -1,9 +1,9 @@
 package meshIneBits.artificialIntelligence.genetics;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
 import meshIneBits.Layer;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
@@ -46,7 +46,7 @@ public class Genetic {
 
             Bit2D bestBit;
             int bitNumber = 0;
-            while (!hasCompletedTheBound(veryFirstStartPoint, associatedPoints)) { //Add each bit on the bound
+            while (AI_Tool.hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
                 bitNumber++;
                 if (bitNumber > maxBitNumber)//number max of bits to place on a bound before stopping
                     break;
@@ -70,29 +70,12 @@ public class Genetic {
      * Print infos on the console
      */
     private void printInfos(Vector<Vector<Vector2>> boundsToCheckAssociated, Vector<Vector2> bound, int bitNumber) {
-        System.out.printf("%-11s", "Layer n°" + layer.getLayerNumber());
-        System.out.printf("%-14s", "   bound n°" + boundsToCheckAssociated.indexOf(bound));
-        System.out.printf("%-14s", "   bit n°" + bitNumber);
+        System.out.printf("%-11s", "Layer n " + layer.getLayerNumber());
+        System.out.printf("%-14s", "   bound n " + boundsToCheckAssociated.indexOf(bound));
+        System.out.printf("%-14s", "   bit n " + bitNumber);
         System.out.println();
     }
 
-
-    /**
-     * Check if the bound of the Slice has been entirely paved.
-     *
-     * @param veryFirststartPoint the point of the bound on which the very first bit was placed.
-     * @param associatedPoints    the points on which a bit has just been placed.
-     * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
-     */
-    private boolean hasCompletedTheBound(Vector2 veryFirststartPoint, Vector<Vector2> associatedPoints) {
-        //todo @Etienne ca marche pas toujours comme voulu
-        // faire que si on est trop proche pour poser un bit, on s'arrete
-        if (associatedPoints.firstElement() == veryFirststartPoint)
-            return false;
-        if (Vector2.dist(veryFirststartPoint, associatedPoints.firstElement()) < CraftConfig.errorAccepted)
-            return true;
-        return associatedPoints.contains(veryFirststartPoint);
-    }
 
     /**
      * @return the best solutions

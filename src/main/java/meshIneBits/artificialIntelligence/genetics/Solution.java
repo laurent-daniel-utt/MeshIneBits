@@ -2,8 +2,7 @@ package meshIneBits.artificialIntelligence.genetics;
 
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.deeplearning.DataPreparation;
+import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
 import meshIneBits.util.Segment2D;
@@ -58,9 +57,9 @@ public class Solution {
     public void evaluate() {
         if (hasBeenEvaluated)
             return;
-        score = computeArea(); //the used area
+        score = getAreaScore(); //the used area
         try {
-            score = addPenaltyForSectionCoveredLength();
+            score += getLengthScore();
             hasBeenEvaluated = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,10 +72,10 @@ public class Solution {
      *
      * @return the area.
      */
-    private double computeArea() {
+    private double getAreaScore() {
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
-        availableBitArea.intersect(layerAvailableArea);//todo @Etienne pb here, area could be null ?
+        availableBitArea.intersect(layerAvailableArea);
 
         if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
@@ -86,7 +85,12 @@ public class Solution {
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
-            return CalculateAreaSurface.approxArea(bit.getArea(), 0);
+            Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.bitLength, CraftConfig.bitWidth);
+            double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
+            double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
+            return ((1 - LENGTH_COEFF_STRENGTH / 100.0) * area / maxArea);
+
+
         }
     }
 
@@ -137,14 +141,14 @@ public class Solution {
      */
     @SuppressWarnings("unused")
     private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
-        Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSides = GeneralTools.getBitSidesSegments(getBit(startPoint));
+        Vector<Segment2D> segmentsSlice = DataPreparation.getSegment2DS(boundPoints);
+        Vector<Segment2D> bitSides = Bit2D.getBitSidesSegments(getBit(startPoint));
 
         int intersectionCount = 0;
 
         for (Segment2D segmentSlice : segmentsSlice)
             for (Segment2D bitSide : bitSides)
-                if (GeneralTools.doSegmentsIntersect(segmentSlice, bitSide))
+                if (Segment2D.doSegmentsIntersect(segmentSlice, bitSide))
                     intersectionCount++;
 
         return intersectionCount;
@@ -176,25 +180,11 @@ public class Solution {
      * the more the score will be decreased.
      * Depends of <code>LENGTH_PENALTY_STRENGTH</code>
      */
-    private double addPenaltyForSectionCoveredLength() throws Exception {
+    private double getLengthScore() throws Exception {
         Bit2D bit2D = getBit(startPoint);
         Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
-
-      /*  if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1)
-            this.score += LENGTH_PENALTY_STRENGTH*score;
-        else
-            this.score -= LENGTH_PENALTY_STRENGTH * score / coveredDistance;//debugOnly
-        if (Math.abs(coveredDistance - CraftConfig.bitLength) < 1)
-            score += LENGTH_PENALTY_STRENGTH*score;
-        else*/
-
-        //double maxArea = CraftConfig.bitLength * CraftConfig.bitWidth;
-        Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.bitLength, CraftConfig.bitWidth);
-        double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
-        return ((1 - LENGTH_COEFF_STRENGTH / 100.0) * score / maxArea + LENGTH_COEFF_STRENGTH / 100.0 * coveredDistance / CraftConfig.bitLength);
-
-        //score *= coveredDistance / CraftConfig.bitLength;
+        return LENGTH_COEFF_STRENGTH / 100.0 * coveredDistance / CraftConfig.bitLength;
     }
 
 
