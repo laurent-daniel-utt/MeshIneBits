@@ -70,6 +70,11 @@ public class Bit2D implements Cloneable, Serializable {
     private Vector<Area> areas = new Vector<>();
 
     /**
+     * <code>true</code> if the bit has been placed in a bid to feed the neural network.
+     */
+    private boolean usedForNN;
+
+    /**
      * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
      * coordinate system of {@link Mesh}
      *
@@ -550,5 +555,13 @@ public class Bit2D implements Cloneable, Serializable {
 
     public void setCutPaths(Vector<Path2D> cutPaths) {
         this.cutPaths = cutPaths;
+    }
+
+    public boolean isUsedForNN() {
+        return usedForNN;
+    }
+
+    public void setUsedForNN(boolean usedForNN) {
+        this.usedForNN = usedForNN;
     }
 }

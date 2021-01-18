@@ -453,6 +453,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             if (meshController.showingIrregularBits()
                     && bit3D.isIrregular())
                 g2d.setColor(WorkspaceConfig.irregularBitColor);
+            if (bit2D.isUsedForNN())
+                g2d.setColor(WorkspaceConfig.forAI_BitColor);
             else
                 g2d.setColor(WorkspaceConfig.regularBitColor);
             drawModelArea(g2d, bit2D.getArea());

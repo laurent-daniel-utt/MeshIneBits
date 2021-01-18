@@ -52,7 +52,7 @@ public class Acquisition {
 
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);
         DebugTools.pointsToDrawRED.add(nextBitStartPoint);
-
+        bit.setUsedForNN(true);
     }
 
 }

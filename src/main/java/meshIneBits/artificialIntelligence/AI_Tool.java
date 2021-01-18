@@ -7,6 +7,7 @@ import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
 
+import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -25,7 +26,7 @@ public abstract class AI_Tool {
     /**
      * Pave the whole mesh with AI.
      */
-    public static Vector<Bit2D> startNNPavement(Slice slice) throws Exception {
+    public static Collection<Bit2D> startNNPavement(Slice slice) throws Exception {
         bits.clear();
         meshController.AI_NeedPaint = true;
 
