@@ -4,7 +4,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.util.DataLog;
+import meshIneBits.artificialIntelligence.util.DataLogger;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
 import meshIneBits.artificialIntelligence.util.DataSetGenerator;
 import meshIneBits.util.Vector2;
@@ -36,7 +36,7 @@ public class Acquisition {
     private static void saveExamples() throws IOException {
         for (Bit2D bit : storedExamplesBits.keySet()) {
             DataLogEntry entry = new DataLogEntry(bit, storedExamplesBits.get(bit));
-            DataLog.saveEntry(entry);
+            DataLogger.saveEntry(entry);
         }
         DataSetGenerator.generateCsvFile();
     }

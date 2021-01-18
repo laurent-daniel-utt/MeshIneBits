@@ -125,18 +125,23 @@ public final class DataPreparation {
         return newSegmentList;
     }
 
-    //todo doc @Andre
-    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionpoints) {
+    /**
+     * Calculates the angle of the local coordinate system used for the coordinate system transformation made
+     * by {@link #getSectionInLocalCoordinateSystem(Vector)}.
+     * @param sectionPoints the points that we want to transform in a local coordinate system.
+     * @return the angle of the local coordinate system.
+     */
+    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionPoints) {
 
         //map for more accurate result
-        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionpoints);
+        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints);
 
         //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
 
 
         //check if abscissa axe of local coordinate system and and section are directed in the same direction.
-        if (arePointsMostlyOrientedToTheLeft(sectionpoints, sectionpoints.firstElement())) {
+        if (arePointsMostlyOrientedToTheLeft(sectionPoints, sectionPoints.firstElement())) {
             angle += 180; //rotate coordinate system
         }
 
@@ -148,7 +153,13 @@ public final class DataPreparation {
         return angle;
     }
 
-    //todo doc @Andre
+    /**
+     * Translates and rotates a curve to put it in a local coordinate system, centered on the first point of the curve,
+     * with the abscissa axis in the direction of the average angle of the curve (regarding in the global coordinate
+     * system).
+     * @param sectionPoints the points we want to convert in a local coordinate system
+     * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
+     */
     public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> sectionPoints) {
 
         double angle = getLocalCoordinateSystemAngle(sectionPoints);
@@ -254,7 +265,13 @@ public final class DataPreparation {
         return Math.toDegrees(Math.atan(coefs_inverse[1]));
     }
 
-    //todo doc @Andre
+    /**
+     * Checks if most of the points given as parameter are located at the left of a reference point, also given
+     * in parameters.
+     * @param points the points whose location we want to test.
+     * @param refPoint the reference point.
+     * @return true if most of the points are at the left of the reference point.
+     */
     public static boolean arePointsMostlyOrientedToTheLeft(Vector<Vector2> points, Vector2 refPoint) {
         int leftPoints = 0;
         int rightPoints = 0;
@@ -269,9 +286,13 @@ public final class DataPreparation {
     }
 
 
-    //todo doc @Andre
+    /**
+     * Positions a precise number of points on a section of points. Each point is equally spaced to the next point.
+     * @param sectionPoints the initial section of points.
+     * @return a new section of points, composed of the equally spaced points.
+     */
     public static Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
-        int nbPoints = 30;
+        int nbPoints = 30; // todo @etienne est ce que c'est bien de mettre le nombre de points ici ?
         return repopulateWithNewPoints(nbPoints, sectionPoints);
     }
 
@@ -342,9 +363,22 @@ public final class DataPreparation {
         return newPoints;
     }
 
-
-    //todo doc @Andre et dire comment les suivants pourraient l'utiliser
-    // TODO: 2021-01-18 ici on explique
+    /**
+     * This method makes a double non-linear regression over a section of points saved in DataLog.csv.
+     * This an alternative approach to {@link #getInputPointsForDL(Vector)} method : the returned values describe
+     * approximately the shape of the section of points entered as parameter. Then the coefficients returned could
+     * be used in a neural net.
+     * The interest of this method over {@link #getInputPointsForDL(Vector)} is that it reduces the number of features
+     * injected in the neural. In return, the representation of the section may be less accurate.
+     * The steps below describe how the double non-linear regression works :
+     * 1 - The section is split into two curves : x(t) and y(t), where the parameter t is the curvilinear abscissa of
+     * the section.
+     * 2 - A non-linear regression is made over each curve.
+     * 3 - We get two arrays of coefficients related to the two curves.
+     * @param sectionPoints the points on which the regression is performed.
+     * @param degree the degree of the regression, witch is linked to the accuracy of the regression performed.
+     * @return a {@link Vector} of two {@link Vector} of coefficients related the section entered as parameter.
+     */
     @SuppressWarnings("unused")
     private static Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
         Curve inputCurve = new Curve("input curve");
@@ -378,11 +412,12 @@ public final class DataPreparation {
         return coefficients;
     }
 
+
     /**
      * Return the next Bit2D start point.
      * It is the intersection between the slice and the end side of the Bit2D.
      *
-     * @param bit         the current Bit2D (the last placed Bit2D by AI).
+     * @param bit the current Bit2D (the last placed Bit2D by AI).
      * @param boundPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
@@ -432,7 +467,7 @@ public final class DataPreparation {
     /**
      * returns the first intersection point between the bound and bit's edges
      *
-     * @param bit         a bit
+     * @param bit a bit
      * @param boundPoints the points of the bound
      * @return the first intersection point between the bound and bit's edges
      */
@@ -517,7 +552,14 @@ public final class DataPreparation {
         return null;
     }
 
-    //todo doc @Andre
+    /**
+     * Looks for an intersection point between a side of a bit and a closed contour (bound). TJe point returned
+     * is the first intersecton between the bit and the contour, while scanning the contour in the direction of
+     * increasing indices of the points of the contour.
+     * @param bit a {@link Bit2D}.
+     * @param boundPoints the points of the contour.
+     * @return the first intersection between the bit and the closed contour.
+     */
     public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
 
         Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
@@ -556,13 +598,19 @@ public final class DataPreparation {
         return intersectionPoints.get(1);
     }
 
+    /**
+     * converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
+     * following the order of the list of points given as entry.
+     * @param points the points requiring to be converted into segments.
+     * @return the segments resulting from the conversion.
+     */
     @NotNull
-    public static Vector<Segment2D> getSegment2DS(Vector<Vector2> sectionPoints) {
+    public static Vector<Segment2D> getSegment2DS(Vector<Vector2> points) {
         Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < sectionPoints.size() - 1; i++) {
+        for (int i = 0; i < points.size() - 1; i++) {
             sectionSegments.add(new Segment2D(
-                    sectionPoints.get(i),
-                    sectionPoints.get(i + 1)
+                    points.get(i),
+                    points.get(i + 1)
             ));
         }
         return sectionSegments;
