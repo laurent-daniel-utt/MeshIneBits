@@ -13,7 +13,7 @@ import java.util.Vector;
  * format of a line : edge abscissa, bit's angle, point 0 x, point 0 y, point 1 x, point 1 y,...
  */
 public final class DataSetGenerator {
-    final static String dataSetFilePath = "dataSet.csv";
+    final static String DATA_SET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/dataSet.csv";
 
     /**
      * generates a .csv file that can be used by a neural network
@@ -24,13 +24,13 @@ public final class DataSetGenerator {
 
         long dataLogSize;
 
-        dataLogSize = DataLog.getNumberOfEntries();
+        dataLogSize = DataLogger.getNumberOfEntries();
 
-        FileWriter fw = new FileWriter(dataSetFilePath, false);
+        FileWriter fw = new FileWriter(DATA_SET_FILE_PATH, false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 
-            DataLogEntry entry = DataLog.getEntryFromFile(logLine);
+            DataLogEntry entry = DataLogger.getEntryFromFile(logLine);
 
             // format data for dl
             Vector2 startPoint = entry.getPoints().firstElement();
@@ -97,7 +97,7 @@ public final class DataSetGenerator {
 
     /**
      * @param bitAngle      the angle of the bit in the global coordinate system
-     * @param sectionPoints the points saved by DataLog
+     * @param sectionPoints the points saved by DataLogger
      * @return the angle of the bit in the local coordinate system. Note that the angle is expressed
      * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.

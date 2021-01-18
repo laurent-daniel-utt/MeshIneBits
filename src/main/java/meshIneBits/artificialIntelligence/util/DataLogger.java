@@ -11,11 +11,11 @@ import java.util.Optional;
 import java.util.Vector;
 import java.util.stream.Stream;
 
-public final class DataLog {
-    private final static String dataLogFilePath = "storedBits.csv";
+public final class DataLogger {
+    private final static String DATA_LOG_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/storedBits.csv";
 
     static public long getNumberOfEntries() throws IOException {
-        return Files.lines(Paths.get(dataLogFilePath)).count();
+        return Files.lines(Paths.get(DATA_LOG_FILE_PATH)).count();
     }
 
 
@@ -28,7 +28,7 @@ public final class DataLog {
         for (Vector2 point : dataLogEntry.getPoints()) {
             line.append(",").append(point.x).append(",").append(point.y);
         }
-        FileWriter fw = new FileWriter(dataLogFilePath, true);
+        FileWriter fw = new FileWriter(DATA_LOG_FILE_PATH, true);
         fw.write(line + "\n");
         fw.close();
     }
@@ -44,7 +44,7 @@ public final class DataLog {
 
 
     static public DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
-        Stream<String> lines = Files.lines(Paths.get(dataLogFilePath));
+        Stream<String> lines = Files.lines(Paths.get(DATA_LOG_FILE_PATH));
         Optional<String> str = lines.skip(lineNumber - 1).findFirst();
         String line = null;
         if (str.isPresent()) {

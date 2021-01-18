@@ -27,11 +27,12 @@ import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class NNTraining {
-    public static final int BATCH_SIZE = 50;    //todo @Andre, on ne devrait plus l'indiquer, ca doit se faire en fonction du nombre de lignes du fichier csv
     /**
      * The number of neurons in an hidden layer
      */
@@ -48,6 +49,14 @@ public class NNTraining {
      * The name and location of the csv file which contains the dataSet.
      */
     private static final String DATASET_PATH = "dataSet.csv";
+    /**
+     * The name and location where the trained model will be saved.
+     */
+    private static final String MODEL_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/trained_model.zip";
+    /**
+     * The name and path where the data normalizer will be saved.
+     */
+    private static final String NORMALIZER_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/normalizer_saved.bin";
     /**
      * The number of iterations to train the neural network.
      */
@@ -77,16 +86,16 @@ public class NNTraining {
         // 1) datasets
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(DATASET_PATH)));
-
-        DataSetIterator iter = new RecordReaderDataSetIterator(rr, BATCH_SIZE, 0, 1, true);
+        DataSetIterator iter =new RecordReaderDataSetIterator(rr, this.getNumberOfExamples(), 0, 1, true); //debugonly
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
 
+        // 2) split data in two
         SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(0.65); // 65% for training and 35% for testing
         this.trainingDataSet = testAndTrain.getTrain();
         this.testDataSet = testAndTrain.getTest();
 
-        // 2) normalizer
+        // 3) normalizer
         normalizer = new NormalizerStandardize();
         normalizer.fit(fullDataSet);
     }
@@ -191,19 +200,24 @@ public class NNTraining {
 
 
     public void save() throws IOException {
-        //todo @Andre changer la destination du fichier zip
-        // aussi changer les emplacements des fichiers csv stp
-        // (à mettre dans un package resources dans le package deeplearning)
         //1) save model
-        File locationToSave = new File("trained_model.zip"); // where to save the model
+        File locationToSave = new File(MODEL_PATH); // where to save the model
         // write the model
         ModelSerializer.writeModel(model, locationToSave, false);
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File("normalizer_saved.bin");
+        File normalsFile = new File(NORMALIZER_PATH);
         saver.write(normalizer,normalsFile);
 
-        System.out.println("The neural network parameters and configuration has been saved.");
+        System.out.println("The neural network parameters and configuration have been saved.");
+    }
+
+    public int getNumberOfExamples() throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(DATASET_PATH));
+        int lines = 0;
+        while (reader.readLine() != null) lines++;
+        reader.close();
+        return lines;
     }
 }
