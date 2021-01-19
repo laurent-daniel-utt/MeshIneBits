@@ -1,7 +1,7 @@
 package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.deeplearning.NNExploitation;
+import meshIneBits.artificialIntelligence.deepLearning.NNExploitation;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
@@ -14,9 +14,25 @@ import java.util.Vector;
  * An AI_Tool lets the user pave the whole mesh, with artificial intelligence.
  * AI_Tool is based on a neural network that learns from how does a human place bits on the bounds of a Slice.
  */
-public abstract class AI_Tool {
+public class AI_Tool {
+    /**
+     * The name and location of the trained model saved.
+     */
+    public static final String MODEL_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/trained_model.zip";
+    /**
+     * The name and path of the normalizer saved.
+     */
+    public static final String NORMALIZER_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/normalizer_saved.bin";
+    /**
+     * The name and location of the csv file which contains the raw data for the DataSet.
+     */
+    public final static String DATA_LOG_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/storedBits.csv";
+    /**
+     * The name and location of the csv file which contains the dataSet.
+     */
+    public static final String DATASET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/dataSet.csv";
+
     private static MeshController meshController;
-    private static final Vector<Bit2D> bits = new Vector<>(); //the bits placed by the AI
     public static final DoubleParam paramSafeguardSpace = new DoubleParam(
             "safeguardSpace",
             "Space around bit",
@@ -26,35 +42,36 @@ public abstract class AI_Tool {
     /**
      * Pave the whole mesh with AI.
      */
-    public static Collection<Bit2D> startNNPavement(Slice slice) throws Exception {
-        bits.clear();
-        meshController.AI_NeedPaint = true;
+    public Collection<Bit2D> startNNPavement(Slice slice) throws Exception {
+        Vector<Bit2D> bits = new Vector<>();
+       // DebugTools.setPaintForDebug(true); //debugOnly
+        DebugTools.pointsToDrawRED = new Vector<>();
+        System.out.println("PAVING SLICE "+slice.getAltitude());
 
-        Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = new DataPreparation().getBoundsAndRearrange(slice);
+        NNExploitation nnExploitation = new NNExploitation();
 
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);
-            Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
+            Vector<Vector2> associatedPoints = new DataPreparation().getSectionPointsFromBound(bound, startPoint);
 
             int nbIterations = 0;
             while (hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
 
                 nbIterations++;
-                if (nbIterations > 50)//number max of bits to place before stopping
-                    break;
+                if (nbIterations > 500)//number max of bits to place before stopping
+                    break; //todo @Etienne
 
-                Vector<Vector2> sectionPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
-                double angleLocalSystem = DataPreparation.getLocalCoordinateSystemAngle(sectionPoints);
+                Vector<Vector2> sectionPoints = new DataPreparation().getSectionPointsFromBound(bound, startPoint);
+                double angleLocalSystem = new DataPreparation().getLocalCoordinateSystemAngle(sectionPoints);
 
-                NNExploitation nnExploitation = new NNExploitation();
-                Vector<Vector2> sectionPointsReg = DataPreparation.getInputPointsForDL(sectionPoints);
+                Vector<Vector2> sectionPointsReg = new DataPreparation().getInputPointsForDL(sectionPoints);
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
-                System.out.println("size:" + bits.size());
 
-                startPoint = DataPreparation.getNextBitStartPoint(bit, bound);
-
+                startPoint = new DataPreparation().getNextBitStartPoint(bit, bound);
+               // DebugTools.pointsToDrawRED.add(startPoint);
             }
         }
         return bits;
@@ -67,12 +84,12 @@ public abstract class AI_Tool {
      * @param associatedPoints    the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    public static boolean hasNotCompletedTheBound(Vector2 veryFirststartPoint, Vector2 startPoint, Vector<Vector2> associatedPoints) {
-        if (associatedPoints.firstElement() == veryFirststartPoint) //to avoid returning true on the first placement
+    public boolean hasNotCompletedTheBound(Vector2 veryFirststartPoint, Vector2 startPoint, Vector<Vector2> associatedPoints) {
+        if (associatedPoints.firstElement() == veryFirststartPoint) //to avoid returning false on the first placement
             return true;
         if (Vector2.dist(veryFirststartPoint, startPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue()*10) //standard safe distance between two bits
             return false;
-        return !associatedPoints.contains(veryFirststartPoint);
+        return !associatedPoints.contains(veryFirststartPoint); //fixme @Etienne
     }
 
     /**

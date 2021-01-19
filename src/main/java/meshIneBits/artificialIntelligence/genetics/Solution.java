@@ -125,7 +125,7 @@ public class Solution {
             bad = true;
          */
         try {
-            DataPreparation.getNextBitStartPoint(getBit(startPoint), bound);
+            new DataPreparation().getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
             bad = true;
         }
@@ -182,7 +182,7 @@ public class Solution {
      */
     private double getLengthScore() throws Exception {
         Bit2D bit2D = getBit(startPoint);
-        Vector2 nextBitStartPoint = DataPreparation.getNextBitStartPoint(bit2D, bound);
+        Vector2 nextBitStartPoint = new DataPreparation().getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
         return LENGTH_COEFF_STRENGTH / 100.0 * coveredDistance / CraftConfig.bitLength;
     }

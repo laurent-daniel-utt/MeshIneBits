@@ -1,5 +1,6 @@
 package meshIneBits.artificialIntelligence.util;
 
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.util.Vector2;
 
 import java.io.FileWriter;
@@ -12,10 +13,9 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 public final class DataLogger {
-    private final static String DATA_LOG_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/storedBits.csv";
 
     static public long getNumberOfEntries() throws IOException {
-        return Files.lines(Paths.get(DATA_LOG_FILE_PATH)).count();
+        return Files.lines(Paths.get(AI_Tool.DATA_LOG_FILE_PATH)).count();
     }
 
 
@@ -28,7 +28,7 @@ public final class DataLogger {
         for (Vector2 point : dataLogEntry.getPoints()) {
             line.append(",").append(point.x).append(",").append(point.y);
         }
-        FileWriter fw = new FileWriter(DATA_LOG_FILE_PATH, true);
+        FileWriter fw = new FileWriter(AI_Tool.DATA_LOG_FILE_PATH, true);
         fw.write(line + "\n");
         fw.close();
     }
@@ -44,7 +44,7 @@ public final class DataLogger {
 
 
     static public DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
-        Stream<String> lines = Files.lines(Paths.get(DATA_LOG_FILE_PATH));
+        Stream<String> lines = Files.lines(Paths.get(AI_Tool.DATA_LOG_FILE_PATH));
         Optional<String> str = lines.skip(lineNumber - 1).findFirst();
         String line = null;
         if (str.isPresent()) {

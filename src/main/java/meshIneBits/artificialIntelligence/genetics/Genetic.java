@@ -37,7 +37,7 @@ public class Genetic {
      */
     private void start(Layer layer, Area layerAvailableArea, int genNumber, int popSize, int LENGTH_COEFF, int maxBitNumber) throws Exception {
         Slice slice = layer.getHorizontalSection();
-        Vector<Vector<Vector2>> boundsToCheckAssociated = DataPreparation.getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> boundsToCheckAssociated = new DataPreparation().getBoundsAndRearrange(slice);
 
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
@@ -46,7 +46,7 @@ public class Genetic {
 
             Bit2D bestBit;
             int bitNumber = 0;
-            while (AI_Tool.hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
                 bitNumber++;
                 if (bitNumber > maxBitNumber)//number max of bits to place on a bound before stopping
                     break;
@@ -61,7 +61,7 @@ public class Genetic {
                 //Prepare to find the next Solution
                 layerAvailableArea.subtract(bestBit.getArea());
                 associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
-                startPoint = DataPreparation.getNextBitStartPoint(bestBit, bound);
+                startPoint = new DataPreparation().getNextBitStartPoint(bestBit, bound);
             }
         }
     }

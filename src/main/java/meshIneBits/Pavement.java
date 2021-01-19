@@ -22,6 +22,7 @@
 
 package meshIneBits;
 
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;

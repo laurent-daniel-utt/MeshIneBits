@@ -16,7 +16,7 @@ import java.util.Vector;
 import java.util.stream.IntStream;
 
 //todo @Etienne@Andre documenter aussi toutes les classes
-public final class DataPreparation {
+public class DataPreparation {
 
     /**
      * Returns the points of each bound of a given Slice
@@ -28,7 +28,7 @@ public final class DataPreparation {
      * @return the bounds of the given slice, once rearranged
      */
     @SuppressWarnings("unchecked")
-    public static Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
+    public Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
         /*
          TODO: 2021-01-18
         * todo this method could be replaced by the optimize method of Shape2D
@@ -421,7 +421,7 @@ public final class DataPreparation {
      * @param boundPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public static Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
+    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
 
         Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints);
 
@@ -441,7 +441,7 @@ public final class DataPreparation {
      * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public static Vector<Vector2> getCurrentLayerBitAssociatedPoints(Bit2D bit2D) throws Exception {
+    public Vector<Vector2> getCurrentLayerBitAssociatedPoints(Bit2D bit2D) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());

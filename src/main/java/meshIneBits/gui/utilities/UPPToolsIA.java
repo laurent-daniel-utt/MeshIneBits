@@ -24,8 +24,8 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.deeplearning.Acquisition;
-import meshIneBits.artificialIntelligence.deeplearning.NNTraining;
+import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
+import meshIneBits.artificialIntelligence.deepLearning.NNTraining;
 import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;

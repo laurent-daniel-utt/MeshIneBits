@@ -1,5 +1,6 @@
-package meshIneBits.artificialIntelligence.deeplearning;
+package meshIneBits.artificialIntelligence.deepLearning;
 
+import meshIneBits.artificialIntelligence.AI_Tool;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -27,40 +28,32 @@ import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 
 public class NNTraining {
     /**
      * The number of neurons in an hidden layer
      */
     public static final int HIDDEN_NEURONS_COUNT = 20;
-    /**
-     * The number of labels for the outputs. Here it is the position and the rotation.
-     */
-    private static final int CLASSES_COUNT = 2;
-    /**
-     * The number of parameters for the inputs.
-     */
-    private static final int FEATURES_COUNT = 60;
-    /**
-     * The name and location of the csv file which contains the dataSet.
-     */
-    private static final String DATASET_PATH = "dataSet.csv";
-    /**
-     * The name and location where the trained model will be saved.
-     */
-    private static final String MODEL_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/trained_model.zip";
-    /**
-     * The name and path where the data normalizer will be saved.
-     */
-    private static final String NORMALIZER_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/normalizer_saved.bin";
+
     /**
      * The number of iterations to train the neural network.
      */
-    private static final int N_EPOCHS = 10000;
+    private static final int N_EPOCHS = 100000;
+    /**
+     * The number of labels for the outputs.
+     * Here it is the position and the rotation.
+     */
+    private static final int CLASSES_COUNT = 2; // ! Do not change if the DataSet format has not changed
+    /**
+     * The number of parameters for the inputs.
+     */
+    private static final int FEATURES_COUNT = 60; // ! Do not change if the DataSet format has not changed
     private DataNormalization normalizer;
     private MultiLayerNetwork model;
 
@@ -85,8 +78,8 @@ public class NNTraining {
     private void initDatasetsAndNormalizer() throws IOException, InterruptedException {
         // 1) datasets
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(DATASET_PATH)));
-        DataSetIterator iter =new RecordReaderDataSetIterator(rr, this.getNumberOfExamples(), 0, 1, true); //debugonly
+        rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
+        DataSetIterator iter = new RecordReaderDataSetIterator(rr, this.getNumberOfExamples(), 0, 1, true); //debugonly
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
 
@@ -113,7 +106,7 @@ public class NNTraining {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .activation(Activation.TANH)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new Adam(0.0001))
+                .updater(new Adam(0.00001))
                 .l2(1e-5)
                 .list()
 
@@ -144,10 +137,12 @@ public class NNTraining {
                 .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .activation(Activation.RELU)
                         .build())
-
+                .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.RELU)
+                        .build())
                 //Output Layer
                 .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation(Activation.RELU)
+                        .activation(Activation.IDENTITY)
                         .nIn(HIDDEN_NEURONS_COUNT)
                         .nOut(CLASSES_COUNT)
                         .build())
@@ -170,7 +165,14 @@ public class NNTraining {
         //Choice between console logs and UI logs.
         //model.setListeners(new ScoreIterationListener(100)); //logs console
         model.setListeners(new StatsListener(statsStorage)); //logs UI
-        System.out.println("\nTo visualize the training, go to http://localhost:9000/train/overview in your browser");
+
+        String VISUALIZE_TRAINING_LINK_STRING = "http://localhost:9000/train/overview";
+        System.out.println("\nTo visualize the training, go to " + VISUALIZE_TRAINING_LINK_STRING + " in your browser");
+        try {
+            Desktop.getDesktop().browse(URI.create(VISUALIZE_TRAINING_LINK_STRING));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -181,7 +183,8 @@ public class NNTraining {
         INDArray prediction = model.output(features, false);
         normalizer.revert(testDataSet);
         normalizer.revertLabels(prediction);
-        System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels);
+        //todo @Andre print score, pas besoin de voir les predictions/labels
+        //System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
     }
 
 
@@ -201,20 +204,20 @@ public class NNTraining {
 
     public void save() throws IOException {
         //1) save model
-        File locationToSave = new File(MODEL_PATH); // where to save the model
+        File locationToSave = new File(AI_Tool.MODEL_PATH); // where to save the model
         // write the model
         ModelSerializer.writeModel(model, locationToSave, false);
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File(NORMALIZER_PATH);
-        saver.write(normalizer,normalsFile);
+        File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
+        saver.write(normalizer, normalsFile);
 
         System.out.println("The neural network parameters and configuration have been saved.");
     }
 
     public int getNumberOfExamples() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(DATASET_PATH));
+        BufferedReader reader = new BufferedReader(new FileReader(AI_Tool.DATASET_FILE_PATH));
         int lines = 0;
         while (reader.readLine() != null) lines++;
         reader.close();

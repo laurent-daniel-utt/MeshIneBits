@@ -1,5 +1,6 @@
 package meshIneBits.artificialIntelligence.util;
 
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.DataPreparation;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
@@ -13,7 +14,6 @@ import java.util.Vector;
  * format of a line : edge abscissa, bit's angle, point 0 x, point 0 y, point 1 x, point 1 y,...
  */
 public final class DataSetGenerator {
-    final static String DATA_SET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deeplearning/dataSet.csv";
 
     /**
      * generates a .csv file that can be used by a neural network
@@ -24,7 +24,7 @@ public final class DataSetGenerator {
 
         dataLogSize = DataLogger.getNumberOfEntries();
 
-        FileWriter fw = new FileWriter(DATA_SET_FILE_PATH, false);
+        FileWriter fw = new FileWriter(AI_Tool.DATASET_FILE_PATH, false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 

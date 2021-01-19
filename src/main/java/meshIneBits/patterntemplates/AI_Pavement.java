@@ -26,8 +26,12 @@ public class AI_Pavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         try {
-            Collection<Bit2D> bits = AI_Tool.startNNPavement(layer.getHorizontalSection());
-            updateBitAreasWithSpaceAround(bits);
+            Collection<Bit2D> bits = new AI_Tool().startNNPavement(layer.getHorizontalSection());
+            //updateBitAreasWithSpaceAround(bits);
+            //Vector<Bit2D> bitsCloned = new Vector<>();
+            // for (Bit2D bit : bits) {
+            //     bitsCloned.add(bit.clone());
+            //}
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();

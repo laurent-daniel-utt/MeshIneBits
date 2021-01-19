@@ -1,4 +1,4 @@
-package meshIneBits.artificialIntelligence.deeplearning;
+package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
@@ -34,6 +34,7 @@ public class Acquisition {
 
     public static void deleteLastPlacedBit() {
         storedExamplesBits.remove(lastPlacedBit);
+        lastPlacedBit.setUsedForNN(false);
     }
 
     private static void saveExamples() throws IOException {
@@ -45,22 +46,19 @@ public class Acquisition {
     }
 
     public static void addNewExampleBit(Bit2D bit) throws Exception {
-        //todo @Andre tester une fois, pour vérifier que ca trouve bien le startPoint. Sinon c'est le double.positiveInf
-
         if (isIrregular(bit)) {
             System.out.println("example not added");
             throw new Exception();
         }
 
-        Vector<Vector2> points = DataPreparation.getCurrentLayerBitAssociatedPoints(bit);
+        Vector<Vector2> points = new DataPreparation().getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
         System.out.println("example added");
 
-        Vector<Vector2> pointsSlice = DataPreparation.getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
+        Vector<Vector2> pointsSlice = new DataPreparation().getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection()).get(0);
 
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);
-        DebugTools.pointsToDrawRED.add(nextBitStartPoint);
         bit.setUsedForNN(true);
     }
 
@@ -76,7 +74,7 @@ public class Acquisition {
         Vector<Segment2D> bitEdges = bit.getBitSidesSegments();
 
         Slice slice = AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection();
-        Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = new DataPreparation().getBoundsAndRearrange(slice);
 
         for (Vector<Vector2> bound : bounds) {
             for (int i = 0; i < bound.size()-1; i++) {
@@ -98,8 +96,8 @@ public class Acquisition {
                     if (firstIntersectingEdge != null) {
                         if (Math.abs( firstIntersectingEdge.getLength() - CraftConfig.bitWidth) < Math.pow(10, -CraftConfig.errorAccepted))
                             return false; // the first intersection is a short edge of the bit
-                        else
-                            return true; // the first intersection is a long edge of the bit
+                        //else
+                          //  return true; // the first intersection is a long edge of the bit
 
                     }
                 }

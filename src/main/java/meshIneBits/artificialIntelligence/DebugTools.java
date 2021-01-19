@@ -9,7 +9,14 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
-//todo @Etienne @Andre javadoc
+
+/**
+ * DebugTools is useful for debugging.
+ * Was used with Genetics and NN Pavement.
+ *
+ * Set its variables, and call DebugTools.setPaintForDebug(true);
+ * It will draw on the screen what is stored on the variables of DebugTools.
+ */
 @SuppressWarnings("unused")
 public final class DebugTools {
 
@@ -32,4 +39,8 @@ public final class DebugTools {
     public static Area areaToDraw = null;
 
     public static Vector<Bit2D> Bits = new Vector<>();
+
+    public static void setPaintForDebug(boolean b) {
+        AI_Tool.getMeshController().AI_NeedPaint = b;
+    }
 }

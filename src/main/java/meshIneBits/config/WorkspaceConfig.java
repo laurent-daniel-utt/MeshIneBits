@@ -22,8 +22,6 @@
 
 package meshIneBits.config;
 
-import meshIneBits.Bit2D;
-
 import java.awt.*;
 
 public class WorkspaceConfig {
@@ -49,7 +47,7 @@ public class WorkspaceConfig {
     public static Color irregularBitColor = new Color(255, 0, 0, 100);
     /**
      * Bit used to feed the neural network.
-     * @see meshIneBits.artificialIntelligence.deeplearning.Acquisition
+     * @see meshIneBits.artificialIntelligence.deepLearning.Acquisition
      */
     public static Color forAI_BitColor = new Color(227, 196, 116);
     public static Color cutpathColor = Color.BLUE.darker();

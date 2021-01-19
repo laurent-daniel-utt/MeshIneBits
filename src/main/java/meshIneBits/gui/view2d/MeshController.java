@@ -24,7 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.deeplearning.Acquisition;
+import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
