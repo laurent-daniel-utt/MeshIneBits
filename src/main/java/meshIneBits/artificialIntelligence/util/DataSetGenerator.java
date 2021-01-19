@@ -17,10 +17,8 @@ public final class DataSetGenerator {
 
     /**
      * generates a .csv file that can be used by a neural network
-     *
-     * @return todo @andre, donner le cas -1 aussi
      */
-    public static void generateCsvFile() throws IOException {//todo @Andre tester une fois la génération d'un csv
+    public static void generateCsvFile() throws IOException {
 
         long dataLogSize;
 
@@ -79,13 +77,11 @@ public final class DataSetGenerator {
         Vector2 originVertex = bitOrigin.add(orthogonal.mul(CraftConfig.bitWidth / 2))
                 .sub(colinear.mul(CraftConfig.bitLength / 2));
 
-
         if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
                     .add(colinear.mul(CraftConfig.bitLength / 2));
         }
-
 
         // edgeAbscissa is the distance between the startPoint and the originVertex
         // the startPoint on which the new bit should be placed : the intersection between the slice border

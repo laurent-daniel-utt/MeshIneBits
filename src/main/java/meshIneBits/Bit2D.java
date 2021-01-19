@@ -172,28 +172,26 @@ public class Bit2D implements Cloneable, Serializable {
 
     /**
      * Returns the four segments of a Bit2D (the Bit2D is not cut by cut paths)
-     *
-     * @param bit the Bit2D
      * @return a Vector of the four segments.
      */
-    public static Vector<Segment2D> getBitSidesSegments(Bit2D bit) {
+    public Vector<Segment2D> getBitSidesSegments() {
         // bit's colinear and orthogonal unit vectors computation
-        Vector2 colinear = bit.getOrientation().normal();
+        Vector2 colinear = this.getOrientation().normal();
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
 
-        Vector2 A = bit.getOrigin()
+        Vector2 A = this.getOrigin()
                 .add(colinear.mul(CraftConfig.bitLength/2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
-        Vector2 B = bit.getOrigin()
+        Vector2 B = this.getOrigin()
                 .sub(colinear.mul(CraftConfig.bitLength/2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
-        Vector2 C = bit.getOrigin()
+        Vector2 C = this.getOrigin()
                 .sub(colinear.mul(CraftConfig.bitLength/2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
-        Vector2 D = bit.getOrigin()
+        Vector2 D = this.getOrigin()
                 .add(colinear.mul(CraftConfig.bitLength/2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 

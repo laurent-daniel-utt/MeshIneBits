@@ -473,7 +473,7 @@ public final class DataPreparation {
      */
     public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
         // get sides of the bit as Segment2Ds (will be used later)
-        Vector<Segment2D> bitSides = Bit2D.getBitSidesSegments(bit);
+        Vector<Segment2D> bitSides = bit.getBitSidesSegments();
 
         // first we fill an vector of segments with the points of the bound :
         Vector<Segment2D> boundSegments = new Vector<>();
@@ -488,7 +488,7 @@ public final class DataPreparation {
         // So first we have to find a segment whose its start is not under the bit.
 
         Polygon rectangle = new Polygon();
-        Bit2D.getBitSidesSegments(bit).forEach(rectangle::addEnd);
+        bit.getBitSidesSegments().forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         int startSegIndex = 0;
@@ -563,7 +563,7 @@ public final class DataPreparation {
     public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
 
         Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSegments = Bit2D.getBitSidesSegments(bit);
+        Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
 
         Vector<Vector2> intersectionPoints = new Vector<>();
 

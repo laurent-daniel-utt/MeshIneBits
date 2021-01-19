@@ -142,7 +142,7 @@ public class Solution {
     @SuppressWarnings("unused")
     private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
         Vector<Segment2D> segmentsSlice = DataPreparation.getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSides = Bit2D.getBitSidesSegments(getBit(startPoint));
+        Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
 
         int intersectionCount = 0;
 

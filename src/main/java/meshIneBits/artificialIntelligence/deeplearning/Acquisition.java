@@ -7,6 +7,9 @@ import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.util.DataLogger;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
 import meshIneBits.artificialIntelligence.util.DataSetGenerator;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.io.IOException;
@@ -43,6 +46,12 @@ public class Acquisition {
 
     public static void addNewExampleBit(Bit2D bit) throws Exception {
         //todo @Andre tester une fois, pour vérifier que ca trouve bien le startPoint. Sinon c'est le double.positiveInf
+
+        if (isIrregular(bit)) {
+            System.out.println("example not added");
+            throw new Exception();
+        }
+
         Vector<Vector2> points = DataPreparation.getCurrentLayerBitAssociatedPoints(bit);
         storedExamplesBits.put(bit, points);
         lastPlacedBit = bit;
@@ -53,6 +62,51 @@ public class Acquisition {
         Vector2 nextBitStartPoint = DataPreparation.getBitAndContourSecondIntersectionPoint(bit, pointsSlice);
         DebugTools.pointsToDrawRED.add(nextBitStartPoint);
         bit.setUsedForNN(true);
+    }
+
+
+    /**
+     * checks if a bit can be used to train the neural net.
+     * A bit can be used by the neural net only if the first intersection between an edge of the bit and the bound
+     * (scanning it in the direction of the increasing indices) is made by a short edge of the bit.
+     * @param bit a {@link Bit2D}
+     * @return true if the bit can not be used by the neural net.
+     */
+    private static boolean isIrregular(Bit2D bit) {
+        Vector<Segment2D> bitEdges = bit.getBitSidesSegments();
+
+        Slice slice = AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection();
+        Vector<Vector<Vector2>> bounds = DataPreparation.getBoundsAndRearrange(slice);
+
+        for (Vector<Vector2> bound : bounds) {
+            for (int i = 0; i < bound.size()-1; i++) {
+                Segment2D boundSegment = new Segment2D(bound.get(i), bound.get(i + 1));
+
+                Segment2D firstIntersectingEdge = null;
+                double maxDistance = Double.POSITIVE_INFINITY;
+
+                for (Segment2D bitEdge : bitEdges) {
+
+                    // finds the edge of the bit that intersects the first
+                    if (Segment2D.doSegmentsIntersect(bitEdge, boundSegment)
+                            && Vector2.dist(bound.get(i), Segment2D.getIntersectionPoint(bitEdge, boundSegment)) < maxDistance) {
+                        maxDistance = Vector2.dist(bound.get(i), Segment2D.getIntersectionPoint(bitEdge, boundSegment));
+                        firstIntersectingEdge = bitEdge;
+                    }
+
+                    // check if the position of the bit is irregular
+                    if (firstIntersectingEdge != null) {
+                        if (Math.abs( firstIntersectingEdge.getLength() - CraftConfig.bitWidth) < Math.pow(10, -CraftConfig.errorAccepted))
+                            return false; // the first intersection is a short edge of the bit
+                        else
+                            return true; // the first intersection is a long edge of the bit
+
+                    }
+                }
+            }
+        }
+        // only reached if the bit doesn't intersect with a bound
+        return true;
     }
 
 }
