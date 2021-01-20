@@ -31,8 +31,17 @@ public class AI_Tool {
      * The name and location of the csv file which contains the dataSet.
      */
     public static final String DATASET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/dataSet.csv";
-
     private static MeshController meshController;
+
+    /**
+     * Correct the position of the bits placed by the Neural Network.
+     * May be useless when the NN will be correctly trained.
+     */
+    public static final DoubleParam paramPosCorrection =  new DoubleParam(
+            "posCorrection",
+            "Position correction",
+            "",
+            -10.0,10.0,5.0,0.1);;
     public static final DoubleParam paramSafeguardSpace = new DoubleParam(
             "safeguardSpace",
             "Space around bit",

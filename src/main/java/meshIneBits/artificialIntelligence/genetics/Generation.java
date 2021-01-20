@@ -19,7 +19,7 @@ public class Generation {
     private final double rankSelection;
     private final double rankReproduction;
     private final double probMutation;
-    private final int length_coefficient;
+    private final int ratio;
     private final Area layerAvailableArea;
     public Solution bestSolution;
 
@@ -34,7 +34,7 @@ public class Generation {
      * @param startPoint       the point on which the bit has to be placed
      * @param bound            the bound on which the bit has to be placed
      */
-    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, int lengthCoeff, Area layerAvailableArea, Vector2 startPoint, Vector<Vector2> bound) {
+    public Generation(int popSize, double rankSelection, double rankReproduction, double probMutation, int ratio, Area layerAvailableArea, Vector2 startPoint, Vector<Vector2> bound) {
         this.popSize = popSize;
         this.solutions = new Vector<>(popSize);
         this.rankSelection = rankSelection;
@@ -42,7 +42,7 @@ public class Generation {
         this.probMutation = probMutation;
         this.startPoint = startPoint;
         this.bound = bound;
-        this.length_coefficient = lengthCoeff;
+        this.ratio = ratio;
         this.layerAvailableArea = layerAvailableArea;
     }
 
@@ -79,7 +79,7 @@ public class Generation {
         int dir = Math.random() > 0.5 ? 1 : -1;
         double rotation = angleSection + Math.random() * MAX_ANGLE * dir;
         Vector2 rotationVector = Vector2.getEquivalentVector(rotation);
-        return new Solution(position, rotationVector, startPoint, this, bound, length_coefficient, layerAvailableArea);
+        return new Solution(position, rotationVector, startPoint, this, bound, ratio, layerAvailableArea);
     }
 
     /**
@@ -90,7 +90,7 @@ public class Generation {
      * @return the new solution.
      */
     private Solution createNewSolution(double pos, Vector2 angle) {
-        return new Solution(pos, angle, startPoint, this, bound, length_coefficient, layerAvailableArea);
+        return new Solution(pos, angle, startPoint, this, bound, ratio, layerAvailableArea);
     }
 
     /**

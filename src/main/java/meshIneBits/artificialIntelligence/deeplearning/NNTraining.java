@@ -37,14 +37,14 @@ import java.net.URI;
 
 public class NNTraining {
     /**
-     * The number of neurons in an hidden layer
+     * The number of neurons in an hidden layer.
      */
-    public static final int HIDDEN_NEURONS_COUNT = 20;
+    public static final int HIDDEN_NEURONS_COUNT = 20; // This number could rather be specified for each layer.
 
     /**
      * The number of iterations to train the neural network.
      */
-    private static final int N_EPOCHS = 100000;
+    private static final int N_EPOCHS = 10000;
     /**
      * The number of labels for the outputs.
      * Here it is the position and the rotation.
@@ -82,9 +82,10 @@ public class NNTraining {
         DataSetIterator iter = new RecordReaderDataSetIterator(rr, this.getNumberOfExamples(), 0, 1, true); //debugonly
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
+        fullDataSet.shuffle();
 
         // 2) split data in two
-        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(0.65); // 65% for training and 35% for testing
+        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(1); // 80% for training and 20% for testing
         this.trainingDataSet = testAndTrain.getTrain();
         this.testDataSet = testAndTrain.getTest();
 
@@ -104,7 +105,7 @@ public class NNTraining {
 
         //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
-                .activation(Activation.TANH)
+                .activation(Activation.GELU)
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Adam(0.00001))
                 .l2(1e-5)
@@ -112,34 +113,29 @@ public class NNTraining {
 
                 //Input Layer
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .activation(Activation.TANH)
                         .build())
+
+                //Other Layers
                 .layer(1, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(2, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(3, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(4, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(5, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(6, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(7, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
                 .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
-                        .activation(Activation.RELU)
                         .build())
+
                 //Output Layer
                 .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
@@ -183,8 +179,8 @@ public class NNTraining {
         INDArray prediction = model.output(features, false);
         normalizer.revert(testDataSet);
         normalizer.revertLabels(prediction);
-        //todo @Andre print score, pas besoin de voir les predictions/labels
-        //System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
+        //todo @Andre print score
+        System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
     }
 
 

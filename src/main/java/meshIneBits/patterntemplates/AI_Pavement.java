@@ -16,6 +16,7 @@ public class AI_Pavement extends PatternTemplate {
     @Override
     protected void initiateConfig() {
         config.add(AI_Tool.paramSafeguardSpace);
+        config.add(AI_Tool.paramPosCorrection);
     }
 
     @Override
