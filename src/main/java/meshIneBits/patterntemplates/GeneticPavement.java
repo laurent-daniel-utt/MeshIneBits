@@ -1,19 +1,18 @@
 package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DataPreparation;
-import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
-import java.util.Collection;
 import java.util.Vector;
 
 public class GeneticPavement extends PatternTemplate {
@@ -64,15 +63,14 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         this.layer = layer;
-
         try {
-            this.start(layer,
+            this.start(
                     AreaTool.getAreaFrom(layer.getHorizontalSection()),
                     (double) config.get("genNumber").getCurrentValue(),
                     (double) config.get("popSize").getCurrentValue(),
                     (double) config.get("ratio").getCurrentValue(),
                     (double) config.get("earlyStopping").getCurrentValue());
-            updateBitAreasWithSpaceAround(solutions);
+            updateBitAreasWithSpaceAround();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,14 +80,14 @@ public class GeneticPavement extends PatternTemplate {
     /**
      * Starts the Genetic pavement and paves the given layer.
      */
-    private void start(Layer layer, Area layerAvailableArea, double genNumber, double popSize, double ratio, double maxBitNumber) throws Exception {
+    private void start(Area layerAvailableArea, double genNumber, double popSize, double ratio, double maxBitNumber) throws Exception {
         Slice slice = layer.getHorizontalSection();
-        Vector<Vector<Vector2>> boundsToCheckAssociated = new DataPreparation().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> boundsToCheckAssociated = new GeneralTools().getBoundsAndRearrange(slice);
 
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
-            Vector<Vector2> associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
+            Vector<Vector2> associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
 
             Bit2D bestBit;
             int bitNumber = 0;
@@ -107,8 +105,8 @@ public class GeneticPavement extends PatternTemplate {
 
                 //Prepare to find the next Solution
                 layerAvailableArea.subtract(bestBit.getArea());
-                associatedPoints = DataPreparation.getSectionPointsFromBound(bound, startPoint);
-                startPoint = new DataPreparation().getNextBitStartPoint(bestBit, bound);
+                associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+                startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound);
             }
         }
     }
@@ -160,12 +158,12 @@ public class GeneticPavement extends PatternTemplate {
         return true;
     }
 
-    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
+    private void updateBitAreasWithSpaceAround() {
         Area availableArea = new Area();
-        for (Bit2D bit : bits) {
+        for (Bit2D bit : solutions) {
             availableArea.add(bit.getArea());
         }
-        for (Bit2D bit : bits) {
+        for (Bit2D bit : solutions) {
             if (bit.getArea() == null) continue;
             Area bitArea = bit.getArea();
             bitArea.intersect(availableArea);

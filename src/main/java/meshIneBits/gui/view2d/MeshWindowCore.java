@@ -502,38 +502,18 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
          */
 
-        //Draw Circle with Vector2
-        /*
-        drawModelCircle(g2d, meshController.ai_Tool.dataPrep.A.x, meshController.ai_Tool.dataPrep.A.y, 10);
-         */
-
-        //Draw Area and/or fill it
-        /*
-        if (AI_Tool.dataPrep.hasNewBitToDraw) {
-            AI_Tool.dataPrep.transformArea = realToView;
-            Bit2D bit = AI_Tool.dataPrep.bit;
-            AI_Tool.dataPrep.Bits.add(bit);
-            AI_Tool.dataPrep.hasNewBitToDraw = false;
-        }
-
-         */
-
-
+        //Draw bits Areas
         Vector<Bit2D> bits = DebugTools.Bits;
-        for (int i = 0; i < bits.size(); i++) {
-            Area area = bits.get(i).getArea();
+        for (Bit2D bit : bits) {
+            Area area = bit.getArea();
             area.transform(realToView);
             g2d.setColor(Color.RED);
             g2d.fill(area);
             g2d.setColor(Color.DARK_GRAY);
             g2d.draw(area);
-            /*int x = area.getBounds().x + area.getBounds().width / 4;
-            int y = area.getBounds().y - area.getBounds().height / 2;
-            g2d.drawString(DebugTools.scores.get(i), x, y);*/
         }
 
-
-        //draw an area
+        //Draw an area
         if(DebugTools.areaToDraw!=null){
             Area area = DebugTools.areaToDraw;
             area.transform(realToView);
@@ -543,6 +523,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.draw(area);
         }
 
+        //Draw points
         for (Vector2 point : DebugTools.pointsToDrawRED) {
             g2d.setColor(Color.red);
             drawModelCircle(g2d, point.x, point.y, 4);
@@ -555,25 +536,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.setColor(Color.blue);
             drawModelCircle(g2d, point.x, point.y, 3);
         }
-        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
-            g2d.setColor(Color.orange);
-            drawModelCircle(g2d, point.x, point.y, 2);
-        }
-        g2d.setColor(Color.green);
 
-        // draw global axes
-        //g2d.setColor(Color.BLUE);
-        //drawModelCircle(g2d, 0, 0, 4);
-        //drawModelCircle(g2d, 0, 10, 4);
-        //drawModelCircle(g2d, 10, 0, 4);
-
-        //Draw Path2D
-        /*
-        drawModelPath2D(g2d, meshController.ai_Tool.dataPrep.cutPathToDraw);
-         */
 
         //Draw Segment2D
-
         Path2D path = new GeneralPath();
         Segment2D seg = DebugTools.currentSegToDraw;
         Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
@@ -585,6 +550,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         path.append(shape, false);
         drawModelPath2D(g2d, path);
 
+        //Draw a list of Segment2D
         for (Segment2D segment : DebugTools.segmentsToDraw) {
             shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
             path.append(shape, false);

@@ -14,8 +14,10 @@ import java.util.Vector;
  * DebugTools is useful for debugging.
  * Was used with Genetics and NN Pavement.
  *
- * Set its variables, and call DebugTools.setPaintForDebug(true);
- * It will draw on the screen what is stored on the variables of DebugTools.
+ * Set its variables depending on what you want to draw, and call DebugTools.setPaintForDebug(true);
+ * It will draw on the screen what is stored in the variables of DebugTools.
+ * You may have to modifiy the method AIpaintForDebug in MeshWindowsCore to paint exactly what you need.
+ * @see meshIneBits.gui.view2d.MeshWindowCore#AIpaintForDebug
  */
 @SuppressWarnings("unused")
 public final class DebugTools {
@@ -40,6 +42,9 @@ public final class DebugTools {
 
     public static Vector<Bit2D> Bits = new Vector<>();
 
+    /**
+     * Authorize (or not) to paint on the screen what is stored in the variables of DebugTools.
+     */
     public static void setPaintForDebug(boolean b) {
         AI_Tool.getMeshController().AI_NeedPaint = b;
     }

@@ -149,7 +149,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
     private Rectangle2D.Double bulkSelectZone;
 
     /**
-     * For debug, let display segments, points and areas via DebugTools.
+     * For debug, let displaying segments, points and areas via DebugTools.
      * @see DebugTools
      */
     public boolean AI_NeedPaint = false;
@@ -537,7 +537,7 @@ public class MeshController extends Observable implements Observer,HandlerRedoUn
         setSelectedBitKeys(resultKey);
         this.handlerRedoUndo.addActionBit(new HandlerRedoUndo.ActionOfUserMoveBit(resultKey,this.getSelectedBits(),currentLayer.getLayerNumber()));
 
-        if (Acquisition.storeNewBits) { //if AI is storing new examples bits, we send the bit to it
+        if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it
             try {
                 Acquisition.addNewExampleBit(newBit);
             } catch (Exception e) {

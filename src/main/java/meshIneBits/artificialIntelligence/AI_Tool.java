@@ -53,17 +53,15 @@ public class AI_Tool {
      */
     public Collection<Bit2D> startNNPavement(Slice slice) throws Exception {
         Vector<Bit2D> bits = new Vector<>();
-       // DebugTools.setPaintForDebug(true); //debugOnly
-        DebugTools.pointsToDrawRED = new Vector<>();
         System.out.println("PAVING SLICE "+slice.getAltitude());
 
-        Vector<Vector<Vector2>> bounds = new DataPreparation().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
         NNExploitation nnExploitation = new NNExploitation();
 
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);
-            Vector<Vector2> associatedPoints = new DataPreparation().getSectionPointsFromBound(bound, startPoint);
+            Vector<Vector2> associatedPoints = new GeneralTools().getSectionPointsFromBound(bound, startPoint);
 
             int nbIterations = 0;
             while (hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
@@ -72,15 +70,14 @@ public class AI_Tool {
                 if (nbIterations > 500)//number max of bits to place before stopping
                     break; //todo @Etienne
 
-                Vector<Vector2> sectionPoints = new DataPreparation().getSectionPointsFromBound(bound, startPoint);
-                double angleLocalSystem = new DataPreparation().getLocalCoordinateSystemAngle(sectionPoints);
+                Vector<Vector2> sectionPoints = new GeneralTools().getSectionPointsFromBound(bound, startPoint);
+                double angleLocalSystem = new GeneralTools().getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> sectionPointsReg = new DataPreparation().getInputPointsForDL(sectionPoints);
+                Vector<Vector2> sectionPointsReg = new GeneralTools().getInputPointsForDL(sectionPoints);
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
 
-                startPoint = new DataPreparation().getNextBitStartPoint(bit, bound);
-               // DebugTools.pointsToDrawRED.add(startPoint);
+                startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
             }
         }
         return bits;
@@ -101,9 +98,6 @@ public class AI_Tool {
         return !associatedPoints.contains(veryFirststartPoint); //fixme @Etienne
     }
 
-    /**
-     * @return the meshController
-     */
     public static MeshController getMeshController() {
         return meshController;
     }

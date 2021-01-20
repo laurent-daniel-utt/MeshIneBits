@@ -22,7 +22,7 @@
 
 package meshIneBits.util;
 
-import meshIneBits.artificialIntelligence.DataPreparation;
+import meshIneBits.artificialIntelligence.GeneralTools;
 
 import java.io.Serializable;
 import java.util.Vector;
@@ -106,16 +106,16 @@ public class Segment2D extends AABBrect implements Serializable {
         if (B.asGoodAsEqual(C) || B.asGoodAsEqual(D)) {
             return true;
         }
-        if (DataPreparation.isPointOnSegment(A, CD)){
+        if (GeneralTools.isPointOnSegment(A, CD)){
             return true;
         }
-        if (DataPreparation.isPointOnSegment(B, CD)){
+        if (GeneralTools.isPointOnSegment(B, CD)){
             return true;
         }
-        if (DataPreparation.isPointOnSegment(C, AB)){
+        if (GeneralTools.isPointOnSegment(C, AB)){
             return true;
         }
-        if (DataPreparation.isPointOnSegment(D, AB)){
+        if (GeneralTools.isPointOnSegment(D, AB)){
             return true;
         }
 
@@ -148,16 +148,16 @@ public class Segment2D extends AABBrect implements Serializable {
             return B;
         }
 
-        if (DataPreparation.isPointOnSegment(A, CD)){
+        if (GeneralTools.isPointOnSegment(A, CD)){
             return A;
         }
-        if (DataPreparation.isPointOnSegment(B, CD)){
+        if (GeneralTools.isPointOnSegment(B, CD)){
             return B;
         }
-        if (DataPreparation.isPointOnSegment(C, AB)){
+        if (GeneralTools.isPointOnSegment(C, AB)){
             return C;
         }
-        if (DataPreparation.isPointOnSegment(D, AB)){
+        if (GeneralTools.isPointOnSegment(D, AB)){
             return D;
         }
 

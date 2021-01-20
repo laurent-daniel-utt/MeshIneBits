@@ -1,6 +1,6 @@
 package meshIneBits.artificialIntelligence.genetics;
 
-import meshIneBits.artificialIntelligence.DataPreparation;
+import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 
@@ -70,10 +70,10 @@ public class Generation {
     private Solution createNewSolution(Vector<Vector2> pointSection) {
         double position = Math.random() * CraftConfig.bitWidth;
 
-        double angleSection = DataPreparation.
+        double angleSection = GeneralTools.
                 getSectionOrientation(pointSection);
 
-        if (DataPreparation.arePointsMostlyOrientedToTheLeft(pointSection, pointSection.firstElement())) {
+        if (GeneralTools.arePointsMostlyOrientedToTheLeft(pointSection, pointSection.firstElement())) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;

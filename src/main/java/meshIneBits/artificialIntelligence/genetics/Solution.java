@@ -2,7 +2,7 @@ package meshIneBits.artificialIntelligence.genetics;
 
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.DataPreparation;
+import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
 import meshIneBits.util.Segment2D;
@@ -125,7 +125,7 @@ public class Solution {
             bad = true;
          */
         try {
-            new DataPreparation().getNextBitStartPoint(getBit(startPoint), bound);
+            new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound);
         } catch (Exception e) {
             bad = true;
         }
@@ -141,7 +141,7 @@ public class Solution {
      */
     @SuppressWarnings("unused")
     private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
-        Vector<Segment2D> segmentsSlice = DataPreparation.getSegment2DS(boundPoints);
+        Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
 
         int intersectionCount = 0;
@@ -182,7 +182,7 @@ public class Solution {
      */
     private double getLengthScore() throws Exception {
         Bit2D bit2D = getBit(startPoint);
-        Vector2 nextBitStartPoint = new DataPreparation().getNextBitStartPoint(bit2D, bound);
+        Vector2 nextBitStartPoint = new GeneralTools().getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
         return LENGTH_COEFF_STRENGTH / 100.0 * coveredDistance / CraftConfig.bitLength;
     }

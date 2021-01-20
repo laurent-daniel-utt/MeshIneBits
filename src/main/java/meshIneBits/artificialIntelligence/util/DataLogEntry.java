@@ -5,6 +5,7 @@ import meshIneBits.util.Vector2;
 
 import java.util.Vector;
 
+//todo @Andre, on peut se débarasser de cette classe ou pas ?
 public class DataLogEntry {
     private final Vector2 bitPosition;
     private final Vector2 bitOrientation;

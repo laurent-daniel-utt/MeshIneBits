@@ -11,12 +11,16 @@ import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
-//todo @Etienne@Andre documenter aussi toutes les classes
-public class DataPreparation {
+/**
+ * GeneralTools groups together the methods used to prepare the data for Neural Network or Genetic Algorithms.
+ * It also provides methods to perform intersection point search.
+ */
+public class GeneralTools {
 
     /**
      * Returns the points of each bound of a given Slice
@@ -24,14 +28,14 @@ public class DataPreparation {
      * @see #rearrangeSegments
      * @see #rearrangePoints
      *
-     * @param currentSlice the slice to get the bounds
-     * @return the bounds of the given slice, once rearranged
+     * @param currentSlice the slice to get the bounds.
+     * @return the bounds of the given slice, once rearranged.
      */
     @SuppressWarnings("unchecked")
     public Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
         /*
          TODO: 2021-01-18
-        * todo this method could be replaced by the optimize method of Shape2D
+        * this method could be replaced by the optimize method of Shape2D
         *  Just make sure to get all "bounds" = all polygons that makes the Slice.
         */
         Vector<Vector<Vector2>> boundsList = new Vector<>();
@@ -161,9 +165,11 @@ public class DataPreparation {
      * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
      */
     public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> sectionPoints) {
-
+        /*
+         * TODO: 2021-01-20
+         *  methods that transform points from one Coordinate System to another one should be replaced with AffineTransform.
+         */
         double angle = getLocalCoordinateSystemAngle(sectionPoints);
-
         return transformCoordinateSystem(sectionPoints, angle);
     }
 
@@ -465,7 +471,7 @@ public class DataPreparation {
     }
 
     /**
-     * returns the first intersection point between the bound and bit's edges
+     * Returns the first intersection point between the bound and bit's edges
      *
      * @param bit a bit
      * @param boundPoints the points of the bound
@@ -599,7 +605,7 @@ public class DataPreparation {
     }
 
     /**
-     * converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
+     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
      * following the order of the list of points given as entry.
      * @param points the points requiring to be converted into segments.
      * @return the segments resulting from the conversion.
@@ -647,7 +653,7 @@ public class DataPreparation {
     }
 
     /**
-     * similar to isOnSegment() of Vector2, but more reliable
+     * Similar to isOnSegment() of Vector2, but more reliable
      *
      * @param v a point
      * @param s a segment

@@ -1,7 +1,7 @@
 package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DataPreparation;
+import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 
@@ -10,20 +10,18 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * generates a .csv dataset
+ * Generates a .csv dataset
  * format of a line : edge abscissa, bit's angle, point 0 x, point 0 y, point 1 x, point 1 y,...
  */
 public final class DataSetGenerator {
 
     /**
-     * generates a .csv file that can be used by a neural network
+     * Generates a .csv file that can be used by a neural network
      */
     public static void generateCsvFile() throws IOException {
 
         long dataLogSize;
-
         dataLogSize = DataLogger.getNumberOfEntries();
-
         FileWriter fw = new FileWriter(AI_Tool.DATASET_FILE_PATH, false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
@@ -33,8 +31,8 @@ public final class DataSetGenerator {
             // format data for dl
             Vector2 startPoint = entry.getPoints().firstElement();
 
-            Vector<Vector2> transformedPoints = DataPreparation.getSectionInLocalCoordinateSystem(entry.getPoints());
-            Vector<Vector2> pointsForDl = DataPreparation.getInputPointsForDL(transformedPoints);
+            Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(entry.getPoints());
+            Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(transformedPoints);
 
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
             double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getPoints());
@@ -50,7 +48,6 @@ public final class DataSetGenerator {
             }
 
             fw.write(csvLine + "\n");
-
         }
 
         fw.close();
@@ -99,7 +96,7 @@ public final class DataSetGenerator {
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
     private static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints) {
-        Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(DataPreparation.getLocalCoordinateSystemAngle(sectionPoints));
+        Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(GeneralTools.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
 
@@ -119,18 +116,4 @@ public final class DataSetGenerator {
 
         return Math.toDegrees(bitAngleLocal);
     }
-
-
-    public static void main(String[] args) {
-        try {
-            generateCsvFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("pb generation dataset");
-        }
-    }
-
-
-
-
 }
