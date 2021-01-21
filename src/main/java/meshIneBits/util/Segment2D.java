@@ -92,8 +92,6 @@ public class Segment2D extends AABBrect implements Serializable {
      * @return  true if the two segments intersects. false otherwise
      */
     public static boolean doSegmentsIntersect(Segment2D AB, Segment2D CD) {
-        //todo @Andre V2 Seg2.doSegmentsINtersect(seg2)
-        // points
         Vector2 A = AB.start;
         Vector2 B = AB.end;
         Vector2 C = CD.start;

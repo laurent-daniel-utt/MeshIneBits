@@ -3,16 +3,24 @@ package meshIneBits.artificialIntelligence.genetics;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.util.*;
 
+/**
+ * A Generation is a set of solutions.
+ * Provides tools to reproduce solutions between them, select the better ones,
+ * and mutate some (has to be used with genetics algorithms).
+ *
+ * @see Solution
+ */
 public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
     private static final double MAX_ANGLE = 89.0;
-    public final Vector<Solution> solutions;
+    public final @NotNull Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -49,7 +57,7 @@ public class Generation {
     /**
      * Initialize a Generation. Creates its solutions.
      */
-    public void initialize(Vector<Vector2> pointSection) {
+    public void initialize(@NotNull Vector<Vector2> pointSection) {
         for (int pop = 0; pop < popSize; pop++) {
             this.solutions.add(createNewSolution(pointSection));
         }
@@ -67,7 +75,7 @@ public class Generation {
      *
      * @return the new random solution.
      */
-    private Solution createNewSolution(Vector<Vector2> pointSection) {
+    private @NotNull Solution createNewSolution(@NotNull Vector<Vector2> pointSection) {
         double position = Math.random() * CraftConfig.bitWidth;
 
         double angleSection = GeneralTools.
@@ -89,7 +97,7 @@ public class Generation {
      * @param angle the angle of the solution
      * @return the new solution.
      */
-    private Solution createNewSolution(double pos, Vector2 angle) {
+    private @NotNull Solution createNewSolution(double pos, Vector2 angle) {
         return new Solution(pos, angle, startPoint, this, bound, ratio, layerAvailableArea);
     }
 
@@ -115,7 +123,7 @@ public class Generation {
      *
      * @return the n best solutions according to the <code>rankSelection</code>.
      */
-    public Vector<Solution> select(Vector<Solution> solutionsToSelect) {
+    public @NotNull Vector<Solution> select(@NotNull Vector<Solution> solutionsToSelect) {
         List<Solution> solutionList = sortSolutions(solutionsToSelect);
         int nbOfSelecteds = (int) (solutionsToSelect.size() * rankSelection);
         return new Vector<>(solutionList.subList(0, nbOfSelecteds));
@@ -126,7 +134,7 @@ public class Generation {
      *
      * @return the n new children solutions according to the <code>rankReproduction</code>.
      */
-    public Vector<Solution> reproduce(Vector<Solution> solutionsToReproduce) {
+    public @NotNull Vector<Solution> reproduce(@NotNull Vector<Solution> solutionsToReproduce) {
         Vector<Solution> reproducedSolutions = new Vector<>();
         int numberOfChilds = (int) (this.popSize * this.rankReproduction);
 
@@ -149,7 +157,7 @@ public class Generation {
      *
      * @return the solutions given with a few mutated solutions.
      */
-    public Vector<Solution> mutate(Vector<Solution> solutionsToMutate) {
+    public @NotNull Vector<Solution> mutate(@NotNull Vector<Solution> solutionsToMutate) {
         //Vector<Solution> mutatedSolutions = new Vector<>();
         for (Solution solution : solutionsToMutate) {
             if (Math.random() <= this.probMutation) {
@@ -165,7 +173,7 @@ public class Generation {
      *
      * @return the completely new solutions.
      */
-    public Vector<Solution> completeWithNewSolutions(Vector<Vector2> pointSection) {
+    public @NotNull Vector<Solution> completeWithNewSolutions(@NotNull Vector<Vector2> pointSection) {
         Vector<Solution> newSolutions = new Vector<>();
         int nbOfNewSolutions = this.popSize - this.solutions.size();
         for (int i = 0; i < nbOfNewSolutions; i++) {
@@ -174,8 +182,13 @@ public class Generation {
         return newSolutions;
     }
 
-
-    public List<Solution> sortSolutions(Vector<Solution> solutions) {
+    /**
+     * Sorts its solutions in the descending order so that the first solution returned is the better.
+     *
+     * @param solutions the solutions to sort.
+     * @return the sorted solutions.
+     */
+    public @NotNull List<Solution> sortSolutions(@NotNull Vector<Solution> solutions) {
         List<Solution> solutionList = new ArrayList<>(solutions);
         Comparator<Solution> comparator = new SolutionComparator();
         solutionList.sort(comparator);

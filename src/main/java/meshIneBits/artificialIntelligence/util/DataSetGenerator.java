@@ -4,6 +4,7 @@ import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,13 +30,13 @@ public final class DataSetGenerator {
             DataLogEntry entry = DataLogger.getEntryFromFile(logLine);
 
             // format data for dl
-            Vector2 startPoint = entry.getPoints().firstElement();
+            Vector2 startPoint = entry.getAssociatedPoints().firstElement();
 
-            Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(entry.getPoints());
+            Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(entry.getAssociatedPoints());
             Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(transformedPoints);
 
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
-            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getPoints());
+            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getAssociatedPoints());
 
             //generates one line (corresponds to the data of one bit)
             StringBuilder csvLine = new StringBuilder(""
@@ -59,13 +60,13 @@ public final class DataSetGenerator {
      * a startPoint and an abscissa related to one bit's vertex. This is helpful for automatic placement on
      * slice's borders,because it guarantees that the bit covers the startPoint, as bit's position is related to it.
      *
-     * @param bitOrigin     usual (x, y) coordinates of bit's center
+     * @param bitOrigin  usual (x, y) coordinates of bit's center
      * @param bitAngle   bit's angle as a vector
      * @param startPoint the startPoint on which the new bit's end should be placed : the intersection between the
      *                   slice border and the last placed bit's end edge
      * @return the edgeAbscissa
      */
-    private static double getBitEdgeAbscissa(Vector2 bitOrigin, Vector2 bitAngle, Vector2 startPoint) {
+    private static double getBitEdgeAbscissa(@NotNull Vector2 bitOrigin, @NotNull Vector2 bitAngle, Vector2 startPoint) {
 
         Vector2 colinear = bitAngle.normal();
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
@@ -95,14 +96,14 @@ public final class DataSetGenerator {
      * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
-    private static double getBitAngleInLocalSystem(Vector2 bitAngle, Vector<Vector2> sectionPoints) {
+    private static double getBitAngleInLocalSystem(@NotNull Vector2 bitAngle, @NotNull Vector<Vector2> sectionPoints) {
         Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(GeneralTools.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
 
         // = if angle between the vector is more than 90 degrees
         // (the point of rotation is the center of the bit, so both angles are equivalent)
-        if (bitAngle.dot(localCoordinateSystemAngle)<0){
+        if (bitAngle.dot(localCoordinateSystemAngle) < 0) {
             bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
         }
 
@@ -112,7 +113,7 @@ public final class DataSetGenerator {
         double y2 = bitAngle.y;
         double l1 = localCoordinateSystemAngle.vSize();
         double l2 = bitAngle.vSize();
-        double bitAngleLocal = Math.asin ( (x1*y2-y1*x2) / (l1*l2) );
+        double bitAngleLocal = Math.asin((x1 * y2 - y1 * x2) / (l1 * l2));
 
         return Math.toDegrees(bitAngleLocal);
     }
