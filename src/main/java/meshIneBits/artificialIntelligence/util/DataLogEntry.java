@@ -2,31 +2,49 @@ package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.Bit2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
-//todo @Andre, on peut se débarasser de cette classe ou pas ?
+/**
+ * A DataLogEntry contains the data read or the data to write in the dataSet file.
+ * It contains the position and orientation of a bit, and the section of its associated points.
+ */
 public class DataLogEntry {
     private final Vector2 bitPosition;
     private final Vector2 bitOrientation;
-    private final Vector<Vector2> points;
+    private final Vector<Vector2> associatedPoints;
 
-
-    public DataLogEntry(Vector2 bitPosition, Vector2 bitOrientation, Vector<Vector2> points) {
+    /**
+     * A DataLogEntry contains the data read or the data to write in the dataSet file.
+     * It contains the position and orientation of a bit, and the section of its associated points.
+     *
+     * @param bitPosition      the position of the bit.
+     * @param bitOrientation   the orientation of the bit.
+     * @param associatedPoints the points associated to the bit.
+     */
+    public DataLogEntry(Vector2 bitPosition, Vector2 bitOrientation, Vector<Vector2> associatedPoints) {
         this.bitPosition = bitPosition;
         this.bitOrientation = bitOrientation;
-        this.points = points;
+        this.associatedPoints = associatedPoints;
 
     }
 
-    public DataLogEntry(Bit2D bit2D, Vector<Vector2> points) {
+    /**
+     * A DataLogEntry contains the data read or the data to write in the dataSet file.
+     * It contains the position and orientation of a bit, and the section of its associated points.
+     *
+     * @param bit2D            the bit.
+     * @param associatedPoints the points associated to the bit.
+     */
+    public DataLogEntry(@NotNull Bit2D bit2D, Vector<Vector2> associatedPoints) {
         this.bitPosition = bit2D.getOrigin();
         this.bitOrientation = bit2D.getOrientation();
-        this.points = points;
+        this.associatedPoints = associatedPoints;
     }
 
-    public Vector<Vector2> getPoints() {
-        return points;
+    public Vector<Vector2> getAssociatedPoints() {
+        return associatedPoints;
     }
 
     public Vector2 getBitPosition() {
@@ -38,11 +56,11 @@ public class DataLogEntry {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "DataLogEntry{" +
                 "bitPosition=" + bitPosition.toString() +
                 ", bitOrientation=" + bitOrientation.toString() +
-                ", points=" + points +
+                ", points=" + associatedPoints +
                 '}';
     }
 }

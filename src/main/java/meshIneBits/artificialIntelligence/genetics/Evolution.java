@@ -5,6 +5,13 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.Area;
 import java.util.Vector;
 
+/**
+ * An Evolution is the process of generating generations and applying Darwin's principles to them.
+ * The Evolution will find the best solution for the given bit placement with genetic algorithms.
+ *
+ * @see Generation
+ * @see Solution
+ */
 public class Evolution {
     /**
      * The probability for a Solution to mutate.
@@ -18,8 +25,17 @@ public class Evolution {
      * The percentage of reproduced Solutions to give to the new Generation.
      */
     private static final double RANK_REPRODUCTION = 0.5;
+    /**
+     * The ratio between the area and the length, used when calculating the score.
+     */
     private final int RATIO;
-    private final int NB_GEN_MAX;
+    /**
+     * The number of generations to do.
+     */
+    private final int NB_OF_GENERATIONS;
+    /**
+     * The size of the population to keep alive.
+     */
     private final int POP_SIZE;
     private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
@@ -31,14 +47,20 @@ public class Evolution {
     /**
      * An evolution searches the best Solution for a given set of points.
      *
-     * @param pointSection the points on which the Bit2D will be placed.
+     * @param layerAvailableArea the available Area of the layer.
+     * @param pointSection       the points on which the Bit2D will be placed.
+     * @param startPoint         the startPoint where to place the bit;
+     * @param bound              the bound where the bit has to be placed.
+     * @param nbOfGenerations    the number of generations to generate.
+     * @param popSize            the size of the population to keep alive during the process.
+     * @param RATIO              the ratio between the area and the length, used when calculating the score.
      */
-    public Evolution(Area layerAvailableArea, Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int genNumber, int popSize, int RATIO) {
+    public Evolution(Area layerAvailableArea, Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int nbOfGenerations, int popSize, int RATIO) {
         this.layerAvailableArea = layerAvailableArea;
         this.pointSection = pointSection;
         this.startPoint = startPoint;
         this.bound = bound;
-        this.NB_GEN_MAX = genNumber;
+        this.NB_OF_GENERATIONS = nbOfGenerations;
         this.POP_SIZE = popSize;
         this.RATIO = RATIO;
     }
@@ -62,7 +84,7 @@ public class Evolution {
         int currentGenerationNumber = 0;
         generations.add(initGeneration);
 
-        while (currentGenerationNumber < NB_GEN_MAX) {
+        while (currentGenerationNumber < NB_OF_GENERATIONS) {
             Generation currentGeneration = new Generation(
                     POP_SIZE,
                     RANK_SELECTION,

@@ -10,8 +10,8 @@ import meshIneBits.util.Vector2;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.util.Vector;
 import java.util.stream.IntStream;
@@ -25,14 +25,14 @@ public class GeneralTools {
     /**
      * Returns the points of each bound of a given Slice
      * The points are rearranged to be in the correct order.
-     * @see #rearrangeSegments
-     * @see #rearrangePoints
      *
      * @param currentSlice the slice to get the bounds.
      * @return the bounds of the given slice, once rearranged.
+     * @see #rearrangeSegments
+     * @see #rearrangePoints
      */
     @SuppressWarnings("unchecked")
-    public Vector<Vector<Vector2>> getBoundsAndRearrange(Slice currentSlice) {
+    public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
         /*
          TODO: 2021-01-18
         * this method could be replaced by the optimize method of Shape2D
@@ -50,10 +50,11 @@ public class GeneralTools {
 
     /**
      * Rearranges the given segments so that each segment follows the previous one.
+     *
      * @param segmentList the segments to rearranged
      * @return the rearranged segments. Returns more than one Vector of Segment2D if there's more than one bound on the Slice
      */
-    private static Vector<Vector<Segment2D>> rearrangeSegments(Vector<Segment2D> segmentList) {
+    private static @NotNull Vector<Vector<Segment2D>> rearrangeSegments(@NotNull Vector<Segment2D> segmentList) {
         Vector<Vector<Segment2D>> list = new Vector<>();
         Vector<Segment2D> newSegmentList = new Vector<>();
         newSegmentList.add(segmentList.get(0));
@@ -70,10 +71,11 @@ public class GeneralTools {
 
     /**
      * Rearranges the given points so that the list begins at the rightmost point
+     *
      * @param pointList the points to be rearranged.
-     * @return  the rearranged points.
+     * @return the rearranged points.
      */
-    private static Vector<Vector2> rearrangePoints(Vector<Vector2> pointList) {
+    private static @NotNull Vector<Vector2> rearrangePoints(@NotNull Vector<Vector2> pointList) {
         Vector<Vector2> newPointList = new Vector<>();
         int PointIndex;
         double maxX = -1000000000;
@@ -97,9 +99,9 @@ public class GeneralTools {
      * Returns a point list from a segment list
      *
      * @param segmentList the segment list
-     * @return  the list of point computed from the segment list
+     * @return the list of point computed from the segment list
      */
-    private static Vector<Vector2> computePoints(Vector<Segment2D> segmentList) {
+    private static @NotNull Vector<Vector2> computePoints(@NotNull Vector<Segment2D> segmentList) {
         Vector<Vector2> pointList = new Vector<>();
         for (Segment2D segment : segmentList) {
             pointList.add(new Vector2(segment.start.x, segment.start.y));
@@ -111,13 +113,14 @@ public class GeneralTools {
     /**
      * Searches the next segment of the given segment, in a list of segments.
      * And returns the rearranged list.
-     * @see #rearrangeSegments
-     * @param segment the current segment.
-     * @param segmentList   the list of all segments.
+     *
+     * @param segment        the current segment.
+     * @param segmentList    the list of all segments.
      * @param newSegmentList the list segments that have already been rearranged.
      * @return the rearranged list.
+     * @see #rearrangeSegments
      */
-    private static Vector<Segment2D> searchNextSegment(Segment2D segment, Vector<Segment2D> segmentList, Vector<Segment2D> newSegmentList) {
+    private static @NotNull Vector<Segment2D> searchNextSegment(@NotNull Segment2D segment, @NotNull Vector<Segment2D> segmentList, @NotNull Vector<Segment2D> newSegmentList) {
         for (Segment2D segmentSearch : segmentList) {
             if (segmentSearch.start == segment.end) {
                 newSegmentList.add(segmentSearch);
@@ -132,10 +135,11 @@ public class GeneralTools {
     /**
      * Calculates the angle of the local coordinate system used for the coordinate system transformation made
      * by {@link #getSectionInLocalCoordinateSystem(Vector)}.
+     *
      * @param sectionPoints the points that we want to transform in a local coordinate system.
      * @return the angle of the local coordinate system.
      */
-    public static double getLocalCoordinateSystemAngle(Vector<Vector2> sectionPoints) {
+    public static double getLocalCoordinateSystemAngle(@NotNull Vector<Vector2> sectionPoints) {
 
         //map for more accurate result
         Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints);
@@ -161,10 +165,11 @@ public class GeneralTools {
      * Translates and rotates a curve to put it in a local coordinate system, centered on the first point of the curve,
      * with the abscissa axis in the direction of the average angle of the curve (regarding in the global coordinate
      * system).
+     *
      * @param sectionPoints the points we want to convert in a local coordinate system
      * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
      */
-    public static Vector<Vector2> getSectionInLocalCoordinateSystem(Vector<Vector2> sectionPoints) {
+    public static @NotNull Vector<Vector2> getSectionInLocalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints) {
         /*
          * TODO: 2021-01-20
          *  methods that transform points from one Coordinate System to another one should be replaced with AffineTransform.
@@ -176,11 +181,12 @@ public class GeneralTools {
 
     /**
      * Rotates a list of points by a given angle
+     *
      * @param points the points to transform
      * @param angle  the angle in degrees
      * @return the rotated list of points
      */
-    private static Vector<Vector2> transformCoordinateSystem(Vector<Vector2> points, double angle) {
+    private static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, double angle) {
         angle = Math.toRadians(angle);
         Vector<Vector2> finalPoints = new Vector<>();
         finalPoints.add(new Vector2(0, 0)); // first point is always on origin
@@ -203,7 +209,7 @@ public class GeneralTools {
      * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
-    public static Vector<Vector2> getSectionPointsFromBound(Vector<Vector2> polyPoints, Vector2 startPoint) {
+    public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> polyPoints, Vector2 startPoint) {
 
         double bitLength = CraftConfig.bitLength;
 
@@ -253,10 +259,11 @@ public class GeneralTools {
 
     /**
      * Returns the angle of the line that fit a list of points
+     *
      * @param points the points
      * @return an angle between -90 and 90 degrees
      */
-    public static Double getSectionOrientation(Vector<Vector2> points) {
+    public static Double getSectionOrientation(@NotNull Vector<Vector2> points) {
         // prepare fitting
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degree 1
         WeightedObservedPoints weightedObservedPoints = new WeightedObservedPoints();
@@ -274,11 +281,12 @@ public class GeneralTools {
     /**
      * Checks if most of the points given as parameter are located at the left of a reference point, also given
      * in parameters.
-     * @param points the points whose location we want to test.
+     *
+     * @param points   the points whose location we want to test.
      * @param refPoint the reference point.
      * @return true if most of the points are at the left of the reference point.
      */
-    public static boolean arePointsMostlyOrientedToTheLeft(Vector<Vector2> points, Vector2 refPoint) {
+    public static boolean arePointsMostlyOrientedToTheLeft(@NotNull Vector<Vector2> points, @NotNull Vector2 refPoint) {
         int leftPoints = 0;
         int rightPoints = 0;
         for (Vector2 point : points) {
@@ -294,11 +302,12 @@ public class GeneralTools {
 
     /**
      * Positions a precise number of points on a section of points. Each point is equally spaced to the next point.
+     *
      * @param sectionPoints the initial section of points.
      * @return a new section of points, composed of the equally spaced points.
      */
-    public static Vector<Vector2> getInputPointsForDL(Vector<Vector2> sectionPoints) {
-        int nbPoints = 30; // todo @etienne est ce que c'est bien de mettre le nombre de points ici ?
+    public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
+        int nbPoints = 30;
         return repopulateWithNewPoints(nbPoints, sectionPoints);
     }
 
@@ -309,7 +318,7 @@ public class GeneralTools {
      * @param points      the section of points to repopulate
      * @return the section repopulated with new points.
      */
-    private static Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Vector<Vector2> points) {
+    private static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points) {
 
         Vector<Vector2> newPoints = new Vector<>();
         Vector<Double> segmentLength = new Vector<>();
@@ -381,12 +390,13 @@ public class GeneralTools {
      * the section.
      * 2 - A non-linear regression is made over each curve.
      * 3 - We get two arrays of coefficients related to the two curves.
+     *
      * @param sectionPoints the points on which the regression is performed.
-     * @param degree the degree of the regression, witch is linked to the accuracy of the regression performed.
+     * @param degree        the degree of the regression, witch is linked to the accuracy of the regression performed.
      * @return a {@link Vector} of two {@link Vector} of coefficients related the section entered as parameter.
      */
     @SuppressWarnings("unused")
-    private static Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
+    private static @NotNull Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
         Curve inputCurve = new Curve("input curve");
         inputCurve.generateCurve(sectionPoints);
         Curve[] splitCurve = inputCurve.splitCurveInTwo();
@@ -397,7 +407,7 @@ public class GeneralTools {
         PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
-        for (int i = 0; i < inputCurve.getN_points(); i++) {
+        for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
             weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
             weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
         }
@@ -423,11 +433,11 @@ public class GeneralTools {
      * Return the next Bit2D start point.
      * It is the intersection between the slice and the end side of the Bit2D.
      *
-     * @param bit the current Bit2D (the last placed Bit2D by AI).
+     * @param bit         the current Bit2D (the last placed Bit2D by AI).
      * @param boundPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public Vector2 getNextBitStartPoint(Bit2D bit, Vector<Vector2> boundPoints) throws Exception {
+    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
 
         Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints);
 
@@ -447,7 +457,7 @@ public class GeneralTools {
      * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public Vector<Vector2> getCurrentLayerBitAssociatedPoints(Bit2D bit2D) throws Exception {
+    public @NotNull Vector<Vector2> getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
@@ -473,11 +483,11 @@ public class GeneralTools {
     /**
      * Returns the first intersection point between the bound and bit's edges
      *
-     * @param bit a bit
+     * @param bit         a bit
      * @param boundPoints the points of the bound
      * @return the first intersection point between the bound and bit's edges
      */
-    public static Vector2 getBitAndContourFirstIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
+    public static @Nullable Vector2 getBitAndContourFirstIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) {
         // get sides of the bit as Segment2Ds (will be used later)
         Vector<Segment2D> bitSides = bit.getBitSidesSegments();
 
@@ -562,11 +572,12 @@ public class GeneralTools {
      * Looks for an intersection point between a side of a bit and a closed contour (bound). TJe point returned
      * is the first intersecton between the bit and the contour, while scanning the contour in the direction of
      * increasing indices of the points of the contour.
-     * @param bit a {@link Bit2D}.
+     *
+     * @param bit         a {@link Bit2D}.
      * @param boundPoints the points of the contour.
      * @return the first intersection between the bit and the closed contour.
      */
-    public static Vector2 getBitAndContourSecondIntersectionPoint(Bit2D bit, Vector<Vector2> boundPoints) {
+    public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) {
 
         Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
         Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
@@ -607,11 +618,12 @@ public class GeneralTools {
     /**
      * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
      * following the order of the list of points given as entry.
+     *
      * @param points the points requiring to be converted into segments.
      * @return the segments resulting from the conversion.
      */
     @NotNull
-    public static Vector<Segment2D> getSegment2DS(Vector<Vector2> points) {
+    public static Vector<Segment2D> getSegment2DS(@NotNull Vector<Vector2> points) {
         Vector<Segment2D> sectionSegments = new Vector<>();
         for (int i = 0; i < points.size() - 1; i++) {
             sectionSegments.add(new Segment2D(
@@ -633,7 +645,7 @@ public class GeneralTools {
      * @param seg    segment
      * @return an approximation of the intersection point between the segment and the circle
      */
-    public static Vector2 circleAndSegmentIntersection(Vector2 center, double radius, Segment2D seg) {
+    public static @NotNull Vector2 circleAndSegmentIntersection(Vector2 center, double radius, @NotNull Segment2D seg) {
 
         double step = 0.01;
 
@@ -659,7 +671,7 @@ public class GeneralTools {
      * @param s a segment
      * @return true if the point is on the segment
      */
-    public static boolean isPointOnSegment(Vector2 v, Segment2D s){
+    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
         double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
         return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
     }

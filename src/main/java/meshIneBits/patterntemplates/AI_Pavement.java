@@ -17,6 +17,7 @@ public class AI_Pavement extends PatternTemplate {
     protected void initiateConfig() {
         config.add(AI_Tool.paramSafeguardSpace);
         config.add(AI_Tool.paramPosCorrection);
+        config.add(AI_Tool.paramEarlyStopping);
     }
 
     @Override
@@ -29,10 +30,6 @@ public class AI_Pavement extends PatternTemplate {
         try {
             Collection<Bit2D> bits = new AI_Tool().startNNPavement(layer.getHorizontalSection());
             //updateBitAreasWithSpaceAround(bits);
-            //Vector<Bit2D> bitsCloned = new Vector<>();
-            // for (Bit2D bit : bits) {
-            //     bitsCloned.add(bit.clone());
-            //}
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();

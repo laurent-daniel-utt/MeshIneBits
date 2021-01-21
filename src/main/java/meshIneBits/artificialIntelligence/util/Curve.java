@@ -1,49 +1,63 @@
 package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
+/**
+ * A Curve is a tool allowing to save some points and perform parametric regressions on them.
+ */
 public class Curve {
-    //todo @Andre : doc et passer tout en anglais
-    //todo @Andre on peut se débarasser de cette classe ?
     private final String name;
     private Vector<Vector2> points = new Vector<>();
 
-    //Courbe non définie
+    /**
+     * An undefined curve.
+     *
+     * @param name the name of the curve.
+     */
     public Curve(String name) {
         this.name = name;
     }
 
-    // générer à partir de points
+    /**
+     * Generates the curve with points.
+     *
+     * @param points the points to add to the curve.
+     */
     public void generateCurve(Vector<Vector2> points) {
         this.points = points;
     }
 
-
+    /**
+     * Splits a curve in x(t) and y(t) as in parametric curves.
+     *
+     * @return the x(t) and y(t) curves.
+     */
     @SuppressWarnings("SuspiciousNameCombination")
-    public Curve[] splitCurveInTwo() {
+    public Curve @NotNull [] splitCurveInTwo() {
 
         Vector<Vector2> pointsX = new Vector<>();
         Vector<Vector2> pointsY = new Vector<>();
-        double absCurv = 0;
+        double curvilinearAbs = 0;
 
-        pointsX.add(new Vector2(absCurv, points.get(0).x));
-        pointsY.add(new Vector2(absCurv, points.get(0).y));
+        pointsX.add(new Vector2(curvilinearAbs, points.get(0).x));
+        pointsY.add(new Vector2(curvilinearAbs, points.get(0).y));
 
         for (int i = 1; i < this.points.size(); i++) {
-            absCurv += Math.sqrt(Math.pow(points.get(i - 1).x - points.get(i).x, 2)
+            curvilinearAbs += Math.sqrt(Math.pow(points.get(i - 1).x - points.get(i).x, 2)
                     + Math.pow(points.get(i - 1).y - points.get(i).y, 2));
-            pointsX.add(new Vector2(absCurv, points.get(i).x));
-            pointsY.add(new Vector2(absCurv, points.get(i).y));
+            pointsX.add(new Vector2(curvilinearAbs, points.get(i).x));
+            pointsY.add(new Vector2(curvilinearAbs, points.get(i).y));
         }
 
-        Curve courbeX = new Curve("x(t)");
-        Curve courbeY = new Curve("y(t)");
-        courbeX.generateCurve(pointsX);
-        courbeY.generateCurve(pointsY);
+        Curve curveX = new Curve("x(t)");
+        Curve curveY = new Curve("y(t)");
+        curveX.generateCurve(pointsX);
+        curveY.generateCurve(pointsY);
 
-        return new Curve[]{courbeX, courbeY};
+        return new Curve[]{curveX, curveY};
     }
 
 
@@ -51,12 +65,12 @@ public class Curve {
         return points;
     }
 
-    public int getN_points() {
+    public int getNumberOfPoints() {
         return points.size();
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder str = new StringBuilder("name = " + name + "\n");
         for (Vector2 v : points) {
             str.append(v.x).append("\t").append(v.y).append("\n");

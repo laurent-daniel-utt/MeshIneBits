@@ -7,21 +7,28 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.Comparator;
 import java.util.Vector;
 
+/**
+ * A Solution is a Bit2D with position parameter in a local coordinate system.
+ * Its position is measured from its startPoint.
+ * Provides Evaluation tools to be used with genetics algorithms.
+ */
 public class Solution {
 
     /**
      * The coefficient associated to the mutation.
      */
     private static final double MUTATION_MAX_STRENGTH = 0.2;
-
-
-    private final int LENGTH_COEFF_STRENGTH;
+    /**
+     * The ratio between the area and the length, used when calculating the score.
+     */
+    private final int RATIO;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final Generation generation;
@@ -36,15 +43,24 @@ public class Solution {
 
 
     /**
-     * A Solution is a Bit2D with position parameter in a local coordinate system. Its position is measured from its startPoint.
+     * A Solution is a Bit2D with position parameter in a local coordinate system.
+     * Its position is measured from its startPoint.
+     *
+     * @param pos                the position of the Bit2D in a local coordinate system.
+     * @param bitAngle           the angle of the Bit2D.
+     * @param startPoint         the origin of the local coordinate system.
+     * @param generation         its generation.
+     * @param bound              the bound of the Slice on which the bit has to be placed.
+     * @param RATIO              The ratio between the area and the length, used when calculating the score.
+     * @param layerAvailableArea the available Area of the Layer.
      */
-    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound, int length_coeff, Area layerAvailableArea) {
+    public Solution(double pos, Vector2 bitAngle, Vector2 startPoint, Generation generation, Vector<Vector2> bound, int RATIO, Area layerAvailableArea) {
         this.bitPos = pos;
         this.bitAngle = bitAngle;
         this.startPoint = startPoint;
         this.generation = generation;
         this.bound = bound;
-        this.LENGTH_COEFF_STRENGTH = length_coeff;
+        this.RATIO = RATIO;
         this.layerAvailableArea = layerAvailableArea;
     }
 
@@ -52,7 +68,6 @@ public class Solution {
     /**
      * Evaluates the current solution according to its lost surface.
      * Applies penalties to the score.
-     *
      */
     public void evaluate() {
         if (hasBeenEvaluated)
@@ -88,7 +103,7 @@ public class Solution {
             Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.bitLength, CraftConfig.bitWidth);
             double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
             double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
-            return ((1 - LENGTH_COEFF_STRENGTH / 100.0) * area / maxArea);
+            return ((1 - RATIO / 100.0) * area / maxArea);
 
 
         }
@@ -113,6 +128,11 @@ public class Solution {
         hasBeenCheckedBad = false;
     }
 
+    /**
+     * Checks if the solution is a really bad solution.
+     *
+     * @return true if the solution doesn't meet the conditions.
+     */
     public boolean isBad() {
         if (hasBeenCheckedBad)
             return bad;
@@ -140,7 +160,7 @@ public class Solution {
      * @return the number of intersections
      */
     @SuppressWarnings("unused")
-    private int getNumberOfIntersections(Vector<Vector2> boundPoints) {
+    private int getNumberOfIntersections(@NotNull Vector<Vector2> boundPoints) {
         Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
 
@@ -156,12 +176,12 @@ public class Solution {
 
 
     /**
-     * get the Solution's Bit2D according to the startPoint.
+     * Get the Solution's Bit2D according to the startPoint.
      *
      * @param startPoint the point where the bit's edge should be placed
      * @return the related Bit
      */
-    private Bit2D getBit(Vector2 startPoint) {
+    private @NotNull Bit2D getBit(@NotNull Vector2 startPoint) {
         Vector2 collinear = this.bitAngle.normal();
         Vector2 orthogonal = collinear
                 .rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
@@ -184,14 +204,14 @@ public class Solution {
         Bit2D bit2D = getBit(startPoint);
         Vector2 nextBitStartPoint = new GeneralTools().getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
-        return LENGTH_COEFF_STRENGTH / 100.0 * coveredDistance / CraftConfig.bitLength;
+        return RATIO / 100.0 * coveredDistance / CraftConfig.bitLength;
     }
 
 
     /**
      * @return the position and the angle of the solution in a String.
      */
-    public String toString() {
+    public @NotNull String toString() {
         return "pos: " + this.bitPos + " , angle: " + this.bitAngle;
     }
 
@@ -216,7 +236,7 @@ public class Solution {
  * Let the <code>Generation</code> compare two Solution by their scores.
  */
 class SolutionComparator implements Comparator<Solution> {
-    public int compare(Solution s1, Solution s2) {
+    public int compare(@NotNull Solution s1, @NotNull Solution s2) {
         return Double.compare(s2.getScore(), s1.getScore());
     }
 }

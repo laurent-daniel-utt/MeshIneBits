@@ -18,7 +18,7 @@ import java.util.Vector;
 public class GeneticPavement extends PatternTemplate {
 
     private Layer layer;
-    private final Vector<Bit2D> solutions = new Vector<>();
+    private Vector<Bit2D> solutions = new Vector<>();
     public Evolution currentEvolution;
 
     @Override
@@ -63,6 +63,7 @@ public class GeneticPavement extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         this.layer = layer;
+        this.solutions = new Vector<>();
         try {
             this.start(
                     AreaTool.getAreaFrom(layer.getHorizontalSection()),

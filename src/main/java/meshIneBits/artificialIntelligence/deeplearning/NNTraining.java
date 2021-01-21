@@ -190,12 +190,13 @@ public class NNTraining {
         INDArray prediction = model.output(features, false);
         normalizer.revert(testDataSet);
         normalizer.revertLabels(prediction);
-        //todo @Andre print score
+        //todo @Andre print score sinon
         System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
     }
 
     /**
      * Trains the neural network with the dataSet.
+     *
      * @param enableMonitoring
      */
     public void train(boolean enableMonitoring) {

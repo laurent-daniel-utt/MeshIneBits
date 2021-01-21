@@ -3,8 +3,8 @@ package meshIneBits.artificialIntelligence.deepLearning;
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.util.DataLogger;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
+import meshIneBits.artificialIntelligence.util.DataLogger;
 import meshIneBits.artificialIntelligence.util.DataSetGenerator;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -65,6 +65,7 @@ public class Acquisition {
 
     /**
      * Add a new example bit in the dataSet.
+     *
      * @param bit the example to be added.
      */
     public static void addNewExampleBit(@NotNull Bit2D bit) throws Exception {
@@ -85,6 +86,7 @@ public class Acquisition {
      * checks if a bit can be used to train the neural net.
      * A bit can be used by the neural net only if the first intersection between an edge of the bit and the bound
      * (scanning it in the direction of the increasing indices) is made by a short edge of the bit.
+     *
      * @param bit a {@link Bit2D}
      * @return true if the bit can not be used by the neural net.
      */
@@ -95,7 +97,7 @@ public class Acquisition {
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
 
         for (Vector<Vector2> bound : bounds) {
-            for (int i = 0; i < bound.size()-1; i++) {
+            for (int i = 0; i < bound.size() - 1; i++) {
                 Segment2D boundSegment = new Segment2D(bound.get(i), bound.get(i + 1));
 
                 Segment2D firstIntersectingEdge = null;
@@ -112,11 +114,8 @@ public class Acquisition {
 
                     // check if the position of the bit is irregular
                     if (firstIntersectingEdge != null) {
-                        if (Math.abs( firstIntersectingEdge.getLength() - CraftConfig.bitWidth) < Math.pow(10, -CraftConfig.errorAccepted))
+                        if (Math.abs(firstIntersectingEdge.getLength() - CraftConfig.bitWidth) < Math.pow(10, -CraftConfig.errorAccepted))
                             return false; // the first intersection is a short edge of the bit
-                        //else //todo @Andre c'est bien d'avoir supprimé ca nan? ^^
-                          //  return true; // the first intersection is a long edge of the bit
-
                     }
                 }
             }
