@@ -334,32 +334,27 @@ public class GeneralTools {
         double newSegmentSum = 0;
         int basePointsIndex = 0;
 
-        // --- Placer chaque nouveau point l'un après l'autre ---
+        // --- Positions one point after the other ---
 
         for (int i = 0; i < nbNewPoints; i++) { // Placer un nouveau point
 
             double absNewPoint;
             double ordNewPoint;
 
-            // --- selection du segment initial sur lequel on va placer le nouveau point---
-            //System.out.println("baseSegmentSum + segmentLength = " + baseSegmentSum + segmentLength[basePointsIndex] + " newSegmentSum = " + newSegmentSum);
+            // --- selection of the first segment to place a point on it---
             while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
             }
 
-            //Calculer l'angle du segment par rapport à l'horizontale
+            //Calculate the angle between the segment ant the abscissa axis
             double segmentAngle;
-            //FIXME @Andre la condition est en double !!
             if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
-                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut
+                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // then the segment is vertical
                 segmentAngle = Math.PI / 2;
-            } else if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
-                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // alors segment vertical vers le haut)
-                segmentAngle = -Math.PI / 2;
             } else {
                 segmentAngle = Math.atan((points.get(basePointsIndex + 1).y - points.get(basePointsIndex).y)
-                        / (points.get(basePointsIndex + 1).x - points.get(basePointsIndex).x)); // Coef directeur du segment
+                        / (points.get(basePointsIndex + 1).x - points.get(basePointsIndex).x)); // slope of the segment
             }
 
             int sign = 1;
