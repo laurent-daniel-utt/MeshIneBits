@@ -106,7 +106,7 @@ public class XmlTool2  {
         writer.println("	<bitDimension>");
         writer.println("		<height>" + CraftConfig.bitThickness + "</height>");
         writer.println("		<width>" + CraftConfig.bitWidth + "</width>");
-        writer.println("		<length>" + CraftConfig.LengthFull + "</length>");
+        writer.println("		<length>" + CraftConfig.lengthFull + "</length>");
         writer.println("	</bitDimension>");
         writer.println("	<partSkirt>");
         writer.println("		<height>" + (((part.getLayers().size() + CraftConfig.layersOffset) * CraftConfig.bitThickness) - CraftConfig.layersOffset) + "</height>");

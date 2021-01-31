@@ -93,7 +93,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element width = createElement(MeshTagXML.BIT_WIDTH, Double.toString(CraftConfig.bitWidth));
         dimension.appendChild(width);
         //length element
-        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.LengthFull));
+        Element length = createElement(MeshTagXML.BIT_LENGTH, Double.toString(CraftConfig.lengthFull));
         dimension.appendChild(length);
         config.appendChild(dimension);
 
