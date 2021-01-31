@@ -118,7 +118,7 @@ public class CraftConfig {
     @BitSetting(
             order = 2
     )
-    public static double LengthFull = 160.0;
+    public static double lengthFull = 160.0;
 
 
     @DoubleSetting(
@@ -166,7 +166,9 @@ public class CraftConfig {
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
-            new UnitSquarePattern()
+            new UnitSquarePattern(),
+            new AI_Pavement(),
+            new GeneticPavement()
     };
 
     /**

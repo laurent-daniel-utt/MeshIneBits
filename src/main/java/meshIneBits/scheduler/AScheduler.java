@@ -1,7 +1,6 @@
 package meshIneBits.scheduler;
 
 import javafx.util.Pair;
-import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;

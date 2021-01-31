@@ -19,10 +19,8 @@ public abstract class CalculateAreaSurface {
     }
 
     public static void main(String[] args) {
-        Area area1 = new Area(new Rectangle2D.Double(0,0,10,10));
-        Area area2 = new Area(new Rectangle2D.Double(1,1,5,5));
-        area1.intersect(area2);
-        System.out.println(approxArea(area1,0));
+        Rectangle2D rectangle2D = new Rectangle2D.Double(0,0,10,1000);
+        System.out.println(approxArea(new Area(rectangle2D),0));
     }
 
     public static double approxArea(PathIterator i) {

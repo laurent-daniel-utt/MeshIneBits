@@ -31,7 +31,6 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -69,7 +68,7 @@ public class Layer extends Observable implements Serializable {
     private double higherAltitude;
 
 
-    //    public static class AreaSerializable extends Area implements Serializable{
+//    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
 //        public AreaSerializable(){
 //            super();
@@ -103,7 +102,7 @@ public class Layer extends Observable implements Serializable {
 //         *  could not be found.
 //         */
 //        public void readObject(java.io.ObjectInputStream in)
-//                throws IOException, Clas>sNotFoundException {
+//                throws IOException, ClassNotFoundException {
 //            add(new Area((Shape) in.readObject()));
 //        }
 //    }
@@ -365,7 +364,7 @@ public class Layer extends Observable implements Serializable {
      * on the pattern template. Not use in quick succession because after each
      * move, the layer will be recalculated, slowing the process
      *
-     * @param bit3D     target
+     * @param bit3D    target
      * @param direction the direction in local coordinate system of the bit
      * @return the new origin of the moved bit
      */
@@ -375,7 +374,7 @@ public class Layer extends Observable implements Serializable {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.LengthFull / 2;
+            distance = CraftConfig.lengthFull / 2;
         }
         Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
         rebuild(newCoordinate);
@@ -405,7 +404,7 @@ public class Layer extends Observable implements Serializable {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.LengthFull / 2;
+            distance = CraftConfig.lengthFull / 2;
         }
 
         // Move bits
@@ -516,7 +515,7 @@ public class Layer extends Observable implements Serializable {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength of {@link CraftConfig#LengthFull}
+     * @param percentageLength of {@link CraftConfig#lengthFull}
      * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.
