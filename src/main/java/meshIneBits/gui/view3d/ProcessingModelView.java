@@ -26,31 +26,38 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.newt.util.MainThread;
 import controlP5.*;
 import javafx.util.Pair;
-import meshIneBits.Mesh;
-import meshIneBits.Model;
+import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
+import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
+import processing.core.PSurface;
+import processing.event.MouseEvent;
 import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
+import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static remixlab.bias.BogusEvent.CTRL;
-import static remixlab.proscene.MouseAgent.LEFT_CLICK_ID;
-import static remixlab.proscene.MouseAgent.RIGHT_CLICK_ID;
+import static remixlab.proscene.MouseAgent.*;
 
 /**
  * @author Vallon BENJAMIN
@@ -59,7 +66,12 @@ import static remixlab.proscene.MouseAgent.RIGHT_CLICK_ID;
  * Use Builder to creates Meshes
  */
 public class ProcessingModelView extends PApplet implements Observer, SubWindow {
+    public static final String IMPORTED_MODEL = "import";
+    public static final int ANIMATION_BITS = 100;
+    public static final int ANIMATION_LAYERS = 111;
 
+
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final int BACKGROUND_COLOR = color(150, 150, 150);
     private float printerX;
     private float printerY;
@@ -68,10 +80,20 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
     private static Model model;
-    private static Controller controller = null;
+    private static ControllerView3D controllerView3D = null;
+
+    private PShape newShape;
+    private PShape newShapeMeshPaved;
+    private Vector<Pair<Layer, PShape>> newShapeMapByLayer = new Vector<>();
+    private Vector<Pair<Bit3D, PShape>> newShapeMapByBits = new Vector<>();
+    private boolean updatingNewData = false;
+    private InteractiveFrame NewFrame;
+
 
     private PShape shape;
-    private Vector<Pair<Position, PShape>> shapeMap = null;
+    private PShape shapeMeshPaved;
+    private Vector<Pair<Layer, PShape>> shapeMapByLayer;
+    private Vector<Pair<Bit3D, PShape>> shapeMapByBits;
     private Scene scene;
     private InteractiveFrame frame;
     private ControlP5 cp5;
@@ -83,23 +105,35 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textarea tooltipApply;
     private Toggle toggleBits;
 
+    private boolean viewModel = true;
     // Animation variable
     private boolean isAnimated = false;
-    private int bitIndex = 0;
-    private float fpsRatioSpeed = 2;
-    private int lastFrames = 0;
+    private int layerIndex = 0;
+    //    private float fpsRatioSpeed = 2;
+    private int lastFrames = 500;
+    private final int frameMin = 10;
+    private boolean pauseAnimation = false;
+    private int animationType = ANIMATION_LAYERS;
+    private Vector<PShape> currentShapeMap;
+
 
     private DecimalFormat df;
 
     private boolean[] borders;
-    private boolean built = false;
+    private boolean viewMeshPaved = false;
     private boolean applied = false;
+    private boolean isToggled = false;
 
-    private static void startProcessingModelView() {
+    private double scale = 1;
+
+    public static void startProcessingModelView() {
+        if (!ControllerView3D.getInstance().isAvailable()) return;
         if (currentInstance == null) {
             PApplet.main(ProcessingModelView.class.getCanonicalName());
         }
     }
+
+
     public void settings() {
         currentInstance = this;
         size(800, 450, P3D);
@@ -117,8 +151,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         win.addWindowListener(new WindowAdapter() {
             public void windowDestroyed(WindowEvent e) {
-                controller.deleteObserver(currentInstance);
+                controllerView3D.deleteObserver(currentInstance);
                 currentInstance = null;
+                builder.onTerminated();
                 dispose();
             }
         });
@@ -133,9 +168,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     public ProcessingModelView() {
-        controller = Controller.getInstance();
-        controller.addObserver(this);
+        controllerView3D = ControllerView3D.getInstance();
+        controllerView3D.addObserver(this);
+
+
     }
+
 
     /**
      *
@@ -144,7 +182,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         this.surface.setResizable(true);
         this.surface.setTitle("MeshIneBits - Model view");
         if (model == null) {
-            model = controller.getModel();
+            model = controllerView3D.getModel();
         }
         // each bool corresponds to 1 face of the workspace.
         // is true if the the shape is crossing the associated face.
@@ -153,7 +191,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         for (int i = 0; i < 6; i++) {
             borders[i] = false;
         }
-
+//
         scene = new Scene(this);
         scene.eye().setPosition(new Vec(0, 1, 1));
         scene.eye().lookAt(scene.eye().sceneCenter());
@@ -161,18 +199,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         scene.showAll();
         scene.disableKeyboardAgent();
         scene.toggleGridVisualHint();
-
         builder = new Builder(this);
         setCloseOperation();
-        shapeMap = new Vector<>();
+        shapeMapByLayer = new Vector<>();
+        shapeMapByBits = new Vector<>();
         shape = createShape(GROUP);
         builder.buildShape(model, shape);
+//        builder.buildLayers(shapeMap);
+        shapeMeshPaved = builder.buildMeshPaved(shapeMapByLayer, shapeMapByBits);
+//        frame = new InteractiveFrame(scene, shape);
+        frame = new InteractiveFrame(scene, shape);
+        //       loadNewData();
         cp5 = new ControlP5(this);
-
         df = new DecimalFormat("#.##");
         df.setRoundingMode(RoundingMode.CEILING);
-
-        frame = new InteractiveFrame(scene, shape);
+//        frame.setDefaultMouseBindings();
         customFrameBindings(frame);
         applyGravity();
 
@@ -184,6 +225,28 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         printerZ = CraftConfig.printerZ;
     }
 
+    private synchronized void loadNewData() {
+        //if(!isToggled) return;
+        newShape = this.createShape(GROUP);
+        newShapeMapByLayer.clear();
+        newShapeMapByBits.clear();
+        builder.buildShape(model, newShape);
+        shape = newShape;
+        frame.setShape(shape);
+        newShapeMeshPaved = builder.buildMeshPaved(newShapeMapByLayer, newShapeMapByBits);
+        updatingNewData = true;
+    }
+
+    @Override
+    public void mouseWheel(MouseEvent event) {
+//        super.mouseWheel(event);
+    }
+
+    @Override
+    public void mouseWheel() {
+        super.mouseWheel();
+    }
+
     private void customFrameBindings(InteractiveFrame frame) {
         frame.removeBindings();
         frame.setHighlightingMode(InteractiveFrame.HighlightingMode.NONE);
@@ -192,25 +255,48 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         frame.setRotationSensitivity(3);
 
         frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
+        frame.setMotionBinding(WHEEL_ID, scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
         frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
     }
 
+    private int compteur = 0;
+
     public void draw() {
+        updateNewData();
         background(BACKGROUND_COLOR);
         lights();
         ambientLight(255, 255, 255);
         drawWorkspace();
-        mouseConstraints();
-        scene.drawFrames();
+        //mouseConstraints();
+        if (viewModel) scene.drawFrames();
         animationProcess();
-        if (built) {
-            drawBits(shapeMap);
+        if (viewMeshPaved) {
+            drawBits();
         }
+//        if(isAnimated)drawAnimation();
         scene.beginScreenDrawing();
         updateButtons();
         cp5.draw();
         displayTooltips();
         scene.endScreenDrawing();
+
+    }
+
+    private void updateNewData() {
+        if (updatingNewData) {
+            shapeMapByLayer = new Vector<>(newShapeMapByLayer);
+            shapeMapByBits = new Vector<>(newShapeMapByBits);
+            shapeMeshPaved = newShapeMeshPaved;
+            //shape=this.createShape(GROUP);
+            //builder.buildShape(model,shape);
+            System.out.println("shape size " + shape.getChildCount());
+            System.out.println("new shape size " + newShape.getChildCount());
+            shape = newShape;
+            frame.resetShape();
+            frame.setShape(shape);
+            updatingNewData = false;
+
+        }
     }
 
     /*
@@ -218,19 +304,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
 
-    private void drawBits(Vector<Pair<Position, PShape>> shapeMap) {
-        Vector3 v = controller.getModel().getPos();
-        for (Pair<Position, PShape> aShapeMap : shapeMap) {
-            pushMatrix();
-            translate((float) v.x, (float) v.y, (float) v.z);
-            float[] t = aShapeMap.getKey().getTranslation();
-            translate(t[0], t[1], t[2]);
-            rotateZ(radians(aShapeMap.getKey().getRotation()));
-
-            PShape s = aShapeMap.getValue();
-            shape(s);
-            popMatrix();
-        }
+    private void drawBits() {
+        Vector3 v = controllerView3D.getModel().getPos();
+        pushMatrix();
+        translate((float) v.x, (float) v.y, (float) v.z);
+        shape(shapeMeshPaved);
+        popMatrix();
     }
 
     /*
@@ -240,13 +319,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private void drawWorkspace() {
         pushMatrix();
         noFill();
-        stroke(255, 255, 0);
         translate(0, 0, printerZ / 2);
         box(printerX, printerY, printerZ);
         popMatrix();
-        stroke(80);
         scene.pg().pushStyle();
+        stroke(80);
         scene.pg().beginShape(LINES);
+//        stroke(255, 255, 0);
         for (int i = -(int) printerX / 2; i <= printerX / 2; i += 100) {
             vertex(i, printerY / 2, 0);
             vertex(i, -printerY / 2, 0);
@@ -268,7 +347,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     private void createButtons(ControlP5 cp5) {
         GLWindow win = ((GLWindow) surface.getNative());
+        Slider slider = cp5.addSlider("RotatijonX").setPosition(20, 10).setSize(100, 20).setRange(-180, 180).setValue(0);
+        slider.onChange(callbackEvent -> {
+                    float value = slider.getValue();
+                    RotationX(Float.toString(value));
 
+
+                }
+        );
+        slider.onPress(e -> frame.rotate(frame.rotation().inverse()));
         cp5.addTextfield("RotationX").setPosition(20, 40).setSize(30, 20)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
@@ -294,16 +381,37 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
 
         Button gravity = cp5.addButton("ApplyGravity").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
+        int color = gravity.getColor().getBackground();
         cp5.addButton("Reset").setPosition(20, 280).setSize(80, 20).setColorLabel(255);
         cp5.addButton("CenterCamera").setPosition(20, 310).setSize(80, 20).setColorLabel(255);
         cp5.addButton("Apply").setPosition(20, 340).setSize(80, 20).setColorLabel(255);
 
         cp5.addButton("Animation").setPosition(20, 370).setSize(80, 20).setColorLabel(255);
-        cp5.addSlider("bitIndex").setVisible(false).setSize(200, 30).setPosition(20, 400).getCaptionLabel().setText("");
+        cp5.addToggle("byBits").setPosition(110, 370)
+                .setSize(10, 10)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("by Bits");
+        Slider sliderAnimation = cp5.addSlider("animationSlider");
+        sliderAnimation.setVisible(false).setSize(200, 30).setPosition(20, 400).getCaptionLabel().setText("");
+        sliderAnimation.onChange(e -> {
+            if (pauseAnimation) this.layerIndex = (int) sliderAnimation.getValue();
+        });
+
         cp5.addButton("animationSpeedUp").setVisible(false).setPosition(270, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText(">>");
         cp5.addButton("animationSpeedDown").setVisible(false).setPosition(230, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText("<<");
-
-        int color = gravity.getColor().getBackground();
+        Button pauseButton = cp5.addButton("PauseAnimation").setVisible(false).setPosition(310, 400).setSize(50, 30).setColorLabel(255);
+        pauseButton.getCaptionLabel().setText("Pause");
+        pauseButton.onClick(e -> {
+            pauseAnimation = !pauseAnimation;
+            if (pauseAnimation) {
+                executorService.shutdownNow();
+                pauseButton.getCaptionLabel().setText("Start");
+            } else {
+                executorService = Executors.newSingleThreadExecutor();
+                pauseButton.getCaptionLabel().setText("Pause");
+            }
+        });
 
         tooltipGravity = cp5.addTextarea("tooltipGravity").setPosition(100, 250).setText("Set the model").setSize(90, 18)
                 .setColorBackground(color(220))
@@ -405,11 +513,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     private void rotateShape(float angleX, float angleY, float angleZ) {
+        frame.rotate(frame.rotation().inverse());
         applied = false;
         Quat r = new Quat();
-        float angXRad = (float) Math.toRadians( angleX);
-        float angYRad = (float) Math.toRadians( angleY);
-        float angZRad = (float) Math.toRadians( angleZ);
+        float angXRad = (float) Math.toRadians(angleX);
+        float angYRad = (float) Math.toRadians(angleY);
+        float angZRad = (float) Math.toRadians(angleZ);
         r.fromEulerAngles(angXRad, angYRad, angZRad);
         frame.rotate(r);
         applyGravity();
@@ -503,7 +612,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      * 	Apply modifications of the shape to the model
      *
      */
-
     private void applyRotation() {
         model.rotate(frame.rotation());
     }
@@ -511,6 +619,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private void applyTranslation() {
         model.setPos(new Vector3(frame.position().x(), frame.position().y(), 0));
         model.move(new Vector3(0, 0, -model.getMin().z));
+
 
     }
 
@@ -657,7 +766,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void Reset(float theValue) {
         resetModel();
         centerCamera();
-        built = false;
+        viewMeshPaved = false;
         toggleBits.setState(false);
         applied = false;
 
@@ -677,13 +786,24 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void Apply(float theValue) {
         if (!applied) {
             applyRotation();
+            applyScale();
             applyGravity();
             applyTranslation();
             applied = true;
+
+        }
+    }
+
+    private void applyScale() {
+        if (frame.scaling() != scale) {
+            model.applyScale(frame.scaling());
+            scale = frame.scaling();
         }
     }
 
     public void Model(boolean flag) {
+        resetModeView();
+        viewModel = flag;
         if (!flag) {
             shape.setVisible(false);
             frame.removeMotionBindings();
@@ -694,90 +814,125 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     public void Bits(boolean flag) {
-        if (flag) {
-            if (controller.getCurrentMesh().isPaved() && !built) {
-                if(!controller.getCurrentMesh().getScheduler().isScheduled()) {
-                    controller.getCurrentMesh().getScheduler().schedule();
-                }
-                builder.buildBits(shapeMap);
-                built = true;
-            }
-            if (built) {
-                for (Pair<Position, PShape> aShapeMap : shapeMap) {
-                    aShapeMap.getValue().setVisible(true);
-                }
-            }
-        } else {
-            if (built) {
-                for (Pair<Position, PShape> aShapeMap : shapeMap) {
-                    aShapeMap.getValue().setVisible(false);
-                }
-            }
-        }
+        resetModeView();
+        shape.setVisible(!shape.isVisible());
+        viewMeshPaved = flag;
     }
-    public void Animation()
-    {
-        this.isAnimated = !isAnimated;
-        if(!isAnimated)
-        {
-            this.bitIndex = this.shapeMap.size();
-            for (Pair<Position, PShape> aShapeMap : shapeMap) {
-                aShapeMap.getValue().setVisible(true);
-            }
-            cp5.getController("bitIndex").setVisible(false);
+
+    @SuppressWarnings("unused")
+    public void Animation() {
+        isAnimated = !isAnimated;
+
+        if (!isAnimated) {
+            viewMeshPaved = true;
+            if (executorService != null && !executorService.isShutdown()) executorService.shutdownNow();
+            cp5.getController("animationSlider").setVisible(false);
             cp5.getController("animationSpeedUp").setVisible(false);
             cp5.getController("animationSpeedDown").setVisible(false);
+            cp5.getController("PauseAnimation").setVisible(false);
+            cp5.getController("byBits").setVisible(true);
         } else {
-            if(!built)
-            {
-                this.Bits(true);
-            }
-            this.bitIndex = 0;
-            this.lastFrames = (int)(frameRate * fpsRatioSpeed);
+
+            executorService = Executors.newSingleThreadExecutor();
+            viewMeshPaved = false;
+            this.layerIndex = 0;
             Model(false);
-            ((Slider)(cp5.getController("bitIndex"))).setRange(0, shapeMap.size()).setValue(0).setVisible(true);
+
             cp5.getController("animationSpeedUp").setVisible(true);
             cp5.getController("animationSpeedDown").setVisible(true);
+            cp5.getController("PauseAnimation").setVisible(true);
+            cp5.getController("byBits").setVisible(false);
+
+            Vector<PShape> current = new Vector<>();
+            switch (animationType) {
+                case ANIMATION_BITS:
+                    shapeMapByBits.forEach((ele) -> {
+                        current.add(ele.getValue());
+                    });
+                    currentShapeMap = current;
+                    break;
+                case ANIMATION_LAYERS:
+                    shapeMapByLayer.forEach((ele) -> {
+                        current.add(ele.getValue());
+                    });
+                    break;
+            }
+            currentShapeMap = current;
+            ((Slider) (cp5.getController("animationSlider"))).setRange(0, currentShapeMap.size()).setValue(0).setVisible(true);
         }
     }
-    protected void animationSpeedUp()
-    {
-        fpsRatioSpeed += 0.5;
+
+    @SuppressWarnings("unused")
+    public void animationSpeedUp() {
+//        fpsRatioSpeed += 0.5;
+        int value = lastFrames / 2;
+        lastFrames = Math.max(value, frameMin);
+        System.out.println(lastFrames);
+
     }
 
-    protected void animationSpeedDown()
-    {
-        fpsRatioSpeed -= 0.5;
+    @SuppressWarnings("unused")
+    public void animationSpeedDown() {
+//        fpsRatioSpeed -= 0.5;
+        lastFrames = lastFrames * 2;
+        System.out.println(lastFrames);
+
     }
 
-    protected void animationProcess()
-    {
-        if(!this.isAnimated) return ;
+    public void animationProcess() {
 
-        this.lastFrames -= 1;
-        if(this.lastFrames <= 0)
-        {
-            if(this.bitIndex < this.shapeMap.size()) {
-                this.bitIndex += 1;
-                this.lastFrames = (int)(frameRate * fpsRatioSpeed);
-            }
-            else {
-                this.bitIndex = this.shapeMap.size();
-                this.isAnimated = false;
-            }
-        }
-
+        if (!this.isAnimated)
+            return;
+        //increase layer number
+        if (!pauseAnimation) increaseLayerIndex();
+        //update the value of
+        if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.layerIndex);
         // Boucle de raffraichissement
-        for (Pair<Position, PShape> aShapeMap : shapeMap.subList(0, this.bitIndex)) {
-            aShapeMap.getValue().setVisible(true);
+        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+            aShapeMap.setVisible(true);
         }
-        if(this.bitIndex < shapeMap.size()) {
-            for (Pair<Position, PShape> aShapeMap : shapeMap.subList(this.bitIndex + 1, shapeMap.size())) {
-                aShapeMap.getValue().setVisible(false);
+        if (this.layerIndex < currentShapeMap.size()) {
+            for (PShape aShapeMap : currentShapeMap.subList(this.layerIndex + 1, currentShapeMap.size())) {
+                aShapeMap.setVisible(false);
             }
         }
-        cp5.getController("bitIndex").setValue(this.bitIndex);
+        Vector3 v = controllerView3D.getCurrentMesh().getModel().getPos();
+        pushMatrix();
+        translate((float) v.x, (float) v.y, (float) v.z);
+        for (PShape aShapeMap : currentShapeMap) {
+//            if (currentShapeMap == shapeMapByBits) {
+//                pushMatrix();
+//                shape(aShapeMap.getValue());
+//                popMatrix();
+//            } else {
+            shape(aShapeMap);
+//            }
+        }
+        popMatrix();
+
+
     }
+
+    private void increaseLayerIndex() {
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(lastFrames);
+            } catch (InterruptedException e) {
+                System.out.println("Thread shutdown");
+            }
+            this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void byBits(boolean flag) {
+        animationType = flag ? ANIMATION_BITS : ANIMATION_LAYERS;
+    }
+//    @SuppressWarnings("unused")
+//    public void byLayers(boolean flag){
+//        ((Toggle)cp5.getController("byBits")).setState(!flag);
+//        if(flag)animationType=ANIMATION_LAYERS;
+//    }
 
     @SuppressWarnings("unused")
     public void M(int value) {
@@ -788,15 +943,19 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     @SuppressWarnings("unused")
     public void B(int value) {
         value *= 255. / 100.;
-        for (Pair<Position, PShape> p : shapeMap) {
-            p.getValue().stroke(0,0,0, value);
-            p.getValue().setFill(color(112, 66, 20, value));
-        }
+//        for (Pair<Position, PShape> p : shapeMap) {
+//            p.getValue().stroke(0, 0, 0, value);
+//            p.getValue().setFill(color(112, 66, 20, value));
+//        }
     }
 
     @Override
     public void update(Observable o, Object arg) {
+        if (IMPORTED_MODEL.equals(arg)) model = controllerView3D.getModel();
         redraw();
+        loadNewData();
+
+
     }
 
     @Override
@@ -805,19 +964,54 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             Logger.error("No model has been loaded.");
             return;
         }
+        isToggled = true;
         ProcessingModelView.startProcessingModelView();
         // Keep opening
     }
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        controller.setMesh(mesh);
+        controllerView3D.setMesh(mesh);
         model = mesh.getModel();
-        controller.setModel(model);
+        controllerView3D.setModel(model);
     }
 
     public void setModel(Model m) {
-        controller.setModel(m);
+        controllerView3D.setModel(m);
         model = m;
+    }
+
+    public static void main(String[] args) {
+        Mesh mesh = new Mesh();
+        File file = new File("E:\\UTT\\MeshIneBits\\src\\test\\resources\\stlModel\\Blob.stl");
+        try {
+            mesh.importModel(file.getPath());
+            mesh.setState(MeshEvents.IMPORTED);
+            mesh.slice();
+            mesh.setState(MeshEvents.SLICED);
+            mesh.isSliced();
+            mesh.pave(new ClassicBrickPattern());
+            mesh.setState(MeshEvents.PAVED_MESH);
+            mesh.isPaved();
+            ProcessingModelView process = new ProcessingModelView();
+            process.setCurrentMesh(mesh);
+            process.toggle();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void resetModeView() {
+        viewModel = false;
+        viewMeshPaved = false;
+//        isAnimated=false;
+    }
+
+    @Override
+    protected PSurface initSurface() {
+        if (surface == null) return super.initSurface();
+        return this.getSurface();
     }
 }

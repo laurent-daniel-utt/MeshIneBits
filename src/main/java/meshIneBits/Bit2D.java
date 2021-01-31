@@ -27,6 +27,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathUtil;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <img src="./doc-files/bit2d.png" alt="">
  * <br/>
  * We always take the upper left corner as
- * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+ * (- {@link CraftConfig#LengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
  * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
@@ -72,7 +73,11 @@ public class Bit2D implements Cloneable, Serializable {
     private Vector<Area> areas = new Vector<>();
 
 
-    private Boolean reverseInCut = false;
+    private Boolean inverseInCut = false;
+
+
+
+    private Boolean checkFullLength = true;
 
     /**
      * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the
@@ -84,7 +89,7 @@ public class Bit2D implements Cloneable, Serializable {
     public Bit2D(Vector2 origin, Vector2 orientation) {
         this.origin = origin;
         this.orientation = orientation;
-        length = CraftConfig.bitLength;
+        length = CraftConfig.LengthFull;
         width = CraftConfig.bitWidth;
 
         setTransfoMatrix();
@@ -123,7 +128,7 @@ public class Bit2D implements Cloneable, Serializable {
                 .sub(
                         // Vector distance in Bit coordinate system
                         new Vector2(
-                                -CraftConfig.bitLength / 2 + length / 2,
+                                -CraftConfig.LengthFull / 2 + length / 2,
                                 -CraftConfig.bitWidth / 2 + width / 2
                         )
                                 // Rotate into Mesh coordinate system
@@ -180,12 +185,12 @@ public class Bit2D implements Cloneable, Serializable {
      * Create the area of the bit. This is
      * necessary when the bit has been reduced manually.<br/>
      * <b>Note</b>: We always take the upper left corner as
-     * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+     * (- {@link CraftConfig#LengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
      * bitWidth} / 2 ). The bit's boundary is a rectangle.
      */
     private void buildBoundaries() {
         Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.bitLength / 2,
+                -CraftConfig.LengthFull / 2,
                 -CraftConfig.bitWidth / 2,
                 length,
                 width
@@ -304,7 +309,7 @@ public class Bit2D implements Cloneable, Serializable {
         return origin.sub(
                 // Vector distance in Bit coordinate system
                 new Vector2(
-                        CraftConfig.bitLength / 2 - length / 2,
+                        CraftConfig.LengthFull / 2 - length / 2,
                         CraftConfig.bitWidth / 2 - width / 2
                 )
                         // Rotate into Mesh coordinate system
@@ -374,12 +379,27 @@ public class Bit2D implements Cloneable, Serializable {
      *
      * @param transformedArea a bit of surface in real
      */
-    public void updateBoundaries(Area transformedArea) {
+    public void updateBoundaries(@NotNull Area transformedArea) {
         areas.clear();
         Area newArea = (Area) transformedArea.clone();
+        if(!checkSectionHoldingToCut(origin,orientation,newArea)){
+            removeSectionHolding(this,newArea);
+            checkFullLength=false;
+        }else if(checkInverseBit(this,newArea)){
+            inverseInCut = true;
+        }
         newArea.transform(inverseTransfoMatrix);
-        areas.addAll(AreaTool.segregateArea(newArea));
+        Vector<Area> listAreas =AreaTool.segregateArea(newArea);
+//        if(listAreas!=null){
+//            areas.addAll(listAreas);
+//        }else
+        areas.addAll(listAreas!=null ? listAreas : new Vector<>());
 
+    }
+
+    private static void removeSectionHolding(Bit2D bit,Area bitArea) {
+        Vector<Area> sections=getTwoSectionHolding(bit.origin,bit.orientation,0.0);
+        bitArea.subtract(sections.lastElement());
     }
 
     /**
@@ -389,7 +409,7 @@ public class Bit2D implements Cloneable, Serializable {
      * @param newPercentageWidth  100 means retain 100% of normal bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
-        length = CraftConfig.bitLength * newPercentageLength / 100;
+        length = CraftConfig.LengthFull * newPercentageLength / 100;
         width = CraftConfig.bitWidth * newPercentageWidth / 100;
         // Rebuild the boundary
         buildBoundaries();
@@ -433,14 +453,13 @@ public class Bit2D implements Cloneable, Serializable {
      * Reset cut paths and recalculate them after defining area
      */
     void calcCutPath() {
-        reverseInCut=false;
+//        inverseInCut =false;
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
-        this.cutPathsSeparate.clear();
         Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
         // Define 4 corners
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.bitLength / 2.0, -CraftConfig.bitWidth / 2.0);
+        Vector2 cornerUpRight = new Vector2(+CraftConfig.LengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
         Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
         Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
@@ -455,31 +474,32 @@ public class Bit2D implements Cloneable, Serializable {
         // Check cut path
         // If and edge lives on sides of the bit
         // We remove it
-        Set<Vector<Segment2D>> listPolygons = new HashSet<>();
-        polygons.forEach(polygon -> polygon.removeIf(edge -> {
-            if (sideLeft.contains(edge)) {
-                insideSideLeft.set(true);
-                return true;
-            } else if (sideBottom.contains(edge) || sideTop.contains(edge)) {
-                return true;
-            }else if(sideRight.contains(edge)){
-                listPolygons.add(polygon);
-            }
-            return false;
-        }));
-
-        if(!insideSideLeft.get()){
-            listPolygons.forEach(polygon -> polygon.removeIf(edge -> {
-                if (sideRight.contains(edge)) {
-                    insideSideRight.set(true);
-                    return true;
-                }
-                return false;
-            }));
-        }
-        if(!insideSideLeft.get()&&insideSideRight.get()){
-            reverseInCut=true;
-        }
+//        Set<Vector<Segment2D>> listPolygons = new HashSet<>();
+        polygons.forEach(polygon -> polygon.removeIf(edge -> sideBottom.contains(edge)||sideLeft.contains(edge)||sideRight.contains(edge)||sideTop.contains(edge)));
+//            if (sideLeft.contains(edge)) {
+//                insideSideLeft.set(true);
+//                return true;
+//            } else if (sideBottom.contains(edge) || sideTop.contains(edge)) {
+//                return true;
+//            }else if(sideRight.contains(edge)){
+//                listPolygons.add(polygon);
+//            }
+//            return false;
+//        }));
+//
+//        if(!insideSideLeft.get()){
+//            listPolygons.forEach(polygon -> polygon.removeIf(edge -> {
+//                if (sideRight.contains(edge)) {
+//                    insideSideRight.set(true);
+//                    return true;
+//                }
+//                return false;
+//            }));
+//        }
+//        if(checkFullLength&&)
+//        if(!insideSideLeft.get()&&insideSideRight.get()){
+//            inverseInCut =true;
+//        }
 
         // After filter out the edges on sides
         // We form cut paths from these polygons
@@ -497,7 +517,6 @@ public class Bit2D implements Cloneable, Serializable {
                 Segment2D currentEdge = polygon.get(i);
                 if (i == 0 || !(currentEdge.start.asGoodAsEqual(polygon.get(i - 1).end))) {
                     cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
-                    moveToCurrent = new Point2D.Double(currentEdge.start.x, currentEdge.start.y);
                 }
                 cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
                 // Some edges may have been deleted
@@ -543,6 +562,8 @@ public class Bit2D implements Cloneable, Serializable {
         oos.writeObject(cutPaths);
         oos.writeObject(transfoMatrix);
         oos.writeObject(inverseTransfoMatrix);
+        oos.writeBoolean(inverseInCut);
+        oos.writeBoolean(checkFullLength);
         // Special writing for areas
         oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
                 .createTransformedShape(this.getArea()));
@@ -564,6 +585,8 @@ public class Bit2D implements Cloneable, Serializable {
         this.transfoMatrix = (AffineTransform) ois.readObject();
         this.inverseTransfoMatrix = (AffineTransform) ois.readObject();
         this.areas = new Vector<>();
+        this.checkFullLength = ois.readBoolean();
+        this.inverseInCut = ois.readBoolean();
         Shape s = (Shape) ois.readObject();
         this.updateBoundaries(new Area(s));
     }
@@ -577,11 +600,109 @@ public class Bit2D implements Cloneable, Serializable {
         return inverseTransfoMatrix;
     }
 
-    public boolean getReverseInCut() {
-        return reverseInCut;
+    public boolean getInverseInCut() {
+        return inverseInCut;
     }
 
 
+    public void setCheckFullLength(Boolean checkFullLength) {
+        this.checkFullLength = checkFullLength;
+    }
 
+    public Boolean isFullLength() {
+        return checkFullLength;
+    }
+
+    /**
+     * return true if the bit can use full length of bit
+     * This methode is used after area of bit is transformed in Bit's coordinate
+     * @return
+     */
+    public boolean checkSectionHoldingToCut(){
+        Area bitArea = new Area();
+        for(Area area : areas){
+            bitArea.add(area);
+        }
+        Vector<Rectangle2D> twoSides = getTwoSideOfBit(CraftConfig.incertitude);
+        return bitArea.contains(twoSides.firstElement())||bitArea.contains(twoSides.lastElement());
+    }
+
+    /**
+     * Return two section holding to cut of the bit without the cut paths
+     */
+    public static Vector<Area> getTwoSectionHolding(Vector2 position,Vector2 orientation,double incertitude){
+
+        Vector<Area> result = new Vector();
+        Vector<Rectangle2D> rectangles = getTwoSideOfBit(incertitude);
+
+        Area leftArea =new Area(rectangles.firstElement());
+        Area rightArea = new Area(rectangles.lastElement());
+
+        AffineTransform affineTransform = new AffineTransform();
+        affineTransform.translate(position.x,position.y);
+        affineTransform.rotate(orientation.x,orientation.y);
+
+        leftArea.transform(affineTransform);
+        rightArea.transform(affineTransform);
+        result.add(leftArea); result.add(rightArea);
+
+        return result;
+    }
+
+    /**
+     * Return a list of two sides of the bit dans le coordinate of {@link Bit2D}
+     * @param incertitude
+     * @return
+     */
+    public static Vector<Rectangle2D> getTwoSideOfBit(double incertitude){
+        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.LengthFull /2+incertitude
+                ,-CraftConfig.bitWidth/2+incertitude
+                ,CraftConfig.sectionHoldingToCut-2*incertitude
+                ,CraftConfig.bitWidth-2*incertitude);
+        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut+incertitude
+                ,-CraftConfig.bitWidth/2+incertitude
+                ,CraftConfig.sectionHoldingToCut-2*incertitude
+                ,CraftConfig.bitWidth-2*incertitude);
+        Vector<Rectangle2D> result = new Vector<>();
+        result.add(leftArea); result.add(rightArea);
+        return result;
+    }
+
+    /**
+     * This static method is used to check if the {@link Bit2D} will be created can use full length of {@link Bit2D}, only for before create {@link Bit2D}
+     * @param position position of {@link Bit2D}
+     * @param orientation Orientation of {@link Bit2D}
+     * @param bitArea Area of {@link Bit2D}, before calculate
+     * @return true for full length,
+     */
+    public static boolean checkSectionHoldingToCut(Vector2 position,Vector2 orientation,Area bitArea){
+        Area area = (Area) bitArea.clone();
+        Vector<Rectangle2D> twoSides = getTwoSideOfBit(CraftConfig.incertitude);
+
+        AffineTransform affineTransform = new AffineTransform();
+        affineTransform.translate(position.x,position.y);
+        affineTransform.rotate(orientation.x,orientation.y);
+
+        try {
+            AffineTransform inverse = affineTransform.createInverse();
+            area.transform(inverse);
+            return  !(!area.contains(twoSides.firstElement())&&!area.contains(twoSides.lastElement())
+                    &&area.intersects(twoSides.firstElement())&&area.intersects(twoSides.lastElement()));
+        } catch (NoninvertibleTransformException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+    public static boolean checkInverseBit(Bit2D bit2D, Area bitArea){
+        Area newBitArea=(Area) bitArea.clone();
+        if(!bit2D.isFullLength()){
+            return false;
+        }
+        Vector<Rectangle2D> twoSide = getTwoSideOfBit(CraftConfig.incertitude);
+        newBitArea.transform(bit2D.getInverseTransfoMatrix());
+        //last element is right side
+        return !newBitArea.contains(twoSide.lastElement()) && newBitArea.intersects(twoSide.lastElement());
+    }
 
 }

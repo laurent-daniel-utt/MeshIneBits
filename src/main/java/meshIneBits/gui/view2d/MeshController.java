@@ -27,6 +27,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.gui.view3d.ControllerView3D;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
@@ -36,10 +37,7 @@ import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
 
 import java.awt.*;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -57,6 +55,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public static final String SHOW_SLICE = "showSlice";
     public static final String SHOW_LIFT_POINTS = "showLiftPoints";
+    public static final String SHOW_BITS_NOT_FULL_LENGTH ="showBitsNotFull";
     public static final String SHOW_PREVIOUS_LAYER = "showPreviousLayer";
     public static final String SHOW_CUT_PATHS = "showCutPaths";
     public static final String SHOW_IRREGULAR_BITS = "showIrregularBits";
@@ -86,8 +85,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "newBitLength",
             "Bit length",
             "Length of bits to add",
-            1.0, CraftConfig.bitLength,
-            CraftConfig.bitLength, 1.0);
+            1.0, CraftConfig.LengthFull,
+            CraftConfig.LengthFull, 1.0);
     private final DoubleParam newBitsWidthParam = new DoubleParam(
             "newBitWidth",
             "Bit width",
@@ -116,6 +115,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "Prohibit adding irregular bit",
             true
     );
+
     private final MeshWindow meshWindow;
     private Mesh mesh;
     private int layerNumber = -1;
@@ -127,6 +127,10 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private boolean showCutPaths = false;
     private boolean showIrregularBits = false;
     private boolean addingBits = false;
+    private boolean showBitNotFull = false;
+
+
+
     /**
      * In {@link Mesh}'s coordinate system
      */
@@ -135,11 +139,26 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * In {@link Mesh}'s coordinate system
      */
     private Area bitAreaPreview;
+
     private boolean selectingRegion;
     private boolean selectedRegion;
     private List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    private Point2D currentPoint;
+    private Area areaHoldingCut;
+    //this variable is used to calc bit full length when paint preview
+    private boolean fullLength=true;
+
+
+    public boolean isFullLength() {
+        return fullLength;
+    }
+
+    public void setCurrentPoint(Point2D currentPoint) {
+        this.currentPoint = currentPoint;
+    }
+
     /**
      * In real coordinate system
      */
@@ -190,7 +209,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 case IMPORTING:
                     break;
                 case IMPORTED:
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    //meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    ControllerView3D.getInstance().setMesh(mesh);
                     break;
                 case SLICING:
                     break;
@@ -252,7 +272,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 case SCHEDULED:
                     break;
                 case OPENED:
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    //meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    ControllerView3D.getInstance().setMesh(mesh);
                     setLayer(0);
                     meshWindow.initGadgets();
                     setChanged();
@@ -291,8 +312,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             return;
         }
         if ((layerNum >= mesh.getLayers().size())
-                || (layerNum < 0)
-                || (layerNum == layerNumber)) {
+                || (layerNum < 0)) {
             return;
         }
         layerNumber = layerNum;
@@ -365,8 +385,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         if (newSelectedBitKeys != null) {
             selectedBitKeys.addAll(newSelectedBitKeys);
             selectedBitKeys.removeIf(Objects::isNull);
-        } else {
-            System.out.println("null");
         }
         // Notify property panel
         changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -388,6 +406,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * @param file location of saved mesh
      */
     public void openMesh(File file) throws SimultaneousOperationsException {
+        resetAll();
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
@@ -424,6 +443,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void newMesh(File file) throws SimultaneousOperationsException {
+        resetAll();
         if (mesh != null && mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
         // Save last opened file
@@ -486,11 +506,17 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public Area getAvailableBitAreaFrom(Shape bitPreviewInReal) {
         Area a = new Area(bitPreviewInReal);
+
         // Intersect
         a.intersect(availableArea);
+        calcBitFullLengthOrNormal(a);
         // Cache
         bitAreaPreview = (Area) a.clone();
         return a;
+    }
+    private void calcBitFullLengthOrNormal(Area a){
+        fullLength=(Bit2D.checkSectionHoldingToCut(new Vector2(currentPoint.getX(),currentPoint.getY()),
+                Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue()),a));
     }
 
     /**
@@ -503,6 +529,13 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 || bitAreaPreview.isEmpty()
         )
             return;
+//        if(fullLength){
+//            currentPoint=position;
+//            calcBitFullLengthOrNormal(bitAreaPreview);
+//        }
+//        if(!fullLength){
+//            removeSectionHoldingCut();
+//        }
         // Do not add new irregular bit
         if (DetectorTool.checkIrregular(bitAreaPreview)
                 && prohibitAddingIrregularBitParam.getCurrentValue())
@@ -516,6 +549,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         Bit2D newBit = new Bit2D(origin, lOrientation,
                 newBitsLengthParam.getCurrentValue(),
                 newBitsWidthParam.getCurrentValue());
+        newBit.setCheckFullLength(true);
         if (autocropParam.getCurrentValue()) {
             newBit.updateBoundaries(bitAreaPreview);
         }
@@ -672,7 +706,9 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             throw new Exception("Mesh not paved");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        mesh.optimize();
+//        mesh.optimize();
+        OptimizedMesh optimizedMesh = new OptimizedMesh();
+        optimizedMesh.updateMesh(mesh).optimize();
     }
 
     public void optimizeLayer() throws Exception {
@@ -694,7 +730,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
-        newBitsLengthParam.setCurrentValue(CraftConfig.bitLength * lengthPercentage / 100);
+        newBitsLengthParam.setCurrentValue(CraftConfig.LengthFull * lengthPercentage / 100);
         newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
         setChanged();
         notifyObservers();
@@ -781,6 +817,9 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             case SHOW_LIFT_POINTS:
                 setShowLiftPoints(!showingLiftPoints());
                 break;
+            case SHOW_BITS_NOT_FULL_LENGTH:
+                setShowBitsNotFullLength(!showBitNotFull);
+                break;
             case SHOW_PREVIOUS_LAYER:
                 setShowPreviousLayer(!showingPreviousLayer());
                 break;
@@ -821,10 +860,22 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         setChanged();
         notifyObservers();
     }
+    public void setShowBitsNotFullLength(Boolean b){
+        showBitNotFull = b;
+        changes.firePropertyChange(SHOW_BITS_NOT_FULL_LENGTH, !showBitNotFull, showBitNotFull);
+
+        setChanged();
+        notifyObservers();
+    }
 
     public boolean showingLiftPoints() {
         return showLiftPoints;
     }
+
+    public boolean showingBitNotFull() { return showBitNotFull; }
+
+    ;
+
 
     public void setShowPreviousLayer(boolean b) {
         showPreviousLayer = b;
@@ -1034,6 +1085,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         }
     }
 
+
     @Override
     public void onUndoListener(HandlerRedoUndo.ActionOfUser a) {
         a.runUndo(this);
@@ -1043,4 +1095,25 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     public void onRedoListener(HandlerRedoUndo.ActionOfUser a) {
         a.runRedo(this);
     }
+    public void resetAll(){
+        resetMesh();
+//        reset();
+        layerNumber=-1;
+        selectedBitKeys.clear();
+        zoom=1;
+        showSlice=true;
+        showLiftPoints = false;
+        showPreviousLayer = false;
+        showCutPaths = false;
+        showIrregularBits = false;
+        addingBits = false;
+        regionVertices.clear();
+        currentSelectedRegion=new Path2D.Double();
+        availableArea=null;
+        bitAreaPreview=null;
+        setChanged();
+        notifyObservers();
+    }
+
+
 }

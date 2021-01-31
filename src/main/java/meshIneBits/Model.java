@@ -28,6 +28,7 @@ import meshIneBits.util.Vector3;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
+import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.util.Vector;
 
@@ -62,6 +63,8 @@ public class Model implements Serializable {
 
             if (header.equals("solid")) {
                 this.triangles.addAll(readAsciiSTL(filename));
+                //this.triangles.addAll(readBinarySTL(filename));
+                if(triangles.size()==0)this.triangles.addAll(readBinarySTL(filename));
             } else {
                 this.triangles.addAll(readBinarySTL(filename));
             }
@@ -275,4 +278,15 @@ public class Model implements Serializable {
         position = t;
     }
 
+    public void applyScale(float scaling) {
+        for (Triangle t : triangles) {
+            scaleTriangle(t, scaling);
+        }
+    }
+
+    private void scaleTriangle(Triangle t, float scaling) {
+        for (Vector3 p : t.point) {
+            p.addToSelf(new Vector3(p.x*scaling-p.x,p.y*scaling-p.y,p.z*scaling-p.z));
+        }
+    }
 }

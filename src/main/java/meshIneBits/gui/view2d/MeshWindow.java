@@ -34,6 +34,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -58,7 +60,7 @@ public class MeshWindow extends JFrame {
     private MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private MeshController meshController = new MeshController(this);
 
-    private ProcessingModelView view3DWindow = new ProcessingModelView();
+    private ProcessingModelView view3DWindow;
 
     public MeshWindow() throws HeadlessException {
 
@@ -167,6 +169,7 @@ public class MeshWindow extends JFrame {
 
         setVisible(true);
 
+
     }
 
     private void init() {
@@ -176,7 +179,7 @@ public class MeshWindow extends JFrame {
         /* Actions */
         MeshAction newMesh = new MeshAction(
                 "newMesh",
-                "New Mesh",
+                "New project",
                 "mesh-new.png",
                 "New Mesh",
                 "control N",
@@ -205,7 +208,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction openMesh = new MeshAction(
                 "openMesh",
-                "Open Mesh",
+                "Open project",
                 "mesh-open.png",
                 "Reload a project into workspace",
                 "control O",
@@ -234,7 +237,7 @@ public class MeshWindow extends JFrame {
 
         MeshAction saveMesh = new MeshAction(
                 "saveMesh",
-                "Save Mesh",
+                "Save project",
                 "mesh-save.png",
                 "Save the current project",
                 "control S",
@@ -351,7 +354,7 @@ public class MeshWindow extends JFrame {
                 "view-3D.png",
                 "Open the 3D view of mesh",
                 "alt 3",
-                () -> view3DWindow.toggle());
+                ProcessingModelView::startProcessingModelView);
         meshActionList.add(view3D);
 
         MeshAction sliceMesh = new MeshAction(
@@ -648,6 +651,16 @@ public class MeshWindow extends JFrame {
         );
         meshActionList.add(toggleLiftPoint);
 
+        MeshToggleAction toggleBitFullLength = new MeshToggleAction(
+                "toogleBitsFullLength",
+                "Show/Hide bits not full length",
+                "icon-full-length.png",
+                "Show or hide bits not use with his full length",
+                "shift 6",
+                meshController,
+                MeshController.SHOW_BITS_NOT_FULL_LENGTH);
+        meshActionList.add(toggleBitFullLength);
+
         MeshToggleAction togglePreviousLayer = new MeshToggleAction(
                 "togglePreviousLayer",
                 "Show/Hide Previous Layer",
@@ -737,6 +750,7 @@ public class MeshWindow extends JFrame {
         toolBar.addToggleButton(toggleIrregularBit);
         toolBar.addToggleButton(toggleCutPaths);
         toolBar.addToggleButton(toggleLiftPoint);
+        toolBar.addToggleButton(toggleBitFullLength);
         toolBar.addToggleButton(togglePreviousLayer);
 
         /* UtilitiesBox */

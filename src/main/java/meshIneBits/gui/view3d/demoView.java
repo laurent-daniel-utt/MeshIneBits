@@ -46,7 +46,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     private final int BACKGROUND_COLOR = color(150, 150, 150);
     private final int framerate = 30;
     private static demoView currentInstance = null;
-    private static Controller controller = null;
+    private static ControllerView3D controllerView3D = null;
     private static boolean initialized = false;
     private static boolean visible = false;
     private int height = 450;
@@ -107,7 +107,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
 
         win.addWindowListener(new WindowAdapter() {
             public void windowDestroyed(WindowEvent e) {
-                controller.deleteObserver(currentInstance);
+                controllerView3D.deleteObserver(currentInstance);
                 dispose();
                 currentInstance = null;
                 initialized = false;
@@ -125,8 +125,8 @@ public class demoView extends PApplet implements Observer, SubWindow {
     }
 
     public demoView() {
-        controller = Controller.getInstance();
-        controller.addObserver(this);
+        controllerView3D = ControllerView3D.getInstance();
+        controllerView3D.addObserver(this);
     }
 
     /**
@@ -146,7 +146,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
         shapeMap = new Vector<>();
         builder = new Builder(this);
         try {
-            builder.buildBits(shapeMap);
+//            builder.buildBits(shapeMap);
         } catch (Exception e) {
             println("Mesh not generated yet");
         }
@@ -181,9 +181,9 @@ public class demoView extends PApplet implements Observer, SubWindow {
                 pushMatrix();
                 float[] t = shapeMap.get(i).getKey().getTranslation();
                 translate(t[0], t[1], t[2]);
-                translate((float) controller.getCurrentMesh().getModel().getPos().x,
-                        (float) controller.getCurrentMesh().getModel().getPos().y,
-                        (float) controller.getCurrentMesh().getModel().getPos().z);
+                translate((float) controllerView3D.getCurrentMesh().getModel().getPos().x,
+                        (float) controllerView3D.getCurrentMesh().getModel().getPos().y,
+                        (float) controllerView3D.getCurrentMesh().getModel().getPos().z);
 
                 rotateZ(radians(shapeMap.get(i).getKey().getRotation()));
 
@@ -271,7 +271,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
 
     @Override
     public void setCurrentMesh(Mesh mesh) {
-        controller.setMesh(mesh);
+        controllerView3D.setMesh(mesh);
     }
 
     private void setVisible(boolean b) {

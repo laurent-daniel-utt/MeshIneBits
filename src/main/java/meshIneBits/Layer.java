@@ -36,6 +36,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
@@ -57,7 +59,7 @@ public class Layer extends Observable implements Serializable {
     private int layerNumber;
     private Slice horizontalSection;
     private transient Area horizontalArea;
-    private Path2D.Double horizontalAreaConvert;
+    private Path2D horizontalAreaConvert;
     private Pavement flatPavement;
     private PatternTemplate patternTemplate;
     private Map<Vector2, Bit3D> mapBits3D;
@@ -67,7 +69,7 @@ public class Layer extends Observable implements Serializable {
     private double higherAltitude;
 
 
-//    public static class AreaSerializable extends Area implements Serializable{
+    //    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
 //        public AreaSerializable(){
 //            super();
@@ -101,33 +103,70 @@ public class Layer extends Observable implements Serializable {
 //         *  could not be found.
 //         */
 //        public void readObject(java.io.ObjectInputStream in)
-//                throws IOException, ClassNotFoundException {
+//                throws IOException, Clas>sNotFoundException {
 //            add(new Area((Shape) in.readObject()));
 //        }
 //    }
-public static class SerializeArea {
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        // Write normal fields
+        horizontalAreaConvert=SerializeArea.toPath2D(horizontalArea);
+        oos.writeInt(layerNumber);
+        oos.writeObject(horizontalSection);
+        oos.writeObject(horizontalAreaConvert);
+        oos.writeObject(flatPavement);
+        oos.writeObject(patternTemplate);
+        oos.writeObject(mapBits3D);
+        oos.writeObject(irregularBits);
+        oos.writeBoolean(paved);
+        oos.writeDouble(lowerAltitude);
+        oos.writeDouble(higherAltitude);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.layerNumber = ois.readInt();
+        this.horizontalSection = (Slice) ois.readObject();
+        this.horizontalAreaConvert = (Path2D) ois.readObject();
+        this.horizontalArea = SerializeArea.toArea(horizontalAreaConvert);
+        //noinspection unchecked
+        this.flatPavement = (Pavement) ois.readObject();
+        this.patternTemplate = (PatternTemplate) ois.readObject();
+        this.mapBits3D = (Map<Vector2, Bit3D>) ois.readObject();
+        this.irregularBits = (Collection) ois.readObject();
+        this.paved = ois.readBoolean();
+        this.lowerAltitude = ois.readDouble();
+        this.higherAltitude = ois.readDouble();
+    }
+
+    public static class SerializeArea {
 
         static Path2D.Double toPath2D(final Area a) {
-        final PathIterator pi = a.getPathIterator(new AffineTransform());
-        final Path2D.Double path = new Path2D.Double();
-        switch (pi.getWindingRule()) {
-            case PathIterator.WIND_EVEN_ODD: path.setWindingRule(Path2D.WIND_EVEN_ODD); break;
-            case PathIterator.WIND_NON_ZERO: path.setWindingRule(Path2D.WIND_NON_ZERO); break;
-            default: throw new UnsupportedOperationException("Unimplemented winding rule.");
+            final PathIterator pi = a.getPathIterator(new AffineTransform());
+            final Path2D.Double path = new Path2D.Double();
+            switch (pi.getWindingRule()) {
+                case PathIterator.WIND_EVEN_ODD:
+                    path.setWindingRule(Path2D.WIND_EVEN_ODD);
+                    break;
+                case PathIterator.WIND_NON_ZERO:
+                    path.setWindingRule(Path2D.WIND_NON_ZERO);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unimplemented winding rule.");
+            }
+            path.append(pi, false);
+            return path;
         }
-        path.append(pi, false);
-        return path;
+
+        public static Area toArea(final Path2D path) {
+            return new Area(path);
+        }
     }
 
-    public static Area toArea(final Path2D path) {
-        return new Area(path);
+    public void convertHorizontalAreatoPath2D() {
+        this.horizontalAreaConvert = SerializeArea.toPath2D(this.horizontalArea);
     }
-}
-    public void convertHorizontalAreatoPath2D(){
-        this.horizontalAreaConvert=SerializeArea.toPath2D(this.horizontalArea);
-    }
-    public void convertPath2DtoHorizontalArea(){
-        this.horizontalArea=SerializeArea.toArea(this.horizontalAreaConvert);
+
+    public void convertPath2DtoHorizontalArea() {
+        this.horizontalArea = SerializeArea.toArea(this.horizontalAreaConvert);
     }
 
 
@@ -183,6 +222,7 @@ public static class SerializeArea {
     }
 
     public Vector<Vector2> getBits3dKeys() {
+        if(mapBits3D==null)return new Vector<>();
         return new Vector<>(mapBits3D.keySet());
     }
 
@@ -236,7 +276,6 @@ public static class SerializeArea {
     }
 
 
-
     /**
      * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of
      * {@link Bit2D} and decide to add into {@link #flatPavement} if it is inside
@@ -277,7 +316,7 @@ public static class SerializeArea {
      */
     private Area getInteriorArea(Bit2D bit2D) {
         Area bitArea = bit2D.getArea();
-        if(horizontalArea==null){
+        if (horizontalArea == null) {
             Logger.message("null valeur");
         }
         bitArea.intersect(horizontalArea);
@@ -326,7 +365,7 @@ public static class SerializeArea {
      * on the pattern template. Not use in quick succession because after each
      * move, the layer will be recalculated, slowing the process
      *
-     * @param bit3D    target
+     * @param bit3D     target
      * @param direction the direction in local coordinate system of the bit
      * @return the new origin of the moved bit
      */
@@ -336,7 +375,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
+            distance = CraftConfig.LengthFull / 2;
         }
         Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
         rebuild(newCoordinate);
@@ -366,7 +405,7 @@ public static class SerializeArea {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.bitLength / 2;
+            distance = CraftConfig.LengthFull / 2;
         }
 
         // Move bits
@@ -421,6 +460,10 @@ public static class SerializeArea {
         return mapBits3D.get(key);
     }
 
+    public List<Bit3D> getAllBit3D() {
+        return new ArrayList<>(mapBits3D.values());
+    }
+
     /**
      * Remove a bit
      *
@@ -448,7 +491,7 @@ public static class SerializeArea {
      * Remove multiple bits
      *
      * @param keys origin of bit in layer coordinate system
-     * @param b notify or not
+     * @param b    notify or not
      */
     public void removeBits(Collection<Vector2> keys, boolean b) {
         Collection<Bit3D> oldBit3Ds = keys
@@ -473,7 +516,7 @@ public static class SerializeArea {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength of {@link CraftConfig#bitLength}
+     * @param percentageLength of {@link CraftConfig#LengthFull}
      * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.

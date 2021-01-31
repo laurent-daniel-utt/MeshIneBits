@@ -69,7 +69,6 @@ public class Vector2 implements Serializable {
         double num = (point1.x*point2.x + point1.y*point2.y);
         double den = (Math.sqrt(Math.pow(point1.x, 2) + Math.pow(point1.y, 2)) * (Math.sqrt(Math.pow(point2.x, 2) + Math.pow(point2.y, 2))) );
         double cos =  num / den;
-        System.out.println(Math.acos(cos));
         return Math.acos(cos);
     }
 
@@ -362,6 +361,9 @@ public class Vector2 implements Serializable {
                 return v2.getOpposite().normal();
             }
         }
+    }
+    public Vector2 clone(){
+        return new Vector2(this.x,this.y);
     }
 
 }

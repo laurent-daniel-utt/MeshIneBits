@@ -66,8 +66,8 @@ public class BitPropertyPanel extends PropertyPanel {
                     {LIFT_POINTS, bit3D.getLiftPoints().toString()},
                     {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
                     {BIT_NUMBER, String.valueOf(mesh.getScheduler().getBitIndex(bit3D))},
-                    {PLATE_ID,  String.valueOf(mesh.getScheduler().getBitPlate(bit3D))},
-                    {BATCH_ID, String.valueOf(mesh.getScheduler().getBitBatch(bit3D))}
+                    {PLATE_ID,  String.valueOf(mesh.getScheduler().getSubBitPlate(bit3D))},
+                    {BATCH_ID, String.valueOf(mesh.getScheduler().getSubBitBatch(bit3D))}
             };
         }
         else

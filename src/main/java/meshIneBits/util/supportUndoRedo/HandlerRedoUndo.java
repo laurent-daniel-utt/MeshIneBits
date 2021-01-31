@@ -75,6 +75,10 @@ public class HandlerRedoUndo {
             listener.onRedoListener(lastAction);
         }
     }
+    public void reset(){
+        afterActionOfUserBits.clear();
+        previousActionOfUserBits.clear();
+    }
 
 
 

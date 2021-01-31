@@ -333,7 +333,7 @@ public class EconomicPattern extends PatternTemplate {
             Area unpavedSpace = (Area) band.clone();
             // Initial parameters
             Double bandOuterRect = (Double) band.getBounds2D();
-            double originY = bandOuterRect.y + CraftConfig.bitWidth / 2, thisBitLength = CraftConfig.bitLength;
+            double originY = bandOuterRect.y + CraftConfig.bitWidth / 2, thisBitLength = CraftConfig.lengthFull;
             boolean essay = true;
             // Start
             while (!unpavedSpace.isEmpty()) {
@@ -342,7 +342,7 @@ public class EconomicPattern extends PatternTemplate {
                 // Creating a new bit
                 // Attention to the case of rebuilding a bit
                 // with half of its normal length
-                Vector2 origin = new Vector2(unpavedSpaceRect.x + CraftConfig.bitLength / 2, originY);
+                Vector2 origin = new Vector2(unpavedSpaceRect.x + CraftConfig.lengthFull / 2, originY);
                 if (bandPavement.isEmpty()) {
                     // If this is the first bit
                     // we will push it backward a little bit
@@ -368,10 +368,10 @@ public class EconomicPattern extends PatternTemplate {
                             thisBitLength + bitsWidthSpace, bandWidth);
                     unpavedSpace.subtract(new Area(pavedSpaceRect));
                     // Assuming the next bit will have full length
-                    thisBitLength = CraftConfig.bitLength;
+                    thisBitLength = CraftConfig.lengthFull;
                 } else {
                     // If no, it means we failed
-                    if (thisBitLength == CraftConfig.bitLength) {
+                    if (thisBitLength == CraftConfig.lengthFull) {
                         // We were building a new full-length bit
                         // So we will retry by rebuilding the last bit
                         // with half of its length
@@ -382,7 +382,7 @@ public class EconomicPattern extends PatternTemplate {
                             break;
                         } else {
                             Bit2D lastBit = bandPavement.lastElement();
-                            if (lastBit.getLength() == CraftConfig.bitLength / 2) {
+                            if (lastBit.getLength() == CraftConfig.lengthFull / 2) {
                                 // If we had rebuilt the last bit
                                 // and retried this bit but ended up failure
                                 // That means we fail
@@ -393,7 +393,7 @@ public class EconomicPattern extends PatternTemplate {
                                 // Else, we recover the space taken
                                 // by the last bit
                                 // Note: we must include the skipped space
-                                double lastX = lastBit.getOrigin().x - CraftConfig.bitLength / 2;
+                                double lastX = lastBit.getOrigin().x - CraftConfig.lengthFull / 2;
                                 Double lastPavedSpaceRect = new Double(lastX, bandOuterRect.y,
                                         unpavedSpaceRect.x - lastX, bandWidth);
                                 Area lastlyPavedSpace = new Area(lastPavedSpaceRect);
@@ -401,7 +401,7 @@ public class EconomicPattern extends PatternTemplate {
                                 unpavedSpace.add(lastlyPavedSpace);
                                 // Assuming the rebuild
                                 // with a half normal length
-                                thisBitLength = CraftConfig.bitLength / 2;
+                                thisBitLength = CraftConfig.lengthFull / 2;
                                 // We remove the last bit
                                 bandPavement.remove(lastBit);
                             }
@@ -435,7 +435,7 @@ public class EconomicPattern extends PatternTemplate {
         // Adapt values
         trialLengthOffsets = new double[a.size()];
         for (int i = 0; i < a.size(); i++) {
-            trialLengthOffsets[i] = a.get(i) * CraftConfig.bitLength;
+            trialLengthOffsets[i] = a.get(i) * CraftConfig.lengthFull;
         }
     }
 

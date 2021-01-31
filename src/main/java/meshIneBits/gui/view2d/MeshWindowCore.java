@@ -54,6 +54,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private AffineTransform realToView;
     private AffineTransform viewToReal;
     private MeshController meshController;
+    private boolean onShift;
 
     MeshWindowCore(MeshController meshController) {
 
@@ -112,8 +113,20 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 meshController.closeSelectedRegion();
             }
         });
-
-
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,InputEvent.CTRL_MASK),"UNDO");
+        getActionMap().put("UNDO", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                meshController.undo();
+            }
+        });
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y,InputEvent.CTRL_MASK),"REDO");
+        getActionMap().put("REDO", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                meshController.redo();
+            }
+        });
     }
 
     @Override
@@ -123,18 +136,23 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
-            meshController.undo();
-        }
-        if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)){
-            meshController.redo();
-        }
+//        if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
+//            meshController.undo();
+//        }
+//        if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)){
+//            meshController.redo();
+//        }
         onControl = e.isControlDown();
+//        meshController.setAddingBits(e.isShiftDown());
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         onControl = false;
+        if(e.getKeyChar()==KeyEvent.SHIFT_MASK) {
+//            meshController.setAddingBits(false);
+//            repaint();
+        }
     }
 
     @Override
@@ -207,6 +225,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 meshController.startBulkSelect(viewToReal.transform(e.getPoint(), null));
             }
         }
+//        if(SwingUtilities.isLeftMouseButton(e)){
+//            Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+//            viewToReal.transform(clickSpot, clickSpot);
+//            meshController.toggleInclusionOfBitHaving(clickSpot);
+//        }
     }
 
     @Override
@@ -230,7 +253,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e)) {
+        if(onShift&&SwingUtilities.isLeftMouseButton(e)){
+
+        }
+        else if (SwingUtilities.isLeftMouseButton(e)) {
             // Move the clip around
             viewOffsetX += (e.getX() - oldX) / drawScale;
             viewOffsetY += (e.getY() - oldY) / drawScale;
@@ -449,8 +475,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             if (meshController.showingIrregularBits()
                     && bit3D.isIrregular())
                 g2d.setColor(WorkspaceConfig.irregularBitColor);
-            else
-                g2d.setColor(WorkspaceConfig.regularBitColor);
+            else if(meshController.showingBitNotFull()&&!bit2D.isFullLength()){
+                g2d.setColor(WorkspaceConfig.bitNotFullLength);
+            }else  g2d.setColor(WorkspaceConfig.regularBitColor);
             drawModelArea(g2d, bit2D.getArea());
 
             // Cut paths
@@ -474,8 +501,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                                             liftPoint.y,
                                             (int) CraftConfig.suckerDiameter));
                 g2d.setColor(Color.black);
-                if(!bit3D.getListTwoDistantPoints().isEmpty()){
-                    for(Vector2 point : bit3D.getListTwoDistantPoints()){
+                if(!bit3D.getTwoDistantPointsInMeshCoordinate().isEmpty()){
+                    for(Vector2 point : bit3D.getTwoDistantPointsInMeshCoordinate()){
                         drawModelCircle(g2d,point.x,point.y,(int) CraftConfig.suckerDiameter/4);
                     }
                 }
@@ -499,13 +526,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     private void paintBitPreview(Graphics2D g2d) {
         // Bit boundary
         Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.bitLength / 2,
+                -CraftConfig.LengthFull / 2,
                 -CraftConfig.bitWidth / 2,
                 meshController.getNewBitsLengthParam().getCurrentValue(),
                 meshController.getNewBitsWidthParam().getCurrentValue());
         // Current position of cursor
         Point2D.Double currentSpot = new Point2D.Double(oldX, oldY); // In view
         viewToReal.transform(currentSpot, currentSpot); // In real
+        meshController.setCurrentPoint(currentSpot);
         // Transform into current view
         AffineTransform originToCurrentSpot = new AffineTransform();
         originToCurrentSpot.translate(currentSpot.x, currentSpot.y);
@@ -515,6 +543,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
         Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
         Shape bitPreviewInView = realToView.createTransformedShape(bitPreviewInReal);
+        Area sectionHolding = new Area(new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut
+                ,-CraftConfig.bitWidth/2
+                ,CraftConfig.sectionHoldingToCut
+                ,CraftConfig.bitWidth));
+        sectionHolding.transform(originToCurrentSpot);
+        sectionHolding.transform(realToView);
 
         Area availableBitArea = meshController.getAvailableBitAreaFrom(bitPreviewInReal); // in real pos
         boolean irregular = DetectorTool.checkIrregular(availableBitArea);
@@ -522,6 +556,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         availableBitArea.transform(realToView);
         // Change color based on irregularity
         if (!irregular) {
+            if (!meshController.isFullLength()) {
+                g2d.setColor(Color.DARK_GRAY);
+                g2d.fill(sectionHolding);
+            }
             // Draw border
             g2d.setColor(WorkspaceConfig.bitPreviewBorderColor);
             g2d.setStroke(WorkspaceConfig.bitPreviewBorderStroke);
@@ -529,6 +567,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             // Draw internal area
             g2d.setColor(WorkspaceConfig.bitPreviewColor);
             g2d.fill(availableBitArea);
+
+
         } else {
             // Draw border
             g2d.setColor(WorkspaceConfig.irregularBitPreviewBorderColor);
@@ -581,9 +621,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area overlapBit = new Area(
                     new Rectangle2D.Double(
-                            -CraftConfig.bitLength / 2,
+                            -CraftConfig.LengthFull / 2,
                             -CraftConfig.bitWidth / 2,
-                            CraftConfig.bitLength,
+                            CraftConfig.LengthFull,
                             CraftConfig.bitWidth));
             overlapBit.transform(bit.getBaseBit().getTransfoMatrix());
 
@@ -600,7 +640,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area leftArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(padding + (CraftConfig.bitLength / 2), 0);
+            affTrans.translate(padding + (CraftConfig.LengthFull / 2), 0);
             affTrans.rotate(0, 1);
             leftArrow.transform(affTrans);
             arrows.add(leftArrow);
@@ -616,7 +656,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
             Area rightArrow = new Area(triangleShape);
             affTrans = new AffineTransform();
-            affTrans.translate(-padding - (CraftConfig.bitLength / 2), 0);
+            affTrans.translate(-padding - (CraftConfig.LengthFull / 2), 0);
             affTrans.rotate(0, -1);
             rightArrow.transform(affTrans);
             arrows.add(rightArrow);

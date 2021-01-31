@@ -44,6 +44,9 @@ public abstract class XMLDocument<T> {
     public Element createElement(String tag) {
         return document.createElement(tag);
     }
+    public void appendTextNode(Element e,String s){
+        e.appendChild(document.createTextNode(s));
+    }
 
     public void writeDocumentToXML(Path filePath) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -74,7 +77,7 @@ public abstract class XMLDocument<T> {
         fileName = fileName + "." + "xml";
         filePath = Paths.get(filePath.getParent().toString() + File.separator + fileName);
     }
-    public void writeObjectToXML(T obj){
+    protected void writeObjectToXML(T obj){
         try {
 
             if (obj == null) {

@@ -10,7 +10,10 @@ import java.util.Collection;
 import java.util.Vector;
 
 public class CutPathUtil {
-
+    /**
+     * This method is used to order the position of the {@link Path2D} in the {@link Vector list}
+     * @param cutPaths {@link Vector list} of cut paths
+     */
     public static void sortCutPath(Vector<Path2D> cutPaths) {
         cutPaths.sort((path1, path2) -> {
             Path2D path1Clone = (Path2D) path1.clone();
@@ -41,9 +44,11 @@ public class CutPathUtil {
             int type = pi.currentSegment(coord);
             if (type == PathIterator.SEG_MOVETO) {
                 if (currentPath.getCurrentPoint() != null) {
+
                     currentPath=organizePath(currentPath);
                     listCutPaths.add(currentPath);
                 }
+
                 currentPath = new Path2D.Double();
                 currentPath.moveTo(coord[0], coord[1]);
             } else if (type == PathIterator.SEG_LINETO) {
@@ -56,8 +61,19 @@ public class CutPathUtil {
         }
         sortCutPath(listCutPaths);
         currentPath = new Path2D.Double();
-        for (Path2D path : listCutPaths) {
-            currentPath.append(path, false);
+
+        for(int i=0;i<listCutPaths.size();i++){
+            if(i==0){
+                currentPath.append(listCutPaths.get(0), false);
+                continue;
+            }
+            Path2D pathPrevious = listCutPaths.get(i-1);
+            Path2D currentPathClone = (Path2D) listCutPaths.get(i).clone();
+            currentPathClone.closePath();
+            if(pathPrevious.getCurrentPoint().getX()==currentPathClone.getCurrentPoint().getX()
+                    &&pathPrevious.getCurrentPoint().getY()==currentPathClone.getCurrentPoint().getY()){
+                currentPath.append(listCutPaths.get(i),true);
+            }else currentPath.append(listCutPaths.get(i),false);
         }
         return currentPath;
 
