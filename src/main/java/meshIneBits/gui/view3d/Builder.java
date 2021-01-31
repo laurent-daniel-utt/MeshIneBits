@@ -33,10 +33,10 @@ import processing.core.PApplet;
 import processing.core.PShape;
 
 import java.awt.geom.Area;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /*
  * Used by ProcessingModelView to create displayable PShape of Model and 3Dbits
@@ -51,42 +51,49 @@ class Builder extends PApplet implements Observer {
     public final int COLOR_BATCH_1 = color(112, 66, 20);
     public final int COLOR_BATCH_2 = color(20, 66, 112);
 
-    private Controller controller;
+    private ControllerView3D controllerView3D;
     private PApplet pApplet;
+    private boolean waitting;
+    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService2 = Executors.newFixedThreadPool(2);
 
 
     Builder(PApplet pApplet) {
-        controller = Controller.getInstance();
+        controllerView3D = ControllerView3D.getInstance();
         this.pApplet = pApplet;
     }
 
     /**
      * This method build a {@link PShape} function {@link Model} provided as a parameter,
      * and assign value to the given {@link Model} parameter.
+     *
      * @param model {@link Model} to build
      * @param shape {@link PShape} to assign
      */
     void buildShape(Model model, PShape shape) {
         Logger.updateStatus("Start building STL model");
         Vector<Triangle> stlTriangles = model.getTriangles();
-        pApplet.shapeMode(CORNER);
+        //pApplet.shapeMode(CORNER);
         for (Triangle t : stlTriangles) {
-            shape.addChild(getPShapeFromTriangle(t));
+            PShape shape1 = getPShapeFromTriangle(t);
+            shape.addChild(shape1);
         }
         Logger.updateStatus("STL model built.");
     }
 
     /**
      * Return {@link PShape} from {@link Triangle}
+     *
      * @param t {@link Triangle triangle}
      * @return {@link PShape}
      */
     private PShape getPShapeFromTriangle(Triangle t) {
 
         PShape face = pApplet.createShape();
-        face.setStroke(color(0, 0, 70));
+        //face.setStroke(color(9, 72, 217));
         face.setFill(MODEL_COLOR);
         face.beginShape();
+        face.noStroke();
         for (Vector3 p : t.point) {
             face.vertex((float) p.x, (float) p.y, (float) p.z);
         }
@@ -99,13 +106,13 @@ class Builder extends PApplet implements Observer {
 
         Logger.updateStatus("Start building 3D model");
 
-        Vector<Layer> layers = controller.getCurrentMesh().getLayers();
+        Vector<Layer> layers = controllerView3D.getCurrentMesh().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
         float layersOffSet = (float) CraftConfig.layersOffset;
 
         getUncutBitPShape(bitThickness);
         int bitCount = 0;
-        Vector<Pair<Bit3D, Vector2>> sortedBits = controller.getCurrentMesh().getScheduler().getSortedBits();
+        Vector<Pair<Bit3D, Vector2>> sortedBits = controllerView3D.getCurrentMesh().getScheduler().getSortedBits();
 
 
         for (Pair<Bit3D, Vector2> sortedBit : sortedBits) {
@@ -130,28 +137,29 @@ class Builder extends PApplet implements Observer {
 
     /**
      * Assign PShape from the paved {@link meshIneBits.Mesh},
-     * get from {@link Controller} to the two lists in parameter.
+     * get from {@link ControllerView3D} to the two lists in parameter.
      * It's used in {@link #buildMeshPaved }
+     *
      * @param shapeMapByLayer the {@Vector list} contains {@link PShape} of each Layer by its position
-     * @param shapeMaByBit  the {@Vector list} contains {@link PShape} of each Bit by its position
+     * @param shapeMaByBit    the {@Vector list} contains {@link PShape} of each Bit by its position
      */
-    private void buildShapePaved(Vector<Pair<Position, PShape>> shapeMapByLayer, Vector<Pair<Position, PShape>> shapeMaByBit) {
+    private void buildShapePaved(Vector<Pair<Layer, PShape>> shapeMapByLayer, Vector<Pair<Bit3D, PShape>> shapeMaByBit) {
         int currentBatch = -1;
         int newBatch;
         int currentColor = COLOR_BATCH_2;
-        if (!controller.getCurrentMesh().isPaved()) return;
+        if (!controllerView3D.getCurrentMesh().isPaved()) return;
 
-        Vector<Layer> layers = controller.getCurrentMesh().getLayers();
+        Vector<Layer> layers = controllerView3D.getCurrentMesh().getLayers();
         float bitThickness = (float) CraftConfig.bitThickness;
 
         getUncutBitPShape(bitThickness);
         int bitCount = 0;
         for (Layer layer : layers) {
-            Vector3 v = controller.getModel().getPos();
-            List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(controller.getCurrentMesh().getScheduler().filterBits(layer.sortBits()));
+            Vector3 v = controllerView3D.getModel().getPos();
+            List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(controllerView3D.getCurrentMesh().getScheduler().filterBits(layer.sortBits()));
             PShape layerPShape = this.pApplet.createShape(GROUP);
             for (Bit3D curBit : bitsInCurrentLayer) {
-                newBatch = controller.getCurrentMesh().getScheduler().getSubBitBatch(curBit);
+                newBatch = controllerView3D.getCurrentMesh().getScheduler().getSubBitBatch(curBit);
                 if (currentBatch != newBatch) {
                     currentBatch = newBatch;
                     currentColor = currentColor == COLOR_BATCH_1 ? COLOR_BATCH_2 : COLOR_BATCH_1;
@@ -170,35 +178,118 @@ class Builder extends PApplet implements Observer {
                     bitPShape.rotateZ(radians((float) curBit.getOrientation().getEquivalentAngle2()));
                     bitPShape.translate(curBitCenterX, curBitCenterY, (float) curBit.getLowerAltitude());
                     layerPShape.addChild(bitPShape);
-                    shapeMaByBit.add(new Pair<>(curBitPosition, bitPShape));
+                    shapeMaByBit.add(new Pair<>(curBit, bitPShape));
                 }
             }
 
             Position curLayerPosition = new Position(new float[]{(float) v.x, (float) v.y, (float) v.z}, 0);
 
-            shapeMapByLayer.add(new Pair<>(curLayerPosition, layerPShape));
+            shapeMapByLayer.add(new Pair<>(layer, layerPShape));
         }
 
         Logger.updateStatus("3D model built : " + bitCount + " bits generated.");
     }
 
+    private void buildShapePaved2(Vector<Pair<Layer, PShape>> shapeMapByLayer, Vector<Pair<Bit3D, PShape>> shapeMapByBits) {
+
+        if (!controllerView3D.getCurrentMesh().isPaved()) return;
+
+        Vector<Layer> layers = controllerView3D.getCurrentMesh().getLayers();
+        float bitThickness = (float) CraftConfig.bitThickness;
+
+        getUncutBitPShape(bitThickness);
+        for (Layer layer : layers) {
+            Vector3 v = controllerView3D.getModel().getPos();
+            List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(controllerView3D.getCurrentMesh().getScheduler().filterBits(layer.sortBits()));
+            PShape layerPShape = this.pApplet.createShape(GROUP);
+            executorService.execute(() -> {
+                for (Bit3D curBit : bitsInCurrentLayer) {
+                    PShape bitPShape;
+                    bitPShape = getBitPShapeFrom(curBit.getRawAreas(), bitThickness);
+                    if (bitPShape != null) {
+                        Vector2 curBitCenter = curBit.getOrigin();
+                        float curBitCenterX = (float) curBitCenter.x;
+                        float curBitCenterY = (float) curBitCenter.y;
+                        float[] translation = {curBitCenterX, curBitCenterY, (float) curBit.getLowerAltitude()};
+                        float rotation = (float) curBit.getOrientation().getEquivalentAngle2();
+                        Position curBitPosition = new Position(translation, rotation);
+                        bitPShape.rotateZ(radians((float) curBit.getOrientation().getEquivalentAngle2()));
+                        bitPShape.translate(curBitCenterX, curBitCenterY, (float) curBit.getLowerAltitude());
+                        synchronized (layerPShape) {
+                            layerPShape.addChild(bitPShape);
+                        }
+                        synchronized (shapeMapByBits) {
+                            shapeMapByBits.add(new Pair<>(curBit, bitPShape));
+                        }
+                    }
+                }
+                Position curLayerPosition = new Position(new float[]{(float) v.x, (float) v.y, (float) layer.getLowerAltitude()}, 0);
+                synchronized (shapeMapByLayer) {
+                    shapeMapByLayer.add(new Pair<>(layer, layerPShape));
+                }
+            });
+
+
+        }
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(20, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        executorService2.execute(() -> {
+//            shapeMapByLayer.sort((ele1, ele2) -> (int) (ele1.getKey().getLowerAltitude() - ele2.getKey().getLowerAltitude()));
+//            shapeMaByBit.sort((ele1, ele2) -> {
+//                if (ele1.getKey().getTranslation()[2] != ele2.getKey().getTranslation()[2])
+//                    return (int) (ele1.getKey().getTranslation()[2] - ele2.getKey().getTranslation()[2]);
+//                return ele1.getValue().colorMode - ele2.getValue().colorMode;
+//            });
+//        });
+    }
+
+
     /**
      * Assign PShape from the paved {@link meshIneBits.Mesh},
-     * get from {@link Controller} to the two lists in parameter and
+     * get from {@link ControllerView3D} to the two lists in parameter and
      * return whole {@link PShape} of the paved Mesh
+     *
      * @param shapeMapByLayer the {@Vector list} contains {@link PShape} of each Layer by its position
-     * @param shapeMapByBit the {@Vector list} contains {@link PShape} of each Bit by its position
+     * @param shapeMapByBits  the {@Vector list} contains {@link PShape} of each Bit by its position
      * @return {@link PShape} of the paved Mesh
      */
-    public PShape buildMeshPaved(Vector<Pair<Position, PShape>> shapeMapByLayer, Vector<Pair<Position, PShape>> shapeMapByBit) {
-        controller.getCurrentMesh().getScheduler().schedule();
-        buildShapePaved(shapeMapByLayer, shapeMapByBit);
+    public PShape buildMeshPaved(Vector<Pair<Layer, PShape>> shapeMapByLayer, Vector<Pair<Bit3D, PShape>> shapeMapByBits) {
+        controllerView3D.getCurrentMesh().getScheduler().schedule();
+        buildShapePaved2(shapeMapByLayer, shapeMapByBits);
         PShape meshShape = this.pApplet.createShape(GROUP);
-        for (Pair<Position, PShape> aShapeMap : shapeMapByLayer) {
+        for (Pair<Layer, PShape> aShapeMap : shapeMapByLayer) {
             PShape s = aShapeMap.getValue();
             meshShape.addChild(s);
         }
+        organizePositionAndColor(shapeMapByLayer,shapeMapByBits);
+
+
         return meshShape;
+    }
+
+    private void organizePositionAndColor(Vector<Pair<Layer, PShape>> shapeMapByLayer, Vector<Pair<Bit3D, PShape>> shapeMapByBits) {
+        final int[] currentBatch = {-1};
+        final int[] newBatch = new int[1];
+        final int[] currentColor = {COLOR_BATCH_2};
+        executorService2.execute(() -> {
+            shapeMapByLayer.sort((ele1, ele2) -> (int) (ele1.getKey().getLowerAltitude() - ele2.getKey().getLowerAltitude()));
+
+        });
+        executorService2.execute(() -> {
+            shapeMapByBits.sort(Comparator.comparingInt(ele -> controllerView3D.getCurrentMesh().getScheduler().getBitIndex(ele.getKey())));
+            shapeMapByBits.forEach((ele) -> {
+                newBatch[0] = controllerView3D.getCurrentMesh().getScheduler().getSubBitBatch(ele.getKey());
+                if (currentBatch[0] != newBatch[0]) {
+                    currentBatch[0] = newBatch[0];
+                    currentColor[0] = currentColor[0] == COLOR_BATCH_1 ? COLOR_BATCH_2 : COLOR_BATCH_1;
+                }
+                ele.getValue().setFill(currentColor[0]);
+            });
+        });
     }
 
     /**
@@ -229,13 +320,13 @@ class Builder extends PApplet implements Observer {
     }
 
     /**
-     * @param bitAreas      horizontal section
+     * @param bitAreas     horizontal section
      * @param extrudeDepth thickness
      * @return part of rectangular parallelepiped
      */
     private PShape getBitPShapeFrom(List<Area> bitAreas, float extrudeDepth) {
-        PShape bitShape= pApplet.createShape(GROUP);
-        for(Area bitArea : bitAreas){
+        PShape bitShape = pApplet.createShape(GROUP);
+        for (Area bitArea : bitAreas) {
             Vector<Segment2D> segmentList = AreaTool.getLargestPolygon(bitArea);
             if (segmentList == null)
                 return null;
@@ -355,5 +446,25 @@ class Builder extends PApplet implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+    }
+
+    public synchronized void pause() {
+        this.waitting = true;
+        while (this.waitting) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public synchronized void continu() {
+        this.waitting = false;
+        this.notifyAll();
+    }
+
+    public void onTerminated() {
+        executorService.shutdownNow();
     }
 }

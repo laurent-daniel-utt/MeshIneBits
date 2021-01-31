@@ -60,7 +60,7 @@ public class MeshWindow extends JFrame {
     private MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private MeshController meshController = new MeshController(this);
 
-    private ProcessingModelView view3DWindow = new ProcessingModelView();
+    private ProcessingModelView view3DWindow;
 
     public MeshWindow() throws HeadlessException {
 
@@ -168,6 +168,7 @@ public class MeshWindow extends JFrame {
         add(new StatusBar(), c);
 
         setVisible(true);
+
 
     }
 
@@ -353,7 +354,7 @@ public class MeshWindow extends JFrame {
                 "view-3D.png",
                 "Open the 3D view of mesh",
                 "alt 3",
-                () -> view3DWindow.toggle());
+                ProcessingModelView::startProcessingModelView);
         meshActionList.add(view3D);
 
         MeshAction sliceMesh = new MeshAction(

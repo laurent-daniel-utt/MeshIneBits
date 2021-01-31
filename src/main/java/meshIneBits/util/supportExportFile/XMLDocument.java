@@ -77,7 +77,7 @@ public abstract class XMLDocument<T> {
         fileName = fileName + "." + "xml";
         filePath = Paths.get(filePath.getParent().toString() + File.separator + fileName);
     }
-    public void writeObjectToXML(T obj){
+    protected void writeObjectToXML(T obj){
         try {
 
             if (obj == null) {

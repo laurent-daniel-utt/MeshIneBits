@@ -54,7 +54,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
 
     @Override
-    public Element buildElementResult(Mesh mesh) {
+    protected Element buildElementResult(Mesh mesh) {
         Element meshElement = createElement(MeshTagXML.MESH_START);
         Element config = buildConfigElement(mesh);
         meshElement.appendChild(config);

@@ -27,6 +27,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.gui.view3d.ControllerView3D;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
@@ -208,7 +209,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 case IMPORTING:
                     break;
                 case IMPORTED:
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    //meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    ControllerView3D.getInstance().setMesh(mesh);
                     break;
                 case SLICING:
                     break;
@@ -270,7 +272,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 case SCHEDULED:
                     break;
                 case OPENED:
-                    meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    //meshWindow.getView3DWindow().setCurrentMesh(mesh);
+                    ControllerView3D.getInstance().setMesh(mesh);
                     setLayer(0);
                     meshWindow.initGadgets();
                     setChanged();
@@ -309,8 +312,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             return;
         }
         if ((layerNum >= mesh.getLayers().size())
-                || (layerNum < 0)
-                || (layerNum == layerNumber)) {
+                || (layerNum < 0)) {
             return;
         }
         layerNumber = layerNum;

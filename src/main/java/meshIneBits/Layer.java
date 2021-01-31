@@ -222,6 +222,7 @@ public class Layer extends Observable implements Serializable {
     }
 
     public Vector<Vector2> getBits3dKeys() {
+        if(mapBits3D==null)return new Vector<>();
         return new Vector<>(mapBits3D.keySet());
     }
 

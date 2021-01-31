@@ -457,7 +457,6 @@ public class Bit2D implements Cloneable, Serializable {
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
-        this.cutPathsSeparate.clear();
         Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
         // Define 4 corners
         Vector2 cornerUpRight = new Vector2(+CraftConfig.LengthFull / 2.0, -CraftConfig.bitWidth / 2.0);

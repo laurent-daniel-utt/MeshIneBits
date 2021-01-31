@@ -30,7 +30,6 @@ public class MeshTagXML {
     public static final String CUT_BIT = "cutting";
     public static final String NO_CUT_BIT = "no-cutting";
     public static final String CUT_PATHS = "cut-paths";
-//    public static final String SUB_BIT="";
     public static final String MOVE_TO_POSITION = "move-to";
     public static final String CUT_TO_POSITION = "cut-to";
 
@@ -41,7 +40,6 @@ public class MeshTagXML {
     public static final String POSITION_BIT_COORDINATE = "position-in-bit";
     public static final String POSITION_MESH_COORDINATE = "position-in-layer";
     public static final String ROTATION_SUB_BIT = "rotation";
-//    public static final String LIFT_POINT_LINE_LONGEST ="line-longest";
     public static final String POINT ="point";
     public static final String POINT_ID ="id";
     public static final String ROTATION_SUB_BIT_SECOND ="rotation-2";
@@ -51,7 +49,6 @@ public class MeshTagXML {
 
     public static final String FALL_TYPE ="fall-type";
     public static final String CHUTE_TYPE ="chute";
-    public static final String SUB_BIT_TYPE ="chute";
     public static final String DROP="drop";
 
 
