@@ -31,7 +31,6 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -40,6 +39,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -136,7 +136,6 @@ public class Layer extends Observable implements Serializable {
         this.higherAltitude = ois.readDouble();
     }
 
-    public static class SerializeArea {
     public static class SerializeArea {
 
         static Path2D.Double toPath2D(final Area a) {
@@ -375,7 +374,7 @@ public class Layer extends Observable implements Serializable {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.LengthFull / 2;
+            distance = CraftConfig.lengthFull / 2;
         }
         Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
         rebuild(newCoordinate);
@@ -405,7 +404,7 @@ public class Layer extends Observable implements Serializable {
         if (direction.x == 0) {// up or down
             distance = CraftConfig.bitWidth / 2;
         } else if (direction.y == 0) {// left or right
-            distance = CraftConfig.LengthFull / 2;
+            distance = CraftConfig.lengthFull / 2;
         }
 
         // Move bits
@@ -516,7 +515,7 @@ public class Layer extends Observable implements Serializable {
      * Scale a bit
      *
      * @param bit              extruded bit
-     * @param percentageLength of {@link CraftConfig#LengthFull}
+     * @param percentageLength of {@link CraftConfig#lengthFull}
      * @param percentageWidth  of {@link CraftConfig#bitWidth}
      * @return the key of the replaced bit. If <tt>percentageLength</tt> or
      * <tt>percentageWidth</tt> is 0, the bit will be removed instead.

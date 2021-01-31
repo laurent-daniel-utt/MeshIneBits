@@ -87,8 +87,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "newBitLength",
             "Bit length",
             "Length of bits to add",
-            1.0, CraftConfig.LengthFull,
-            CraftConfig.LengthFull, 1.0);
+            1.0, CraftConfig.lengthFull,
+            CraftConfig.lengthFull, 1.0);
     private final DoubleParam newBitsWidthParam = new DoubleParam(
             "newBitWidth",
             "Bit width",
@@ -143,7 +143,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private final List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
     private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
-    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
     private Point2D currentPoint;
     private Area areaHoldingCut;
     //this variable is used to calc bit full length when paint preview
@@ -743,7 +742,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
-        newBitsLengthParam.setCurrentValue(CraftConfig.LengthFull * lengthPercentage / 100);
+        newBitsLengthParam.setCurrentValue(CraftConfig.lengthFull * lengthPercentage / 100);
         newBitsWidthParam.setCurrentValue(CraftConfig.bitWidth * widthPercentage / 100);
         setChanged();
         notifyObservers();
@@ -1086,14 +1085,12 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     /**
      * Call to back to step previous
      */
-    @Override
     public void undo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && !handlerRedoUndo.getPreviousActionOfUserBits().isEmpty()) {
             handlerRedoUndo.undo(this);
         }
     }
 
-    @Override
     public void redo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && handlerRedoUndo.getAfterActionOfUserBits().size()!=0) {
             handlerRedoUndo.redo(this);

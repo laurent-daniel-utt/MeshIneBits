@@ -94,16 +94,16 @@ public class ClassicBrickPattern extends PatternTemplate {
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
         // Start
         List<Bit2D> bits = new ArrayList<>();
-        Vector2 coo = patternStart.add(new Vector2(CraftConfig.LengthFull / 2, CraftConfig.bitWidth / 2));
+        Vector2 coo = patternStart.add(new Vector2(CraftConfig.lengthFull / 2, CraftConfig.bitWidth / 2));
         int column = 0;
-        while (coo.x < patternEnd.x + CraftConfig.LengthFull / 2) {
+        while (coo.x < patternEnd.x + CraftConfig.lengthFull / 2) {
             while (coo.y < patternEnd.y + CraftConfig.bitWidth / 2) {
                 // every bits have no rotation in that template
                 bits.add(new Bit2D(coo, new Vector2(1, 0)));
                 coo = coo.add(new Vector2(0, CraftConfig.bitWidth + bitsOffset));
             }
             column++;
-            coo = new Vector2(patternStart.x + CraftConfig.LengthFull / 2 + (CraftConfig.LengthFull + bitsOffset) * column,
+            coo = new Vector2(patternStart.x + CraftConfig.lengthFull / 2 + (CraftConfig.lengthFull + bitsOffset) * column,
                     patternStart.y + CraftConfig.bitWidth / 2);
         }
         return bits;
@@ -121,16 +121,16 @@ public class ClassicBrickPattern extends PatternTemplate {
         double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
         // Start
         List<Bit2D> bits = new ArrayList<>();
-        Vector2 coo = patternStart.add(new Vector2(CraftConfig.bitWidth / 2, CraftConfig.LengthFull / 2));
+        Vector2 coo = patternStart.add(new Vector2(CraftConfig.bitWidth / 2, CraftConfig.lengthFull / 2));
         int line = 0;
-        while (coo.y < patternEnd.y + CraftConfig.LengthFull / 2) {
+        while (coo.y < patternEnd.y + CraftConfig.lengthFull / 2) {
             while (coo.x < patternEnd.x + CraftConfig.bitWidth / 2) {
                 bits.add(new Bit2D(coo, new Vector2(0, 1)));
                 coo = coo.add(new Vector2(CraftConfig.bitWidth + bitsOffset, 0));
             }
             line++;
             coo = new Vector2(patternStart.x + CraftConfig.bitWidth / 2,
-                    patternStart.y + CraftConfig.LengthFull / 2 + (CraftConfig.LengthFull + bitsOffset) * line);
+                    patternStart.y + CraftConfig.lengthFull / 2 + (CraftConfig.lengthFull + bitsOffset) * line);
         }
         return bits;
     }

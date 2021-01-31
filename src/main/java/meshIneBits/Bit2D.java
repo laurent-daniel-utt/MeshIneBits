@@ -37,7 +37,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
-import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <img src="./doc-files/bit2d.png" alt="">
  * <br/>
  * We always take the upper left corner as
- * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
+ * (- {@link CraftConfig#lengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
  * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
@@ -95,7 +94,7 @@ public class Bit2D implements Cloneable, Serializable {
     public Bit2D(Vector2 origin, Vector2 orientation) {
         this.origin = origin;
         this.orientation = orientation;
-        length = CraftConfig.LengthFull;
+        length = CraftConfig.lengthFull;
         width = CraftConfig.bitWidth;
 
         setTransfoMatrix();
@@ -134,7 +133,7 @@ public class Bit2D implements Cloneable, Serializable {
                 .sub(
                         // Vector distance in Bit coordinate system
                         new Vector2(
-                                -CraftConfig.LengthFull / 2 + length / 2,
+                                -CraftConfig.lengthFull / 2 + length / 2,
                                 -CraftConfig.bitWidth / 2 + width / 2
                         )
                                 // Rotate into Mesh coordinate system
@@ -197,19 +196,19 @@ public class Bit2D implements Cloneable, Serializable {
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
 
         Vector2 A = this.getOrigin()
-                .add(colinear.mul(CraftConfig.bitLength/2))
+                .add(colinear.mul(CraftConfig.lengthFull/2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 B = this.getOrigin()
-                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .sub(colinear.mul(CraftConfig.lengthFull/2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 C = this.getOrigin()
-                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .sub(colinear.mul(CraftConfig.lengthFull/2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 D = this.getOrigin()
-                .add(colinear.mul(CraftConfig.bitLength/2))
+                .add(colinear.mul(CraftConfig.lengthFull/2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
         return new Vector<>(Arrays.asList(
@@ -223,12 +222,12 @@ public class Bit2D implements Cloneable, Serializable {
      * Create the area of the bit. This is
      * necessary when the bit has been reduced manually.<br/>
      * <b>Note</b>: We always take the upper left corner as
-     * (- {@link CraftConfig#LengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
+     * (- {@link CraftConfig#lengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
      * bitWidth} / 2 ). The bit's boundary is a rectangle.
      */
     private void buildBoundaries() {
         Rectangle2D.Double r = new Rectangle2D.Double(
-                -CraftConfig.LengthFull / 2,
+                -CraftConfig.lengthFull / 2,
                 -CraftConfig.bitWidth / 2,
                 length,
                 width
@@ -347,7 +346,7 @@ public class Bit2D implements Cloneable, Serializable {
         return origin.sub(
                 // Vector distance in Bit coordinate system
                 new Vector2(
-                        CraftConfig.LengthFull / 2 - length / 2,
+                        CraftConfig.lengthFull / 2 - length / 2,
                         CraftConfig.bitWidth / 2 - width / 2
                 )
                         // Rotate into Mesh coordinate system
@@ -444,7 +443,7 @@ public class Bit2D implements Cloneable, Serializable {
      * @param newPercentageWidth  100 means retain 100% of normal bit's width
      */
     public void resize(double newPercentageLength, double newPercentageWidth) {
-        length = CraftConfig.LengthFull * newPercentageLength / 100;
+        length = CraftConfig.lengthFull * newPercentageLength / 100;
         width = CraftConfig.bitWidth * newPercentageWidth / 100;
         // Rebuild the boundary
         buildBoundaries();
@@ -487,13 +486,13 @@ public class Bit2D implements Cloneable, Serializable {
     /**
      * Reset cut paths and recalculate them after defining area
      */
-    void calcCutPath() {
+    public void calcCutPath() {
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
         Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
         // Define 4 corners
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.LengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
+        Vector2 cornerUpRight = new Vector2(+CraftConfig.lengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
         Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
         Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
@@ -689,11 +688,11 @@ public class Bit2D implements Cloneable, Serializable {
      * @return
      */
     public static Vector<Rectangle2D> getTwoSideOfBit(double incertitude){
-        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.LengthFull /2+incertitude
+        Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.lengthFull /2+incertitude
                 ,-CraftConfig.bitWidth/2+incertitude
                 ,CraftConfig.sectionHoldingToCut-2*incertitude
                 ,CraftConfig.bitWidth-2*incertitude);
-        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.LengthFull /2-CraftConfig.sectionHoldingToCut+incertitude
+        Rectangle2D rightArea = new Rectangle2D.Double(CraftConfig.lengthFull /2-CraftConfig.sectionHoldingToCut+incertitude
                 ,-CraftConfig.bitWidth/2+incertitude
                 ,CraftConfig.sectionHoldingToCut-2*incertitude
                 ,CraftConfig.bitWidth-2*incertitude);

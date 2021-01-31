@@ -54,18 +54,13 @@ public class MeshWindow extends JFrame {
     private final Vector<MeshAction> meshActionList = new Vector<>();
     private final MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private final MeshController meshController = new MeshController(this);
-    private final ProcessingModelView view3DWindow = new ProcessingModelView();
+    private ProcessingModelView view3DWindow;
     private ActionMap actionMap;
-    private MeshActionToolbar utilitiesBox = new MeshActionToolbar();
-    private Vector<MeshAction> meshActionList = new Vector<>();
     private UtilityParametersPanel utilityParametersPanel;
     private MeshWindowZoomer zoomer;
     private MeshWindowSelector selector;
     private MeshWindowPropertyPanel propertyPanel;
-    private MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
-    private MeshController meshController = new MeshController(this);
 
-    private ProcessingModelView view3DWindow;
 
     public MeshWindow() throws HeadlessException {
 

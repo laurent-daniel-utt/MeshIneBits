@@ -100,7 +100,7 @@ public class Solution {
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
-            Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.bitLength, CraftConfig.bitWidth);
+            Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.lengthFull, CraftConfig.bitWidth);
             double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
             double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
             return ((1 - RATIO / 100.0) * area / maxArea);
@@ -187,7 +187,7 @@ public class Solution {
                 .rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
         Vector2 position = startPoint
                 .add(orthogonal.mul(this.bitPos))
-                .add(collinear.mul(CraftConfig.bitLength / 2))
+                .add(collinear.mul(CraftConfig.lengthFull / 2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
         return new Bit2D(position, this.bitAngle);
@@ -204,7 +204,7 @@ public class Solution {
         Bit2D bit2D = getBit(startPoint);
         Vector2 nextBitStartPoint = new GeneralTools().getNextBitStartPoint(bit2D, bound);
         double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
-        return RATIO / 100.0 * coveredDistance / CraftConfig.bitLength;
+        return RATIO / 100.0 * coveredDistance / CraftConfig.lengthFull;
     }
 
 

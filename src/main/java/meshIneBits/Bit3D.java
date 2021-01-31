@@ -102,7 +102,6 @@ public class Bit3D implements Serializable, Cloneable {
         origin = baseBit.getOrigin();
         orientation = baseBit.getOrientation();
         rawCutPaths = baseBit.getRawCutPaths();
-        rawCutPathsSeparate=baseBit.getCutPathsSeparate();
         reverseInCut=baseBit.getInverseInCut();
         computeLiftPoints();
         computeTwoPointNearTwoPointMostDistantOnBit();
@@ -114,7 +113,6 @@ public class Bit3D implements Serializable, Cloneable {
         origin = bit3D.getOrigin();
         orientation = bit3D.getOrientation();
         rawCutPaths = (Vector<Path2D>) bit3D.getRawCutPaths();
-        rawCutPathsSeparate= bit3D.getBaseBit().getCutPathsSeparate();
         computeLiftPoints();
         computeTwoPointNearTwoPointMostDistantOnBit();
         lowerAltitude = bit3D.getLowerAltitude();

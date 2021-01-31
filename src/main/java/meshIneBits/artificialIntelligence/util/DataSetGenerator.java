@@ -73,12 +73,12 @@ public final class DataSetGenerator {
 
         //this point is used as a local origin for the new coordinate system
         Vector2 originVertex = bitOrigin.add(orthogonal.mul(CraftConfig.bitWidth / 2))
-                .sub(colinear.mul(CraftConfig.bitLength / 2));
+                .sub(colinear.mul(CraftConfig.lengthFull / 2));
 
         if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
-                    .add(colinear.mul(CraftConfig.bitLength / 2));
+                    .add(colinear.mul(CraftConfig.lengthFull / 2));
         }
 
         // edgeAbscissa is the distance between the startPoint and the originVertex

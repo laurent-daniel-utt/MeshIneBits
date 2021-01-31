@@ -211,7 +211,7 @@ public class GeneralTools {
      */
     public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> polyPoints, Vector2 startPoint) {
 
-        double bitLength = CraftConfig.bitLength;
+        double bitLength = CraftConfig.lengthFull;
 
         // first we look for the segment on which the startPoint is.
         int startIndex = 0;

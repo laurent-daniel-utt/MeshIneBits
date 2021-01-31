@@ -297,10 +297,10 @@ class Builder extends PApplet implements Observer {
      */
     private void getUncutBitPShape(float extrudeDepth) {
 
-        Vector2 cornerUpRight = new Vector2(+CraftConfig.LengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
+        Vector2 cornerUpRight = new Vector2(+CraftConfig.lengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
         Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + CraftConfig.bitWidth);
-        Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - CraftConfig.LengthFull, cornerUpRight.y);
-        Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.LengthFull, cornerDownRight.y);
+        Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - CraftConfig.lengthFull, cornerUpRight.y);
+        Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - CraftConfig.lengthFull, cornerDownRight.y);
 
         Vector<int[]> pointList = new Vector<>();
         pointList.add(new int[]{(int) cornerUpRight.x, (int) cornerUpRight.y, 0});

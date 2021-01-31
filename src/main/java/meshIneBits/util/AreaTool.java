@@ -361,7 +361,7 @@ public class AreaTool {
         if (area.contains(barycenter.x, barycenter.y)) {
             // To be sure every other
             // distances will be smaller
-            double minDist = CraftConfig.LengthFull * 2;
+            double minDist = CraftConfig.lengthFull * 2;
             for (Vector<Segment2D> polygon : segments) {
                 for (Segment2D segment : polygon) {
                     double dist = segment.distFromPoint(barycenter);
@@ -426,7 +426,7 @@ public class AreaTool {
         Vector2 liftPoint = null;
         for (Vector2 p : sortedPoints) {
             // To be sure every other distances will be smaller
-            double minDistFromBounds = CraftConfig.LengthFull * 2;
+            double minDistFromBounds = CraftConfig.lengthFull * 2;
             for (Vector<Segment2D> polygon : segments) {
                 for (Segment2D segment : polygon) {
                     double dist = segment.distFromPoint(new Vector2(p.x, p.y));
@@ -744,7 +744,7 @@ public class AreaTool {
             for (double x = startX; x < endX; x += 1) {
                 for (double y = startY; y < endY; y += 1) {
                     if (area.contains(x, y)
-                            && !(x == CraftConfig.LengthFull / 2 || x == -CraftConfig.LengthFull / 2)
+                            && !(x == CraftConfig.lengthFull / 2 || x == -CraftConfig.lengthFull / 2)
                             && !(y == CraftConfig.bitWidth / 2 || y == -CraftConfig.bitWidth / 2)) {
                         if (!foundFirstPoint) {
                             distant1 = Math.sqrt(((x - point1.x) * (x - point1.x)) + ((y - point1.y) * (y - point1.y)));
@@ -835,7 +835,7 @@ public class AreaTool {
         double startY = rectangle2D.getMinY();
         double endX = rectangle2D.getMaxX();
         double endY = rectangle2D.getMaxY();
-        double distantMin=Math.sqrt(CraftConfig.LengthFull *CraftConfig.LengthFull +CraftConfig.bitWidth*CraftConfig.bitWidth);
+        double distantMin=Math.sqrt(CraftConfig.lengthFull *CraftConfig.lengthFull +CraftConfig.bitWidth*CraftConfig.bitWidth);
         double distant;
         Vector2 pointResult=null;
         for(double x = startX;x<endX;x+=0.1){
