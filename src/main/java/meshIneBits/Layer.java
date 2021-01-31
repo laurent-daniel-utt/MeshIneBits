@@ -40,7 +40,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -69,7 +68,7 @@ public class Layer extends Observable implements Serializable {
     private double higherAltitude;
 
 
-    //    public static class AreaSerializable extends Area implements Serializable{
+//    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
 //        public AreaSerializable(){
 //            super();
@@ -103,7 +102,7 @@ public class Layer extends Observable implements Serializable {
 //         *  could not be found.
 //         */
 //        public void readObject(java.io.ObjectInputStream in)
-//                throws IOException, Clas>sNotFoundException {
+//                throws IOException, ClassNotFoundException {
 //            add(new Area((Shape) in.readObject()));
 //        }
 //    }
@@ -137,6 +136,7 @@ public class Layer extends Observable implements Serializable {
         this.higherAltitude = ois.readDouble();
     }
 
+    public static class SerializeArea {
     public static class SerializeArea {
 
         static Path2D.Double toPath2D(final Area a) {
@@ -365,7 +365,7 @@ public class Layer extends Observable implements Serializable {
      * on the pattern template. Not use in quick succession because after each
      * move, the layer will be recalculated, slowing the process
      *
-     * @param bit3D     target
+     * @param bit3D    target
      * @param direction the direction in local coordinate system of the bit
      * @return the new origin of the moved bit
      */

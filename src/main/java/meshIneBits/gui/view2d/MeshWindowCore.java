@@ -24,6 +24,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -32,12 +33,14 @@ import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
@@ -45,7 +48,7 @@ import java.util.*;
  */
 class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener, Observer {
     private double viewOffsetX, viewOffsetY;
-    private Map<Bit3D, BitControls> bitMovers = new HashMap<>();
+    private final Map<Bit3D, BitControls> bitMovers = new HashMap<>();
     private int oldX, oldY;
     private boolean rightClickPressed = false;
     private double defaultZoom = 1;
@@ -365,7 +368,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 paintBulkSelectZone(g2d);
             }
         }
-
+        if (meshController.AI_NeedPaint) {
+            AIpaintForDebug(g2d);
+        }
         // Draw selected region
         if (meshController.isSelectingRegion()
                 || meshController.hasSelectedRegion())
@@ -376,6 +381,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             paintPreviousLayer(g2d);
         }
     }
+
 
     private void paintBulkSelectZone(Graphics2D g2d) {
         g2d.setColor(WorkspaceConfig.bulkSelectZoneColor);
@@ -478,6 +484,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             else if(meshController.showingBitNotFull()&&!bit2D.isFullLength()){
                 g2d.setColor(WorkspaceConfig.bitNotFullLength);
             }else  g2d.setColor(WorkspaceConfig.regularBitColor);
+            if (bit2D.isUsedForNN())
+                g2d.setColor(WorkspaceConfig.forAI_BitColor);
+            else
+                g2d.setColor(WorkspaceConfig.regularBitColor);
             drawModelArea(g2d, bit2D.getArea());
 
             // Cut paths
@@ -517,6 +527,77 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         for (Polygon p : slice) {
             drawModelPath2D(g2d, p.toPath2D());
         }
+    }
+
+    private void AIpaintForDebug(Graphics2D g2d) {
+        //STROKE COMMANDS
+        g2d.setStroke(new BasicStroke(2f));
+        g2d.setColor(Color.RED);
+
+        //Draw Polygon
+        /*
+        drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
+         */
+
+        //Draw bits Areas
+        Vector<Bit2D> bits = DebugTools.Bits;
+        for (Bit2D bit : bits) {
+            Area area = bit.getArea();
+            area.transform(realToView);
+            g2d.setColor(Color.RED);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+        }
+
+        //Draw an area
+        if(DebugTools.areaToDraw!=null){
+            Area area = DebugTools.areaToDraw;
+            area.transform(realToView);
+            g2d.setColor(Color.BLUE);
+            g2d.fill(area);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(area);
+        }
+
+        //Draw points
+        for (Vector2 point : DebugTools.pointsToDrawRED) {
+            g2d.setColor(Color.red);
+            drawModelCircle(g2d, point.x, point.y, 4);
+        }
+        for (Vector2 point : DebugTools.pointsToDrawGREEN) {
+            g2d.setColor(Color.green);
+            drawModelCircle(g2d, point.x, point.y, 5);
+        }
+        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
+            g2d.setColor(Color.blue);
+            drawModelCircle(g2d, point.x, point.y, 3);
+        }
+
+
+        //Draw Segment2D
+        Path2D path = new GeneralPath();
+        Segment2D seg = DebugTools.currentSegToDraw;
+        Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        path.append(shape, false);
+        drawModelPath2D(g2d, path);
+
+        seg = DebugTools.currentSegToDraw2;
+        shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        path.append(shape, false);
+        drawModelPath2D(g2d, path);
+
+        //Draw a list of Segment2D
+        for (Segment2D segment : DebugTools.segmentsToDraw) {
+            shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+            path.append(shape, false);
+            drawModelPath2D(g2d, path);
+        }
+
+        //Draw Text
+        /*
+        g2d.drawString("text",posX,posY);
+         */
     }
 
     private void paintBitControls(Bit3D bit, Graphics2D g2d) {

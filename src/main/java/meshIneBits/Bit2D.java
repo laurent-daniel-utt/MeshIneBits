@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Vector;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <img src="./doc-files/bit2d.png" alt="">
  * <br/>
  * We always take the upper left corner as
- * (- {@link CraftConfig#LengthFull bitLength} / 2, - {@link CraftConfig#bitWidth
+ * (- {@link CraftConfig#bitLength bitLength} / 2, - {@link CraftConfig#bitWidth
  * bitWidth} / 2 ). The bit's normal boundary is a rectangle.
  *
  * @see Bit3D
@@ -66,11 +68,15 @@ public class Bit2D implements Cloneable, Serializable {
      * In {@link Bit2D} coordinate system
      */
     private Vector<Path2D> cutPaths = new Vector<>();
-    private LinkedList<Vector<Path2D>> cutPathsSeparate = new LinkedList<>();
     /**
      * In {@link Bit2D} coordinate system
      */
     private Vector<Area> areas = new Vector<>();
+
+    /**
+     * <code>true</code> if the bit has been placed in a bid to feed the neural network.
+     */
+    private boolean usedForNN;
 
 
     private Boolean inverseInCut = false;
@@ -179,6 +185,38 @@ public class Bit2D implements Cloneable, Serializable {
         this.inverseTransfoMatrix = inverseTransfoMatrix;
         this.cutPaths = cutPaths;
         this.areas = areas;
+    }
+
+    /**
+     * Returns the four segments of a Bit2D (the Bit2D is not cut by cut paths)
+     * @return a Vector of the four segments.
+     */
+    public Vector<Segment2D> getBitSidesSegments() {
+        // bit's colinear and orthogonal unit vectors computation
+        Vector2 colinear = this.getOrientation().normal();
+        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
+
+        Vector2 A = this.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 B = this.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 C = this.getOrigin()
+                .sub(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        Vector2 D = this.getOrigin()
+                .add(colinear.mul(CraftConfig.bitLength/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth/2));
+
+        return new Vector<>(Arrays.asList(
+                new Segment2D(A, B),
+                new Segment2D(B, C),
+                new Segment2D(C, D),
+                new Segment2D(D, A)));
     }
 
     /**
@@ -347,9 +385,6 @@ public class Bit2D implements Cloneable, Serializable {
         return cutPaths;
     }
 
-    public LinkedList<Vector<Path2D>> getCutPathsSeparate() {
-        return cutPathsSeparate;
-    }
 
     /**
      * @return vertical side
@@ -453,7 +488,6 @@ public class Bit2D implements Cloneable, Serializable {
      * Reset cut paths and recalculate them after defining area
      */
     void calcCutPath() {
-//        inverseInCut =false;
         // We all calculate in coordinate
         // Reset cut paths
         this.cutPaths = new Vector<>();
@@ -705,4 +739,16 @@ public class Bit2D implements Cloneable, Serializable {
         return !newBitArea.contains(twoSide.lastElement()) && newBitArea.intersects(twoSide.lastElement());
     }
 
+
+    public void setCutPaths(Vector<Path2D> cutPaths) {
+        this.cutPaths = cutPaths;
+    }
+
+    public boolean isUsedForNN() {
+        return usedForNN;
+    }
+
+    public void setUsedForNN(boolean usedForNN) {
+        this.usedForNN = usedForNN;
+    }
 }

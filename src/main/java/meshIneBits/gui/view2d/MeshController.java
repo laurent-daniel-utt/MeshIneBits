@@ -23,6 +23,8 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
+import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
@@ -42,8 +44,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -115,11 +117,11 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             "Prohibit adding irregular bit",
             true
     );
-
     private final MeshWindow meshWindow;
     private Mesh mesh;
     private int layerNumber = -1;
     private Set<Vector2> selectedBitKeys = new HashSet<>();
+    private Layer currentLayer = null;
     private double zoom = 1;
     private boolean showSlice = true;
     private boolean showLiftPoints = false;
@@ -128,9 +130,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private boolean showIrregularBits = false;
     private boolean addingBits = false;
     private boolean showBitNotFull = false;
-
-
-
     /**
      * In {@link Mesh}'s coordinate system
      */
@@ -139,11 +138,11 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * In {@link Mesh}'s coordinate system
      */
     private Area bitAreaPreview;
-
     private boolean selectingRegion;
     private boolean selectedRegion;
-    private List<Point2D.Double> regionVertices = new ArrayList<>();
+    private final List<Point2D.Double> regionVertices = new ArrayList<>();
     private Path2D.Double currentSelectedRegion = new Path2D.Double();
+    private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
     private Point2D currentPoint;
     private Area areaHoldingCut;
@@ -165,6 +164,12 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private Point2D bulkSelectZoneUpperLeft;
     private Point2D bulkSelectZoneBottomRight;
     private Rectangle2D.Double bulkSelectZone;
+
+    /**
+     * For debug, let displaying segments, points and areas via DebugTools.
+     * @see DebugTools
+     */
+    public boolean AI_NeedPaint = false;
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -188,6 +193,10 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         return layerNumber;
     }
 
+    public Area getAvailableArea() {
+        return availableArea;
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof Layer) {
@@ -197,6 +206,10 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             setChanged();
             notifyObservers();
             return;
+        }
+        if (AI_NeedPaint) {
+            setLayer(0);
+            meshWindow.initGadgets();
         }
         if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
@@ -300,11 +313,11 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         if (pavement == null) return; // Empty layer
         pavement.getBitsKeys()
                 .forEach(key -> availableArea.subtract(
-                        AreaTool.expand(
-                                pavement.getBit(key)
-                                        .getArea(), // in real
-                                safeguardSpaceParam.getCurrentValue())
-                ));
+                AreaTool.expand(
+                        pavement.getBit(key)
+                                .getArea(), // in real
+                        safeguardSpaceParam.getCurrentValue())
+        ));
     }
 
     public void setLayer(int layerNum) {
@@ -529,13 +542,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                 || bitAreaPreview.isEmpty()
         )
             return;
-//        if(fullLength){
-//            currentPoint=position;
-//            calcBitFullLengthOrNormal(bitAreaPreview);
-//        }
-//        if(!fullLength){
-//            removeSectionHoldingCut();
-//        }
         // Do not add new irregular bit
         if (DetectorTool.checkIrregular(bitAreaPreview)
                 && prohibitAddingIrregularBitParam.getCurrentValue())
@@ -556,6 +562,13 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         getCurrentLayer().addBit(newBit, true);
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
+        if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it
+            try {
+                Acquisition.addNewExampleBit(newBit);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey,this.getSelectedBits(), getCurrentLayer().getLayerNumber()));
     }
 
@@ -1073,12 +1086,14 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     /**
      * Call to back to step previous
      */
+    @Override
     public void undo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && !handlerRedoUndo.getPreviousActionOfUserBits().isEmpty()) {
             handlerRedoUndo.undo(this);
         }
     }
 
+    @Override
     public void redo() {
         if (handlerRedoUndo.getPreviousActionOfUserBits() != null && handlerRedoUndo.getAfterActionOfUserBits().size()!=0) {
             handlerRedoUndo.redo(this);

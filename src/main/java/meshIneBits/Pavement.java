@@ -22,6 +22,8 @@
 
 package meshIneBits;
 
+import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -42,6 +44,14 @@ public class Pavement implements Cloneable, Serializable {
      * The key is the origin of {@link Bit2D} in {@link Mesh} coordinate system.
      */
     private Map<Vector2, Bit2D> mapBits;
+
+    private Area areaAvailable;
+
+    private final DoubleParam safeguardSpaceParam = new DoubleParam(
+            "safeguardSpace",
+            "Space around bit",
+            "In order to keep bits not overlapping or grazing each other",
+            1.0, 10.0, 3.0, 0.01);
 
     /**
      * Construct pavement out of bits and chosen rotation
@@ -96,6 +106,10 @@ public class Pavement implements Cloneable, Serializable {
     public void computeBits(Slice slice) {
         computeBits(AreaTool.getAreaFrom(slice));
     }
+    public void computeBitsWithSpaceAround(Slice slice) {
+        computeBitsWithSpaceAround(AreaTool.getAreaFrom(slice));
+    }
+
 
     /**
      * @param key in {@link Mesh} coordinate system
@@ -174,20 +188,43 @@ public class Pavement implements Cloneable, Serializable {
     /**
      * Recompute surfaces of {@link Bit2D}s
      *
-     * @param area in {@link Mesh} coordinate system
+     * @param areaSlider in {@link Mesh} coordinate system
      * @see #computeBits(Slice)
      */
-    public void computeBits(Area area) {
+    public void computeBits(Area areaSlider) {
+        areaAvailable = (Area) areaSlider.clone();
         for (Vector2 key : getBitsKeys()) {
             Bit2D bit = getBit(key);
             Area bitArea = bit.getArea();
-            bitArea.intersect(area);
+            bitArea.intersect(areaAvailable);
             if (bitArea.isEmpty()) {
                 // Outside of border
                 mapBits.remove(key);
             } else {
                 bit.updateBoundaries(bitArea);
                 bit.calcCutPath();
+            }
+        }
+    }
+
+    public void computeBitsWithSpaceAround(Area area){
+        areaAvailable = (Area) area.clone();
+        for (Vector2 key : getBitsKeys()) {
+            Bit2D bit = getBit(key);
+            Area bitArea = bit.getArea();
+            bitArea.intersect(areaAvailable);
+            if (bitArea.isEmpty()) {
+                // Outside of border
+                mapBits.remove(key);
+            } else {
+                bit.updateBoundaries(bitArea);
+                bit.calcCutPath();
+                //areaSlider.subtract(bitArea);
+                //updateAvailableArea();
+                areaAvailable.subtract(
+                        AreaTool.expand(
+                                bitArea, // in real
+                                safeguardSpaceParam.getCurrentValue()));
             }
         }
     }

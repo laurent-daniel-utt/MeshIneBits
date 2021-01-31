@@ -166,7 +166,9 @@ public class CraftConfig {
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
-            new UnitSquarePattern()
+            new UnitSquarePattern(),
+            new AI_Pavement(),
+            new GeneticPavement()
     };
 
     /**
