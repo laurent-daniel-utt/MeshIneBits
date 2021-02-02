@@ -252,8 +252,7 @@ public class EconomicPattern extends PatternTemplate {
                             // we will rebuild it with half of its height
                             // First, we need to recover the space
                             // taken by last band
-                            double lastY = lastBand.firstElement().getOrigin().y - CraftConfig.bitWidth / 2
-                                    - bitsLengthSpace;
+                            double lastY = lastBand.firstElement().getOrigin().y - CraftConfig.bitWidth / 2;
                             Double lastlyPavedSpaceRect = new Double(zoneOuterRect.x, lastY,
                                     zoneOuterRect.width, unpavedZoneRect.y - lastY);
                             Area lastlyPavedSpace = new Area(lastlyPavedSpaceRect);
