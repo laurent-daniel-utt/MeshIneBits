@@ -2,9 +2,15 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016  Thibault Cassard & Nicolas Gouju.
+ * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas..
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
- * Copyright (C) 2018 Vallon BENJAMIN.
+ * Copyright (C) 2018 VALLON Benjamin.
+ * Copyright (C) 2018 LORIMER Campbell.
+ * Copyright (C) 2018 D'AUTUME Christian.
+ * Copyright (C) 2019 DURINGER Nathan (Tests).
+ * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 DO Quang Bao.
+ * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +43,7 @@ class MeshWindowZoomer extends JPanel {
     private final double bCoefficient;
     private final double aCoefficient;
     /**
-     * Replica of {@link MeshController#zoom} to simplify callee
+     * Replica of {@link MeshController#getZoom()} to simplify callee
      */
     private double zoom = 1;
     // Components
