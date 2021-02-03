@@ -41,7 +41,7 @@ public class AboutDialogWindow extends JDialog {
         // Visual options
         Image windowIcon = IconLoader.get("icon.png").getImage();
         this.setIconImage(windowIcon);
-        this.setSize(350, 200);
+        this.setSize(500, 300);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
 
@@ -56,12 +56,24 @@ public class AboutDialogWindow extends JDialog {
         bg.setForeground(new Color(0, 0, 0, 8));
         bg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel copyrightLabel1 = new JLabel("Copyright© 2016 Thibault Cassard & Nicolas Gouju.");
+        JLabel copyrightLabel1 = new JLabel("Copyright© 2016 CASSARD Thibault & GOUJU Nicolas.");
         copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel2 = new JLabel("Copyright© 2017-2018 TRAN Quoc Nhat Han.");
         copyrightLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel3 = new JLabel("Copyright© 2018 Vallon BENJAMIN.");
+        JLabel copyrightLabel3 = new JLabel("Copyright© 2018 VALLON Benjamin.");
         copyrightLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel4 = new JLabel("Copyright© 2018 LORIMER Campbell.");
+        copyrightLabel4.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel5 = new JLabel("Copyright© 2018 D'AUTUME Christian.");
+        copyrightLabel5.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel6 = new JLabel("Copyright© 2019 DURINGER Nathan (Tests).");
+        copyrightLabel6.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel7 = new JLabel("Copyright© 2020 CLARIS Etienne & RUSSO André .");
+        copyrightLabel7.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel8 = new JLabel("Copyright© 2020-2021 DO Quang Bao.");
+        copyrightLabel8.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel9 = new JLabel("Copyright© 2021 VANNIYASINGAM Mithulan.");
+        copyrightLabel9.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton helpFileBtn = new JButton("Open help file (PDF format)");
         helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -71,6 +83,12 @@ public class AboutDialogWindow extends JDialog {
         jp.add(copyrightLabel1);
         jp.add(copyrightLabel2);
         jp.add(copyrightLabel3);
+        jp.add(copyrightLabel4);
+        jp.add(copyrightLabel5);
+        jp.add(copyrightLabel6);
+        jp.add(copyrightLabel7);
+        jp.add(copyrightLabel8);
+        jp.add(copyrightLabel9);
         jp.add(new JLabel(" "));
         jp.add(helpFileBtn);
         this.getContentPane().add(jp, BorderLayout.CENTER);
