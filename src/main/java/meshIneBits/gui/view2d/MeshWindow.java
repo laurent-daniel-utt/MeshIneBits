@@ -122,7 +122,7 @@ public class MeshWindow extends JFrame {
         utilityParametersPanelGBC.gridx = 1;
         utilityParametersPanelGBC.gridy = 1;
         utilityParametersPanelGBC.gridheight = 1;
-        utilityParametersPanelGBC.gridwidth = 2;
+        utilityParametersPanelGBC.gridwidth = 3;
         utilityParametersPanelGBC.weightx = 1;
         utilityParametersPanelGBC.weighty = 0;
 
@@ -161,7 +161,7 @@ public class MeshWindow extends JFrame {
         propertyPanelGBC.gridy = 1;
         propertyPanelGBC.gridwidth = 1;
         propertyPanelGBC.gridheight = 3;
-        propertyPanelGBC.weightx = 0;
+        propertyPanelGBC.weightx = 0.3;
         propertyPanelGBC.weighty = 1;
 
         // Status bar
