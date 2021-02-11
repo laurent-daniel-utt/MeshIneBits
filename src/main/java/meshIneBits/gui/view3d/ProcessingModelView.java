@@ -579,7 +579,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     private void rotateShape(float angleX, float angleY, float angleZ) {
-        frame.rotate(frame.rotation().inverse());
         applied = false;
         Quat r = new Quat();
         float angXRad = (float) Math.toRadians(angleX);
