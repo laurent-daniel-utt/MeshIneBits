@@ -34,6 +34,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.newt.util.MainThread;
 import controlP5.*;
+import controlP5.Button;
 import javafx.util.Pair;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
@@ -52,6 +53,7 @@ import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
+import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -168,7 +170,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     public void settings() {
         currentInstance = this;
-        size(800, 450, P3D);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        size(screenSize.width-20, screenSize.height-60, P3D);
         PJOGL.setIcon("resources/icon.png");
     }
 
@@ -505,18 +508,18 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
 
-        TFRotationX.setPosition(20,win.getHeight()/5);
-        TFRotationY.setPosition(20,win.getHeight()/5 + 60);
-        TFRotationZ.setPosition(20,win.getHeight()/5 + 120);
-        TFPositionX.setPosition(120,win.getHeight()/5 );
-        TFPositionY.setPosition(120,win.getHeight()/5 + 60);
-        TFPositionZ.setPosition(120,win.getHeight()/5 + 120);
+        TFRotationX.setPosition(30,win.getHeight()/5);
+        TFRotationY.setPosition(30,win.getHeight()/5 + 60);
+        TFRotationZ.setPosition(30,win.getHeight()/5 + 120);
+        TFPositionX.setPosition(130,win.getHeight()/5 );
+        TFPositionY.setPosition(130,win.getHeight()/5 + 60);
+        TFPositionZ.setPosition(130,win.getHeight()/5 + 120);
 
-        sliderM.setPosition(20, win.getHeight()/5 + 180);
-        sliderB.setPosition(20, win.getHeight()/5 + 210);
+        sliderM.setPosition(30, win.getHeight()/5 + 180);
+        sliderB.setPosition(30, win.getHeight()/5 + 210);
 
-        toggleModel.setPosition(20, win.getHeight()/5 + 250);
-        toggleBits.setPosition(80, win.getHeight()/5 + 250);
+        toggleModel.setPosition(30, win.getHeight()/5 + 250);
+        toggleBits.setPosition(90, win.getHeight()/5 + 250);
 
         apply.setPosition(win.getWidth()-200, win.getHeight()/4);
         tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
