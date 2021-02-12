@@ -34,6 +34,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.newt.util.MainThread;
 import controlP5.*;
+import controlP5.Button;
 import javafx.util.Pair;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
@@ -52,6 +53,7 @@ import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
+import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -103,13 +105,39 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Scene scene;
     private InteractiveFrame frame;
     private ControlP5 cp5;
+
+    private Textfield TFRotationX;
+    private Textfield TFRotationY;
+    private Textfield TFRotationZ;
+    private Textfield TFPositionX;
+    private Textfield TFPositionY;
+    private Textfield TFPositionZ;
+
+    private Slider sliderAnimation;
+    private Slider sliderM;
+    private Slider sliderB;
+
+    private Button apply;
+    private Button camera;
+    private Button reset;
+    private Button gravity;
+    private Button animation;
+    private Button pauseButton;
+
+    private Button speedUpButton;
+    private Button speedDownButton;
+
     private Textlabel txt;
     private Textlabel modelSize;
     private Textarea tooltipGravity;
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
     private Textarea tooltipApply;
+
+    private Toggle toggleAnimation;
+    private Toggle toggleModel;
     private Toggle toggleBits;
+
 
     private boolean viewModel = true;
     // Animation variable
@@ -142,7 +170,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     public void settings() {
         currentInstance = this;
-        size(800, 450, P3D);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        size(screenSize.width-20, screenSize.height-60, P3D);
         PJOGL.setIcon("resources/icon.png");
     }
 
@@ -218,6 +247,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         //       loadNewData();
         cp5 = new ControlP5(this);
         df = new DecimalFormat("#.##");
+        df.setMaximumFractionDigits ( 2 );
         df.setRoundingMode(RoundingMode.CEILING);
 //        frame.setDefaultMouseBindings();
         customFrameBindings(frame);
@@ -353,61 +383,68 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     private void createButtons(ControlP5 cp5) {
         GLWindow win = ((GLWindow) surface.getNative());
-        Slider slider = cp5.addSlider("RotatijonX").setPosition(20, 10).setSize(100, 20).setRange(-180, 180).setValue(0);
-        slider.onChange(callbackEvent -> {
-                    float value = slider.getValue();
-                    RotationX(Float.toString(value));
 
-
-                }
-        );
-        slider.onPress(e -> frame.rotate(frame.rotation().inverse()));
-        cp5.addTextfield("RotationX").setPosition(20, 40).setSize(30, 20)
+        TFRotationX=cp5.addTextfield("RotationX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        cp5.addTextfield("RotationY").setPosition(20, 80).setSize(30, 20)
+        TFRotationY=cp5.addTextfield("RotationY").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        cp5.addTextfield("RotationZ").setPosition(20, 120).setSize(30, 20)
+        TFRotationZ= cp5.addTextfield("RotationZ").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        cp5.addTextfield("PositionX").setPosition(70, 40).setSize(30, 20)
+        TFPositionX= cp5.addTextfield("PositionX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        cp5.addTextfield("PositionY").setPosition(70, 80).setSize(30, 20).setInputFilter(0)
+        TFPositionY=cp5.addTextfield("PositionY").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        cp5.addTextfield("PositionZ").setPosition(70, 120).setSize(30, 20).setInputFilter(0)
+        TFPositionZ= cp5.addTextfield("PositionZ").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
-                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0);
+                .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
+                .setFont(createFont("arial", 15));
 
-        Button gravity = cp5.addButton("ApplyGravity").setPosition(20, 250).setSize(80, 20).setColorLabel(255);
+        gravity = cp5.addButton("Apply Gravity").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
         int color = gravity.getColor().getBackground();
-        cp5.addButton("Reset").setPosition(20, 280).setSize(80, 20).setColorLabel(255);
-        cp5.addButton("CenterCamera").setPosition(20, 310).setSize(80, 20).setColorLabel(255);
-        cp5.addButton("Apply").setPosition(20, 340).setSize(80, 20).setColorLabel(255);
-
-        cp5.addButton("Animation").setPosition(20, 370).setSize(80, 20).setColorLabel(255);
-        cp5.addToggle("byBits").setPosition(110, 370)
-                .setSize(10, 10)
+        reset = cp5.addButton("Reset").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
+        camera = cp5.addButton("Center Camera").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
+        apply= cp5.addButton("Apply").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
+        animation = cp5.addButton("Animation").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
+        toggleAnimation = cp5.addToggle("byBits")
+                .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
-                .setLabel("by Bits");
-        Slider sliderAnimation = cp5.addSlider("animationSlider");
-        sliderAnimation.setVisible(false).setSize(200, 30).setPosition(20, 400).getCaptionLabel().setText("");
+                .setLabel("by Bits")
+                .setFont(createFont("arial", 15));
+
+        sliderAnimation = cp5.addSlider("animationSlider");
+        sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
+                .setFont(createFont("arial", 15));
         sliderAnimation.onChange(e -> {
             if (pauseAnimation) this.layerIndex = (int) sliderAnimation.getValue();
         });
 
-        cp5.addButton("animationSpeedUp").setVisible(false).setPosition(270, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText(">>");
-        cp5.addButton("animationSpeedDown").setVisible(false).setPosition(230, 400).setSize(30, 30).setColorLabel(255).getCaptionLabel().setText("<<");
-        Button pauseButton = cp5.addButton("PauseAnimation").setVisible(false).setPosition(310, 400).setSize(50, 30).setColorLabel(255);
-        pauseButton.getCaptionLabel().setText("Pause");
+        speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedUpButton.getCaptionLabel().setText(">>");
+        speedDownButton= cp5.addButton("animationSpeedDown").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedDownButton.getCaptionLabel().setText("<<");
+        pauseButton = cp5.addButton("PauseAnimation").setVisible(false).setSize(50, 30).setColorLabel(255);
+        pauseButton.getCaptionLabel().setText("Pause").setFont(createFont("arial", 15));
         pauseButton.onClick(e -> {
             pauseAnimation = !pauseAnimation;
             if (pauseAnimation) {
@@ -419,63 +456,87 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             }
         });
 
-        tooltipGravity = cp5.addTextarea("tooltipGravity").setPosition(100, 250).setText("Set the model").setSize(90, 18)
+
+        tooltipGravity = cp5.addTextarea("tooltipGravity").setText("Set the model").setSize(90, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
-                .hideScrollbar();
+                .hideScrollbar().setFont(createFont("ariel", 10));
         tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipReset = cp5.addTextarea("tooltipReset").setPosition(100, 280).setText("Reset to zero").setSize(85, 18)
+        tooltipReset = cp5.addTextarea("tooltipReset").setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipReset.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipCamera = cp5.addTextarea("tooltipCamera").setPosition(100, 310).setText("Center model").setSize(105, 18)
+        tooltipCamera = cp5.addTextarea("tooltipCamera").setText("Center model").setSize(105, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipCamera.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipApply = cp5.addTextarea("tooltipApply").setPosition(100, 340).setText("Apply the modifications").setSize(145, 18)
+        tooltipApply = cp5.addTextarea("tooltipApply").setText("Apply the modifications").setSize(145, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipApply.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)").setPosition(win.getWidth() - 100, win.getHeight() - 50)
-                .setSize(80, 40).setColor(255);
+        txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)")
+                .setSize(80, 40).setColor(255).setFont(createFont("arial", 15));
 
         modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
-                .setPosition(win.getWidth() - 100, 10).setColor(255);
+                .setColor(255).setFont(createFont("arial", 15));
 
-        cp5.addToggle("Model").setPosition(20, 220).setSize(10, 10)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle();
+        toggleModel = cp5.addToggle("Model").setSize(20, 20)
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
 
-        toggleBits = cp5.addToggle("Bits").setPosition(60, 220).setSize(10, 10)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50);
+        toggleBits = cp5.addToggle("Bits").setSize(20, 20)
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial", 15));
 
-        cp5.addSlider("M").setRange(0, 100).setPosition(20, 180).setSize(70, 10).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40);
-        cp5.addSlider("B").setRange(0, 100).setPosition(20, 195).setSize(70, 10).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40);
+        sliderM = cp5.addSlider("M").setRange(0, 100).setSize(100, 20).setValue(100)
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+        sliderB = cp5.addSlider("B").setRange(0, 100).setSize(100, 20).setValue(100)
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+
 
         cp5.setAutoDraw(false);
     }
 
     private void updateButtons() {
         GLWindow win = ((GLWindow) surface.getNative());
-        modelSize.setPosition(win.getWidth() - 100, 10);
-        txt.setPosition(win.getWidth() - 100, win.getHeight() - 50);
+        modelSize.setPosition(win.getWidth() - 150, 10);
+        txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
-/*
-		gravity.setPosition(20, win.getHeight() - 150);
-		reset.setPosition(20, win.getHeight() - 120);
-		camera.setPosition(20, win.getHeight() - 90);
-		apply.setPosition(20, win.getHeight() - 60);
 
-		toggleModel.setPosition(20, win.getHeight() - 190);
-		toggleBits.setPosition(60, win.getHeight() - 190);*/
+        TFRotationX.setPosition(30,win.getHeight()/5);
+        TFRotationY.setPosition(30,win.getHeight()/5 + 60);
+        TFRotationZ.setPosition(30,win.getHeight()/5 + 120);
+        TFPositionX.setPosition(130,win.getHeight()/5 );
+        TFPositionY.setPosition(130,win.getHeight()/5 + 60);
+        TFPositionZ.setPosition(130,win.getHeight()/5 + 120);
+
+        sliderM.setPosition(30, win.getHeight()/5 + 180);
+        sliderB.setPosition(30, win.getHeight()/5 + 210);
+
+        toggleModel.setPosition(30, win.getHeight()/5 + 250);
+        toggleBits.setPosition(90, win.getHeight()/5 + 250);
+
+        apply.setPosition(win.getWidth()-200, win.getHeight()/4);
+        tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
+        gravity.setPosition(win.getWidth()-200, win.getHeight()/4+50);
+        tooltipGravity.setPosition(win.getWidth()-200, win.getHeight()/4+32);
+        reset.setPosition(win.getWidth()-200, win.getHeight()/4+100);
+        tooltipReset.setPosition(win.getWidth()-200, win.getHeight()/4+82);
+        camera.setPosition(win.getWidth()-200, win.getHeight()/4+150);
+        tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
+        animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
+
+        toggleAnimation.setPosition(win.getWidth()-60, win.getHeight()/4+205);
+        speedDownButton.setPosition(win.getWidth()/2+20, win.getHeight()-50);
+        speedUpButton.setPosition(win.getWidth()/2+60, win.getHeight()-50);
+        pauseButton.setPosition(win.getWidth()/2+100, win.getHeight()-50);
+        sliderAnimation.setPosition(win.getWidth()/2-200, win.getHeight()-50);
+
         if (mouseX < 100) {
             scene.disableMotionAgent();
         } else {
@@ -488,26 +549,28 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipReset.hide();
         tooltipCamera.hide();
         tooltipApply.hide();
-        tooltipGravity.setPosition(mouseX + 20, mouseY - 20);
-        tooltipReset.setPosition(mouseX + 20, mouseY - 20);
-        tooltipCamera.setPosition(mouseX + 20, mouseY - 20);
-        tooltipApply.setPosition(mouseX + 20, mouseY - 20);
-        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 250) && (mouseY < 270)) {
+
+        float[] gravityPosition= tooltipGravity.getPosition();
+        float[] resetPosition= tooltipReset.getPosition();
+        float[] cameraPosition= tooltipCamera.getPosition();
+        float[] applyPosition= tooltipApply.getPosition();
+
+        if ((mouseX > gravityPosition[0]) && (mouseX < gravityPosition[0]+140) && (mouseY > gravityPosition[1]) && (mouseY < gravityPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipGravity.show();
             }
         }
-        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 280) && (mouseY < 300)) {
+        if ((mouseX > resetPosition[0]) && (mouseX < resetPosition[0]+140) && (mouseY > resetPosition[1]) && (mouseY < resetPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipReset.show();
             }
         }
-        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 310) && (mouseY < 330)) {
+        if ((mouseX > cameraPosition[0]) && (mouseX < cameraPosition[0]+140) && (mouseY > cameraPosition[1]) && (mouseY < cameraPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipCamera.show();
             }
         }
-        if ((mouseX > 20) && (mouseX < 100) && (mouseY > 340) && (mouseY < 360)) {
+        if ((mouseX > applyPosition[0]) && (mouseX < applyPosition[0]+140) && (mouseY > applyPosition[1]) && (mouseY < applyPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipApply.show();
             }
@@ -519,7 +582,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     private void rotateShape(float angleX, float angleY, float angleZ) {
-        frame.rotate(frame.rotation().inverse());
         applied = false;
         Quat r = new Quat();
         float angXRad = (float) Math.toRadians(angleX);
@@ -732,19 +794,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      * @param theValue in float
      */
-    @SuppressWarnings("unused")
     public void RotationX(String theValue) {
         float angle = Float.parseFloat(theValue);
         rotateShape(angle, 0, 0);
     }
-
-    @SuppressWarnings("unused")
     public void RotationY(String theValue) {
         float angle = Float.parseFloat(theValue);
         rotateShape(0, angle, 0);
     }
 
-    @SuppressWarnings("unused")
     public void RotationZ(String theValue) {
         float angle = Float.parseFloat(theValue);
         rotateShape(0, 0, angle);
