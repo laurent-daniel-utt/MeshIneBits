@@ -62,6 +62,8 @@ public class AboutDialogWindow extends JDialog {
         bg.setForeground(new Color(0, 0, 0, 8));
         bg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        JLabel copyrightLabel0 = new JLabel("Copyright (C) 2016-2021 DANIEL Laurent.");
+        copyrightLabel0.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel1 = new JLabel("Copyright (C) 2016 CASSARD Thibault & GOUJU Nicolas.");
         copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel2 = new JLabel("Copyright (C) 2017-2018 TRAN Quoc Nhat Han.");
@@ -81,11 +83,13 @@ public class AboutDialogWindow extends JDialog {
         JLabel copyrightLabel9 = new JLabel("Copyright (C) 2021 VANNIYASINGAM Mithulan.");
         copyrightLabel9.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+
         JButton helpFileBtn = new JButton("Open help file (PDF format)");
         helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         jp.add(new JLabel(" "));
         jp.add(bg);
+        jp.add(copyrightLabel0);
         jp.add(copyrightLabel1);
         jp.add(copyrightLabel2);
         jp.add(copyrightLabel3);
