@@ -56,6 +56,9 @@ public class AboutDialogWindow extends JDialog {
         bg.setForeground(new Color(0, 0, 0, 8));
         bg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+
+        JLabel copyrightLabel0 = new JLabel("Copyright© 2016-2021 DANIEL Laurent.");
+        copyrightLabel0.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel1 = new JLabel("Copyright© 2016 CASSARD Thibault & GOUJU Nicolas.");
         copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel2 = new JLabel("Copyright© 2017-2018 TRAN Quoc Nhat Han.");
@@ -80,6 +83,7 @@ public class AboutDialogWindow extends JDialog {
 
         jp.add(new JLabel(" "));
         jp.add(bg);
+        jp.add(copyrightLabel0);
         jp.add(copyrightLabel1);
         jp.add(copyrightLabel2);
         jp.add(copyrightLabel3);
