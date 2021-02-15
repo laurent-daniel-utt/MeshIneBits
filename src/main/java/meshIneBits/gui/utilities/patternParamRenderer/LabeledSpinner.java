@@ -2,7 +2,8 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas..
+ * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
@@ -25,7 +26,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package meshIneBits.gui.utilities.patternParamRenderer;
 
 import meshIneBits.config.DoubleSetting;
