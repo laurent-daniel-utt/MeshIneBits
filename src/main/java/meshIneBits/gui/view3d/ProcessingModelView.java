@@ -582,14 +582,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     private void rotateShape(float angleX, float angleY, float angleZ) {
-        applied = false;
-        Quat r = new Quat();
-        float angXRad = (float) Math.toRadians(angleX);
-        float angYRad = (float) Math.toRadians(angleY);
-        float angZRad = (float) Math.toRadians(angleZ);
-        r.fromEulerAngles(angXRad, angYRad, angZRad);
-        frame.rotate(r);
-        applyGravity();
+        if (!controllerView3D.getCurrentMesh().isSliced()){
+            applied = false;
+            Quat r = new Quat();
+            float angXRad = (float) Math.toRadians(angleX);
+            float angYRad = (float) Math.toRadians(angleY);
+            float angZRad = (float) Math.toRadians(angleZ);
+            r.fromEulerAngles(angXRad, angYRad, angZRad);
+            frame.rotate(r);
+            applyGravity();
+        }
     }
 
     /*
