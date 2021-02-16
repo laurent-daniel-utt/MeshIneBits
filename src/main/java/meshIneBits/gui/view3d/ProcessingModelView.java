@@ -414,12 +414,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
                 .setFont(createFont("arial", 15));
 
-        gravity = cp5.addButton("Apply Gravity").setSize(140, 30)
+        gravity = cp5.addButton("ApplyGravity").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         int color = gravity.getColor().getBackground();
         reset = cp5.addButton("Reset").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
-        camera = cp5.addButton("Center Camera").setSize(140, 30)
+        camera = cp5.addButton("CenterCamera").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         apply= cp5.addButton("Apply").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
@@ -834,6 +834,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         centerCamera();
         viewMeshPaved = false;
         toggleBits.setState(false);
+        toggleModel.setState(true);
         applied = false;
 
     }
