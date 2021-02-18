@@ -130,6 +130,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     private Textlabel txt;
     private Textlabel modelSize;
+    private Textlabel shortcut;
+
     private Textarea tooltipGravity;
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
@@ -488,6 +490,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
                 .setColor(255).setFont(createFont("arial", 15));
 
+        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut :\n Rotation : CTRL + Mouse Left Click \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel \n Zoom : Mouse Wheel" )
+                .setColor(255).setFont(createFont("arial", 15));
+
         toggleModel = cp5.addToggle("Model").setSize(20, 20)
                 .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
 
@@ -508,6 +513,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize.setPosition(win.getWidth() - 150, 10);
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
+        shortcut.setPosition(30, win.getHeight() - 100);
 
         TFRotationX.setPosition(30,win.getHeight()/5);
         TFRotationY.setPosition(30,win.getHeight()/5 + 60);
