@@ -119,6 +119,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Slider sliderB;
 
     private Button apply;
+    private Button applyScale;
     private Button camera;
     private Button reset;
     private Button gravity;
@@ -426,6 +427,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColorLabel(255).setFont(createFont("arial", 15));
         apply= cp5.addButton("Apply").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
+        applyScale= cp5.addButton("ApplyScale").setSize(140,30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
         animation = cp5.addButton("Animation").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         toggleAnimation = cp5.addToggle("byBits")
@@ -487,7 +490,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)")
                 .setSize(80, 40).setColor(255).setFont(createFont("arial", 15));
 
-        modelSize = cp5.addTextlabel("model size", "Model Size :\n Depth:" + shape.getDepth() + "\n Height :" + shape.getHeight() + "\n Width : " + shape.getWidth())
+        modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
                 .setColor(255).setFont(createFont("arial", 15));
 
         shortcut= cp5.addTextlabel("shortcut").setText("Shortcut :\n Rotation : CTRL + Mouse Left Click \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel \n Zoom : Mouse Wheel" )
@@ -528,7 +531,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         toggleModel.setPosition(30, win.getHeight()/5 + 250);
         toggleBits.setPosition(90, win.getHeight()/5 + 250);
 
-        apply.setPosition(win.getWidth()-200, win.getHeight()/4);
+        apply.setPosition(win.getWidth()-200, win.getHeight()/4-50);
+        applyScale.setPosition(win.getWidth()-200, win.getHeight()/4);
         tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
         gravity.setPosition(win.getWidth()-200, win.getHeight()/4+50);
         tooltipGravity.setPosition(win.getWidth()-200, win.getHeight()/4+32);
@@ -864,14 +868,20 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             applyGravity();
             applyTranslation();
             applied = true;
-
         }
+    }
+    public void ApplyScale(float theValue) {
+        applyScale();
     }
 
     private void applyScale() {
         if (frame.scaling() != scale) {
             model.applyScale(frame.scaling());
             scale = frame.scaling();
+            modelSize.setText("Model Size :\n Depth:" + df.format(shape.getDepth()*scale) + "\n Height :" +df.format(shape.getHeight()*scale) + "\n Width : " + df.format(shape.getWidth()*scale) + "\n Scale : " + df.format(scale));
+        }
+        if (frame.scaling()!=1){
+            shape.setFill(color(240,128,128));
         }
     }
 
@@ -1028,7 +1038,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (IMPORTED_MODEL.equals(arg)) model = controllerView3D.getModel();
         redraw();
         loadNewData();
-
+        updateButtons();
 
     }
 
