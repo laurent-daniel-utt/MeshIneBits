@@ -279,7 +279,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     @Override
     public void mouseWheel(MouseEvent event) {
-//        super.mouseWheel(event);
+        if (!frame.isEyeFrame()){
+            modelSize.setText("Model Size :\n Depth:" + df.format(shape.getDepth() * frame.scaling()) + "\n Height :" + df.format(shape.getHeight() * frame.scaling()) + "\n Width : " + df.format(shape.getWidth() * frame.scaling()) + "\n Scale : " + df.format(frame.scaling()));
+            System.out.println(frame.scaling());
+        }
+        if (frame.scaling()!=1){
+            shape.setFill(color(240,128,128));
+        }
     }
 
     @Override
