@@ -248,6 +248,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         shapeMeshPaved = builder.buildMeshPaved(shapeMapByLayer, shapeMapByBits);
 //        frame = new InteractiveFrame(scene, shape);
         frame = new InteractiveFrame(scene, shape);
+        frame.translate((float)controllerView3D.getModel().getPos().x,(float)controllerView3D.getModel().getPos().y,(float)controllerView3D.getModel().getPos().z);
         //       loadNewData();
         cp5 = new ControlP5(this);
         df = new DecimalFormat("#.##");
