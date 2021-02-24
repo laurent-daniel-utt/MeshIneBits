@@ -132,6 +132,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textlabel modelSize;
     private Textlabel shortcut;
 
+    private Textarea tooltipRotation;
     private Textarea tooltipGravity;
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
@@ -472,6 +473,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .hideScrollbar().setFont(createFont("ariel", 10));
         tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
+        tooltipRotation = cp5.addTextarea("tooltipRotation").setText("You can't rotate a sliced Model").setSize(220, 36)
+                .setColorBackground(color(255,0,0))
+                .setColor(color(50)).setFont(createFont("arial", 15)).setLineHeight(12).hide()
+                .hideScrollbar().setFont(createFont("ariel", 15));
+        tooltipRotation.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
         tooltipReset = cp5.addTextarea("tooltipReset").setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
@@ -521,6 +528,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
         shortcut.setPosition(30, win.getHeight() - 100);
 
+        tooltipRotation.setPosition(30, win.getHeight()/5-30);
         TFRotationX.setPosition(30,win.getHeight()/5);
         TFRotationY.setPosition(30,win.getHeight()/5 + 60);
         TFRotationZ.setPosition(30,win.getHeight()/5 + 120);
@@ -563,10 +571,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipCamera.hide();
         tooltipApply.hide();
 
+        float[] rotationTooltipsPostition= tooltipRotation.getPosition();
         float[] gravityPosition= tooltipGravity.getPosition();
         float[] resetPosition= tooltipReset.getPosition();
         float[] cameraPosition= tooltipCamera.getPosition();
         float[] applyPosition= tooltipApply.getPosition();
+
+        if ((mouseX > rotationTooltipsPostition[0]) && (mouseX < rotationTooltipsPostition[0]+220) && (mouseY > rotationTooltipsPostition[1]) && (mouseY < rotationTooltipsPostition[1]+36)){
+            tooltipRotation.hide();
+        }
 
         if ((mouseX > gravityPosition[0]) && (mouseX < gravityPosition[0]+140) && (mouseY > gravityPosition[1]) && (mouseY < gravityPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
@@ -604,6 +617,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             r.fromEulerAngles(angXRad, angYRad, angZRad);
             frame.rotate(r);
             applyGravity();
+        }
+        else{
+            tooltipRotation.show();
         }
     }
 
