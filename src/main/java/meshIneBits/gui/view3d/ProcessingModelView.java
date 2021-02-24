@@ -299,9 +299,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
         frame.setGrabsInputThreshold(scene.radius() / 3);
         frame.setRotationSensitivity(3);
-
-        frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
-        frame.setMotionBinding(WHEEL_ID, scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+        if (!controllerView3D.getCurrentMesh().isSliced()){
+            frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
+            frame.setMotionBinding(WHEEL_ID, scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+        }
         frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
     }
 
