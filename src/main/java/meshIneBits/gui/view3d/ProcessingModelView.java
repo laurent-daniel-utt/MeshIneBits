@@ -132,6 +132,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textlabel modelSize;
     private Textlabel shortcut;
 
+    private Textarea tooltipRotation;
     private Textarea tooltipGravity;
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
@@ -299,9 +300,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
         frame.setGrabsInputThreshold(scene.radius() / 3);
         frame.setRotationSensitivity(3);
-
-        frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
-        frame.setMotionBinding(WHEEL_ID, scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+        if (!controllerView3D.getCurrentMesh().isSliced()){
+            frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
+            frame.setMotionBinding(WHEEL_ID, scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+        }
         frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
     }
 
@@ -473,6 +475,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .hideScrollbar().setFont(createFont("ariel", 10));
         tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
+        tooltipRotation = cp5.addTextarea("tooltipRotation").setText("You can't rotate a sliced Model").setSize(220, 36)
+                .setColorBackground(color(255,0,0))
+                .setColor(color(50)).setFont(createFont("arial", 15)).setLineHeight(12).hide()
+                .hideScrollbar().setFont(createFont("ariel", 15));
+        tooltipRotation.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
         tooltipReset = cp5.addTextarea("tooltipReset").setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
                 .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
@@ -497,7 +505,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
                 .setColor(255).setFont(createFont("arial", 15));
 
-        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut :\n Rotation : CTRL + Mouse Left Click \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel \n Zoom : Mouse Wheel" )
+        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel" )
                 .setColor(255).setFont(createFont("arial", 15));
 
         toggleModel = cp5.addToggle("Model").setSize(20, 20)
@@ -522,6 +530,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
         shortcut.setPosition(30, win.getHeight() - 100);
 
+        tooltipRotation.setPosition(30, win.getHeight()/5-30);
         TFRotationX.setPosition(30,win.getHeight()/5);
         TFRotationY.setPosition(30,win.getHeight()/5 + 60);
         TFRotationZ.setPosition(30,win.getHeight()/5 + 120);
@@ -564,10 +573,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipCamera.hide();
         tooltipApply.hide();
 
+        float[] rotationTooltipsPostition= tooltipRotation.getPosition();
         float[] gravityPosition= tooltipGravity.getPosition();
         float[] resetPosition= tooltipReset.getPosition();
         float[] cameraPosition= tooltipCamera.getPosition();
         float[] applyPosition= tooltipApply.getPosition();
+
+        if ((mouseX > rotationTooltipsPostition[0]) && (mouseX < rotationTooltipsPostition[0]+220) && (mouseY > rotationTooltipsPostition[1]) && (mouseY < rotationTooltipsPostition[1]+36)){
+            tooltipRotation.hide();
+        }
 
         if ((mouseX > gravityPosition[0]) && (mouseX < gravityPosition[0]+140) && (mouseY > gravityPosition[1]) && (mouseY < gravityPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
@@ -605,6 +619,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             r.fromEulerAngles(angXRad, angYRad, angZRad);
             frame.rotate(r);
             applyGravity();
+        }
+        else{
+            tooltipRotation.show();
         }
     }
 
