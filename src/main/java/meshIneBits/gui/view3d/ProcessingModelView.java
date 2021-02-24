@@ -504,7 +504,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
                 .setColor(255).setFont(createFont("arial", 15));
 
-        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut :\n Rotation : CTRL + Mouse Left Click \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel \n Zoom : Mouse Wheel" )
+        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel" )
                 .setColor(255).setFont(createFont("arial", 15));
 
         toggleModel = cp5.addToggle("Model").setSize(20, 20)
