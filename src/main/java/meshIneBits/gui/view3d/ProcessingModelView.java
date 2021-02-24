@@ -119,7 +119,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Slider sliderB;
 
     private Button apply;
-    private Button applyScale;
     private Button camera;
     private Button reset;
     private Button gravity;
@@ -433,8 +432,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColorLabel(255).setFont(createFont("arial", 15));
         apply= cp5.addButton("Apply").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
-        applyScale= cp5.addButton("ApplyScale").setSize(140,30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
         animation = cp5.addButton("Animation").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         toggleAnimation = cp5.addToggle("byBits")
@@ -537,8 +534,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         toggleModel.setPosition(30, win.getHeight()/5 + 250);
         toggleBits.setPosition(90, win.getHeight()/5 + 250);
 
-        apply.setPosition(win.getWidth()-200, win.getHeight()/4-50);
-        applyScale.setPosition(win.getWidth()-200, win.getHeight()/4);
+        apply.setPosition(win.getWidth()-200, win.getHeight()/4);
         tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
         gravity.setPosition(win.getWidth()-200, win.getHeight()/4+50);
         tooltipGravity.setPosition(win.getWidth()-200, win.getHeight()/4+32);
@@ -875,9 +871,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             applyTranslation();
             applied = true;
         }
-    }
-    public void ApplyScale(float theValue) {
-        applyScale();
     }
 
     private void applyScale() {
