@@ -131,6 +131,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textlabel txt;
     private Textlabel modelSize;
     private Textlabel shortcut;
+    private Textlabel slicingWarning;
 
     private Textarea tooltipRotation;
     private Textarea tooltipGravity;
@@ -264,6 +265,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         printerX = CraftConfig.printerX;
         printerY = CraftConfig.printerY;
         printerZ = CraftConfig.printerZ;
+        if (controllerView3D.getCurrentMesh().isSliced()){
+            shape.setFill(color(205,92,92));
+        }
     }
 
     private synchronized void loadNewData() {
@@ -507,6 +511,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel" )
                 .setColor(255).setFont(createFont("arial", 15));
 
+
+        slicingWarning= cp5.addTextlabel("slicingWarning").setText("The Model is Sliced \n You can't rotate \n You can't scale" )
+                .setColor(255).setFont(createFont("arial", 20)).hide();
+        if (controllerView3D.getCurrentMesh().isSliced()){
+            slicingWarning.show();
+        }
+
         toggleModel = cp5.addToggle("Model").setSize(20, 20)
                 .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
 
@@ -527,6 +538,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize.setPosition(win.getWidth() - 150, 10);
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
+        slicingWarning.setPosition(win.getWidth()-450, 10);
         shortcut.setPosition(30, win.getHeight() - 100);
 
         tooltipRotation.setPosition(30, win.getHeight()/5-30);
