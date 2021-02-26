@@ -283,7 +283,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             System.out.println(frame.scaling());
         }
         if (frame.scaling()!=1){
-            shape.setFill(color(240,128,128));
+            shape.setFill(color(205,92,92));
         }
     }
 
@@ -880,7 +880,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             modelSize.setText("Model Size :\n Depth:" + df.format(shape.getDepth()*scale) + "\n Height :" +df.format(shape.getHeight()*scale) + "\n Width : " + df.format(shape.getWidth()*scale) + "\n Scale : " + df.format(scale));
         }
         if (frame.scaling()!=1){
-            shape.setFill(color(240,128,128));
+            shape.setFill(color(205,92,92));
         }
     }
 
