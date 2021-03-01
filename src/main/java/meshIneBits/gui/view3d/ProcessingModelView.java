@@ -708,7 +708,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private void applyGravity() {
         float minZ = (float) getMinShape().z;
         if (minZ != 0) {
-            frame.translate(0, 0, -minZ);
+            translateShape(0,0,-minZ);
         }
     }
 
