@@ -160,10 +160,10 @@ public class MeshWindow extends JFrame {
         propertyPanelGBC = new GridBagConstraints();
         propertyPanelGBC.fill = GridBagConstraints.BOTH;
         propertyPanelGBC.gridx = 3;
-        propertyPanelGBC.gridy = 1;
+        propertyPanelGBC.gridy = 2;
         propertyPanelGBC.gridwidth = 1;
         propertyPanelGBC.gridheight = 3;
-        propertyPanelGBC.weightx = 0.3;
+        propertyPanelGBC.weightx = 0.2;
         propertyPanelGBC.weighty = 1;
 
         // Status bar
