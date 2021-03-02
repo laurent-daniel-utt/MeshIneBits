@@ -152,6 +152,7 @@ public class MeshWindow extends JFrame {
         zoomerGBC.gridy = 3;
         zoomerGBC.gridwidth = 2;
         zoomerGBC.gridheight = 1;
+        zoomerGBC.fill = GridBagConstraints.HORIZONTAL;
         zoomerGBC.weightx = 1;
         zoomerGBC.weighty = 0;
 
