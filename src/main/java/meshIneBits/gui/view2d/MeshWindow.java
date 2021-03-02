@@ -171,8 +171,9 @@ public class MeshWindow extends JFrame {
         c.gridy = 4;
         c.gridwidth = 4;
         c.gridheight = 1;
+        c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
-        c.weighty = 0;
+        c.weighty = 0.05;
         add(new StatusBar(), c);
 
         setVisible(true);
