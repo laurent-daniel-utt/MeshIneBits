@@ -206,7 +206,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             }
         });
     }
-
     public ProcessingModelView() {
         controllerView3D = ControllerView3D.getInstance();
         controllerView3D.addObserver(this);
@@ -214,7 +213,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     }
 
-
+    public static void closeInstance(){
+        currentInstance=null;
+        model=null;
+    }
     /**
      *
      */
