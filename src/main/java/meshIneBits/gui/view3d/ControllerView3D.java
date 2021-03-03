@@ -52,6 +52,10 @@ public class ControllerView3D extends Observable implements Observer {
         return instance;
     }
 
+    public static void closeInstance(){
+        instance=null;
+    }
+
     private ControllerView3D() {
     }
 
