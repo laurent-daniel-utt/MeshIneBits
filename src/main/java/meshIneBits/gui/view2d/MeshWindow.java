@@ -32,6 +32,7 @@ package meshIneBits.gui.view2d;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
+import meshIneBits.gui.view3d.ControllerView3D;
 import meshIneBits.gui.view3d.ProcessingModelView;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
@@ -296,6 +297,8 @@ public class MeshWindow extends JFrame {
         MeshAction closeMesh = new MeshAction("closeProject", "Close Project", "project-close.png", "Close the current project", "control Q", () -> {
             dispose();
             new MeshWindow();
+            ControllerView3D.closeInstance();
+            ProcessingModelView.closeInstance();
 //            meshController.resetMesh();
 //            core.initBackground();
             System.out.println("close project");
