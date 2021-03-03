@@ -33,6 +33,7 @@ import meshIneBits.Mesh;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -43,18 +44,24 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
     public MeshWindowSelector(MeshController meshController) {
         Mesh mesh = meshController.getMesh();
         meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
+
         layerSlider = new JSlider(
                 SwingConstants.VERTICAL,
                 0,
                 mesh.getLayers().size() - 1,
                 0);
+        layerSlider.setMinimumSize(new Dimension(20,200));
+        layerSlider.setMaximumSize(new Dimension(20,200));
+        layerSlider.setFocusable(false);
+
         layerSpinner = new JSpinner(
                 new SpinnerNumberModel(
                         0,
                         0,
                         mesh.getLayers().size() - 1,
                         1));
-        layerSlider.setFocusable(false);
+        layerSpinner.setMaximumSize(new Dimension(30,30));
+
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(layerSlider);
         add(layerSpinner);

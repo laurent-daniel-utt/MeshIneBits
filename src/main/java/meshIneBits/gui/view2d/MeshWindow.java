@@ -132,6 +132,7 @@ public class MeshWindow extends JFrame {
         c.gridy = 2;
         c.gridwidth = 1;
         c.gridheight = 1;
+        c.fill=GridBagConstraints.BOTH;
         c.weightx = 1;
         c.weighty = 1;
         core = new MeshWindowCore(meshController);
