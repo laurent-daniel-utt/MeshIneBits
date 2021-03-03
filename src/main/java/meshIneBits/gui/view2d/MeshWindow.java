@@ -132,6 +132,7 @@ public class MeshWindow extends JFrame {
         c.gridy = 2;
         c.gridwidth = 1;
         c.gridheight = 1;
+        c.fill=GridBagConstraints.BOTH;
         c.weightx = 1;
         c.weighty = 1;
         core = new MeshWindowCore(meshController);
@@ -152,6 +153,7 @@ public class MeshWindow extends JFrame {
         zoomerGBC.gridy = 3;
         zoomerGBC.gridwidth = 2;
         zoomerGBC.gridheight = 1;
+        zoomerGBC.fill = GridBagConstraints.HORIZONTAL;
         zoomerGBC.weightx = 1;
         zoomerGBC.weighty = 0;
 
@@ -159,10 +161,10 @@ public class MeshWindow extends JFrame {
         propertyPanelGBC = new GridBagConstraints();
         propertyPanelGBC.fill = GridBagConstraints.BOTH;
         propertyPanelGBC.gridx = 3;
-        propertyPanelGBC.gridy = 1;
+        propertyPanelGBC.gridy = 2;
         propertyPanelGBC.gridwidth = 1;
         propertyPanelGBC.gridheight = 3;
-        propertyPanelGBC.weightx = 0.3;
+        propertyPanelGBC.weightx = 0.2;
         propertyPanelGBC.weighty = 1;
 
         // Status bar
@@ -170,8 +172,9 @@ public class MeshWindow extends JFrame {
         c.gridy = 4;
         c.gridwidth = 4;
         c.gridheight = 1;
+        c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
-        c.weighty = 0;
+        c.weighty = 0.05;
         add(new StatusBar(), c);
 
         setVisible(true);
