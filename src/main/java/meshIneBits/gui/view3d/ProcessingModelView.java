@@ -896,10 +896,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (!applied) {
             applyRotation();
             applyScale();
-            applyGravity();
             applyTranslation();
             applied = true;
         }
+        applyGravity();
     }
 
     private void applyScale() {
