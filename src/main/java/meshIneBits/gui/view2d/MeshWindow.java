@@ -295,13 +295,19 @@ public class MeshWindow extends JFrame {
         meshActionList.add(saveMesh);
 
         MeshAction closeMesh = new MeshAction("closeProject", "Close Project", "project-close.png", "Close the current project", "control Q", () -> {
-            dispose();
-            new MeshWindow();
-            ControllerView3D.closeInstance();
-            ProcessingModelView.closeInstance();
+            int answer= JOptionPane.showConfirmDialog(this,"you are about to close the opened project.\n Do you want to save it?","Asking saving",JOptionPane.YES_NO_OPTION);
+            switch (answer){
+                case JOptionPane.YES_OPTION:
+
+                case JOptionPane.NO_OPTION:
+                    dispose();
+                    new MeshWindow();
+                    ControllerView3D.closeInstance();
+                    ProcessingModelView.closeInstance();
 //            meshController.resetMesh();
 //            core.initBackground();
-            System.out.println("close project");
+                    System.out.println("close project");
+            }
         });
 
         MeshAction configure = new MeshAction(
