@@ -180,6 +180,61 @@ public class MeshWindow extends JFrame {
 
     }
 
+    private void save(){
+        final JFileChooser fc = new CustomFileChooser() {
+            @Override
+            public void approveSelection() {
+                File f = getSelectedFile();
+                if (f.exists() && getDialogType() == SAVE_DIALOG) {
+                    int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
+                    switch (result) {
+                        case JOptionPane.YES_OPTION:
+                            super.approveSelection();
+                            return;
+                        case JOptionPane.NO_OPTION:
+                            return;
+                        case JOptionPane.CLOSED_OPTION:
+                            return;
+                        case JOptionPane.CANCEL_OPTION:
+                            cancelSelection();
+                            return;
+                    }
+                }
+                super.approveSelection();
+            }
+        };
+        String ext = CraftConfigLoader.MESH_EXTENSION;
+        fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
+        String dir;
+        if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
+            dir = System.getProperty("user.home");
+        else
+            dir = CraftConfig.lastMesh.replace("\n", "\\n");
+        fc.setSelectedFile(new File(dir));
+        if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
+            File f = fc.getSelectedFile();
+            if (!f.getName().endsWith("." + ext)) {
+                f = new File(f.getPath() + "." + ext);
+            }
+            Logger.updateStatus("Saving the mesh at " + f.getName());
+            try {
+                meshController.saveMesh(f);
+                openedFill=false;
+            } catch (Exception e1) {
+                meshController.handleException(e1);
+            }
+
+        }
+    }
+
+    private void closeProject(){
+        openedFill=false;
+        dispose();
+        new MeshWindow();
+        ControllerView3D.closeInstance();
+        ProcessingModelView.closeInstance();
+        System.out.println("close project");
+    }
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
@@ -192,6 +247,14 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "control N",
                 () -> {
+                    if (openedFill){
+                        int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
+                        switch (answer) {
+                            case JOptionPane.YES_OPTION:
+                                save();
+                        }
+                        closeProject();
+                    }
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
                     String dir;
@@ -220,6 +283,14 @@ public class MeshWindow extends JFrame {
                 "Reload a project into workspace",
                 "control O",
                 () -> {
+                    if (openedFill){
+                        int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
+                        switch (answer) {
+                            case JOptionPane.YES_OPTION:
+                                save();
+                        }
+                        closeProject();
+                    }
                     final JFileChooser fc = new CustomFileChooser();
                     String meshExt = CraftConfigLoader.MESH_EXTENSION;
                     fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
@@ -240,7 +311,6 @@ public class MeshWindow extends JFrame {
                             meshController.handleException(e1);
                         }
                     }
-                    openedFill=true;
                 });
         meshActionList.add(openMesh);
 
@@ -251,48 +321,9 @@ public class MeshWindow extends JFrame {
                 "Save the current project",
                 "control S",
                 () -> {
-                    final JFileChooser fc = new CustomFileChooser() {
-                        @Override
-                        public void approveSelection() {
-                            File f = getSelectedFile();
-                            if (f.exists() && getDialogType() == SAVE_DIALOG) {
-                                int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
-                                switch (result) {
-                                    case JOptionPane.YES_OPTION:
-                                        super.approveSelection();
-                                        return;
-                                    case JOptionPane.NO_OPTION:
-                                        return;
-                                    case JOptionPane.CLOSED_OPTION:
-                                        return;
-                                    case JOptionPane.CANCEL_OPTION:
-                                        cancelSelection();
-                                        return;
-                                }
-                            }
-                            super.approveSelection();
-                        }
-                    };
-                    String ext = CraftConfigLoader.MESH_EXTENSION;
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-                    String dir;
-                    if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
-                        dir = System.getProperty("user.home");
-                    else
-                        dir = CraftConfig.lastMesh.replace("\n", "\\n");
-                    fc.setSelectedFile(new File(dir));
-                    if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
-                        File f = fc.getSelectedFile();
-                        if (!f.getName().endsWith("." + ext)) {
-                            f = new File(f.getPath() + "." + ext);
-                        }
-                        Logger.updateStatus("Saving the mesh at " + f.getName());
-                        try {
-                            meshController.saveMesh(f);
-                        } catch (Exception e1) {
-                            meshController.handleException(e1);
-                        }
-
+                    if (openedFill){
+                        save();
+                        openedFill=true;
                     }
                 });
         meshActionList.add(saveMesh);
@@ -302,59 +333,9 @@ public class MeshWindow extends JFrame {
                 int answer= JOptionPane.showConfirmDialog(this,"you are about to close the opened project.\n Do you want to save it?","Asking saving",JOptionPane.YES_NO_OPTION);
                 switch (answer){
                     case JOptionPane.YES_OPTION:
-                        final JFileChooser fc = new CustomFileChooser() {
-                            @Override
-                            public void approveSelection() {
-                                File f = getSelectedFile();
-                                if (f.exists() && getDialogType() == SAVE_DIALOG) {
-                                    int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
-                                    switch (result) {
-                                        case JOptionPane.YES_OPTION:
-                                            super.approveSelection();
-                                            return;
-                                        case JOptionPane.NO_OPTION:
-                                            return;
-                                        case JOptionPane.CLOSED_OPTION:
-                                            return;
-                                        case JOptionPane.CANCEL_OPTION:
-                                            cancelSelection();
-                                            return;
-                                    }
-                                }
-                                super.approveSelection();
-                            }
-                        };
-                        String ext = CraftConfigLoader.MESH_EXTENSION;
-                        fc.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " files", ext));
-                        String dir;
-                        if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
-                            dir = System.getProperty("user.home");
-                        else
-                            dir = CraftConfig.lastMesh.replace("\n", "\\n");
-                        fc.setSelectedFile(new File(dir));
-                        if (fc.showSaveDialog(MeshWindow.this) == JFileChooser.APPROVE_OPTION) {
-                            File f = fc.getSelectedFile();
-                            if (!f.getName().endsWith("." + ext)) {
-                                f = new File(f.getPath() + "." + ext);
-                            }
-                            Logger.updateStatus("Saving the mesh at " + f.getName());
-                            try {
-                                meshController.saveMesh(f);
-                                openedFill=false;
-                            } catch (Exception e1) {
-                                meshController.handleException(e1);
-                            }
-
-                        }
+                        save();
                     case JOptionPane.NO_OPTION:
-                        openedFill=false;
-                        dispose();
-                        new MeshWindow();
-                        ControllerView3D.closeInstance();
-                        ProcessingModelView.closeInstance();
-//            meshController.resetMesh();
-//            core.initBackground();
-                        System.out.println("close project");
+                        closeProject();
                 }
             }
 
