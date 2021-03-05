@@ -38,6 +38,10 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,12 +57,26 @@ public class Pavement implements Cloneable, Serializable {
     private Map<Vector2, Bit2D> mapBits;
 
     private Area areaAvailable;
+    private Path2D areaConverted;
 
     private final DoubleParam safeguardSpaceParam = new DoubleParam(
             "safeguardSpace",
             "Space around bit",
             "In order to keep bits not overlapping or grazing each other",
             1.0, 10.0, 3.0, 0.01);
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        // Write normal fields
+        areaConverted= Layer.SerializeArea.toPath2D(areaAvailable);
+        oos.writeObject(mapBits);
+        oos.writeObject(areaConverted);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.mapBits = (Map<Vector2, Bit2D>)ois.readObject();
+        this.areaConverted = (Path2D) ois.readObject();
+        this.areaAvailable = Layer.SerializeArea.toArea(areaConverted);
+    }
 
     /**
      * Construct pavement out of bits and chosen rotation
