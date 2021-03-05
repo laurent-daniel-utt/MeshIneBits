@@ -65,6 +65,12 @@ public class Pavement implements Cloneable, Serializable {
             "In order to keep bits not overlapping or grazing each other",
             1.0, 10.0, 3.0, 0.01);
 
+
+    /**
+     * method use to serialize Pavement to save a project
+     * @param oos
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream oos) throws IOException {
         // Write normal fields
         areaConverted= Layer.SerializeArea.toPath2D(areaAvailable);
@@ -72,6 +78,12 @@ public class Pavement implements Cloneable, Serializable {
         oos.writeObject(areaConverted);
     }
 
+    /**
+     * method use to read a serialized Pavement to open a save project
+     * @param ois
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         this.mapBits = (Map<Vector2, Bit2D>)ois.readObject();
         this.areaConverted = (Path2D) ois.readObject();
