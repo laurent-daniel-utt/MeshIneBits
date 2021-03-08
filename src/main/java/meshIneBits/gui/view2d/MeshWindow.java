@@ -88,11 +88,12 @@ public class MeshWindow extends JFrame {
         }
 
         // Window options
+        Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("MeshIneBits");
         setSize(1280, 720);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+         setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         init();
         setJMenuBar(menuBar);
 
@@ -282,7 +283,7 @@ public class MeshWindow extends JFrame {
         ProcessingModelView.closeInstance();
         System.out.println("close project");
     }
-    
+
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
@@ -365,8 +366,13 @@ public class MeshWindow extends JFrame {
                 switch (answer){
                     case JOptionPane.YES_OPTION:
                         save();
+                        closeProject();
+                        return;
                     case JOptionPane.NO_OPTION:
                         closeProject();
+                        return;
+                    case JOptionPane.CLOSED_OPTION:
+                        return;
                 }
             }
 
