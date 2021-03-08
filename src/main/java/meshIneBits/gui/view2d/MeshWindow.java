@@ -256,7 +256,8 @@ public class MeshWindow extends JFrame {
                             case JOptionPane.YES_OPTION:
                                 save();
                         }
-                        closeProject();
+                        ControllerView3D.closeInstance();
+                        ProcessingModelView.closeInstance();
                     }
                     final JFileChooser fc = new CustomFileChooser();
                     fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
@@ -292,7 +293,8 @@ public class MeshWindow extends JFrame {
                             case JOptionPane.YES_OPTION:
                                 save();
                         }
-                        closeProject();
+                        ControllerView3D.closeInstance();
+                        ProcessingModelView.closeInstance();
                     }
                     final JFileChooser fc = new CustomFileChooser();
                     String meshExt = CraftConfigLoader.MESH_EXTENSION;
