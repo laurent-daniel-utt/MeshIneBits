@@ -183,6 +183,50 @@ public class MeshWindow extends JFrame {
 
     }
 
+    private void newFile(){
+        final JFileChooser fc = new CustomFileChooser();
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+        String dir;
+        if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
+            dir = System.getProperty("user.home");
+        } else
+            dir = CraftConfig.lastModel.replace("\n", "\\n");
+        fc.setSelectedFile(new File(dir));
+        int returnVal = fc.showOpenDialog(MeshWindow.this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                openedFill=true;
+                meshController.newMesh(fc.getSelectedFile());
+            } catch (SimultaneousOperationsException e1) {
+                meshController.handleException(e1);
+            }
+        }
+    }
+
+    private void openFile(){
+        final JFileChooser fc = new CustomFileChooser();
+        String meshExt = CraftConfigLoader.MESH_EXTENSION;
+        fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
+        String dir;
+        if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
+            dir = System.getProperty("user.home");
+        else
+            dir = CraftConfig.lastMesh.replace("\n", "\\n");
+        fc.setSelectedFile(new File(dir));
+        int returnVal = fc.showOpenDialog(MeshWindow.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File f = fc.getSelectedFile();
+            Logger.updateStatus("Opening the mesh " + f.getName());
+            try {
+                openedFill=true;
+                meshController.openMesh(f); // asynchronous task
+            } catch (SimultaneousOperationsException e1) {
+                meshController.handleException(e1);
+            }
+        }
+    }
+
     private void save(){
         final JFileChooser fc = new CustomFileChooser() {
             @Override
@@ -238,6 +282,7 @@ public class MeshWindow extends JFrame {
         ProcessingModelView.closeInstance();
         System.out.println("close project");
     }
+    
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
@@ -255,28 +300,20 @@ public class MeshWindow extends JFrame {
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
                                 save();
-                        }
-                        ControllerView3D.closeInstance();
-                        ProcessingModelView.closeInstance();
-                    }
-                    final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-                    String dir;
-                    if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
-                        dir = System.getProperty("user.home");
-                    } else
-                        dir = CraftConfig.lastModel.replace("\n", "\\n");
-                    fc.setSelectedFile(new File(dir));
-                    int returnVal = fc.showOpenDialog(MeshWindow.this);
-
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            openedFill=true;
-                            meshController.newMesh(fc.getSelectedFile());
-                        } catch (SimultaneousOperationsException e1) {
-                            meshController.handleException(e1);
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                newFile();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                newFile();
+                                return;
+                            case JOptionPane.CLOSED_OPTION:
+                                return;
                         }
                     }
+                    newFile();
                 });
         meshActionList.add(newMesh);
 
@@ -292,28 +329,17 @@ public class MeshWindow extends JFrame {
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
                                 save();
-                        }
-                        ControllerView3D.closeInstance();
-                        ProcessingModelView.closeInstance();
-                    }
-                    final JFileChooser fc = new CustomFileChooser();
-                    String meshExt = CraftConfigLoader.MESH_EXTENSION;
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
-                    String dir;
-                    if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
-                        dir = System.getProperty("user.home");
-                    else
-                        dir = CraftConfig.lastMesh.replace("\n", "\\n");
-                    fc.setSelectedFile(new File(dir));
-                    int returnVal = fc.showOpenDialog(MeshWindow.this);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        File f = fc.getSelectedFile();
-                        Logger.updateStatus("Opening the mesh " + f.getName());
-                        try {
-                            openedFill=true;
-                            meshController.openMesh(f); // asynchronous task
-                        } catch (SimultaneousOperationsException e1) {
-                            meshController.handleException(e1);
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                openFile();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                openFile();
+                                return;
+                            case JOptionPane.CLOSED_OPTION:
+                                return;
                         }
                     }
                 });
