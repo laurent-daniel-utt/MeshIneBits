@@ -62,7 +62,6 @@ public class MeshWindow extends JFrame {
     private final Vector<MeshAction> meshActionList = new Vector<>();
     private final MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private final MeshController meshController = new MeshController(this);
-    private boolean openedFill= false;
     private ProcessingModelView view3DWindow;
     private ActionMap actionMap;
     private UtilityParametersPanel utilityParametersPanel;
@@ -197,7 +196,6 @@ public class MeshWindow extends JFrame {
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                openedFill=true;
                 meshController.newMesh(fc.getSelectedFile());
             } catch (SimultaneousOperationsException e1) {
                 meshController.handleException(e1);
@@ -220,7 +218,6 @@ public class MeshWindow extends JFrame {
             File f = fc.getSelectedFile();
             Logger.updateStatus("Opening the mesh " + f.getName());
             try {
-                openedFill=true;
                 meshController.openMesh(f); // asynchronous task
             } catch (SimultaneousOperationsException e1) {
                 meshController.handleException(e1);
@@ -267,7 +264,6 @@ public class MeshWindow extends JFrame {
             Logger.updateStatus("Saving the mesh at " + f.getName());
             try {
                 meshController.saveMesh(f);
-                openedFill=false;
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }
@@ -276,7 +272,6 @@ public class MeshWindow extends JFrame {
     }
 
     private void closeProject(){
-        openedFill=false;
         dispose();
         new MeshWindow();
         ControllerView3D.closeInstance();
@@ -296,7 +291,7 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "control N",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
@@ -325,7 +320,7 @@ public class MeshWindow extends JFrame {
                 "Reload a project into workspace",
                 "control O",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
@@ -343,6 +338,7 @@ public class MeshWindow extends JFrame {
                                 return;
                         }
                     }
+                    openFile();
                 });
         meshActionList.add(openMesh);
 
@@ -353,15 +349,14 @@ public class MeshWindow extends JFrame {
                 "Save the current project",
                 "control S",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         save();
-                        openedFill=true;
                     }
                 });
         meshActionList.add(saveMesh);
 
         MeshAction closeMesh = new MeshAction("closeProject", "Close Project", "project-close.png", "Close the current project", "control Q", () -> {
-            if (openedFill){
+            if (meshController.getMesh()!=null){
                 int answer= JOptionPane.showConfirmDialog(this,"you are about to close the opened project.\n Do you want to save it?","Asking saving",JOptionPane.YES_NO_OPTION);
                 switch (answer){
                     case JOptionPane.YES_OPTION:
