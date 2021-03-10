@@ -89,10 +89,10 @@ public class MeshWindow extends JFrame {
         // Window options
         Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("MeshIneBits");
-        setSize(dim.width, dim.height-20);
+        setSize(dim.width, dim.height-100);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+       // setLocation(dim.width/2-this.getSize().width/2, 0);
         init();
         setJMenuBar(menuBar);
 
