@@ -146,6 +146,7 @@ public class MeshWindow extends JFrame {
         selectorGBC.gridy = 2;
         selectorGBC.gridwidth = 1;
         selectorGBC.gridheight = 1;
+        selectorGBC.fill=GridBagConstraints.VERTICAL;
         selectorGBC.weightx = 0;
         selectorGBC.weighty = 1;
 
