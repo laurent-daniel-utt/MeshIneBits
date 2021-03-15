@@ -167,7 +167,7 @@ public class MeshWindow extends JFrame {
         propertyPanelGBC.gridy = 2;
         propertyPanelGBC.gridwidth = 1;
         propertyPanelGBC.gridheight = 3;
-        propertyPanelGBC.weightx = 0.2;
+        propertyPanelGBC.weightx = 0;
         propertyPanelGBC.weighty = 1;
 
         // Status bar
@@ -177,7 +177,7 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
-        c.weighty = 0.05;
+        c.weighty = 0;
         add(new StatusBar(), c);
 
         setVisible(true);

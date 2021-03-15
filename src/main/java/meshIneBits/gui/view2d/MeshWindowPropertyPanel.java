@@ -49,7 +49,8 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
     private BitsPropertyPanel bitsPropertyPanel;
 
     MeshWindowPropertyPanel(MeshController meshController) {
-        setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.BLACK));
+        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+        setPreferredSize(new Dimension(400, getHeight()));
         meshController.addPropertyChangeListener("", this);
         this.setLayout(new BorderLayout());
         JPanel content = new JPanel();
@@ -137,7 +138,7 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
     }
 
     @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(300, getHeight());
+    public Dimension getMinimumSize() {
+        return new Dimension(400, getHeight());
     }
 }
