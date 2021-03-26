@@ -34,6 +34,8 @@ import meshIneBits.gui.utilities.ButtonIcon;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 class MeshWindowZoomer extends JPanel {
     private static final double MIN_ZOOM_VALUE = 0.5;
@@ -50,23 +52,35 @@ class MeshWindowZoomer extends JPanel {
     // Components
     private JSlider zoomSlider = new JSlider(
             SwingConstants.HORIZONTAL,
-            MIN_ZOOM_SLIDER_VALUE,
+           MIN_ZOOM_SLIDER_VALUE,
             MAX_ZOOM_SLIDER_VALUE,
             MIN_ZOOM_SLIDER_VALUE);
 
+    JButton zoomButton =new JButton("Init Zoom");
     private MeshController meshController;
+    private MeshWindowCore meshWindowCore;
 
-    MeshWindowZoomer(MeshController meshController) {
+    MeshWindowZoomer(MeshController meshController, MeshWindowCore core) {
         this.meshController = meshController;
+        this.meshWindowCore = core;
         bCoefficient = Math.log(MIN_ZOOM_VALUE / 10) / (MIN_ZOOM_SLIDER_VALUE - MAX_ZOOM_SLIDER_VALUE);
         aCoefficient = MIN_ZOOM_VALUE / Math.exp(bCoefficient * MIN_ZOOM_SLIDER_VALUE);
-        zoomSlider.setMaximumSize(new Dimension(500, 20));
+        //zoomSlider.setMaximumSize(new Dimension(500, 20));
         setOpaque(false);
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
         ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
         add(zoomMinusBtn);
-        add(zoomSlider);
+
+        add(zoomButton);
+        zoomButton.setFont(new Font("calibri", Font.PLAIN, 20));
+        zoomButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                meshController.setZoom(1);
+                core.setViewOffset();
+            }
+        });
         ButtonIcon zoomPlusBtn = new ButtonIcon("", "search-plus.png", true);
         add(zoomPlusBtn);
         setAlignmentX(Component.CENTER_ALIGNMENT);

@@ -766,4 +766,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.fill(overlapBit);
         }
     }
+
+
+    public void setViewOffset(){
+        viewOffsetX=0;
+        viewOffsetY=0;
+    }
 }
