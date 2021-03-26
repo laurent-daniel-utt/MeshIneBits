@@ -45,6 +45,7 @@ public class StatusBar extends JPanel implements LoggingInterface {
         // Visual options
         setBackground(Color.white);
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
+        setPreferredSize(new Dimension(getWidth(), 20));
         setLayout(new BorderLayout());
 
         // Setting up
@@ -90,5 +91,9 @@ public class StatusBar extends JPanel implements LoggingInterface {
     @Override
     public void warning(String warning) {
         statusLabel.setText("WARNING: " + warning);
+    }
+
+    public Dimension getMinimumSize() {
+        return new Dimension(getWidth(), 20);
     }
 }

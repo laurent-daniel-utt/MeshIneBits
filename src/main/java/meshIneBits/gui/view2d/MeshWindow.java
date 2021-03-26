@@ -62,7 +62,6 @@ public class MeshWindow extends JFrame {
     private final Vector<MeshAction> meshActionList = new Vector<>();
     private final MeshSettingsWindow meshSettingsWindow = new MeshSettingsWindow();
     private final MeshController meshController = new MeshController(this);
-    private boolean openedFill= false;
     private ProcessingModelView view3DWindow;
     private ActionMap actionMap;
     private UtilityParametersPanel utilityParametersPanel;
@@ -88,11 +87,12 @@ public class MeshWindow extends JFrame {
         }
 
         // Window options
+        Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("MeshIneBits");
-        setSize(1280, 720);
+        setSize(dim.width, dim.height-100);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+       // setLocation(dim.width/2-this.getSize().width/2, 0);
         init();
         setJMenuBar(menuBar);
 
@@ -146,6 +146,7 @@ public class MeshWindow extends JFrame {
         selectorGBC.gridy = 2;
         selectorGBC.gridwidth = 1;
         selectorGBC.gridheight = 1;
+        selectorGBC.fill=GridBagConstraints.VERTICAL;
         selectorGBC.weightx = 0;
         selectorGBC.weighty = 1;
 
@@ -166,7 +167,7 @@ public class MeshWindow extends JFrame {
         propertyPanelGBC.gridy = 2;
         propertyPanelGBC.gridwidth = 1;
         propertyPanelGBC.gridheight = 3;
-        propertyPanelGBC.weightx = 0.2;
+        propertyPanelGBC.weightx = 0;
         propertyPanelGBC.weighty = 1;
 
         // Status bar
@@ -176,11 +177,53 @@ public class MeshWindow extends JFrame {
         c.gridheight = 1;
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
-        c.weighty = 0.05;
+        c.weighty = 0;
         add(new StatusBar(), c);
 
         setVisible(true);
 
+    }
+
+    private void newFile(){
+        final JFileChooser fc = new CustomFileChooser();
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
+        String dir;
+        if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
+            dir = System.getProperty("user.home");
+        } else
+            dir = CraftConfig.lastModel.replace("\n", "\\n");
+        fc.setSelectedFile(new File(dir));
+        int returnVal = fc.showOpenDialog(MeshWindow.this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                meshController.newMesh(fc.getSelectedFile());
+            } catch (SimultaneousOperationsException e1) {
+                meshController.handleException(e1);
+            }
+        }
+    }
+
+    private void openFile(){
+        final JFileChooser fc = new CustomFileChooser();
+        String meshExt = CraftConfigLoader.MESH_EXTENSION;
+        fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
+        String dir;
+        if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
+            dir = System.getProperty("user.home");
+        else
+            dir = CraftConfig.lastMesh.replace("\n", "\\n");
+        fc.setSelectedFile(new File(dir));
+        int returnVal = fc.showOpenDialog(MeshWindow.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File f = fc.getSelectedFile();
+            Logger.updateStatus("Opening the mesh " + f.getName());
+            try {
+                meshController.openMesh(f); // asynchronous task
+            } catch (SimultaneousOperationsException e1) {
+                meshController.handleException(e1);
+            }
+        }
     }
 
     private void save(){
@@ -222,7 +265,6 @@ public class MeshWindow extends JFrame {
             Logger.updateStatus("Saving the mesh at " + f.getName());
             try {
                 meshController.saveMesh(f);
-                openedFill=false;
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }
@@ -231,13 +273,13 @@ public class MeshWindow extends JFrame {
     }
 
     private void closeProject(){
-        openedFill=false;
         dispose();
         new MeshWindow();
         ControllerView3D.closeInstance();
         ProcessingModelView.closeInstance();
         System.out.println("close project");
     }
+
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
@@ -250,32 +292,25 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "control N",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
                                 save();
-                        }
-                        closeProject();
-                    }
-                    final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
-                    String dir;
-                    if (CraftConfig.lastModel == null || CraftConfig.lastModel.equals("")) {
-                        dir = System.getProperty("user.home");
-                    } else
-                        dir = CraftConfig.lastModel.replace("\n", "\\n");
-                    fc.setSelectedFile(new File(dir));
-                    int returnVal = fc.showOpenDialog(MeshWindow.this);
-
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            openedFill=true;
-                            meshController.newMesh(fc.getSelectedFile());
-                        } catch (SimultaneousOperationsException e1) {
-                            meshController.handleException(e1);
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                newFile();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                newFile();
+                                return;
+                            case JOptionPane.CLOSED_OPTION:
+                                return;
                         }
                     }
+                    newFile();
                 });
         meshActionList.add(newMesh);
 
@@ -286,34 +321,25 @@ public class MeshWindow extends JFrame {
                 "Reload a project into workspace",
                 "control O",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {
                             case JOptionPane.YES_OPTION:
                                 save();
-                        }
-                        closeProject();
-                    }
-                    final JFileChooser fc = new CustomFileChooser();
-                    String meshExt = CraftConfigLoader.MESH_EXTENSION;
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter(meshExt + " files", meshExt));
-                    String dir;
-                    if (CraftConfig.lastMesh == null || CraftConfig.lastMesh.equals(""))
-                        dir = System.getProperty("user.home");
-                    else
-                        dir = CraftConfig.lastMesh.replace("\n", "\\n");
-                    fc.setSelectedFile(new File(dir));
-                    int returnVal = fc.showOpenDialog(MeshWindow.this);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        File f = fc.getSelectedFile();
-                        Logger.updateStatus("Opening the mesh " + f.getName());
-                        try {
-                            openedFill=true;
-                            meshController.openMesh(f); // asynchronous task
-                        } catch (SimultaneousOperationsException e1) {
-                            meshController.handleException(e1);
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                openFile();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                                ControllerView3D.closeInstance();
+                                ProcessingModelView.closeInstance();
+                                openFile();
+                                return;
+                            case JOptionPane.CLOSED_OPTION:
+                                return;
                         }
                     }
+                    openFile();
                 });
         meshActionList.add(openMesh);
 
@@ -324,21 +350,25 @@ public class MeshWindow extends JFrame {
                 "Save the current project",
                 "control S",
                 () -> {
-                    if (openedFill){
+                    if (meshController.getMesh()!=null){
                         save();
-                        openedFill=true;
                     }
                 });
         meshActionList.add(saveMesh);
 
         MeshAction closeMesh = new MeshAction("closeProject", "Close Project", "project-close.png", "Close the current project", "control Q", () -> {
-            if (openedFill){
+            if (meshController.getMesh()!=null){
                 int answer= JOptionPane.showConfirmDialog(this,"you are about to close the opened project.\n Do you want to save it?","Asking saving",JOptionPane.YES_NO_OPTION);
                 switch (answer){
                     case JOptionPane.YES_OPTION:
                         save();
+                        closeProject();
+                        return;
                     case JOptionPane.NO_OPTION:
                         closeProject();
+                        return;
+                    case JOptionPane.CLOSED_OPTION:
+                        return;
                 }
             }
 
@@ -864,7 +894,7 @@ public class MeshWindow extends JFrame {
     void initGadgets() {
         if (zoomer != null)
             remove(zoomer);
-        zoomer = new MeshWindowZoomer(meshController);
+        zoomer = new MeshWindowZoomer(meshController, core);
         add(zoomer, zoomerGBC);
 
         if (selector != null)

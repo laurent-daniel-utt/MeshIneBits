@@ -50,8 +50,8 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
                 0,
                 mesh.getLayers().size() - 1,
                 0);
-        layerSlider.setMinimumSize(new Dimension(20,200));
-        layerSlider.setMaximumSize(new Dimension(20,200));
+        //layerSlider.setMinimumSize(new Dimension(20,200));
+        //layerSlider.setMaximumSize(new Dimension(20,200));
         layerSlider.setFocusable(false);
 
         layerSpinner = new JSpinner(
@@ -60,12 +60,12 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
                         0,
                         mesh.getLayers().size() - 1,
                         1));
-        layerSpinner.setMaximumSize(new Dimension(30,30));
-
+        layerSpinner.setMaximumSize(new Dimension(520,40));
+        layerSpinner.setFont( new Font("calibri", Font.PLAIN, 20));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(layerSlider);
         add(layerSpinner);
-        setBorder(new EmptyBorder(0, 5, 5, 0));
+        setBorder(new EmptyBorder(50, 5, 50, 0));
 
         layerSpinner.addChangeListener(e ->
         {
