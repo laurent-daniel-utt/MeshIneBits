@@ -60,8 +60,8 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
                         0,
                         mesh.getLayers().size() - 1,
                         1));
-        layerSpinner.setMaximumSize(new Dimension(100,50));
-
+        layerSpinner.setMaximumSize(new Dimension(520,40));
+        layerSpinner.setFont( new Font("calibri", Font.PLAIN, 20));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(layerSlider);
         add(layerSpinner);
