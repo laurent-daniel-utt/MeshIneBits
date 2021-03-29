@@ -301,44 +301,33 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                 //When reducing the size
                 if (notches > 0) {
                     zoom /= WorkspaceConfig.zoomSpeed;
-
-                    //get original clickspot (when zoom =0)
-                    //clickSpot.x /= oldZoom;
-                    //clickSpot.y /= oldZoom;
-
-                    //centre the view.
-                        //viewOffsetX= 0;
-                    //viewOffsetY= 0;
-
                     meshController.setZoom(zoom);
+
                     if (zoom > 1){
-                        viewOffsetX += (clickSpot.x * zoom - clickSpot.x )/zoom;
-                        viewOffsetY += (clickSpot.y * zoom - clickSpot.y )/zoom;
+                        viewOffsetX = (clickSpot.x -clickSpot.x  * zoom)/zoom;
+                        viewOffsetY = (clickSpot.y -clickSpot.y  * zoom )/zoom;
                     }
                     else {
                         //centre the view.
                         viewOffsetX= 0;
                         viewOffsetY= 0;
                     }
+
+
                 }
                 //When increasing the size
                 else {
                     zoom *= WorkspaceConfig.zoomSpeed;
-
-                    //get original clickspot (when zoom =0)
-                    //clickSpot.x /= oldZoom;
-                    //clickSpot.y /= oldZoom;
-
                     meshController.setZoom(zoom);
+
                     if (zoom > 1){
-                        viewOffsetX = (clickSpot.x * zoom - clickSpot.x)/zoom;
-                        viewOffsetY = (clickSpot.y * zoom - clickSpot.y)/zoom;
+                        viewOffsetX = (clickSpot.x - clickSpot.x * zoom)/zoom;
+                        viewOffsetY = (clickSpot.y - clickSpot.y * zoom)/zoom;
                     }
                     else {
                         //centre the view.
                         viewOffsetX= 0;
                         viewOffsetY= 0;
-
                     }
                 }
             } else {
