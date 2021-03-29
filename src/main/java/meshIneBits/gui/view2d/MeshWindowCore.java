@@ -38,10 +38,8 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.DetectorTool;
+import meshIneBits.util.*;
 import meshIneBits.util.Polygon;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -292,14 +290,46 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if (!rightClickPressed) {
             double notches = e.getPreciseWheelRotation();
             if (!onControl) {
-                // Zoom on the view
+
+                // Get the clicked point in the Mesh coordinate system
+                Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+                viewToReal.transform(clickSpot, clickSpot);
+
                 double zoom = meshController.getZoom();
+                double oldZoom = meshController.getZoom();
+
+                //When reducing the size
                 if (notches > 0) {
                     zoom /= WorkspaceConfig.zoomSpeed;
-                } else {
-                    zoom *= WorkspaceConfig.zoomSpeed;
+                    meshController.setZoom(zoom);
+
+                    if (zoom > 1){
+                        viewOffsetX = (clickSpot.x -clickSpot.x  * zoom)/zoom;
+                        viewOffsetY = (clickSpot.y -clickSpot.y  * zoom )/zoom;
+                    }
+                    else {
+                        //centre the view.
+                        viewOffsetX= 0;
+                        viewOffsetY= 0;
+                    }
+
+
                 }
-                meshController.setZoom(zoom);
+                //When increasing the size
+                else {
+                    zoom *= WorkspaceConfig.zoomSpeed;
+                    meshController.setZoom(zoom);
+
+                    if (zoom > 1){
+                        viewOffsetX = (clickSpot.x - clickSpot.x * zoom)/zoom;
+                        viewOffsetY = (clickSpot.y - clickSpot.y * zoom)/zoom;
+                    }
+                    else {
+                        //centre the view.
+                        viewOffsetX= 0;
+                        viewOffsetY= 0;
+                    }
+                }
             } else {
                 // Rotate the bit preview
                 if (meshController.isAddingBits()) {
