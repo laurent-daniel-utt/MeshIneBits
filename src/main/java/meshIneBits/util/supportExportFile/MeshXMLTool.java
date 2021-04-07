@@ -152,6 +152,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
         Element batchElement = createElement(MeshTagXML.BATCH);
 
+        //batch Number
+        Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER, Integer.toString(mMesh.getScheduler().getSubBitBatch(listBitByBatch.get(0))));
+        batchElement.appendChild(batchNumber);
+
         //contain all bit of same layer.
         ArrayList<Bit3D> listBitByLayer = new ArrayList<Bit3D>();
         //value which help to get the bit of same layer by comparing.

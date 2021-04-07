@@ -65,6 +65,7 @@ public class MeshTagXML {
     public static final String SUB_BIT = "sub-bit";
     public static final String SUB_BIT_ID = "id";
     public static final String BATCH = "batch";
+    public static final String BATCH_NUMBER = "batch-number";
     public static final String PLATE = "plate";
     public static final String POSITION_BIT_COORDINATE = "position-in-bit";
     public static final String POSITION_MESH_COORDINATE = "position-in-layer";
