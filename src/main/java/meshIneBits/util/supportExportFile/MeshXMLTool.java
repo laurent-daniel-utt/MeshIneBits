@@ -71,7 +71,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     public void initialize(Mesh mesh) {
         this.mMesh = mesh;
-        changeFilePathToXML();
+        //changeFilePathToXML();
 
     }
 
@@ -83,25 +83,26 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
 
     @Override
-    protected Element buildElementResult(Mesh mesh) {
-        Element meshElement = createElement(MeshTagXML.MESH_START);
-        Element config = buildConfigElement(mesh);
-        meshElement.appendChild(config);
+    protected Element buildElementResult(Mesh mesh, int batchNumber) {
+        Element meshElement = null;
         Logger.message("Generating XML file");
 
         AScheduler scheduler = mMesh.getScheduler();
         List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
-        int nbBatch = (listAllBit3D.size()/CraftConfig.nbBitesBatch)+1;
 
-        for (int i = 0; i<nbBatch; i++){
-            ArrayList<Bit3D> listBitByBatch=new ArrayList<Bit3D>();
-            for (int j = 0; j < CraftConfig.nbBitesBatch;j++){
-                if ( i*CraftConfig.nbBitesBatch+j < listAllBit3D.size() ){
-                    listBitByBatch.add(listAllBit3D.get(i*CraftConfig.nbBitesBatch+j));
-                }
+        //Get the bit of the batch and put them on the ArrayList below.
+        ArrayList<Bit3D> listBitByBatch=new ArrayList<Bit3D>();
+        for (int j = 0; j < CraftConfig.nbBitesBatch;j++){
+            if ( batchNumber*CraftConfig.nbBitesBatch+j < listAllBit3D.size() ){
+                listBitByBatch.add(listAllBit3D.get(batchNumber*CraftConfig.nbBitesBatch+j));
             }
-            meshElement.appendChild(buildBatchElement(listBitByBatch));
         }
+        
+        meshElement = createElement(MeshTagXML.MESH_START);
+        Element config = buildConfigElement(mesh,batchNumber);
+        meshElement.appendChild(config);
+        meshElement.appendChild(buildBatchElement(listBitByBatch));
+
         return meshElement;
     }
 
@@ -111,11 +112,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
      * @param mesh object to write to xml file
      * @return return element XML that contain values config of {@link Mesh}
      */
-    public Element buildConfigElement(Mesh mesh) {
+    public Element buildConfigElement(Mesh mesh, int batch ) {
         //Config element
         Element config = createElement(MeshTagXML.MESH_CONFIG);
         //file's name element
-        Element name = createElement(MeshTagXML.MESH_NAME, getNameFromFileLocation());
+        Element name = createElement(MeshTagXML.MESH_NAME, getNameFromFileLocation()+" Batch "+ batch);
         config.appendChild(name);
         //date element
         Element date = createElement(MeshTagXML.DATE, new Date().toString());
