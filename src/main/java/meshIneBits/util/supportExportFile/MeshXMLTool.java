@@ -62,7 +62,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     //Parameter
     public int remainingBits = CraftConfig.nbBits;
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
-
+    public int subBitId = 1;
 
     public MeshXMLTool(Path filePath) {
         super(filePath);
@@ -89,7 +89,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
         AScheduler scheduler = mMesh.getScheduler();
         List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
-
+        int nbSubBit= getCountSubBitElement(listAllBit3D);
         //Get the bit of the batch and put them on the ArrayList below.
         ArrayList<Bit3D> listBitByBatch=new ArrayList<Bit3D>();
         for (int j = 0; j < CraftConfig.nbBitesBatch;j++){
@@ -280,9 +280,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             Element subBit = createElement(MeshTagXML.SUB_BIT);
 
             //subBit's id
-            Element id = createElement(MeshTagXML.SUB_BIT_ID, Integer.toString(i));
+            Element id = createElement(MeshTagXML.SUB_BIT_ID, Integer.toString(subBitId));
             subBit.appendChild(id);
-
+            subBitId+=1;
             //subBit's plate
             Element plate = createElement(MeshTagXML.PLATE, Integer.toString(mMesh.getScheduler().getSubBitPlate(bit3D)));
             subBit.appendChild(plate);
@@ -330,6 +330,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             elementBit.appendChild(subBit);
         }
 
+    }
+
+    private int getCountSubBitElement(List<Bit3D> allBits){
+        int count=0;
+        for (Bit3D bit :allBits){
+            count+=bit.getRawLiftPoints().size();
+        }
+        return count;
     }
 
     public Element writeCutPathElement(Path2D cutPath) {
