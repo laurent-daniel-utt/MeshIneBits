@@ -63,6 +63,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     public int remainingBits = CraftConfig.nbBits;
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
     public int subBitId = 1;
+    public int slotPosition = 1;
 
     public MeshXMLTool(Path filePath) {
         super(filePath);
@@ -286,6 +287,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             //subBit's plate
             Element plate = createElement(MeshTagXML.PLATE, Integer.toString(mMesh.getScheduler().getSubBitPlate(bit3D)));
             subBit.appendChild(plate);
+
+            //subBit's slot
+            if (slotPosition > CraftConfig.nbBitesByPlat) {
+                slotPosition = 1;
+            }
+            Element slot = createElement(MeshTagXML.SLOT, Integer.toString(slotPosition));
+            subBit.appendChild(slot);
+            slotPosition+=1;
 
             //subBit's lift point
             Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
