@@ -229,7 +229,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                     moveWorkingSpace.appendChild(goTo);
                 } else {
                     if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
-                        currentPos += effectiveWidth;
+                        currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                        //currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
                         Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
                         goTo.appendChild(x);
