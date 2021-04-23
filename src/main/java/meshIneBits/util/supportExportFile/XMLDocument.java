@@ -29,6 +29,10 @@
 
 package meshIneBits.util.supportExportFile;
 
+import meshIneBits.Bit3D;
+import meshIneBits.Mesh;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,6 +49,7 @@ import java.io.File;
 import java.lang.annotation.Inherited;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public abstract class XMLDocument<T> {
 
@@ -112,15 +117,29 @@ public abstract class XMLDocument<T> {
             if (obj == null) {
                 throw new NullPointerException(obj.getClass().getName()+" can't be null");
             }
-            Element meshElement = buildElementResult(obj);
-            appendChild(meshElement);
-            writeDocumentToXML(filePath);
-            Logger.message("The XML file has been generated and saved in " + getFilePath());
+            if (obj.getClass()== Mesh.class){
+                // try to get the number of batch.
+                AScheduler scheduler = ((Mesh) obj).getScheduler();
+                List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
+                int nbBatch = (listAllBit3D.size()/CraftConfig.nbBitesBatch)+1;
+                // Generate the xml for each Batch.
+                for (int i =0; i<nbBatch;i++){
+                    this.document =DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                    Element meshElement = buildElementResult(obj,i);
+                    appendChild(meshElement);
+                    filePath = Paths.get(getFilePath() + File.separator );
+                    writeDocumentToXML(Paths.get(getFilePath() + File.separator +"Batch "+ i+ "." + "xml"));
+
+                    Logger.message("The XML file has been generated and saved in " + getFilePath());
+                }
+            }
+
+            //Logger.message("The XML file has been generated and saved in " + getFilePath());
         } catch (Exception e) {
             Logger.error("The XML file has not been generated, Message: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    abstract Element buildElementResult(T obj);
+    abstract Element buildElementResult(T obj, int nbBatch);
 }

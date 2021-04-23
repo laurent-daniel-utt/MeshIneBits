@@ -65,13 +65,15 @@ public class MeshTagXML {
     public static final String SUB_BIT = "sub-bit";
     public static final String SUB_BIT_ID = "id";
     public static final String BATCH = "batch";
+    public static final String BATCH_NUMBER = "batch-number";
     public static final String PLATE = "plate";
-    public static final String POSITION_BIT_COORDINATE = "position-in-bit";
-    public static final String POSITION_MESH_COORDINATE = "position-in-layer";
+    public static final String SLOT = "slot";
+    public static final String POSITION_BIT_COORDINATE = "grip-center";
+    public static final String POSITION_MESH_COORDINATE = "pos-in-layer";
     public static final String ROTATION_SUB_BIT = "rotation";
     public static final String POINT ="point";
     public static final String POINT_ID ="id";
-    public static final String ROTATION_SUB_BIT_SECOND ="rotation-2";
+    public static final String ROTATION_SUB_BIT_SECOND ="ref-line-rot";
 
     public static final String COORDINATE_X ="x";
     public static final String COORDINATE_Y ="y";

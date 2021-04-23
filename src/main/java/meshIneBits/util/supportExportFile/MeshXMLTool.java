@@ -62,7 +62,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     //Parameter
     public int remainingBits = CraftConfig.nbBits;
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
-
+    public int subBitId = 1;
+    public int slotPosition = 1;
 
     public MeshXMLTool(Path filePath) {
         super(filePath);
@@ -71,7 +72,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     public void initialize(Mesh mesh) {
         this.mMesh = mesh;
-        changeFilePathToXML();
+        //changeFilePathToXML();
 
     }
 
@@ -83,17 +84,26 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
 
     @Override
-    protected Element buildElementResult(Mesh mesh) {
-        Element meshElement = createElement(MeshTagXML.MESH_START);
-        Element config = buildConfigElement(mesh);
-        meshElement.appendChild(config);
+    protected Element buildElementResult(Mesh mesh, int batchNumber) {
+        Element meshElement = null;
         Logger.message("Generating XML file");
-        for (int i = 0; i < mesh.getLayers().size(); i++) {
-            System.out.println("layer " + i);
-            Element layer = buildLayerElement(mesh.getLayers().get(i));
-            Logger.setProgress(i, mesh.getLayers().size() - 1);
-            if (layer != null) meshElement.appendChild(layer);
+
+        AScheduler scheduler = mMesh.getScheduler();
+        List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
+        int nbSubBit= getCountSubBitElement(listAllBit3D);
+        //Get the bit of the batch and put them on the ArrayList below.
+        ArrayList<Bit3D> listBitByBatch=new ArrayList<Bit3D>();
+        for (int j = 0; j < CraftConfig.nbBitesBatch;j++){
+            if ( batchNumber*CraftConfig.nbBitesBatch+j < listAllBit3D.size() ){
+                listBitByBatch.add(listAllBit3D.get(batchNumber*CraftConfig.nbBitesBatch+j));
+            }
         }
+        
+        meshElement = createElement(MeshTagXML.MESH_START);
+        Element config = buildConfigElement(mesh,batchNumber);
+        meshElement.appendChild(config);
+        meshElement.appendChild(buildBatchElement(listBitByBatch));
+
         return meshElement;
     }
 
@@ -103,11 +113,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
      * @param mesh object to write to xml file
      * @return return element XML that contain values config of {@link Mesh}
      */
-    public Element buildConfigElement(Mesh mesh) {
+    public Element buildConfigElement(Mesh mesh, int batch ) {
         //Config element
         Element config = createElement(MeshTagXML.MESH_CONFIG);
         //file's name element
-        Element name = createElement(MeshTagXML.MESH_NAME, getNameFromFileLocation());
+        Element name = createElement(MeshTagXML.MESH_NAME, getNameFromFileLocation()+" Batch "+ batch);
         config.appendChild(name);
         //date element
         Element date = createElement(MeshTagXML.DATE, new Date().toString());
@@ -136,45 +146,72 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return config;
     }
 
-    public Element buildLayerElement(Layer layer) {
+        //create the Batch XML
+    public Element buildBatchElement(ArrayList<Bit3D> listBitByBatch){
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
         }
-        // Layer element
-        Element layerElement = createElement(MeshTagXML.LAYER);
-        AScheduler scheduler = mMesh.getScheduler();
-        if (scheduler.getFirstLayerBits().get(layer.getLayerNumber()) != null) {
-            List<Bit3D> listBit3DsCurrentLayer = AScheduler.getSetBit3DsSortedFrom(((BasicScheduler) scheduler).filterBits(layer.sortBits()));
-            List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
-            Vector3 modelTranslation = mMesh.getModel().getPos();
 
-            //height of layer
-            Element height = createElement(MeshTagXML.LAYER_HEIGHT, Double.toString((layer.getLayerNumber() * (CraftConfig.bitThickness + CraftConfig.layersOffset))));
-            layerElement.appendChild(height);
+        Element batchElement = createElement(MeshTagXML.BATCH);
 
-            for (Bit3D bit3D : listBit3DsCurrentLayer) {
-                // translating the bits - they are generated at the origin of the world coordinate system;
-                for (int j = 0; j < bit3D.getRawLiftPoints().size(); j++) {
-                    if (bit3D.getRawLiftPoints().get(j) != null) {
-                        double oldX = bit3D.getLiftPoints().get(j).x;
-                        double oldY = bit3D.getLiftPoints().get(j).y;
-                        bit3D.getLiftPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
-                    }
-                }
-                Element moveWorkingSpaceElement = buildMoveWorkingSpace(bit3D, listAllBit3D.indexOf(bit3D));
-                layerElement.appendChild(moveWorkingSpaceElement);
-                Element bitElement = buildBitElement(bit3D);
-                layerElement.appendChild(bitElement);
-                remainingBits -= 1;
+        //batch Number
+        Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER, Integer.toString(mMesh.getScheduler().getSubBitBatch(listBitByBatch.get(0))));
+        batchElement.appendChild(batchNumber);
+
+        //contain all bit of same layer.
+        ArrayList<Bit3D> listBitByLayer = new ArrayList<Bit3D>();
+        //value which help to get the bit of same layer by comparing.
+        double bitAltitude = listBitByBatch.get(0).getLowerAltitude();
+
+        //try to put all bit of the same layer in an ArrayList to then apply buildLayerElement.
+        for (Bit3D bit: listBitByBatch){
+            if (bit.getLowerAltitude()==bitAltitude){
+                listBitByLayer.add(bit);
             }
-        } else {
-            return null;
+            //means that we got all by of same layer
+            else {
+                batchElement.appendChild(buildLayerElement(listBitByLayer));
+                //init to 0 the array and value
+                listBitByLayer=new ArrayList<Bit3D>();
+                bitAltitude=bit.getLowerAltitude();
+
+                listBitByLayer.add(bit);
+            }
         }
-        return layerElement;
-
-
+        batchElement.appendChild(buildLayerElement(listBitByLayer));
+        return batchElement;
     }
 
+        //create the Layer XML
+    public Element buildLayerElement(ArrayList<Bit3D>  listBitLayer) {
+        Element layerElement = createElement(MeshTagXML.LAYER);
+        AScheduler scheduler = mMesh.getScheduler();
+        //height of layer
+        Element height = createElement(MeshTagXML.LAYER_HEIGHT, Double.toString(listBitLayer.get(0).getLowerAltitude()));
+        layerElement.appendChild(height);
+
+        List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
+        Vector3 modelTranslation = mMesh.getModel().getPos();
+
+        for (Bit3D bit3D : listBitLayer) {
+            // translating the bits - they are generated at the origin of the world coordinate system;
+            for (int j = 0; j < bit3D.getRawLiftPoints().size(); j++) {
+                if (bit3D.getRawLiftPoints().get(j) != null) {
+                    double oldX = bit3D.getLiftPoints().get(j).x;
+                    double oldY = bit3D.getLiftPoints().get(j).y;
+                    bit3D.getLiftPoints().set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
+                }
+            }
+            Element moveWorkingSpaceElement = buildMoveWorkingSpace(bit3D, listAllBit3D.indexOf(bit3D));
+            layerElement.appendChild(moveWorkingSpaceElement);
+            Element bitElement = buildBitElement(bit3D);
+            layerElement.appendChild(bitElement);
+            remainingBits -= 1;
+        }
+        return layerElement;
+    }
+
+        //create the move-working-space XML
     private Element buildMoveWorkingSpace(Bit3D bit, int id) {
         double currentPos = 0;
         Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
@@ -192,7 +229,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                     moveWorkingSpace.appendChild(goTo);
                 } else {
                     if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
-                        currentPos += effectiveWidth;
+                        currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                        //currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
                         Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
                         goTo.appendChild(x);
@@ -204,6 +242,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return moveWorkingSpace;
     }
 
+        //create the bit XML
     public Element buildBitElement(Bit3D bit3D) {
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
@@ -243,16 +282,20 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             Element subBit = createElement(MeshTagXML.SUB_BIT);
 
             //subBit's id
-            Element id = createElement(MeshTagXML.SUB_BIT_ID, Integer.toString(i));
+            Element id = createElement(MeshTagXML.SUB_BIT_ID, Integer.toString(subBitId));
             subBit.appendChild(id);
-
-            //subBit's batch
-            Element batch = createElement(MeshTagXML.BATCH, Integer.toString(mMesh.getScheduler().getSubBitBatch(bit3D)));
-            subBit.appendChild(batch);
-
+            subBitId+=1;
             //subBit's plate
             Element plate = createElement(MeshTagXML.PLATE, Integer.toString(mMesh.getScheduler().getSubBitPlate(bit3D)));
             subBit.appendChild(plate);
+
+            //subBit's slot
+            if (slotPosition > CraftConfig.nbBitesByPlat) {
+                slotPosition = 1;
+            }
+            Element slot = createElement(MeshTagXML.SLOT, Integer.toString(slotPosition));
+            subBit.appendChild(slot);
+            slotPosition+=1;
 
             //subBit's lift point
             Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
@@ -297,6 +340,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             elementBit.appendChild(subBit);
         }
 
+    }
+
+    private int getCountSubBitElement(List<Bit3D> allBits){
+        int count=0;
+        for (Bit3D bit :allBits){
+            count+=bit.getRawLiftPoints().size();
+        }
+        return count;
     }
 
     public Element writeCutPathElement(Path2D cutPath) {

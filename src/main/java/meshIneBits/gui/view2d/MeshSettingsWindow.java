@@ -29,10 +29,7 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.DoubleSetting;
-import meshIneBits.config.FloatSetting;
-import meshIneBits.config.IntegerSetting;
+import meshIneBits.config.*;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
@@ -84,6 +81,7 @@ class MeshSettingsWindow extends JFrame {
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(e -> {
             JComponent comp = (JComponent) e.getSource();
+            CraftConfigLoader.saveConfig(null);
             Window win = SwingUtilities.getWindowAncestor(comp);
             win.dispose();
         });

@@ -145,12 +145,13 @@ public class CraftConfig {
             description = "section holding to cut",
             minValue = 1.0,
             maxValue = 1000.0,
-            defaultValue = 160.0
+            defaultValue = 10.0
     )
     @BitSetting(
             order = 2
     )
     public static double sectionHoldingToCut = 10.0;
+    
     @DoubleSetting(
             title = "incertitude ",
             description = "incertitude of length bits",
@@ -252,34 +253,34 @@ public class CraftConfig {
             title = "Printer X (mm)",
             description = "Length of printer",
             minValue = 0,
-            defaultValue = 8000
+            defaultValue = 3000
     )
     @PrinterSetting(
             order = 0
     )
-    public static float printerX = 8000f;
+    public static float printerX = 3000f;
 
     @FloatSetting(
             title = "Printer Y (mm)",
             description = "Width of printer",
             minValue = 0,
-            defaultValue = 4000
+            defaultValue = 2000
     )
     @PrinterSetting(
             order = 1
     )
-    public static float printerY = 4000f;
+    public static float printerY = 2000f;
 
     @FloatSetting(
             title = "Printer Z (mm)",
             description = "Height of printer",
             minValue = 0,
-            defaultValue = 2000
+            defaultValue = 1500
     )
     @PrinterSetting(
             order = 2
     )
-    public static float printerZ = 2000f;
+    public static float printerZ = 1500f;
 
     @FloatSetting(
             title = "Working width (mm)",

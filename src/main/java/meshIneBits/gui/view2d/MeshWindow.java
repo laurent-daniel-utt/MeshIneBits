@@ -504,7 +504,11 @@ public class MeshWindow extends JFrame {
                         return;
                     }
                     final JFileChooser fc = new CustomFileChooser();
-                    fc.addChoosableFileFilter(new FileNameExtensionFilter("XML files", "xml"));
+                    fc.setCurrentDirectory(new java.io.File("."));
+                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    // disable the "All files" option.
+                    fc.setAcceptAllFileFilterUsed(false);
+
                     int returnVal = fc.showSaveDialog(MeshWindow.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
