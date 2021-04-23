@@ -243,6 +243,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
         Thread t = new Thread(meshXMLExporter);
         t.start();
+        setState(MeshEvents.EXPORTED);
     }
 
     private void exportationSafetyCheck() throws Exception {
