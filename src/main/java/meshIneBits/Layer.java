@@ -590,4 +590,7 @@ public class Layer extends Observable implements Serializable {
         return higherAltitude;
     }
 
+    public Collection<Vector2> getIrregularBits() {
+        return irregularBits;
+    }
 }

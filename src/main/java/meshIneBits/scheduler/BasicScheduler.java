@@ -103,6 +103,14 @@ public class BasicScheduler extends AScheduler {
             i++;
         }
         System.out.println("Basic scheduler end scheduling");
+
+
+        int nbIrrefularBits=0;
+        for (Layer curLayer: this.mesh.getLayers()){
+            nbIrrefularBits+=curLayer.getIrregularBits().size();
+        }
+
+            System.out.println("Number of Irregular bits in the Mesh: "+nbIrrefularBits);
         return true;
     }
     public Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits){
