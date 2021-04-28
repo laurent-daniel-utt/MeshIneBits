@@ -320,6 +320,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         lights();
         ambientLight(255, 255, 255);
         drawWorkspace();
+        drawWorkingSpace();
         //mouseConstraints();
         if (viewModel) scene.drawFrames();
         animationProcess();
@@ -373,6 +374,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         pushMatrix();
         noFill();
         translate(0, 0, printerZ / 2);
+        strokeWeight(2);
+        stroke(0);
         box(printerX, printerY, printerZ);
         popMatrix();
         scene.pg().pushStyle();
@@ -391,6 +394,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         scene.pg().endShape();
         scene.pg().popStyle();
 
+    }
+    private void drawWorkingSpace(){
+        //fill(0);
+        stroke(255,0,0);
+        rect(-printerX/2 -CraftConfig.workingWidth-20,-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY);
     }
 
     /*
