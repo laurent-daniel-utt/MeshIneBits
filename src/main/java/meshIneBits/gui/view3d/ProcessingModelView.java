@@ -86,6 +86,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private float printerY;
     private float printerZ;
 
+    private int indexWorkingSpace;
+    private double workingSpacePosition;
+
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
     private static Model model;
@@ -396,7 +399,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     }
     private void drawWorkingSpace(){
-        //fill(0);
         stroke(255,0,0);
         rect(-printerX/2 -CraftConfig.workingWidth-20,-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY);
     }
@@ -968,8 +970,22 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             Vector<PShape> current = new Vector<>();
             switch (animationType) {
                 case ANIMATION_BITS:
+                    workingSpacePosition= printerX/2 -CraftConfig.workingWidth-20;
                     shapeMapByBits.forEach((ele) -> {
+                        Bit3D currentBit= ele.getKey();
+                        if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
+                            workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2+CraftConfig.bitWidth/2;
+                            indexWorkingSpace=0;
+                        }
+                        if (Math.round(currentBit.getLiftPoints().get(0).x-CraftConfig.bitWidth) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+1.5*CraftConfig.bitWidth) >= (workingSpacePosition+CraftConfig.workingWidth) ){
+                            workingSpacePosition = currentBit.getLiftPoints().get(0).x-CraftConfig.workingWidth/2+CraftConfig.bitWidth/2;
+                            current.remove(indexWorkingSpace);
+                            indexWorkingSpace=current.size();
+                        }
+                        current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
                         current.add(ele.getValue());
+
+
                     });
                     currentShapeMap = current;
                     break;
