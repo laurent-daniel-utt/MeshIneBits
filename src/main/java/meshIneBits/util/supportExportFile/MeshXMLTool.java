@@ -226,14 +226,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         for (int i = 0; i < bit.getLiftPoints().size(); i++) {
             if (bit.getLiftPoints().get(i) != null) {
                 if (id == 0) {
-                    currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                    currentPos = bit.getLiftPoints().get(i).x - effectiveWidth / 2 + CraftConfig.bitWidth/2;
                     Element goTo = createElement(MeshTagXML.GO_TO);
                     Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
-                    if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
-                        currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                    if (Math.round(bit.getLiftPoints().get(i).x - CraftConfig.bitWidth)  <= currentPos || Math.round(bit.getLiftPoints().get(i).x + 1.5 * CraftConfig.bitWidth) >= currentPos + effectiveWidth){
+                        currentPos = bit.getLiftPoints().get(i).x - effectiveWidth / 2 + CraftConfig.bitWidth/2;
                         //currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
                         Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
