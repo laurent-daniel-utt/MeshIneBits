@@ -974,11 +974,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     shapeMapByBits.forEach((ele) -> {
                         Bit3D currentBit= ele.getKey();
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
-                            workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2+CraftConfig.bitWidth/2;
+                            workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2;
                             indexWorkingSpace=0;
                         }
-                        if (Math.round(currentBit.getLiftPoints().get(0).x-CraftConfig.bitWidth) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+1.5*CraftConfig.bitWidth) >= (workingSpacePosition+CraftConfig.workingWidth) ){
-                            workingSpacePosition = currentBit.getLiftPoints().get(0).x-CraftConfig.workingWidth/2+CraftConfig.bitWidth/2;
+                        if (Math.round(currentBit.getLiftPoints().get(0).x) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+CraftConfig.bitWidth) >= (workingSpacePosition+CraftConfig.workingWidth) ){
+                            workingSpacePosition = currentBit.getLiftPoints().get(0).x-CraftConfig.workingWidth/2;
                             current.remove(indexWorkingSpace);
                             indexWorkingSpace=current.size();
                         }
