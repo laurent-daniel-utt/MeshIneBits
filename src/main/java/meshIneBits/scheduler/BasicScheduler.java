@@ -129,10 +129,10 @@ public class BasicScheduler extends AScheduler {
             int v2XColumn = (int)(v2.getValue().x + mesh.getModel().getPos().x + offsetX) / (int)xInterval;
 
             if(v1XColumn == v2XColumn) {
-                if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {
-                    return Double.compare(v1.getValue().x, v2.getValue().x);
-                } else {
+                if (Double.compare(v1.getValue().x, v2.getValue().x) == 0) {
                     return Double.compare(v1.getValue().y, v2.getValue().y);
+                } else {
+                    return Double.compare(v1.getValue().x, v2.getValue().x);
                 }
             } else if( v1XColumn < v2XColumn )
             {
