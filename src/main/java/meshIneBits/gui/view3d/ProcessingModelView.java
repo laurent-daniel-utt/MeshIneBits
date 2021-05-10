@@ -977,7 +977,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         double safetySpace=CraftConfig.bitWidth/2;
                         Vector2 bitOrientation= currentBit.getOrientation();
                         if (bitOrientation.x != 1){
-                            safetySpace=CraftConfig.lengthFull*bitOrientation.x/2;
+                            safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
                         }
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
                             workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2;
