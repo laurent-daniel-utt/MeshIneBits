@@ -43,6 +43,7 @@ import meshIneBits.gui.SubWindow;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PShape;
@@ -973,11 +974,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     workingSpacePosition= printerX/2 -CraftConfig.workingWidth-20;
                     shapeMapByBits.forEach((ele) -> {
                         Bit3D currentBit= ele.getKey();
+                        double safetySpace=CraftConfig.bitWidth/2;
+                        Vector2 bitOrientation= currentBit.getOrientation();
+                        if (bitOrientation.x != 1){
+                            safetySpace=CraftConfig.lengthFull*bitOrientation.x/2;
+                        }
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
                             workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2;
                             indexWorkingSpace=0;
                         }
-                        if (Math.round(currentBit.getLiftPoints().get(0).x) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+CraftConfig.bitWidth) >= (workingSpacePosition+CraftConfig.workingWidth) ){
+                        if (Math.round(currentBit.getLiftPoints().get(0).x-safetySpace) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
                             workingSpacePosition = currentBit.getLiftPoints().get(0).x-CraftConfig.workingWidth/2;
                             current.remove(indexWorkingSpace);
                             indexWorkingSpace=current.size();
