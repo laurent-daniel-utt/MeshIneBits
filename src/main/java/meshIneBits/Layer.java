@@ -272,10 +272,10 @@ public class Layer extends Observable implements Serializable {
             }
         }
         keySet.sort((v1, v2) -> {
-            if (Double.compare(v1.getValue().x, v2.getValue().x) == 0) {
-                return Double.compare(v1.getValue().y, v2.getValue().y);
-            } else {
+            if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {
                 return Double.compare(v1.getValue().x, v2.getValue().x);
+            } else {
+                return Double.compare(v1.getValue().y, v2.getValue().y);
             }
         });
         return keySet;
@@ -590,4 +590,7 @@ public class Layer extends Observable implements Serializable {
         return higherAltitude;
     }
 
+    public Collection<Vector2> getIrregularBits() {
+        return irregularBits;
+    }
 }

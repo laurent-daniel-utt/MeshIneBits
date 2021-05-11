@@ -64,6 +64,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
     public int subBitId = 1;
     public int slotPosition = 1;
+    public double workingPlacePosition=0;
 
     public MeshXMLTool(Path filePath) {
         super(filePath);
@@ -158,6 +159,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER, Integer.toString(mMesh.getScheduler().getSubBitBatch(listBitByBatch.get(0))));
         batchElement.appendChild(batchNumber);
 
+        //Count Bits
+        Element numberOfBits = createElement(MeshTagXML.NUMBER_OF_BITS, Integer.toString(listBitByBatch.size()));
+        batchElement.appendChild(numberOfBits);
+
         //contain all bit of same layer.
         ArrayList<Bit3D> listBitByLayer = new ArrayList<Bit3D>();
         //value which help to get the bit of same layer by comparing.
@@ -213,7 +218,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
         //create the move-working-space XML
     private Element buildMoveWorkingSpace(Bit3D bit, int id) {
-        double currentPos = 0;
+
         Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
         if (remainingBits == 0) {
             moveWorkingSpace.appendChild(createElement(MeshTagXML.RETURN));
@@ -222,17 +227,17 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         for (int i = 0; i < bit.getLiftPoints().size(); i++) {
             if (bit.getLiftPoints().get(i) != null) {
                 if (id == 0) {
-                    currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                    workingPlacePosition = bit.getLiftPoints().get(i).x - effectiveWidth / 2;
                     Element goTo = createElement(MeshTagXML.GO_TO);
-                    Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
+                    Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
-                    if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
-                        currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+                    if (Math.round(bit.getLiftPoints().get(i).x) <= workingPlacePosition || Math.round(bit.getLiftPoints().get(i).x+CraftConfig.bitWidth) >= (workingPlacePosition+CraftConfig.workingWidth) ){
+                        workingPlacePosition = bit.getLiftPoints().get(i).x - effectiveWidth / 2;
                         //currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
-                        Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
+                        Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                         goTo.appendChild(x);
                         moveWorkingSpace.appendChild(goTo);
                     }
