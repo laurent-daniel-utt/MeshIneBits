@@ -226,6 +226,12 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         }
         for (int i = 0; i < bit.getLiftPoints().size(); i++) {
             if (bit.getLiftPoints().get(i) != null) {
+                //init safetySpace use
+                double safetySpace=CraftConfig.bitWidth/2;
+                Vector2 bitOrientation= bit.getOrientation();
+                if (bitOrientation.x != 1){
+                    safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
+                }
                 if (id == 0) {
                     workingPlacePosition = bit.getLiftPoints().get(i).x - effectiveWidth / 2;
                     Element goTo = createElement(MeshTagXML.GO_TO);
@@ -233,9 +239,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
-                    if (Math.round(bit.getLiftPoints().get(i).x) <= workingPlacePosition || Math.round(bit.getLiftPoints().get(i).x+CraftConfig.bitWidth) >= (workingPlacePosition+CraftConfig.workingWidth) ){
+                    if (Math.round(bit.getLiftPoints().get(i).x-safetySpace) <= workingPlacePosition || Math.round(bit.getLiftPoints().get(i).x+safetySpace) >= (workingPlacePosition+CraftConfig.workingWidth) ){
                         workingPlacePosition = bit.getLiftPoints().get(i).x - effectiveWidth / 2;
-                        //currentPos += effectiveWidth;
                         Element goTo = createElement(MeshTagXML.GO_TO);
                         Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                         goTo.appendChild(x);
