@@ -113,8 +113,6 @@ public class CraftConfig {
     )
     public static double bitWidth = 23.0;
 
-
-
     @DoubleSetting(
             title = "Bit full length  (mm)",
             description = "Length full of the bits",
@@ -163,6 +161,8 @@ public class CraftConfig {
             order = 2
     )
     public static double incertitude = 0.001;
+
+
     // Pattern choices
 
     /**
@@ -295,7 +295,7 @@ public class CraftConfig {
     @FloatSetting(
             title = "Margin (mm)",
             minValue = 0,
-            defaultValue = 0
+            defaultValue = 10
     )
     @XMLSetting(
             order = 1
