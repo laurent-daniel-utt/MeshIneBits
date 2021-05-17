@@ -90,6 +90,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private int indexWorkingSpace;
     private double workingSpacePosition;
 
+    private double minXDistancePoint;
+    private double maxXDistancePoint;
+
+    private double safetySpace=CraftConfig.margin;
+
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
     private static Model model;
@@ -972,26 +977,34 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             switch (animationType) {
                 case ANIMATION_BITS:
                     workingSpacePosition= printerX/2 -CraftConfig.workingWidth-20;
+
                     shapeMapByBits.forEach((ele) -> {
                         Bit3D currentBit= ele.getKey();
-                        double safetySpace=CraftConfig.bitWidth/2;
-                        Vector2 bitOrientation= currentBit.getOrientation();
-                        if (bitOrientation.x != 1){
-                            safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
+                        //init + find the min and max position x of the distance points from the currentBit.
+                        Vector<Vector2> allDistancePoints=currentBit.getTwoDistantPointsInMeshCoordinate();
+                        minXDistancePoint = allDistancePoints.get(0).x;
+                        maxXDistancePoint = allDistancePoints.get(0).x;
+                        for (int i=0; i<allDistancePoints.size();i++){
+                            if (allDistancePoints.get(i).x<minXDistancePoint){
+                                minXDistancePoint=allDistancePoints.get(i).x;
+                            }
+                            if (allDistancePoints.get(i).x>maxXDistancePoint){
+                                maxXDistancePoint=allDistancePoints.get(i).x;
+                            }
                         }
+
+                        // Look if we need to move working space
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
-                            workingSpacePosition= currentBit.getLiftPoints().get(0).x -CraftConfig.workingWidth/2;
+                            workingSpacePosition= minXDistancePoint-safetySpace;
+                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
                             indexWorkingSpace=0;
                         }
-                        if (Math.round(currentBit.getLiftPoints().get(0).x-safetySpace) <= workingSpacePosition || Math.round(currentBit.getLiftPoints().get(0).x+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
-                            workingSpacePosition = currentBit.getLiftPoints().get(0).x-CraftConfig.workingWidth/2;
-                            current.remove(indexWorkingSpace);
-                            indexWorkingSpace=current.size();
+                        if (Math.round(minXDistancePoint-safetySpace) <= workingSpacePosition || Math.round(maxXDistancePoint+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
+                            workingSpacePosition = minXDistancePoint-safetySpace;
+                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                            indexWorkingSpace=current.size()-1;
                         }
-                        current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
                         current.add(ele.getValue());
-
-
                     });
                     currentShapeMap = current;
                     break;
