@@ -265,11 +265,12 @@ public class Layer extends Observable implements Serializable {
             return keySet;
         }
         for (Vector2 key : mapBits3D.keySet()) {
-            for (Vector2 pos : mapBits3D.get(key).getLiftPoints()) {
+            Vector2 pos =mapBits3D.get(key).getMinXAndMaxYDistantPoint();
+            //for (Vector2 pos : mapBits3D.get(key).getLiftPoints()) {
                 if (pos != null) {
                     keySet.add(new Pair<>(mapBits3D.get(key), pos));
                 }
-            }
+            //}
         }
         keySet.sort((v1, v2) -> {
             if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {

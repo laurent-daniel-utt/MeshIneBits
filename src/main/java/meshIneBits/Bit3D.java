@@ -334,4 +334,29 @@ public class Bit3D implements Serializable, Cloneable {
         return Vector2.calcAngleBetweenVectorAndAxeX(vectorResult);
     }
 
+    /**
+     * This method return a Vector2 that contains the MinX and MaxY value from the two distant point of the bit.
+     * Only use to sort bits
+     * @return Vector2 that contains the MinX and MaxY
+     */
+    public Vector2 getMinXAndMaxYDistantPoint(){
+        Vector<Vector2> allDistancePoints=this.getTwoDistantPointsInMeshCoordinate();
+        //init + find the min and max position x of the distance points from the currentBit.
+        if (!allDistancePoints.isEmpty()){
+            double minXDistancePoint = allDistancePoints.get(0).x;
+            double maxYDistancePoint = allDistancePoints.get(0).y;
+            for (int i=0; i<allDistancePoints.size();i++){
+                if (allDistancePoints.get(i).x<minXDistancePoint){
+                    minXDistancePoint=allDistancePoints.get(i).x;
+                }
+                if (allDistancePoints.get(i).y>maxYDistancePoint){
+                    maxYDistancePoint=allDistancePoints.get(i).y;
+                }
+            }
+            return new Vector2(minXDistancePoint,maxYDistancePoint);
+        }
+        return null;
+
+    }
+
 }
