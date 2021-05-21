@@ -308,7 +308,7 @@ public class CraftConfig {
     @PrinterSetting(
             order = 0
     )
-    public static float YEmptySpace= 60;
+    public static float yEmptySpace= 60;
 
     // Width taken by the lenght of the rakes  in the box
     @FloatSetting(
