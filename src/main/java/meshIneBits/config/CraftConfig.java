@@ -292,10 +292,82 @@ public class CraftConfig {
     )
     public static float workingWidth = 500;
 
+
+    @FloatSetting(
+            title = "Box width",
+            minValue = 0,
+            defaultValue = 648
+    )
+    public static double Box = 648;
+
+    @FloatSetting(
+            title = "Y empty Space",
+            minValue = 0,
+            defaultValue = 60
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static float YEmptySpace= 60;
+
+    // Width taken by the lenght of the rakes  in the box
+    @FloatSetting(
+            title = "Rake box Width",
+            minValue = 0,
+            defaultValue = 263
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static double rakeBoxWidth = 263;
+
+    // Width of the Rakes' Table
+    @FloatSetting(
+            title = "Rake Table Width",
+            minValue = 0,
+            defaultValue = 280
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static double rakeTableWidth = 280;
+
+    @FloatSetting(
+            title = "Gluer",
+            minValue = 0,
+            defaultValue = 52
+    )
+    @PrinterSetting()
+    public static double gluer= 52;
+
+    @FloatSetting(
+            title = "Rake Box and gluer",
+            minValue= 0,
+            defaultValue =  320
+    )
+    @PrinterSetting()
+    public static double rakeBoxGluerWidth= rakeBoxWidth+gluer+5;
+
+    @FloatSetting(
+            title = "Start X Printing Space",
+            minValue=0,
+            defaultValue = 800
+    )
+    @PrinterSetting()
+    public static double xPrintingSpace = rakeBoxGluerWidth+rakeBoxWidth+rakeTableWidth+10;
+
+
+
+
+
+
+
+
+
     @FloatSetting(
             title = "Margin (mm)",
             minValue = 0,
-            defaultValue = 0
+            defaultValue = 45
     )
     @XMLSetting(
             order = 1
