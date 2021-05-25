@@ -232,17 +232,18 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                 if (bitOrientation.x != 1){
                     safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
                 }
-                ArrayList<Double> xPositions = bit.getMinAndMaxXDistantPoint();
+                double xMinInMachineRef = bit.getMinAndMaxXDistantPoint().get(0)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
+                double xMaxInMachineRef = bit.getMinAndMaxXDistantPoint().get(1)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
+
                 if (id == 0) {
-                            //bit.getLiftPoints().get(i).x - effectiveWidth / 2;
-                    workingPlacePosition= xPositions.get(0)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
+;                    workingPlacePosition= xMinInMachineRef-safetySpace;
                     Element goTo = createElement(MeshTagXML.GO_TO);
                     Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
-                    if (Math.round(xPositions.get(0)-safetySpace) <= workingPlacePosition || Math.round(xPositions.get(1)+safetySpace) >= (workingPlacePosition+CraftConfig.workingWidth) ){
-                        workingPlacePosition = bit.getLiftPoints().get(i).x - effectiveWidth / 2;
+                    if (xMinInMachineRef-safetySpace <= workingPlacePosition || xMaxInMachineRef+safetySpace >= (workingPlacePosition+CraftConfig.workingWidth) ){
+                        workingPlacePosition = xMinInMachineRef-safetySpace;
                         Element goTo = createElement(MeshTagXML.GO_TO);
                         Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                         goTo.appendChild(x);
