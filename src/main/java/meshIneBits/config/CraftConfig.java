@@ -48,8 +48,7 @@ import java.util.List;
 public class CraftConfig {
     static final String VERSION = "Dev-Prerelease";
 
-    // Slicer options
-
+            // Slicer options
     @DoubleSetting(
             title = "Space between layers (mm)",
             description = "The vertical gap between each layers",
@@ -87,8 +86,12 @@ public class CraftConfig {
     )
     public static double joinMinCosAngle = 0.995;
 
-    // Bits options
 
+
+
+
+
+            // Bits options
     @DoubleSetting(
             title = "Bit thickness (mm)",
             description = "Thickness of the bits",
@@ -113,8 +116,6 @@ public class CraftConfig {
     )
     public static double bitWidth = 23.0;
 
-
-
     @DoubleSetting(
             title = "Bit full length  (mm)",
             description = "Length full of the bits",
@@ -126,7 +127,6 @@ public class CraftConfig {
             order = 2
     )
     public static double lengthFull = 160.0;
-
 
     @DoubleSetting(
             title = "Bit length (mm)",
@@ -163,8 +163,12 @@ public class CraftConfig {
             order = 2
     )
     public static double incertitude = 0.001;
-    // Pattern choices
 
+
+
+
+
+            // Pattern choices
     /**
      * The provided templates
      */
@@ -211,7 +215,10 @@ public class CraftConfig {
     )
     public static double suckerDiameter = 10.0;
 
-    // Other parameters
+
+
+
+            // Other parameters
     /**
      * Save the directory of last opened {@link meshIneBits.Model}
      */
@@ -249,10 +256,14 @@ public class CraftConfig {
     )
     public static int errorAccepted = 5;
 
+
+
+
+            //Printer parameter
     @FloatSetting(
             title = "Printer X (mm)",
             description = "Length of printer",
-            minValue = 0,
+            minValue = 1,
             defaultValue = 3000
     )
     @PrinterSetting(
@@ -263,39 +274,115 @@ public class CraftConfig {
     @FloatSetting(
             title = "Printer Y (mm)",
             description = "Width of printer",
-            minValue = 0,
+            minValue = 1,
             defaultValue = 2000
     )
     @PrinterSetting(
-            order = 1
+            order = 0
     )
     public static float printerY = 2000f;
 
     @FloatSetting(
             title = "Printer Z (mm)",
             description = "Height of printer",
-            minValue = 0,
+            minValue = 1,
             defaultValue = 1500
-    )
-    @PrinterSetting(
-            order = 2
-    )
-    public static float printerZ = 1500f;
-
-    @FloatSetting(
-            title = "Working width (mm)",
-            minValue = 0,
-            defaultValue = 500
     )
     @PrinterSetting(
             order = 0
     )
-    public static float workingWidth = 500;
+    public static float printerZ = 1500f;
+
+    @FloatSetting(
+            title = "Box width  (mm)",
+            minValue = 1,
+            defaultValue = 648
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static float Box = 648;
+
+    @FloatSetting(
+            title = "Working width (mm)",
+            minValue = 1,
+            defaultValue = 300
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static float workingWidth = 500f;
+
+    @FloatSetting(
+            title = "Y empty Space in the Box (mm)",
+            minValue = 0,
+            defaultValue = 60
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static float yEmptySpace= 60f;
+
+    // Width taken by the length of the rakes in the box
+    @DoubleSetting(
+            title = "Rake box Width (mm)",
+            minValue = 1,
+            defaultValue = 263
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static double rakeBoxWidth = 263.0;
+
+    // Width of the Rakes' Table
+    @DoubleSetting(
+            title = "Rake Table Width (mm)",
+            minValue = 1,
+            defaultValue = 280
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static double rakeTableWidth = 280.0;
+
+    @DoubleSetting(
+            title = "Gluer (mm)",
+            minValue = 0,
+            defaultValue = 52
+    )
+    @PrinterSetting(
+            order = 0
+    )
+    public static double gluer= 52.0;
+
+    @DoubleSetting(
+            title = "Rake Box and gluer (mm)",
+            minValue= 0,
+            defaultValue =  320
+    )
+    @PrinterSetting()
+    public static double rakeBoxGluerWidth= rakeBoxWidth+gluer+5.0;
+
+    @DoubleSetting(
+            title = "Start X Printing Space (mm)",
+            minValue=0,
+            defaultValue = 800
+    )
+    @PrinterSetting()
+    public static double xPrintingSpace = rakeBoxGluerWidth+rakeBoxWidth+rakeTableWidth+10.0;
+
+
+
+
+
+
+
+
 
     @FloatSetting(
             title = "Margin (mm)",
             minValue = 0,
-            defaultValue = 0
+            defaultValue = 45
     )
     @XMLSetting(
             order = 1
