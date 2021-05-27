@@ -533,7 +533,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
                 .setColor(255).setFont(createFont("arial", 15));
 
-        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel" )
+        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'" )
                 .setColor(255).setFont(createFont("arial", 15));
 
 
@@ -564,7 +564,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
         slicingWarning.setPosition(win.getWidth()-450, 10);
-        shortcut.setPosition(30, win.getHeight() - 100);
+        shortcut.setPosition(30, win.getHeight() - 120);
 
         tooltipRotation.setPosition(30, win.getHeight()/5-30);
         TFRotationX.setPosition(30,win.getHeight()/5);
