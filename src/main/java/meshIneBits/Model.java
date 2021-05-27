@@ -32,6 +32,7 @@ package meshIneBits;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
+import org.bytedeco.opencv.presets.opencv_core;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
@@ -48,7 +49,7 @@ import java.util.Vector;
 public class Model implements Serializable {
     private Vector<Triangle> triangles = new Vector<>();
     private Vector3 position = new Vector3(0, 0, 0);
-
+    private String modelName;
     /**
      * Read all the triangles of the STL file, whether it's an Ascii or a Binary
      * STL.
@@ -58,7 +59,7 @@ public class Model implements Serializable {
      */
     public Model(String filename) throws Exception {
         Logger.updateStatus("Loading: " + filename);
-
+        modelName=filename.substring(0, filename.lastIndexOf('.'));
         if (filename.toLowerCase().endsWith(".stl")) {
             char[] buf = new char[5];
             BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -277,6 +278,7 @@ public class Model implements Serializable {
         position.z += trans.z;
     }
 
+    public String getModelName(){ return modelName;}
     public Vector3 getPos() {
         return position;
     }

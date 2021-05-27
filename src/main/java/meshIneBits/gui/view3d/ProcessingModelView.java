@@ -44,6 +44,7 @@ import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
+import nervoussystem.obj.OBJExport;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PSurface;
@@ -68,6 +69,7 @@ import java.util.concurrent.Executors;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
 
+import nervoussystem.obj.*;
 /**
  * @author Vallon BENJAMIN
  * <p>
@@ -147,6 +149,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean viewModel = true;
     // Animation variable
     private boolean isAnimated = false;
+
+    //For Module Export OBJ
+    private boolean record=false;
+
+
     private int layerIndex = 0;
     //    private float fpsRatioSpeed = 2;
     private int lastFrames = 500;
@@ -321,10 +328,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         ambientLight(255, 255, 255);
         drawWorkspace();
         //mouseConstraints();
+
+        // to Export the model in .obj
+        if (record){
+            beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+".obj");
+        }
+
         if (viewModel) scene.drawFrames();
         animationProcess();
         if (viewMeshPaved) {
             drawBits();
+        }
+
+        if (record){
+            endRaw();
+            record=false;
         }
 //        if(isAnimated)drawAnimation();
         scene.beginScreenDrawing();
@@ -335,6 +353,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     }
 
+    public void keyPressed(){
+        if (key =='s'|| key=='S'){
+            record=true;
+        }
+    }
     private void updateNewData() {
         if (updatingNewData) {
             shapeMapByLayer = new Vector<>(newShapeMapByLayer);
