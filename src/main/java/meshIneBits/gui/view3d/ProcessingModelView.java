@@ -159,6 +159,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private int lastFrames = 500;
     private final int frameMin = 10;
     private boolean pauseAnimation = false;
+    private int counter =0;
     private int animationType = ANIMATION_LAYERS;
     private Vector<PShape> currentShapeMap;
 
@@ -291,6 +292,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         updatingNewData = true;
     }
 
+    // used to Start export the model to OBJ
+    public void keyPressed(){
+        if (key =='s'|| key=='S'){
+            record=true;
+            counter +=1;
+        }
+    }
+
     @Override
     public void mouseWheel(MouseEvent event) {
         if (!frame.isEyeFrame()){
@@ -329,17 +338,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         drawWorkspace();
         //mouseConstraints();
 
-        // to Export the model in .obj
+        // To start Export the model in .obj
         if (record){
-            beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+".obj");
+            beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+counter+".obj");
         }
-
         if (viewModel) scene.drawFrames();
         animationProcess();
         if (viewMeshPaved) {
             drawBits();
         }
-
+        //To end the export
         if (record){
             endRaw();
             record=false;
@@ -353,11 +361,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     }
 
-    public void keyPressed(){
-        if (key =='s'|| key=='S'){
-            record=true;
-        }
-    }
     private void updateNewData() {
         if (updatingNewData) {
             shapeMapByLayer = new Vector<>(newShapeMapByLayer);
