@@ -80,6 +80,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public static final String IMPORTED_MODEL = "import";
     public static final int ANIMATION_BITS = 100;
     public static final int ANIMATION_LAYERS = 111;
+    public static final int ANIMATION_BY_STEPS = 121;
+    public static final int ANIMATION_ONE_BY_ONE = 131;
 
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -145,6 +147,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Toggle toggleModel;
     private Toggle toggleBits;
 
+    private Toggle toggleBySteps;
 
     private boolean viewModel = true;
     // Animation variable
@@ -161,6 +164,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean pauseAnimation = false;
     private int counter =0;
     private int animationType = ANIMATION_LAYERS;
+    private int animationWays = ANIMATION_BY_STEPS;
     private Vector<PShape> currentShapeMap;
 
 
@@ -474,6 +478,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Bits")
                 .setFont(createFont("arial", 15));
+        toggleBySteps = cp5.addToggle("bySteps")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("by Steps")
+                .setFont(createFont("arial", 15));
 
         sliderAnimation = cp5.addSlider("animationSlider");
         sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
@@ -593,7 +603,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
         animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
 
-        toggleAnimation.setPosition(win.getWidth()-60, win.getHeight()/4+205);
+        toggleAnimation.setPosition(win.getWidth()-180, win.getHeight()/4+230);
+        toggleBySteps.setPosition(win.getWidth()-100, win.getHeight()/4+230);
         speedDownButton.setPosition(win.getWidth()/2+20, win.getHeight()-50);
         speedUpButton.setPosition(win.getWidth()/2+60, win.getHeight()-50);
         pauseButton.setPosition(win.getWidth()/2+100, win.getHeight()-50);
@@ -1028,8 +1039,22 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         //update the value of
         if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.layerIndex);
         // Boucle de raffraichissement
-        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-            aShapeMap.setVisible(true);
+        switch (animationWays){
+            case ANIMATION_BY_STEPS:
+                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                    aShapeMap.setVisible(true);
+                }
+                break;
+            case ANIMATION_ONE_BY_ONE:
+                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                    aShapeMap.setVisible(true);
+                }
+                if (this.layerIndex != 0) {
+                    for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                        aShapeMap.setVisible(false);
+                    }
+                }
+                break;
         }
         if (this.layerIndex < currentShapeMap.size()) {
             for (PShape aShapeMap : currentShapeMap.subList(this.layerIndex + 1, currentShapeMap.size())) {
@@ -1067,6 +1092,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     @SuppressWarnings("unused")
     public void byBits(boolean flag) {
         animationType = flag ? ANIMATION_BITS : ANIMATION_LAYERS;
+    }
+
+    public void bySteps(boolean flag) {
+        animationWays = flag ? ANIMATION_BY_STEPS : ANIMATION_ONE_BY_ONE;
     }
 //    @SuppressWarnings("unused")
 //    public void byLayers(boolean flag){
