@@ -168,6 +168,7 @@ public class CraftConfig {
 
 
 
+  
             // Pattern choices
     /**
      * The provided templates
@@ -382,7 +383,8 @@ public class CraftConfig {
     @FloatSetting(
             title = "Margin (mm)",
             minValue = 0,
-            defaultValue = 45
+            defaultValue = 10
+
     )
     @XMLSetting(
             order = 1
