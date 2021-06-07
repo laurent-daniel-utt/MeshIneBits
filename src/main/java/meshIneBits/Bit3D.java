@@ -334,4 +334,29 @@ public class Bit3D implements Serializable, Cloneable {
         return Vector2.calcAngleBetweenVectorAndAxeX(vectorResult);
     }
 
+
+    /**
+     *
+     */
+    public ArrayList<Double> getMinAndMaxXDistantPoint(){
+        Vector<Vector2> allDistancePoints = this.getTwoDistantPointsInMeshCoordinate();
+
+        ArrayList<Double> xPositions= new ArrayList<Double>();
+
+        if (!allDistancePoints.isEmpty()){
+            double minXDistancePoint=allDistancePoints.get(0).x;
+            double maxXDistancePoint=allDistancePoints.get(0).x;
+            for (int i=0; i< allDistancePoints.size();i++){
+                if (allDistancePoints.get(i).x<minXDistancePoint){
+                    minXDistancePoint=allDistancePoints.get(i).x;
+                }
+                if (allDistancePoints.get(i).x>maxXDistancePoint){
+                    maxXDistancePoint=allDistancePoints.get(i).x;
+                }
+            }
+            xPositions.add(minXDistancePoint);
+            xPositions.add(maxXDistancePoint);
+        }
+        return xPositions;
+    }
 }

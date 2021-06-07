@@ -103,6 +103,14 @@ public class BasicScheduler extends AScheduler {
             i++;
         }
         System.out.println("Basic scheduler end scheduling");
+
+
+        int nbIrrefularBits=0;
+        for (Layer curLayer: this.mesh.getLayers()){
+            nbIrrefularBits+=curLayer.getIrregularBits().size();
+        }
+
+            System.out.println("Number of Irregular bits in the Mesh: "+nbIrrefularBits);
         return true;
     }
     public Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits){
@@ -121,10 +129,10 @@ public class BasicScheduler extends AScheduler {
             int v2XColumn = (int)(v2.getValue().x + mesh.getModel().getPos().x + offsetX) / (int)xInterval;
 
             if(v1XColumn == v2XColumn) {
-                if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {
-                    return Double.compare(v1.getValue().x, v2.getValue().x);
-                } else {
+                if (Double.compare(v1.getValue().x, v2.getValue().x) == 0) {
                     return Double.compare(v1.getValue().y, v2.getValue().y);
+                } else {
+                    return Double.compare(v1.getValue().x, v2.getValue().x);
                 }
             } else if( v1XColumn < v2XColumn )
             {

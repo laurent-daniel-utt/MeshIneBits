@@ -64,6 +64,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
     public int subBitId = 1;
     public int slotPosition = 1;
+    public double workingPlacePosition=0;
 
     public MeshXMLTool(Path filePath) {
         super(filePath);
@@ -158,6 +159,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER, Integer.toString(mMesh.getScheduler().getSubBitBatch(listBitByBatch.get(0))));
         batchElement.appendChild(batchNumber);
 
+        //Count Bits
+        Element numberOfBits = createElement(MeshTagXML.NUMBER_OF_BITS, Integer.toString(listBitByBatch.size()));
+        batchElement.appendChild(numberOfBits);
+
         //contain all bit of same layer.
         ArrayList<Bit3D> listBitByLayer = new ArrayList<Bit3D>();
         //value which help to get the bit of same layer by comparing.
@@ -213,7 +218,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
         //create the move-working-space XML
     private Element buildMoveWorkingSpace(Bit3D bit, int id) {
-        double currentPos = 0;
+
         Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
         if (remainingBits == 0) {
             moveWorkingSpace.appendChild(createElement(MeshTagXML.RETURN));
@@ -221,18 +226,26 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         }
         for (int i = 0; i < bit.getLiftPoints().size(); i++) {
             if (bit.getLiftPoints().get(i) != null) {
+                //init safetySpace use
+                double safetySpace=CraftConfig.bitWidth/2;
+                Vector2 bitOrientation= bit.getOrientation();
+                if (bitOrientation.x != 1){
+                    safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
+                }
+                double xMinInMachineRef = bit.getMinAndMaxXDistantPoint().get(0)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
+                double xMaxInMachineRef = bit.getMinAndMaxXDistantPoint().get(1)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
+
                 if (id == 0) {
-                    currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
+;                    workingPlacePosition= xMinInMachineRef-safetySpace;
                     Element goTo = createElement(MeshTagXML.GO_TO);
-                    Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
+                    Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                     goTo.appendChild(x);
                     moveWorkingSpace.appendChild(goTo);
                 } else {
-                    if (Math.abs(bit.getLiftPoints().get(i).x - currentPos) > effectiveWidth / 2) {
-                        currentPos = bit.getLiftPoints().get(i).x + effectiveWidth / 2;
-                        //currentPos += effectiveWidth;
+                    if (xMinInMachineRef-safetySpace <= workingPlacePosition || xMaxInMachineRef+safetySpace >= (workingPlacePosition+CraftConfig.workingWidth) ){
+                        workingPlacePosition = xMinInMachineRef-safetySpace;
                         Element goTo = createElement(MeshTagXML.GO_TO);
-                        Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(currentPos));
+                        Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(workingPlacePosition));
                         goTo.appendChild(x);
                         moveWorkingSpace.appendChild(goTo);
                     }
@@ -312,8 +325,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
             //LiftPoint's position in Mesh coordinate system
             Element positionSubBit = createElement(MeshTagXML.POSITION_MESH_COORDINATE);
-            Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(bit3D.getLiftPoints().get(i).x));
-            Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(bit3D.getLiftPoints().get(i).y));
+            double xInPrinterRef = bit3D.getLiftPoints().get(i).x;
+            double yInPrinterRef = bit3D.getLiftPoints().get(i).y;
+            double xInSubXRef = xInPrinterRef + CraftConfig.printerX/2 + CraftConfig.xPrintingSpace - workingPlacePosition;
+            double yInMachineRef = yInPrinterRef + CraftConfig.printerY/2 + CraftConfig.yEmptySpace;
+
+            Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(xInSubXRef));
+            Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(yInMachineRef));
             positionSubBit.appendChild(xInMesh);
             positionSubBit.appendChild(yInMesh);
             subBit.appendChild(positionSubBit);
