@@ -59,10 +59,7 @@ import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Comparator;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -87,7 +84,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private float printerY;
     private float printerZ;
 
-    private int indexWorkingSpace;
+    private ArrayList<Integer> listIndexWorkingSpace= new ArrayList<Integer>();
     private double workingSpacePosition;
 
     private double minXDistancePoint;
@@ -997,12 +994,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
                             workingSpacePosition= minXDistancePoint-safetySpace;
                             current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            indexWorkingSpace=0;
+                            listIndexWorkingSpace.add(0);
                         }
                         if (Math.round(minXDistancePoint-safetySpace) <= workingSpacePosition || Math.round(maxXDistancePoint+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
                             workingSpacePosition = minXDistancePoint-safetySpace;
                             current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            indexWorkingSpace=current.size()-1;
+                            listIndexWorkingSpace.add(current.size()-1);
                         }
                         current.add(ele.getValue());
                     });
@@ -1044,10 +1041,31 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (!pauseAnimation) increaseLayerIndex();
         //update the value of
         if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.layerIndex);
+
         // Boucle de raffraichissement
-        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-            aShapeMap.setVisible(true);
+        switch (animationType){
+            case ANIMATION_LAYERS:
+                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                    aShapeMap.setVisible(true);
+                }
+                break;
+            case ANIMATION_BITS:
+                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                    aShapeMap.setVisible(true);
+                }
+
+                //Hide old workingSpace in the Animation
+                int lastIndexWorkingspace=0;
+                while (listIndexWorkingSpace.get(lastIndexWorkingspace+1)<this.layerIndex){
+                    lastIndexWorkingspace++;
+                }
+                for (int i=0; i<lastIndexWorkingspace;i++){
+                    currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
+                }
+
+                break;
         }
+
         if (this.layerIndex < currentShapeMap.size()) {
             for (PShape aShapeMap : currentShapeMap.subList(this.layerIndex + 1, currentShapeMap.size())) {
                 aShapeMap.setVisible(false);
