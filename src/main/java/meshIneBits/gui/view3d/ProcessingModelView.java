@@ -69,7 +69,7 @@ import java.util.concurrent.Executors;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
 
-import nervoussystem.obj.*;
+//import nervoussystem.obj.*;
 /**
  * @author Vallon BENJAMIN
  * <p>
@@ -127,6 +127,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Button reset;
     private Button gravity;
     private Button animation;
+    private Button export;
     private Button pauseButton;
 
     private Button speedUpButton;
@@ -154,6 +155,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean isAnimated = false;
 
     //For Module Export OBJ
+    private boolean exportOBJ=false;
     private boolean record=false;
 
 
@@ -344,7 +346,35 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         // To start Export the model in .obj
         if (record){
-            beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+counter+".obj");
+            if (isAnimated){
+                switch (animationType){
+                    case ANIMATION_LAYERS:
+                        switch (animationWays){
+                            case ANIMATION_BY_STEPS:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_ByStep_"+counter+".obj");
+                                break;
+                            case ANIMATION_ONE_BY_ONE:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_OneByOne_"+counter+".obj");
+                                break;
+                        }
+                        break;
+                    case ANIMATION_BITS:
+                        switch (animationWays){
+                            case ANIMATION_BY_STEPS:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_ByStep_"+counter+".obj");
+                                break;
+                            case ANIMATION_ONE_BY_ONE:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_OneByOne_"+counter+".obj");
+                                break;
+                        }
+                }
+            }
+            if (viewMeshPaved){
+                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Paved"+".obj");
+            }
+            if (viewModel){
+                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+".obj");
+            }
         }
         if (viewModel) scene.drawFrames();
         animationProcess();
@@ -471,6 +501,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         apply= cp5.addButton("Apply").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         animation = cp5.addButton("Animation").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial", 15));
+        export = cp5.addButton("Export").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
         toggleAnimation = cp5.addToggle("byBits")
                 .setSize(20, 20)
@@ -602,6 +634,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         camera.setPosition(win.getWidth()-200, win.getHeight()/4+150);
         tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
         animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
+        export.setPosition(win.getWidth()-200, win.getHeight()/4+275);
 
         toggleAnimation.setPosition(win.getWidth()-180, win.getHeight()/4+230);
         toggleBySteps.setPosition(win.getWidth()-100, win.getHeight()/4+230);
@@ -1013,6 +1046,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         }
     }
 
+    public void Export() {
+        exportOBJ= !exportOBJ;
+        Animation();
+    }
     @SuppressWarnings("unused")
     public void animationSpeedUp() {
 //        fpsRatioSpeed += 0.5;
@@ -1032,8 +1069,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     public void animationProcess() {
 
-        if (!this.isAnimated)
+        if (!this.isAnimated){
+            exportOBJ=false;
+            counter=0;
             return;
+        }
+
         //increase layer number
         if (!pauseAnimation) increaseLayerIndex();
         //update the value of
@@ -1086,6 +1127,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 System.out.println("Thread shutdown");
             }
             this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
+            if (exportOBJ){
+                counter++;
+                record=true;
+            }
         });
     }
 
