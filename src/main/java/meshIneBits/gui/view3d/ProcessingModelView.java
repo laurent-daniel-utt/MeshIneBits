@@ -43,6 +43,7 @@ import meshIneBits.gui.SubWindow;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
 import nervoussystem.obj.OBJExport;
 import processing.core.PApplet;
@@ -59,10 +60,7 @@ import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Comparator;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -89,6 +87,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private float printerX;
     private float printerY;
     private float printerZ;
+
+    private ArrayList<Integer> listIndexWorkingSpace= new ArrayList<Integer>();
+    private double workingSpacePosition;
+
+    private double minXDistancePoint;
+    private double maxXDistancePoint;
+
+    private double safetySpace=CraftConfig.margin;
 
     private Builder builder;
     private static ProcessingModelView currentInstance = null;
@@ -342,6 +348,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         lights();
         ambientLight(255, 255, 255);
         drawWorkspace();
+        drawWorkingSpace();
         //mouseConstraints();
 
         // To start Export the model in .obj
@@ -433,6 +440,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         pushMatrix();
         noFill();
         translate(0, 0, printerZ / 2);
+        strokeWeight(2);
+        stroke(0);
         box(printerX, printerY, printerZ);
         popMatrix();
         scene.pg().pushStyle();
@@ -451,6 +460,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         scene.pg().endShape();
         scene.pg().popStyle();
 
+    }
+    private void drawWorkingSpace(){
+        stroke(255,0,0);
+        rect(-printerX/2 -CraftConfig.workingWidth-20,-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY);
     }
 
     /*
@@ -1030,7 +1043,34 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             Vector<PShape> current = new Vector<>();
             switch (animationType) {
                 case ANIMATION_BITS:
+                    workingSpacePosition= printerX/2 -CraftConfig.workingWidth-20;
+
                     shapeMapByBits.forEach((ele) -> {
+                        Bit3D currentBit= ele.getKey();
+                        //init + find the min and max position x of the distance points from the currentBit.
+                        Vector<Vector2> allDistancePoints=currentBit.getTwoDistantPointsInMeshCoordinate();
+                        minXDistancePoint = allDistancePoints.get(0).x;
+                        maxXDistancePoint = allDistancePoints.get(0).x;
+                        for (int i=0; i<allDistancePoints.size();i++){
+                            if (allDistancePoints.get(i).x<minXDistancePoint){
+                                minXDistancePoint=allDistancePoints.get(i).x;
+                            }
+                            if (allDistancePoints.get(i).x>maxXDistancePoint){
+                                maxXDistancePoint=allDistancePoints.get(i).x;
+                            }
+                        }
+
+                        // Look if we need to move working space
+                        if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
+                            workingSpacePosition= minXDistancePoint-safetySpace;
+                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                            listIndexWorkingSpace.add(0);
+                        }
+                        if (Math.round(minXDistancePoint-safetySpace) <= workingSpacePosition || Math.round(maxXDistancePoint+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
+                            workingSpacePosition = minXDistancePoint-safetySpace;
+                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                            listIndexWorkingSpace.add(current.size()-1);
+                        }
                         current.add(ele.getValue());
                     });
                     currentShapeMap = current;
@@ -1050,6 +1090,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         exportOBJ= !exportOBJ;
         Animation();
     }
+
     @SuppressWarnings("unused")
     public void animationSpeedUp() {
 //        fpsRatioSpeed += 0.5;
@@ -1079,24 +1120,59 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (!pauseAnimation) increaseLayerIndex();
         //update the value of
         if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.layerIndex);
+
         // Boucle de raffraichissement
-        switch (animationWays){
-            case ANIMATION_BY_STEPS:
-                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-                    aShapeMap.setVisible(true);
+        switch (animationType){
+            case ANIMATION_LAYERS:
+                switch (animationWays){
+                    case ANIMATION_BY_STEPS:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_ONE_BY_ONE:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
                 }
                 break;
-            case ANIMATION_ONE_BY_ONE:
-                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-                    aShapeMap.setVisible(true);
+            case ANIMATION_BITS:
+                switch (animationWays){
+                    case ANIMATION_BY_STEPS:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_ONE_BY_ONE:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
                 }
-                if (this.layerIndex != 0) {
-                    for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
-                        aShapeMap.setVisible(false);
-                    }
+
+                //Hide old workingSpace in the Animation
+                int lastIndexWorkingspace=0;
+                while (listIndexWorkingSpace.get(lastIndexWorkingspace+1)<this.layerIndex){
+                    lastIndexWorkingspace++;
                 }
+                for (int i=0; i<lastIndexWorkingspace;i++){
+                    currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
+                }
+
                 break;
         }
+
         if (this.layerIndex < currentShapeMap.size()) {
             for (PShape aShapeMap : currentShapeMap.subList(this.layerIndex + 1, currentShapeMap.size())) {
                 aShapeMap.setVisible(false);
