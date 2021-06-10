@@ -847,6 +847,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         scene.eye().lookAt(frame.position());
     }
 
+    private void fixPositionCamera(float x,float y, float z) {
+        scene.eye().setPosition(new Vec(x, y, z));
+    }
+    private void fixAngleCamera(float x,float y, float z){
+        scene.eye().lookAt(new Vec(x,y,z));
+    }
+
     /**
      * Check if the model is in the workspace
      *
@@ -1203,7 +1210,23 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 System.out.println("Thread shutdown");
             }
             this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
+
+            // done when we export to obj
             if (exportOBJ){
+                if (animationType==ANIMATION_BITS && animationWays==ANIMATION_ONE_BY_ONE){
+                    if (this.layerIndex!=0){
+                        Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
+                        float x = (float) bit.getLiftPoints().get(0).x;
+                        float y = (float) bit.getLiftPoints().get(0).y;
+                        float z = (float) (bit.getHigherAltitude()+ bit.getLowerAltitude())/2;
+                        fixPositionCamera(x, y, z);
+                        fixAngleCamera(scene.eye().position().x(), scene.eye().position().y(), printerZ);
+                    }
+                }
+                else {
+                    fixPositionCamera(0,0,printerZ);
+                    fixAngleCamera(0,0,0);
+                }
                 counter++;
                 record=true;
             }
