@@ -1216,11 +1216,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 if (animationType==ANIMATION_BITS && animationWays==ANIMATION_ONE_BY_ONE){
                     if (this.layerIndex!=0){
                         Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
+                        float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
                         float x = (float) bit.getLiftPoints().get(0).x;
                         float y = (float) bit.getLiftPoints().get(0).y;
                         float z = (float) (bit.getHigherAltitude()+ bit.getLowerAltitude())/2;
                         fixPositionCamera(x, y, z);
                         fixAngleCamera(scene.eye().position().x(), scene.eye().position().y(), printerZ);
+                        scene.eye().setOrientation(new Quat(0,0,bitOrientation+ (float) Math.PI/2));
                     }
                 }
                 else {
