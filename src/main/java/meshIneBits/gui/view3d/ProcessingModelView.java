@@ -1070,13 +1070,19 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         // Look if we need to move working space
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
                             workingSpacePosition= minXDistancePoint-safetySpace;
-                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            listIndexWorkingSpace.add(0);
+                            if (!exportOBJ){
+                                current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                                listIndexWorkingSpace.add(0);
+                            }
+
                         }
                         if (Math.round(minXDistancePoint-safetySpace) <= workingSpacePosition || Math.round(maxXDistancePoint+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
                             workingSpacePosition = minXDistancePoint-safetySpace;
-                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            listIndexWorkingSpace.add(current.size()-1);
+                            if (!exportOBJ){
+                                current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                                listIndexWorkingSpace.add(current.size()-1);
+                            }
+
                         }
                         current.add(ele.getValue());
                     });
@@ -1168,7 +1174,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         break;
                 }
 
-                //Hide old workingSpace in the Animation
+/*                //Hide old workingSpace in the Animation
                 int lastIndexWorkingspace=0;
                 while (listIndexWorkingSpace.get(lastIndexWorkingspace+1)<this.layerIndex){
                     lastIndexWorkingspace++;
@@ -1176,7 +1182,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 for (int i=0; i<lastIndexWorkingspace;i++){
                     currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
                 }
-
+*/
                 break;
         }
 
