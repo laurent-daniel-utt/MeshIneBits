@@ -1174,15 +1174,20 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         break;
                 }
 
-/*                //Hide old workingSpace in the Animation
-                int lastIndexWorkingspace=0;
-                while (listIndexWorkingSpace.get(lastIndexWorkingspace+1)<this.layerIndex){
-                    lastIndexWorkingspace++;
+                if (!exportOBJ){
+                    //Hide old workingSpace in the Animation
+                    int lastIndexWorkingspace=0;
+                    for (int i: listIndexWorkingSpace){
+                        if (i<this.layerIndex){
+                            lastIndexWorkingspace++;
+                        }
+                    }
+                    if(lastIndexWorkingspace!=0){
+                        for (int i=0; i<lastIndexWorkingspace-1;i++){
+                            currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
+                        }
+                    }
                 }
-                for (int i=0; i<lastIndexWorkingspace;i++){
-                    currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
-                }
-*/
                 break;
         }
 
