@@ -78,8 +78,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public static final String IMPORTED_MODEL = "import";
     public static final int ANIMATION_BITS = 100;
     public static final int ANIMATION_LAYERS = 111;
-    public static final int ANIMATION_BY_STEPS = 121;
-    public static final int ANIMATION_ONE_BY_ONE = 131;
+    public static final int ANIMATION_BATCHES = 121;
+    public static final int ANIMATION_FULL = 211;
+    public static final int ANIMATION_CURRENT = 221;
 
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -149,12 +150,23 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
     private Textarea tooltipApply;
+    private Textarea tooltipExport;
+    private Textarea tooltipBits;
+    private Textarea tooltipLayers;
+    private Textarea tooltipBatch;
+    private Textarea tooltipCurrent;
+    private Textarea tooltipFull;
 
-    private Toggle toggleAnimation;
-    private Toggle toggleModel;
+
+
+    private Toggle toggleViewModel;
+    private Toggle toggleViewBits;
     private Toggle toggleBits;
+    private Toggle toggleLayers;
+    private Toggle toggleBatch;
 
-    private Toggle toggleBySteps;
+    private Toggle toggleCurrent;
+    private Toggle toggleFull;
 
     private boolean viewModel = true;
     // Animation variable
@@ -172,7 +184,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean pauseAnimation = false;
     private int counter =0;
     private int animationType = ANIMATION_LAYERS;
-    private int animationWays = ANIMATION_BY_STEPS;
+    private int animationWays = ANIMATION_FULL;
     private Vector<PShape> currentShapeMap;
 
 
@@ -357,21 +369,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 switch (animationType){
                     case ANIMATION_LAYERS:
                         switch (animationWays){
-                            case ANIMATION_BY_STEPS:
+                            case ANIMATION_FULL:
                                 beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_ByStep_"+counter+".obj");
                                 break;
-                            case ANIMATION_ONE_BY_ONE:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_OneByOne_"+counter+".obj");
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counter+".obj");
                                 break;
                         }
                         break;
                     case ANIMATION_BITS:
                         switch (animationWays){
-                            case ANIMATION_BY_STEPS:
+                            case ANIMATION_FULL:
                                 beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_ByStep_"+counter+".obj");
                                 break;
-                            case ANIMATION_ONE_BY_ONE:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_OneByOne_"+counter+".obj");
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_bits_"+counter+".obj");
                                 break;
                         }
                 }
@@ -517,18 +529,41 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .setColorLabel(255).setFont(createFont("arial", 15));
         export = cp5.addButton("Export").setSize(140, 30)
                 .setColorLabel(255).setFont(createFont("arial", 15));
-        toggleAnimation = cp5.addToggle("byBits")
+        toggleBits = cp5.addToggle("byBits")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Bits")
-                .setFont(createFont("arial", 15));
-        toggleBySteps = cp5.addToggle("bySteps")
+                .setFont(createFont("arial", 15))
+                .setState(false);
+        toggleBatch= cp5.addToggle("byBatches")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
-                .setLabel("by Steps")
-                .setFont(createFont("arial", 15));
+                .setLabel("by Batches")
+                .setFont(createFont("arial", 15))
+                .setState(false);
+        toggleLayers= cp5.addToggle("byLayers")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("by Layers")
+                .setFont(createFont("arial", 15))
+                .setState(true);
+        toggleCurrent = cp5.addToggle("current")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("Current")
+                .setFont(createFont("arial", 15))
+                .setState(false);
+        toggleFull = cp5.addToggle("full")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("Full")
+                .setFont(createFont("arial", 15))
+                .setState(true);
 
         sliderAnimation = cp5.addSlider("animationSlider");
         sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
@@ -585,6 +620,42 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 .hideScrollbar();
         tooltipApply.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
+        tooltipExport = cp5.addTextarea("tooltipExport").setText("Export to OBJ").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipExport.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipBits = cp5.addTextarea("tooltipBits").setText("Set Animation by Bits").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipBits.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipBatch = cp5.addTextarea("tooltipBatch").setText("Set Animation by Batch").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipBatch.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipLayers = cp5.addTextarea("tooltipLayers").setText("Set Animation by Layers").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipLayers.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipCurrent = cp5.addTextarea("tooltipCurrent").setText("Animation show \n only the current").setSize(145, 36)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipCurrent.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipFull = cp5.addTextarea("tooltipFull").setText("Animation show \n the evolution").setSize(145, 36)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipFull.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
         txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)")
                 .setSize(80, 40).setColor(255).setFont(createFont("arial", 15));
 
@@ -601,10 +672,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             slicingWarning.show();
         }
 
-        toggleModel = cp5.addToggle("Model").setSize(20, 20)
+        toggleViewModel = cp5.addToggle("Model").setSize(20, 20)
                 .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
 
-        toggleBits = cp5.addToggle("Bits").setSize(20, 20)
+        toggleViewBits = cp5.addToggle("Bits").setSize(20, 20)
                 .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial", 15));
 
         sliderM = cp5.addSlider("M").setRange(0, 100).setSize(100, 20).setValue(100)
@@ -635,8 +706,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         sliderM.setPosition(30, win.getHeight()/5 + 180);
         sliderB.setPosition(30, win.getHeight()/5 + 210);
 
-        toggleModel.setPosition(30, win.getHeight()/5 + 250);
-        toggleBits.setPosition(90, win.getHeight()/5 + 250);
+        toggleViewModel.setPosition(30, win.getHeight()/5 + 250);
+        toggleViewBits.setPosition(90, win.getHeight()/5 + 250);
 
         apply.setPosition(win.getWidth()-200, win.getHeight()/4);
         tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
@@ -647,10 +718,19 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         camera.setPosition(win.getWidth()-200, win.getHeight()/4+150);
         tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
         animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
-        export.setPosition(win.getWidth()-200, win.getHeight()/4+275);
+        export.setPosition(win.getWidth()-200, win.getHeight()/4+365);
+        tooltipExport.setPosition(win.getWidth()-200, win.getHeight()/4+347);
 
-        toggleAnimation.setPosition(win.getWidth()-180, win.getHeight()/4+230);
-        toggleBySteps.setPosition(win.getWidth()-100, win.getHeight()/4+230);
+        toggleBits.setPosition(win.getWidth()-200, win.getHeight()/4+230);
+        tooltipBits.setPosition(win.getWidth()-200, win.getHeight()/4+212);
+        toggleBatch.setPosition(win.getWidth()-200, win.getHeight()/4+275);
+        tooltipBatch.setPosition(win.getWidth()-200, win.getHeight()/4+257);
+        toggleLayers.setPosition(win.getWidth()-200, win.getHeight()/4+320);
+        tooltipLayers.setPosition(win.getWidth()-200, win.getHeight()/4+302);
+        toggleCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+230);
+        tooltipCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+250);
+        toggleFull.setPosition(win.getWidth()-100, win.getHeight()/4+275);
+        tooltipFull.setPosition(win.getWidth()-100, win.getHeight()/4+295);
         speedDownButton.setPosition(win.getWidth()/2+20, win.getHeight()-50);
         speedUpButton.setPosition(win.getWidth()/2+60, win.getHeight()-50);
         pauseButton.setPosition(win.getWidth()/2+100, win.getHeight()-50);
@@ -668,12 +748,25 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipReset.hide();
         tooltipCamera.hide();
         tooltipApply.hide();
+        tooltipExport.hide();
+        tooltipBits.hide();
+        tooltipBatch.hide();
+        tooltipLayers.hide();
+        tooltipCurrent.hide();
+        tooltipFull.hide();
 
         float[] rotationTooltipsPostition= tooltipRotation.getPosition();
         float[] gravityPosition= tooltipGravity.getPosition();
         float[] resetPosition= tooltipReset.getPosition();
         float[] cameraPosition= tooltipCamera.getPosition();
         float[] applyPosition= tooltipApply.getPosition();
+        float[] exportPosition= tooltipExport.getPosition();
+        float[] byBitsPosition= tooltipBits.getPosition();
+        float[] byBatchPosition= tooltipBatch.getPosition();
+        float[] byLayersPosition= tooltipLayers.getPosition();
+        float[] currentPosition= toggleCurrent.getPosition();
+        float[] fullPosition= toggleFull.getPosition();
+
 
         if ((mouseX > rotationTooltipsPostition[0]) && (mouseX < rotationTooltipsPostition[0]+220) && (mouseY > rotationTooltipsPostition[1]) && (mouseY < rotationTooltipsPostition[1]+36)){
             tooltipRotation.hide();
@@ -697,6 +790,36 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if ((mouseX > applyPosition[0]) && (mouseX < applyPosition[0]+140) && (mouseY > applyPosition[1]) && (mouseY < applyPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipApply.show();
+            }
+        }
+        if ((mouseX > exportPosition[0]) && (mouseX < exportPosition[0]+140) && (mouseY > exportPosition[1]) && (mouseY < exportPosition[1]+48)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipExport.show();
+            }
+        }
+        if ((mouseX > byBitsPosition[0]) && (mouseX < byBitsPosition[0]+20) && (mouseY > byBitsPosition[1]) && (mouseY < byBitsPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipBits.show();
+            }
+        }
+        if ((mouseX > byBatchPosition[0]) && (mouseX < byBatchPosition[0]+20) && (mouseY > byBatchPosition[1]) && (mouseY < byBatchPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipBatch.show();
+            }
+        }
+        if ((mouseX > byLayersPosition[0]) && (mouseX < byLayersPosition[0]+20) && (mouseY > byLayersPosition[1]) && (mouseY < byLayersPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipLayers.show();
+            }
+        }
+        if ((mouseX > currentPosition[0]) && (mouseX < currentPosition[0]+20) && (mouseY > currentPosition[1]) && (mouseY < currentPosition[1]+20)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipCurrent.show();
+            }
+        }
+        if ((mouseX > fullPosition[0]) && (mouseX < fullPosition[0]+20) && (mouseY > fullPosition[1]) && (mouseY < fullPosition[1]+20)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipFull.show();
             }
         }
     }
@@ -967,8 +1090,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         resetModel();
         centerCamera();
         viewMeshPaved = false;
-        toggleBits.setState(false);
-        toggleModel.setState(true);
+        toggleViewBits.setState(false);
+        toggleViewModel.setState(true);
         applied = false;
 
     }
@@ -1009,6 +1132,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         resetModeView();
         viewModel = flag;
         if (!flag) {
+            toggleViewBits.setState(false);
             shape.setVisible(false);
             frame.removeMotionBindings();
         } else {
@@ -1045,7 +1169,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             cp5.getController("animationSpeedUp").setVisible(true);
             cp5.getController("animationSpeedDown").setVisible(true);
             cp5.getController("PauseAnimation").setVisible(true);
-            cp5.getController("byBits").setVisible(false);
+            cp5.getController("byBits").setVisible(true);
 
             Vector<PShape> current = new Vector<>();
             switch (animationType) {
@@ -1138,12 +1262,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         switch (animationType){
             case ANIMATION_LAYERS:
                 switch (animationWays){
-                    case ANIMATION_BY_STEPS:
+                    case ANIMATION_FULL:
                         for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
                             aShapeMap.setVisible(true);
                         }
                         break;
-                    case ANIMATION_ONE_BY_ONE:
+                    case ANIMATION_CURRENT:
                         for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
                             aShapeMap.setVisible(true);
                         }
@@ -1157,12 +1281,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 break;
             case ANIMATION_BITS:
                 switch (animationWays){
-                    case ANIMATION_BY_STEPS:
+                    case ANIMATION_FULL:
                         for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
                             aShapeMap.setVisible(true);
                         }
                         break;
-                    case ANIMATION_ONE_BY_ONE:
+                    case ANIMATION_CURRENT:
                         for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
                             aShapeMap.setVisible(true);
                         }
@@ -1173,7 +1297,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         }
                         break;
                 }
-
                 if (!exportOBJ){
                     //Hide old workingSpace in the Animation
                     int lastIndexWorkingspace=0;
@@ -1224,7 +1347,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
             // done when we export to obj
             if (exportOBJ){
-                if (animationType==ANIMATION_BITS && animationWays==ANIMATION_ONE_BY_ONE){
+                if (animationType==ANIMATION_BITS && animationWays==ANIMATION_CURRENT){
                     if (this.layerIndex!=0){
                         Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
                         float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
@@ -1248,12 +1371,41 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     @SuppressWarnings("unused")
     public void byBits(boolean flag) {
-        animationType = flag ? ANIMATION_BITS : ANIMATION_LAYERS;
+        if (flag){
+            animationType = ANIMATION_BITS;
+            toggleBatch.setState(false);
+            toggleLayers.setState(false);
+        }
     }
 
-    public void bySteps(boolean flag) {
-        animationWays = flag ? ANIMATION_BY_STEPS : ANIMATION_ONE_BY_ONE;
+    public void byBatches(boolean flag) {
+        if (flag){
+            animationType = ANIMATION_BATCHES;
+            toggleBits.setState(false);
+            toggleLayers.setState(false);
+        }
     }
+    public void byLayers(boolean flag) {
+        if (flag){
+            animationType = ANIMATION_LAYERS;
+            toggleBatch.setState(false);
+            toggleBits.setState(false);
+        }
+    }
+
+    public void current(boolean flag) {
+        if (flag){
+            animationWays = ANIMATION_CURRENT;
+            toggleFull.setState(false);
+        }
+    }
+    public void full(boolean flag) {
+        if (flag){
+            animationWays = ANIMATION_FULL;
+            toggleCurrent.setState(false);
+        }
+    }
+
 //    @SuppressWarnings("unused")
 //    public void byLayers(boolean flag){
 //        ((Toggle)cp5.getController("byBits")).setState(!flag);
