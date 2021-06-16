@@ -370,7 +370,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     case ANIMATION_LAYERS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_ByStep_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counter+".obj");
                                 break;
                             case ANIMATION_CURRENT:
                                 beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counter+".obj");
@@ -380,12 +380,23 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     case ANIMATION_BITS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_ByStep_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counter+".obj");
                                 break;
                             case ANIMATION_CURRENT:
                                 beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_bits_"+counter+".obj");
                                 break;
                         }
+                        break;
+                    case ANIMATION_BATCHES:
+                        switch (animationWays){
+                            case ANIMATION_FULL:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counter+".obj");
+                                break;
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_batch_"+counter+".obj");
+                                break;
+                        }
+                        break;
                 }
             }
             if (viewMeshPaved){
@@ -1208,14 +1219,22 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                             }
 
                         }
+                        current.add(shapeMapByBits.get(shapeMapByBits.size()-1).getValue());
                         current.add(ele.getValue());
                     });
-                    currentShapeMap = current;
                     break;
                 case ANIMATION_LAYERS:
                     shapeMapByLayer.forEach((ele) -> {
                         current.add(ele.getValue());
                     });
+                    current.add(shapeMapByLayer.get(shapeMapByLayer.size()-1).getValue());
+                    break;
+                case ANIMATION_BATCHES:
+                    int numberOfBatches= controllerView3D.getCurrentMesh().getScheduler().getSubBitBatch(shapeMapByBits.get(shapeMapByBits.size()-1).getKey());
+                    for (int i = 0; i<=numberOfBatches; i++){
+                        current.add(builder.getBatchPShapeForm(shapeMapByBits,i));
+                    }
+                    current.add(builder.getBatchPShapeForm(shapeMapByBits,numberOfBatches));
                     break;
             }
             currentShapeMap = current;
@@ -1261,6 +1280,25 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         // Boucle de raffraichissement
         switch (animationType){
             case ANIMATION_LAYERS:
+                switch (animationWays){
+                    case ANIMATION_FULL:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_CURRENT:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
+                }
+                break;
+            case ANIMATION_BATCHES:
                 switch (animationWays){
                     case ANIMATION_FULL:
                         for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
