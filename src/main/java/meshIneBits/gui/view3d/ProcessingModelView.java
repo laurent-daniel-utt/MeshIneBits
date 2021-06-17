@@ -141,6 +141,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Button speedDownButton;
 
     private Textlabel txt;
+    private Textlabel modelPosition;
     private Textlabel modelSize;
     private Textlabel shortcut;
     private Textlabel slicingWarning;
@@ -500,95 +501,95 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         TFRotationX=cp5.addTextfield("RotationX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFRotationY=cp5.addTextfield("RotationY").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFRotationZ= cp5.addTextfield("RotationZ").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionX= cp5.addTextfield("PositionX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionY=cp5.addTextfield("PositionY").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionZ= cp5.addTextfield("PositionZ").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         gravity = cp5.addButton("ApplyGravity").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15,false));
         int color = gravity.getColor().getBackground();
         reset = cp5.addButton("Reset").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         camera = cp5.addButton("CenterCamera").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         apply= cp5.addButton("Apply").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         animation = cp5.addButton("Animation").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         export = cp5.addButton("Export").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         toggleBits = cp5.addToggle("byBits")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Bits")
-                .setFont(createFont("arial", 15))
+                .setFont(createFont("arial bold", 15))
                 .setState(false);
         toggleBatch= cp5.addToggle("byBatches")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Batches")
-                .setFont(createFont("arial", 15))
+                .setFont(createFont("arial bold", 15))
                 .setState(false);
         toggleLayers= cp5.addToggle("byLayers")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Layers")
-                .setFont(createFont("arial", 15))
+                .setFont(createFont("arial bold", 15))
                 .setState(true);
         toggleCurrent = cp5.addToggle("current")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
-                .setLabel("Current")
-                .setFont(createFont("arial", 15))
+                .setLabel("One By One")
+                .setFont(createFont("arial bold", 15))
                 .setState(false);
         toggleFull = cp5.addToggle("full")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("Full")
-                .setFont(createFont("arial", 15))
+                .setFont(createFont("arial bold", 15))
                 .setState(true);
 
         sliderAnimation = cp5.addSlider("animationSlider");
         sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
         sliderAnimation.onChange(e -> {
             if (pauseAnimation) this.layerIndex = (int) sliderAnimation.getValue();
         });
 
-        speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial bold", 15));
         speedUpButton.getCaptionLabel().setText(">>");
-        speedDownButton= cp5.addButton("animationSpeedDown").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedDownButton= cp5.addButton("animationSpeedDown").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial bold", 15));
         speedDownButton.getCaptionLabel().setText("<<");
         pauseButton = cp5.addButton("PauseAnimation").setVisible(false).setSize(50, 30).setColorLabel(255);
-        pauseButton.getCaptionLabel().setText("Pause").setFont(createFont("arial", 15));
+        pauseButton.getCaptionLabel().setText("Pause").setFont(createFont("arial bold", 15));
         pauseButton.onClick(e -> {
             pauseAnimation = !pauseAnimation;
             if (pauseAnimation) {
@@ -603,96 +604,99 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         tooltipGravity = cp5.addTextarea("tooltipGravity").setText("Set the model").setSize(90, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
-                .hideScrollbar().setFont(createFont("ariel", 10));
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
         tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipRotation = cp5.addTextarea("tooltipRotation").setText("You can't rotate a sliced Model").setSize(220, 36)
                 .setColorBackground(color(255,0,0))
-                .setColor(color(50)).setFont(createFont("arial", 15)).setLineHeight(12).hide()
-                .hideScrollbar().setFont(createFont("ariel", 15));
+                .setColor(color(50)).setFont(createFont("arial bold", 15)).setLineHeight(12).hide()
+                .hideScrollbar();
         tooltipRotation.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipReset = cp5.addTextarea("tooltipReset").setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipReset.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipCamera = cp5.addTextarea("tooltipCamera").setText("Center model").setSize(105, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipCamera.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipApply = cp5.addTextarea("tooltipApply").setText("Apply the modifications").setSize(145, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipApply.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipExport = cp5.addTextarea("tooltipExport").setText("Export to OBJ").setSize(145, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipExport.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipBits = cp5.addTextarea("tooltipBits").setText("Set Animation by Bits").setSize(145, 18)
+        tooltipBits = cp5.addTextarea("tooltipBits").setText("Animation/Export by Bits").setSize(145, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipBits.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipBatch = cp5.addTextarea("tooltipBatch").setText("Set Animation by Batch").setSize(145, 18)
+        tooltipBatch = cp5.addTextarea("tooltipBatch").setText("Animation/Export by Batch").setSize(145, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipBatch.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipLayers = cp5.addTextarea("tooltipLayers").setText("Set Animation by Layers").setSize(145, 18)
+        tooltipLayers = cp5.addTextarea("tooltipLayers").setText("Animation/Export by Layers").setSize(150, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipLayers.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipCurrent = cp5.addTextarea("tooltipCurrent").setText("Animation show \n only the current").setSize(145, 36)
+        tooltipCurrent = cp5.addTextarea("tooltipCurrent").setText("Animation/Export \n one by one").setSize(145, 36)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipCurrent.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
-        tooltipFull = cp5.addTextarea("tooltipFull").setText("Animation show \n the evolution").setSize(145, 36)
+        tooltipFull = cp5.addTextarea("tooltipFull").setText("Animation/Export \n the evolution").setSize(145, 36)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipFull.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)")
-                .setSize(80, 40).setColor(255).setFont(createFont("arial", 15));
+                .setSize(80, 40).setColor(255).setFont(createFont("arial bold", 15));
 
         modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
-                .setColor(255).setFont(createFont("arial", 15));
+                .setColor(255).setFont(createFont("arial bold", 15));
+
+        modelPosition= cp5.addTextlabel("model position").setText("Model Position in \n Printing Space ")
+                .setColor(255).setFont(createFont("arial bold", 20));
 
         shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'" )
-                .setColor(255).setFont(createFont("arial", 15));
+                .setColor(255).setFont(createFont("arial bold", 15));
 
 
         slicingWarning= cp5.addTextlabel("slicingWarning").setText("The Model is Sliced \n You can't rotate \n You can't scale" )
-                .setColor(255).setFont(createFont("arial", 20)).hide();
+                .setColor(255).setFont(createFont("arial bold", 20)).hide();
         if (controllerView3D.getCurrentMesh().isSliced()){
             slicingWarning.show();
         }
 
         toggleViewModel = cp5.addToggle("Model").setSize(20, 20)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial bold", 15));
 
         toggleViewBits = cp5.addToggle("Bits").setSize(20, 20)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial", 15));
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial bold", 15));
 
         sliderM = cp5.addSlider("M").setRange(0, 100).setSize(100, 20).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial bold", 15));
         sliderB = cp5.addSlider("B").setRange(0, 100).setSize(100, 20).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial bold", 15));
 
 
         cp5.setAutoDraw(false);
@@ -706,6 +710,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         slicingWarning.setPosition(win.getWidth()-450, 10);
         shortcut.setPosition(30, win.getHeight() - 120);
 
+        modelPosition.setPosition(30, win.getHeight()/5-50);
         tooltipRotation.setPosition(30, win.getHeight()/5-30);
         TFRotationX.setPosition(30,win.getHeight()/5);
         TFRotationY.setPosition(30,win.getHeight()/5 + 60);
@@ -720,28 +725,28 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         toggleViewModel.setPosition(30, win.getHeight()/5 + 250);
         toggleViewBits.setPosition(90, win.getHeight()/5 + 250);
 
-        apply.setPosition(win.getWidth()-200, win.getHeight()/4);
-        tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
-        gravity.setPosition(win.getWidth()-200, win.getHeight()/4+50);
-        tooltipGravity.setPosition(win.getWidth()-200, win.getHeight()/4+32);
-        reset.setPosition(win.getWidth()-200, win.getHeight()/4+100);
-        tooltipReset.setPosition(win.getWidth()-200, win.getHeight()/4+82);
-        camera.setPosition(win.getWidth()-200, win.getHeight()/4+150);
-        tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
-        animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
-        export.setPosition(win.getWidth()-200, win.getHeight()/4+365);
-        tooltipExport.setPosition(win.getWidth()-200, win.getHeight()/4+347);
+        apply.setPosition(win.getWidth()-220, win.getHeight()/4);
+        tooltipApply.setPosition(win.getWidth()-220, win.getHeight()/4-18);
+        gravity.setPosition(win.getWidth()-220, win.getHeight()/4+50);
+        tooltipGravity.setPosition(win.getWidth()-220, win.getHeight()/4+32);
+        reset.setPosition(win.getWidth()-220, win.getHeight()/4+100);
+        tooltipReset.setPosition(win.getWidth()-220, win.getHeight()/4+82);
+        camera.setPosition(win.getWidth()-220, win.getHeight()/4+150);
+        tooltipCamera.setPosition(win.getWidth()-220, win.getHeight()/4+132);
+        animation.setPosition(win.getWidth()-220, win.getHeight()/4+200);
+        export.setPosition(win.getWidth()-220, win.getHeight()/4+370);
+        tooltipExport.setPosition(win.getWidth()-220, win.getHeight()/4+347);
 
-        toggleBits.setPosition(win.getWidth()-200, win.getHeight()/4+230);
-        tooltipBits.setPosition(win.getWidth()-200, win.getHeight()/4+212);
-        toggleBatch.setPosition(win.getWidth()-200, win.getHeight()/4+275);
-        tooltipBatch.setPosition(win.getWidth()-200, win.getHeight()/4+257);
-        toggleLayers.setPosition(win.getWidth()-200, win.getHeight()/4+320);
-        tooltipLayers.setPosition(win.getWidth()-200, win.getHeight()/4+302);
-        toggleCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+230);
-        tooltipCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+250);
-        toggleFull.setPosition(win.getWidth()-100, win.getHeight()/4+275);
-        tooltipFull.setPosition(win.getWidth()-100, win.getHeight()/4+295);
+        toggleBits.setPosition(win.getWidth()-220, win.getHeight()/4+235);
+        tooltipBits.setPosition(win.getWidth()-220, win.getHeight()/4+217);
+        toggleBatch.setPosition(win.getWidth()-220, win.getHeight()/4+280);
+        tooltipBatch.setPosition(win.getWidth()-220, win.getHeight()/4+262);
+        toggleLayers.setPosition(win.getWidth()-220, win.getHeight()/4+325);
+        tooltipLayers.setPosition(win.getWidth()-220, win.getHeight()/4+307);
+        toggleCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+235);
+        tooltipCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+255);
+        toggleFull.setPosition(win.getWidth()-100, win.getHeight()/4+280);
+        tooltipFull.setPosition(win.getWidth()-100, win.getHeight()/4+300);
         speedDownButton.setPosition(win.getWidth()/2+20, win.getHeight()-50);
         speedUpButton.setPosition(win.getWidth()/2+60, win.getHeight()-50);
         pauseButton.setPosition(win.getWidth()/2+100, win.getHeight()-50);
