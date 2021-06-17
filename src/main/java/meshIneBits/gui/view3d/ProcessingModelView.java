@@ -45,6 +45,7 @@ import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
+import nervoussystem.obj.OBJExport;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PSurface;
@@ -66,6 +67,7 @@ import java.util.concurrent.Executors;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
 
+//import nervoussystem.obj.*;
 /**
  * @author Vallon BENJAMIN
  * <p>
@@ -76,6 +78,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public static final String IMPORTED_MODEL = "import";
     public static final int ANIMATION_BITS = 100;
     public static final int ANIMATION_LAYERS = 111;
+    public static final int ANIMATION_BATCHES = 121;
+    public static final int ANIMATION_FULL = 211;
+    public static final int ANIMATION_CURRENT = 221;
 
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -129,12 +134,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Button reset;
     private Button gravity;
     private Button animation;
+    private Button export;
     private Button pauseButton;
 
     private Button speedUpButton;
     private Button speedDownButton;
 
     private Textlabel txt;
+    private Textlabel modelPosition;
     private Textlabel modelSize;
     private Textlabel shortcut;
     private Textlabel slicingWarning;
@@ -144,21 +151,41 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private Textarea tooltipReset;
     private Textarea tooltipCamera;
     private Textarea tooltipApply;
+    private Textarea tooltipExport;
+    private Textarea tooltipBits;
+    private Textarea tooltipLayers;
+    private Textarea tooltipBatch;
+    private Textarea tooltipCurrent;
+    private Textarea tooltipFull;
 
-    private Toggle toggleAnimation;
-    private Toggle toggleModel;
+
+
+    private Toggle toggleViewModel;
+    private Toggle toggleViewBits;
     private Toggle toggleBits;
+    private Toggle toggleLayers;
+    private Toggle toggleBatch;
 
+    private Toggle toggleCurrent;
+    private Toggle toggleFull;
 
     private boolean viewModel = true;
     // Animation variable
     private boolean isAnimated = false;
+
+    //For Module Export OBJ
+    private boolean exportOBJ=false;
+    private boolean record=false;
+
+
     private int layerIndex = 0;
     //    private float fpsRatioSpeed = 2;
     private int lastFrames = 500;
     private final int frameMin = 10;
     private boolean pauseAnimation = false;
+    private int counter =0;
     private int animationType = ANIMATION_LAYERS;
+    private int animationWays = ANIMATION_FULL;
     private Vector<PShape> currentShapeMap;
 
 
@@ -290,6 +317,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         updatingNewData = true;
     }
 
+    // used to Start export the model to OBJ
+    public void keyPressed(){
+        if (key =='s'|| key=='S'){
+            record=true;
+            counter +=1;
+        }
+    }
+
     @Override
     public void mouseWheel(MouseEvent event) {
         if (!frame.isEyeFrame()){
@@ -328,10 +363,59 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         drawWorkspace();
         drawWorkingSpace();
         //mouseConstraints();
+
+        // To start Export the model in .obj
+        if (record){
+            if (isAnimated){
+                switch (animationType){
+                    case ANIMATION_LAYERS:
+                        switch (animationWays){
+                            case ANIMATION_FULL:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counter+".obj");
+                                break;
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counter+".obj");
+                                break;
+                        }
+                        break;
+                    case ANIMATION_BITS:
+                        switch (animationWays){
+                            case ANIMATION_FULL:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counter+".obj");
+                                break;
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_bits_"+counter+".obj");
+                                break;
+                        }
+                        break;
+                    case ANIMATION_BATCHES:
+                        switch (animationWays){
+                            case ANIMATION_FULL:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counter+".obj");
+                                break;
+                            case ANIMATION_CURRENT:
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_batch_"+counter+".obj");
+                                break;
+                        }
+                        break;
+                }
+            }
+            if (viewMeshPaved){
+                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Paved"+".obj");
+            }
+            if (viewModel){
+                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+".obj");
+            }
+        }
         if (viewModel) scene.drawFrames();
         animationProcess();
         if (viewMeshPaved) {
             drawBits();
+        }
+        //To end the export
+        if (record){
+            endRaw();
+            record=false;
         }
 //        if(isAnimated)drawAnimation();
         scene.beginScreenDrawing();
@@ -417,64 +501,95 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         TFRotationX=cp5.addTextfield("RotationX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFRotationY=cp5.addTextfield("RotationY").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFRotationZ= cp5.addTextfield("RotationZ").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionX= cp5.addTextfield("PositionX").setSize(45, 30)
                 .setInputFilter(0).setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionY=cp5.addTextfield("PositionY").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         TFPositionZ= cp5.addTextfield("PositionZ").setSize(45, 30).setInputFilter(0)
                 .setColorBackground(color(255, 250))
                 .setColor(0).setColorLabel(255).setAutoClear(false).setColorCursor(0)
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
 
         gravity = cp5.addButton("ApplyGravity").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15,false));
         int color = gravity.getColor().getBackground();
         reset = cp5.addButton("Reset").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         camera = cp5.addButton("CenterCamera").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         apply= cp5.addButton("Apply").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
         animation = cp5.addButton("Animation").setSize(140, 30)
-                .setColorLabel(255).setFont(createFont("arial", 15));
-        toggleAnimation = cp5.addToggle("byBits")
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
+        export = cp5.addButton("Export").setSize(140, 30)
+                .setColorLabel(255).setFont(createFont("arial bold", 15));
+        toggleBits = cp5.addToggle("byBits")
                 .setSize(20, 20)
                 .setColorBackground(color(255, 250))
                 .setColorActive(color).setColorForeground(color + 50)
                 .setLabel("by Bits")
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15))
+                .setState(false);
+        toggleBatch= cp5.addToggle("byBatches")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("by Batches")
+                .setFont(createFont("arial bold", 15))
+                .setState(false);
+        toggleLayers= cp5.addToggle("byLayers")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("by Layers")
+                .setFont(createFont("arial bold", 15))
+                .setState(true);
+        toggleCurrent = cp5.addToggle("current")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("One By One")
+                .setFont(createFont("arial bold", 15))
+                .setState(false);
+        toggleFull = cp5.addToggle("full")
+                .setSize(20, 20)
+                .setColorBackground(color(255, 250))
+                .setColorActive(color).setColorForeground(color + 50)
+                .setLabel("Full")
+                .setFont(createFont("arial bold", 15))
+                .setState(true);
 
         sliderAnimation = cp5.addSlider("animationSlider");
         sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
-                .setFont(createFont("arial", 15));
+                .setFont(createFont("arial bold", 15));
         sliderAnimation.onChange(e -> {
             if (pauseAnimation) this.layerIndex = (int) sliderAnimation.getValue();
         });
 
-        speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial bold", 15));
         speedUpButton.getCaptionLabel().setText(">>");
-        speedDownButton= cp5.addButton("animationSpeedDown").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial", 15));
+        speedDownButton= cp5.addButton("animationSpeedDown").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial bold", 15));
         speedDownButton.getCaptionLabel().setText("<<");
         pauseButton = cp5.addButton("PauseAnimation").setVisible(false).setSize(50, 30).setColorLabel(255);
-        pauseButton.getCaptionLabel().setText("Pause").setFont(createFont("arial", 15));
+        pauseButton.getCaptionLabel().setText("Pause").setFont(createFont("arial bold", 15));
         pauseButton.onClick(e -> {
             pauseAnimation = !pauseAnimation;
             if (pauseAnimation) {
@@ -489,60 +604,99 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         tooltipGravity = cp5.addTextarea("tooltipGravity").setText("Set the model").setSize(90, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
-                .hideScrollbar().setFont(createFont("ariel", 10));
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
         tooltipGravity.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipRotation = cp5.addTextarea("tooltipRotation").setText("You can't rotate a sliced Model").setSize(220, 36)
                 .setColorBackground(color(255,0,0))
-                .setColor(color(50)).setFont(createFont("arial", 15)).setLineHeight(12).hide()
-                .hideScrollbar().setFont(createFont("ariel", 15));
+                .setColor(color(50)).setFont(createFont("arial bold", 15)).setLineHeight(12).hide()
+                .hideScrollbar();
         tooltipRotation.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipReset = cp5.addTextarea("tooltipReset").setText("Reset to zero").setSize(85, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipReset.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipCamera = cp5.addTextarea("tooltipCamera").setText("Center model").setSize(105, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipCamera.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
         tooltipApply = cp5.addTextarea("tooltipApply").setText("Apply the modifications").setSize(145, 18)
                 .setColorBackground(color(220))
-                .setColor(color(50)).setFont(createFont("arial", 10)).setLineHeight(12).hide()
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
                 .hideScrollbar();
         tooltipApply.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
 
+        tooltipExport = cp5.addTextarea("tooltipExport").setText("Export to OBJ").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipExport.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipBits = cp5.addTextarea("tooltipBits").setText("Animation/Export by Bits").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipBits.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipBatch = cp5.addTextarea("tooltipBatch").setText("Animation/Export by Batch").setSize(145, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipBatch.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipLayers = cp5.addTextarea("tooltipLayers").setText("Animation/Export by Layers").setSize(150, 18)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipLayers.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipCurrent = cp5.addTextarea("tooltipCurrent").setText("Animation/Export \n one by one").setSize(145, 36)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipCurrent.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
+        tooltipFull = cp5.addTextarea("tooltipFull").setText("Animation/Export \n the evolution").setSize(145, 36)
+                .setColorBackground(color(220))
+                .setColor(color(50)).setFont(createFont("arial bold", 10)).setLineHeight(12).hide()
+                .hideScrollbar();
+        tooltipFull.getValueLabel().getStyle().setMargin(1, 0, 0, 5);
+
         txt = cp5.addTextlabel("label").setText("Current Position : (0,0,0)")
-                .setSize(80, 40).setColor(255).setFont(createFont("arial", 15));
+                .setSize(80, 40).setColor(255).setFont(createFont("arial bold", 15));
 
         modelSize = cp5.addTextlabel("model size").setText("Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(shape.getHeight()) + "\n Width : " + df.format(shape.getWidth())+ "\n Scale : " + df.format(frame.scaling()))
-                .setColor(255).setFont(createFont("arial", 15));
+                .setColor(255).setFont(createFont("arial bold", 15));
 
-        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel" )
-                .setColor(255).setFont(createFont("arial", 15));
+        modelPosition= cp5.addTextlabel("model position").setText("Model Position in \n Printing Space ")
+                .setColor(255).setFont(createFont("arial bold", 20));
+
+        shortcut= cp5.addTextlabel("shortcut").setText("Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'" )
+                .setColor(255).setFont(createFont("arial bold", 15));
 
 
         slicingWarning= cp5.addTextlabel("slicingWarning").setText("The Model is Sliced \n You can't rotate \n You can't scale" )
-                .setColor(255).setFont(createFont("arial", 20)).hide();
+                .setColor(255).setFont(createFont("arial bold", 20)).hide();
         if (controllerView3D.getCurrentMesh().isSliced()){
             slicingWarning.show();
         }
 
-        toggleModel = cp5.addToggle("Model").setSize(20, 20)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial", 15));
+        toggleViewModel = cp5.addToggle("Model").setSize(20, 20)
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).toggle().setFont(createFont("arial bold", 15));
 
-        toggleBits = cp5.addToggle("Bits").setSize(20, 20)
-                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial", 15));
+        toggleViewBits = cp5.addToggle("Bits").setSize(20, 20)
+                .setColorBackground(color(255, 250)).setColorActive(color).setColorForeground(color + 50).setFont(createFont("arial bold", 15));
 
         sliderM = cp5.addSlider("M").setRange(0, 100).setSize(100, 20).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial bold", 15));
         sliderB = cp5.addSlider("B").setRange(0, 100).setSize(100, 20).setValue(100)
-                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial", 15));
+                .setColorForeground(color + 50).setColorActive(color + 40).setFont(createFont("arial bold", 15));
 
 
         cp5.setAutoDraw(false);
@@ -554,8 +708,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
         txt.setText("Current position :\n" + " x : " + df.format(frame.position().x()) + "\n y : " + df.format(frame.position().y()) + "\n z : " + df.format(frame.position().z()));
         slicingWarning.setPosition(win.getWidth()-450, 10);
-        shortcut.setPosition(30, win.getHeight() - 100);
+        shortcut.setPosition(30, win.getHeight() - 120);
 
+        modelPosition.setPosition(30, win.getHeight()/5-50);
         tooltipRotation.setPosition(30, win.getHeight()/5-30);
         TFRotationX.setPosition(30,win.getHeight()/5);
         TFRotationY.setPosition(30,win.getHeight()/5 + 60);
@@ -567,20 +722,31 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         sliderM.setPosition(30, win.getHeight()/5 + 180);
         sliderB.setPosition(30, win.getHeight()/5 + 210);
 
-        toggleModel.setPosition(30, win.getHeight()/5 + 250);
-        toggleBits.setPosition(90, win.getHeight()/5 + 250);
+        toggleViewModel.setPosition(30, win.getHeight()/5 + 250);
+        toggleViewBits.setPosition(90, win.getHeight()/5 + 250);
 
-        apply.setPosition(win.getWidth()-200, win.getHeight()/4);
-        tooltipApply.setPosition(win.getWidth()-200, win.getHeight()/4-18);
-        gravity.setPosition(win.getWidth()-200, win.getHeight()/4+50);
-        tooltipGravity.setPosition(win.getWidth()-200, win.getHeight()/4+32);
-        reset.setPosition(win.getWidth()-200, win.getHeight()/4+100);
-        tooltipReset.setPosition(win.getWidth()-200, win.getHeight()/4+82);
-        camera.setPosition(win.getWidth()-200, win.getHeight()/4+150);
-        tooltipCamera.setPosition(win.getWidth()-200, win.getHeight()/4+132);
-        animation.setPosition(win.getWidth()-200, win.getHeight()/4+200);
+        apply.setPosition(win.getWidth()-220, win.getHeight()/4);
+        tooltipApply.setPosition(win.getWidth()-220, win.getHeight()/4-18);
+        gravity.setPosition(win.getWidth()-220, win.getHeight()/4+50);
+        tooltipGravity.setPosition(win.getWidth()-220, win.getHeight()/4+32);
+        reset.setPosition(win.getWidth()-220, win.getHeight()/4+100);
+        tooltipReset.setPosition(win.getWidth()-220, win.getHeight()/4+82);
+        camera.setPosition(win.getWidth()-220, win.getHeight()/4+150);
+        tooltipCamera.setPosition(win.getWidth()-220, win.getHeight()/4+132);
+        animation.setPosition(win.getWidth()-220, win.getHeight()/4+200);
+        export.setPosition(win.getWidth()-220, win.getHeight()/4+370);
+        tooltipExport.setPosition(win.getWidth()-220, win.getHeight()/4+347);
 
-        toggleAnimation.setPosition(win.getWidth()-60, win.getHeight()/4+205);
+        toggleBits.setPosition(win.getWidth()-220, win.getHeight()/4+235);
+        tooltipBits.setPosition(win.getWidth()-220, win.getHeight()/4+217);
+        toggleBatch.setPosition(win.getWidth()-220, win.getHeight()/4+280);
+        tooltipBatch.setPosition(win.getWidth()-220, win.getHeight()/4+262);
+        toggleLayers.setPosition(win.getWidth()-220, win.getHeight()/4+325);
+        tooltipLayers.setPosition(win.getWidth()-220, win.getHeight()/4+307);
+        toggleCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+235);
+        tooltipCurrent.setPosition(win.getWidth()-100, win.getHeight()/4+255);
+        toggleFull.setPosition(win.getWidth()-100, win.getHeight()/4+280);
+        tooltipFull.setPosition(win.getWidth()-100, win.getHeight()/4+300);
         speedDownButton.setPosition(win.getWidth()/2+20, win.getHeight()-50);
         speedUpButton.setPosition(win.getWidth()/2+60, win.getHeight()-50);
         pauseButton.setPosition(win.getWidth()/2+100, win.getHeight()-50);
@@ -598,12 +764,25 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         tooltipReset.hide();
         tooltipCamera.hide();
         tooltipApply.hide();
+        tooltipExport.hide();
+        tooltipBits.hide();
+        tooltipBatch.hide();
+        tooltipLayers.hide();
+        tooltipCurrent.hide();
+        tooltipFull.hide();
 
         float[] rotationTooltipsPostition= tooltipRotation.getPosition();
         float[] gravityPosition= tooltipGravity.getPosition();
         float[] resetPosition= tooltipReset.getPosition();
         float[] cameraPosition= tooltipCamera.getPosition();
         float[] applyPosition= tooltipApply.getPosition();
+        float[] exportPosition= tooltipExport.getPosition();
+        float[] byBitsPosition= tooltipBits.getPosition();
+        float[] byBatchPosition= tooltipBatch.getPosition();
+        float[] byLayersPosition= tooltipLayers.getPosition();
+        float[] currentPosition= toggleCurrent.getPosition();
+        float[] fullPosition= toggleFull.getPosition();
+
 
         if ((mouseX > rotationTooltipsPostition[0]) && (mouseX < rotationTooltipsPostition[0]+220) && (mouseY > rotationTooltipsPostition[1]) && (mouseY < rotationTooltipsPostition[1]+36)){
             tooltipRotation.hide();
@@ -627,6 +806,36 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if ((mouseX > applyPosition[0]) && (mouseX < applyPosition[0]+140) && (mouseY > applyPosition[1]) && (mouseY < applyPosition[1]+48)) {
             if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
                 tooltipApply.show();
+            }
+        }
+        if ((mouseX > exportPosition[0]) && (mouseX < exportPosition[0]+140) && (mouseY > exportPosition[1]) && (mouseY < exportPosition[1]+48)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipExport.show();
+            }
+        }
+        if ((mouseX > byBitsPosition[0]) && (mouseX < byBitsPosition[0]+20) && (mouseY > byBitsPosition[1]) && (mouseY < byBitsPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipBits.show();
+            }
+        }
+        if ((mouseX > byBatchPosition[0]) && (mouseX < byBatchPosition[0]+20) && (mouseY > byBatchPosition[1]) && (mouseY < byBatchPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipBatch.show();
+            }
+        }
+        if ((mouseX > byLayersPosition[0]) && (mouseX < byLayersPosition[0]+20) && (mouseY > byLayersPosition[1]) && (mouseY < byLayersPosition[1]+40)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipLayers.show();
+            }
+        }
+        if ((mouseX > currentPosition[0]) && (mouseX < currentPosition[0]+20) && (mouseY > currentPosition[1]) && (mouseY < currentPosition[1]+20)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipCurrent.show();
+            }
+        }
+        if ((mouseX > fullPosition[0]) && (mouseX < fullPosition[0]+20) && (mouseY > fullPosition[1]) && (mouseY < fullPosition[1]+20)) {
+            if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+                tooltipFull.show();
             }
         }
     }
@@ -777,6 +986,13 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         scene.eye().lookAt(frame.position());
     }
 
+    private void fixPositionCamera(float x,float y, float z) {
+        scene.eye().setPosition(new Vec(x, y, z));
+    }
+    private void fixAngleCamera(float x,float y, float z){
+        scene.eye().lookAt(new Vec(x,y,z));
+    }
+
     /**
      * Check if the model is in the workspace
      *
@@ -890,8 +1106,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         resetModel();
         centerCamera();
         viewMeshPaved = false;
-        toggleBits.setState(false);
-        toggleModel.setState(true);
+        toggleViewBits.setState(false);
+        toggleViewModel.setState(true);
         applied = false;
 
     }
@@ -932,6 +1148,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         resetModeView();
         viewModel = flag;
         if (!flag) {
+            toggleViewBits.setState(false);
             shape.setVisible(false);
             frame.removeMotionBindings();
         } else {
@@ -968,7 +1185,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             cp5.getController("animationSpeedUp").setVisible(true);
             cp5.getController("animationSpeedDown").setVisible(true);
             cp5.getController("PauseAnimation").setVisible(true);
-            cp5.getController("byBits").setVisible(false);
+            cp5.getController("byBits").setVisible(true);
 
             Vector<PShape> current = new Vector<>();
             switch (animationType) {
@@ -993,27 +1210,46 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                         // Look if we need to move working space
                         if (workingSpacePosition== printerX/2 -CraftConfig.workingWidth-20){
                             workingSpacePosition= minXDistancePoint-safetySpace;
-                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            listIndexWorkingSpace.add(0);
+                            if (!exportOBJ){
+                                current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                                listIndexWorkingSpace.add(0);
+                            }
+
                         }
                         if (Math.round(minXDistancePoint-safetySpace) <= workingSpacePosition || Math.round(maxXDistancePoint+safetySpace) >= (workingSpacePosition+CraftConfig.workingWidth) ){
                             workingSpacePosition = minXDistancePoint-safetySpace;
-                            current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
-                            listIndexWorkingSpace.add(current.size()-1);
+                            if (!exportOBJ){
+                                current.add(createShape(RECT, Math.round(workingSpacePosition),-printerY/2,CraftConfig.workingWidth,CraftConfig.printerY));
+                                listIndexWorkingSpace.add(current.size()-1);
+                            }
+
                         }
                         current.add(ele.getValue());
                     });
-                    currentShapeMap = current;
+                    current.add(shapeMapByBits.get(shapeMapByBits.size()-1).getValue());
                     break;
                 case ANIMATION_LAYERS:
                     shapeMapByLayer.forEach((ele) -> {
                         current.add(ele.getValue());
                     });
+                    current.add(shapeMapByLayer.get(shapeMapByLayer.size()-1).getValue());
+                    break;
+                case ANIMATION_BATCHES:
+                    int numberOfBatches= controllerView3D.getCurrentMesh().getScheduler().getSubBitBatch(shapeMapByBits.get(shapeMapByBits.size()-1).getKey());
+                    for (int i = 0; i<=numberOfBatches; i++){
+                        current.add(builder.getBatchPShapeForm(shapeMapByBits,i));
+                    }
+                    current.add(builder.getBatchPShapeForm(shapeMapByBits,numberOfBatches+1));
                     break;
             }
             currentShapeMap = current;
             ((Slider) (cp5.getController("animationSlider"))).setRange(0, currentShapeMap.size()).setValue(0).setVisible(true);
         }
+    }
+
+    public void Export() {
+        exportOBJ= !exportOBJ;
+        Animation();
     }
 
     @SuppressWarnings("unused")
@@ -1035,8 +1271,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     public void animationProcess() {
 
-        if (!this.isAnimated)
+        if (!this.isAnimated){
+            exportOBJ=false;
+            counter=0;
             return;
+        }
+
         //increase layer number
         if (!pauseAnimation) increaseLayerIndex();
         //update the value of
@@ -1045,24 +1285,75 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         // Boucle de raffraichissement
         switch (animationType){
             case ANIMATION_LAYERS:
-                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-                    aShapeMap.setVisible(true);
+                switch (animationWays){
+                    case ANIMATION_FULL:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_CURRENT:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
+                }
+                break;
+            case ANIMATION_BATCHES:
+                switch (animationWays){
+                    case ANIMATION_FULL:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_CURRENT:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
                 }
                 break;
             case ANIMATION_BITS:
-                for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
-                    aShapeMap.setVisible(true);
+                switch (animationWays){
+                    case ANIMATION_FULL:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        break;
+                    case ANIMATION_CURRENT:
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                            aShapeMap.setVisible(true);
+                        }
+                        if (this.layerIndex != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                                aShapeMap.setVisible(false);
+                            }
+                        }
+                        break;
                 }
-
-                //Hide old workingSpace in the Animation
-                int lastIndexWorkingspace=0;
-                while (listIndexWorkingSpace.get(lastIndexWorkingspace+1)<this.layerIndex){
-                    lastIndexWorkingspace++;
+                if (!exportOBJ){
+                    //Hide old workingSpace in the Animation
+                    int lastIndexWorkingspace=0;
+                    for (int i: listIndexWorkingSpace){
+                        if (i<this.layerIndex){
+                            lastIndexWorkingspace++;
+                        }
+                    }
+                    if(lastIndexWorkingspace!=0){
+                        for (int i=0; i<lastIndexWorkingspace-1;i++){
+                            currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
+                        }
+                    }
                 }
-                for (int i=0; i<lastIndexWorkingspace;i++){
-                    currentShapeMap.get(listIndexWorkingSpace.get(i)).setVisible(false);
-                }
-
                 break;
         }
 
@@ -1096,13 +1387,68 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 System.out.println("Thread shutdown");
             }
             this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
+
+            // done when we export to obj
+            if (exportOBJ){
+                if (animationType==ANIMATION_BITS && animationWays==ANIMATION_CURRENT){
+                    if (this.layerIndex!=0){
+                        Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
+                        float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
+                        float x = (float) bit.getLiftPoints().get(0).x;
+                        float y = (float) bit.getLiftPoints().get(0).y;
+                        float z = (float) (bit.getHigherAltitude()+ bit.getLowerAltitude())/2;
+                        fixPositionCamera(x, y, z);
+                        fixAngleCamera(scene.eye().position().x(), scene.eye().position().y(), printerZ);
+                        scene.eye().setOrientation(new Quat(0,0,bitOrientation+ (float) Math.PI/2));
+                    }
+                }
+                else {
+                    fixPositionCamera(0,0,printerZ);
+                    fixAngleCamera(0,0,0);
+                }
+                counter++;
+                record=true;
+            }
         });
     }
 
     @SuppressWarnings("unused")
     public void byBits(boolean flag) {
-        animationType = flag ? ANIMATION_BITS : ANIMATION_LAYERS;
+        if (flag){
+            animationType = ANIMATION_BITS;
+            toggleBatch.setState(false);
+            toggleLayers.setState(false);
+        }
     }
+
+    public void byBatches(boolean flag) {
+        if (flag){
+            animationType = ANIMATION_BATCHES;
+            toggleBits.setState(false);
+            toggleLayers.setState(false);
+        }
+    }
+    public void byLayers(boolean flag) {
+        if (flag){
+            animationType = ANIMATION_LAYERS;
+            toggleBatch.setState(false);
+            toggleBits.setState(false);
+        }
+    }
+
+    public void current(boolean flag) {
+        if (flag){
+            animationWays = ANIMATION_CURRENT;
+            toggleFull.setState(false);
+        }
+    }
+    public void full(boolean flag) {
+        if (flag){
+            animationWays = ANIMATION_FULL;
+            toggleCurrent.setState(false);
+        }
+    }
+
 //    @SuppressWarnings("unused")
 //    public void byLayers(boolean flag){
 //        ((Toggle)cp5.getController("byBits")).setState(!flag);

@@ -359,6 +359,15 @@ class Builder extends PApplet implements Observer {
         return bitShape;
     }
 
+    public PShape getBatchPShapeForm(Vector<Pair<Bit3D, PShape>> shapeMapByBits,int batchNumber){
+        PShape batchShape = pApplet.createShape(GROUP);
+        for (Pair<Bit3D, PShape> pair: shapeMapByBits){
+            if (controllerView3D.getCurrentMesh().getScheduler().getSubBitBatch(pair.getKey())==batchNumber){
+                batchShape.addChild(pair.getValue());
+            }
+        }
+        return batchShape;
+    }
     private PShape getFaceExtrude(int[] pointA, int[] pointB, int z) {
         PShape face = pApplet.createShape();
 //        face.setStroke(15);
