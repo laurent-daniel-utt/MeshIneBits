@@ -1219,9 +1219,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                             }
 
                         }
-                        current.add(shapeMapByBits.get(shapeMapByBits.size()-1).getValue());
                         current.add(ele.getValue());
                     });
+                    current.add(shapeMapByBits.get(shapeMapByBits.size()-1).getValue());
                     break;
                 case ANIMATION_LAYERS:
                     shapeMapByLayer.forEach((ele) -> {
@@ -1234,7 +1234,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     for (int i = 0; i<=numberOfBatches; i++){
                         current.add(builder.getBatchPShapeForm(shapeMapByBits,i));
                     }
-                    current.add(builder.getBatchPShapeForm(shapeMapByBits,numberOfBatches));
+                    current.add(builder.getBatchPShapeForm(shapeMapByBits,numberOfBatches+1));
                     break;
             }
             currentShapeMap = current;
