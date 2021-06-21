@@ -176,14 +176,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     //For Module Export OBJ
     private boolean exportOBJ=false;
     private boolean record=false;
-
+    private boolean firstExport=true;
 
     private int layerIndex = 0;
     //    private float fpsRatioSpeed = 2;
     private int lastFrames = 500;
     private final int frameMin = 10;
     private boolean pauseAnimation = false;
-    private int counter =0;
+    private int counterBits = 0;
+    private int counterBatch = 0;
     private int animationType = ANIMATION_LAYERS;
     private int animationWays = ANIMATION_FULL;
     private Vector<PShape> currentShapeMap;
@@ -321,7 +322,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void keyPressed(){
         if (key =='s'|| key=='S'){
             record=true;
-            counter +=1;
+            counterBits ++;
         }
     }
 
@@ -371,30 +372,30 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     case ANIMATION_LAYERS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counterBits+".obj");
                                 break;
                         }
                         break;
                     case ANIMATION_BITS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_bits_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", counterBatch+"/"+counterBits+"_"+counterBatch+".obj");
                                 break;
                         }
                         break;
                     case ANIMATION_BATCHES:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_batch_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", "Final_"+counterBatch+".obj");
                                 break;
                         }
                         break;
@@ -423,6 +424,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         cp5.draw();
         displayTooltips();
         scene.endScreenDrawing();
+        if (exportOBJ){
+            if (layerIndex==currentShapeMap.size()){
+                Animation();
+            }
+        }
 
     }
 
@@ -1273,7 +1279,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         if (!this.isAnimated){
             exportOBJ=false;
-            counter=0;
+            counterBits=0;
+            counterBatch=0;
+            firstExport=true;
             return;
         }
 
@@ -1377,6 +1385,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         popMatrix();
 
 
+
     }
 
     private void increaseLayerIndex() {
@@ -1406,8 +1415,25 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     fixPositionCamera(0,0,printerZ);
                     fixAngleCamera(0,0,0);
                 }
-                counter++;
                 record=true;
+                switch (animationType){
+                    case ANIMATION_BITS:
+                        if (!firstExport){
+                            counterBits++;
+                        }
+                        if(counterBits>=CraftConfig.nbBitesBatch){
+                            counterBits=0;
+                            counterBatch++;
+                            firstExport=true;
+                        }
+                        firstExport=false;
+                        break;
+                    case ANIMATION_BATCHES:
+                        if (!firstExport){
+                            counterBatch++;
+                        }
+                        firstExport=false;
+                }
             }
         });
     }
