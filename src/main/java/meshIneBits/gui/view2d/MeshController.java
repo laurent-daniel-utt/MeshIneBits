@@ -56,8 +56,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Observes the {@link Mesh} and {@link Layer}s. Observed by {@link MeshWindowCore}
- * and {@link ProcessingModelView}. Controls {@link MeshWindow}.
+ * Created all posssible Stated of MeshIneBits and Control {@link MeshWindow}
+ * Observes the {@link Mesh} and {@link Layer}s.
+ * Observed by {@link MeshWindowCore} and {@link ProcessingModelView}.
  */
 @SuppressWarnings("WeakerAccess")
 public class MeshController extends Observable implements Observer, HandlerRedoUndo.UndoRedoListener {
@@ -177,6 +178,11 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      */
     public boolean AI_NeedPaint = false;
 
+    /**
+     * Construct meshController from meshWindow which it will control .
+     *
+     * @param meshWindow the meshWindow the meshController will control .
+     */
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
     }
@@ -223,7 +229,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
                     meshWindow.reset();
                     break;
                 case IMPORT_FAILED:
-
                     break;
                 case IMPORTING:
                     break;
