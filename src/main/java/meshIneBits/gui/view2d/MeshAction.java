@@ -34,12 +34,25 @@ import meshIneBits.gui.utilities.IconLoader;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+/**
+ * MeshAction set all possible action with MeshIneBits.
+ */
 public class MeshAction extends AbstractAction {
     public final String uuid;
     public final KeyStroke acceleratorKey;
     public final String combo;
     public final MeshActionInterface action;
 
+    /**
+     * Construct bitPropertyPanel from a bit 3D and the model sliced .
+     *
+     * @param uuid the action identity name
+     * @param name the action name which will be shown
+     * @param iconname the action iconname
+     * @param description the action description to understand what is the use of the action
+     * @param acceleratorKey the keyboard shortcut
+     * @param action the action done when clicking it
+     */
     public MeshAction(String uuid,
                       String name,
                       String iconname,
