@@ -40,6 +40,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+/**
+ * BitsPropertyPanel set the presentation of the informations that will be display when clicking on one or several Bit2D in 2D View.
+ * It is used In MeshWindowPropertyPanel.
+ */
 class BitsPropertyPanel extends JPanel {
     private LinkedList<Bit3D> bit3Ds = new LinkedList<>();
     private Map<Bit3D, BitPropertyPanel> bitPropertyPanelsMap = new HashMap<>();
@@ -53,7 +57,11 @@ class BitsPropertyPanel extends JPanel {
     private GridBagLayout gbc = new GridBagLayout();
     private Mesh mesh;
 
-
+    /**
+     * Construct bitPropertyPanel from a bit 3D and the model sliced .
+     *
+     * @param m the mesh which is the model sliced .
+     */
     BitsPropertyPanel(Mesh m) {
         setBorder(titledBorder);
         this.setLayout(gbc);
