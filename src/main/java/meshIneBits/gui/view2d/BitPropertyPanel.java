@@ -29,10 +29,15 @@
 
 package meshIneBits.gui.view2d;
 
+import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.util.Logger;
 
+/**
+ * BitPropertyPanel set the informations that will be display when clicking on a Bit2D in 2D View
+ * It is used In BitsPropertyPanel.
+ */
 public class BitPropertyPanel extends PropertyPanel {
     private static final String ORIGIN = "Origin";
     private static final String ORIENTATION = "Orientation";
@@ -43,17 +48,33 @@ public class BitPropertyPanel extends PropertyPanel {
     private static final String BIT_NUMBER = "Bit id";
     private static  Mesh mesh = null;
 
+    /**
+     * Construct bitPropertyPanel from a bit 3D and the model sliced .
+     *
+     * @param bit3D the bit 3D we want to get informations
+     */
     BitPropertyPanel(Bit3D bit3D) {
         super("Bit3D@" + bit3D.hashCode());
         initTable(getPropertiesOf(bit3D));
     }
 
+    /**
+     * Construct bitPropertyPanel from a bit 3D and the model sliced .
+     *
+     * @param bit3D the bit 3D we want to get informations
+     * @param m the mesh which is the model sliced .
+     */
     BitPropertyPanel(Bit3D bit3D, Mesh m) {
         super("Bit3D@" + bit3D.hashCode());
         mesh = m;
         initTable(getPropertiesOf(bit3D));
     }
 
+    /**
+     * Set value of wanted informations as a String.
+     *
+     * @param bit3D the bit 3D we want to get informations
+     */
     private static String[][] getPropertiesOf(Bit3D bit3D) {
         if (bit3D == null)
             return new String[][]{
