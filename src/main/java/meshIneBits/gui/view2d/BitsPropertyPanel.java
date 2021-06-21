@@ -42,7 +42,7 @@ import java.util.Map;
 
 /**
  * BitsPropertyPanel set the presentation of the informations that will be display when clicking on one or several Bit2D in 2D View.
- * It is used In MeshWindowPropertyPanel.
+ * It is used in {@link MeshWindowPropertyPanel}.
  */
 class BitsPropertyPanel extends JPanel {
     private LinkedList<Bit3D> bit3Ds = new LinkedList<>();
