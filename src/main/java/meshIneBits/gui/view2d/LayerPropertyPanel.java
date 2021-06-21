@@ -34,7 +34,7 @@ import meshIneBits.util.Logger;
 
 /**
  * LayerPropertyPanel set the informations that will be display when clicking on a Bit2D in 2D View
- * It is used In MeshWindowPropertyPanel.
+ * It is used In {@link MeshWindowPropertyPanel}.
  */
 public class LayerPropertyPanel extends PropertyPanel {
     private static final String LAYER_INDEX = "Layer Index";
