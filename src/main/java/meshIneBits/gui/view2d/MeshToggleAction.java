@@ -29,6 +29,9 @@
 
 package meshIneBits.gui.view2d;
 
+/**
+ * Set a {@link MeshAction} as a Toggle
+ */
 public class MeshToggleAction extends MeshAction {
 
     private MeshController meshController;
