@@ -71,7 +71,7 @@ public class BitPropertyPanel extends PropertyPanel {
     }
 
     /**
-     * Set value of wanted informations as a String.
+     * Get value of wanted informations as a couple of String label : value.
      *
      * @param bit3D the bit 3D we want to get informations
      */

@@ -33,7 +33,7 @@ import meshIneBits.Layer;
 import meshIneBits.util.Logger;
 
 /**
- * LayerPropertyPanel set the informations that will be display when clicking on a Bit2D in 2D View
+ * LayerPropertyPanel set the informations of the layer you are on in the view 2D
  * It is used In {@link MeshWindowPropertyPanel}.
  */
 public class LayerPropertyPanel extends PropertyPanel {
@@ -55,7 +55,7 @@ public class LayerPropertyPanel extends PropertyPanel {
     }
 
     /**
-     * Set value of wanted informations as a String.
+     * Get value of wanted informations as a couple of String label : value.
      *
      * @param layer the layer we want to get informations
      */
