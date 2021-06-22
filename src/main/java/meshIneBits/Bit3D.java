@@ -259,6 +259,9 @@ public class Bit3D implements Serializable, Cloneable {
         return listTwoDistantPoints;
     }
 
+    /**
+     * Used in {@link meshIneBits.util.supportExportFile.MeshXMLTool}
+     */
     public void prepareBitToExport(){
 //        Bit3D bit3D = this;
 //        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
@@ -322,6 +325,7 @@ public class Bit3D implements Serializable, Cloneable {
     public boolean checkIfLastCutPath(@NotNull Path2D path2D){
         return rawCutPaths.lastElement()==path2D;
     }
+
     /**
      * This method return the angle of the line connecting two point and the X axis (0; 1)
      * Only use to calculate angle between 2 point for file exported
@@ -334,9 +338,9 @@ public class Bit3D implements Serializable, Cloneable {
         return Vector2.calcAngleBetweenVectorAndAxeX(vectorResult);
     }
 
-
     /**
-     *
+     * Used to know if we need to move the workingSpace to place the bit.
+     * Used in {@link meshIneBits.util.supportExportFile.MeshXMLTool#buildMoveWorkingSpace}
      */
     public ArrayList<Double> getMinAndMaxXDistantPoint(){
         Vector<Vector2> allDistancePoints = this.getTwoDistantPointsInMeshCoordinate();
