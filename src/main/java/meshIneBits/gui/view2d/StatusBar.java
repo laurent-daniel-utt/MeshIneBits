@@ -36,11 +36,18 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * StatusBar printed the statues of MeshIneBits given by {@link MeshController} states.
+ * It is used in {@link MeshWindow}
+ */
 public class StatusBar extends JPanel implements LoggingInterface {
     private static final long serialVersionUID = 1L;
     private JLabel statusLabel;
     private JProgressBar progressBar;
 
+    /**
+     * Construct of StatusBar
+     */
     public StatusBar() {
         // Visual options
         setBackground(Color.white);
