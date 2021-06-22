@@ -49,6 +49,10 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
 
+/**
+ * MeshWindow is the 2D View Interface
+ * It is controlled by {@link MeshController}.
+ */
 public class MeshWindow extends JFrame {
 
     private final GridBagConstraints selectorGBC;
@@ -184,6 +188,9 @@ public class MeshWindow extends JFrame {
 
     }
 
+    /**
+     * Action to do when opening a new project
+     */
     private void newFile(){
         final JFileChooser fc = new CustomFileChooser();
         fc.addChoosableFileFilter(new FileNameExtensionFilter("STL files", "stl"));
@@ -204,6 +211,9 @@ public class MeshWindow extends JFrame {
         }
     }
 
+    /**
+     * Action to do when opening an existing project
+     */
     private void openFile(){
         final JFileChooser fc = new CustomFileChooser();
         String meshExt = CraftConfigLoader.MESH_EXTENSION;
@@ -226,6 +236,9 @@ public class MeshWindow extends JFrame {
         }
     }
 
+    /**
+     * Action to do to save a project
+     */
     private void save(){
         final JFileChooser fc = new CustomFileChooser() {
             @Override
@@ -272,6 +285,9 @@ public class MeshWindow extends JFrame {
         }
     }
 
+    /**
+     * Action to do to close a project
+     */
     private void closeProject(){
         dispose();
         new MeshWindow();
@@ -280,6 +296,9 @@ public class MeshWindow extends JFrame {
         System.out.println("close project");
     }
 
+    /**
+     * Init the 2D View interface with the possible action.
+     */
     private void init() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = this.getRootPane().getActionMap();
@@ -895,6 +914,9 @@ public class MeshWindow extends JFrame {
         return view3DWindow;
     }
 
+    /**
+     * Init the 2D View gadget after slicing .
+     */
     void initGadgets() {
         if (zoomer != null)
             remove(zoomer);
@@ -912,6 +934,9 @@ public class MeshWindow extends JFrame {
         add(propertyPanel, propertyPanelGBC);
     }
 
+    /**
+     * Remove all gadget before opening or creating a project.
+     */
     void reset() {
         if (zoomer != null) {
             remove(zoomer);
