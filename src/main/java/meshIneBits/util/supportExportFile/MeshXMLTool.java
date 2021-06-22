@@ -79,12 +79,20 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
 
     @Override
+    /**
+     * Write Mesh's  XML file
+     * @param mesh the mesh the mesh which it create the XML
+     */
     public void writeMeshToXML(Mesh mesh) {
         initialize(mesh);
         writeObjectToXML(mesh);
     }
 
     @Override
+    /**
+     * Created the structure of the XML with the informations
+     * used in {@link XMLDocument}
+     */
     protected Element buildElementResult(Mesh mesh, int batchNumber) {
         Element meshElement = null;
         Logger.message("Generating XML file");
@@ -147,7 +155,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return config;
     }
 
-        //create the Batch XML
+        //
+
+    /**
+     * create the Batch XML
+     * @param listBitByBatch the list of Bits contained in the batch.
+     * @return write the batch xml
+     */
     public Element buildBatchElement(ArrayList<Bit3D> listBitByBatch){
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
@@ -159,7 +173,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER, Integer.toString(mMesh.getScheduler().getSubBitBatch(listBitByBatch.get(0))));
         batchElement.appendChild(batchNumber);
 
-        //Count Bits
+        //Count Bits in the batch
         Element numberOfBits = createElement(MeshTagXML.NUMBER_OF_BITS, Integer.toString(listBitByBatch.size()));
         batchElement.appendChild(numberOfBits);
 
@@ -187,7 +201,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return batchElement;
     }
 
-        //create the Layer XML
+    /**
+     * create the Layer XML
+     * @param listBitLayer
+     * @return write the layer xml
+     */
     public Element buildLayerElement(ArrayList<Bit3D>  listBitLayer) {
         Element layerElement = createElement(MeshTagXML.LAYER);
         AScheduler scheduler = mMesh.getScheduler();
@@ -216,7 +234,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return layerElement;
     }
 
-        //create the move-working-space XML
+    /**
+     * create the move-working-space XML
+     * Decide if we move the WorkingSpace or not.
+     * @param bit
+     * @param id
+     * @return write the move-working-space xml
+     */
     private Element buildMoveWorkingSpace(Bit3D bit, int id) {
 
         Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
@@ -232,9 +256,12 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
                 if (bitOrientation.x != 1){
                     safetySpace=Math.abs(CraftConfig.lengthFull*bitOrientation.x/2);
                 }
+
+                //get the min and max x of distant point of the bit and change it to Machine Coordinate.
                 double xMinInMachineRef = bit.getMinAndMaxXDistantPoint().get(0)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
                 double xMaxInMachineRef = bit.getMinAndMaxXDistantPoint().get(1)+CraftConfig.printerX/2+CraftConfig.xPrintingSpace;
 
+                //Look at if we change the position of WorkingSpace.
                 if (id == 0) {
 ;                    workingPlacePosition= xMinInMachineRef-safetySpace;
                     Element goTo = createElement(MeshTagXML.GO_TO);
@@ -255,7 +282,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return moveWorkingSpace;
     }
 
-        //create the bit XML
+    /**
+     * create the bit XML
+     * @param bit3D
+     * @return write the bit xml
+     */
     public Element buildBitElement(Bit3D bit3D) {
         if (mMesh == null) {
             throw new NullPointerException("Mesh object hasn't be declared yet");
@@ -368,6 +399,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         return count;
     }
 
+    /**
+     * create the cut-path XML
+     * @param cutPath
+     * @return write the cut-path xml
+     */
     public Element writeCutPathElement(Path2D cutPath) {
         Element cutPathsElement = createElement(MeshTagXML.CUT_PATHS);
         int countMoveTo = 0;

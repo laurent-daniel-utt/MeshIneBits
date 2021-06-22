@@ -111,6 +111,11 @@ public abstract class XMLDocument<T> {
         fileName = fileName + "." + "xml";
         filePath = Paths.get(filePath.getParent().toString() + File.separator + fileName);
     }
+
+    /**
+     * Function that launch the creation of xml file.
+     * @param obj
+     */
     protected void writeObjectToXML(T obj){
         try {
 
