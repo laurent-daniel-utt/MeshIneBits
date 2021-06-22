@@ -35,7 +35,7 @@ import meshIneBits.Mesh;
 import meshIneBits.util.Logger;
 
 /**
- * BitPropertyPanel set the informations that will be display when clicking on a Bit2D in 2D View
+ * BitPropertyPanel set the informations that will be display when clicking on a {@link Bit3D}in 2D View
  * It is used in {@link BitsPropertyPanel}.
  */
 public class BitPropertyPanel extends PropertyPanel {
