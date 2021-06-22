@@ -39,6 +39,10 @@ import meshIneBits.util.Vector2;
 
 import java.util.Vector;
 
+/**
+ * Schedule the Model Sliced and Paved.
+ * By Scheduling it gives all bits an ID and so the order of the bits, the plate and batch number where they can be found
+ */
 public class BasicScheduler extends AScheduler {
 
     public BasicScheduler(){}
@@ -84,6 +88,9 @@ public class BasicScheduler extends AScheduler {
     }
 
     @Override
+    /**
+     * main function which schedule the Model.
+     */
     public boolean schedule() {
         System.out.println("Basic scheduler schedule");
         Logger.setProgress(0, this.mesh.getLayers().size());
@@ -104,15 +111,16 @@ public class BasicScheduler extends AScheduler {
         }
         System.out.println("Basic scheduler end scheduling");
 
-
+        //Printed the number of irregularBits.
         int nbIrrefularBits=0;
         for (Layer curLayer: this.mesh.getLayers()){
             nbIrrefularBits+=curLayer.getIrregularBits().size();
         }
+        System.out.println("Number of Irregular bits in the Mesh: "+nbIrrefularBits);
 
-            System.out.println("Number of Irregular bits in the Mesh: "+nbIrrefularBits);
         return true;
     }
+
     public Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits){
         double xMin;
         if(bits.size()>0){
@@ -122,6 +130,12 @@ public class BasicScheduler extends AScheduler {
         return bits;
     }
 
+    /**
+     * SortBits so that the fabrication of the Model paved will be from left to Right
+     * @param keySet
+     * @param offsetX
+     * @return
+     */
     public Vector<Pair<Bit3D, Vector2>> sortBits(Vector<Pair<Bit3D, Vector2>> keySet, double offsetX) {
         double xInterval = CraftConfig.workingWidth;
         keySet.sort((v1, v2) -> {
