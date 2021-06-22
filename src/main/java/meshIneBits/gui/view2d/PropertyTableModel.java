@@ -33,6 +33,9 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * PropertyTableModel is the model of {@link PropertyPanel}
+ */
 class PropertyTableModel extends AbstractTableModel {
     private static String[] columnNames = {
             "Property",
