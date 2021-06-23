@@ -176,14 +176,15 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     //For Module Export OBJ
     private boolean exportOBJ=false;
     private boolean record=false;
-
+    private boolean firstExport=true;
 
     private int layerIndex = 0;
     //    private float fpsRatioSpeed = 2;
     private int lastFrames = 500;
     private final int frameMin = 10;
     private boolean pauseAnimation = false;
-    private int counter =0;
+    private int counterBits = 0;
+    private int counterBatch = 0;
     private int animationType = ANIMATION_LAYERS;
     private int animationWays = ANIMATION_FULL;
     private Vector<PShape> currentShapeMap;
@@ -321,7 +322,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public void keyPressed(){
         if (key =='s'|| key=='S'){
             record=true;
-            counter +=1;
+            counterBits ++;
         }
     }
 
@@ -371,30 +372,30 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     case ANIMATION_LAYERS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"layer_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_layer_"+counterBits+".obj");
                                 break;
                         }
                         break;
                     case ANIMATION_BITS:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"bits_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_bits_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", counterBatch+"/"+counterBits+"_"+counterBatch+".obj");
                                 break;
                         }
                         break;
                     case ANIMATION_BATCHES:
                         switch (animationWays){
                             case ANIMATION_FULL:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Batch_Evolution_"+counterBits+".obj");
                                 break;
                             case ANIMATION_CURRENT:
-                                beginRaw("nervoussystem.obj.OBJExport", model.getModelName()+"_"+"Current_batch_"+counter+".obj");
+                                beginRaw("nervoussystem.obj.OBJExport", "Final_"+counterBatch+".obj");
                                 break;
                         }
                         break;
@@ -423,6 +424,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         cp5.draw();
         displayTooltips();
         scene.endScreenDrawing();
+        if (exportOBJ){
+            if (layerIndex==currentShapeMap.size()){
+                Animation();
+            }
+        }
 
     }
 
@@ -1273,7 +1279,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
         if (!this.isAnimated){
             exportOBJ=false;
-            counter=0;
+            counterBits=0;
+            counterBatch=0;
+            firstExport=true;
             return;
         }
 
@@ -1377,6 +1385,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         popMatrix();
 
 
+
     }
 
     private void increaseLayerIndex() {
@@ -1388,28 +1397,69 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             }
             this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
 
-            // done when we export to obj
+            // Change the position of scene.eye() when exporting
             if (exportOBJ){
-                if (animationType==ANIMATION_BITS && animationWays==ANIMATION_CURRENT){
-                    if (this.layerIndex!=0){
-                        Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
-                        float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
-                        float x = (float) bit.getLiftPoints().get(0).x;
-                        float y = (float) bit.getLiftPoints().get(0).y;
-                        float z = (float) (bit.getHigherAltitude()+ bit.getLowerAltitude())/2;
-                        fixPositionCamera(x, y, z);
-                        fixAngleCamera(scene.eye().position().x(), scene.eye().position().y(), printerZ);
-                        scene.eye().setOrientation(new Quat(0,0,bitOrientation+ (float) Math.PI/2));
-                    }
-                }
-                else {
-                    fixPositionCamera(0,0,printerZ);
-                    fixAngleCamera(0,0,0);
-                }
-                counter++;
+                changeEyePosition();
                 record=true;
+                switch (animationType){
+                    case ANIMATION_BITS:
+                        if (!firstExport){
+                            counterBits++;
+                        }
+                        if(counterBits>=CraftConfig.nbBitesBatch){
+                            counterBits=0;
+                            counterBatch++;
+                            firstExport=true;
+                        }
+                        firstExport=false;
+                        break;
+                    case ANIMATION_BATCHES:
+                        if (!firstExport){
+                            counterBatch++;
+                        }
+                        firstExport=false;
+                }
             }
         });
+    }
+
+    /**
+     * Change the eye position and orientation.
+     * To use only when exporting to OBJ
+     * used in increaseLayerIndex()
+     * TODO Change the function after being able to have an animation by sub-bit to be able to export by sub-bit
+     */
+    private void changeEyePosition() {
+        //when export bits one by one, the eyes have to be in the bits at the lift point or at the cednter of the bits when there is several lift Point
+        if (animationType==ANIMATION_BITS && animationWays==ANIMATION_CURRENT){
+            if (this.layerIndex!=0){
+                //get the bit's informations
+                Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
+                float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
+                float x = 0;
+                float y = 0;
+                float z = (float) (bit.getHigherAltitude()+ bit.getLowerAltitude())/2;
+
+                if (bit.getLiftPoints().size()>1){
+                    // the eye will be at the center of a normal bit.
+                    x = (float) CraftConfig.lengthFull/2;
+                    y = (float) CraftConfig.bitWidth/2;
+                }
+                else{
+                    // the eye will at the lift point of the bit
+                    x = (float) bit.getLiftPoints().get(0).x;
+                    y = (float) bit.getLiftPoints().get(0).y;
+                }
+
+                fixPositionCamera(x, y, z);
+                fixAngleCamera(scene.eye().position().x(), scene.eye().position().y(), printerZ);
+                scene.eye().setOrientation(new Quat(0,0,bitOrientation+ (float) Math.PI/2));
+            }
+        }
+        else {
+            fixPositionCamera(0,0,printerZ);
+            fixAngleCamera(0,0,0);
+        }
     }
 
     @SuppressWarnings("unused")
