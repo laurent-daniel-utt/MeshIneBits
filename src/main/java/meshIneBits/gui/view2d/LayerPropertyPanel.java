@@ -32,6 +32,10 @@ package meshIneBits.gui.view2d;
 import meshIneBits.Layer;
 import meshIneBits.util.Logger;
 
+/**
+ * LayerPropertyPanel set the informations of the layer you are on in the view 2D
+ * It is used In {@link MeshWindowPropertyPanel}.
+ */
 public class LayerPropertyPanel extends PropertyPanel {
     private static final String LAYER_INDEX = "Layer Index";
     private static final String LAYER_IS_PAVED = "Is Paved?";
@@ -42,11 +46,19 @@ public class LayerPropertyPanel extends PropertyPanel {
     private static final String LAYER_HIGHER_ALTITUDE = "Higher Altitude";
     private static final String LAYER_SLICE_ALTITUDE = "Slice Altitude";
 
+    /**
+     * Construct layerPropertyPanel.
+     */
     LayerPropertyPanel() {
         super("Current Layer");
         initTable(getPropertiesOf(null));
     }
 
+    /**
+     * Get value of wanted informations as a couple of String label : value.
+     *
+     * @param layer the layer we want to get informations
+     */
     private static String[][] getPropertiesOf(Layer layer) {
         if (layer == null)
             // Default value

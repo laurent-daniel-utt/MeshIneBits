@@ -35,6 +35,10 @@ import meshIneBits.util.Logger;
 
 import java.io.File;
 
+/**
+ * MeshPropertyPanel set the informations about the {@link Mesh} that will be display in 2D View
+ * It is used In {@link MeshWindowPropertyPanel}.
+ */
 class MeshPropertyPanel extends PropertyPanel {
     private static final String MODEL_POSITION = "Model Position";
     private static final String MODEL_NAME = "Model Name";

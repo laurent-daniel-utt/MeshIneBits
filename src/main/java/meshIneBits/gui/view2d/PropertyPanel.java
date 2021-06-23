@@ -36,6 +36,8 @@ import java.awt.event.MouseEvent;
 
 /**
  * Pseudo table of properties
+ * Used by {@link BitPropertyPanel}, {@link LayerPropertyPanel}{@link MeshWindowPropertyPanel}.
+ * Have for model {@link PropertyTableModel}
  */
 abstract class PropertyPanel extends JPanel {
 

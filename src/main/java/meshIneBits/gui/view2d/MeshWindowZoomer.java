@@ -37,6 +37,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * MeshWindowZoomer set a horizontal slider used to zoom the shown layer in {@link MeshWindowCore}.
+ */
 class MeshWindowZoomer extends JPanel {
     private static final double MIN_ZOOM_VALUE = 0.5;
     private final int MIN_ZOOM_SLIDER_VALUE = 1;
@@ -60,6 +63,11 @@ class MeshWindowZoomer extends JPanel {
     private MeshController meshController;
     private MeshWindowCore meshWindowCore;
 
+    /**
+     * Construct meshWindowZoomer from meshController and meshWindowCore
+     * @param meshController the controller of {@link MeshWindow}.
+     * @param core the core of meshWindow.
+     */
     MeshWindowZoomer(MeshController meshController, MeshWindowCore core) {
         this.meshController = meshController;
         this.meshWindowCore = core;

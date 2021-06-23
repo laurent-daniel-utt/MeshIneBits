@@ -31,6 +31,10 @@ package meshIneBits;
 
 import java.io.Serializable;
 
+/**
+ * Contain all possible stated that will be printed in {@link meshIneBits.gui.view2d.StatusBar}
+ * A MeshEvent is a couple of boolean and code
+ */
 public enum MeshEvents implements Serializable {
     READY(false, 0),
     IMPORT_FAILED(false, 99),
@@ -63,6 +67,11 @@ public enum MeshEvents implements Serializable {
      */
     private final int code;
 
+    /**
+     * Construct MeshEvent as a couple of Boolean and a code
+     * @param working
+     * @param code
+     */
     MeshEvents(boolean working, int code) {
         this.working = working;
         this.code = code;

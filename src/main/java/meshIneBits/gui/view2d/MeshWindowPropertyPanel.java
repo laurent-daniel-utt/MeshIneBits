@@ -48,6 +48,11 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
     private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
     private BitsPropertyPanel bitsPropertyPanel;
 
+    /**
+     * Construct MeshWindowPropertyPanel from meshController
+     *
+     * @param meshController the controller of {@link MeshWindow}
+     */
     MeshWindowPropertyPanel(MeshController meshController) {
         setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
         setPreferredSize(new Dimension(400, getHeight()));

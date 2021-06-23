@@ -37,10 +37,17 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+/**
+ * MeshWindowSelector set a vertical slider and a spinner used to selected the layer shown in {@link MeshWindowCore}.
+ */
 public class MeshWindowSelector extends JPanel implements PropertyChangeListener {
     private JSlider layerSlider;
     private JSpinner layerSpinner;
 
+    /**
+     * Construct meshWindowSelector from meshController
+     *  @param meshController the controller of {@link MeshWindow}.
+     */
     public MeshWindowSelector(MeshController meshController) {
         Mesh mesh = meshController.getMesh();
         meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
