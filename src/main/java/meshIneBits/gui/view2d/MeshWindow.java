@@ -34,6 +34,7 @@ import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.ControllerView3D;
 import meshIneBits.gui.view3d.ProcessingModelView;
+import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 
@@ -68,6 +69,7 @@ public class MeshWindow extends JFrame {
     private MeshWindowZoomer zoomer;
     private MeshWindowSelector selector;
     private MeshWindowPropertyPanel propertyPanel;
+    private CustomLogger logger = new CustomLogger(this.getClass());
 
 
     public MeshWindow() throws HeadlessException {
@@ -292,6 +294,7 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "control N",
                 () -> {
+                    logger.logDEBUGMessage("PaveMesh start");
                     if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {

@@ -74,6 +74,9 @@ dependencies {
             'org.junit.jupiter:junit-jupiter-params:5.1.0')
     testRuntime('org.junit.jupiter:junit-jupiter-engine:5.1.0',
             'org.junit.platform:junit-platform-launcher:1.1.0')
+
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
 }
 
 eclipse {
