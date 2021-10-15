@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * Build by a {@link PatternTemplate}.
  * Literally a {@link Set} of {@link Bit2D}.
  */
-public class Pavement implements Cloneable, Serializable {
+public class Pavement extends Observable implements Cloneable, Serializable {
     /**
      * The key is the origin of {@link Bit2D} in {@link Mesh} coordinate system.
      */
@@ -103,6 +103,7 @@ public class Pavement implements Cloneable, Serializable {
             addBit(bit);
         }
     }
+
 
     /**
      * @param bit in {@link Mesh} coordinate system
@@ -265,4 +266,5 @@ public class Pavement implements Cloneable, Serializable {
             }
         }
     }
+
 }

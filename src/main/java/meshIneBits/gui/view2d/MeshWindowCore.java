@@ -346,18 +346,17 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     @Override
     public void update(Observable o, Object arg) {
-//        SwingUtilities.invokeLater(()->{
+        SwingUtilities.invokeLater(()->{
             if (meshController.getMesh() != null) {
                 removeAll();
                 revalidate();
                 repaint();
             }
-//        });
+        });
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        logger.logDEBUGMessage("start");
         super.paintComponent(g);
         Mesh mesh = meshController.getMesh();
         if (mesh == null) return;
@@ -421,7 +420,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
             paintPreviousLayer(g2d);
         }
-        logger.logDEBUGMessage("End");
     }
 
 

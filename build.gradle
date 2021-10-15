@@ -29,6 +29,7 @@ repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenCentral()
     // mavenCentral()
 }
 
@@ -46,7 +47,7 @@ dependencies {
     compile "org.datavec:datavec-local:1.0.0-beta6"
 
     implementation 'org.jetbrains:annotations:19.0.0'
-    compile 'org.processing:core:3.3.5'
+    compile 'org.processing:core:3.3.7'
     compile 'org.jogamp.jogl:jogl-all:2.3.2'
     compile 'org.jogamp.gluegen:gluegen-rt:2.3.2'
     testCompile 'org.json:json:20180130'
@@ -137,4 +138,5 @@ shadowJar {
     classifier = null
     appendix = null
     version = actualVersion
+    zip64 = true
 }

@@ -29,6 +29,7 @@
 
 package meshIneBits.gui.view2d;
 
+@FunctionalInterface
 public interface MeshActionInterface {
     void execute();
 }

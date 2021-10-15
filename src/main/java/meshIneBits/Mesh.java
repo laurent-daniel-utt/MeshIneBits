@@ -144,11 +144,13 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (template.isInterdependent()) {
             SequentialPavingWorker sequentialPavingWorker = new SequentialPavingWorker(template);
             sequentialPavingWorker.addObserver(this);
-            (new Thread(sequentialPavingWorker)).start();
+//            (new Thread(sequentialPavingWorker)).start();
+            sequentialPavingWorker.run();
         } else {
             PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
             pavingWorkerMaster.addObserver(this);
-            (new Thread(pavingWorkerMaster)).start();
+//            (new Thread(pavingWorkerMaster)).start();
+            pavingWorkerMaster.run();
         }
     }
 
@@ -241,8 +243,9 @@ public class Mesh extends Observable implements Observer, Serializable {
 
         setState(MeshEvents.EXPORTING);
         MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
-        Thread t = new Thread(meshXMLExporter);
-        t.start();
+//        Thread t = new Thread(meshXMLExporter);
+//        t.start();
+        meshXMLExporter.run();
         setState(MeshEvents.EXPORTED);
     }
 
@@ -369,8 +372,10 @@ public class Mesh extends Observable implements Observer, Serializable {
         Logger.updateStatus("Generating layers");
         int jobsize = slices.size();
         for (int i = 0; i < jobsize; i++) {
-            layers.add(new Layer(i, slices.get(i)));
+            Layer layer = new Layer(i, slices.get(i));
+            layers.add(layer);
             Logger.setProgress(i + 1, jobsize);
+
         }
     }
 
@@ -398,7 +403,8 @@ public class Mesh extends Observable implements Observer, Serializable {
         if (scheduler == null) throw new SchedulerNotDefinedException();
         Logger.updateStatus("Scheduling mesh");
         // Scheduler will send a signal MeshEvents.SCHEDULED to Mesh.update()
-        (new Thread(scheduler)).start();
+//        (new Thread(scheduler)).start();
+        scheduler.run();
     }
 
     public MeshEvents getState() {
@@ -444,7 +450,8 @@ public class Mesh extends Observable implements Observer, Serializable {
         // New worker
         LayerPaver layerPaver = new LayerPaver(layer, patternTemplate);
         layerPaver.addObserver(this);
-        (new Thread(layerPaver)).start();
+//        (new Thread(layerPaver)).start();
+        layerPaver.run();
     }
 
     /**
@@ -463,7 +470,9 @@ public class Mesh extends Observable implements Observer, Serializable {
         // New worker
         RegionPaver regionPaver = new RegionPaver(layer, region, patternTemplate);
         regionPaver.addObserver(this);
-        (new Thread(regionPaver)).start();
+//        (new Thread(regionPaver)).start();
+        regionPaver.run();
+
     }
 
     public void saveAs(File file) throws IOException {
@@ -561,7 +570,7 @@ public class Mesh extends Observable implements Observer, Serializable {
         public void run() {
             Logger.updateStatus("Paving mesh parallelly with " + originalPatternTemplate.getCommonName());
             jobsMap.forEach((layer, pavingWorkerSlave)
-                    -> (new Thread(pavingWorkerSlave)).start());
+                    -> MultiThreadServiceExecutor.instance.execute(pavingWorkerSlave));
         }
 
         @Override

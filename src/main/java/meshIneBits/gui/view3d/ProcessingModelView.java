@@ -33,19 +33,17 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.newt.util.MainThread;
 import controlP5.*;
 import controlP5.Button;
 import javafx.util.Pair;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
+import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
-import nervoussystem.obj.OBJExport;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PSurface;
@@ -178,7 +176,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean record=false;
     private boolean firstExport=true;
 
-    private int layerIndex = 0;
+    private int index = 0;
     //    private float fpsRatioSpeed = 2;
     private int lastFrames = 500;
     private final int frameMin = 10;
@@ -198,6 +196,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private boolean isToggled = false;
 
     private double scale = 1;
+
+    private CustomLogger logger = new CustomLogger(this.getClass());
+    private double windowHeight;
+    private double windowWidth;
 
     public static void startProcessingModelView() {
         if (!ControllerView3D.getInstance().isAvailable()) return;
@@ -243,8 +245,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     public ProcessingModelView() {
         controllerView3D = ControllerView3D.getInstance();
         controllerView3D.addObserver(this);
-
-
     }
 
     public static void closeInstance(){
@@ -255,6 +255,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
      *
      */
     public void setup() {
+        logger.logDEBUGMessage("Setup start");
         this.surface.setResizable(true);
         this.surface.setTitle("MeshIneBits - Model view");
         if (model == null) {
@@ -304,6 +305,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         if (controllerView3D.getCurrentMesh().isSliced()){
             shape.setFill(color(205,92,92));
         }
+        logger.logDEBUGMessage("Setup ended");
     }
 
     private synchronized void loadNewData() {
@@ -425,11 +427,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         displayTooltips();
         scene.endScreenDrawing();
         if (exportOBJ){
-            if (layerIndex==currentShapeMap.size()){
+            if (index ==currentShapeMap.size()){
                 Animation();
             }
         }
-
     }
 
     private void updateNewData() {
@@ -587,7 +588,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         sliderAnimation.setVisible(false).setSize(200, 30).getCaptionLabel().setText("")
                 .setFont(createFont("arial bold", 15));
         sliderAnimation.onChange(e -> {
-            if (pauseAnimation) this.layerIndex = (int) sliderAnimation.getValue();
+            if (pauseAnimation) this.index = (int) sliderAnimation.getValue();
         });
 
         speedUpButton= cp5.addButton("animationSpeedUp").setVisible(false).setSize(30, 30).setColorLabel(255).setFont(createFont("arial bold", 15));
@@ -709,6 +710,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     }
 
     private void updateButtons() {
+        logger.logDEBUGMessage("updateButton start");
         GLWindow win = ((GLWindow) surface.getNative());
         modelSize.setPosition(win.getWidth() - 150, 10);
         txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
@@ -763,6 +765,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         } else {
             scene.enableMotionAgent();
         }
+        logger.logDEBUGMessage("updateButton end");
+
     }
 
     private void displayTooltips() {
@@ -1185,7 +1189,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
             executorService = Executors.newSingleThreadExecutor();
             viewMeshPaved = false;
-            this.layerIndex = 0;
+            this.index = 0;
             Model(false);
 
             cp5.getController("animationSpeedUp").setVisible(true);
@@ -1288,23 +1292,23 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
         //increase layer number
         if (!pauseAnimation) increaseLayerIndex();
         //update the value of
-        if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.layerIndex);
+        if (!pauseAnimation) cp5.getController("animationSlider").setValue(this.index);
 
         // Boucle de raffraichissement
         switch (animationType){
             case ANIMATION_LAYERS:
                 switch (animationWays){
                     case ANIMATION_FULL:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
                         break;
                     case ANIMATION_CURRENT:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
-                        if (this.layerIndex != 0) {
-                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                        if (this.index != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.index -1)) {
                                 aShapeMap.setVisible(false);
                             }
                         }
@@ -1314,16 +1318,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             case ANIMATION_BATCHES:
                 switch (animationWays){
                     case ANIMATION_FULL:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
                         break;
                     case ANIMATION_CURRENT:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
-                        if (this.layerIndex != 0) {
-                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                        if (this.index != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.index -1)) {
                                 aShapeMap.setVisible(false);
                             }
                         }
@@ -1333,16 +1337,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             case ANIMATION_BITS:
                 switch (animationWays){
                     case ANIMATION_FULL:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
                         break;
                     case ANIMATION_CURRENT:
-                        for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex)) {
+                        for (PShape aShapeMap : currentShapeMap.subList(0, this.index)) {
                             aShapeMap.setVisible(true);
                         }
-                        if (this.layerIndex != 0) {
-                            for (PShape aShapeMap : currentShapeMap.subList(0, this.layerIndex-1)) {
+                        if (this.index != 0) {
+                            for (PShape aShapeMap : currentShapeMap.subList(0, this.index -1)) {
                                 aShapeMap.setVisible(false);
                             }
                         }
@@ -1352,7 +1356,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                     //Hide old workingSpace in the Animation
                     int lastIndexWorkingspace=0;
                     for (int i: listIndexWorkingSpace){
-                        if (i<this.layerIndex){
+                        if (i<this.index){
                             lastIndexWorkingspace++;
                         }
                     }
@@ -1365,8 +1369,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
                 break;
         }
 
-        if (this.layerIndex < currentShapeMap.size()) {
-            for (PShape aShapeMap : currentShapeMap.subList(this.layerIndex + 1, currentShapeMap.size())) {
+        if (this.index < currentShapeMap.size()) {
+            for (PShape aShapeMap : currentShapeMap.subList(this.index + 1, currentShapeMap.size())) {
                 aShapeMap.setVisible(false);
             }
         }
@@ -1395,7 +1399,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
             } catch (InterruptedException e) {
                 System.out.println("Thread shutdown");
             }
-            this.layerIndex = (this.layerIndex + 1) % this.currentShapeMap.size();
+            this.index = (this.index + 1) % this.currentShapeMap.size();
 
             // Change the position of scene.eye() when exporting
             if (exportOBJ){
@@ -1432,9 +1436,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
     private void changeEyePosition() {
         //when export bits one by one, the eyes have to be in the bits at the lift point or at the cednter of the bits when there is several lift Point
         if (animationType==ANIMATION_BITS && animationWays==ANIMATION_CURRENT){
-            if (this.layerIndex!=0){
+            if (this.index !=0){
                 //get the bit's informations
-                Bit3D bit= shapeMapByBits.get(this.layerIndex-1).getKey();
+                Bit3D bit= shapeMapByBits.get(this.index -1).getKey();
                 float bitOrientation = (float) bit.getOrientation().getEquivalentAngle() * (float)Math.PI/180;
                 float x = 0;
                 float y = 0;
@@ -1522,10 +1526,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow 
 
     @Override
     public void update(Observable o, Object arg) {
-        if (IMPORTED_MODEL.equals(arg)) model = controllerView3D.getModel();
-        redraw();
-        loadNewData();
-        updateButtons();
+//        if (IMPORTED_MODEL.equals(arg)) model = controllerView3D.getModel();
+//        redraw();
+////        loadNewData();
+//        updateButtons();
+        logger.logDEBUGMessage("update called");
 
     }
 

@@ -85,10 +85,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     public static final String DELETING_BITS = "deletingBits";
     public static final String BITS_DELETED = "deletedBits";
 
-    public static final String UNDO_BIT_ACTION = "undoBitAction";
-
-    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo(this);
-
     // New bit config
     private final DoubleParam newBitsLengthParam = new DoubleParam(
             "newBitLength",
@@ -154,6 +150,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private Area areaHoldingCut;
     //this variable is used to calc bit full length when paint preview
     private boolean fullLength=true;
+    private CustomLogger logger=new CustomLogger(this.getClass());
 
 
     public boolean isFullLength() {
@@ -176,6 +173,17 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
      * @see DebugTools
      */
     public boolean AI_NeedPaint = false;
+
+    /**
+     * used to register action of user for redo/undo function
+     */
+    private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo(this);
+
+    /**
+     *
+     */
+    private ITheardServiceExecutor serviceExecutor = MultiThreadServiceExecutor.instance;
+
 
     MeshController(MeshWindow meshWindow) {
         this.meshWindow = meshWindow;
@@ -434,7 +442,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
         MeshOpener meshOpener = new MeshOpener(file);
         meshOpener.addObserver(this);
-        (new Thread(meshOpener)).start();
+        serviceExecutor.execute(meshOpener);
     }
 
     /**
@@ -452,13 +460,19 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         CraftConfigLoader.saveConfig(null);
 
         MeshSaver meshSaver = new MeshSaver(file);
-        (new Thread(meshSaver)).start();
+        serviceExecutor.execute(meshSaver);
     }
 
     public void exportXML(File file) throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not found");
-        mesh.export(file);
+        serviceExecutor.execute(()-> {
+            try {
+                mesh.export(file);
+            } catch (Exception e) {
+                this.handleException(e);
+            }
+        });
     }
 
     public void newMesh(File file) throws SimultaneousOperationsException {
@@ -471,14 +485,22 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
         MeshCreator meshCreator = new MeshCreator(file);
         meshCreator.addObserver(this);
-        (new Thread(meshCreator)).start();
+        serviceExecutor.execute(meshCreator);
     }
 
     public void sliceMesh() throws Exception {
         if (mesh == null) throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        mesh.slice();
+        this.serviceExecutor.execute(()->{
+            logger.logDEBUGMessage("SliceMesh start");
+            try {
+                mesh.slice();
+            } catch (Exception e) {
+                this.handleException(e);
+            }
+
+        });
     }
 
     public void paveMesh(PatternTemplate patternTemplate) throws Exception {
@@ -488,7 +510,14 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         if (!mesh.isSliced())
             throw new Exception("Mesh not sliced");
         CraftConfigLoader.saveConfig(null);
-        mesh.pave(patternTemplate);
+        serviceExecutor.execute(()-> {
+            try {
+                mesh.pave(patternTemplate);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+//        mesh.pave(patternTemplate);
     }
 
     public void deleteSelectedBits() {
@@ -745,7 +774,13 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             throw new Exception("Mesh not found");
         if (mesh.getState().isWorking())
             throw new SimultaneousOperationsException(mesh);
-        mesh.pave(patternTemplate, getCurrentLayer());
+        serviceExecutor.execute(()-> {
+            try {
+                mesh.pave(patternTemplate, getCurrentLayer());
+            } catch (Exception e) {
+                this.handleException(e);
+            }
+        });
     }
 
     public void setNewBitSize(int lengthPercentage, int widthPercentage) {
@@ -762,7 +797,13 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             throw new Exception("Mesh not paved");
         if (mesh.getScheduler() == null)
             throw new Exception("Scheduler not defined");
-        mesh.runScheduler();
+        serviceExecutor.execute(()-> {
+            try {
+                mesh.runScheduler();
+            } catch (Exception e) {
+                this.handleException(e);
+            }
+        });
     }
 
     public void setScheduler(AScheduler scheduler) throws Exception {
@@ -782,10 +823,14 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             throw new Exception("No region vertex found");
         if (!selectedRegion)
             throw new Exception("Region not closed");
-        mesh.pave(patternTemplate,
-                getCurrentLayer(),
-                new Area(currentSelectedRegion));
-        clearSelectingRegion(true);
+        serviceExecutor.execute(()->{
+            try {
+                mesh.pave(patternTemplate, getCurrentLayer(), new Area(currentSelectedRegion));
+                clearSelectingRegion(true);
+            } catch (Exception e) {
+                this.handleException(e);
+            }
+        });
     }
 
     public boolean hasSelectedRegion() {

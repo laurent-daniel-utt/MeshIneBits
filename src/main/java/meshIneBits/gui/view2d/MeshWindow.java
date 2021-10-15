@@ -294,7 +294,6 @@ public class MeshWindow extends JFrame {
                 "New Mesh",
                 "control N",
                 () -> {
-                    logger.logDEBUGMessage("PaveMesh start");
                     if (meshController.getMesh()!=null){
                         int answer= JOptionPane.showConfirmDialog(this,"You have already open a project.\n Do you want to save it before opening another one","Asking saving",JOptionPane.YES_NO_OPTION);
                         switch (answer) {
@@ -892,6 +891,7 @@ public class MeshWindow extends JFrame {
         meshController.reset();
         revalidate();
         repaint();
+
     }
 
     ProcessingModelView getView3DWindow() {

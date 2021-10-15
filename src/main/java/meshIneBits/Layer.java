@@ -559,6 +559,7 @@ public class Layer extends Observable implements Serializable {
         this.flatPavement = this.patternTemplate.pave(this);
         paved = true;
         rebuild();
+
     }
 
     public boolean isPaved() {

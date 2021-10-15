@@ -141,7 +141,8 @@ public class SliceTool extends Observable implements Runnable {
      * Start the slicing in a thread.
      */
     public void sliceModel() {
-        Thread t = new Thread(this);
-        t.start();
+//        Thread t = new Thread(this);
+//        t.start();
+        this.run();
     }
 }
