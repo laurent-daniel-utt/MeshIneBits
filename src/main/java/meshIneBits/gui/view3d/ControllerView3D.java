@@ -104,4 +104,6 @@ public class ControllerView3D extends Observable implements Observer {
         return model!=null;
     }
 
+
+
 }

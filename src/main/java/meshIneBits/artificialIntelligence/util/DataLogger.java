@@ -132,6 +132,7 @@ public final class DataLogger {
                     Double.parseDouble(data.remove(0))));
         }
 
+
         return new DataLogEntry(bitPos, bitOrientation, points);
     }
 

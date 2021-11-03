@@ -48,19 +48,23 @@ public class AI_Tool {
     /**
      * The name and location of the trained model saved.
      */
-    public static final String MODEL_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/trained_model.zip";
+    public static final String MODEL_PATH = "../resources/trained_model.zip";
+//    public static final String MODEL_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/trained_model.zip";
     /**
      * The name and path of the normalizer saved.
      */
-    public static final String NORMALIZER_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/normalizer_saved.bin";
+    public static final String NORMALIZER_PATH = "../resources/normalizer_saved.bin";
+//    public static final String NORMALIZER_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/normalizer_saved.bin";
     /**
      * The name and location of the csv file which contains the raw data for the DataSet.
      */
-    public final static String DATA_LOG_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/storedBits.csv";
+    public final static String DATA_LOG_FILE_PATH = "../resources/storedBits.csv";
+//    public final static String DATA_LOG_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/storedBits.csv";
     /**
      * The name and location of the csv file which contains the dataSet.
      */
-    public static final String DATASET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/dataSet.csv";
+    public static final String DATASET_FILE_PATH = "../resources/dataSet.csv";
+//    public static final String DATASET_FILE_PATH = "src/main/java/meshIneBits/artificialIntelligence/deepLearning/resources/dataSet.csv";
     /**
      * Correct the position of the bits placed by the Neural Network.
      * May be useless when the NN will be correctly trained.

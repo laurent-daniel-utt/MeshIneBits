@@ -209,7 +209,7 @@ class Builder extends PApplet implements Observer {
             Vector3 v = controllerView3D.getModel().getPos();
             List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(controllerView3D.getCurrentMesh().getScheduler().filterBits(layer.sortBits()));
             PShape layerPShape = this.pApplet.createShape(GROUP);
-            executorService.execute(() -> {
+//            executorService.execute(() -> {
                 for (Bit3D curBit : bitsInCurrentLayer) {
                     PShape bitPShape;
                     bitPShape = getBitPShapeFrom(curBit.getRawAreas(), bitThickness);
@@ -234,7 +234,7 @@ class Builder extends PApplet implements Observer {
                 synchronized (shapeMapByLayer) {
                     shapeMapByLayer.add(new Pair<>(layer, layerPShape));
                 }
-            });
+//            });
 
 
         }
