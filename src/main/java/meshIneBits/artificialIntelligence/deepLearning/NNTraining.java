@@ -120,7 +120,8 @@ public class NNTraining {
         fullDataSet.shuffle();
 
         // 2) split data in two
-        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(1); // 100% for training and 0% for testing
+        System.out.println(fullDataSet.numExamples());
+        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples()-1); // 100% for training and 0% for testing
         this.trainingDataSet = testAndTrain.getTrain();
         this.testDataSet = testAndTrain.getTest();
 
