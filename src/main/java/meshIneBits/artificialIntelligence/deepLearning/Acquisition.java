@@ -31,7 +31,6 @@ package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
 import meshIneBits.artificialIntelligence.util.DataLogger;

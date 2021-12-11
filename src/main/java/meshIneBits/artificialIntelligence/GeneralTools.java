@@ -336,7 +336,7 @@ public class GeneralTools {
      * @return a new section of points, composed of the equally spaced points.
      */
     public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
-        int nbPoints = 30;
+        int nbPoints = 5;//todo @Etienne ou Andre : mettre hidden_neurons_count en fonction de ca
         return repopulateWithNewPoints(nbPoints, sectionPoints);
     }
 

@@ -55,16 +55,25 @@ public class UPPToolsIA extends UtilityParametersPanel {
         trainButton.addActionListener(e -> {
             try {
                 NNTraining nnTraining = new NNTraining();
-                nnTraining.train(true);
-                nnTraining.evaluateModel();
-                try {
-                    nnTraining.save();
-                } catch (IOException eSave) {
-                    System.out.println("Neural Network training params could not be saved !");
+                if (trainButton.getText() == "Train AI") {
+                    trainButton.setText("Stop training");
+                    nnTraining.train(true);
+                    nnTraining.evaluateModel();
+                    try {
+                        nnTraining.save();
+                    } catch (IOException eSave) {
+                        System.out.println("Neural Network training params could not be saved !");
+                    }
+                } else {
+                    trainButton.setText("Train AI");
+                    nnTraining.stop_training();
                 }
+
             } catch (Exception e1) {
                 meshController.handleException(e1);
             }
+
+
         });
 
         JButton deleteLastButton = new JButton("Delete last bit placed");
