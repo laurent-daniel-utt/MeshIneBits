@@ -53,7 +53,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
-import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.awt.*;
@@ -83,7 +83,7 @@ public class NNTraining {
     /**
      * The number of neurons in an hidden layer.
      */
-    public static int HIDDEN_NEURONS_COUNT = 70; // This number could also be specified for each layer.
+    public static int HIDDEN_NEURONS_COUNT = 50; // This number could also be specified for each layer.
 
     //private DataNormalization normalizer;
     private MultiLayerNetwork model;
@@ -165,13 +165,13 @@ public class NNTraining {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(12345)//todo enlever après les tests
                 .activation(Activation.RELU)
-                .updater(new Adam(0.001))
-                //              .updater(new Nesterovs(0.00006,0.9)) //momentum should be <1
+                //.updater(new Adam(0.01))
+                .updater(new Nesterovs(0.00005, 0.9)) //momentum should be <1
                 .l2(1e-5)//change pas grand chose ?
-                //.weightDecay(1e-5)//todo TEST
-                .weightInit(WeightInit.LECUN_NORMAL) //bien pour regression
+                .weightDecay(1e-5)//change pas grand chose
+                .weightInit(WeightInit.LECUN_NORMAL) //bien pour regression LECUN_NORMAL
                 .list()
-
+//https://deeplearning4j.konduit.ai/deeplearning4j/how-to-guides/tuning-and-training/troubleshooting-training
                 //Input Layer
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .activation(Activation.RELU)
@@ -182,7 +182,7 @@ public class NNTraining {
                 .layer(2, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .build())
                 //Output Layer
-                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)//bien pour regression
+                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MEAN_ABSOLUTE_ERROR)//MSE bien pour regression
                         .activation(Activation.IDENTITY) //do not change
                         .nIn(HIDDEN_NEURONS_COUNT)
                         .nOut(CLASSES_COUNT)
@@ -229,6 +229,7 @@ public class NNTraining {
         //normalizer.revertLabels(prediction);
         //todo @Andre print score sinon
         System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
+        System.out.println(model.score());
     }
 
     /**
