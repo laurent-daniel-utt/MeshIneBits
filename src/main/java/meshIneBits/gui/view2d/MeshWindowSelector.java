@@ -29,65 +29,74 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.Mesh;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import meshIneBits.Mesh;
 
 public class MeshWindowSelector extends JPanel implements PropertyChangeListener {
-    private JSlider layerSlider;
-    private JSpinner layerSpinner;
 
-    public MeshWindowSelector(MeshController meshController) {
-        Mesh mesh = meshController.getMesh();
-        meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
+  private JSlider layerSlider;
+  private JSpinner layerSpinner;
 
-        layerSlider = new JSlider(
-                SwingConstants.VERTICAL,
-                0,
-                mesh.getLayers().size() - 1,
-                0);
-        //layerSlider.setMinimumSize(new Dimension(20,200));
-        //layerSlider.setMaximumSize(new Dimension(20,200));
-        layerSlider.setFocusable(false);
+  public MeshWindowSelector(MeshController meshController) {
+    Mesh mesh = meshController.getMesh();
+    meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
 
-        layerSpinner = new JSpinner(
-                new SpinnerNumberModel(
-                        0,
-                        0,
-                        mesh.getLayers().size() - 1,
-                        1));
-        layerSpinner.setMaximumSize(new Dimension(520,40));
-        layerSpinner.setFont( new Font("calibri", Font.PLAIN, 20));
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(layerSlider);
-        add(layerSpinner);
-        setBorder(new EmptyBorder(50, 5, 50, 0));
+    layerSlider = new JSlider(
+        SwingConstants.VERTICAL,
+        0,
+        mesh.getLayers()
+            .size() - 1,
+        0);
+    //layerSlider.setMinimumSize(new Dimension(20,200));
+    //layerSlider.setMaximumSize(new Dimension(20,200));
+    layerSlider.setFocusable(false);
 
-        layerSpinner.addChangeListener(e ->
-        {
-            meshController.setLayer((int) layerSpinner.getValue());
-            layerSlider.setValue((int) layerSpinner.getValue());
-        });
+    layerSpinner = new JSpinner(
+        new SpinnerNumberModel(
+            0,
+            0,
+            mesh.getLayers()
+                .size() - 1,
+            1));
+    layerSpinner.setMaximumSize(new Dimension(520, 40));
+    layerSpinner.setFont(new Font("calibri", Font.PLAIN, 20));
+    setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+    add(layerSlider);
+    add(layerSpinner);
+    setBorder(new EmptyBorder(50, 5, 50, 0));
 
-        layerSlider.addChangeListener(e ->
-        {
-            meshController.setLayer(layerSlider.getValue());
-            layerSpinner.setValue(layerSlider.getValue());
-        });
-        setOpaque(false);
-        layerSpinner.setOpaque(false);
-        layerSpinner.setOpaque(false);
+    layerSpinner.addChangeListener(e ->
+    {
+      meshController.setLayer((int) layerSpinner.getValue());
+      layerSlider.setValue((int) layerSpinner.getValue());
+    });
+
+    layerSlider.addChangeListener(e ->
+    {
+      meshController.setLayer(layerSlider.getValue());
+      layerSpinner.setValue(layerSlider.getValue());
+    });
+    setOpaque(false);
+    layerSpinner.setOpaque(false);
+    layerSpinner.setOpaque(false);
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (evt.getPropertyName()
+        .equals(MeshController.SETTING_LAYER)
+        && ((int) evt.getNewValue() != layerSlider.getValue())) {
+      layerSlider.setValue((int) evt.getNewValue());
     }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(MeshController.SETTING_LAYER)
-                && ((int) evt.getNewValue() != layerSlider.getValue())) {
-            layerSlider.setValue((int) evt.getNewValue());
-        }
-    }
+  }
 }

@@ -29,98 +29,118 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.config.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.GridLayout;
+import java.awt.HeadlessException;
+import java.awt.Window;
+import java.lang.reflect.Field;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
+import meshIneBits.config.DoubleSetting;
+import meshIneBits.config.FloatSetting;
+import meshIneBits.config.IntegerSetting;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
-import javax.swing.*;
-import java.awt.*;
-import java.lang.reflect.Field;
-import java.util.List;
-
 class MeshSettingsWindow extends JFrame {
-    private final TabContentPanel bitSettingsPanel;
-    private final TabContentPanel slicerSettingsPanel;
-    private final TabContentPanel assemblerSettingsPanel;
-    private final TabContentPanel xmlSettingsPanel;
-    private final TabContentPanel printerSettingsPanel;
 
-    MeshSettingsWindow() throws HeadlessException {
-        this.setIconImage(IconLoader.get("gears.png", 0, 0).getImage());
-        setTitle("Settings");
-        setSize(440, 220);
-        setResizable(false);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setLayout(new BorderLayout());
+  private final TabContentPanel bitSettingsPanel;
+  private final TabContentPanel slicerSettingsPanel;
+  private final TabContentPanel assemblerSettingsPanel;
+  private final TabContentPanel xmlSettingsPanel;
+  private final TabContentPanel printerSettingsPanel;
 
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
-        add(tabbedPane, BorderLayout.CENTER);
+  MeshSettingsWindow() throws HeadlessException {
+    this.setIconImage(IconLoader.get("gears.png", 0, 0)
+        .getImage());
+    setTitle("Settings");
+    setSize(440, 220);
+    setResizable(false);
+    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    setLayout(new BorderLayout());
 
-        // Add tabs of settings
-        bitSettingsPanel = new TabContentPanel(CraftConfig.bitSettings);
-        tabbedPane.addTab("Bit", new JScrollPane(bitSettingsPanel));
-        slicerSettingsPanel = new TabContentPanel(CraftConfig.slicerSettings);
-        tabbedPane.addTab("Slicer", new JScrollPane(slicerSettingsPanel));
-        assemblerSettingsPanel = new TabContentPanel(CraftConfig.assemblerSettings);
-        tabbedPane.addTab("Assembler", new JScrollPane(assemblerSettingsPanel));
-        xmlSettingsPanel = new TabContentPanel(CraftConfig.xmlSettings);
-        tabbedPane.addTab("XML", new JScrollPane(xmlSettingsPanel));
-        printerSettingsPanel = new TabContentPanel(CraftConfig.printerSettings);
-        tabbedPane.addTab("Printer", new JScrollPane(printerSettingsPanel));
+    JTabbedPane tabbedPane = new JTabbedPane();
+    tabbedPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    tabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
+    add(tabbedPane, BorderLayout.CENTER);
 
-        // Default button
-        JPanel dummy = new JPanel();
-        add(dummy, BorderLayout.SOUTH);
-        dummy.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        JButton resetDefault = new JButton("Reset to default value");
-        resetDefault.addActionListener(e -> reset());
-        dummy.add(resetDefault);
+    // Add tabs of settings
+    bitSettingsPanel = new TabContentPanel(CraftConfig.bitSettings);
+    tabbedPane.addTab("Bit", new JScrollPane(bitSettingsPanel));
+    slicerSettingsPanel = new TabContentPanel(CraftConfig.slicerSettings);
+    tabbedPane.addTab("Slicer", new JScrollPane(slicerSettingsPanel));
+    assemblerSettingsPanel = new TabContentPanel(CraftConfig.assemblerSettings);
+    tabbedPane.addTab("Assembler", new JScrollPane(assemblerSettingsPanel));
+    xmlSettingsPanel = new TabContentPanel(CraftConfig.xmlSettings);
+    tabbedPane.addTab("XML", new JScrollPane(xmlSettingsPanel));
+    printerSettingsPanel = new TabContentPanel(CraftConfig.printerSettings);
+    tabbedPane.addTab("Printer", new JScrollPane(printerSettingsPanel));
 
-        JButton okButton = new JButton("Ok");
-        okButton.addActionListener(e -> {
-            JComponent comp = (JComponent) e.getSource();
-            CraftConfigLoader.saveConfig(null);
-            Window win = SwingUtilities.getWindowAncestor(comp);
-            win.dispose();
-        });
-        dummy.add(okButton);
+    // Default button
+    JPanel dummy = new JPanel();
+    add(dummy, BorderLayout.SOUTH);
+    dummy.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+    JButton resetDefault = new JButton("Reset to default value");
+    resetDefault.addActionListener(e -> reset());
+    dummy.add(resetDefault);
 
-        setLocationRelativeTo(null);
-        setVisible(false);
-    }
+    JButton okButton = new JButton("Ok");
+    okButton.addActionListener(e -> {
+      JComponent comp = (JComponent) e.getSource();
+      CraftConfigLoader.saveConfig(null);
+      Window win = SwingUtilities.getWindowAncestor(comp);
+      win.dispose();
+    });
+    dummy.add(okButton);
 
-    private void reset() {
-        bitSettingsPanel.reset();
-        slicerSettingsPanel.reset();
-        assemblerSettingsPanel.reset();
-        xmlSettingsPanel.reset();
-        printerSettingsPanel.reset();
-    }
+    setLocationRelativeTo(null);
+    setVisible(false);
+  }
 
-    private class TabContentPanel extends JPanel {
-        TabContentPanel(List<Field> fieldList) {
-            setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            setLayout(new GridLayout(0, 1, 5, 5));
-            setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+  private void reset() {
+    bitSettingsPanel.reset();
+    slicerSettingsPanel.reset();
+    assemblerSettingsPanel.reset();
+    xmlSettingsPanel.reset();
+    printerSettingsPanel.reset();
+  }
 
-            for (Field field : fieldList) {
-                if (field.isAnnotationPresent(DoubleSetting.class))
-                    add(new LabeledSpinner(field, field.getAnnotation(DoubleSetting.class)));
-                else if (field.isAnnotationPresent(FloatSetting.class))
-                    add(new LabeledSpinner(field, field.getAnnotation(FloatSetting.class)));
-                else if (field.isAnnotationPresent(IntegerSetting.class))
-                    add(new LabeledSpinner(field, field.getAnnotation(IntegerSetting.class)));
-                // TODO renderer of string setting
-            }
+  private class TabContentPanel extends JPanel {
+
+    TabContentPanel(List<Field> fieldList) {
+      setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      setLayout(new GridLayout(0, 1, 5, 5));
+      setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+
+      for (Field field : fieldList) {
+        if (field.isAnnotationPresent(DoubleSetting.class)) {
+          add(new LabeledSpinner(field, field.getAnnotation(DoubleSetting.class)));
+        } else if (field.isAnnotationPresent(FloatSetting.class)) {
+          add(new LabeledSpinner(field, field.getAnnotation(FloatSetting.class)));
+        } else if (field.isAnnotationPresent(IntegerSetting.class)) {
+          add(new LabeledSpinner(field, field.getAnnotation(IntegerSetting.class)));
         }
-
-        void reset() {
-            for (Component component : getComponents()) {
-                if (component instanceof LabeledSpinner)
-                    ((LabeledSpinner) component).reset();
-            }
-        }
+        // TODO renderer of string setting
+      }
     }
+
+    void reset() {
+      for (Component component : getComponents()) {
+        if (component instanceof LabeledSpinner) {
+          ((LabeledSpinner) component).reset();
+        }
+      }
+    }
+  }
 }

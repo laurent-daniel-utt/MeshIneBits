@@ -29,107 +29,116 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.config.patternParameter.PatternParameter;
-import meshIneBits.patterntemplates.PatternTemplate;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import meshIneBits.config.patternParameter.PatternParameter;
+import meshIneBits.patterntemplates.PatternTemplate;
 
 public class PatternComboBox extends JPanel {
-    private List<PatternTemplate> choices;
-    private Map<PatternTemplate, ImageIcon> iconMap = new HashMap<>();
-    private Map<PatternTemplate, String> descriptionMap = new HashMap<>();
-    private JLabel currentChoiceLabel = new JLabel();
-    private PatternTemplate currentChoice;
-    private JPopupMenu patternsPopupMenu;
-    private JButton choosingButton = new JButton(IconLoader.get("angle-down.png", 14, 14)) {
-        private final Dimension s = new Dimension(16, 16);
 
-        @Override
-        public Dimension getMinimumSize() {
-            return s;
-        }
+  private List<PatternTemplate> choices;
+  private Map<PatternTemplate, ImageIcon> iconMap = new HashMap<>();
+  private Map<PatternTemplate, String> descriptionMap = new HashMap<>();
+  private JLabel currentChoiceLabel = new JLabel();
+  private PatternTemplate currentChoice;
+  private JPopupMenu patternsPopupMenu;
+  private JButton choosingButton = new JButton(IconLoader.get("angle-down.png", 14, 14)) {
+    private final Dimension s = new Dimension(16, 16);
 
-        @Override
-        public Dimension getPreferredSize() {
-            return s;
-        }
-
-        @Override
-        public Dimension getMaximumSize() {
-            return s;
-        }
-    };
-    /**
-     * Location to show pattern parameters
-     */
-    private JPanel parametersPanel;
-
-    public PatternComboBox(List<PatternTemplate> choices, JPanel parametersPanel) {
-        this.choices = choices;
-        this.parametersPanel = parametersPanel;
-        this.setLayout(new FlowLayout(FlowLayout.TRAILING));
-        choices.forEach(patternTemplate -> {
-            iconMap.put(patternTemplate, IconLoader.get(patternTemplate.getIconName(), 30, 30));
-            descriptionMap.put(patternTemplate, getDescriptiveText(patternTemplate));
-        });
-        this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        this.add(currentChoiceLabel);
-        this.add(choosingButton);
-        choosingButton.addActionListener(e ->
-                patternsPopupMenu.show(
-                        choosingButton,
-                        0,
-                        choosingButton.getHeight() + 5)); // padding
-        this.patternsPopupMenu = new PatternsPopupMenu();
-        // Set default choice
-        setCurrentChoice(choices.get(0));
+    @Override
+    public Dimension getMinimumSize() {
+      return s;
     }
 
-    private String getDescriptiveText(PatternTemplate patternTemplate) {
-        return "<html><div>" +
-                "<p><strong>" + patternTemplate.getCommonName() + "</strong></p>" +
-                "<p>" + patternTemplate.getDescription() + "</p>" +
-                "<p><strong>How-To-Use</strong><br/>" + patternTemplate.getHowToUse() + "</p>" +
-                "</div></html>";
+    @Override
+    public Dimension getPreferredSize() {
+      return s;
     }
 
-    public PatternTemplate getCurrentChoice() {
-        return currentChoice;
+    @Override
+    public Dimension getMaximumSize() {
+      return s;
+    }
+  };
+  /**
+   * Location to show pattern parameters
+   */
+  private JPanel parametersPanel;
+
+  public PatternComboBox(List<PatternTemplate> choices, JPanel parametersPanel) {
+    this.choices = choices;
+    this.parametersPanel = parametersPanel;
+    this.setLayout(new FlowLayout(FlowLayout.TRAILING));
+    choices.forEach(patternTemplate -> {
+      iconMap.put(patternTemplate, IconLoader.get(patternTemplate.getIconName(), 30, 30));
+      descriptionMap.put(patternTemplate, getDescriptiveText(patternTemplate));
+    });
+    this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+    this.add(currentChoiceLabel);
+    this.add(choosingButton);
+    choosingButton.addActionListener(e ->
+        patternsPopupMenu.show(
+            choosingButton,
+            0,
+            choosingButton.getHeight() + 5)); // padding
+    this.patternsPopupMenu = new PatternsPopupMenu();
+    // Set default choice
+    setCurrentChoice(choices.get(0));
+  }
+
+  private String getDescriptiveText(PatternTemplate patternTemplate) {
+    return "<html><div>" +
+        "<p><strong>" + patternTemplate.getCommonName() + "</strong></p>" +
+        "<p>" + patternTemplate.getDescription() + "</p>" +
+        "<p><strong>How-To-Use</strong><br/>" + patternTemplate.getHowToUse() + "</p>" +
+        "</div></html>";
+  }
+
+  public PatternTemplate getCurrentChoice() {
+    return currentChoice;
+  }
+
+  public void setCurrentChoice(PatternTemplate currentChoice) {
+    this.currentChoice = currentChoice;
+    updateCurrentChoiceLabel();
+    updateParametersPanel(currentChoice);
+  }
+
+  private void updateParametersPanel(PatternTemplate patternTemplate) {
+    parametersPanel.removeAll();
+    for (PatternParameter paramConfig : patternTemplate.getPatternConfig()
+        .values()) {
+      parametersPanel.add(paramConfig.getRenderer());
+    }
+  }
+
+  private void updateCurrentChoiceLabel() {
+    this.currentChoiceLabel.setText(currentChoice.getCommonName());
+    this.currentChoiceLabel.setIcon(iconMap.get(currentChoice));
+    this.currentChoiceLabel.setToolTipText(descriptionMap.get(currentChoice));
+  }
+
+  private class PatternsPopupMenu extends JPopupMenu {
+
+    public PatternsPopupMenu() {
+      choices.forEach(this::addChoice);
     }
 
-    public void setCurrentChoice(PatternTemplate currentChoice) {
-        this.currentChoice = currentChoice;
-        updateCurrentChoiceLabel();
-        updateParametersPanel(currentChoice);
+    private void addChoice(PatternTemplate patternTemplate) {
+      JMenuItem newPatternChoice = new JMenuItem(patternTemplate.getCommonName());
+      newPatternChoice.setIcon(iconMap.get(patternTemplate));
+      add(newPatternChoice);
+      newPatternChoice.addActionListener(e -> setCurrentChoice(patternTemplate));
     }
-
-    private void updateParametersPanel(PatternTemplate patternTemplate) {
-        parametersPanel.removeAll();
-        for (PatternParameter paramConfig : patternTemplate.getPatternConfig().values()) {
-            parametersPanel.add(paramConfig.getRenderer());
-        }
-    }
-
-    private void updateCurrentChoiceLabel() {
-        this.currentChoiceLabel.setText(currentChoice.getCommonName());
-        this.currentChoiceLabel.setIcon(iconMap.get(currentChoice));
-        this.currentChoiceLabel.setToolTipText(descriptionMap.get(currentChoice));
-    }
-
-    private class PatternsPopupMenu extends JPopupMenu {
-        public PatternsPopupMenu() {
-            choices.forEach(this::addChoice);
-        }
-
-        private void addChoice(PatternTemplate patternTemplate) {
-            JMenuItem newPatternChoice = new JMenuItem(patternTemplate.getCommonName());
-            newPatternChoice.setIcon(iconMap.get(patternTemplate));
-            add(newPatternChoice);
-            newPatternChoice.addActionListener(e -> setCurrentChoice(patternTemplate));
-        }
-    }
+  }
 }

@@ -109,8 +109,8 @@ j  remixlab.dandelion.core.GenericFrame.visitCallback()V+8
 j  remixlab.proscene.Scene.visitFrame(Lremixlab/dandelion/core/GenericFrame;)V+23
 j  remixlab.dandelion.core.AbstractScene.traverseTree()V+31
 j  remixlab.proscene.Scene.drawFrames()V+9
-j  meshIneBits.gui.view3d.ProcessingModelView.lambda$draw$0()V+11
-j  meshIneBits.gui.view3d.ProcessingModelView$$Lambda$142.run()V+4
+j  meshIneBits.gui.view3d.oldversion.ProcessingModelView.lambda$draw$0()V+11
+j  meshIneBits.gui.view3d.oldversion.ProcessingModelView$$Lambda$142.run()V+4
 j  java.util.concurrent.ThreadPoolExecutor.runWorker(Ljava/util/concurrent/ThreadPoolExecutor$Worker;)V+95
 j  java.util.concurrent.ThreadPoolExecutor$Worker.run()V+5
 j  java.lang.Thread.run()V+11
@@ -141,8 +141,8 @@ j  remixlab.dandelion.core.GenericFrame.visitCallback()V+8
 j  remixlab.proscene.Scene.visitFrame(Lremixlab/dandelion/core/GenericFrame;)V+23
 j  remixlab.dandelion.core.AbstractScene.traverseTree()V+31
 j  remixlab.proscene.Scene.drawFrames()V+9
-j  meshIneBits.gui.view3d.ProcessingModelView.lambda$draw$0()V+11
-j  meshIneBits.gui.view3d.ProcessingModelView$$Lambda$142.run()V+4
+j  meshIneBits.gui.view3d.oldversion.ProcessingModelView.lambda$draw$0()V+11
+j  meshIneBits.gui.view3d.oldversion.ProcessingModelView$$Lambda$142.run()V+4
 j  java.util.concurrent.ThreadPoolExecutor.runWorker(Ljava/util/concurrent/ThreadPoolExecutor$Worker;)V+95
 j  java.util.concurrent.ThreadPoolExecutor$Worker.run()V+5
 j  java.lang.Thread.run()V+11

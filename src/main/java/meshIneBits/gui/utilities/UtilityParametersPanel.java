@@ -29,24 +29,25 @@
 
 package meshIneBits.gui.utilities;
 
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class UtilityParametersPanel extends JPanel{
+public class UtilityParametersPanel extends JPanel {
 
-    public UtilityParametersPanel(String title) {
-        super();
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
-                title);
-        titledBorder.setTitleJustification(TitledBorder.LEFT);
-        titledBorder.setTitleFont(new Font(this.getFont().toString(), Font.BOLD, 12));
-        titledBorder.setTitleColor(Color.GRAY);
-        this.setBorder(titledBorder);
+  public UtilityParametersPanel(String title) {
+    super();
+    TitledBorder titledBorder = BorderFactory.createTitledBorder(
+        BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK),
+        title);
+    titledBorder.setTitleJustification(TitledBorder.LEFT);
+    titledBorder.setTitleFont(new Font(this.getFont()
+        .toString(), Font.BOLD, 12));
+    titledBorder.setTitleColor(Color.GRAY);
+    this.setBorder(titledBorder);
 //        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"deletePanel");
 //        getActionMap().put("deletePanel", new AbstractAction() {
 //            @Override
@@ -54,17 +55,17 @@ public class UtilityParametersPanel extends JPanel{
 //                UtilityParametersPanel.this.setVisible(false);
 //            }
 //        });
-    }
+  }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(getWidth(), 100);
-    }
+  @Override
+  public Dimension getPreferredSize() {
+    return new Dimension(getWidth(), 100);
+  }
 
-    @Override
-    public Dimension getMinimumSize() {
-        return new Dimension(getWidth(), 100);
-    }
+  @Override
+  public Dimension getMinimumSize() {
+    return new Dimension(getWidth(), 100);
+  }
 
 
 }

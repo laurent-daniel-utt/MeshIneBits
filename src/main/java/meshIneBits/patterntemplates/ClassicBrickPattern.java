@@ -29,6 +29,11 @@
 
 package meshIneBits.patterntemplates;
 
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -38,151 +43,152 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
- * Simplest pattern possible: a grid with a rotation of 90° 1 layer on 2. There
- * is no auto-optimization implemented in this class.
+ * Simplest pattern possible: a grid with a rotation of 90° 1 layer on 2. There is no
+ * auto-optimization implemented in this class.
  */
 
 public class ClassicBrickPattern extends PatternTemplate {
-    //lengthBit can change
-    @Override
-    public Pavement pave(Layer layer) {
-        Area areaToPave = AreaTool.getAreaFrom(layer.getHorizontalSection());
-        Vector2[] p = calculatePatternStartEnd(areaToPave);
-        // layer with even index will have a 90° rotation
-        Collection<Bit2D> bits;
-        if (layer.getLayerNumber() % 2 == 0) {
-            bits = paveVertically(p[0], p[1]);
-        } else {
-            bits = paveHorizontally(p[0], p[1]);
-        }
-        return new Pavement(bits);
-    }
 
-    @Override
-    public Pavement pave(Layer layer, Area area) {
-        area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
-        Vector2[] p = calculatePatternStartEnd(area);
-
-        // layer with even index will have a 90° rotation
-        Collection<Bit2D> bits;
-        if (layer.getLayerNumber() % 2 == 0) {
-            bits = paveVertically(p[0], p[1]);
-        } else {
-            bits = paveHorizontally(p[0], p[1]);
-        }
-        Pavement pavement = new Pavement(bits);
-        pavement.computeBits(area);
-        return pavement;
+  //lengthBit can change
+  @Override
+  public Pavement pave(Layer layer) {
+    Area areaToPave = AreaTool.getAreaFrom(layer.getHorizontalSection());
+    Vector2[] p = calculatePatternStartEnd(areaToPave);
+    // layer with even index will have a 90° rotation
+    Collection<Bit2D> bits;
+    if (layer.getLayerNumber() % 2 == 0) {
+      bits = paveVertically(p[0], p[1]);
+    } else {
+      bits = paveHorizontally(p[0], p[1]);
     }
+    return new Pavement(bits);
+  }
 
-    private Vector2[] calculatePatternStartEnd(Area area) {
-        Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
-        Vector2 patternStart = new Vector2(bounds.x, bounds.y);
-        Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
-        return new Vector2[]{patternStart, patternEnd};
-    }
+  @Override
+  public Pavement pave(Layer layer, Area area) {
+    area.intersect(AreaTool.getAreaFrom(layer.getHorizontalSection()));
+    Vector2[] p = calculatePatternStartEnd(area);
 
-    /**
-     * Pave horizontally. Left to right, top to bottom
-     *
-     * @param patternStart
-     * @param patternEnd
-     * @return
-     */
-    private Collection<Bit2D> paveHorizontally(Vector2 patternStart, Vector2 patternEnd) {
-        // Setup parameters
-        double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
-        // Start
-        List<Bit2D> bits = new ArrayList<>();
-        Vector2 coo = patternStart.add(new Vector2(CraftConfig.lengthFull / 2, CraftConfig.bitWidth / 2));
-        int column = 0;
-        while (coo.x < patternEnd.x + CraftConfig.lengthFull / 2) {
-            while (coo.y < patternEnd.y + CraftConfig.bitWidth / 2) {
-                // every bits have no rotation in that template
-                bits.add(new Bit2D(coo, new Vector2(1, 0)));
-                coo = coo.add(new Vector2(0, CraftConfig.bitWidth + bitsOffset));
-            }
-            column++;
-            coo = new Vector2(patternStart.x + CraftConfig.lengthFull / 2 + (CraftConfig.lengthFull + bitsOffset) * column,
-                    patternStart.y + CraftConfig.bitWidth / 2);
-        }
-        return bits;
+    // layer with even index will have a 90° rotation
+    Collection<Bit2D> bits;
+    if (layer.getLayerNumber() % 2 == 0) {
+      bits = paveVertically(p[0], p[1]);
+    } else {
+      bits = paveHorizontally(p[0], p[1]);
     }
+    Pavement pavement = new Pavement(bits);
+    pavement.computeBits(area);
+    return pavement;
+  }
 
-    /**
-     * Pave vertically. Left to right, top to bottom
-     *
-     * @param patternStart
-     * @param patternEnd
-     * @return
-     */
-    private Collection<Bit2D> paveVertically(Vector2 patternStart, Vector2 patternEnd) {
-        // Setup parameters
-        double bitsOffset = (double) config.get("bitsOffset").getCurrentValue();
-        // Start
-        List<Bit2D> bits = new ArrayList<>();
-        Vector2 coo = patternStart.add(new Vector2(CraftConfig.bitWidth / 2, CraftConfig.lengthFull / 2));
-        int line = 0;
-        while (coo.y < patternEnd.y + CraftConfig.lengthFull / 2) {
-            while (coo.x < patternEnd.x + CraftConfig.bitWidth / 2) {
-                bits.add(new Bit2D(coo, new Vector2(0, 1)));
-                coo = coo.add(new Vector2(CraftConfig.bitWidth + bitsOffset, 0));
-            }
-            line++;
-            coo = new Vector2(patternStart.x + CraftConfig.bitWidth / 2,
-                    patternStart.y + CraftConfig.lengthFull / 2 + (CraftConfig.lengthFull + bitsOffset) * line);
-        }
-        return bits;
-    }
+  private Vector2[] calculatePatternStartEnd(Area area) {
+    Rectangle2D.Double bounds = (Rectangle2D.Double) area.getBounds2D();
+    Vector2 patternStart = new Vector2(bounds.x, bounds.y);
+    Vector2 patternEnd = new Vector2(bounds.x + bounds.width, bounds.y + bounds.height);
+    return new Vector2[]{patternStart, patternEnd};
+  }
 
-    @Override
-    public int optimize(Layer actualState) {
-        return -2;
+  /**
+   * Pave horizontally. Left to right, top to bottom
+   *
+   * @param patternStart
+   * @param patternEnd
+   * @return
+   */
+  private Collection<Bit2D> paveHorizontally(Vector2 patternStart, Vector2 patternEnd) {
+    // Setup parameters
+    double bitsOffset = (double) config.get("bitsOffset")
+        .getCurrentValue();
+    // Start
+    List<Bit2D> bits = new ArrayList<>();
+    Vector2 coo = patternStart.add(
+        new Vector2(CraftConfig.lengthFull / 2, CraftConfig.bitWidth / 2));
+    int column = 0;
+    while (coo.x < patternEnd.x + CraftConfig.lengthFull / 2) {
+      while (coo.y < patternEnd.y + CraftConfig.bitWidth / 2) {
+        // every bits have no rotation in that template
+        bits.add(new Bit2D(coo, new Vector2(1, 0)));
+        coo = coo.add(new Vector2(0, CraftConfig.bitWidth + bitsOffset));
+      }
+      column++;
+      coo = new Vector2(patternStart.x + CraftConfig.lengthFull / 2
+          + (CraftConfig.lengthFull + bitsOffset) * column,
+          patternStart.y + CraftConfig.bitWidth / 2);
     }
+    return bits;
+  }
 
-    @Override
-    public String getCommonName() {
-        return "Classic Brick Pattern";
+  /**
+   * Pave vertically. Left to right, top to bottom
+   *
+   * @param patternStart
+   * @param patternEnd
+   * @return
+   */
+  private Collection<Bit2D> paveVertically(Vector2 patternStart, Vector2 patternEnd) {
+    // Setup parameters
+    double bitsOffset = (double) config.get("bitsOffset")
+        .getCurrentValue();
+    // Start
+    List<Bit2D> bits = new ArrayList<>();
+    Vector2 coo = patternStart.add(
+        new Vector2(CraftConfig.bitWidth / 2, CraftConfig.lengthFull / 2));
+    int line = 0;
+    while (coo.y < patternEnd.y + CraftConfig.lengthFull / 2) {
+      while (coo.x < patternEnd.x + CraftConfig.bitWidth / 2) {
+        bits.add(new Bit2D(coo, new Vector2(0, 1)));
+        coo = coo.add(new Vector2(CraftConfig.bitWidth + bitsOffset, 0));
+      }
+      line++;
+      coo = new Vector2(patternStart.x + CraftConfig.bitWidth / 2,
+          patternStart.y + CraftConfig.lengthFull / 2
+              + (CraftConfig.lengthFull + bitsOffset) * line);
     }
+    return bits;
+  }
 
-    @Override
-    public String getIconName() {
-        return "pattern-classic-brick.png";
-    }
+  @Override
+  public int optimize(Layer actualState) {
+    return -2;
+  }
 
-    @Override
-    public String getDescription() {
-        return "The simplest pattern: a grid with a rotation of 90° on odd index layer. "
-                + "There is no auto-optimization implemented in this class.";
-    }
+  @Override
+  public String getCommonName() {
+    return "Classic Brick Pattern";
+  }
 
-    @Override
-    public String getHowToUse() {
-        return "Choose the gap you desire.";
-    }
+  @Override
+  public String getIconName() {
+    return "pattern-classic-brick.png";
+  }
 
-    @Override
-    public boolean ready(Mesh mesh) {
-        return true;
-    }
+  @Override
+  public String getDescription() {
+    return "The simplest pattern: a grid with a rotation of 90° on odd index layer. "
+        + "There is no auto-optimization implemented in this class.";
+  }
 
-    @Override
-    public void initiateConfig() {
-        // This template only need the distance between bits
-        config.add(new DoubleParam(
-                "bitsOffset",
-                "Space between bits",
-                "The horizontal and vertical gap in mm",
-                1.0,
-                100.0,
-                3.0,
-                1.0));
-    }
+  @Override
+  public String getHowToUse() {
+    return "Choose the gap you desire.";
+  }
+
+  @Override
+  public boolean ready(Mesh mesh) {
+    return true;
+  }
+
+  @Override
+  public void initiateConfig() {
+    // This template only need the distance between bits
+    config.add(new DoubleParam(
+        "bitsOffset",
+        "Space between bits",
+        "The horizontal and vertical gap in mm",
+        1.0,
+        100.0,
+        3.0,
+        1.0));
+  }
 }

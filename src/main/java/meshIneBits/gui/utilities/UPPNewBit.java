@@ -29,119 +29,128 @@
 
 package meshIneBits.gui.utilities;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 import meshIneBits.gui.view2d.MeshAction;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.gui.view2d.MeshToggleAction;
-import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
-
-import javax.swing.*;
-import java.awt.*;
 
 public class UPPNewBit extends UtilityParametersPanel {
-    public UPPNewBit(MeshController meshController) {
-        super("Add new bit");
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.LINE_START;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.insets = new Insets(0, 0, 0, 5);
-        c.gridheight = 1;
-        c.gridwidth = 1;
-        c.gridy = 0;
-        c.gridx = -1;
 
-        MeshToggleAction toggleAddingBits = new MeshToggleAction(
-                "addBits",
-                "Toggle select positions",
-                "selection-tool.png",
-                "Enable/Disable bit adding mode",
-                "",
-                meshController,
-                MeshController.ADDING_BITS
-        );
-        ToggleIcon addingBitsBtn = new ToggleIcon(toggleAddingBits);
-        c.gridx++;
-        add(addingBitsBtn, c);
+  public UPPNewBit(MeshController meshController) {
+    super("Add new bit");
+    setLayout(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.fill = GridBagConstraints.NONE;
+    c.anchor = GridBagConstraints.LINE_START;
+    c.weightx = 0;
+    c.weighty = 0;
+    c.insets = new Insets(0, 0, 0, 5);
+    c.gridheight = 1;
+    c.gridwidth = 1;
+    c.gridy = 0;
+    c.gridx = -1;
 
-        LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(meshController.getNewBitsOrientationParam());
-        c.gridx++;
-        add(newBitsOrientationSpinner, c);
+    MeshToggleAction toggleAddingBits = new MeshToggleAction(
+        "addBits",
+        "Toggle select positions",
+        "selection-tool.png",
+        "Enable/Disable bit adding mode",
+        "",
+        meshController,
+        MeshController.ADDING_BITS
+    );
+    ToggleIcon addingBitsBtn = new ToggleIcon(toggleAddingBits);
+    c.gridx++;
+    add(addingBitsBtn, c);
 
-        c.gridx++;
-        add(meshController.getSafeguardSpaceParam().getRenderer(), c);
+    LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(
+        meshController.getNewBitsOrientationParam());
+    c.gridx++;
+    add(newBitsOrientationSpinner, c);
 
-        c.gridx++;
-        add(meshController.getAutocropParam().getRenderer(), c);
+    c.gridx++;
+    add(meshController.getSafeguardSpaceParam()
+        .getRenderer(), c);
 
-        c.gridx++;
-        add(meshController.getProhibitAddingIrregularBitParam().getRenderer(), c);
+    c.gridx++;
+    add(meshController.getAutocropParam()
+        .getRenderer(), c);
 
-        JLabel bitLabel = new JLabel("Bit types: ");
-        c.gridx++;
-        add(bitLabel, c);
+    c.gridx++;
+    add(meshController.getProhibitAddingIrregularBitParam()
+        .getRenderer(), c);
 
-        ButtonGroup bitTypes = new ButtonGroup();
+    JLabel bitLabel = new JLabel("Bit types: ");
+    c.gridx++;
+    add(bitLabel, c);
 
-        ToggleIcon fullbit = new ToggleIcon(new MeshAction(
-                "addFullBit",
-                "Add a full bit",
-                "bit-restore.png",
-                "New bit to add will have full width and height",
-                "",
-                () -> meshController.setNewBitSize(100, 100)
-        ));
-        c.gridx++;
-        add(fullbit, c);
-        bitTypes.add(fullbit);
+    ButtonGroup bitTypes = new ButtonGroup();
 
-        ToggleIcon halfwidthbit = new ToggleIcon(new MeshAction(
-                "addHalfWidthBit",
-                "Add a bit with half width",
-                "bit-half-width.png",
-                "New bit to add will have half width and full length",
-                "",
-                () -> meshController.setNewBitSize(100, 50)
-        ));
-        c.gridx++;
-        add(halfwidthbit, c);
-        bitTypes.add(halfwidthbit);
+    ToggleIcon fullbit = new ToggleIcon(new MeshAction(
+        "addFullBit",
+        "Add a full bit",
+        "bit-restore.png",
+        "New bit to add will have full width and height",
+        "",
+        () -> meshController.setNewBitSize(100, 100)
+    ));
+    c.gridx++;
+    add(fullbit, c);
+    bitTypes.add(fullbit);
 
-        ToggleIcon halflengthbit = new ToggleIcon(new MeshAction(
-                "addHalfLengthBit",
-                "Add a bit with half length",
-                "bit-half-length.png",
-                "New bit to add will have half length and full width",
-                "",
-                () -> meshController.setNewBitSize(50, 100)
-        ));
-        c.gridx++;
-        add(halflengthbit, c);
-        bitTypes.add(halflengthbit);
+    ToggleIcon halfwidthbit = new ToggleIcon(new MeshAction(
+        "addHalfWidthBit",
+        "Add a bit with half width",
+        "bit-half-width.png",
+        "New bit to add will have half width and full length",
+        "",
+        () -> meshController.setNewBitSize(100, 50)
+    ));
+    c.gridx++;
+    add(halfwidthbit, c);
+    bitTypes.add(halfwidthbit);
 
-        ToggleIcon quartbit = new ToggleIcon(new MeshAction(
-                "addQuartBit",
-                "Add a quart of bit",
-                "bit-quart.png",
-                "New bit to add will have half length and half width",
-                "",
-                () -> meshController.setNewBitSize(50, 50)
-        ));
-        c.gridx++;
-        add(quartbit, c);
-        bitTypes.add(quartbit);
+    ToggleIcon halflengthbit = new ToggleIcon(new MeshAction(
+        "addHalfLengthBit",
+        "Add a bit with half length",
+        "bit-half-length.png",
+        "New bit to add will have half length and full width",
+        "",
+        () -> meshController.setNewBitSize(50, 100)
+    ));
+    c.gridx++;
+    add(halflengthbit, c);
+    bitTypes.add(halflengthbit);
 
-        // Dummy panel
-        JPanel dummy = new JPanel();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-        c.gridx++;
-        add(dummy, c);
-    }
+    ToggleIcon quartbit = new ToggleIcon(new MeshAction(
+        "addQuartBit",
+        "Add a quart of bit",
+        "bit-quart.png",
+        "New bit to add will have half length and half width",
+        "",
+        () -> meshController.setNewBitSize(50, 50)
+    ));
+    c.gridx++;
+    add(quartbit, c);
+    bitTypes.add(quartbit);
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(getWidth(), 70);
-    }
+    // Dummy panel
+    JPanel dummy = new JPanel();
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.weightx = 1;
+    c.gridx++;
+    add(dummy, c);
+  }
+
+  @Override
+  public Dimension getPreferredSize() {
+    return new Dimension(getWidth(), 70);
+  }
 }

@@ -29,71 +29,77 @@
 
 package meshIneBits.gui.view2d;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.border.EmptyBorder;
 import meshIneBits.util.Logger;
 import meshIneBits.util.LoggingInterface;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-
 public class StatusBar extends JPanel implements LoggingInterface {
-    private static final long serialVersionUID = 1L;
-    private JLabel statusLabel;
-    private JProgressBar progressBar;
 
-    public StatusBar() {
-        // Visual options
-        setBackground(Color.white);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
-        setPreferredSize(new Dimension(getWidth(), 20));
-        setLayout(new BorderLayout());
+  private static final long serialVersionUID = 1L;
+  private JLabel statusLabel;
+  private JProgressBar progressBar;
 
-        // Setting up
-        Logger.register(this);
+  public StatusBar() {
+    // Visual options
+    setBackground(Color.white);
+    setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), new EmptyBorder(3, 3, 3, 3)));
+    setPreferredSize(new Dimension(getWidth(), 20));
+    setLayout(new BorderLayout());
 
-        progressBar = new JProgressBar(0, 2);
-        progressBar.setVisible(false);
+    // Setting up
+    Logger.register(this);
 
-        statusLabel = new JLabel("Ready");
-        statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
+    progressBar = new JProgressBar(0, 2);
+    progressBar.setVisible(false);
 
-        add(statusLabel, BorderLayout.WEST);
-        add(progressBar, BorderLayout.EAST);
+    statusLabel = new JLabel("Ready");
+    statusLabel.setMinimumSize(new Dimension(200, statusLabel.getHeight()));
+
+    add(statusLabel, BorderLayout.WEST);
+    add(progressBar, BorderLayout.EAST);
+  }
+
+  @Override
+  public void error(String error) {
+    statusLabel.setText("ERROR: " + error);
+  }
+
+  @Override
+  public void message(String message) {
+    statusLabel.setText(message);
+  }
+
+  @Override
+  public void setProgress(int value, int max) {
+    if (value >= max) {
+      progressBar.setVisible(false);
+    } else {
+      progressBar.setVisible(true);
+      progressBar.setValue(value);
+      progressBar.setMaximum(max);
     }
+    StatusBar.this.repaint();
+  }
 
-    @Override
-    public void error(String error) {
-        statusLabel.setText("ERROR: " + error);
-    }
+  @Override
+  public void updateStatus(String status) {
+    statusLabel.setText(status);
+  }
 
-    @Override
-    public void message(String message) {
-        statusLabel.setText(message);
-    }
+  @Override
+  public void warning(String warning) {
+    statusLabel.setText("WARNING: " + warning);
+  }
 
-    @Override
-    public void setProgress(int value, int max) {
-        if (value >= max) {
-            progressBar.setVisible(false);
-        } else {
-            progressBar.setVisible(true);
-            progressBar.setValue(value);
-            progressBar.setMaximum(max);
-        }
-        StatusBar.this.repaint();
-    }
-
-    @Override
-    public void updateStatus(String status) {
-        statusLabel.setText(status);
-    }
-
-    @Override
-    public void warning(String warning) {
-        statusLabel.setText("WARNING: " + warning);
-    }
-
-    public Dimension getMinimumSize() {
-        return new Dimension(getWidth(), 20);
-    }
+  public Dimension getMinimumSize() {
+    return new Dimension(getWidth(), 20);
+  }
 }
