@@ -264,7 +264,7 @@ public class EconomicPattern extends PatternTemplate {
               // First, we need to recover the space
               // taken by last band
               double lastY = lastBand.firstElement()
-                  .getOrigin().y - CraftConfig.bitWidth / 2;
+                  .getOriginCS().y - CraftConfig.bitWidth / 2;
               Double lastlyPavedSpaceRect = new Double(zoneOuterRect.x, lastY,
                   zoneOuterRect.width, unpavedZoneRect.y - lastY);
               Area lastlyPavedSpace = new Area(lastlyPavedSpaceRect);
@@ -365,7 +365,7 @@ public class EconomicPattern extends PatternTemplate {
         }
         Bit2D newBit = new Bit2D(origin, new Vector2(1, 0), thisBitLength, bandWidth);
         // Update the area of the bit
-        Area newBitArea = newBit.getArea();
+        Area newBitArea = newBit.getAreaCS();
         newBitArea.intersect(unpavedSpace);
         if (newBitArea.isEmpty()) {
           // If no space left,
@@ -408,7 +408,7 @@ public class EconomicPattern extends PatternTemplate {
                 // Else, we recover the space taken
                 // by the last bit
                 // Note: we must include the skipped space
-                double lastX = lastBit.getOrigin().x - CraftConfig.lengthFull / 2;
+                double lastX = lastBit.getOriginCS().x - CraftConfig.lengthFull / 2;
                 Double lastPavedSpaceRect = new Double(lastX, bandOuterRect.y,
                     unpavedSpaceRect.x - lastX, bandWidth);
                 Area lastlyPavedSpace = new Area(lastPavedSpaceRect);

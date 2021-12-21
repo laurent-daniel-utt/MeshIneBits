@@ -68,7 +68,7 @@ public class DataLogEntry {
    * @param associatedPoints the points associated to the bit.
    */
   public DataLogEntry(@NotNull Bit2D bit2D, Vector<Vector2> associatedPoints) {
-    this.bitPosition = bit2D.getOrigin();
+    this.bitPosition = bit2D.getOriginCS();
     this.bitOrientation = bit2D.getOrientation();
     this.associatedPoints = associatedPoints;
   }

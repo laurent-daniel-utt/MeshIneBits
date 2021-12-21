@@ -1,10 +1,12 @@
 package meshIneBits.gui.view3d.provider;
 
+import java.util.Collection;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.builder.AssemblyWorkingSpaceBuilder;
+import meshIneBits.gui.view3d.builder.SubBitShape;
 import meshIneBits.gui.view3d.util.AlternatingColorPaintPattern;
 import meshIneBits.gui.view3d.animation.AnimationShape;
 import meshIneBits.gui.view3d.builder.BitShape;
@@ -75,15 +77,23 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
       case BY_BATCH:
         Vector<PShape> batchShapes = new Vector<>();
         for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-          if (bitShape.getBatchId() >= batchShapes.size()
-              || batchShapes.get(bitShape.getBatchId()) == null) {
-            batchShapes.add(bitShape.getBatchId(), context.createShape(PConstants.GROUP));
+          for(SubBitShape subBitShape : bitShape.getSubBitShapes()){
+            if (subBitShape.getBatchId() >= batchShapes.size()
+                || batchShapes.get(subBitShape.getBatchId()) == null) {
+              batchShapes.add(subBitShape.getBatchId(), context.createShape(PConstants.GROUP));
+            }
+            batchShapes.get(subBitShape.getBatchId()).addChild(subBitShape.getShape());
           }
-          batchShapes.get(bitShape.getBatchId()).addChild(bitShape.getShape());
         }
         return new AnimationShape(batchShapes);
       case BY_SUB_BIT:
-        return null;
+        Vector<PShape> subBitShapes = meshPavedResult.getBitShapes()
+            .stream()
+            .map(BitShape::getSubBitShapes)
+            .flatMap(Collection::stream)
+            .map(SubBitShape::getShape)
+            .collect(Collectors.toCollection(Vector::new));
+        return new AnimationShape(subBitShapes);
       case BY_LAYER:
       default:
         Vector<PShape> layerShapes = new Vector<>();

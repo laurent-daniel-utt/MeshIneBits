@@ -5,6 +5,7 @@ import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ANIMATION_SLICER;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BATCH;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BIT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_LAYER;
+import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_SUB_BIT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.EXPORT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.FULL;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ONE_BY_ONE;
@@ -29,6 +30,7 @@ public class UIPWAnimation extends UIParameterWindow implements
 
   private Button animation;
   private Button export;
+  private Toggle toggleSubBit;
   private Toggle toggleBits;
   private Toggle toggleBatch;
   private Toggle toggleLayers;
@@ -79,6 +81,22 @@ public class UIPWAnimation extends UIParameterWindow implements
         .setColorLabel(255)
         .setFont(font);
 
+    toggleSubBit = getControl().addToggle(BY_SUB_BIT)
+        .setSize(20, 20)
+        .setColorBackground(color(255, 250))
+        .setColorActive(color)
+        .setColorForeground(color + 50)
+        .setLabel(BY_SUB_BIT)
+        .setFont(font)
+        .onClick((e) -> {
+          if (e.getController()
+              .getValue() == 1.0) {
+            toggleLayers.setState(false);
+            toggleBatch.setState(false);
+            toggleBits.setState(false);
+          }
+        });
+
     toggleBits = getControl().addToggle(BY_BIT)
         .setSize(20, 20)
         .setColorBackground(color(255, 250))
@@ -91,6 +109,7 @@ public class UIPWAnimation extends UIParameterWindow implements
               .getValue() == 1.0) {
             toggleLayers.setState(false);
             toggleBatch.setState(false);
+            toggleSubBit.setState(false);
           }
         });
 
@@ -106,6 +125,7 @@ public class UIPWAnimation extends UIParameterWindow implements
               .getValue() == 1.0) {
             toggleLayers.setState(false);
             toggleBits.setState(false);
+            toggleSubBit.setState(false);
           }
         });
 
@@ -121,6 +141,7 @@ public class UIPWAnimation extends UIParameterWindow implements
               .getValue() == 1.0) {
             toggleBits.setState(false);
             toggleBatch.setState(false);
+            toggleSubBit.setState(false);
           }
         });
     toggleLayers.setState(true);
@@ -267,7 +288,8 @@ public class UIPWAnimation extends UIParameterWindow implements
   }
 
   private void initComponentPosition() {
-    animation.setPosition(0.09f * width, 0.25f * height);
+    animation.setPosition(0.09f * width, 0.20f * height);
+    toggleSubBit.setPosition(0.09f * width, 0.25f * height);
     toggleBits.setPosition(0.09f * width, 0.3f * height);
     toggleBatch.setPosition(0.09f * width, 0.35f * height);
     toggleLayers.setPosition(0.09f * width, 0.4f * height);
@@ -317,6 +339,7 @@ public class UIPWAnimation extends UIParameterWindow implements
   @Override
   public void controlEvent(ControlEvent theEvent) {
     switch (theEvent.getName()) {
+      case BY_SUB_BIT:
       case BY_BIT:
       case BY_BATCH:
       case BY_LAYER:
@@ -365,6 +388,7 @@ public class UIPWAnimation extends UIParameterWindow implements
   }
 
   private void updateComponent() {
+    toggleSubBit.setVisible(!animating);
     toggleBits.setVisible(!animating);
     toggleBatch.setVisible(!animating);
     toggleLayers.setVisible(!animating);

@@ -2,9 +2,10 @@ package meshIneBits.gui.view3d.util;
 
 import java.awt.Color;
 import java.util.Vector;
-import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
 import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.builder.BitShape;
+import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
+import meshIneBits.gui.view3d.builder.SubBitShape;
 
 public class AlternatingColorPaintPattern implements IPaintShapePattern {
 
@@ -29,10 +30,12 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
         break;
       case BY_BATCH:
         for (BitShape bitShape : bitShapes) {
-          if (bitShape.getBatchId()%2==0) {
-            bitShape.getShape().setFill(color1.getRGB());
-          } else {
-            bitShape.getShape().setFill(color2.getRGB());
+          for (SubBitShape subBitShape : bitShape.getSubBitShapes()) {
+            if (subBitShape.getBatchId() % 2 == 0) {
+              subBitShape.getShape().setFill(color1.getRGB());
+            } else {
+              subBitShape.getShape().setFill(color2.getRGB());
+            }
           }
         }
         break;

@@ -70,7 +70,7 @@ public class DetectorTool {
    * @return <tt>true</tt> if this bit is irregular, <tt>false</tt> otherwise.
    */
   public static boolean checkIrregular(Bit2D bit) {
-    return checkIrregular(bit.getArea());
+    return checkIrregular(bit.getAreaCS());
   }
 
   public static boolean checkIrregular(Bit3D bit3D) {

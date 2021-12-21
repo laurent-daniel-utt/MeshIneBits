@@ -44,7 +44,6 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.scheduler.BasicScheduler;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
@@ -79,7 +78,7 @@ public class XmlTool2 {
 
   private boolean liftableBit(Bit3D bit) {
     int liftableSubBit = 0;
-    for (Vector2 p : bit.getRawLiftPoints()) {
+    for (Vector2 p : bit.getLiftPointsCB()) {
       if (p != null) {
         liftableSubBit++;
       }
@@ -135,18 +134,18 @@ public class XmlTool2 {
       writer.println("		</return>");
       remainingBits = nbBits;
     }
-    for (int i = 0; i < bit.getLiftPoints()
+    for (int i = 0; i < bit.getLiftPointsCS()
         .size(); i++) {
-      if (bit.getLiftPoints()
+      if (bit.getLiftPointsCS()
           .get(i) != null) {
         if (id == 0) {
           writer.println("		<goTo>");
-          currentPos = bit.getLiftPoints()
+          currentPos = bit.getLiftPointsCS()
               .get(i).x + effectiveWidth / 2;
           writer.println("			<x>" + currentPos + "</x>");
           writer.println("		</goTo>");
         } else {
-          if (Math.abs(bit.getLiftPoints()
+          if (Math.abs(bit.getLiftPointsCS()
               .get(i).x - currentPos) > effectiveWidth / 2) {
             currentPos += effectiveWidth;
             writer.println("		<goTo>");
@@ -175,8 +174,8 @@ public class XmlTool2 {
 //        for (Path2D p : cutPaths) {
 //            writeCutPaths(p);
 //        }
-    if (bit.getRawCutPaths() != null) {
-      for (Path2D p : bit.getRawCutPaths()) {
+    if (bit.getCutPathsCB() != null) {
+      for (Path2D p : bit.getCutPathsCB()) {
         writeCutPaths(p);
       }
     }
@@ -230,7 +229,7 @@ public class XmlTool2 {
           .get(layer.getLayerNumber());
       int startIndex = scheduler.getBitIndex(startBit);
       System.out.println(layer.getLayerNumber());
-      int endIndex = ((BasicScheduler) scheduler).filterBits(layer.sortBits())
+      int endIndex = scheduler.filterBits(layer.sortBits())
           .size();
       System.out.println(startIndex + "-" + endIndex);
       System.out.println("size of sortedBit" + scheduler.getSortedBits()
@@ -247,15 +246,15 @@ public class XmlTool2 {
         Bit3D bit = Bits3DKeys.get(i)
             .getKey();
 // translating the bits - they are generated at the origin of the world coordinate system;
-        for (int j = 0; j < bit.getRawLiftPoints()
+        for (int j = 0; j < bit.getLiftPointsCB()
             .size(); j++) {
-          if (bit.getRawLiftPoints()
+          if (bit.getLiftPointsCB()
               .get(j) != null) {
-            double oldX = bit.getLiftPoints()
+            double oldX = bit.getLiftPointsCS()
                 .get(j).x;
-            double oldY = bit.getLiftPoints()
+            double oldY = bit.getLiftPointsCS()
                 .get(j).y;
-            bit.getLiftPoints()
+            bit.getLiftPointsCS()
                 .set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
           }
         }
@@ -269,30 +268,30 @@ public class XmlTool2 {
   }
 
   private void writeSubBits(Bit3D bit) {
-    for (int id = 0; id < bit.getRawLiftPoints()
+    for (int id = 0; id < bit.getLiftPointsCB()
         .size(); id++) {
-      if (bit.getRawLiftPoints()
+      if (bit.getLiftPointsCB()
           .get(id) != null) {
         writer.println("			<subBit>");
         writer.println("			    <id>" + part.getScheduler()
             .getBitIndex(bit) + "</id>");
         writer.println("			    <batch>" + part.getScheduler()
-            .getSubBitBatch(bit) + "</batch>");
+            .getBitBatch(bit) + "</batch>");
         writer.println("			    <plate>" + part.getScheduler()
-            .getSubBitPlate(bit) + "</plate>");
+            .getBitPlate(bit) + "</plate>");
         writer.println("				<liftPoint>");
-        writer.println("					<x>" + bit.getRawLiftPoints()
+        writer.println("					<x>" + bit.getLiftPointsCB()
             .get(id).x + "</x>");
-        writer.println("					<y>" + bit.getRawLiftPoints()
+        writer.println("					<y>" + bit.getLiftPointsCB()
             .get(id).y + "</y>");
         writer.println("				</liftPoint>");
         writer.println(
             "				<rotation>" + bit.getOrientation()
                 .getEquivalentAngle() + "</rotation>");
         writer.println("				<position>");
-        writer.println("					<x>" + bit.getLiftPoints()
+        writer.println("					<x>" + bit.getLiftPointsCS()
             .get(id).x + "</x>");
-        writer.println("					<y>" + bit.getLiftPoints()
+        writer.println("					<y>" + bit.getLiftPointsCS()
             .get(id).y + "</y>");
         writer.println("				</position>");
         writer.println("			</subBit>");

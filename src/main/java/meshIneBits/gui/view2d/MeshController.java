@@ -55,6 +55,7 @@ import meshIneBits.Layer;
 import meshIneBits.M;
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
+import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
@@ -361,7 +362,7 @@ public class MeshController extends Observable implements Observer,
         .forEach(key -> availableArea.subtract(
             AreaTool.expand(
                 pavement.getBit(key)
-                    .getArea(), // in real
+                    .getAreaCS(), // in real
                 safeguardSpaceParam.getCurrentValue())
         ));
   }
@@ -654,7 +655,7 @@ public class MeshController extends Observable implements Observer,
     Set<Vector2> resultKey = new HashSet<>();
     resultKey.add(origin);
     //add new bit
-    Bit2D newBit = new Bit2D(origin, lOrientation,
+    Bit2D newBit = new NewBit2D(origin, lOrientation,
         newBitsLengthParam.getCurrentValue(),
         newBitsWidthParam.getCurrentValue());
     newBit.setCheckFullLength(true);
@@ -690,7 +691,7 @@ public class MeshController extends Observable implements Observer,
     Pavement flatPavement = getCurrentLayer().getFlatPavement();
     for (Vector2 key : flatPavement.getBitsKeys()) {
       if (flatPavement.getBit(key)
-          .getArea()
+          .getAreaCS()
           .contains(position)) {
         return key;
       }
@@ -777,7 +778,7 @@ public class MeshController extends Observable implements Observer,
     Pavement flatPavement = getCurrentLayer().getFlatPavement();
     for (Vector2 key : flatPavement.getBitsKeys()) {
       if (bulkSelectZone.contains(flatPavement.getBit(key)
-          .getArea()
+          .getAreaCS()
           .getBounds2D())) {
         selectedBitKeys.add(key);
       }

@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.BooleanParam;
@@ -1571,7 +1572,7 @@ public class UnitSquarePattern extends PatternTemplate {
         Vector2 bitOrientation = this.getBitOrientation();
         String floatingPosition = this.getBitFloatingPosition();
         Vector2 bitOrigin = this.getBitOrigin(bitOrientation, floatingPosition);
-        Bit2D bit = new Bit2D(bitOrigin, bitOrientation);
+        Bit2D bit = new NewBit2D(bitOrigin, bitOrientation);
 
         Area bitLimArea = this.getLimArea(floatingPosition, bitOrientation);
         Area polyominoArea = this.getUnitedArea();

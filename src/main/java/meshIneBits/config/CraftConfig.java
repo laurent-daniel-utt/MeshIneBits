@@ -43,6 +43,7 @@ import meshIneBits.patterntemplates.ManualPattern;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.patterntemplates.UnitSquarePattern;
 import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.AdvancedScheduler;
 import meshIneBits.scheduler.BasicScheduler;
 
 /**
@@ -431,7 +432,7 @@ public class CraftConfig {
    * The provided templates
    */
   public static AScheduler[] schedulerPreloaded = {
-      new BasicScheduler(),
+      new AdvancedScheduler(),
   };
 
   public static List<Field> settings = new ArrayList<>();

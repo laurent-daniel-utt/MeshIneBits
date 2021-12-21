@@ -165,7 +165,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     //batch Number
     Element batchNumber = createElement(MeshTagXML.BATCH_NUMBER,
         Integer.toString(mMesh.getScheduler()
-            .getSubBitBatch(listBitByBatch.get(0))));
+            .getBitBatch(listBitByBatch.get(0))));
     batchElement.appendChild(batchNumber);
 
     //Count Bits
@@ -214,15 +214,15 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     for (Bit3D bit3D : listBitLayer) {
       // translating the bits - they are generated at the origin of the world coordinate system;
-      for (int j = 0; j < bit3D.getRawLiftPoints()
+      for (int j = 0; j < bit3D.getLiftPointsCB()
           .size(); j++) {
-        if (bit3D.getRawLiftPoints()
+        if (bit3D.getLiftPointsCB()
             .get(j) != null) {
-          double oldX = bit3D.getLiftPoints()
+          double oldX = bit3D.getLiftPointsCS()
               .get(j).x;
-          double oldY = bit3D.getLiftPoints()
+          double oldY = bit3D.getLiftPointsCS()
               .get(j).y;
-          bit3D.getLiftPoints()
+          bit3D.getLiftPointsCS()
               .set(j, new Vector2(oldX + modelTranslation.x, oldY + modelTranslation.y));
         }
       }
@@ -243,9 +243,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       moveWorkingSpace.appendChild(createElement(MeshTagXML.RETURN));
       remainingBits = CraftConfig.nbBits;
     }
-    for (int i = 0; i < bit.getLiftPoints()
+    for (int i = 0; i < bit.getLiftPointsCS()
         .size(); i++) {
-      if (bit.getLiftPoints()
+      if (bit.getLiftPointsCS()
           .get(i) != null) {
         //init safetySpace use
         double safetySpace = CraftConfig.bitWidth / 2;
@@ -296,11 +296,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             .getBitIndex(bit3D)));
     elementBit.appendChild(bitId);
     //Cut bit element
-    Element cut = bit3D.getRawCutPaths()
+    Element cut = bit3D.getCutPathsCB()
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
     prepareBitToExport(bit3D);
-    for (Path2D cutPath : bit3D.getRawCutPaths()) {
+    for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
     }
@@ -323,7 +323,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
 //        Vector<Vector2> listTwoPoints = bit3D.getListTwoDistantPoints();
     Vector<Vector<Vector2>> listTwoPoints = bit3D.getListTwoDistantPoints();
-    for (int i = 0; i < bit3D.getRawLiftPoints()
+    for (int i = 0; i < bit3D.getLiftPointsCB()
         .size(); i++) {
       //Subit element i
       Element subBit = createElement(MeshTagXML.SUB_BIT);
@@ -335,7 +335,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       //subBit's plate
       Element plate = createElement(MeshTagXML.PLATE,
           Integer.toString(mMesh.getScheduler()
-              .getSubBitPlate(bit3D)));
+              .getBitPlate(bit3D)));
       subBit.appendChild(plate);
 
       //subBit's slot
@@ -350,10 +350,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
       //LiftPoint's position in Bit coordinate system
       Element xInBit = createElement(MeshTagXML.COORDINATE_X,
-          Double.toString(bit3D.getRawLiftPoints()
+          Double.toString(bit3D.getLiftPointsCB()
               .get(i).x));
       Element yInBit = createElement(MeshTagXML.COORDINATE_Y,
-          Double.toString(bit3D.getRawLiftPoints()
+          Double.toString(bit3D.getLiftPointsCB()
               .get(i).y));
       liftPoint.appendChild(xInBit);
       liftPoint.appendChild(yInBit);
@@ -367,9 +367,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
       //LiftPoint's position in Mesh coordinate system
       Element positionSubBit = createElement(MeshTagXML.POSITION_MESH_COORDINATE);
-      double xInPrinterRef = bit3D.getLiftPoints()
+      double xInPrinterRef = bit3D.getLiftPointsCS()
           .get(i).x;
-      double yInPrinterRef = bit3D.getLiftPoints()
+      double yInPrinterRef = bit3D.getLiftPointsCS()
           .get(i).y;
       double xInSubXRef = xInPrinterRef + CraftConfig.printerX / 2 + CraftConfig.xPrintingSpace
           - workingPlacePosition;
@@ -413,7 +413,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
   private int getCountSubBitElement(List<Bit3D> allBits) {
     int count = 0;
     for (Bit3D bit : allBits) {
-      count += bit.getRawLiftPoints()
+      count += bit.getLiftPointsCB()
           .size();
     }
     return count;

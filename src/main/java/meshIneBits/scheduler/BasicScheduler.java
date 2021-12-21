@@ -61,7 +61,7 @@ public class BasicScheduler extends AScheduler {
   }
 
   @Override
-  public int getSubBitBatch(Bit3D bit) {
+  public int getBitBatch(Bit3D bit) {
     if (sortedBits.isEmpty()) {
       return 0;
     }
@@ -69,7 +69,7 @@ public class BasicScheduler extends AScheduler {
   }
 
   @Override
-  public int getSubBitPlate(Bit3D bit) {
+  public int getBitPlate(Bit3D bit) {
     if (sortedBits.isEmpty()) {
       return 0;
     }

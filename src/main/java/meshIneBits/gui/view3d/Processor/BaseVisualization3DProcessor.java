@@ -6,6 +6,8 @@ import meshIneBits.Mesh;
 import meshIneBits.gui.view3d.Processor.DisplayState.State;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.animation.AnimationProcessor;
+import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationMode;
+import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.animation.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.IModel3DProvider;
@@ -141,16 +143,23 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   }
 
   @Override
+  public void setAnimationBySubBit(boolean boo) {
+    if (boo) {
+      animation.setAnimationOption(AnimationOption.BY_SUB_BIT);
+    }
+  }
+
+  @Override
   public void setAnimationByBit(boolean boo) {
     if (boo) {
-      animation.setAnimationOption(AnimationProcessor.AnimationOption.BY_BIT);
+      animation.setAnimationOption(AnimationOption.BY_BIT);
     }
   }
 
   @Override
   public void setAnimationByBatch(boolean boo) {
     if (boo) {
-      animation.setAnimationOption(AnimationProcessor.AnimationOption.BY_BATCH);
+      animation.setAnimationOption(AnimationOption.BY_BATCH);
     }
 
   }
@@ -158,21 +167,21 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   @Override
   public void setAnimationByLayer(boolean boo) {
     if (boo) {
-      animation.setAnimationOption(AnimationProcessor.AnimationOption.BY_LAYER);
+      animation.setAnimationOption(AnimationOption.BY_LAYER);
     }
   }
 
   @Override
   public void setDisplayOneByOne(boolean boo) {
     if (boo) {
-      animation.setAnimationMode(AnimationProcessor.AnimationMode.ONE_BY_ONE);
+      animation.setAnimationMode(AnimationMode.ONE_BY_ONE);
     }
   }
 
   @Override
   public void setDisplayFull(boolean b) {
     if (b) {
-      animation.setAnimationMode(AnimationProcessor.AnimationMode.FULL);
+      animation.setAnimationMode(AnimationMode.FULL);
     }
   }
 

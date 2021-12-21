@@ -6,6 +6,7 @@ import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.APPLY;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BATCH;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BIT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_LAYER;
+import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_SUB_BIT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.CENTER_CAMERA;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.EXPORT;
 import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.FULL;
@@ -79,6 +80,9 @@ public class UIPWController implements UIPWListener {
         break;
       case RESET:
         processor.reset();
+        break;
+      case BY_SUB_BIT:
+        processor.setAnimationBySubBit((boolean) value);
         break;
       case BY_BIT:
         processor.setAnimationByBit((boolean) value);

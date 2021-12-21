@@ -37,6 +37,7 @@ import java.util.List;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -108,7 +109,7 @@ public class ClassicBrickPattern extends PatternTemplate {
     while (coo.x < patternEnd.x + CraftConfig.lengthFull / 2) {
       while (coo.y < patternEnd.y + CraftConfig.bitWidth / 2) {
         // every bits have no rotation in that template
-        bits.add(new Bit2D(coo, new Vector2(1, 0)));
+        bits.add(new NewBit2D(coo, new Vector2(1, 0)));
         coo = coo.add(new Vector2(0, CraftConfig.bitWidth + bitsOffset));
       }
       column++;
@@ -137,7 +138,7 @@ public class ClassicBrickPattern extends PatternTemplate {
     int line = 0;
     while (coo.y < patternEnd.y + CraftConfig.lengthFull / 2) {
       while (coo.x < patternEnd.x + CraftConfig.bitWidth / 2) {
-        bits.add(new Bit2D(coo, new Vector2(0, 1)));
+        bits.add(new NewBit2D(coo, new Vector2(0, 1)));
         coo = coo.add(new Vector2(CraftConfig.bitWidth + bitsOffset, 0));
       }
       line++;

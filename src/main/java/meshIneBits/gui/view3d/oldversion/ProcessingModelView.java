@@ -1248,16 +1248,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
         float y = 0;
         float z = (float) (bit.getHigherAltitude() + bit.getLowerAltitude()) / 2;
 
-        if (bit.getLiftPoints()
+        if (bit.getLiftPointsCS()
             .size() > 1) {
           // the eye will be at the center of a normal bit.
           x = (float) CraftConfig.lengthFull / 2;
           y = (float) CraftConfig.bitWidth / 2;
         } else {
           // the eye will at the lift point of the bit
-          x = (float) bit.getLiftPoints()
+          x = (float) bit.getLiftPointsCS()
               .get(0).x;
-          y = (float) bit.getLiftPoints()
+          y = (float) bit.getLiftPointsCS()
               .get(0).y;
         }
 
@@ -1314,7 +1314,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       shapeMapByBits.forEach((ele) -> {
         Bit3D currentBit = ele.getKey();
         //init + find the min and max position x of the distance points from the currentBit.
-        Vector<Vector2> allDistancePoints = currentBit.getTwoDistantPointsInMeshCoordinate();
+        Vector<Vector2> allDistancePoints = currentBit.getTwoDistantPointsCS();
         minXDistancePoint = allDistancePoints.size() == 0 ? 0 : allDistancePoints.get(0).x;
         maxXDistancePoint = allDistancePoints.size() == 0 ? 0 : allDistancePoints.get(0).x;
         for (int i = 0; i < allDistancePoints.size(); i++) {
@@ -1365,7 +1365,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       Vector<PShape> current = new Vector<>();
       int numberOfBatches = controllerView3D.getCurrentMesh()
           .getScheduler()
-          .getSubBitBatch(shapeMapByBits.get(shapeMapByBits.size() - 1)
+          .getBitBatch(shapeMapByBits.get(shapeMapByBits.size() - 1)
               .getKey());
       for (int i = 0; i <= numberOfBatches; i++) {
         current.add(builder.getBatchPShapeForm(shapeMapByBits, i));

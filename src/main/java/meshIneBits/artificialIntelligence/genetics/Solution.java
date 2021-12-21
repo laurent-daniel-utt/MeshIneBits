@@ -117,7 +117,7 @@ public class Solution {
    */
   private double getAreaScore() {
     bit = getBit(startPoint);
-    Area availableBitArea = bit.getArea();
+    Area availableBitArea = bit.getAreaCS();
     availableBitArea.intersect(layerAvailableArea);
 
     if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
@@ -131,7 +131,7 @@ public class Solution {
       Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.lengthFull,
           CraftConfig.bitWidth);
       double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
-      double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
+      double area = CalculateAreaSurface.approxArea(bit.getAreaCS(), 0);
       return ((1 - RATIO / 100.0) * area / maxArea);
 
 

@@ -60,5 +60,6 @@ public interface IVisualization3DProcessor {
 
   void setAnimationIndex(int i);
 
+  void setAnimationBySubBit(boolean value);
 }
 

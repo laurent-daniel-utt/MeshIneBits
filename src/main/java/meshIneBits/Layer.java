@@ -214,7 +214,7 @@ public class Layer extends Observable implements Serializable {
     mapBits3D = flatPavement.getBitsKeys()
         .parallelStream()
         .collect(Collectors.toConcurrentMap(key -> key,
-            key -> new Bit3D(flatPavement.getBit(key), this),
+            key -> new NewBit3D((NewBit2D) flatPavement.getBit(key), this),
             (u, v) -> u, // Preserve the first
             ConcurrentHashMap::new));
   }
@@ -226,7 +226,7 @@ public class Layer extends Observable implements Serializable {
    */
   private void rebuild(Vector2 key) {
     if (flatPavement.getBit(key) != null) {
-      Bit3D bit3D = new Bit3D(flatPavement.getBit(key), this);
+      Bit3D bit3D = new NewBit3D((NewBit2D) flatPavement.getBit(key), this);
       mapBits3D.put(key, bit3D);
       if (bit3D.isIrregular()) {
         irregularBits.add(key);
@@ -274,7 +274,7 @@ public class Layer extends Observable implements Serializable {
     }
     for (Vector2 key : mapBits3D.keySet()) {
       for (Vector2 pos : mapBits3D.get(key)
-          .getLiftPoints()) {
+          .getLiftPointsCS()) {
         if (pos != null) {
           keySet.add(new Pair<>(mapBits3D.get(key), pos));
         }
@@ -329,7 +329,7 @@ public class Layer extends Observable implements Serializable {
    * @return <tt>null</tt> if outside
    */
   private Area getInteriorArea(Bit2D bit2D) {
-    Area bitArea = bit2D.getArea();
+    Area bitArea = bit2D.getAreaCS();
     if (horizontalArea == null) {
       Logger.message("null valeur");
     }

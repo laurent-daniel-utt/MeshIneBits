@@ -225,8 +225,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         // Look if we hit a bit control (arrows)
         for (BitControls controls : bitMovers.values()) {
           for (int i = 0; i < controls.size(); i++) {
-            if (controls.get(i)
-                .contains(oldX, oldY)) {
+            if (controls.get(i).contains(oldX, oldY)) {
               bitMovers.clear();
               onClickedBitControl(i);
               return;
@@ -554,7 +553,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
       Bit3D bit = previousLayer.getBit3D(b);
       Area area = bit.getBaseBit()
-          .getArea();
+          .getAreaCS();
       area.transform(realToView);
 
       g2d.draw(area);
@@ -586,10 +585,10 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       if (bit2D.isUsedForNN()) {
         g2d.setColor(WorkspaceConfig.forAI_BitColor);
       }
-      drawModelArea(g2d, bit2D.getArea());
+      drawModelArea(g2d, bit2D.getAreaCS());
 
       // Cut paths
-      Vector<Path2D> cutpaths = bit2D.getCutPaths();
+      Vector<Path2D> cutpaths = bit2D.getCutPathsCS();
       if (meshController.showingCutPaths()
           && (cutpaths != null)) {
         g2d.setColor(WorkspaceConfig.cutpathColor);
@@ -601,9 +600,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       if (meshController.showingLiftPoints()) {
         g2d.setColor(WorkspaceConfig.liftpointColor);
         g2d.setStroke(WorkspaceConfig.liftpointStroke);
-        if (!bit3D.getLiftPoints()
+        if (!bit3D.getLiftPointsCS()
             .isEmpty()) {
-          bit3D.getLiftPoints()
+          bit3D.getLiftPointsCS()
               .forEach(liftPoint ->
                   drawModelCircle(g2d,
                       liftPoint.x,
@@ -611,9 +610,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
                       (int) CraftConfig.suckerDiameter));
         }
         g2d.setColor(Color.black);
-        if (!bit3D.getTwoDistantPointsInMeshCoordinate()
+        if (!bit3D.getTwoDistantPointsCS()
             .isEmpty()) {
-          for (Vector2 point : bit3D.getTwoDistantPointsInMeshCoordinate()) {
+          for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
             drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
           }
         }
@@ -644,7 +643,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     //Draw bits Areas
     Vector<Bit2D> bits = DebugTools.Bits;
     for (Bit2D bit : bits) {
-      Area area = bit.getArea();
+      Area area = bit.getAreaCS();
       area.transform(realToView);
       g2d.setColor(Color.RED);
       g2d.fill(area);
@@ -813,7 +812,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
               CraftConfig.lengthFull,
               CraftConfig.bitWidth));
       overlapBit.transform(bit.getBaseBit()
-          .getTransfoMatrix());
+          .getTransfoMatrixToCS());
 
       Vector<Area> arrows = new Vector<>();
       AffineTransform affTrans;
@@ -852,7 +851,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
       g2d.setColor(WorkspaceConfig.bitControlColor);
       affTrans = bit.getBaseBit()
-          .getTransfoMatrix();
+          .getTransfoMatrixToCS();
       for (Area area : arrows) {
         area.transform(affTrans);
         area.transform(realToView);

@@ -73,21 +73,21 @@ public class BitPropertyPanel extends PropertyPanel {
           {ORIGIN, bit3D.getOrigin().toString()},
           {ORIENTATION, String.valueOf(bit3D.getOrientation()
               .getEquivalentAngle2())},
-          {LIFT_POINTS, bit3D.getLiftPoints().toString()},
+          {LIFT_POINTS, bit3D.getLiftPointsCS().toString()},
           {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
           {BIT_NUMBER, String.valueOf(mesh.getScheduler()
               .getBitIndex(bit3D))},
           {PLATE_ID, String.valueOf(mesh.getScheduler()
-              .getSubBitPlate(bit3D))},
+              .getBitPlate(bit3D))},
           {BATCH_ID, String.valueOf(mesh.getScheduler()
-              .getSubBitBatch(bit3D))}
+              .getBitBatch(bit3D))}
       };
     } else {
       return new String[][]{
           {ORIGIN, bit3D.getOrigin().toString()},
           {ORIENTATION, String.valueOf(bit3D.getOrientation()
               .getEquivalentAngle2())},
-          {LIFT_POINTS, bit3D.getLiftPoints().toString()},
+          {LIFT_POINTS, bit3D.getLiftPointsCS().toString()},
           {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
           {PLATE_ID, "UNKNOWN"},
           {BIT_NUMBER, "UNKNOWN"},

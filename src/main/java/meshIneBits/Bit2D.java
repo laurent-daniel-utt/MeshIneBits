@@ -34,7 +34,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -42,10 +41,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicBoolean;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
-import meshIneBits.util.CutPathUtil;
+import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -71,8 +69,8 @@ public class Bit2D implements Cloneable, Serializable {
   private Vector2 origin;
   private double length;
   private double width;
-  private AffineTransform transfoMatrix = new AffineTransform();
-  private AffineTransform inverseTransfoMatrix = new AffineTransform();
+  private AffineTransform transfoMatrixCS = new AffineTransform();
+  private AffineTransform inverseTransfoMatrixCB = new AffineTransform();
   /**
    * In {@link Bit2D} coordinate system
    */
@@ -108,50 +106,8 @@ public class Bit2D implements Cloneable, Serializable {
 
     setTransfoMatrix();
     buildBoundaries();
-//        for (Path2D longestCrossingSegment : longestCrossingSegments) {
-//            longestCrossingSegment.transform(transfoMatrix);
-//        }
-//        for (Area area : areas) {
-//            area.getPathIterator()
-//        }
   }
 
-  /**
-   * This constructor will decide itself the origin, base on upper left corner
-   *
-   * @param boundaryCenterX in {@link Mesh} coordinate system
-   * @param boundaryCenterY in {@link Mesh} coordinate system
-   * @param length          of boundary
-   * @param width           of boundary
-   * @param orientationX    in {@link Mesh} coordinate system
-   * @param orientationY    in {@link Mesh} coordinate system
-   */
-  public Bit2D(double boundaryCenterX,
-      double boundaryCenterY,
-      double length,
-      double width,
-      double orientationX,
-      double orientationY) {
-    orientation = new Vector2(
-        orientationX,
-        orientationY
-    );
-    this.length = length;
-    this.width = width;
-    origin = new Vector2(boundaryCenterX, boundaryCenterY)
-        .sub(
-            // Vector distance in Bit coordinate system
-            new Vector2(
-                -CraftConfig.lengthFull / 2 + length / 2,
-                -CraftConfig.bitWidth / 2 + width / 2
-            )
-                // Rotate into Mesh coordinate system
-                .rotate(orientation)
-        );
-
-    setTransfoMatrix();
-    buildBoundaries();
-  }
 
   /**
    * Constructor for custom length and width.
@@ -183,15 +139,15 @@ public class Bit2D implements Cloneable, Serializable {
    * @param cutPaths             where to cut this bit
    * @param areas                set of non intersected areas
    */
-  private Bit2D(Vector2 origin, Vector2 orientation, double length, double width,
+  Bit2D(Vector2 origin, Vector2 orientation, double length, double width,
       AffineTransform transfoMatrix,
       AffineTransform inverseTransfoMatrix, Vector<Path2D> cutPaths, Vector<Area> areas) {
     this.origin = origin;
     this.orientation = orientation;
     this.length = length;
     this.width = width;
-    this.transfoMatrix = transfoMatrix;
-    this.inverseTransfoMatrix = inverseTransfoMatrix;
+    this.transfoMatrixCS = transfoMatrix;
+    this.inverseTransfoMatrixCB = inverseTransfoMatrix;
     this.cutPaths = cutPaths;
     this.areas = areas;
   }
@@ -208,19 +164,19 @@ public class Bit2D implements Cloneable, Serializable {
     Vector2 orthogonal = colinear.rotate(
         new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
 
-    Vector2 A = this.getOrigin()
+    Vector2 A = this.getOriginCS()
         .add(colinear.mul(CraftConfig.lengthFull / 2))
         .add(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 B = this.getOrigin()
+    Vector2 B = this.getOriginCS()
         .sub(colinear.mul(CraftConfig.lengthFull / 2))
         .add(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 C = this.getOrigin()
+    Vector2 C = this.getOriginCS()
         .sub(colinear.mul(CraftConfig.lengthFull / 2))
         .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 D = this.getOrigin()
+    Vector2 D = this.getOriginCS()
         .add(colinear.mul(CraftConfig.lengthFull / 2))
         .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
@@ -254,21 +210,21 @@ public class Bit2D implements Cloneable, Serializable {
   @SuppressWarnings("MethodDoesntCallSuperMethod")
   @Override
   public Bit2D clone() {
-    return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrix.clone(),
-        (AffineTransform) inverseTransfoMatrix.clone(), getClonedRawCutPaths(),
-        getClonedRawAreas());
+    return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrixCS.clone(),
+        (AffineTransform) inverseTransfoMatrixCB.clone(), getClonedCutPathsCB(),
+        getClonedAreasCB());
   }
 
   /**
    * @return the union of all cloned surfaces making this {@link Bit2D}. Expressed in {@link Mesh}
    * coordinate system
    */
-  public Area getArea() {
+  public Area getAreaCS() {
     Area transformedArea = new Area();
     for (Area a : areas) {
       transformedArea.add(a);
     }
-    transformedArea.transform(transfoMatrix);
+    transformedArea.transform(transfoMatrixCS);
     return transformedArea;
   }
 
@@ -277,11 +233,11 @@ public class Bit2D implements Cloneable, Serializable {
    * <tt>transforMatrix</tt>
    */
   @SuppressWarnings("unused")
-  public Vector<Area> getAreas() {
+  public Vector<Area> getAreasCS() {
     Vector<Area> result = new Vector<>();
     for (Area a : areas) {
       Area transformedArea = new Area(a);
-      transformedArea.transform(transfoMatrix);
+      transformedArea.transform(transfoMatrixCS);
       result.add(transformedArea);
     }
     return result;
@@ -290,7 +246,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return clone of raw areas
    */
-  private Vector<Area> getClonedRawAreas() {
+  private Vector<Area> getClonedAreasCB() {
     Vector<Area> clonedAreas = new Vector<>();
     for (Area a : areas) {
       clonedAreas.add((Area) a.clone());
@@ -301,7 +257,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return clone of raw cut paths
    */
-  private Vector<Path2D> getClonedRawCutPaths() {
+  private Vector<Path2D> getClonedCutPathsCB() {
     if (cutPaths != null) {
       Vector<Path2D> clonedCutPaths = new Vector<>();
       for (Path2D p : cutPaths) {
@@ -317,13 +273,13 @@ public class Bit2D implements Cloneable, Serializable {
    * @return clone of cut paths (after transforming into coordinates system of {@link Mesh})
    */
   @SuppressWarnings("unused")
-  public Vector<Path2D> getCutPaths() {
+  public Vector<Path2D> getCutPathsCS() {
     if (this.cutPaths == null) {
       return null;
     } else {
       Vector<Path2D> paths = new Vector<>();
       for (Path2D p : this.cutPaths) {
-        paths.add(new Path2D.Double(p, transfoMatrix));
+        paths.add(new Path2D.Double(p, transfoMatrixCS));
       }
       return paths;
     }
@@ -346,7 +302,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return the origin in the {@link Mesh} coordinate system
    */
-  public Vector2 getOrigin() {
+  public Vector2 getOriginCS() {
     return origin;
   }
 
@@ -371,7 +327,7 @@ public class Bit2D implements Cloneable, Serializable {
    *
    * @return the union of raw (non intersected) areas
    */
-  Area getRawArea() {
+  public Area getAreaCB() {
     Area area = new Area();
     for (Area a : areas) {
       area.add(a);
@@ -382,7 +338,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return set of raw areas of this bit (not transformed)
    */
-  public Vector<Area> getRawAreas() {
+  public Vector<Area> getAreasCB() {
     return areas;
   }
 
@@ -391,7 +347,7 @@ public class Bit2D implements Cloneable, Serializable {
    *
    * @return raw cut paths
    */
-  Vector<Path2D> getRawCutPaths() {
+  public Vector<Path2D> getCutPathsCB() {
     return cutPaths;
   }
 
@@ -408,13 +364,13 @@ public class Bit2D implements Cloneable, Serializable {
    */
   private void setTransfoMatrix() {
 
-    transfoMatrix.translate(origin.x, origin.y);
-    transfoMatrix.rotate(orientation.x, orientation.y);
+    transfoMatrixCS.translate(origin.x, origin.y);
+    transfoMatrixCS.rotate(orientation.x, orientation.y);
     try {
-      inverseTransfoMatrix = ((AffineTransform) transfoMatrix.clone()).createInverse();
+      inverseTransfoMatrixCB = ((AffineTransform) transfoMatrixCS.clone()).createInverse();
     } catch (NoninvertibleTransformException e) {
       e.printStackTrace();
-      inverseTransfoMatrix = AffineTransform.getScaleInstance(1, 1); // Fallback
+      inverseTransfoMatrixCB = AffineTransform.getScaleInstance(1, 1); // Fallback
     }
   }
 
@@ -432,11 +388,8 @@ public class Bit2D implements Cloneable, Serializable {
     } else if (checkInverseBit(this, newArea)) {
       inverseInCut = true;
     }
-    newArea.transform(inverseTransfoMatrix);
+    newArea.transform(inverseTransfoMatrixCB);
     Vector<Area> listAreas = AreaTool.segregateArea(newArea);
-//        if(listAreas!=null){
-//            areas.addAll(listAreas);
-//        }else
     areas.addAll(listAreas != null ? listAreas : new Vector<>());
 
   }
@@ -461,7 +414,7 @@ public class Bit2D implements Cloneable, Serializable {
 
   @Override
   public String toString() {
-    Rectangle2D bound = this.getArea()
+    Rectangle2D bound = this.getAreaCS()
         .getBounds2D();
     return "Bit2D[origin=" + origin
         + ", length=" + length
@@ -491,7 +444,7 @@ public class Bit2D implements Cloneable, Serializable {
             .normal()
             .getRounded();
     Bit2D newBit = new Bit2D(newOrigin, newOrientation, length, width);
-    newBit.updateBoundaries(this.getArea()
+    newBit.updateBoundaries(this.getAreaCS()
         .createTransformedArea(transformation));
     return newBit;
   }
@@ -500,101 +453,7 @@ public class Bit2D implements Cloneable, Serializable {
    * Reset cut paths and recalculate them after defining area
    */
   public void calcCutPath() {
-    // We all calculate in coordinate
-    // Reset cut paths
-    this.cutPaths = new Vector<>();
-    Vector<Vector<Segment2D>> polygons = AreaTool.getSegmentsFrom(this.getRawArea());
-    // Define 4 corners
-    Vector2 cornerUpRight = new Vector2(+CraftConfig.lengthFull / 2.0, -CraftConfig.bitWidth / 2.0);
-    Vector2 cornerDownRight = new Vector2(cornerUpRight.x, cornerUpRight.y + width);
-    Vector2 cornerUpLeft = new Vector2(cornerUpRight.x - length, cornerUpRight.y);
-    Vector2 cornerDownLeft = new Vector2(cornerDownRight.x - length, cornerDownRight.y);
-    // Define 4 sides
-    Segment2D sideTop = new Segment2D(cornerUpLeft, cornerUpRight);
-    Segment2D sideBottom = new Segment2D(cornerDownLeft, cornerDownRight);
-    Segment2D sideRight = new Segment2D(cornerUpRight, cornerDownRight);
-    Segment2D sideLeft = new Segment2D(cornerUpLeft, cornerDownLeft);
-
-    AtomicBoolean insideSideRight = new AtomicBoolean(false);
-    AtomicBoolean insideSideLeft = new AtomicBoolean(false);
-    // Check cut path
-    // If and edge lives on sides of the bit
-    // We remove it
-//        Set<Vector<Segment2D>> listPolygons = new HashSet<>();
-    polygons.forEach(polygon -> polygon.removeIf(
-        edge -> sideBottom.contains(edge) || sideLeft.contains(edge) || sideRight.contains(edge)
-            || sideTop.contains(edge)));
-//            if (sideLeft.contains(edge)) {
-//                insideSideLeft.set(true);
-//                return true;
-//            } else if (sideBottom.contains(edge) || sideTop.contains(edge)) {
-//                return true;
-//            }else if(sideRight.contains(edge)){
-//                listPolygons.add(polygon);
-//            }
-//            return false;
-//        }));
-//
-//        if(!insideSideLeft.get()){
-//            listPolygons.forEach(polygon -> polygon.removeIf(edge -> {
-//                if (sideRight.contains(edge)) {
-//                    insideSideRight.set(true);
-//                    return true;
-//                }
-//                return false;
-//            }));
-//        }
-//        if(checkFullLength&&)
-//        if(!insideSideLeft.get()&&insideSideRight.get()){
-//            inverseInCut =true;
-//        }
-
-    // After filter out the edges on sides
-    // We form cut paths from these polygons
-    // Each polygon may contain multiple cut paths
-    for (Vector<Segment2D> polygon : polygons) {
-      if (polygon.isEmpty()) {
-        continue;
-      }
-      Path2D cutPath2D = new Path2D.Double();
-      Vector<Path2D> cutPaths2D = new Vector<>();
-//            Segment2D currentEdge = polygon.get(0);
-//            cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
-      Point2D.Double moveToGlobal;
-      for (int i = 0; i < polygon.size(); i++) {
-        Point2D moveToCurrent;
-        Segment2D currentEdge = polygon.get(i);
-        if (i == 0 || !(currentEdge.start.asGoodAsEqual(polygon.get(i - 1).end))) {
-          cutPath2D.moveTo(currentEdge.start.x, currentEdge.start.y);
-        }
-        cutPath2D.lineTo(currentEdge.end.x, currentEdge.end.y);
-        // Some edges may have been deleted
-        // So we check beforehand to skip
-//                if (i + 1 < polygon.size() && currentEdge.getNext()!=null && !polygon.contains(currentEdge.getNext())) {
-        // If the next edge has been removed
-        // We complete the path
-//                    cutPaths2D.add(cutPath2D);
-//                    // Then we create a new one
-//                    // And move to the start of the succeeding edge
-//                    cutPath2D = new Path2D.Double();
-//                    cutPath2D.moveTo(polygon.get(i + 1).start.x, polygon.get(i + 1).start.y);
-//                }
-        if ((currentEdge.end.isOnSegment(sideBottom) || currentEdge.end.isOnSegment(sideTop))
-            && currentEdge.getNext() != null) {
-          cutPath2D.moveTo(currentEdge.end.x, currentEdge.end.y);
-        }
-      }
-      // Finish the last cut path
-      if (!cutPaths2D.contains(cutPath2D)) {
-        cutPath2D = CutPathUtil.OrganizeOrderCutInPath2D(cutPath2D);
-        cutPaths2D.add(cutPath2D);
-      }
-      this.cutPaths.addAll(cutPaths2D);
-
-//            cutPathsSeparate.add(cutPaths2D);
-    }
-    CutPathUtil.sortCutPath(this.cutPaths);
-
+    this.cutPaths = CutPathCalc.instance.calcCutPathFrom(this);
   }
 
   /**
@@ -610,13 +469,13 @@ public class Bit2D implements Cloneable, Serializable {
     oos.writeDouble(length);
     oos.writeDouble(width);
     oos.writeObject(cutPaths);
-    oos.writeObject(transfoMatrix);
-    oos.writeObject(inverseTransfoMatrix);
+    oos.writeObject(transfoMatrixCS);
+    oos.writeObject(inverseTransfoMatrixCB);
     oos.writeBoolean(inverseInCut);
     oos.writeBoolean(checkFullLength);
     // Special writing for areas
     oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
-        .createTransformedShape(this.getArea()));
+        .createTransformedShape(this.getAreaCS()));
   }
 
   /**
@@ -632,8 +491,8 @@ public class Bit2D implements Cloneable, Serializable {
     this.width = ois.readDouble();
     //noinspection unchecked
     this.cutPaths = (Vector<Path2D>) ois.readObject();
-    this.transfoMatrix = (AffineTransform) ois.readObject();
-    this.inverseTransfoMatrix = (AffineTransform) ois.readObject();
+    this.transfoMatrixCS = (AffineTransform) ois.readObject();
+    this.inverseTransfoMatrixCB = (AffineTransform) ois.readObject();
     this.areas = new Vector<>();
     this.checkFullLength = ois.readBoolean();
     this.inverseInCut = ois.readBoolean();
@@ -641,13 +500,13 @@ public class Bit2D implements Cloneable, Serializable {
     this.updateBoundaries(new Area(s));
   }
 
-  public AffineTransform getTransfoMatrix() {
-    return transfoMatrix;
+  public AffineTransform getTransfoMatrixToCS() {
+    return transfoMatrixCS;
   }
 
 
-  public AffineTransform getInverseTransfoMatrix() {
-    return inverseTransfoMatrix;
+  public AffineTransform getInverseTransfoMatrixToCB() {
+    return inverseTransfoMatrixCB;
   }
 
   public boolean getInverseInCut() {
@@ -760,15 +619,10 @@ public class Bit2D implements Cloneable, Serializable {
       return false;
     }
     Vector<Rectangle2D> twoSide = getTwoSideOfBit(CraftConfig.incertitude);
-    newBitArea.transform(bit2D.getInverseTransfoMatrix());
+    newBitArea.transform(bit2D.getInverseTransfoMatrixToCB());
     //last element is right side
     return !newBitArea.contains(twoSide.lastElement()) && newBitArea.intersects(
         twoSide.lastElement());
-  }
-
-
-  public void setCutPaths(Vector<Path2D> cutPaths) {
-    this.cutPaths = cutPaths;
   }
 
   public boolean isUsedForNN() {

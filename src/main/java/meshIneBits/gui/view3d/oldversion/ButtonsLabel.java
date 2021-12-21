@@ -15,6 +15,7 @@ public class ButtonsLabel {
   public static final String GRAVITY = "Apply gravity";
   public static final String CENTER_CAMERA = "Center camera";
   public static final String ANIMATION = "ANIMATION";
+  public static final String BY_SUB_BIT = "By subBit";
   public static final String BY_BIT = "By bit";
   public static final String BY_LAYER = "By layer";
   public static final String BY_BATCH = "By batch";

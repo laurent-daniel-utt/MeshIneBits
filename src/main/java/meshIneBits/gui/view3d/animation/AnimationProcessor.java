@@ -131,21 +131,21 @@ public class AnimationProcessor {
     public void run() {
       try {
         while (isActivated.get()) {
-          final int index = AnimationProcessor.this.index.get();
-          listeners.forEach(listener -> listener.onIndexChangeListener(index));
-          Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index).getDisplayShapes();
+          final AtomicInteger index = AnimationProcessor.this.index;
+          listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
+          Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
 //          if (option == AnimationOption.BY_BIT && wsProvider != null) {
 //            PShape finalShape = AnimationProcessor.this.animationProvider.getContext()
 //                .createShape(PConstants.GROUP);
-//            PShape currentShape = shapes.get(index);
+//            PShape currentShape = shapes.get(index.get());
 //            double positionX = PShapeUtil.getInstance().getMinShapeInFrameCoordinate(currentShape).x;
 //            finalShape.addChild(currentShape);
 //            PShape ws = wsProvider.getAssemblyWorkingSpace();
-//            ws.translate((float)positionX+currentShape.,0);
+//            ws.translate((float)positionX,0);
 //
 //            finalShape.addChild(ws);
 //            shapes.remove(index);
-//            shapes.add(index,finalShape);
+//            shapes.add(index.get(),finalShape);
 //          }
           callback.accept(shapes);
           if (pausing.get()) {
@@ -154,7 +154,7 @@ public class AnimationProcessor {
             }
           }
           Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
-          AnimationProcessor.this.index.set(index == indexMax ? 0 : index + 1);
+          AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
         }
       } catch (InterruptedException e) {
         e.printStackTrace();

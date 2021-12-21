@@ -115,7 +115,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
    * @return the origin of inserted bit in {@link Mesh} coordinate system
    */
   public Vector2 addBit(Bit2D bit) {
-    Vector2 origin = bit.getOrigin();
+    Vector2 origin = bit.getOriginCS();
     // We check that there is not already a bit at this place
     for (Vector2 key : getBitsKeys()) {
       if (origin.asGoodAsEqual(key)) {
@@ -190,11 +190,11 @@ public class Pavement extends Observable implements Cloneable, Serializable {
         direction.rotate(bitToMove.getOrientation())
             .normal()
             .mul(distance);
-    Vector2 newOrigin = bitToMove.getOrigin()
+    Vector2 newOrigin = bitToMove.getOriginCS()
         .add(translationInMesh);
     System.out.println(newOrigin.toString());
     removeBit(key);
-    return addBit(new Bit2D(
+    return addBit(new NewBit2D(
         newOrigin,
         bitToMove.getOrientation(),
         bitToMove.getLength(),
@@ -241,7 +241,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     areaAvailable = (Area) areaSlider.clone();
     for (Vector2 key : getBitsKeys()) {
       Bit2D bit = getBit(key);
-      Area bitArea = bit.getArea();
+      Area bitArea = bit.getAreaCS();
       bitArea.intersect(areaAvailable);
       if (bitArea.isEmpty()) {
         // Outside of border
@@ -257,7 +257,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     areaAvailable = (Area) area.clone();
     for (Vector2 key : getBitsKeys()) {
       Bit2D bit = getBit(key);
-      Area bitArea = bit.getArea();
+      Area bitArea = bit.getAreaCS();
       bitArea.intersect(areaAvailable);
       if (bitArea.isEmpty()) {
         // Outside of border

@@ -6,6 +6,7 @@ import java.util.Vector;
 import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
 import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.builder.BitShape;
+import meshIneBits.gui.view3d.builder.SubBitShape;
 
 @SuppressWarnings("unused")
 public class PaintRandomPattern implements IPaintShapePattern {
@@ -29,13 +30,14 @@ public class PaintRandomPattern implements IPaintShapePattern {
         }
         break;
       case BY_BATCH:
-        int currentBatch = bitShapes.get(0).getBatchId();
+        int currentBatch = bitShapes.get(0).getSubBitShapes().get(0).getBatchId();
         for (BitShape bitShape : bitShapes) {
-          if (bitShape.getBatchId() == currentBatch) {
-            bitShape.getShape().setFill(ColorRandomUtil.instance.getCurrentColor().getRGB());
+          for(SubBitShape subBitShape : bitShape.getSubBitShapes())
+          if (subBitShape.getBatchId() == currentBatch) {
+            subBitShape.getShape().setFill(ColorRandomUtil.instance.getCurrentColor().getRGB());
           } else {
-            currentBatch = bitShape.getBatchId();
-            bitShape.getShape().setFill(ColorRandomUtil.instance.generateNewColor().getRGB());
+            currentBatch = subBitShape.getBatchId();
+            subBitShape.getShape().setFill(ColorRandomUtil.instance.generateNewColor().getRGB());
           }
         }
         break;

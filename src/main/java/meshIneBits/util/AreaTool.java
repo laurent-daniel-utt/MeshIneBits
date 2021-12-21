@@ -48,12 +48,12 @@ public class AreaTool {
   /**
    * Returns the barycenter of an area
    *
-   * @param area target
+   * @param area target¶
    * @return Barycenter. <tt>null</tt> if area is empty
    */
 
 
-  private static Vector2 compute2DPolygonCentroid(Area area) {
+  static Vector2 compute2DPolygonCentroid(Area area) {
 
     Vector<Segment2D> segments = getLargestPolygon(area);
     if (segments == null) {

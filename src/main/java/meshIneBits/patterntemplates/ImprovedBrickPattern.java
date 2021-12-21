@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -197,7 +198,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
     int colNum = 0; // Initialize
     while (_1stBitOrigin.x - L / 2 + colNum * (L + f)
         <= patternEnd.x + CraftConfig.lengthFull / 2) {
-      bits.add(new Bit2D(new Vector2(_1stBitOrigin.x + colNum * (L + f), _1stBitOrigin.y),
+      bits.add(new NewBit2D(new Vector2(_1stBitOrigin.x + colNum * (L + f), _1stBitOrigin.y),
           new Vector2(1, 0)));
       colNum++;
     }
@@ -205,7 +206,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
     colNum = 1; // Reinitialize
     while (_1stBitOrigin.x + L / 2 - colNum * (L + f)
         >= patternStart.x - CraftConfig.lengthFull / 2) {
-      bits.add(new Bit2D(new Vector2(_1stBitOrigin.x - colNum * (L + f), _1stBitOrigin.y),
+      bits.add(new NewBit2D(new Vector2(_1stBitOrigin.x - colNum * (L + f), _1stBitOrigin.y),
           new Vector2(1, 0)));
       colNum++;
     }
@@ -337,7 +338,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
         && localDirectionToMove.x == 0)) { // up or down
       Vector2 initialCenter = movedBit.getCenter();
       Vector2 coveringBitKey = actualState.addBit(
-          new Bit2D(
+          buildBit2D(
               initialCenter.x,
               initialCenter.y,
               movedBit.getLength(),
@@ -492,7 +493,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
             ) // horizontal displacement
         );
       }
-      Bit2D coveringBit = new Bit2D(
+      Bit2D coveringBit = buildBit2D(
           coveringCenter.x,
           coveringCenter.y,
           coveringBitLength,
@@ -538,7 +539,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 .rotate(initialRotation)
                 .mul((initialWidth - lengthToReduce) / 2)
         );
-        actualState.addBit(new Bit2D(
+        actualState.addBit(buildBit2D(
             newCenter.x,
             newCenter.y,
             initialLength,
@@ -556,7 +557,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 .rotate(initialRotation)
                 .mul((initialLength - lengthToReduce) / 2)
         );
-        actualState.addBit(new Bit2D(
+        actualState.addBit(buildBit2D(
             newCenter.x,
             newCenter.y,
             initialLength - lengthToReduce,
@@ -686,10 +687,10 @@ public class ImprovedBrickPattern extends PatternTemplate {
         localDirectionToMove.rotate(bitToMove.getOrientation())
             .normal()
             .mul(distance);
-    Vector2 newOrigin = bitToMove.getOrigin()
+    Vector2 newOrigin = bitToMove.getOriginCS()
         .add(translationInMesh);
     pavement.removeBit(key);
-    Bit2D newBit = new Bit2D(
+    Bit2D newBit = new NewBit2D(
         newOrigin,
         bitToMove.getOrientation(),
         bitToMove.getLength(),
@@ -774,5 +775,36 @@ public class ImprovedBrickPattern extends PatternTemplate {
     this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
     this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
     return true;
+  }
+
+  /**
+   * This builder will decide itself the origin, base on upper left corner
+   *
+   * @param boundaryCenterX in {@link Mesh} coordinate system
+   * @param boundaryCenterY in {@link Mesh} coordinate system
+   * @param length          of boundary
+   * @param width           of boundary
+   * @param orientationX    in {@link Mesh} coordinate system
+   * @param orientationY    in {@link Mesh} coordinate system
+   */
+  private Bit2D buildBit2D(
+      double boundaryCenterX,
+      double boundaryCenterY,
+      double length,
+      double width,
+      double orientationX,
+      double orientationY) {
+    Vector2 orientation = new Vector2(orientationX, orientationY);
+    Vector2 origin = new Vector2(boundaryCenterX, boundaryCenterY)
+        .sub(
+            // Vector distance in Bit coordinate system
+            new Vector2(
+                -CraftConfig.lengthFull / 2 + length / 2,
+                -CraftConfig.bitWidth / 2 + width / 2
+            )
+                // Rotate into Mesh coordinate system
+                .rotate(orientation)
+        );
+    return new NewBit2D(origin, orientation, length, width);
   }
 }

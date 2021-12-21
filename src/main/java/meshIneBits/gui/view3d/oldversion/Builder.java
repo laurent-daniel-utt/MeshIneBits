@@ -187,7 +187,7 @@ class Builder extends PApplet implements Observer {
       for (Bit3D curBit : bitsInCurrentLayer) {
         newBatch = controllerView3D.getCurrentMesh()
             .getScheduler()
-            .getSubBitBatch(curBit);
+            .getBitBatch(curBit);
         if (currentBatch != newBatch) {
           currentBatch = newBatch;
           currentColor = currentColor == COLOR_BATCH_1 ? COLOR_BATCH_2 : COLOR_BATCH_1;
@@ -334,7 +334,7 @@ class Builder extends PApplet implements Observer {
       shapeMapByBits.forEach((ele) -> {
         newBatch[0] = controllerView3D.getCurrentMesh()
             .getScheduler()
-            .getSubBitBatch(ele.getKey());
+            .getBitBatch(ele.getKey());
         if (currentBatch[0] != newBatch[0]) {
           currentBatch[0] = newBatch[0];
           currentColor[0] = currentColor[0] == COLOR_BATCH_1 ? COLOR_BATCH_2 : COLOR_BATCH_1;
@@ -412,7 +412,7 @@ class Builder extends PApplet implements Observer {
     for (Pair<Bit3D, PShape> pair : shapeMapByBits) {
       if (controllerView3D.getCurrentMesh()
           .getScheduler()
-          .getSubBitBatch(pair.getKey())
+          .getBitBatch(pair.getKey())
           == batchNumber) {
         batchShape.addChild(pair.getValue());
       }

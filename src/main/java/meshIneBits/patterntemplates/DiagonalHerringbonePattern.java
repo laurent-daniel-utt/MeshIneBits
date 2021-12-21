@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -114,7 +115,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
         }
         originBit = new Vector2(i, j + layerOffSet);
         orientationBit = new Vector2(1, 1);
-        bits.add(new Bit2D(originBit, orientationBit));
+        bits.add(new NewBit2D(originBit, orientationBit));
       }
     }
     for (double i = patternStart.x + xOffSet - paddle; i <= patternEnd.x + paddle;
@@ -129,7 +130,7 @@ public class DiagonalHerringbonePattern extends PatternTemplate {
         }
         originBit = new Vector2(i, j + layerOffSet);
         orientationBit = new Vector2(-1, 1);
-        bits.add(new Bit2D(originBit, orientationBit));
+        bits.add(new NewBit2D(originBit, orientationBit));
       }
     }
     return bits;

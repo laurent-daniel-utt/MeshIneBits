@@ -42,7 +42,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
-import meshIneBits.util.CutPathUtil;
+import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,11 +70,11 @@ public class Bit3D implements Serializable, Cloneable {
   /**
    * In {@link #bit2dToExtrude} coordinate system
    */
-  private Vector<Vector2> rawLiftPoints = new Vector<>();
+  private Vector<Vector2> liftPointsCB = new Vector<>();
   /**
    * In {@link Mesh} coordinate system
    */
-  private Vector<Vector2> liftPoints = new Vector<>();
+  private Vector<Vector2> liftPointsCS = new Vector<>();
   /**
    * List two points correspond  areas in key In {@link #bit2dToExtrude} coordinate system
    */
@@ -108,12 +108,12 @@ public class Bit3D implements Serializable, Cloneable {
    */
   Bit3D(Bit2D baseBit, Layer layer) {
     bit2dToExtrude = baseBit;
-    origin = baseBit.getOrigin();
+    origin = baseBit.getOriginCS();
     orientation = baseBit.getOrientation();
-    rawCutPaths = baseBit.getRawCutPaths();
+    rawCutPaths = baseBit.getCutPathsCB();
     reverseInCut = baseBit.getInverseInCut();
-    computeLiftPoints();
-    computeTwoPointNearTwoPointMostDistantOnBit();
+//    computeLiftPoints();
+//    computeTwoPointNearTwoPointMostDistantOnBit();
     lowerAltitude = layer.getLowerAltitude();
     higherAltitude = layer.getHigherAltitude();
   }
@@ -122,7 +122,7 @@ public class Bit3D implements Serializable, Cloneable {
     bit2dToExtrude = bit3D.getBaseBit();
     origin = bit3D.getOrigin();
     orientation = bit3D.getOrientation();
-    rawCutPaths = (Vector<Path2D>) bit3D.getRawCutPaths();
+    rawCutPaths = (Vector<Path2D>) bit3D.getCutPathsCB();
     computeLiftPoints();
     computeTwoPointNearTwoPointMostDistantOnBit();
     lowerAltitude = bit3D.getLowerAltitude();
@@ -140,27 +140,27 @@ public class Bit3D implements Serializable, Cloneable {
    */
   private void computeLiftPoints() {
 //        System.out.println(TAG+"computeLiftPoint void");
-    for (Area subBit : bit2dToExtrude.getRawAreas()) {
+    for (Area subBit : bit2dToExtrude.getAreasCB()) {
       Vector2 liftPoint = computeLiftPoint(subBit);
       if (liftPoint != null) {
-        rawLiftPoints.add(liftPoint);
-        liftPoints.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrix()));
+        liftPointsCB.add(liftPoint);
+        liftPointsCS.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()));
       } else {
         irregular = true;
       }
     }
   }
 
-  public List<Path2D> getRawCutPaths() {
+  public List<Path2D> getCutPathsCB() {
     return rawCutPaths;
   }
 
-  public List<Vector2> getLiftPoints() {
-    return liftPoints;
+  public List<Vector2> getLiftPointsCS() {
+    return liftPointsCS;
   }
 
-  public List<Vector2> getRawLiftPoints() {
-    return rawLiftPoints;
+  public List<Vector2> getLiftPointsCB() {
+    return liftPointsCB;
   }
 
   public Vector2 getOrientation() {
@@ -172,11 +172,11 @@ public class Bit3D implements Serializable, Cloneable {
   }
 
   public Area getRawArea() {
-    return bit2dToExtrude.getRawArea();
+    return bit2dToExtrude.getAreaCB();
   }
 
   public List<Area> getRawAreas() {
-    return bit2dToExtrude.getRawAreas();
+    return bit2dToExtrude.getAreasCB();
   }
 
   public Bit2D getBaseBit() {
@@ -189,14 +189,14 @@ public class Bit3D implements Serializable, Cloneable {
 
   @Override
   public String toString() {
-    Rectangle2D bound = bit2dToExtrude.getArea()
+    Rectangle2D bound = bit2dToExtrude.getAreaCS()
         .getBounds2D();
     return "Bit3D[" +
         "origin=" + origin +
         ", orientation=" + orientation +
         ", width=" + bit2dToExtrude.getLength() +
         ", height=" + bit2dToExtrude.getWidth() +
-        ", liftPoints=" + liftPoints +
+        ", liftPoints=" + liftPointsCS +
         ", irregular=" + irregular +
         ", areaBound=" +
         "[x=" + bound.getX() +
@@ -208,12 +208,12 @@ public class Bit3D implements Serializable, Cloneable {
   }
 
   public boolean isCutable() {
-    return this.getRawLiftPoints()
+    return this.getLiftPointsCB()
         .size() > 0;
   }
 
   public void computeTwoPointNearTwoPointMostDistantOnBit() {
-    for (Area area : bit2dToExtrude.getRawAreas()) {
+    for (Area area : bit2dToExtrude.getAreasCB()) {
       Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
           area, CraftConfig.suckerDiameter / 4);
       if (listPoint != null) {
@@ -230,10 +230,10 @@ public class Bit3D implements Serializable, Cloneable {
     return higherAltitude;
   }
 
-  @SuppressWarnings("super")
-  public Bit3D clone() {
-    return new Bit3D(this);
-  }
+//  @SuppressWarnings("super")
+//  public Bit3D clone() {
+//    return new Bit3D(this);
+//  }
 
   public LinkedList<Vector<Path2D>> getRawCutPathsSeparate() {
     return rawCutPathsSeparate;
@@ -244,10 +244,10 @@ public class Bit3D implements Serializable, Cloneable {
    *
    * @return list of distant points in {@link Mesh} coordinate
    */
-  public Vector<Vector2> getTwoDistantPointsInMeshCoordinate() {
+  public Vector<Vector2> getTwoDistantPointsCS() {
     Vector<Vector2> listPoints = new Vector<>();
     listTwoDistantPoints.forEach(list -> list.forEach(
-        ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrix()))));
+        ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()))));
     return listPoints;
   }
 
@@ -295,14 +295,14 @@ public class Bit3D implements Serializable, Cloneable {
   private void inverseLiftPoint() {
     AffineTransform matrixReverseBit = new AffineTransform();
     matrixReverseBit.rotate(Math.PI);
-    Vector<Vector2> rawLiftPoints = new Vector<>(this.rawLiftPoints);
-    this.rawLiftPoints.clear();
-    Vector<Vector2> liftPoints = new Vector<>(this.liftPoints);
-    this.liftPoints.clear();
+    Vector<Vector2> rawLiftPoints = new Vector<>(this.liftPointsCB);
+    this.liftPointsCB.clear();
+    Vector<Vector2> liftPoints = new Vector<>(this.liftPointsCS);
+    this.liftPointsCS.clear();
     for (int i = rawLiftPoints.size() - 1; i >= 0; i--) {
-      this.rawLiftPoints.add(rawLiftPoints.get(i)
+      this.liftPointsCB.add(rawLiftPoints.get(i)
           .getTransformed(matrixReverseBit));
-      this.liftPoints.add(liftPoints.get(i));
+      this.liftPointsCS.add(liftPoints.get(i));
     }
   }
 
@@ -331,12 +331,12 @@ public class Bit3D implements Serializable, Cloneable {
   public void inverseCutPath() {
     AffineTransform matrixReverseBit = new AffineTransform();
     matrixReverseBit.rotate(Math.PI);
-    Vector<Path2D> cutPaths = new Vector<>(this.getRawCutPaths());
-    this.getRawCutPaths()
+    Vector<Path2D> cutPaths = new Vector<>(this.getCutPathsCB());
+    this.getCutPathsCB()
         .clear();
     for (int i = cutPaths.size() - 1; i >= 0; i--) {
-      this.getRawCutPaths()
-          .add(CutPathUtil.transformPath2D(cutPaths.get(i), matrixReverseBit));
+      this.getCutPathsCB()
+          .add(CutPathCalc.instance.transformPath2D(cutPaths.get(i), matrixReverseBit));
     }
   }
 
@@ -369,7 +369,7 @@ public class Bit3D implements Serializable, Cloneable {
    *
    */
   public ArrayList<Double> getMinAndMaxXDistantPoint() {
-    Vector<Vector2> allDistancePoints = this.getTwoDistantPointsInMeshCoordinate();
+    Vector<Vector2> allDistancePoints = this.getTwoDistantPointsCS();
 
     ArrayList<Double> xPositions = new ArrayList<Double>();
 

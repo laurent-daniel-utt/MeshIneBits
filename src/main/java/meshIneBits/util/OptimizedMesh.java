@@ -73,7 +73,7 @@ public class OptimizedMesh {
             Set<Bit3D> bits = new HashSet<>();
             Bit2D bit2D = bit3D.getBaseBit();
             Vector2 orientation = bit2D.getOrientation();
-            Vector2 origin = bit2D.getOrigin();
+            Vector2 origin = bit2D.getOriginCS();
 //                        double line = origin.x*orientation.x+origin.y*orientation.y;
             double a = orientation.x * origin.x + orientation.y * origin.y;
             System.out.println(

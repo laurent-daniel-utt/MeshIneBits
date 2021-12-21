@@ -10,7 +10,6 @@ public class BitShape {
   private final PShape shape;
   private final Vector<SubBitShape> subBitShapes = new Vector<>();
   private Integer layerId;
-  private Integer batchId;
 
   public BitShape(PShape shapeBit) {
     this.shape = shapeBit;
@@ -45,18 +44,17 @@ public class BitShape {
     return layerId == null ? -1 : layerId;
   }
 
-  public int getBatchId() {
-    return batchId == null ? -1 : batchId;
-  }
-
   public BitShape setLayerId(int layerId) {
     this.layerId = layerId;
     return this;
   }
 
-  @SuppressWarnings("all")
-  public BitShape setBatchId(int batchId) {
-    this.batchId = batchId;
-    return this;
+  public void translate(float x, float y, float lowerAltitude) {
+//    shape.translate(x,y,lowerAltitude);
+    subBitShapes.forEach(subBitShape -> subBitShape.getShape().translate(x,y,lowerAltitude));
+  }
+
+  public void rotateZ(float radians) {
+    subBitShapes.forEach(subBitShape -> subBitShape.getShape().rotate(radians));
   }
 }
