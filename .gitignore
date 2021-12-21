@@ -12,3 +12,6 @@ bin/
 out/
 local.properties
 data/*
+
+.gradle
+*.log
