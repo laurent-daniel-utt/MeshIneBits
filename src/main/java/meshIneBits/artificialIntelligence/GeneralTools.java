@@ -171,7 +171,7 @@ public class GeneralTools {
     public static double getLocalCoordinateSystemAngle(@NotNull Vector<Vector2> sectionPoints) {
 
         //map for more accurate result
-        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints);
+        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints, false);
 
         //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
@@ -337,17 +337,18 @@ public class GeneralTools {
      */
     public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
         int nbPoints = 5;//todo @Etienne ou Andre : mettre hidden_neurons_count en fonction de ca
-        return repopulateWithNewPoints(nbPoints, sectionPoints);
+        return repopulateWithNewPoints(nbPoints, sectionPoints, false);
     }
 
     /**
-     * Repopulate a section a points with new points. Doesn't keep old points.
+     * Repopulate a section a points with new points. Keep old ones if specified
      *
-     * @param nbNewPoints the number of points to add between two points.
+     * @param nbNewPoints the number of points to add between two points. If KeepOldPoints, old points are added to the total number of new points
      * @param points      the section of points to repopulate
+     * @param keepOldPoints true to keep old points in addition to the old ones.
      * @return the section repopulated with new points.
      */
-    private static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points) {
+    public static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points, boolean keepOldPoints) {
 
         Vector<Vector2> newPoints = new Vector<>();
         Vector<Double> segmentLength = new Vector<>();
@@ -374,9 +375,12 @@ public class GeneralTools {
             while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
+                if (keepOldPoints) {
+                    newPoints.add(points.get(basePointsIndex));
+                }
             }
 
-            //Calculate the angle between the segment ant the abscissa axis
+            //Calculate the angle between the segment and the abscissa axis
             double segmentAngle;
             if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
                     && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // then the segment is vertical
