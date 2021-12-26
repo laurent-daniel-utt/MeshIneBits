@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -29,9 +29,9 @@
 
 package meshIneBits.util;
 
-import static java.lang.Double.NaN;
-
 import java.awt.geom.*;
+
+import static java.lang.Double.NaN;
 
 public abstract class CalculateAreaSurface {
     public static double approxArea(Area area, double flatness, int limit) {

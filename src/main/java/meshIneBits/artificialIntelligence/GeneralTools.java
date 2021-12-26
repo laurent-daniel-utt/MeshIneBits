@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -176,13 +176,10 @@ public class GeneralTools {
         //get an angle in degrees
         double angle = getSectionOrientation(mappedPoints);
 
-
         //check if abscissa axe of local coordinate system and and section are directed in the same direction.
         if (arePointsMostlyOrientedToTheLeft(sectionPoints, sectionPoints.firstElement())) {
             angle += 180; //rotate coordinate system
         }
-
-
         if (angle > 180) { // make sure that the angle is between -180 and 180 degrees
             angle -= 360;
         }
@@ -281,8 +278,6 @@ public class GeneralTools {
         sectionPoints.add(circleAndSegmentIntersection(startPoint, bitLength,
                 segment));
 
-        //AI_Tool.dataPrep.pointsADessiner.addAll(sectionPoints);
-
         return sectionPoints;
     }
 
@@ -336,7 +331,7 @@ public class GeneralTools {
      * @return a new section of points, composed of the equally spaced points.
      */
     public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
-        int nbPoints = 5;//todo @Etienne ou Andre : mettre hidden_neurons_count en fonction de ca
+        int nbPoints = 10   ;//todo @Etienne ou Andre : mettre hidden_neurons_count en fonction de ca
         return repopulateWithNewPoints(nbPoints, sectionPoints);
     }
 
@@ -593,8 +588,8 @@ public class GeneralTools {
     }
 
     /**
-     * Looks for an intersection point between a side of a bit and a closed contour (bound). TJe point returned
-     * is the first intersecton between the bit and the contour, while scanning the contour in the direction of
+     * Looks for an intersection point between a side of a bit and a closed contour (bound). The point returned
+     * is the first intersection between the bit and the contour, while scanning the contour in the direction of
      * increasing indices of the points of the contour.
      *
      * @param bit         a {@link Bit2D}.

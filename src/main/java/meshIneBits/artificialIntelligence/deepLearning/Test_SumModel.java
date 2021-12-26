@@ -6,8 +6,11 @@ import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -23,9 +26,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
-import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
-import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.awt.*;
@@ -42,6 +43,7 @@ public class Test_SumModel {
     public static final int seed = 12345;
     //Number of epochs (full passes of the data)
     public static final int nEpochs = 10000;
+    private static final int batchSize = 120;
 
     private static DataSet testDataSet;
     private static DataSet trainDataSet;
@@ -50,72 +52,69 @@ public class Test_SumModel {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        //Generate the training data
-        RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
-        DataSetIterator iterator = new RecordReaderDataSetIterator(rr, getNumberOfExamples(), 0, 1, true); //debugOnly
-
-        DataSet fullDataSet = iterator.next();
-        fullDataSet.shuffle();
-        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 3); // 100% for training and 0% for testing //todo @etienne
-        testDataSet = testAndTrain.getTest();
-        trainDataSet = testAndTrain.getTrain();
-        normalizer = new NormalizerStandardize();
-        normalizer.fitLabel(true);
-        normalizer.fit(fullDataSet);
-        normalizer.transform(fullDataSet);
-        iterator.setPreProcessor(normalizer);
-
         //Create the network
-        int numInput = 10;
+        int numInput = 20;
         int numOutputs = 2;
-        int nHidden = 90; //4.8 AVEC 50.   5.1 AVEC 60 OU 40. 4.7 AVEC 90
+        int nHidden = 30; //4.8 AVEC 50.   5.1 AVEC 60 OU 40. 4.7 AVEC 90
         net = new MultiLayerNetwork(new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new Adam(0.005))//0.01->s0.35    0.001->s:0.16    0.0001->s0.22
-                //.updater(new Sgd(0.01))
-                .activation(Activation.RELU6)
-                .gradientNormalization(GradientNormalization.ClipL2PerParamType)
+                .weightInit(WeightInit.RELU) //XAVIER ou alors RELU avec RELU/LEAKYRELU en fonction d'activation
+                .activation(Activation.LEAKYRELU) //RELU ou LEAKYRELU
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(new Nesterovs(0.01, 0.95))
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerParamType)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden)
-                        .activation(Activation.RELU6) //Change this to RELU and you will see the net learns very well very quickly
-                        .build())
-                .layer(1, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(2, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(3, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(4, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(5, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(6, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(7, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(8, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden)
-                        .build())
-                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MEAN_ABSOLUTE_ERROR)//MSE
-                        .activation(Activation.IDENTITY)
+
+                .layer(0, new DenseLayer.Builder().nIn(numInput).nOut(nHidden).build())
+                .layer(1, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(2, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(3, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(4, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(5, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(6, new DenseLayer.Builder().nIn(nHidden).nOut(nHidden).build())
+                .layer(7, new OutputLayer.Builder()
+                        .activation(Activation.IDENTITY) //IDENTITY
+                        .lossFunction(LossFunctions.LossFunction.MSE) //MSE
                         .nIn(nHidden).nOut(numOutputs).build())
+                .backpropType(BackpropType.Standard)
+                .setInputType(InputType.feedForward(10))
                 .build()
         );
         net.init();
         net.setListeners(new ScoreIterationListener(100));
 
         startMonitoring();
+
+        //Generate the training data
+        RecordReader rr = new CSVRecordReader();
+        rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
+        DataSetIterator iterator = new RecordReaderDataSetIterator(rr, batchSize, 0, 1, true);
+        //DataSet fullDataSet = iterator.next();
+        //fullDataSet.shuffle();
+
+
+       /* normalizer = new NormalizerStandardize();
+        normalizer.fitLabel(true);
+        normalizer.fit(fullDataSet);
+        normalizer.transform(fullDataSet);
+        iterator.setPreProcessor(normalizer);
+
+        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples()/10-1); //80% for training and 20% for testing
+        testDataSet = testAndTrain.getTest();
+        trainDataSet = testAndTrain.getTrain();
+*/
         //Train the network on the full data set, and evaluate in periodically
-        for (int i = 0; i < nEpochs; i++) {
-            iterator.reset();
-            net.fit(iterator);
-        }
+        net.fit(iterator, nEpochs);
+
+        DataSet fullDataSet = iterator.next();
+        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 1); // 100% for training and 0% for testing //todo @etienne
+        testDataSet = testAndTrain.getTest();
+
         INDArray features = testDataSet.getFeatures();
         INDArray out = net.output(features, false);
         INDArray labels = testDataSet.getLabels();
-        normalizer.revert(testDataSet);
-        normalizer.revertLabels(out);
+        // normalizer.revert(testDataSet);
+        // normalizer.revertLabels(out);
 
         System.out.println("predictions : \n" + out + "\n labels : \n" + labels); //debugOnly
         System.out.println(net.score());
@@ -132,9 +131,9 @@ public class Test_SumModel {
         ModelSerializer.writeModel(net, locationToSave, false);
 
         // 2) save Normalizer
-        NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
-        saver.write(normalizer, normalsFile);
+        // NormalizerSerializer saver = NormalizerSerializer.getDefault();
+        //File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
+        //saver.write(normalizer, normalsFile);
 
         System.out.println("The neural network parameters and configuration have been saved.");
     }

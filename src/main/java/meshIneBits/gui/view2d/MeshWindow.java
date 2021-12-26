@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -42,8 +42,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;

@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -34,8 +34,10 @@ import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 
-import java.util.*;
-import java.util.concurrent.Executor;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -31,12 +31,10 @@ package meshIneBits.util.supportExportFile;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
-import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.MeshTagXML;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.scheduler.BasicScheduler;
 import meshIneBits.util.InterfaceXmlTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
@@ -46,7 +44,10 @@ import org.w3c.dom.Element;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * This class provide list of function to support writing {@link Mesh} to XML file.

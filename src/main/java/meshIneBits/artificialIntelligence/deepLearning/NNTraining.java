@@ -1,32 +1,3 @@
-/*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
- * into a network of standard parts (called "Bits").
- *
- * Copyright (C) 2016-2021 DANIEL Laurent.
- * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
- * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
- * Copyright (C) 2018 VALLON Benjamin.
- * Copyright (C) 2018 LORIMER Campbell.
- * Copyright (C) 2018 D'AUTUME Christian.
- * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
- * Copyright (C) 2020-2021 DO Quang Bao.
- * Copyright (C) 2021 VANNIYASINGAM Mithulan.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.artificialIntelligence.AI_Tool;
@@ -52,8 +23,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
-import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.awt.*;
@@ -70,7 +42,7 @@ public class NNTraining {
     /**
      * The number of iterations to train the neural network.
      */
-    private static final int N_EPOCHS = 10000;
+    private static final int N_EPOCHS = 25000;
     /**
      * The number of labels for the outputs.
      * Here it is the position and the rotation.
@@ -79,13 +51,13 @@ public class NNTraining {
     /**
      * The number of parameters for the inputs.
      */
-    private static final int FEATURES_COUNT = 10; // ! Do not change if the DataSet format has not changed
+    private static final int FEATURES_COUNT = 20; // ! Do not change if the DataSet format has not changed
     /**
      * The number of neurons in an hidden layer.
      */
-    public static int HIDDEN_NEURONS_COUNT = 50; // This number could also be specified for each layer.
+    public static int HIDDEN_NEURONS_COUNT = 30; // This number could also be specified for each layer.
 
-    //private DataNormalization normalizer;
+    private DataNormalization normalizer;
     private MultiLayerNetwork model;
 
     private DataSet trainingDataSet;
@@ -129,24 +101,25 @@ public class NNTraining {
         // 1) datasets
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
-        DataSetIterator iter = new RecordReaderDataSetIterator(rr, getNumberOfExamples(), 0, 1, true); //debugOnly
+        DataSetIterator iter = new RecordReaderDataSetIterator(rr, getNumberOfExamples()/100, 0, 1, true); //debugOnly
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
         fullDataSet.shuffle();
 
+
+        // 3) normalizer
+        /*normalizer = new NormalizerStandardize();
+        normalizer.fitLabel(true);
+        normalizer.fit(fullDataSet);
+        normalizer.transform(fullDataSet); //todo @etienne
+        iter.setPreProcessor(normalizer);
+*/
         // 2) split data in two
         System.out.println("dataSet Size : " + fullDataSet.numExamples());
         SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 1); // 100% for training and 0% for testing //todo @etienne
         trainingDataSet = testAndTrain.getTrain();
-        testDataSet = testAndTrain.getTest();
+        testDataSet = testAndTrain.getTest();//todo voir mini batches
 
-        // 3) normalizer
-        //normalizer = new NormalizerStandardize();
-        //normalizer.fitLabel(true);
-        //normalizer.fit(trainingDataSet);
-        //normalizer.transform(trainingDataSet); //todo @etienne
-
-        //iter.setPreProcessor(normalizer);
 
     }
 
@@ -165,11 +138,12 @@ public class NNTraining {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(12345)//todo enlever après les tests
                 .activation(Activation.RELU)
-                //.updater(new Adam(0.01))
-                .updater(new Nesterovs(0.00005, 0.9)) //momentum should be <1
-                .l2(1e-5)//change pas grand chose ?
-                .weightDecay(1e-5)//change pas grand chose
-                .weightInit(WeightInit.LECUN_NORMAL) //bien pour regression LECUN_NORMAL
+                //.weightInit(WeightInit.XAVIER)
+                .updater(new Adam(0.008))
+                //.updater(new Nesterovs(0.01, 0.9)) //momentum should be <1
+                .l2(1e-5)//change pas grand chose de changer la val ?
+                //.weightDecay(1e-5)//change pas grand chose
+                .weightInit(WeightInit.RELU) //bien pour regression LECUN_NORMAL
                 .list()
 //https://deeplearning4j.konduit.ai/deeplearning4j/how-to-guides/tuning-and-training/troubleshooting-training
                 //Input Layer
@@ -181,8 +155,22 @@ public class NNTraining {
                         .build())
                 .layer(2, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
                         .build())
+                .layer(3, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(4, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(5, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(6, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(7, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
+                .layer(8, new DenseLayer.Builder().nIn(HIDDEN_NEURONS_COUNT).nOut(HIDDEN_NEURONS_COUNT)
+                        .build())
                 //Output Layer
-                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MEAN_ABSOLUTE_ERROR)//MSE bien pour regression
+                .layer(9, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)//MSE bien pour regression
                         .activation(Activation.IDENTITY) //do not change
                         .nIn(HIDDEN_NEURONS_COUNT)
                         .nOut(CLASSES_COUNT)
@@ -225,8 +213,8 @@ public class NNTraining {
         INDArray features = testDataSet.getFeatures();
         INDArray labels = testDataSet.getLabels();
         INDArray prediction = model.output(features, false);
-        //normalizer.revert(testDataSet);
-        //normalizer.revertLabels(prediction);
+      //  normalizer.revert(testDataSet);
+      //  normalizer.revertLabels(prediction);
         //todo @Andre print score sinon
         System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
         System.out.println(model.score());
@@ -245,7 +233,6 @@ public class NNTraining {
         is_training = true;
         for (int i = 0; i < N_EPOCHS; i++) {
             model.fit(trainingDataSet);
-
             if (stop_training) {
                 stop_training = false;
                 break;
@@ -271,7 +258,7 @@ public class NNTraining {
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
         File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
-        //saver.write(normalizer, normalsFile);
+        saver.write(normalizer, normalsFile);
 
         System.out.println("The neural network parameters and configuration have been saved.");
     }

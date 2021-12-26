@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -32,11 +32,9 @@ package meshIneBits;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Triangle;
 import meshIneBits.util.Vector3;
-import org.bytedeco.opencv.presets.opencv_core;
 import remixlab.dandelion.geom.Rotation;
 import remixlab.dandelion.geom.Vec;
 
-import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.util.Vector;
 

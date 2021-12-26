@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -34,6 +34,7 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -114,6 +115,8 @@ public class GeneticPavement extends PatternTemplate {
         Slice slice = layer.getHorizontalSection();
         Vector<Vector<Vector2>> boundsToCheckAssociated = new GeneralTools().getBoundsAndRearrange(slice);
 
+        long start2 = System.currentTimeMillis(); //todo testOnly
+
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
@@ -135,10 +138,14 @@ public class GeneticPavement extends PatternTemplate {
 
                 //Prepare to find the next Solution
                 layerAvailableArea.subtract(bestBit.getArea());
+                startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
+                DebugTools.pointsToDrawGREEN.add(startPoint);
+                AI_Tool.getMeshController().AI_NeedPaint=true;
                 associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
-                startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound);
             }
         }
+        long end2 = System.currentTimeMillis();
+        System.out.println("Elapsed Time in milli seconds: "+ (end2-start2));
     }
 
     /**

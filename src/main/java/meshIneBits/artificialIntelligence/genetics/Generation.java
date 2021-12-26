@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -48,7 +48,7 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 89.0;
+    private static final double MAX_ANGLE = 150;//89.0;
     public final @NotNull Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
@@ -187,11 +187,9 @@ public class Generation {
      * @return the solutions given with a few mutated solutions.
      */
     public @NotNull Vector<Solution> mutate(@NotNull Vector<Solution> solutionsToMutate) {
-        //Vector<Solution> mutatedSolutions = new Vector<>();
         for (Solution solution : solutionsToMutate) {
             if (Math.random() <= this.probMutation) {
                 solution.mutate();
-                // mutatedSolutions.add(solution);
             }
         }
         return solutionsToMutate;

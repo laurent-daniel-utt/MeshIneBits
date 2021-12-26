@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -33,19 +33,16 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.newt.util.MainThread;
-import controlP5.*;
 import controlP5.Button;
+import controlP5.*;
 import javafx.util.Pair;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
-import nervoussystem.obj.OBJExport;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PSurface;
@@ -60,7 +57,10 @@ import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

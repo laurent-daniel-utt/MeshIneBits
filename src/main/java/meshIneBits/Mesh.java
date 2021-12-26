@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -34,7 +34,9 @@ import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.slicer.Slice;
 import meshIneBits.slicer.SliceTool;
-import meshIneBits.util.*;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Segment2D;
+import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
 
 import java.awt.geom.Area;

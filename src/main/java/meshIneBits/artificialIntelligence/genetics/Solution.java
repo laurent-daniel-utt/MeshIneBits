@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -31,6 +31,8 @@ package meshIneBits.artificialIntelligence.genetics;
 
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
@@ -117,11 +119,13 @@ public class Solution {
      * @return the area.
      */
     private double getAreaScore() {
+        if (score!=0d)
+            return score;
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
         availableBitArea.intersect(layerAvailableArea);
 
-        if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
+        if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular //todo @etienne
             this.generation.solutions.remove(this);
             return 0;
         } else {
@@ -132,9 +136,8 @@ public class Solution {
             Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.lengthFull, CraftConfig.bitWidth);
             double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
             double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
-            return ((1 - RATIO / 100.0) * area / maxArea);
-
-
+            score = ((1 - RATIO / 100.0) * area / maxArea);
+            return score;
         }
     }
 
@@ -169,12 +172,33 @@ public class Solution {
         /*
         Adding getNumberOfIntersections usage will improve the performances.
         Needs to be debugged. Works elsewhere but not here... :(
+        */
 
-        if (getNumberOfIntersections(bound) != 2)
+       /* int intersections_count = getNumberOfIntersections(bound);
+        System.out.println(intersections_count);
+        if (intersections_count!=3) { //todo @Etienne
             bad = true;
-         */
+        }
+
+        */
+
+
         try {
-            new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound);
+            Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound);
+            //todo on verif si le start est avant le next
+            boolean hasFoundStartPoint = false;
+            Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
+            for (Segment2D seg : segment2DS) {
+//                DebugTools.segmentsToDraw.add(seg);
+                if (startPoint.isOnSegment(seg)) {
+                    hasFoundStartPoint=true;
+                }
+                if (nextStartPoint.isOnSegment(seg) && !hasFoundStartPoint) {
+                    System.out.println("OKKKKKKKK");
+                    bad = true;
+                }
+            }
+
         } catch (Exception e) {
             bad = true;
         }
@@ -188,11 +212,11 @@ public class Solution {
      * @param boundPoints the bound of the Slice
      * @return the number of intersections
      */
-    @SuppressWarnings("unused")
     private int getNumberOfIntersections(@NotNull Vector<Vector2> boundPoints) {
         Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
-
+        DebugTools.segmentsToDraw = bitSides;
+        AI_Tool.getMeshController().AI_NeedPaint = true;
         int intersectionCount = 0;
 
         for (Segment2D segmentSlice : segmentsSlice)
