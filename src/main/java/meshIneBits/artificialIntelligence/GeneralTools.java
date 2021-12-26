@@ -338,8 +338,8 @@ public class GeneralTools {
     /**
      * Repopulate a section a points with new points. Keep old ones if specified
      *
-     * @param nbNewPoints the number of points to add between two points. If KeepOldPoints, old points are added to the total number of new points
-     * @param points      the section of points to repopulate
+     * @param nbNewPoints   the number of points to add between two points. If KeepOldPoints, old points are added to the total number of new points
+     * @param points        the section of points to repopulate
      * @param keepOldPoints true to keep old points in addition to the old ones.
      * @return the section repopulated with new points.
      */
@@ -451,18 +451,66 @@ public class GeneralTools {
         return coefficients;
     }
 
+    /**
+     * Looks for an intersection point between a side of a bit and a closed contour (bound). The point returned
+     * is the first intersection between the bit and the contour, while scanning the contour in the direction of
+     * increasing indices of the points of the contour.
+     *
+     * @param bit              a {@link Bit2D}.
+     * @param boundPoints      the points of the contour.
+     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the size of a bit
+     * @return the first intersection between the bit and the closed contour.
+     */
+    public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
+
+        Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
+        Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
+        Vector<Vector2> intersectionPoints = new Vector<>();
+        double maxDistanceToSearch = CraftConfig.lengthFull + CraftConfig.errorAccepted;
+
+        for (Segment2D boundSegment : boundSegments) {
+            Vector<Vector2> intersectionsWithSegment = new Vector<>();
+            //System.out.println(startPoint+" "+ Vector2.dist(startPoint, boundSegment.end));
+            if (limitTheDistance && Vector2.dist(startPoint, boundSegment.end) > maxDistanceToSearch)
+                return null;
+            for (Segment2D bitSegment : bitSegments) {
+
+                if (Segment2D.doSegmentsIntersect(boundSegment, bitSegment)) {
+                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment);
+                    intersectionsWithSegment.add(inter);
+                }
+            }
+
+
+            while (!intersectionsWithSegment.isEmpty()) {
+                double distMin = Double.POSITIVE_INFINITY;
+                Vector2 firstPoint = null;
+                for (Vector2 inter : intersectionsWithSegment) {
+                    if (Vector2.dist2(inter, boundSegment.start) < distMin) {
+                        firstPoint = inter;
+                        distMin = Vector2.dist2(inter, boundSegment.start);
+                    }
+                }
+                intersectionPoints.add(firstPoint);
+                intersectionsWithSegment.remove(firstPoint);
+            }
+
+        }
+        return intersectionPoints.get(1);
+    }
 
     /**
      * Return the next Bit2D start point.
      * It is the intersection between the slice and the end side of the Bit2D.
      *
-     * @param bit         the current Bit2D (the last placed Bit2D by AI).
-     * @param boundPoints the points of the bounds on which stands the bit.
+     * @param bit              the current Bit2D (the last placed Bit2D by AI).
+     * @param boundPoints      the points of the bounds on which stands the bit.
+     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the size of a bit
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
+    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) throws Exception {
 
-        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints);
+        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints, limitTheDistance, startPoint);
 
         if (nextBitStartPoint != null) {
             return nextBitStartPoint;
@@ -470,7 +518,6 @@ public class GeneralTools {
             throw new Exception("The bit start point has not been found.");
         }
     }
-
 
     /**
      * Returns points all points associated with a Bit2D.
@@ -592,50 +639,15 @@ public class GeneralTools {
     }
 
     /**
-     * Looks for an intersection point between a side of a bit and a closed contour (bound). The point returned
-     * is the first intersection between the bit and the contour, while scanning the contour in the direction of
-     * increasing indices of the points of the contour.
+     * Return the next Bit2D start point.
+     * It is the intersection between the slice and the end side of the Bit2D.
      *
-     * @param bit         a {@link Bit2D}.
-     * @param boundPoints the points of the contour.
-     * @return the first intersection between the bit and the closed contour.
+     * @param bit         the current Bit2D (the last placed Bit2D by AI).
+     * @param boundPoints the points of the bounds on which stands the bit.
+     * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) {
-
-        Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
-        Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
-
-        Vector<Vector2> intersectionPoints = new Vector<>();
-
-        for (Segment2D boundSegment : boundSegments) {
-
-            Vector<Vector2> intersectionsWithSegment = new Vector<>();
-
-            for (Segment2D bitSegment : bitSegments) {
-
-                if (Segment2D.doSegmentsIntersect(boundSegment, bitSegment)) {
-                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment);
-                    intersectionsWithSegment.add(inter);
-                }
-            }
-
-
-            while (!intersectionsWithSegment.isEmpty()) {
-
-                double distMin = Double.POSITIVE_INFINITY;
-                Vector2 firstPoint = null;
-                for (Vector2 inter : intersectionsWithSegment) {
-                    if (Vector2.dist2(inter, boundSegment.start) < distMin) {
-                        firstPoint = inter;
-                        distMin = Vector2.dist2(inter, boundSegment.start);
-                    }
-                }
-                intersectionPoints.add(firstPoint);
-                intersectionsWithSegment.remove(firstPoint);
-            }
-
-        }
-        return intersectionPoints.get(1);
+    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
+        return getNextBitStartPoint(bit, boundPoints, false, null);
     }
 
     /**

@@ -31,8 +31,6 @@ package meshIneBits.artificialIntelligence.genetics;
 
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
@@ -184,21 +182,21 @@ public class Solution {
 
 
         try {
-            Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound);
+            System.out.println(getBit(startPoint));
+            Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, true, startPoint);
             //todo on verif si le start est avant le next
-            boolean hasFoundStartPoint = false;
-            Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
-            for (Segment2D seg : segment2DS) {
-//                DebugTools.segmentsToDraw.add(seg);
-                if (startPoint.isOnSegment(seg)) {
-                    hasFoundStartPoint=true;
-                }
-                if (nextStartPoint.isOnSegment(seg) && !hasFoundStartPoint) {
-                    System.out.println("OKKKKKKKK");
-                    bad = true;
-                }
-            }
+            //DebugTools.pointsToDrawRED.add(nextStartPoint);
 
+            //Vector2 startPoint = bound.firstElement();
+            //        DebugTools.pointsToDrawGREEN.add(startPoint);
+            //        AI_Tool.getMeshController().AI_NeedPaint=true;
+            //Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
+            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
+            Vector2 bitDirector = getBit(startPoint).getOrientation();
+//            System.out.println(bitDirector.dot(startToEnd));
+            if (bitDirector.dot(startToEnd) < 0) {
+                bad = true;
+            }
         } catch (Exception e) {
             bad = true;
         }
@@ -215,8 +213,6 @@ public class Solution {
     private int getNumberOfIntersections(@NotNull Vector<Vector2> boundPoints) {
         Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
-        DebugTools.segmentsToDraw = bitSides;
-        AI_Tool.getMeshController().AI_NeedPaint = true;
         int intersectionCount = 0;
 
         for (Segment2D segmentSlice : segmentsSlice)

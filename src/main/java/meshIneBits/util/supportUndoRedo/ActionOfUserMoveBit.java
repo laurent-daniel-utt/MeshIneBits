@@ -63,7 +63,7 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
             this.resultKeys =resultKeys;
         }
         if(currentSelectedBits!=null){
-            System.out.println("OKKK");
+            //System.out.println("OKKK");
             this.currentSelectedBits=new HashSet<>(currentSelectedBits);
         }
         this.layerNum=layerNumber;

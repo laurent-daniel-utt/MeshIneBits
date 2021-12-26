@@ -121,6 +121,7 @@ public class GeneticPavement extends PatternTemplate {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
             Vector<Vector2> associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+            DebugTools.pointsToDrawBLUE.add(startPoint);
 
             Bit2D bestBit;
             int bitNumber = 0;

@@ -31,15 +31,17 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
-import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.*;
+import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
+import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -603,13 +605,6 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.setColor(Color.green);
             drawModelCircle(g2d, point.x, point.y, 5);
         }
-        int i=0;
-        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
-            g2d.setColor(Color.blue);
-            drawModelCircle(g2d, point.x, point.y, 1);
-            g2d.drawString(Integer.toString(i), (int) (2*point.x+100), (int) (2*point.y+10));
-            i++;
-        }
 
         //Draw Segment2D
         Path2D path = new GeneralPath();
@@ -628,6 +623,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
             path.append(shape, false);
             drawModelPath2D(g2d, path);
+        }
+
+        int i = 0;
+        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
+            g2d.setColor(Color.blue);
+            drawModelCircle(g2d, point.x, point.y, 1);
+            g2d.drawString(Integer.toString(i), (int) (2 * point.x + 100), (int) (2 * point.y + 10));
+            i++;
         }
 
         //Draw Text

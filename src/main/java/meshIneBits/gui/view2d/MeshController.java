@@ -46,7 +46,10 @@ import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
 
 import java.awt.*;
-import java.awt.geom.*;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -568,6 +571,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         getCurrentLayer().addBit(newBit, true);
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
+
         if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it
             try {
                 Acquisition.addNewExampleBit(newBit);
