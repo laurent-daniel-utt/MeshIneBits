@@ -96,33 +96,32 @@ public class AI_Tool {
      * Pave the whole mesh with AI.
      */
     public @NotNull Collection<Bit2D> startNNPavement(@NotNull Slice slice) throws Exception {
-        Vector<Bit2D> bits = new Vector<>();
         System.out.println("PAVING SLICE " + slice.getAltitude());
+        Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+
         NNExploitation nnExploitation = new NNExploitation();
 
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);
-            Vector<Vector2> associatedPoints = new GeneralTools().getSectionPointsFromBound(bound, startPoint);
 
-            int nbIterations = 0;
-            while (hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
+            Vector<Vector2> sectionPoints;
+            int nbMaxBits = 0;
+            do{
+                sectionPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+                double angleLocalSystem = GeneralTools.getLocalCoordinateSystemAngle(sectionPoints);
 
-                nbIterations++;
-                if (nbIterations > AI_Tool.paramEarlyStopping.getCurrentValue())//number max of bits to place before stopping
-                    break;
-
-                Vector<Vector2> sectionPoints = new GeneralTools().getSectionPointsFromBound(bound, startPoint);
-                double angleLocalSystem = new GeneralTools().getLocalCoordinateSystemAngle(sectionPoints);
-
-                Vector<Vector2> sectionPointsReg = new GeneralTools().getInputPointsForDL(sectionPoints);
+                Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(sectionPoints);
+                Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(transformedPoints);
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
-
                 startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
+                nbMaxBits++;
             }
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < AI_Tool.paramEarlyStopping.getCurrentValue()); //Add each bit on the bound
+
         }
         return bits;
     }
