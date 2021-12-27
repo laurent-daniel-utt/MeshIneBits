@@ -67,6 +67,15 @@ public class NewBit2D extends Bit2D {
           .build();
       subBits.add(subBit2D);
     }
+    subBits.sort((sub1, sub2) -> {
+      Vector2 lift1 = sub1.getLiftPointCB();
+      Vector2 lift2 = sub2.getLiftPointCB();
+      if(lift1==null)return -1;
+      if(lift2==null)return 1;
+      return Double.compare(lift1.y, lift2.y) == 0 ?
+          Double.compare(lift1.x, lift2.x) :
+          Double.compare(lift1.y, lift2.y);
+    });
   }
 
   public Vector<SubBit2D> getSubBits() {

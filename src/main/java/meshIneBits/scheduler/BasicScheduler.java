@@ -29,11 +29,13 @@
 
 package meshIneBits.scheduler;
 
+import java.util.Objects;
 import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
@@ -118,11 +120,41 @@ public class BasicScheduler extends AScheduler {
   public Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits) {
     double xMin;
     if (bits.size() > 0) {
-      xMin = bits.get(0)
-          .getValue().x;
+      xMin = bits.get(0).getValue().x;
       bits = this.sortBits(bits, Math.abs(xMin));
     }
     return bits;
+  }
+
+  @Override
+  public Vector<SubBit2D> sortedSubBits(Vector<SubBit2D> subBits) {
+    Objects.requireNonNull(subBits);
+    if (subBits.size() > 0) {
+      double xMin = subBits.firstElement().getLiftPointCB().x;
+      double xInterval = CraftConfig.workingWidth;
+      subBits.sort((v1, v2) -> {
+        int v1XColumn = (int) (v1.getLiftPointCB().x +
+            mesh.getModel()
+                .getPos().x + xMin) / (int) xInterval;
+        int v2XColumn =
+            (int) (v2.getLiftPointCB().x + mesh.getModel()
+                .getPos().x + xMin) / (int) xInterval;
+
+        return v1XColumn - v2XColumn;
+//        if (v1XColumn == v2XColumn) {
+//          if (Double.compare(v1.getLiftPointCB().x, v2.getLiftPointCB().x) == 0) {
+//            return Double.compare(v1.getLiftPointCB().y, v2.getLiftPointCB().y);
+//          } else {
+//            return Double.compare(v1.getLiftPointCB().x, v2.getLiftPointCB().x);
+//          }
+//        } else if (v1XColumn < v2XColumn) {
+//          return -1;
+//        } else {
+//          return 1;
+//        }
+      });
+    }
+    return subBits;
   }
 
   public Vector<Pair<Bit3D, Vector2>> sortBits(Vector<Pair<Bit3D, Vector2>> keySet,

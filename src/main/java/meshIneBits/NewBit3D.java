@@ -48,4 +48,9 @@ public class NewBit3D extends Bit3D {
         .filter(Objects::nonNull)
         .collect(Collectors.toCollection(Vector::new));
   }
+
+  @Override
+  public Vector<SubBit2D> getSubBits() {
+    return getBaseBit().getSubBits();
+  }
 }

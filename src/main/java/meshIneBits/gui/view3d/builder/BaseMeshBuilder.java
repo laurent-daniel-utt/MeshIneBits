@@ -38,16 +38,17 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
       //TODO temporary code, need to be clean after!!!
       Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
           mesh.getScheduler().filterBits(layer.sortBits()));
+      int layerId = layer.getLayerNumber();
       bitsInCurrentLayer.forEach(bit3D -> {
         BitShape bitShape = buildBitShape((NewBit3D) bit3D);
-        int layerId = layer.getLayerNumber();
         updateBitShapeLocation(bit3D, bitShape);
         bitShape.setLayerId(layerId);
         NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
         Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
-        for(int i =0 ; i<validSubBits.size();i++){
-          int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(validSubBits.get(i));
-          if(batchId!=-1){
+        for (int i = 0; i < validSubBits.size(); i++) {
+          int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(
+              validSubBits.get(i));
+          if (batchId != -1) {
             bitShape.getSubBitShapes()
                 .get(i)
                 .setLayerId(layerId)
@@ -86,13 +87,11 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
   BitShape buildBitShape(NewBit3D bit3D) {
     /*Modify method to build shape of bit here (ie: extrude from area ...*/
     BitShape shapeBit = BitShape.create(context);
-    bit3D.getBaseBit().getSubBits().forEach(subBit2D -> {
-      if(subBit2D.getLiftPointCB()!=null){
-        PShape shape = ExtrusionFromAreaService.getInstance()
-            .buildShapeFromArea(context, subBit2D.getAreaCB(), Visualization3DConfig.BIT_THICKNESS);
-        SubBitShape subBitShape = new SubBitShape(shape);
-        shapeBit.addSubBit(subBitShape);
-      }
+    bit3D.getBaseBit().getValidSubBits().forEach(subBit2D -> {
+      PShape shape = ExtrusionFromAreaService.getInstance()
+          .buildShapeFromArea(context, subBit2D.getAreaCB(), Visualization3DConfig.BIT_THICKNESS);
+      SubBitShape subBitShape = new SubBitShape(shape);
+      shapeBit.addSubBit(subBitShape);
     });
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
     return shapeBit;

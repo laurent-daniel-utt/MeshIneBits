@@ -40,6 +40,7 @@ import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
+import meshIneBits.SubBit2D;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
@@ -127,7 +128,10 @@ public abstract class AScheduler extends Observable implements Serializable, Run
     return result;
   }
 
+
   public abstract Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits);
+
+  public abstract Vector<SubBit2D> sortedSubBits(Vector<SubBit2D> bits);
 
 
 }

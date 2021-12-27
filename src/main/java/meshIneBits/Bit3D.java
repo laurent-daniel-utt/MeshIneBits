@@ -389,4 +389,8 @@ public class Bit3D implements Serializable, Cloneable {
     }
     return xPositions;
   }
+
+  public Vector<SubBit2D> getSubBits(){
+    return new Vector<>();
+  }
 }

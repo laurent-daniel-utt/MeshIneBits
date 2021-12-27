@@ -273,8 +273,7 @@ public class Layer extends Observable implements Serializable {
       return keySet;
     }
     for (Vector2 key : mapBits3D.keySet()) {
-      for (Vector2 pos : mapBits3D.get(key)
-          .getLiftPointsCS()) {
+      for (Vector2 pos : mapBits3D.get(key).getLiftPointsCS()) {
         if (pos != null) {
           keySet.add(new Pair<>(mapBits3D.get(key), pos));
         }
@@ -288,6 +287,35 @@ public class Layer extends Observable implements Serializable {
       }
     });
     return keySet;
+//    return mapBits3D.values().stream().sorted((bit1, bit2) -> {
+//      Vector2 v1 = bit1.getOrigin();
+//      Vector2 v2 = bit2.getOrigin();
+//      if (Double.compare(v1.y, v2.y) == 0) {
+//        return Double.compare(v1.x, v2.x);
+//      } else {
+//        return Double.compare(v1.y, v2.y);
+//      }
+//    }).collect(Collectors.toCollection(Vector::new));
+  }
+
+  public Vector<SubBit2D> getSubBitsFiltered() {
+    Vector<SubBit2D> keySet = new Vector<>();
+    if (mapBits3D == null) {
+      return keySet;
+    }
+    return mapBits3D.values()
+        .stream()
+        .map(Bit3D::getSubBits)
+        .flatMap(Collection::stream)
+        .filter(SubBit2D::isValid)
+        .sorted((sub1, sub2) -> {
+          Vector2 lift1 = sub1.getLiftPointCB();
+          Vector2 lift2 = sub2.getLiftPointCB();
+          return Double.compare(lift1.y, lift2.y) == 0 ?
+              Double.compare(lift1.x, lift2.x) :
+              Double.compare(lift1.y, lift2.y);
+        })
+        .collect(Collectors.toCollection(Vector::new));
   }
 
 
