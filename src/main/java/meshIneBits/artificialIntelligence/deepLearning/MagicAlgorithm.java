@@ -1,11 +1,13 @@
 package meshIneBits.artificialIntelligence.deepLearning;
 
+import javafx.scene.shape.Shape;
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.apache.arrow.flatbuf.Null;
@@ -22,7 +24,9 @@ import remixlab.dandelion.geom.Vec;
 
 
 public class MagicAlgorithm {
-    public Bit2D calculateBitPosition(@NotNull Vector<Vector2> sectionPoints) {
+    public Bit2D calculateBitPosition(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
+
+        double distExt = 0.1;
 
         Vector<Vector2> sectionRepopulated = GeneralTools.repopulateWithNewPoints(100, sectionPoints, true);
 
@@ -37,31 +41,24 @@ public class MagicAlgorithm {
         do {
             //Vector<Vector2> hull = makeHullPresorted(sectionRepopulated);
             //Vector<Vector2> hull = makeHull(sectionRepopulated);
+            System.out.println("hull....");
             Vector<Vector2> hull = convex_hull(sectionRepopulated);
+//            DebugTools.pointsToDrawBLUE = hull;
+            System.out.println("passé");
             //DebugTools.pointsToDrawRED = sectionPoints;
+//            System.out.println("hull = " + hull);
             hull.add(hull.firstElement());
             Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
 
             // trouver le plus long segment
-            double maxLength = -1;
-            for (Segment2D s : segmentsHull) {
-                if (s.getLength() > maxLength) {
-                    longestSegment = s;
-                    maxLength = s.getLength();
-                }
-            }
+            longestSegment = getLongestSegment(segmentsHull);
 
             // trouver le point le plus éloigné du longestSegment
-            double maxDistance = -1;
-            for (Vector2 point : hull) {
-                assert longestSegment != null;
-                if (longestSegment.distFromPoint(point) > maxDistance) {
-                    furthestPoint = point;
-                    maxDistance = longestSegment.distFromPoint(point);
-                }
-            }
+            furthestPoint = getFurthestPointFromSegment(longestSegment, hull);
+            double maxDistance = Vector2.Tools.distanceFromPointToLine(furthestPoint, longestSegment);
 
-            if (maxDistance > CraftConfig.bitWidth) { // cas où on ne peut pas couvrir toute la section avec une lamelle
+            if (maxDistance > CraftConfig.bitWidth - minWidthToKeep) { // cas où on ne peut pas couvrir toute la section avec une lamelle
+//                System.out.println("superieur a largeur bit");
                 // recherche du point à pârtir duquel raccourcir la section
                 Vector<Vector2> cutPoints = new Vector<>();
                 cutPoints.add(longestSegment.start);
@@ -73,6 +70,7 @@ public class MagicAlgorithm {
                     if (cutPoints.contains(sectionRepopulated.get(iSection))) {
                         while (sectionRepopulated.size() > iSection) { // todo
                             sectionRepopulated.remove(iSection);
+//                            System.out.println("aaaaaaaaa");
                         }
                         cutPointFound = true;
                     }
@@ -82,69 +80,62 @@ public class MagicAlgorithm {
                 sectionReductionCompleted = true;
             }
             cpt++;
-            System.out.println("max distance = " + maxDistance);
+//            System.out.println("max distance = " + maxDistance + " and recuction completed = " + sectionReductionCompleted);
+
         }
         while (!sectionReductionCompleted);
 
         //Vector<Vector2> hull = makeHullPresorted(sectionRepopulated);
         //Vector<Vector2> hull = makeHull(sectionRepopulated);
+        System.out.println("hull....");
         Vector<Vector2> hull = convex_hull(sectionRepopulated);
+        System.out.println("passé");
         //DebugTools.pointsToDrawRED = sectionPoints;
         hull.add(hull.firstElement());
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
 
         // trouver le plus long segment
-        double maxLength = -1;
-        for (Segment2D s : segmentsHull) {
-            if (s.getLength() > maxLength) {
-                longestSegment = s;
-                maxLength = s.getLength();
-            }
-        }
+        longestSegment = getLongestSegment(segmentsHull);
 
         // trouver le point le plus éloigné du longestSegment
-        double maxDistance = -1;
-        for (Vector2 point : hull) {
-            assert longestSegment != null;
-            if (longestSegment.distFromPoint(point) > maxDistance) {
-                furthestPoint = point;
-                maxDistance = longestSegment.distFromPoint(point);
-            }
-        }
+        furthestPoint = getFurthestPointFromSegment(longestSegment, hull);
 
-
-
-
-        //DebugTools.pointsToDrawBLUE = (Vector<Vector2>) sectionRepopulated.clone();
-//        DebugTools.pointsToDrawRED = (Vector<Vector2>) hull.clone();
-//        DebugTools.segmentsToDraw = (Vector<Segment2D>) segmentsHull.clone();
-//        DebugTools.setPaintForDebug(true);
 
         // cas ou on a fait des decoupes donc la position du bit est contraite
 
         Vector2 rotation = longestSegment.getDirectionalVector();
 
 
-        Vector2 centerSegmentPoint;
-        Vector2 centerSegmentPoint1= furthestPoint.sub(longestSegment.getNormal()
-                .mul(longestSegment.distFromPoint(furthestPoint)/2));
-        Vector2 centerSegmentPoint2= furthestPoint.sub(longestSegment.getNormal()
-                .mul(-longestSegment.distFromPoint(furthestPoint)/2));
-        if (Vector2.dist2(centerSegmentPoint1, longestSegment.start) < Vector2.dist2(centerSegmentPoint2, longestSegment.start)) {
-            centerSegmentPoint = centerSegmentPoint1;
-        } else {
-            centerSegmentPoint = centerSegmentPoint2;
-        }
+        // projection orthogonale de FurthestPoint sur LongesSegment
+        Vector2 ortProjFurthestPoint = getOrthogonalProjection(longestSegment, furthestPoint);
 
-//        DebugTools.pointsToDrawBLUE.add(centerSegmentPoint);
-//        DebugTools.pointsToDrawRED.add(centerSegmentPoint1);
-//        DebugTools.pointsToDrawRED.add(centerSegmentPoint2);
+
+//        DebugTools.pointsToDrawRED.add(ortProjFurthestPoint);
+//        DebugTools.pointsToDrawGREEN.add(furthestPoint);
+//        DebugTools.segmentsToDraw.add(longestSegment);
+//        DebugTools.pointsToDrawBLUE = hull;
+//        DebugTools.pointsToDrawRED = sectionPoints;
 //        DebugTools.setPaintForDebug(true);
 
 
+        Vector2 midPoint = longestSegment.getMidPoint();
+        Vector2 posLigneRoseLocal = ortProjFurthestPoint.sub(furthestPoint).normal().mul(CraftConfig.bitWidth/2-distExt);
+        Vector2 posLigneRose;
+        if (areaSlice.contains(midPoint.x, midPoint.y)) {
+            posLigneRose = furthestPoint.add(posLigneRoseLocal);
+//            System.out.println("a l'interieur");
+        } else {
+            posLigneRose = ortProjFurthestPoint.sub(posLigneRoseLocal);
+//            System.out.println("a l'extérieur");
+        }
+
+        //DebugTools.pointsToDrawGREEN.add(posLigneRose);
+        //DebugTools.setPaintForDebug(true);
+
+
         Segment2D ligneRose = new Segment2D(
-                longestSegment.getDirectionalVector().mul(-10000).add(centerSegmentPoint),
-                longestSegment.getDirectionalVector().mul(10000).add(centerSegmentPoint));
+                longestSegment.getDirectionalVector().mul(-10000).add(posLigneRose),
+                longestSegment.getDirectionalVector().mul(10000).add(posLigneRose));
         Segment2D lignePerpendiculaire = new Segment2D(
                 sectionRepopulated.firstElement().add(longestSegment.getNormal().mul(-10000)),
                 sectionRepopulated.firstElement().add(longestSegment.getNormal().mul(10000)));
@@ -166,12 +157,14 @@ public class MagicAlgorithm {
 //        DebugTools.segmentsToDraw.add(new Segment2D(new Vector2(0, 0), directionalVector.mul(50)));
 
 
-        double longueur = CraftConfig.lengthFull/2-Vector2.dist(pointRose,centerSegmentPoint);
-        Vector2 position = centerSegmentPoint.add(directionalVector.mul(longueur));
+        double longueur = CraftConfig.lengthFull/2-Vector2.dist(pointRose,posLigneRose);
+        Vector2 position = posLigneRose.add(directionalVector.mul(longueur));
 
         Bit2D bit = new Bit2D(position, rotation);
 
         System.out.println("bit place = " + bit.toString());
+
+        //DebugTools.pointsToDrawGREEN.add(position);
 
 
         return bit;
@@ -179,27 +172,67 @@ public class MagicAlgorithm {
     }
 
 
-    public Vector<Bit2D> getBits2(Slice slice) throws Exception {
+    private Segment2D getLongestSegment(Vector<Segment2D> segments) {
+        Segment2D longestSegment = null;
+        double maxLength = -1;
+        for (Segment2D s : segments) {
+            if (s.getLength() > maxLength) {
+                longestSegment = s;
+                maxLength = s.getLength();
+            }
+        }
+        return longestSegment;
+    }
+
+    private Vector2 getFurthestPointFromSegment(Segment2D s, Vector<Vector2> points) {
+        Vector2 furthestPoint = null;
+        double maxDistance = -1;
+        for (Vector2 p : points) {
+            if (Vector2.Tools.distanceFromPointToLine(p, s) > maxDistance) {
+                furthestPoint = p;
+                maxDistance = Vector2.Tools.distanceFromPointToLine(p, s);
+            }
+        }
+        return furthestPoint;
+    }
+
+
+    private Vector2 getOrthogonalProjection(Segment2D AB, Vector2 C) {
+        Vector2 vAC = AB.start.sub(C);
+        Vector2 vAB = AB.getDirectionalVector().mul(AB.getLength());
+        double orthogonalProjectionDist = vAB.dot(vAC) / AB.getLength();
+        return AB.start.add(AB.getDirectionalVector().mul(-orthogonalProjectionDist));
+    }
+
+
+    public Vector<Bit2D> getBits2(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
 
-        Vector2 startPoint = new Vector2(29.39577615707399, 168.8854983178101);
+        //Vector2 startPoint = new Vector2(106.43064011048597, 221.5639175190068);
+        Vector2 startPoint = bounds.get(0).get(10);
 
         Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
 
-        bits.add(calculateBitPosition(sectionPoints));
+        Area areaSlice = AreaTool.getAreaFrom(slice);
+
+        bits.add(calculateBitPosition(sectionPoints, areaSlice,minWidthToKeep));
+//        DebugTools.pointsToDrawGREEN.add(startPoint);
 
         return bits;
     }
 
 
-    public Vector<Bit2D> getBits(Slice slice) throws Exception {
+
+    public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+
+        Area areaSlice = AreaTool.getAreaFrom(slice);
 
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
@@ -211,7 +244,7 @@ public class MagicAlgorithm {
             int nbMaxBits = 0;
             do{
                 sectionPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
-                Bit2D bit = calculateBitPosition(sectionPoints);
+                Bit2D bit = calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(bit);
                 startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
                 nbMaxBits++;
@@ -219,7 +252,7 @@ public class MagicAlgorithm {
                 //DebugTools.pointsToDrawRED = sectionPoints;
                 //DebugTools.setPaintForDebug(true);
             }
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 5); //Add each bit on the bound
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 1000); //Add each bit on the bound
 
         }
         return bits;
@@ -228,13 +261,23 @@ public class MagicAlgorithm {
 
 
     // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
+    public int OrientationMatch2(Vector2 check1, Vector2 check2, Vector2 check3) {
+        double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
+        double errorAccepted = Math.pow(10, -10);
+//        System.out.println(val);
+        return (val > errorAccepted) ? 1 : 2;
+    }
+
+
     public int OrientationMatch(Vector2 check1, Vector2 check2, Vector2 check3) {
         double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
         double errorAccepted = 0.05;
-        if (Math.abs(val) < errorAccepted)
+        if (val == 0)
             return 0;
         return (val > 0) ? 1 : 2;
     }
+
+
     public Vector<Vector2> convex_hull(Vector<Vector2> points) {
         int lengths = points.size();
         if (lengths<3) return null;
@@ -248,11 +291,14 @@ public class MagicAlgorithm {
             result.add(points.get(p));
             pointq = (p + 1) % lengths;
             for (int i = 0; i<lengths; i++) {
-                if (OrientationMatch(points.get(p), points.get(i), points.get(pointq)) == 2) {
+                if(OrientationMatch(points.get(p), points.get(i), points.get(pointq)) == 2) {
+                //if (OrientationMatch2(points.get(p), points.get(i), points.get(pointq)) == 2 && i!=p && p!=pointq) {
                     pointq = i;
+//                    System.out.println("======================");
                 }
             }
             p = pointq;
+//            System.out.println("___________________________");
         }
         while (p != leftmost);
 
@@ -260,88 +306,13 @@ public class MagicAlgorithm {
     }
 
 
-
-    // Returns a new list of points representing the convex hull of
-    // the given set of points. The convex hull excludes collinear points.
-    // This algorithm runs in O(n log n) time.
-    public static Vector<Vector2> makeHull(Vector<Vector2> points) {
-        Vector<Vector2c> newPoints = new Vector<>();
-        for (Vector2 point : points) {
-            newPoints.add(new Vector2c(point.x, point.y));
-        }
-        Collections.sort(newPoints);
-        return makeHullPresorted(newPoints);
-    }
-
-
-    private static class Vector2c extends Vector2 implements Comparable<Vector2> {
-
-        public Vector2c(double x, double y) {
-            super(x, y);
-        }
-
-        @Override
-        public int compareTo(@NotNull Vector2 other) {
-            if (x != other.x)
-                return Double.compare(x, other.x);
-            else
-                return Double.compare(y, other.y);
-        }
-    }
-
-
-    // taken from https://www.nayuki.io/res/convex-hull-algorithm/ConvexHull.java
-    // Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-    public static Vector<Vector2> makeHullPresorted(Vector<Vector2c> points) {
-        if (points.size() <= 1)
-            return new Vector<>(points);
-
-        // Andrew's monotone chain algorithm. Positive y coordinates correspond to "up"
-        // as per the mathematical convention, instead of "down" as per the computer
-        // graphics convention. This doesn't affect the correctness of the result.
-
-        Vector<Vector2> upperHull = new Vector<>();
-        for (Vector2 p : points) {
-            while (upperHull.size() >= 2) {
-                Vector2 q = upperHull.get(upperHull.size() - 1);
-                Vector2 r = upperHull.get(upperHull.size() - 2);
-                if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
-                    upperHull.remove(upperHull.size() - 1);
-                else
-                    break;
-            }
-            upperHull.add(p);
-        }
-        upperHull.remove(upperHull.size() - 1);
-
-        Vector<Vector2> lowerHull = new Vector<>();
-        for (int i = points.size() - 1; i >= 0; i--) {
-            Vector2 p = points.get(i);
-            while (lowerHull.size() >= 2) {
-                Vector2 q = lowerHull.get(lowerHull.size() - 1);
-                Vector2 r = lowerHull.get(lowerHull.size() - 2);
-                if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
-                    lowerHull.remove(lowerHull.size() - 1);
-                else
-                    break;
-            }
-            lowerHull.add(p);
-        }
-        lowerHull.remove(lowerHull.size() - 1);
-
-        if (!(upperHull.size() == 1 && upperHull.equals(lowerHull)))
-            upperHull.addAll(lowerHull);
-        return upperHull;
-    }
-
-
-    private static double getAngle(Vector2 p1, Vector2 p2, Vector2 pRef) {
-        return Math.atan2(p1.y - pRef.y, p1.x - pRef.x) - Math.atan2(p2.y - pRef.y, p2.x - pRef.x);
-    }
-
     public static void main(String[] args) {
 
-
+//        Vector2 a = new  Vector2(0, 0);
+//        Vector2 b = new Vector2(5, 0);
+//        Segment2D s = new Segment2D(a, b);
+//        Vector2 c = new Vector2(1, 1);
+//        System.out.println(Vector2.Tools.distanceFromPointToLine(c, s));
 
     }
 

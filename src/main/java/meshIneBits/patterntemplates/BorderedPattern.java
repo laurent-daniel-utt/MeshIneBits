@@ -6,6 +6,8 @@ import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deepLearning.MagicAlgorithm;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
@@ -16,6 +18,14 @@ import java.util.Vector;
 public class BorderedPattern extends PatternTemplate {
     @Override
     protected void initiateConfig() {
+        config.add(new DoubleParam(
+                "minWidth",
+                "min width to keep",
+                "Minimum bit width kept after cut",
+                0.0,
+                CraftConfig.bitWidth/2,
+                3.0,
+                5.0));
     }
 
     @Override
@@ -27,7 +37,8 @@ public class BorderedPattern extends PatternTemplate {
     public Pavement pave(Layer layer) {
         try {
             MagicAlgorithm magicAlgorithm = new MagicAlgorithm();
-            Collection<Bit2D> bits = magicAlgorithm.getBits(layer.getHorizontalSection());
+            Collection<Bit2D> bits = magicAlgorithm.getBits(layer.getHorizontalSection(),
+                    (double) config.get("minWidth").getCurrentValue());
             //updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
