@@ -1,16 +1,16 @@
 package meshIneBits.gui.view3d.view;
 
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.APPLY;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.CENTER_CAMERA;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.GRAVITY;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.POSITION_X;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.POSITION_Y;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.POSITION_Z;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.RESET;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ROTATION_X;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ROTATION_Y;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ROTATION_Z;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.VIEW_MESH;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.APPLY;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.CENTER_CAMERA;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.GRAVITY;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_X;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Y;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Z;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.RESET;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_X;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Y;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Z;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.VIEW_MESH;
 
 import controlP5.Button;
 import controlP5.ControlEvent;

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import meshIneBits.opcuaHelper.BaseCustomResponse.BaseCustomResponseBuilder;
 import meshIneBits.util.MultiThreadServiceExecutor;
 
-public class CuttingMachineSimulator extends CuttingMachineHelper {
+public class CuttingMachineSimulator extends CuttingMachineOPCUAHelper {
 
   private MultiThreadServiceExecutor executor = MultiThreadServiceExecutor.instance;
   private CuttingIncreaseTask task = new CuttingIncreaseTask();

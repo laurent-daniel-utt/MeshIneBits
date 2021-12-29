@@ -9,7 +9,7 @@ import meshIneBits.util.CustomLogger;
 public class AdvancedScheduler extends BasicScheduler {
 
   public static final CustomLogger logger = new CustomLogger(AdvancedScheduler.class);
-  private Vector<SubBit2D> subBit2Ds = new Vector<>();
+  private final Vector<SubBit2D> subBit2Ds = new Vector<>();
 
   @Override
   public boolean schedule() {
@@ -41,6 +41,17 @@ public class AdvancedScheduler extends BasicScheduler {
     return subBit2Ds.indexOf(subBit2D);
   }
 
+  public SubBit2D getSubBitByIndex(int subBitId) {
+    if (!containsSubBit(subBitId)) {
+      return null;
+    }
+    return subBit2Ds.get(subBitId);
+  }
+
+  public boolean containsSubBit(int subBitId) {
+    return subBitId < subBit2Ds.size();
+  }
+
   public int getSubBitBatch(SubBit2D subBit2D) {
     if (subBit2Ds.isEmpty()) {
       return 0;
@@ -55,4 +66,6 @@ public class AdvancedScheduler extends BasicScheduler {
     }
     return this.getIndexOfSubBit(subBit2D) / CraftConfig.nbBitesByPlat;
   }
+
+
 }

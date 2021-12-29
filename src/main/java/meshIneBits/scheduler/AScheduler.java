@@ -38,6 +38,7 @@ import java.util.Observable;
 import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
+import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
 import meshIneBits.SubBit2D;
@@ -48,6 +49,7 @@ public abstract class AScheduler extends Observable implements Serializable, Run
 
   protected Mesh mesh = null;
   protected Vector<Pair<Bit3D, Vector2>> sortedBits = new Vector<>();
+  protected Map<Bit3D, Layer> bit_layer_map = new HashMap<>();
   //    protected Vector<Bit3D> firstLayerBits = new Vector<>();
   protected Map<Integer, Bit3D> firstLayerBits = new HashMap<>();
 
@@ -128,6 +130,9 @@ public abstract class AScheduler extends Observable implements Serializable, Run
     return result;
   }
 
+  public Layer getLayerContainBit(Bit3D bit3D) {
+    return bit_layer_map.get(bit3D);
+  }
 
   public abstract Vector<Pair<Bit3D, Vector2>> filterBits(Vector<Pair<Bit3D, Vector2>> bits);
 

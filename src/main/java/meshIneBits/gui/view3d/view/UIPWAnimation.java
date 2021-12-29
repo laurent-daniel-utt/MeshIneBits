@@ -1,17 +1,17 @@
 package meshIneBits.gui.view3d.view;
 
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ANIMATION;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ANIMATION_SLICER;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BATCH;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_BIT;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_LAYER;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.BY_SUB_BIT;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.EXPORT;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.FULL;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.ONE_BY_ONE;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.PAUSE;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.SPEED_DOWN;
-import static meshIneBits.gui.view3d.oldversion.ButtonsLabel.SPEED_UP;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ANIMATION;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ANIMATION_SLICER;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_BATCH;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_BIT;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_LAYER;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_SUB_BIT;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.EXPORT;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.FULL;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ONE_BY_ONE;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.PAUSE;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.SPEED_DOWN;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.SPEED_UP;
 
 import controlP5.Button;
 import controlP5.ControlEvent;

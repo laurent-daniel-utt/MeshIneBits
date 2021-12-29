@@ -1,6 +1,6 @@
 package meshIneBits.gui.view3d.oldversion;
 
-public class ButtonsLabel {
+public class GraphicElementLabel {
 
   public static final String ROTATION_X = "ROTATION X";
   public static final String ROTATION_Y = "ROTATION Y";
@@ -26,6 +26,14 @@ public class ButtonsLabel {
   public static final String SPEED_UP = "Speed up";
   public static final String SPEED_DOWN = "Speed down";
   public static final String ANIMATION_SLICER = "ASLICER";
+  public static final String START_CUTTING_MACHINE = "Start cutting machine";
+  public static final String STOP_CUTTING_MACHINE = "Stop cutting machine";
+
+  //for CuttingProcessView
+  public static final String BIT_ID_LABEL = "Bit ID";
+  public static final String NUMBER_SUB_BIT_LABEL = "Number of subBits";
+  public static final String LAYER_ID_LABEL = "Layer ID";
+  public static final String POSITION_BIT_LABEL = "POSITION OF BIT";
 
 
 }

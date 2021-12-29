@@ -1,55 +1,51 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.Vector;
-import javafx.util.Pair;
-import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit3D;
-import meshIneBits.scheduler.AdvancedScheduler;
 import meshIneBits.util.CustomLogger;
-import meshIneBits.util.Vector2;
 
-public class CuttingMachineController {
+public class CuttingMachineCommander {
 
   private final CustomLogger logger = new CustomLogger(this.getClass());
-  private final CuttingMachineHelper helper = new CuttingMachineSimulator();
+  private final CuttingMachineOPCUAHelper helper = new CuttingMachineSimulator();
   private final Mesh mesh;
 
-  public CuttingMachineController(Mesh mesh) {
+  public CuttingMachineCommander(Mesh mesh) {
     this.mesh = mesh;
   }
 
-  public void startMachine() {
+  public void startMachine() throws Exception {
     ICustomResponse res = helper.startMachine();
     if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
+      throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
       logger.logINFOMessage("Starting...");
     }
   }
 
-  public void stopMachine() {
+  public void stopMachine() throws Exception {
     ICustomResponse res = helper.stopMachine();
     if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
+      throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
-      logger.logINFOMessage("Stoped");
+      logger.logINFOMessage("Stopped");
     }
   }
 
-  public NewBit3D getCuttingBit() {
+  public NewBit3D getCuttingBit() throws Exception {
     ICustomResponse res = helper.getCuttingBitId();
     if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
-      return null;
+      throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
-      int bitId = (int) res.getValue();
-      AdvancedScheduler scheduler = (AdvancedScheduler) mesh.getScheduler();
-      Vector<Pair<Bit3D, Vector2>> bitSorted = scheduler.getSortedBits();
-      if (bitId >= bitSorted.size()) {
-        return null;
+      NewBit3D bit3D = new FilterBitById().filterBitById(mesh, (int) res.getValue());
+      if (bit3D != null) {
+        return bit3D;
+      } else {
+        throw new Exception("Bit not found in Mesh");
       }
-      return (NewBit3D) bitSorted.get(bitId).getKey();
     }
   }
 

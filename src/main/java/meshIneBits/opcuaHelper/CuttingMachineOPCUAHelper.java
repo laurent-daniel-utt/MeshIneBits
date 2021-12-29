@@ -3,9 +3,9 @@ package meshIneBits.opcuaHelper;
 import java.util.concurrent.ExecutionException;
 import meshIneBits.util.CustomLogger;
 
-public class CuttingMachineHelper extends BitSLickrMachineAdapter {
+public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
-  private static final CustomLogger logger = new CustomLogger(CuttingMachineHelper.class);
+  private static final CustomLogger logger = new CustomLogger(CuttingMachineOPCUAHelper.class);
 
   public final String startNodeId = "startNode";
   public final String pauseNodeId = "pauseNode";

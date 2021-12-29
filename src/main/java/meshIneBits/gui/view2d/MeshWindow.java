@@ -74,6 +74,7 @@ import meshIneBits.gui.utilities.UtilityParametersPanel;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
+import meshIneBits.gui.view3d.view.CuttingProcessView;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 
@@ -467,7 +468,7 @@ public class MeshWindow extends JFrame {
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
-        BaseVisualization3DView::startProcessingModelView);
+        CuttingProcessView::startProcessingModelView);
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(

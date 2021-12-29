@@ -9,13 +9,13 @@ public abstract class AbstractVisualization3DView extends PApplet {
 
   public abstract Scene getScene();
 
+  public abstract CustomInteractiveFrame getFrame();
+
   public abstract void setDisplayModelShape(PShape pShape);
 
   public abstract void setDisplayMeshShape(PShape pShape);
 
   public abstract void setDisplayShapes(Vector<PShape> displayShapes);
-
-  public abstract CustomInteractiveFrame getFrame();
 
   public abstract void export();
 }

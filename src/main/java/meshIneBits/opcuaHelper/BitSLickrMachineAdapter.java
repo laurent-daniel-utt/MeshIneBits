@@ -14,8 +14,7 @@ public abstract class BitSLickrMachineAdapter implements IBitSLickrMachine, ICli
     return future.get();
   }
 
-  ICustomResponse readVariableNode(
-      String nodeId) throws ExecutionException, InterruptedException {
+  ICustomResponse readVariableNode(String nodeId) throws ExecutionException, InterruptedException {
     CompletableFuture<ICustomResponse> future = new CompletableFuture<>();
     new ClientRunner(this).runAction(getReadAction(nodeId), future);
     return future.get();

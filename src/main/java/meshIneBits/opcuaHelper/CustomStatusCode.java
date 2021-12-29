@@ -8,8 +8,8 @@ public class CustomStatusCode {
   public static final long STATUS_GOOD = 10001;
   public static final long STATUS_BAD = 10001;
   public static final long STATUS_UNCERTAIN = 10002;
-  private static final long STATUS_SECURITY_ERROR = 10003;
-  private static final long STATUS_UNKNOWN = 10004;
+  public static final long STATUS_SECURITY_ERROR = 10003;
+  public static final long STATUS_UNKNOWN = 10004;
 
   public long convertStatusCode(StatusCode statusCode) {
     if (statusCode == null) {

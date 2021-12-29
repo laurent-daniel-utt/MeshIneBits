@@ -97,9 +97,11 @@ public class BasicScheduler extends AScheduler {
       Vector<Pair<Bit3D, Vector2>> bits = curLayer.sortBits();
       bits = this.filterBits(bits);
       if (bits.size() > 0) {
-        this.sortedBits.addAll(bits);
-        this.firstLayerBits.put(i, bits.firstElement()
-            .getKey());
+        for (Pair<Bit3D, Vector2> pair : bits) {
+          this.bit_layer_map.put(pair.getKey(), curLayer);
+          sortedBits.add(pair);
+        }
+        this.firstLayerBits.put(i, bits.firstElement().getKey());
       }
       Logger.setProgress(curLayer.getLayerNumber() + 1, this.mesh.getLayers()
           .size());
