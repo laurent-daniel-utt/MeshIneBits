@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewBit2D extends Bit2D {
 
-  private static final CustomLogger logger = new CustomLogger(NewBit2D.class);
   private final Vector<SubBit2D> subBits = new Vector<>();
 
   public NewBit2D(Vector2 origin, Vector2 orientation) {
@@ -49,6 +48,7 @@ public class NewBit2D extends Bit2D {
           .setInverseMatrixToCB(getInverseTransfoMatrixToCB())
           .setAreaCB(areas.get(0))
           .setCutPath(null)
+          .setParentBit(this)
           .build();
       subBits.add(subBit2D);
       return;
@@ -64,14 +64,20 @@ public class NewBit2D extends Bit2D {
           .setInverseMatrixToCB(getInverseTransfoMatrixToCB())
           .setAreaCB(areas.get(i))
           .setCutPath(cutPaths.get(i))
+          .setParentBit(this)
           .build();
       subBits.add(subBit2D);
     }
+
     subBits.sort((sub1, sub2) -> {
       Vector2 lift1 = sub1.getLiftPointCB();
       Vector2 lift2 = sub2.getLiftPointCB();
-      if(lift1==null)return -1;
-      if(lift2==null)return 1;
+      if (lift1 == null) {
+        return -1;
+      }
+      if (lift2 == null) {
+        return 1;
+      }
       return Double.compare(lift1.y, lift2.y) == 0 ?
           Double.compare(lift1.x, lift2.x) :
           Double.compare(lift1.y, lift2.y);
@@ -89,6 +95,7 @@ public class NewBit2D extends Bit2D {
         .collect(Collectors.toCollection(Vector::new));
   }
 
+  @SuppressWarnings("unused")
   public boolean isValid() {
     return getValidSubBits().size() > 0;
   }

@@ -8,7 +8,7 @@ import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.animation.AnimationProcessor;
 import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationMode;
 import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
-import meshIneBits.gui.view3d.animation.IAnimationModel3DProvider;
+import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.IModel3DProvider;
 import meshIneBits.gui.view3d.util.ModelRotationUtil;

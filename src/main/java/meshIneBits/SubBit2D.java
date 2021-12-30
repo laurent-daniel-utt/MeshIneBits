@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.util.CustomLogger;
 import meshIneBits.util.LiftPointCalc;
 import meshIneBits.util.TwoDistantPointsCalc;
 import meshIneBits.util.Vector2;
@@ -17,20 +16,19 @@ import org.jetbrains.annotations.Nullable;
 //TODO define readObject and writeObject for save mesh
 public class SubBit2D implements Serializable {
 
-  private static final CustomLogger logger = new CustomLogger(SubBit2D.class);
-
-  private Vector2 originPositionCS;
-  private Vector2 orientationCS;
+  private final Bit2D parentBit;
+  private final Vector2 originPositionCS;
+  private final Vector2 orientationCS;
   private Vector2 liftPointCB;
 
   private Vector2 firstDistantPointCB;
   private Vector2 secondDistantPointCB;
 
-  private AffineTransform transformMatrixToCS;
+  private final AffineTransform transformMatrixToCS;
   private AffineTransform inverseMatrixToCB;
 
-  private Area areaCB;
-  private Path2D cutPath;
+  private final Area areaCB;
+  private final Path2D cutPath;
 
   public SubBit2D(
       @NotNull Vector2 originPositionCS,
@@ -38,7 +36,8 @@ public class SubBit2D implements Serializable {
       @NotNull AffineTransform transformMatrixToCS,
       @NotNull AffineTransform inverseMatrixToCB,
       @NotNull Area area,
-      @Nullable Path2D cutPath) {
+      @Nullable Path2D cutPath,
+      @NotNull Bit2D parentBit) {
 
     this.originPositionCS = originPositionCS;
     this.orientationCS = orientationCS;
@@ -46,6 +45,7 @@ public class SubBit2D implements Serializable {
     this.inverseMatrixToCB = inverseMatrixToCB;
     this.areaCB = area;
     this.cutPath = cutPath;
+    this.parentBit = parentBit;
 
     computeDistantPoints();
     computeLiftPoints();
@@ -59,6 +59,10 @@ public class SubBit2D implements Serializable {
     return orientationCS;
   }
 
+  public Bit2D getParentBit() {
+    return parentBit;
+  }
+
   public Area getAreaCB() {
     return areaCB;
   }
@@ -69,6 +73,7 @@ public class SubBit2D implements Serializable {
     return areaCS;
   }
 
+  @SuppressWarnings("unused")
   public Path2D getCutPathCB() {
     return cutPath;
   }
@@ -95,6 +100,7 @@ public class SubBit2D implements Serializable {
     }
   }
 
+  @SuppressWarnings("unused")
   public Vector<Vector2> getTwoDistantPointsCB() {
     return new Vector<>(Arrays.asList(firstDistantPointCB, secondDistantPointCB));
   }
@@ -113,15 +119,6 @@ public class SubBit2D implements Serializable {
     liftPointCB = LiftPointCalc.instance.getLiftPoint(areaCB, CraftConfig.suckerDiameter / 2);
   }
 
-//  public SubBit2D clone(){
-//    return new SubBit2D(originPositionCS,
-//        orientationCS,
-//        (AffineTransform) transformMatrixToCS.clone(),
-//        (AffineTransform)inverseMatrixToCB.clone(),
-//        (Area) areaCB.clone(),
-//        (Path2D) cutPath.clone());
-//  }
-
   public static class SubBitBuilder {
 
     private Vector2 iOriginPositionCS;
@@ -132,6 +129,7 @@ public class SubBit2D implements Serializable {
 
     private Area iAreaCB;
     private Path2D iCutPath;
+    private Bit2D parentBit;
 
     public SubBitBuilder setOriginPositionCS(Vector2 originPositionCS) {
       this.iOriginPositionCS = originPositionCS;
@@ -163,13 +161,20 @@ public class SubBit2D implements Serializable {
       return this;
     }
 
+    public SubBitBuilder setParentBit(Bit2D parentBit) {
+      this.parentBit = parentBit;
+      return this;
+    }
+
     public SubBit2D build() {
       return new SubBit2D(
           iOriginPositionCS,
           iOrientationCS,
           iTransformMatrixToCS,
           iInverseMatrixToCB,
-          iAreaCB, iCutPath);
+          iAreaCB,
+          iCutPath,
+          parentBit);
     }
   }
 

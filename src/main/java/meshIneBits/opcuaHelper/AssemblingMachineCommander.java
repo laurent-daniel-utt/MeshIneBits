@@ -8,7 +8,7 @@ import meshIneBits.util.CustomLogger;
 public class AssemblingMachineCommander {
 
   private final CustomLogger logger = new CustomLogger(this.getClass());
-  private final AssemblingMachineOPCUAHelper helper = new AssemblingMachineOPCUAHelper();
+  private final AssemblingMachineOPCUAHelper helper = new AssemblingMachineSimulator();
   private final Mesh mesh;
 
   public AssemblingMachineCommander(Mesh mesh) {

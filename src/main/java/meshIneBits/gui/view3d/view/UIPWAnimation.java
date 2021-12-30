@@ -383,8 +383,6 @@ public class UIPWAnimation extends UIParameterWindow implements
         logger.logWARNMessage("The event invoked is not handled by method ControlEvent");
         break;
     }
-
-
   }
 
   private void updateComponent() {

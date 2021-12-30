@@ -10,7 +10,6 @@ import meshIneBits.gui.view3d.builder.SubBitShape;
 import meshIneBits.gui.view3d.util.AlternatingColorPaintPattern;
 import meshIneBits.gui.view3d.animation.AnimationShape;
 import meshIneBits.gui.view3d.builder.BitShape;
-import meshIneBits.gui.view3d.animation.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.builder.IMeshShapeBuilder;
 import meshIneBits.gui.view3d.builder.IModelShapeBuilder;
 import meshIneBits.gui.view3d.util.IPaintShapePattern;

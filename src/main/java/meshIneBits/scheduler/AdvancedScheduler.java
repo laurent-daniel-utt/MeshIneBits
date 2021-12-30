@@ -1,6 +1,8 @@
 package meshIneBits.scheduler;
 
 import java.util.Vector;
+import meshIneBits.Bit2D;
+import meshIneBits.Bit3D;
 import meshIneBits.NewBit2D;
 import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
@@ -65,6 +67,17 @@ public class AdvancedScheduler extends BasicScheduler {
       return 0;
     }
     return this.getIndexOfSubBit(subBit2D) / CraftConfig.nbBitesByPlat;
+  }
+
+  public Bit3D getBit3DFrom(Bit2D bit2D) {
+    if (sortedBits.isEmpty()) {
+      return null;
+    }
+    return this.sortedBits.stream()
+        .filter(pair -> pair.getKey().getBaseBit().equals(bit2D))
+        .findFirst()
+        .get()
+        .getKey();
   }
 
 

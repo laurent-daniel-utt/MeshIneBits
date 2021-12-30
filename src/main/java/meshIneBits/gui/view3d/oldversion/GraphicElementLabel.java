@@ -28,6 +28,8 @@ public class GraphicElementLabel {
   public static final String ANIMATION_SLICER = "ASLICER";
   public static final String START_CUTTING_MACHINE = "Start cutting machine";
   public static final String STOP_CUTTING_MACHINE = "Stop cutting machine";
+  public static final String Start_ASSEMBLING_MACHINE = "Start assembling machine";
+  public static final String STOP_ASSEMBLING_MACHINE = "Stop assembling machine";
 
   //for CuttingProcessView
   public static final String BIT_ID_LABEL = "Bit ID";

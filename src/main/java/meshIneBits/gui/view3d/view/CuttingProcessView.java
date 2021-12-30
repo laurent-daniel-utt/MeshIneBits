@@ -30,7 +30,7 @@ public class CuttingProcessView extends UIParameterWindow {
   }
 
   private Button startButton;
-  private Button pauseButton;
+  private Button stopButton;
   private PShape circleState;
   private Textlabel bitId;
   private Textlabel nbSubBit;
@@ -43,9 +43,9 @@ public class CuttingProcessView extends UIParameterWindow {
     float[] startPosition = new float[]
         {0.4f * width - (float) startButton.getWidth() / 2, 0.1f * height};
     float[] pausePosition = new float[]
-        {0.6f * width - (float) pauseButton.getWidth() / 2, 0.1f * height};
+        {0.6f * width - (float) stopButton.getWidth() / 2, 0.1f * height};
     startButton.setPosition(startPosition);
-    pauseButton.setPosition(pausePosition);
+    stopButton.setPosition(pausePosition);
     bitId.setPosition(0.04f * width, 0.70f * height);
     layerId.setPosition(0.04f * width, 0.75f * height);
     nbSubBit.setPosition(0.04f * width, 0.80f * height);
@@ -88,7 +88,7 @@ public class CuttingProcessView extends UIParameterWindow {
         .setSize(100, 100)
         .setColorLabel(component_label_color)
         .setFont(text_font_default);
-    pauseButton = getControl().
+    stopButton = getControl().
         addButton(STOP_CUTTING_MACHINE)
         .setLabel("Stop")
         .setSize(100, 100)

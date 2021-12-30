@@ -71,6 +71,7 @@ import meshIneBits.gui.utilities.UPPPaveRegion;
 import meshIneBits.gui.utilities.UPPScheduleMesh;
 import meshIneBits.gui.utilities.UPPToolsIA;
 import meshIneBits.gui.utilities.UtilityParametersPanel;
+import meshIneBits.gui.view3d.view.AssemblingProcessView;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
@@ -468,7 +469,7 @@ public class MeshWindow extends JFrame {
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
-        CuttingProcessView::startProcessingModelView);
+        AssemblingProcessView::startProcessingModelView);
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(

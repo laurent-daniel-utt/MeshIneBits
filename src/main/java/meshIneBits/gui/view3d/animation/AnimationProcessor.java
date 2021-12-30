@@ -8,11 +8,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import meshIneBits.gui.view3d.Visualization3DConfig;
+import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
-import meshIneBits.gui.view3d.util.PShapeUtil;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.MultiThreadServiceExecutor;
-import processing.core.PConstants;
 import processing.core.PShape;
 
 public class AnimationProcessor {

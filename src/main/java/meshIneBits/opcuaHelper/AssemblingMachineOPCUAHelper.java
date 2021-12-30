@@ -8,7 +8,6 @@ public class AssemblingMachineOPCUAHelper extends BitSLickrMachineAdapter {
   public final String pauseNodeId = "pauseNode";
   public final String assemblingBitNodeId = "assemblingBitNodeId";
   public final String assemblingSubBitNodeId = "assemblingSubBitNodeId";
-  public final String cuttingPathId = "cuttingPathId";
 
   @Override
   public ICustomResponse startMachine() {
