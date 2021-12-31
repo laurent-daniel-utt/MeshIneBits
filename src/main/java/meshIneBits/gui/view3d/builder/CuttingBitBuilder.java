@@ -13,6 +13,7 @@ import processing.core.PApplet;
 import processing.core.PShape;
 
 public class CuttingBitBuilder {
+
   private final PApplet context;
 
   public CuttingBitBuilder(PApplet context) {
@@ -25,8 +26,9 @@ public class CuttingBitBuilder {
     PShape shape = context.createShape(GROUP);
 
     PShape shapeBit = context.createShape();
+
     shapeBit.beginShape();
-    shapeBit.fill(Visualization3DConfig.CUTTING_BIT_VIEW.getRGB());
+    shapeBit.fill(Visualization3DConfig.CUTTING_BIT_COLOR.getRGB());
     shapeBit.vertex(0, 0, 0);
     shapeBit.vertex((float) CraftConfig.lengthFull, 0, 0);
     shapeBit.vertex((float) CraftConfig.lengthFull, (float) CraftConfig.bitWidth, 0);
@@ -70,7 +72,7 @@ public class CuttingBitBuilder {
               isFirst = false;
             }
             newCutPath = context.createShape();
-            newCutPath.setStroke(context.color(0, 255, 0));
+            newCutPath.setStroke(context.color(Visualization3DConfig.CUT_PATH_COLOR.getRGB()));
             newCutPath.beginShape();
             newCutPath.vertex(x, y);
             break;

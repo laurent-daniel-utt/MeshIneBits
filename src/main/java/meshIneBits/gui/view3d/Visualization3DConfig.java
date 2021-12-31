@@ -17,27 +17,27 @@ public class Visualization3DConfig {
   public static final String VISUALIZATION_3D_WINDOW_TITLE = "MeshIneBits - Model view";
   public static final int V3D_WINDOW_WIDTH = SCREEN_SIZE.width * 3 / 5;
   public static final int V3D_WINDOW_HEIGHT = SCREEN_SIZE.height;
-  public static final int V3D_WINDOW_LOCATION_X = SCREEN_SIZE.width/5;
+  public static final int V3D_WINDOW_LOCATION_X = SCREEN_SIZE.width / 5;
   public static final int V3D_WINDOW_LOCATION_Y = 0;
   public static final Vec V3D_EYE_POSITION = new Vec(0, 1, 1);
   public static final int V3D_RADIUS = 2500;
   public static final int V3D_FRAMERATE = 60;
   public static final Color V3D_BACKGROUND = new Color(150, 150, 150);
-  public static final Color V3D_AMBIENT_LIGHT= new Color(255, 255, 255);
+  public static final Color V3D_AMBIENT_LIGHT = new Color(255, 255, 255);
 
   //AssemblingProcessView config
   public static final String ASSEMBLING_PROCESS_VIEW_TITLE = "MeshIneBits - Model view";
   public static final int ASSEMBLING_PROCESS_VIEW_WIDTH = SCREEN_SIZE.width * 3 / 5;
   public static final int ASSEMBLING_PROCESS_VIEW_HEIGHT = SCREEN_SIZE.height;
-  public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_X = SCREEN_SIZE.width/5;
+  public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_X = SCREEN_SIZE.width / 5;
   public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_Y = 0;
 
   //UI parameter window config
   public static final int UIP_WINDOW_WIDTH = SCREEN_SIZE.width / 5;
   public static final int UIP_WINDOW_HEIGHT = SCREEN_SIZE.height;
   public static final int UIPW_FRAMERATE = 24;
-  public static final Point UIPW_ANIMATION = new Point(SCREEN_SIZE.width-UIP_WINDOW_WIDTH,0);
-  public static final Point UIPW_VIEW = new Point(0,0);
+  public static final Point UIPW_ANIMATION = new Point(SCREEN_SIZE.width - UIP_WINDOW_WIDTH, 0);
+  public static final Point UIPW_VIEW = new Point(0, 0);
   public static final Color UIPW_BACKGROUND = new Color(150, 150, 150);
   public static final int EYE_POSITION_Y = 3000;
   public static final int EYE_POSITION_Z = 3000;
@@ -54,7 +54,9 @@ public class Visualization3DConfig {
   //Shape config
   public static final Color MODEL_COLOR = new Color(219, 100, 50);
   public static final Color MESH_COLOR = new Color(112, 66, 20);
-  public static final Color CUTTING_BIT_VIEW = new Color(112, 66, 20);
+  public static final Color CUTTING_BIT_COLOR = new Color(49, 51, 48);
+  public static final Color CUTTING_BIT_STOKE = new Color(231, 231, 18);
+  public static final Color CUT_PATH_COLOR = new Color(218, 0, 0);
 
   public static final float BIT_THICKNESS = (float) CraftConfig.bitThickness;
 
@@ -69,7 +71,6 @@ public class Visualization3DConfig {
 
   //millisecond
   public static final long REFRESH_TIME = 3000;
-
 
 
 }

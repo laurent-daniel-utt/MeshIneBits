@@ -22,12 +22,18 @@ import processing.core.PShape;
 
 public class CuttingProcessView extends UIParameterWindow {
 
-  private static final Color rect1_color = new Color(210, 204, 204);
-  private static final Color rect2_color = new Color(0, 35, 94);
+  public static final String cutting_machine_icon = "resources/cutting-machine-icon.png";
+  public static final String cutting_machine_photo = "resources/cutting-machine-photo.png";
+  private static final Color rect1_color = new Color(49, 51, 48);
+  private static final Color rect2_color = new Color(79, 79, 75);
+  private static final Color button_color = new Color(10, 115, 119);
+  private static final Color button_color_on_mouse = new Color(14, 156, 161);
   private static final Color in_process_state = new Color(0, 255, 0);
   private static final Color out_process_state = new Color(253, 186, 33);
+  private static final Color font_color = new Color(253, 186, 33);
   private static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-  private PImage image;
+  private PImage icon;
+  private PImage machinePhoto;
 
 
   public static void main(String[] args) {
@@ -55,9 +61,9 @@ public class CuttingProcessView extends UIParameterWindow {
 
   private void initComponentPositions() {
     float[] startPosition = new float[]
-        {0.05f * width - (float) startButton.getWidth() / 2, 0.4f * height};
+        {0.01f * width, 0.4f * height};
     float[] pausePosition = new float[]
-        {0.2f * width - (float) stopButton.getWidth() / 2, 0.4f * height};
+        {0.01f * width, 0.47f * height};
     startButton.setPosition(startPosition);
     stopButton.setPosition(pausePosition);
     bitId.setPosition(0.30f * width, 0.70f * height);
@@ -94,57 +100,64 @@ public class CuttingProcessView extends UIParameterWindow {
     rect1Background.setFill(rect1_color.getRGB());
     rect2Background = createShape(RECT, (float) width / 4, 0, width - (float) width / 4, height);
     rect2Background.setFill(rect2_color.getRGB());
-    image = loadImage("resources/cutting-machine-icon.png");
-    image.resize(100, 100);
+    icon = loadImage(cutting_machine_icon);
+    icon.resize(100, 100);
+
+    machinePhoto = loadImage(cutting_machine_photo);
+    machinePhoto.resize(400, 300);
 
     int component_label_color = 255;
+    int sizeFont = 15;
     PFont text_font_default = createFont("arial bold", 14);
 
-    circleState = createShape(ELLIPSE, (float) width / 8, 0.55f * height, 50, 50);
+    circleState = createShape(ELLIPSE, (float) width / 8, 0.6f * height, 50, 50);
     circleState.setFill(out_process_state.getRGB());
 
     startButton = getControl().
         addButton(START_CUTTING_MACHINE)
         .setLabel("Start")
-        .setSize(70, 30)
+        .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
         .setColorLabel(component_label_color)
+        .setColorBackground(button_color.getRGB())
+        .setColorForeground(button_color_on_mouse.getRGB())
         .setFont(text_font_default);
     stopButton = getControl().
         addButton(STOP_CUTTING_MACHINE)
         .setLabel("Stop")
-        .setSize(70, 30)
+        .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
         .setColorLabel(component_label_color)
+        .setColorBackground(button_color.getRGB())
+        .setColorForeground(button_color_on_mouse.getRGB())
         .setFont(text_font_default);
 
     bitId = getControl()
         .addTextlabel(BIT_ID_LABEL)
         .setText("Identifier of Bit: N/A")
-        .setColor(component_label_color)
-        .setFont(createFont("arial bold", 20));
+        .setColor(font_color.getRGB())
+        .setFont(createFont("arial bold", sizeFont));
     nbSubBit = getControl()
         .addTextlabel(NUMBER_SUB_BIT_LABEL)
         .setText("Number of sub bit: N/A")
-        .setColor(component_label_color)
-        .setFont(createFont("arial bold", 20));
+        .setColor(font_color.getRGB())
+        .setFont(createFont("arial bold", sizeFont));
     layerId = getControl()
         .addTextlabel(LAYER_ID_LABEL)
         .setText("Layer ID: N/A")
-        .setColor(component_label_color)
-        .setFont(createFont("arial bold", 20));
+        .setColor(font_color.getRGB())
+        .setFont(createFont("arial bold", sizeFont));
     position = getControl()
         .addTextlabel(POSITION_BIT_LABEL)
         .setText("Position of Bit: N/A")
-        .setColor(component_label_color)
-        .setFont(createFont("arial bold", 20));
+        .setColor(font_color.getRGB())
+        .setFont(createFont("arial bold", sizeFont));
     initComponentPositions();
   }
 
   public void setShape(PShape shape) {
     shapeBit = shape;
     shape.resetMatrix();
-    shapeBit.scale(3);
-    shapeBit.translate((float) width / 4 + 50, (float) height / 6);
-
+    shapeBit.scale(3.5f);
+    shapeBit.translate((float) width / 4 + 20, (float) height / 4);
   }
 
   @Override
@@ -164,14 +177,15 @@ public class CuttingProcessView extends UIParameterWindow {
   protected void updateButton() {
     shape(rect1Background);
     shape(rect2Background);
-    image(image, 50, 50);
-    if (shapeBit != null) {
-      shape(shapeBit);
-    }
-    if (processor.isInProcess()) {
-      circleState.setFill(in_process_state.getRGB());
-    } else {
+    image(icon, 50, 50);
+    if (!processor.isInProcess()) {
+      image(machinePhoto, (float) width / 4 + 100, 50);
       circleState.setFill(out_process_state.getRGB());
+    } else {
+      circleState.setFill(in_process_state.getRGB());
+      if (shapeBit != null) {
+        shape(shapeBit);
+      }
     }
     shape(circleState);
   }
