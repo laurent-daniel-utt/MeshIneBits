@@ -83,8 +83,8 @@ public class CuttingBitBuilder {
       shape.addChild(newCutPath);
     }
     shape.addChild(shapeBit);
-    shape.scale(2);
-    shape.translate(0.34f * context.width, 0.6f * context.height);
+//    shape.scale(4);
+//    shape.translate(0.34f * context.width, 0.6f * context.height);
     return new CuttingBitShape(shape);
   }
 

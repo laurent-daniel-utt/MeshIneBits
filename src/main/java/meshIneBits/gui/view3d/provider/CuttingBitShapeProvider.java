@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit3D;
-import meshIneBits.gui.view3d.builder.CuttingBitShape;
 import meshIneBits.gui.view3d.builder.CuttingBitBuilder;
+import meshIneBits.gui.view3d.builder.CuttingBitShape;
 import processing.core.PApplet;
 
 public class CuttingBitShapeProvider {
@@ -21,6 +21,9 @@ public class CuttingBitShapeProvider {
   }
 
   private void initializeShapeMap(Mesh mesh) {
+    if (mesh == null) {
+      return;
+    }
     mesh.getScheduler().getSortedBits().forEach(pair -> {
       NewBit3D bit3D = (NewBit3D) pair.getKey();
       shapeMap.put(bit3D, buildCuttingBitShape(bit3D));

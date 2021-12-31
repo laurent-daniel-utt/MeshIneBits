@@ -43,11 +43,11 @@ public class MeshAction extends AbstractAction {
 
   public MeshAction(String uuid,
       String name,
-      String iconname,
+      String iconName,
       String description,
       String acceleratorKey,
       MeshActionInterface action) {
-    super(name, IconLoader.get(iconname));
+    super(name, IconLoader.get(iconName));
     putValue(SHORT_DESCRIPTION, description);
     this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
     putValue(ACCELERATOR_KEY, this.acceleratorKey);

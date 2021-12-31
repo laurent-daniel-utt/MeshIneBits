@@ -1,5 +1,7 @@
 package meshIneBits.gui.view3d.Processor;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit3D;
@@ -25,6 +27,13 @@ public class CuttingMachineProcessor implements UIPWListener {
   private final CuttingBitShapeProvider provider;
   private final BitInCuttingProcessCallback callback;
   private final AtomicBoolean inProcess = new AtomicBoolean(false);
+  private final DecimalFormat df;
+
+  {
+    df = new DecimalFormat("#.##");
+    df.setMaximumFractionDigits(2);
+    df.setRoundingMode(RoundingMode.CEILING);
+  }
 
   public CuttingMachineProcessor(PApplet context, BitInCuttingProcessCallback callback) {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
@@ -86,7 +95,7 @@ public class CuttingMachineProcessor implements UIPWListener {
               Integer.toString(mesh.getScheduler().getBitIndex(bit3D)),
               Integer.toString(mesh.getScheduler().getLayerContainBit(bit3D).getLayerNumber()),
               Integer.toString(bit3D.getSubBits().size()),
-              bit3D.getOrigin().x + ", " + bit3D.getOrigin().y);
+              df.format(bit3D.getOrigin().x) + ", " + df.format(bit3D.getOrigin().y));
           Thread.sleep(Visualization3DConfig.REFRESH_TIME);
         }
       } catch (Exception e) {

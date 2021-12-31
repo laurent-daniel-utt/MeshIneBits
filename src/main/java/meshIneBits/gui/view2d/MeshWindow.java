@@ -469,7 +469,7 @@ public class MeshWindow extends JFrame {
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
-        AssemblingProcessView::startProcessingModelView);
+        CuttingProcessView::startProcessingModelView);
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(
