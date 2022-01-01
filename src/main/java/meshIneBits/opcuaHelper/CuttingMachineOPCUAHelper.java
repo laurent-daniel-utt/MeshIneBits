@@ -31,6 +31,15 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
   }
 
   @Override
+  public ICustomResponse getMachineState() {
+    try {
+      return readVariableNode(startNodeId);
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  @Override
   public ICustomResponse pauseMachine() {
     try {
       return writeVariableNode(pauseNodeId, "String", "");

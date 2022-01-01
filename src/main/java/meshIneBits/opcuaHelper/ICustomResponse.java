@@ -1,7 +1,7 @@
 package meshIneBits.opcuaHelper;
 
 public interface ICustomResponse {
-  long getCodeStatus();
+  long getStatusCode();
   String getMessage();
   Object getValue();
   String getTypeValue();

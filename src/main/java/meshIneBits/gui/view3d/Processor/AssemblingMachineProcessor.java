@@ -18,11 +18,14 @@ import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.AssemblingProcessView.AssemblingProcessViewListener;
 import meshIneBits.opcuaHelper.AssemblingMachineCommander;
 import meshIneBits.scheduler.AdvancedScheduler;
+import meshIneBits.util.CustomLogger;
 import meshIneBits.util.MultiThreadServiceExecutor;
 import processing.core.PApplet;
 import processing.core.PShape;
 
 public class AssemblingMachineProcessor implements AssemblingProcessViewListener {
+
+  private final CustomLogger logger = new CustomLogger(this.getClass());
 
   public interface AssemblingProcessCallback {
 
@@ -43,6 +46,7 @@ public class AssemblingMachineProcessor implements AssemblingProcessViewListener
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
     this.commander = new AssemblingMachineCommander(mesh);
     this.callback = callback;
+    initMachineState();
 
     PavedMeshBuilderResult pavedResult = IMeshShapeBuilder.createInstance(context, mesh)
         .buildMeshShape();
@@ -54,6 +58,15 @@ public class AssemblingMachineProcessor implements AssemblingProcessViewListener
         .flatMap(Collection::stream)
         .map(SubBitShape::getShape)
         .collect(Collectors.toList()));
+  }
+
+  private void initMachineState() {
+    try {
+      inProcess.set(commander.getMachineState());
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.logERRORMessage("unable to get machine state. Check result in Commander class");
+    }
   }
 
   private void startMachine() {

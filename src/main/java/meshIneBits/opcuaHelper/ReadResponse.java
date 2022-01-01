@@ -3,7 +3,7 @@ package meshIneBits.opcuaHelper;
 public class ReadResponse implements ICustomResponse {
 
   @Override
-  public long getCodeStatus() {
+  public long getStatusCode() {
     return 0;
   }
 

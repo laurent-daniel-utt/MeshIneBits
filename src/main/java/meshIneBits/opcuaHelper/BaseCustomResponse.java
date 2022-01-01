@@ -20,7 +20,7 @@ public class BaseCustomResponse implements ICustomResponse {
   }
 
   @Override
-  public long getCodeStatus() {
+  public long getStatusCode() {
     return statusCode;
   }
 

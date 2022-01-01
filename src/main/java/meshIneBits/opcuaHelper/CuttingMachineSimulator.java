@@ -62,6 +62,17 @@ public class CuttingMachineSimulator extends CuttingMachineOPCUAHelper {
         .build();
   }
 
+  @Override
+  public ICustomResponse getMachineState() {
+    return new BaseCustomResponseBuilder()
+        .setNodeId(startNodeId)
+        .setMessage("Machine is turned off")
+        .setTypeValue("Boolean")
+        .setValue(false)
+        .setStatusCode(CustomStatusCode.STATUS_GOOD)
+        .build();
+  }
+
   private class CuttingIncreaseTask implements Runnable {
 
     private final AtomicInteger bitId = new AtomicInteger(0);

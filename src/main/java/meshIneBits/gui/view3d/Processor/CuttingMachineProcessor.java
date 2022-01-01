@@ -11,12 +11,14 @@ import meshIneBits.gui.view3d.provider.CuttingBitShapeProvider;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
 import meshIneBits.opcuaHelper.CuttingMachineCommander;
+import meshIneBits.util.CustomLogger;
 import meshIneBits.util.MultiThreadServiceExecutor;
 import processing.core.PApplet;
 import processing.core.PShape;
 
 public class CuttingMachineProcessor implements UIPWListener {
 
+  private final CustomLogger logger = new CustomLogger(this.getClass());
   public interface BitInCuttingProcessCallback {
 
     void callback(PShape shape, String bitID, String layerId, String nbSubBit, String position);
@@ -39,11 +41,17 @@ public class CuttingMachineProcessor implements UIPWListener {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
     commander = new CuttingMachineCommander(mesh);
     provider = new CuttingBitShapeProvider(context, mesh);
+    initMachineState();
     this.callback = callback;
+  }
 
-//    if (context instanceof CuttingProcessView) {
-//      view = (CuttingProcessView) context;
-//    }
+  private void initMachineState() {
+    try {
+      inProcess.set(commander.getMachineState());
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.logERRORMessage("unable to get machine state. Check result in Commander class");
+    }
   }
 
   private void startMachine() {

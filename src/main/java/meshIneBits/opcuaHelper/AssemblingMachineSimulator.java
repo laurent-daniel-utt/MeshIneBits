@@ -23,6 +23,17 @@ public class AssemblingMachineSimulator extends AssemblingMachineOPCUAHelper {
   }
 
   @Override
+  public ICustomResponse getMachineState() {
+    return new BaseCustomResponseBuilder()
+        .setNodeId(startNodeId)
+        .setMessage("Machine is off")
+        .setTypeValue("Boolean")
+        .setValue("false")
+        .setStatusCode(CustomStatusCode.STATUS_GOOD)
+        .build();
+  }
+
+  @Override
   public ICustomResponse stopMachine() {
     task.activate(false);
     return new BaseCustomResponseBuilder()

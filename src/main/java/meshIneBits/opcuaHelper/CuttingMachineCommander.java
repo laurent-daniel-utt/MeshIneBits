@@ -16,7 +16,7 @@ public class CuttingMachineCommander {
 
   public void startMachine() throws Exception {
     ICustomResponse res = helper.startMachine();
-    if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
+    if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
       throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
@@ -26,7 +26,7 @@ public class CuttingMachineCommander {
 
   public void stopMachine() throws Exception {
     ICustomResponse res = helper.stopMachine();
-    if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
+    if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
       throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
@@ -36,7 +36,7 @@ public class CuttingMachineCommander {
 
   public NewBit3D getCuttingBit() throws Exception {
     ICustomResponse res = helper.getCuttingBitId();
-    if (res.getCodeStatus() != CustomStatusCode.STATUS_GOOD) {
+    if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
       logger.logERRORMessage(res.getMessage());
       throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
@@ -51,5 +51,23 @@ public class CuttingMachineCommander {
 
   public int getCuttingCutPath() {
     return 0;
+  }
+
+  public boolean getMachineState() throws Exception {
+    ICustomResponse res = helper.getMachineState();
+    if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+      logger.logERRORMessage(res.getMessage());
+      throw new Exception(
+          "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+              + res.getStatusCode());
+    } else {
+      logger.logINFOMessage("Starting...");
+      if (res.getValue() instanceof Boolean) {
+        return (boolean) res.getValue();
+      } else {
+        throw new Exception(
+            "Value returned must be boolean type, Type of obj actual: " + res.getTypeValue());
+      }
+    }
   }
 }
