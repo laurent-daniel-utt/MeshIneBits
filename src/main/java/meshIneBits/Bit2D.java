@@ -395,7 +395,7 @@ public class Bit2D implements Cloneable, Serializable {
   }
 
   private static void removeSectionHolding(Bit2D bit, Area bitArea) {
-    Vector<Area> sections = getTwoSectionHolding(bit.origin, bit.orientation, 0.0);
+    Vector<Area> sections = getTwoSectionHolding(bit.origin, bit.orientation, -CraftConfig.incertitude);
     bitArea.subtract(sections.lastElement());
   }
 
@@ -538,7 +538,7 @@ public class Bit2D implements Cloneable, Serializable {
   }
 
   /**
-   * Return two section holding to cut of the bit without the cut paths
+   * Return two section hold to cut of bit without the cut paths
    */
   public static Vector<Area> getTwoSectionHolding(Vector2 position, Vector2 orientation,
       double incertitude) {

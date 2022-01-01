@@ -54,7 +54,8 @@ public class NewBit2D extends Bit2D {
       return;
     }
     if (areas.size() != cutPaths.size()) {
-      throw new IllegalArgumentException("SubBit areas and subBit cutPath must have the same size");
+//      throw new IllegalArgumentException("SubBit areas and subBit cutPath must have the same size");
+      return;
     }
     for (int i = 0; i < areas.size(); i++) {
       SubBitBuilder builder = new SubBitBuilder();

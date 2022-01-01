@@ -165,7 +165,7 @@ public class CraftConfig {
   @BitSetting(
       order = 2
   )
-  public static double incertitude = 0.001;
+  public static double incertitude = 0.002 ;
 
   // Pattern choices
   /**
