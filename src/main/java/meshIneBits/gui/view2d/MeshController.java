@@ -63,8 +63,8 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.AreaTool;
@@ -226,7 +226,7 @@ public class MeshController extends Observable implements Observer,
   }
 
   public void resetMesh() {
-    setMesh(new Mesh());
+    mesh = null;
     this.setChanged();
     this.notifyObservers(MeshEvents.READY);
   }
@@ -1278,7 +1278,6 @@ public class MeshController extends Observable implements Observer,
 
   public void resetAll() {
     resetMesh();
-//        reset();
     layerNumber = -1;
     selectedBitKeys.clear();
     zoom = 1;
@@ -1292,9 +1291,13 @@ public class MeshController extends Observable implements Observer,
     currentSelectedRegion = new Path2D.Double();
     availableArea = null;
     bitAreaPreview = null;
+    layerNumber = -1;
+    currentPoint = null;
+    areaHoldingCut = null;
+    fullLength = true;
+    handlerRedoUndo.reset();
     setChanged();
     notifyObservers();
   }
-
 
 }

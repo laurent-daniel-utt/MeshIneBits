@@ -309,11 +309,10 @@ public class MeshWindow extends JFrame {
   }
 
   private void closeProject() {
-    dispose();
-    new MeshWindow();
     MeshProvider.closeInstance();
-    ProcessingModelView.closeInstance();
-    System.out.println("close project");
+    meshController.resetAll();
+    this.reset();
+    System.out .println("close project");
   }
 
   private void init() {
@@ -469,7 +468,7 @@ public class MeshWindow extends JFrame {
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
-        CuttingProcessView::startProcessingModelView);
+        BaseVisualization3DView::startProcessingModelView);
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(
@@ -974,6 +973,12 @@ public class MeshWindow extends JFrame {
       meshController.removePropertyChangeListener(propertyPanel);
       propertyPanel = null;
     }
+    if(utilityParametersPanel!=null){
+      remove(utilityParametersPanel);
+      utilityParametersPanel=null;
+    }
     core.initBackground();
+    this.validate();
+    this.repaint();
   }
 }

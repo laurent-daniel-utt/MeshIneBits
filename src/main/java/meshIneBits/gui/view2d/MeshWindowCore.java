@@ -131,6 +131,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       background.setForeground(new Color(0, 0, 0, 8));
       this.add(background, BorderLayout.CENTER);
     }
+    this.validate();
+    this.repaint();
   }
 
   private void setupKeyBindings() {
