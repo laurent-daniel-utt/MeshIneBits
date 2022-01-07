@@ -4,7 +4,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.deepLearning.MagicAlgorithm;
+import meshIneBits.artificialIntelligence.deepLearning.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
@@ -34,7 +34,7 @@ public class BorderedPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         try {
-            MagicAlgorithm magicAlgorithm = new MagicAlgorithm();
+            BorderedPatternAlgorithm magicAlgorithm = new BorderedPatternAlgorithm();
             Collection<Bit2D> bits = magicAlgorithm.getBits(layer.getHorizontalSection(),
                     (double) config.get("minWidth").getCurrentValue());
             //updateBitAreasWithSpaceAround(bits);

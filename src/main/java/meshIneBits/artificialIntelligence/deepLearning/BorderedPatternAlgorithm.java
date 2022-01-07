@@ -40,10 +40,13 @@ import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
+import java.util.Collections;
 import java.util.Vector;
 
 
-public class MagicAlgorithm {
+public class BorderedPatternAlgorithm {
+    //private PlotHelper plotHelper = new PlotHelper();
+
     public Bit2D calculateBitPosition(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
 
         double distExt = 0.1;
@@ -59,16 +62,26 @@ public class MagicAlgorithm {
         int cpt = 0;
 
         do {
-            //Vector<Vector2> hull = makeHullPresorted(sectionRepopulated);
-            //Vector<Vector2> hull = makeHull(sectionRepopulated);
-            System.out.println("hull....");
+//            plotHelper.addSeries("section", sectionRepopulated, Plot.Marker.DIAMOND, Plot.Line.NONE, 6);
+//            plotHelper.save();
+
             Vector<Vector2> hull = convex_hull(sectionRepopulated);
-//            DebugTools.pointsToDrawBLUE = hull;
-            System.out.println("passé");
-            //DebugTools.pointsToDrawRED = sectionPoints;
-//            System.out.println("hull = " + hull);
+            //DebugTools.pointsToDrawBLUE = (Vector<Vector2>) hull.clone();
             hull.add(hull.firstElement());
             Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
+
+//            DebugTools.pointsToDrawBLUE = (Vector<Vector2>) hull.clone();
+//            DebugTools.segmentsToDraw = (Vector<Segment2D>) segmentsHull.clone();
+//            DebugTools.pointsToDrawRED = (Vector<Vector2>) sectionRepopulated.clone();
+//            DebugTools.setPaintForDebug(true);
+
+
+//            plotHelper.addSeries("hull", hull, Plot.Marker.CIRCLE, Plot.Line.SOLID, 5);
+//            plotHelper.save();
+
+//            DebugTools.pointsToDrawRED = sectionPoints;
+//            DebugTools.segmentsToDraw = segmentsHull;
+//            DebugTools.setPaintForDebug(true);
 
             // trouver le plus long segment
             longestSegment = getLongestSegment(segmentsHull);
@@ -104,12 +117,10 @@ public class MagicAlgorithm {
 
         }
         while (!sectionReductionCompleted);
+        System.out.println("cpt = " + cpt);
 
-        //Vector<Vector2> hull = makeHullPresorted(sectionRepopulated);
-        //Vector<Vector2> hull = makeHull(sectionRepopulated);
-        System.out.println("hull....");
         Vector<Vector2> hull = convex_hull(sectionRepopulated);
-        System.out.println("passé");
+
         //DebugTools.pointsToDrawRED = sectionPoints;
         hull.add(hull.firstElement());
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
@@ -133,7 +144,8 @@ public class MagicAlgorithm {
 //        DebugTools.pointsToDrawRED.add(ortProjFurthestPoint);
 //        DebugTools.pointsToDrawGREEN.add(furthestPoint);
 //        DebugTools.segmentsToDraw.add(longestSegment);
-//        DebugTools.pointsToDrawBLUE = hull;
+
+
 //        DebugTools.pointsToDrawRED = sectionPoints;
 //        DebugTools.setPaintForDebug(true);
 
@@ -231,8 +243,8 @@ public class MagicAlgorithm {
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
 
-        //Vector2 startPoint = new Vector2(106.43064011048597, 221.5639175190068);
-        Vector2 startPoint = bounds.get(0).get(10);
+        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
+        //Vector2 startPoint = bounds.get(0).get(10);
 
         Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
 
@@ -271,32 +283,40 @@ public class MagicAlgorithm {
                 //DebugTools.pointsToDrawRED = sectionPoints;
                 //DebugTools.setPaintForDebug(true);
             }
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 1000); //Add each bit on the bound
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 3000); //Add each bit on the bound
 
         }
         return bits;
 
     }
 
+    // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
+    // return true if check3 isn't part of the hull
+    public boolean OrientationMatch(Vector2 check1, Vector2 check2, Vector2 check3) {
+
+//        Vector<Vector2> p1 = new Vector<>();
+//        Vector<Vector2> p2 = new Vector<>();
+//        Vector<Vector2> p3 = new Vector<>();
+//        p1.add(check1);
+//        p2.add(check2);
+//        p3.add(check3);
+//        plotHelper.addSeries("p1", p1, Plot.Marker.CIRCLE, Plot.Line.NONE, 30);
+//        plotHelper.addSeries("p2", p2, Plot.Marker.DIAMOND, Plot.Line.NONE, 20);
+//        plotHelper.addSeries("p3", p3, Plot.Marker.SQUARE, Plot.Line.NONE, 10);
+//        plotHelper.save();
+
+//        System.out.println(plotHelper.index + " :    " + check2.isOnSegment(new Segment2D(check1, check3)));
+
+        double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
+        if (check2.asGoodAsEqual(check3) || check1.asGoodAsEqual(check2) ||
+                (Math.abs(val)<Math.pow(10, -CraftConfig.errorAccepted)
+                && check3.sub(check2).dot(check1.sub(check2))<=0)) {
+            return false;
+        }
+        return val <= Math.pow(10, -CraftConfig.errorAccepted);
+    }
 
     // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
-    public int OrientationMatch2(Vector2 check1, Vector2 check2, Vector2 check3) {
-        double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
-        double errorAccepted = Math.pow(10, -10);
-//        System.out.println(val);
-        return (val > errorAccepted) ? 1 : 2;
-    }
-
-
-    public int OrientationMatch(Vector2 check1, Vector2 check2, Vector2 check3) {
-        double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
-        double errorAccepted = 0.05;
-        if (val == 0)
-            return 0;
-        return (val > 0) ? 1 : 2;
-    }
-
-
     public Vector<Vector2> convex_hull(Vector<Vector2> points) {
         int lengths = points.size();
         if (lengths<3) return null;
@@ -310,19 +330,17 @@ public class MagicAlgorithm {
             result.add(points.get(p));
             pointq = (p + 1) % lengths;
             for (int i = 0; i<lengths; i++) {
-                if(OrientationMatch(points.get(p), points.get(i), points.get(pointq)) == 2) {
-                    //if (OrientationMatch2(points.get(p), points.get(i), points.get(pointq)) == 2 && i!=p && p!=pointq) {
+                if(OrientationMatch(points.get(p), points.get(i), points.get(pointq))) {
                     pointq = i;
-//                    System.out.println("======================");
                 }
             }
             p = pointq;
-//            System.out.println("___________________________");
         }
         while (p != leftmost);
 
         return result;
     }
+
 
 
     public static void main(String[] args) {
@@ -332,6 +350,20 @@ public class MagicAlgorithm {
 //        Segment2D s = new Segment2D(a, b);
 //        Vector2 c = new Vector2(1, 1);
 //        System.out.println(Vector2.Tools.distanceFromPointToLine(c, s));
+
+        Vector<Vector2> pts = new Vector<>();
+        Collections.addAll(pts,
+                new Vector2(0, 0),
+                new Vector2(1, 0),
+                new Vector2(2, 0),
+                new Vector2(2, 1),
+                new Vector2(2, 2),
+                new Vector2(1, 2),
+                new Vector2(0, 2),
+                new Vector2(0, 1),
+                new Vector2(1, 1)
+        );
+
 
     }
 

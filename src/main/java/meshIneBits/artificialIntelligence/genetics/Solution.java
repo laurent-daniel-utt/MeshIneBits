@@ -200,6 +200,12 @@ public class Solution {
             //        DebugTools.pointsToDrawGREEN.add(startPoint);
             //        AI_Tool.getMeshController().AI_NeedPaint=true;
             //Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
+//            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
+//            Vector2 bitDirector = getBit(startPoint).getOrientation();
+////            System.out.println(bitDirector.dot(startToEnd));
+//            if (bitDirector.dot(startToEnd) < 0) {
+//                bad = true;
+//            }
             //Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
             //Vector2 bitDirector = getBit(startPoint).getOrientation();
             //System.out.println(startToEnd.add(bitDirector.getOpposite()).getEquivalentAngle2());
