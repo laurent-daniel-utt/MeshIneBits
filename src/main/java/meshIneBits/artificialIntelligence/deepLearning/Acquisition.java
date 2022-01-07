@@ -77,8 +77,8 @@ public class Acquisition {
      * Delete the last manually placed bit by the user from the dataSet.
      */
     public static void deleteLastPlacedBit() {
-        storedExamplesBits.remove(lastPlacedBit);
         lastPlacedBit.setUsedForNN(false);
+        storedExamplesBits.remove(lastPlacedBit);
     }
 
     /**
@@ -109,7 +109,6 @@ public class Acquisition {
         System.out.println("Example added.");
         bit.setUsedForNN(true);
     }
-
 
     /**
      * checks if a bit can be used to train the neural net.

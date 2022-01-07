@@ -39,15 +39,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
-public class UPPToolsIA extends UtilityParametersPanel {
+public class UPPToolsAI extends UtilityParametersPanel {
     private final static String TEXT_TOGGLE_FALSE = "Store new inputs";
     private final static String TEXT_TOGGLE_TRUE = "Recording new inputs..";
+    private final JPanel parametersPanel;
 
-    public UPPToolsIA(MeshController meshController) {
+    public UPPToolsAI(MeshController meshController) {
         super("AI-Tools");
         // Init components
         AI_Tool.setMeshController(meshController);
-        JPanel parametersPanel = new JPanel();
+        parametersPanel = new JPanel();
         parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
@@ -93,6 +94,7 @@ public class UPPToolsIA extends UtilityParametersPanel {
                     storeButton.setText(TEXT_TOGGLE_TRUE);
                     deleteLastButton.setEnabled(true);
                     Acquisition.startStoringBits();
+                    ShowDialogStartStoringBits();
                 } else {
                     storeButton.setText(TEXT_TOGGLE_FALSE);
                     deleteLastButton.setEnabled(false);
@@ -130,5 +132,13 @@ public class UPPToolsIA extends UtilityParametersPanel {
         c.weightx = 1;
         c.anchor = GridBagConstraints.LINE_START;
         add(deleteLastButton, c);
+    }
+
+    private void ShowDialogStartStoringBits() {
+        JOptionPane pane = new JOptionPane("To correctly train the AI, external surfaces have to be populated turning clockwise, and internal surfaces, anticlockwise." +
+                "\nThe shortest sides of the bits have to intersect with the border of the Slice " +
+                "\n\n The bit will become yellow if its position is good according to theses criteria.");
+        JDialog dialog = pane.createDialog(parametersPanel, "How to store new bits...");
+        dialog.setVisible(true);
     }
 }

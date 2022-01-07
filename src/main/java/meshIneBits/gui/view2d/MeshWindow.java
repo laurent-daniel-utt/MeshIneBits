@@ -474,7 +474,7 @@ public class MeshWindow extends JFrame {
                 "alt A",
                 null) {
 
-            final UPPToolsIA uppToolsIA = new UPPToolsIA(meshController);
+            final UPPToolsAI uppToolsIA = new UPPToolsAI(meshController);
 
             @Override
             public void actionPerformed(ActionEvent e) {
