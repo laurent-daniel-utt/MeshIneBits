@@ -95,19 +95,19 @@ public final class DataSetGenerator {
      *                   slice border and the last placed bit's end edge
      * @return the edgeAbscissa
      */
-    private static double getBitEdgeAbscissa(@NotNull Vector2 bitOrigin, @NotNull Vector2 bitAngle, Vector2 startPoint) {
+    public static double getBitEdgeAbscissa(@NotNull Vector2 bitOrigin, @NotNull Vector2 bitAngle, Vector2 startPoint) {
 
-        Vector2 colinear = bitAngle.normal();
-        Vector2 orthogonal = colinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
+        Vector2 collinear = bitAngle.normal();
+        Vector2 orthogonal = collinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
 
         //this point is used as a local origin for the new coordinate system
         Vector2 originVertex = bitOrigin.add(orthogonal.mul(CraftConfig.bitWidth / 2))
-                .sub(colinear.mul(CraftConfig.lengthFull / 2));
+                .sub(collinear.mul(CraftConfig.lengthFull / 2));
 
         if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
-                    .add(colinear.mul(CraftConfig.lengthFull / 2));
+                    .add(collinear.mul(CraftConfig.lengthFull / 2));
         }
 
         // edgeAbscissa is the distance between the startPoint and the originVertex
@@ -122,7 +122,7 @@ public final class DataSetGenerator {
      * @param bitAngle      the angle of the bit in the global coordinate system
      * @param sectionPoints the points saved by DataLogger
      * @return the angle of the bit in the local coordinate system. Note that the angle is expressed
-     * between -90 and 90. Otherwise, as the orientation is expressed in regards to the center of the bit,
+     * between -90 and 90. Otherwise, as the orientation is expressed in regard to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
     private static double getBitAngleInLocalSystem(@NotNull Vector2 bitAngle, @NotNull Vector<Vector2> sectionPoints) {

@@ -38,6 +38,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -46,11 +47,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-import java.awt.geom.AffineTransform;
 
 
 /**

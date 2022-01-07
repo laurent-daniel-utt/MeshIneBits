@@ -174,8 +174,8 @@ public class CraftConfig {
      * The provided templates
      */
     public static PatternTemplate[] templatesPreloaded = {
-            new BorderedPattern(),
             new GeneticPavement(),
+            new BorderedPattern(),
             new ManualPattern(),
             new ClassicBrickPattern(),
             new DiagonalHerringbonePattern(),

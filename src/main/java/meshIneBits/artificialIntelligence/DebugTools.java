@@ -47,12 +47,13 @@ import java.util.Vector;
  * <p>
  * Set its variables depending on what you want to draw, and call DebugTools.setPaintForDebug(true);
  * It will draw on the screen what is stored in the variables of DebugTools.
- * You may have to modifiy the method AIpaintForDebug in MeshWindowsCore to paint exactly what you need.
- *
- * @see meshIneBits.gui.view2d.MeshWindowCore#AIpaintForDebug
+ * You may have to modify the method AIpaintForDebug in MeshWindowsCore to paint exactly what you need.
  */
 @SuppressWarnings("unused")
 public final class DebugTools {
+
+    public static @NotNull Bit2D bit1 = null;
+    public static @NotNull Bit2D bit2 = null;
 
     public static @NotNull AffineTransform transformArea = new AffineTransform();
 

@@ -80,7 +80,7 @@ public class Mesh extends Observable implements Observer, Serializable {
      * Register a model given a path
      *
      * @param filepath model file to load
-     * @throws Exception when an other action is currently executing
+     * @throws Exception when another action is currently executing
      */
     public void importModel(String filepath) throws Exception {
         if (state.isWorking()) throw new SimultaneousOperationsException(this);

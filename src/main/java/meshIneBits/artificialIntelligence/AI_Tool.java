@@ -129,16 +129,16 @@ public class AI_Tool {
     /**
      * Check if the bound of the Slice has been entirely paved.
      *
-     * @param veryFirststartPoint the point of the bound on which the very first bit was placed.
+     * @param veryFirstStartPoint the point of the bound on which the very first bit was placed.
      * @param associatedPoints    the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    public boolean hasNotCompletedTheBound(Vector2 veryFirststartPoint, Vector2 startPoint, @NotNull Vector<Vector2> associatedPoints) {
-        if (associatedPoints.firstElement() == veryFirststartPoint) //to avoid returning false on the first placement
+    public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 startPoint, @NotNull Vector<Vector2> associatedPoints) {
+        if (associatedPoints.firstElement() == veryFirstStartPoint) //to avoid returning false on the first placement
             return true;
-        if (Vector2.dist(veryFirststartPoint, startPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10) //standard safe distance between two bits
+        if (Vector2.dist(veryFirstStartPoint, startPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10) //standard safe distance between two bits
             return false;
-        return !associatedPoints.contains(veryFirststartPoint);
+        return !associatedPoints.contains(veryFirstStartPoint);
     }
 
 }

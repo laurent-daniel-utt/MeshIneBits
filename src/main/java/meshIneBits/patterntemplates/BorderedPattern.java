@@ -4,12 +4,10 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deepLearning.MagicAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
-import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.util.Collection;

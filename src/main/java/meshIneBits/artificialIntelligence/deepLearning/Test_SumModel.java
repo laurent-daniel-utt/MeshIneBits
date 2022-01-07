@@ -154,7 +154,7 @@ public class Test_SumModel {
      */
     private static void startMonitoring() {
         UIServer uiServer = UIServer.getInstance();
-        //Configures where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        //Configures where the network information (gradients, score vs. time etc.) is to be stored. Here: store in memory.
         StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
         uiServer.attach(statsStorage);
 

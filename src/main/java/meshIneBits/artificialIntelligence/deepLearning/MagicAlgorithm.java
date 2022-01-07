@@ -1,26 +1,46 @@
+/*
+ * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * into a network of standard parts (called "Bits").
+ *
+ * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
+ * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
+ * Copyright (C) 2018 VALLON Benjamin.
+ * Copyright (C) 2018 LORIMER Campbell.
+ * Copyright (C) 2018 D'AUTUME Christian.
+ * Copyright (C) 2019 DURINGER Nathan (Tests).
+ * Copyright (C) 2020 CLAIRIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 DO Quang Bao.
+ * Copyright (C) 2021 VANNIYASINGAM Mithulan.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package meshIneBits.artificialIntelligence.deepLearning;
 
-import javafx.scene.shape.Shape;
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.genetics.Evolution;
+import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-import org.apache.arrow.flatbuf.Null;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Vector;
-import meshIneBits.artificialIntelligence.GeneralTools;
-import remixlab.dandelion.geom.Vec;
 
 
 public class MagicAlgorithm {
@@ -33,8 +53,8 @@ public class MagicAlgorithm {
 
         boolean sectionReductionCompleted = false;
 
-        Segment2D longestSegment = null;
-        Vector2 furthestPoint = null;
+        Segment2D longestSegment;
+        Vector2 furthestPoint;
 
         int cpt = 0;
 
@@ -162,7 +182,7 @@ public class MagicAlgorithm {
 
         Bit2D bit = new Bit2D(position, rotation);
 
-        System.out.println("bit place = " + bit.toString());
+        System.out.println("bit place = " + bit);
 
         //DebugTools.pointsToDrawGREEN.add(position);
 
@@ -225,7 +245,6 @@ public class MagicAlgorithm {
     }
 
 
-
     public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
@@ -281,7 +300,7 @@ public class MagicAlgorithm {
     public Vector<Vector2> convex_hull(Vector<Vector2> points) {
         int lengths = points.size();
         if (lengths<3) return null;
-        Vector<Vector2> result = new Vector<Vector2> ();
+        Vector<Vector2> result = new Vector<>();
         int leftmost = 0;
         for (int i = 1; i<lengths; i++)
             if (points.get(i).x<points.get(leftmost).x)
@@ -292,7 +311,7 @@ public class MagicAlgorithm {
             pointq = (p + 1) % lengths;
             for (int i = 0; i<lengths; i++) {
                 if(OrientationMatch(points.get(p), points.get(i), points.get(pointq)) == 2) {
-                //if (OrientationMatch2(points.get(p), points.get(i), points.get(pointq)) == 2 && i!=p && p!=pointq) {
+                    //if (OrientationMatch2(points.get(p), points.get(i), points.get(pointq)) == 2 && i!=p && p!=pointq) {
                     pointq = i;
 //                    System.out.println("======================");
                 }

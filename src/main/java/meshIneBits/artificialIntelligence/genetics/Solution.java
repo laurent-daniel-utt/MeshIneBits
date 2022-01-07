@@ -117,7 +117,7 @@ public class Solution {
      * @return the area.
      */
     private double getAreaScore() {
-        if (score!=0d)
+        if (score != 0d)
             return score;
         bit = getBit(startPoint);
         Area availableBitArea = bit.getArea();
@@ -159,7 +159,7 @@ public class Solution {
     }
 
     /**
-     * Checks if the solution is a really bad solution.
+     * Checks if the solution is an awful solution.
      *
      * @return true if the solution doesn't meet the conditions.
      */
@@ -182,23 +182,34 @@ public class Solution {
 
 
         try {
-            System.out.println(getBit(startPoint));
+            double maxDistanceForNextStart = CraftConfig.lengthFull + CraftConfig.errorAccepted;
+
+            //System.out.println(getBit(startPoint));
             Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, true, startPoint);
-            //todo on verif si le start est avant le next
+            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.getSegment2DS(bound));
+            //System.out.println(distViaSegments + getBit(startPoint).toString());
+            if (distViaSegments > maxDistanceForNextStart) {
+                bad = true;
+                System.out.println("BAAAD for distViaSeg");
+            }
+
+
             //DebugTools.pointsToDrawRED.add(nextStartPoint);
 
             //Vector2 startPoint = bound.firstElement();
             //        DebugTools.pointsToDrawGREEN.add(startPoint);
             //        AI_Tool.getMeshController().AI_NeedPaint=true;
             //Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
-            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
-            Vector2 bitDirector = getBit(startPoint).getOrientation();
+            //Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
+            //Vector2 bitDirector = getBit(startPoint).getOrientation();
+            //System.out.println(startToEnd.add(bitDirector.getOpposite()).getEquivalentAngle2());
 //            System.out.println(bitDirector.dot(startToEnd));
-            if (bitDirector.dot(startToEnd) < 0) {
-                bad = true;
-            }
+            //if (bitDirector.dot(startToEnd) < 0) {
+            //bad = true;
+            //}
         } catch (Exception e) {
             bad = true;
+            System.out.println("BAD, " + e);
         }
         hasBeenCheckedBad = true;
         return bad;
@@ -247,7 +258,7 @@ public class Solution {
      * Add a penalty to the score.
      * The less the Bit2D follows the bound of the Slice,
      * the more the score will be decreased.
-     * Depends of <code>LENGTH_PENALTY_STRENGTH</code>
+     * Depends on <code>LENGTH_PENALTY_STRENGTH</code>
      */
     private double getLengthScore() throws Exception {
         Bit2D bit2D = getBit(startPoint);

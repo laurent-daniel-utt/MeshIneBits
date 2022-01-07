@@ -53,9 +53,9 @@ public class NNTraining {
      */
     private static final int FEATURES_COUNT = 20; // ! Do not change if the DataSet format has not changed
     /**
-     * The number of neurons in an hidden layer.
+     * The number of neurons in a hidden layer.
      */
-    public static int HIDDEN_NEURONS_COUNT = 30; // This number could also be specified for each layer.
+    public static final int HIDDEN_NEURONS_COUNT = 30; // This number could also be specified for each layer.
 
     private DataNormalization normalizer;
     private MultiLayerNetwork model;
@@ -190,7 +190,7 @@ public class NNTraining {
      */
     private void startMonitoring() {
         UIServer uiServer = UIServer.getInstance();
-        //Configures where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        //Configures where the network information (gradients, score vs. time etc.) is to be stored. Here: store in memory.
         StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
         uiServer.attach(statsStorage);
 

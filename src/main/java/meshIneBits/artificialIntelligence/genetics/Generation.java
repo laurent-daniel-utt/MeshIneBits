@@ -29,7 +29,10 @@
 
 package meshIneBits.artificialIntelligence.genetics;
 
+import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.util.DataSetGenerator;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +42,7 @@ import java.util.*;
 
 /**
  * A Generation is a set of solutions.
- * Provides tools to reproduce solutions between them, select the better ones,
+ * Provide tools to reproduce solutions between them, select the better ones,
  * and mutate some (has to be used with genetics algorithms).
  *
  * @see Solution
@@ -48,8 +51,8 @@ public class Generation {
     /**
      * The max angle between the section and the bit when creating a new Solution.
      */
-    private static final double MAX_ANGLE = 179.0;//89.0;
-    public final @NotNull Vector<Solution> solutions;
+    private static final double MAX_ANGLE = 179.0;//179.0;//89.0;
+    public @NotNull Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;
@@ -90,6 +93,15 @@ public class Generation {
         for (int pop = 0; pop < popSize; pop++) {
             this.solutions.add(createNewSolution(pointSection));
         }
+        this.solutions = new Vector<>();
+        Bit2D bit1 = DebugTools.bit1;
+        Bit2D bit2 = DebugTools.bit2;
+
+        double edgeAbscissa1 = DataSetGenerator.getBitEdgeAbscissa(bit1.getOrigin(), bit1.getOrientation(), startPoint);
+        double edgeAbscissa2 = DataSetGenerator.getBitEdgeAbscissa(bit2.getOrigin(), bit2.getOrientation(), startPoint);
+
+        solutions.add(createNewSolution(edgeAbscissa1, bit1.getOrientation()));
+        solutions.add(createNewSolution(edgeAbscissa2, bit2.getOrientation()));
     }
 
     /**
@@ -154,8 +166,8 @@ public class Generation {
      */
     public @NotNull Vector<Solution> select(@NotNull Vector<Solution> solutionsToSelect) {
         List<Solution> solutionList = sortSolutions(solutionsToSelect);
-        int nbOfSelecteds = (int) (solutionsToSelect.size() * rankSelection);
-        return new Vector<>(solutionList.subList(0, nbOfSelecteds));
+        int nbOfSelected = (int) (solutionsToSelect.size() * rankSelection);
+        return new Vector<>(solutionList.subList(0, nbOfSelected));
     }
 
     /**
@@ -165,9 +177,9 @@ public class Generation {
      */
     public @NotNull Vector<Solution> reproduce(@NotNull Vector<Solution> solutionsToReproduce) {
         Vector<Solution> reproducedSolutions = new Vector<>();
-        int numberOfChilds = (int) (this.popSize * this.rankReproduction);
+        int numberOfChildren = (int) (this.popSize * this.rankReproduction);
 
-        for (int i = 0; i < numberOfChilds; i++) {
+        for (int i = 0; i < numberOfChildren; i++) {
             Random rand = new Random();
             Solution parent1 = solutionsToReproduce.get(rand.nextInt(solutionsToReproduce.size()));
             Solution parent2 = solutionsToReproduce.get(rand.nextInt(solutionsToReproduce.size()));
