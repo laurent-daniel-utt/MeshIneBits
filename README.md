@@ -24,7 +24,7 @@ Icons used in this project are either drawn by MS Paint or taken from
 
 We are asking users to work on the project by using [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
-##Configuration
+## Configuration
     
 ### To do before running the project
 * Go to Edit Configuration 
@@ -32,7 +32,7 @@ We are asking users to work on the project by using [IntelliJ IDEA](https://www.
 * Select "Shorten command line"
 * In Shorten command line, select "JAR manifest"
 
-##Running
+## Running
 
 * Go to the class [MeshIneBitsMain.java](./src/main/java/meshIneBits/MeshIneBitsMain.java)
 * Run the method MeshIneBitsMain.main
