@@ -4,6 +4,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deepLearning.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -24,6 +25,8 @@ public class BorderedPattern extends PatternTemplate {
                 CraftConfig.bitWidth/2,
                 3.0,
                 5.0));
+        config.add(AI_Tool.paramSafeguardSpace);
+
     }
 
     @Override

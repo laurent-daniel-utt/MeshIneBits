@@ -473,27 +473,40 @@ public class GeneralTools {
             for (Segment2D bitSegment : bitSegments) {
                 //on recherche tous les points d'intersections entre le bit et le contour
                 if (Segment2D.doSegmentsIntersect(boundSegment, bitSegment)) {
-                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment);
+                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment); //TODO @ANDRE Voir pour les cas où les droites sont confondues
                     intersectionsWithSegment.add(inter);
                 }
             }
 
             //on parcourt toutes ces intersections
-            while (!intersectionsWithSegment.isEmpty()) {
-                double distMin = Double.POSITIVE_INFINITY;
-                Vector2 firstPoint = null;
-                for (Vector2 inter : intersectionsWithSegment) {
-                    if (Vector2.dist2(inter, boundSegment.start) < distMin) {
-                        firstPoint = inter;
-                        distMin = Vector2.dist2(inter, boundSegment.start);
-                    }
-                }
-                intersectionPoints.add(firstPoint);
-                intersectionsWithSegment.remove(firstPoint);
+            if (intersectionsWithSegment.size()==1)
+                intersectionPoints.add(intersectionsWithSegment.get(0));
+            else if (intersectionsWithSegment.size()==2 && Vector2.dist2(intersectionsWithSegment.get(0), boundSegment.start)<Vector2.dist2(intersectionsWithSegment.get(1), boundSegment.start))
+                intersectionPoints.addAll(intersectionsWithSegment);
+            else if (intersectionsWithSegment.size()==2){
+                intersectionPoints.add(intersectionsWithSegment.get(1));
+                intersectionPoints.add(intersectionsWithSegment.get(0));
             }
 
+//
+//            while (!intersectionsWithSegment.isEmpty()) {
+//                double distMin = Double.POSITIVE_INFINITY;
+//                Vector2 firstPoint = null;
+//                for (Vector2 inter : intersectionsWithSegment) {
+//                    if (Vector2.dist2(inter, boundSegment.start) < distMin) {
+//                        firstPoint = inter;
+//                        distMin = Vector2.dist2(inter, boundSegment.start);
+//                    }
+//                }
+//                intersectionPoints.add(firstPoint);
+//                intersectionsWithSegment.remove(firstPoint);
+//            }
+
         }
-        return intersectionPoints.get(1);
+        if(bit.getArea().contains(boundPoints.get(0).x,boundPoints.get(0).y) && boundPoints.firstElement()!=intersectionPoints.firstElement())
+            return intersectionPoints.get(0);
+        else
+            return intersectionPoints.get(1);//renvoie la deuxieme intersection
     }
 
     /**
@@ -529,6 +542,7 @@ public class GeneralTools {
         }
         return totalDist;
     }
+
 
     /**
      * Return the next Bit2D start point.

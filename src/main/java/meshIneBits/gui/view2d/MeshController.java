@@ -591,19 +591,19 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         double maxDistanceForNextStart = CraftConfig.lengthFull + CraftConfig.errorAccepted;
 
         //System.out.println(getBit(startPoint));
-        Vector2 nextStartPoint = null;
-        try {
-            Vector2 startPoint = GeneralTools.getBitAndContourFirstIntersectionPoint(DebugTools.bit2, boundSegments);
-            nextStartPoint = new GeneralTools().getNextBitStartPoint(DebugTools.bit2, boundSegments, true, startPoint);
-            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.getSegment2DS(boundSegments));
-            System.out.println(distViaSegments);
-            if (distViaSegments > maxDistanceForNextStart) {
-                //bad = true;
-                System.out.println("BAAAD for distViaSeg");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        Vector2 nextStartPoint = null;
+//        try {
+//            Vector2 startPoint = GeneralTools.getBitAndContourFirstIntersectionPoint(DebugTools.bit2, boundSegments);
+//            nextStartPoint = new GeneralTools().getNextBitStartPoint(DebugTools.bit2, boundSegments, true, startPoint);
+//            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.getSegment2DS(boundSegments));
+//            System.out.println(distViaSegments);
+//            if (distViaSegments > maxDistanceForNextStart) {
+//                //bad = true;
+//                System.out.println("BAAAD for distViaSeg");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
         if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it

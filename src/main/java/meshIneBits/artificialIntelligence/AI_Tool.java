@@ -31,9 +31,11 @@ package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.deepLearning.NNExploitation;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -130,15 +132,34 @@ public class AI_Tool {
      * Check if the bound of the Slice has been entirely paved.
      *
      * @param veryFirstStartPoint the point of the bound on which the very first bit was placed.
+     * @param NextStartPoint TODO etienne
      * @param associatedPoints    the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 startPoint, @NotNull Vector<Vector2> associatedPoints) {
+    public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 NextStartPoint, @NotNull Vector<Vector2> associatedPoints) {
+        DebugTools.pointsToDrawGREEN.add(NextStartPoint);
+        DebugTools.pointsToDrawRED.add(veryFirstStartPoint);
+        //DebugTools.pointsToDrawBLUE=associatedPoints;
+        DebugTools.setPaintForDebug(true);
         if (associatedPoints.firstElement() == veryFirstStartPoint) //to avoid returning false on the first placement
             return true;
-        if (Vector2.dist(veryFirstStartPoint, startPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10) //standard safe distance between two bits
+        if (Vector2.dist(veryFirstStartPoint, NextStartPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10
+            ) { //standard safe distance between two bits
+            //todo refactor le param paramSafeguardSpace @Andre
             return false;
+        }
+
         return !associatedPoints.contains(veryFirstStartPoint);
+    }
+
+    public boolean hasCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 nextStartPoint, Bit2D bit2D, Vector<Vector2> bound) {
+        System.out.println("lamantinnnnnnnnnnnnnnnnnnnnnn");
+        System.out.println(bit2D.getArea().contains(veryFirstStartPoint.x,veryFirstStartPoint.y));
+        System.out.println(nextStartPoint + "   "+ bound.firstElement());
+        System.out.println(GeneralTools.getDistViaSegments(nextStartPoint,veryFirstStartPoint, GeneralTools.getSegment2DS(bound)));
+
+        return bit2D.getArea().contains(veryFirstStartPoint.x,veryFirstStartPoint.y) && GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, bound)!=veryFirstStartPoint
+                || GeneralTools.getDistViaSegments(nextStartPoint,veryFirstStartPoint, GeneralTools.getSegment2DS(bound))<AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
     }
 
 }

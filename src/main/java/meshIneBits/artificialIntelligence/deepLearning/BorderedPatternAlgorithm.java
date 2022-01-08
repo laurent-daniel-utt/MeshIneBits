@@ -40,7 +40,6 @@ import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
-import java.util.Collections;
 import java.util.Vector;
 
 
@@ -117,7 +116,7 @@ public class BorderedPatternAlgorithm {
 
         }
         while (!sectionReductionCompleted);
-        System.out.println("cpt = " + cpt);
+        //System.out.println("cpt = " + cpt);
 
         Vector<Vector2> hull = convex_hull(sectionRepopulated);
 
@@ -267,23 +266,33 @@ public class BorderedPatternAlgorithm {
 
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
-            Vector2 startPoint = bound.get(0);
+            Vector2 nextStartPoint = bound.get(0);
 
-            System.out.println("startpoint = " + startPoint);
+            System.out.println("firstStartpoint = " + nextStartPoint);
 
             Vector<Vector2> sectionPoints;
             int nbMaxBits = 0;
             do{
-                sectionPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+                sectionPoints = GeneralTools.getSectionPointsFromBound(bound, nextStartPoint);
                 Bit2D bit = calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(bit);
-                startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
+                nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound,false,null);
+
+//                nextStartPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
                 nbMaxBits++;
-                System.out.println("startpoint = " + startPoint);
+                System.out.println("nextStartPoint = " + nextStartPoint);
+//                DebugTools.pointsToDrawGREEN.removeAllElements();
+//                DebugTools.pointsToDrawGREEN.add(nextStartPoint);
+//                DebugTools.setPaintForDebug(true);
+//                DebugTools.pointsToDrawBLUE.removeAllElements();
+//                DebugTools.pointsToDrawBLUE.addAll(sectionPoints);
+//                DebugTools.pointsToDrawRED.add(veryFirstStartPoint);
                 //DebugTools.pointsToDrawRED = sectionPoints;
                 //DebugTools.setPaintForDebug(true);
             }
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 3000); //Add each bit on the bound
+//            while (nextStartPoint!=null && nbMaxBits < 30); //Add each bit on the bound
+            while (!new AI_Tool().hasCompletedTheBound(veryFirstStartPoint, nextStartPoint, bits.lastElement(), bound) && nbMaxBits < 30); //Add each bit on the bound
+//            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 3000); //Add each bit on the bound
 
         }
         return bits;
@@ -345,24 +354,14 @@ public class BorderedPatternAlgorithm {
 
     public static void main(String[] args) {
 
-//        Vector2 a = new  Vector2(0, 0);
-//        Vector2 b = new Vector2(5, 0);
-//        Segment2D s = new Segment2D(a, b);
-//        Vector2 c = new Vector2(1, 1);
-//        System.out.println(Vector2.Tools.distanceFromPointToLine(c, s));
+        Vector2 a = new  Vector2(0, 0);
+        Vector2 b = new Vector2(0, 1);
+        Vector2 c = new Vector2(0, -1);
+        Vector2 d = new Vector2(0, 2);
+        Segment2D s = new Segment2D(a, b);
+        Segment2D r = new Segment2D(c,d);
 
-        Vector<Vector2> pts = new Vector<>();
-        Collections.addAll(pts,
-                new Vector2(0, 0),
-                new Vector2(1, 0),
-                new Vector2(2, 0),
-                new Vector2(2, 1),
-                new Vector2(2, 2),
-                new Vector2(1, 2),
-                new Vector2(0, 2),
-                new Vector2(0, 1),
-                new Vector2(1, 1)
-        );
+        System.out.println(Segment2D.getIntersectionPoint(s,r));
 
 
     }
