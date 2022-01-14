@@ -30,7 +30,6 @@
 package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -46,7 +45,62 @@ import java.util.Vector;
 public class BorderedPatternAlgorithm {
     //private PlotHelper plotHelper = new PlotHelper();
 
-    public Bit2D calculateBitPosition(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
+    public static void main(String[] args) {
+
+        Vector2 a = new Vector2(2, 2);
+        Vector2 b = new Vector2(0, 1);
+        Vector2 c = new Vector2(0, -1);
+        Vector2 d = new Vector2(2, 2);
+        Vector2 r = new Vector2(0, 0);
+        //Segment2D s = new Segment2D(a, b);
+        //Segment2D r = new Segment2D(c, d);
+
+        //System.out.println(Segment2D.getIntersectionPoint(s,r));
+
+        Vector<Vector2> v = new Vector<>();
+        v.add(a);
+        v.add(b);
+        v.add(c);
+        v.add(d);
+
+        //System.out.println(getDistFurthestPointFromRefPoint(r,new Vector2(1, 1), v));
+
+    }
+
+
+    private Segment2D getLongestSegment(Vector<Segment2D> segments) {
+        Segment2D longestSegment = null;
+        double maxLength = -1;
+        for (Segment2D s : segments) {
+            if (s.getLength() > maxLength) {
+                longestSegment = s;
+                maxLength = s.getLength();
+            }
+        }
+        return longestSegment;
+    }
+
+    private Vector2 getFurthestPointFromSegment(Segment2D s, Vector<Vector2> points) {
+        Vector2 furthestPoint = null;
+        double maxDistance = -1;
+        for (Vector2 p : points) {
+            if (Vector2.Tools.distanceFromPointToLine(p, s) > maxDistance) {
+                furthestPoint = p;
+                maxDistance = Vector2.Tools.distanceFromPointToLine(p, s);
+            }
+        }
+        return furthestPoint;
+    }
+
+
+    private Vector2 getOrthogonalProjection(Segment2D AB, Vector2 C) {
+        Vector2 vAC = AB.start.sub(C);
+        Vector2 vAB = AB.getDirectionalVector().mul(AB.getLength());
+        double orthogonalProjectionDist = vAB.dot(vAC) / AB.getLength();
+        return AB.start.add(AB.getDirectionalVector().mul(-orthogonalProjectionDist));
+    }
+
+    public Placement calculateBitPosition(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
 
         double distExt = 0.1;
 
@@ -145,19 +199,20 @@ public class BorderedPatternAlgorithm {
 //        DebugTools.segmentsToDraw.add(longestSegment);
 
 
-//        DebugTools.pointsToDrawRED = sectionPoints;
-//        DebugTools.setPaintForDebug(true);
+//        DebugTools.pointsToDrawBLUE = sectionRepopulated;
+//        DebugTools.segmentsToDraw = segmentsHull;
+        //DebugTools.setPaintForDebug(true);
 
 
         Vector2 midPoint = longestSegment.getMidPoint();
-        Vector2 posLigneRoseLocal = ortProjFurthestPoint.sub(furthestPoint).normal().mul(CraftConfig.bitWidth/2-distExt);
+        Vector2 posLigneRoseLocal = ortProjFurthestPoint.sub(furthestPoint).normal().mul(CraftConfig.bitWidth / 2 - distExt);
         Vector2 posLigneRose;
-        if (areaSlice.contains(midPoint.x, midPoint.y)) {
+        boolean hasToRotateBit = false;
+        if (areaSlice.contains(midPoint.x, midPoint.y)) {//a l'interieur
             posLigneRose = furthestPoint.add(posLigneRoseLocal);
-//            System.out.println("a l'interieur");
-        } else {
+            hasToRotateBit = true;
+        } else {//a l'exterieur
             posLigneRose = ortProjFurthestPoint.sub(posLigneRoseLocal);
-//            System.out.println("a l'extérieur");
         }
 
         //DebugTools.pointsToDrawGREEN.add(posLigneRose);
@@ -172,7 +227,7 @@ public class BorderedPatternAlgorithm {
                 sectionRepopulated.firstElement().add(longestSegment.getNormal().mul(10000)));
 
 
-        Vector2 pointRose = Segment2D.getIntersectionPoint(lignePerpendiculaire,ligneRose);
+        Vector2 pointRose = Segment2D.getIntersectionPoint(lignePerpendiculaire, ligneRose);
 
 
         // find direction of bit
@@ -188,53 +243,26 @@ public class BorderedPatternAlgorithm {
 //        DebugTools.segmentsToDraw.add(new Segment2D(new Vector2(0, 0), directionalVector.mul(50)));
 
 
-        double longueur = CraftConfig.lengthFull/2-Vector2.dist(pointRose,posLigneRose);
+        double longueur = CraftConfig.lengthFull / 2 - Vector2.dist(pointRose, posLigneRose);
         Vector2 position = posLigneRose.add(directionalVector.mul(longueur));
 
+        if (hasToRotateBit) {
+            rotation = rotation.getOpposite();
+        }
         Bit2D bit = new Bit2D(position, rotation);
+        double newLengthBit = getDistFurthestPointFromRefPoint(startPoint, longestSegment.getDirectionalVector(), hull);
+        System.out.println("newLengthBit = " + newLengthBit);
+//        DebugTools.pointsToDrawRED.add(new Vector2(0,0));
+//        DebugTools.pointsToDrawRED.addAll(hull);
+//        DebugTools.setPaintForDebug(true);
+        bit.resize(newLengthBit / CraftConfig.lengthFull * 100, 100);
 
-        System.out.println("bit place = " + bit);
 
-        //DebugTools.pointsToDrawGREEN.add(position);
+        System.out.println("bit placé = " + bit);
 
-
-        return bit;
-        //return new Bit2D(new Vector2(1, 1), new Vector2(1, 1));
+        Placement placement = new Placement(bit, sectionRepopulated);
+        return placement;
     }
-
-
-    private Segment2D getLongestSegment(Vector<Segment2D> segments) {
-        Segment2D longestSegment = null;
-        double maxLength = -1;
-        for (Segment2D s : segments) {
-            if (s.getLength() > maxLength) {
-                longestSegment = s;
-                maxLength = s.getLength();
-            }
-        }
-        return longestSegment;
-    }
-
-    private Vector2 getFurthestPointFromSegment(Segment2D s, Vector<Vector2> points) {
-        Vector2 furthestPoint = null;
-        double maxDistance = -1;
-        for (Vector2 p : points) {
-            if (Vector2.Tools.distanceFromPointToLine(p, s) > maxDistance) {
-                furthestPoint = p;
-                maxDistance = Vector2.Tools.distanceFromPointToLine(p, s);
-            }
-        }
-        return furthestPoint;
-    }
-
-
-    private Vector2 getOrthogonalProjection(Segment2D AB, Vector2 C) {
-        Vector2 vAC = AB.start.sub(C);
-        Vector2 vAB = AB.getDirectionalVector().mul(AB.getLength());
-        double orthogonalProjectionDist = vAB.dot(vAC) / AB.getLength();
-        return AB.start.add(AB.getDirectionalVector().mul(-orthogonalProjectionDist));
-    }
-
 
     public Vector<Bit2D> getBits2(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
@@ -249,12 +277,11 @@ public class BorderedPatternAlgorithm {
 
         Area areaSlice = AreaTool.getAreaFrom(slice);
 
-        bits.add(calculateBitPosition(sectionPoints, areaSlice,minWidthToKeep));
+//        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
 //        DebugTools.pointsToDrawGREEN.add(startPoint);
 
         return bits;
     }
-
 
     public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
@@ -272,15 +299,15 @@ public class BorderedPatternAlgorithm {
 
             Vector<Vector2> sectionPoints;
             int nbMaxBits = 0;
-            do{
+            Placement placement;
+            do {
                 sectionPoints = GeneralTools.getSectionPointsFromBound(bound, nextStartPoint);
-                Bit2D bit = calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep);
-                bits.add(bit);
-                nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound,false,null);
+                placement = calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep);
+                bits.add(placement.bit2D);
+                nextStartPoint = placement.end;
 
 //                nextStartPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
                 nbMaxBits++;
-                System.out.println("nextStartPoint = " + nextStartPoint);
 //                DebugTools.pointsToDrawGREEN.removeAllElements();
 //                DebugTools.pointsToDrawGREEN.add(nextStartPoint);
 //                DebugTools.setPaintForDebug(true);
@@ -291,7 +318,7 @@ public class BorderedPatternAlgorithm {
                 //DebugTools.setPaintForDebug(true);
             }
 //            while (nextStartPoint!=null && nbMaxBits < 30); //Add each bit on the bound
-            while (!new AI_Tool().hasCompletedTheBound(veryFirstStartPoint, nextStartPoint, bits.lastElement(), bound) && nbMaxBits < 30); //Add each bit on the bound
+            while (!placement.sectionCovered.contains(veryFirstStartPoint)); //Add each bit on the bound
 //            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < 3000); //Add each bit on the bound
 
         }
@@ -318,8 +345,8 @@ public class BorderedPatternAlgorithm {
 
         double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
         if (check2.asGoodAsEqual(check3) || check1.asGoodAsEqual(check2) ||
-                (Math.abs(val)<Math.pow(10, -CraftConfig.errorAccepted)
-                && check3.sub(check2).dot(check1.sub(check2))<=0)) {
+                (Math.abs(val) < Math.pow(10, -CraftConfig.errorAccepted)
+                        && check3.sub(check2).dot(check1.sub(check2)) <= 0)) {
             return false;
         }
         return val <= Math.pow(10, -CraftConfig.errorAccepted);
@@ -328,18 +355,18 @@ public class BorderedPatternAlgorithm {
     // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
     public Vector<Vector2> convex_hull(Vector<Vector2> points) {
         int lengths = points.size();
-        if (lengths<3) return null;
+        if (lengths < 3) return null;
         Vector<Vector2> result = new Vector<>();
         int leftmost = 0;
-        for (int i = 1; i<lengths; i++)
-            if (points.get(i).x<points.get(leftmost).x)
+        for (int i = 1; i < lengths; i++)
+            if (points.get(i).x < points.get(leftmost).x)
                 leftmost = i;
         int p = leftmost, pointq;
         do {
             result.add(points.get(p));
             pointq = (p + 1) % lengths;
-            for (int i = 0; i<lengths; i++) {
-                if(OrientationMatch(points.get(p), points.get(i), points.get(pointq))) {
+            for (int i = 0; i < lengths; i++) {
+                if (OrientationMatch(points.get(p), points.get(i), points.get(pointq))) {
                     pointq = i;
                 }
             }
@@ -351,19 +378,32 @@ public class BorderedPatternAlgorithm {
     }
 
 
-
-    public static void main(String[] args) {
-
-        Vector2 a = new  Vector2(0, 0);
-        Vector2 b = new Vector2(0, 1);
-        Vector2 c = new Vector2(0, -1);
-        Vector2 d = new Vector2(0, 2);
-        Segment2D s = new Segment2D(a, b);
-        Segment2D r = new Segment2D(c,d);
-
-        System.out.println(Segment2D.getIntersectionPoint(s,r));
-
-
+    private double getDistFurthestPointFromRefPoint(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
+        directionalVector = directionalVector.normal();
+        double maxDist = Double.NEGATIVE_INFINITY;
+        for (Vector2 p : points) {
+            //double angle = Math.toRadians(Vector2.getAngle(directionalVector, refPoint, p));
+            double dist = 0;
+            if (p != refPoint) {
+                double angle = Math.toRadians(directionalVector.getEquivalentAngle() - p.sub(refPoint).getEquivalentAngle());
+                dist = Math.cos(angle) * Vector2.dist(p, refPoint);
+            }
+            if (dist > maxDist) {
+                maxDist = dist;
+            }
+        }
+        return maxDist;
     }
 
+    private class Placement {
+        public final Bit2D bit2D;
+        public final Vector<Vector2> sectionCovered;
+        public final Vector2 end;
+
+        public Placement(Bit2D bit2D, Vector<Vector2> sectionCovered) {
+            this.bit2D = bit2D;
+            this.sectionCovered = sectionCovered;
+            this.end = sectionCovered.lastElement();
+        }
+    }
 }

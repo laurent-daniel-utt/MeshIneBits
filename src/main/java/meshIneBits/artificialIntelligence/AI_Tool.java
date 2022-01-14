@@ -31,11 +31,9 @@ package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.deepLearning.NNExploitation;
-import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -153,13 +151,9 @@ public class AI_Tool {
     }
 
     public boolean hasCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 nextStartPoint, Bit2D bit2D, Vector<Vector2> bound) {
-        System.out.println("lamantinnnnnnnnnnnnnnnnnnnnnn");
-        System.out.println(bit2D.getArea().contains(veryFirstStartPoint.x,veryFirstStartPoint.y));
-        System.out.println(nextStartPoint + "   "+ bound.firstElement());
-        System.out.println(GeneralTools.getDistViaSegments(nextStartPoint,veryFirstStartPoint, GeneralTools.getSegment2DS(bound)));
-
-        return bit2D.getArea().contains(veryFirstStartPoint.x,veryFirstStartPoint.y) && GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, bound)!=veryFirstStartPoint
-                || GeneralTools.getDistViaSegments(nextStartPoint,veryFirstStartPoint, GeneralTools.getSegment2DS(bound))<AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
+        return bit2D.getArea().contains(veryFirstStartPoint.x, veryFirstStartPoint.y)
+                && GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, bound) != veryFirstStartPoint
+                || GeneralTools.getDistViaSegments(nextStartPoint, veryFirstStartPoint, GeneralTools.getSegment2DS(bound)) < AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
     }
 
 }

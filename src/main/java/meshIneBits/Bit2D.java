@@ -203,19 +203,19 @@ public class Bit2D implements Cloneable, Serializable {
         Vector2 orthogonal = colinear.rotate(new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
 
         Vector2 A = this.getOrigin()
-                .add(colinear.mul(CraftConfig.lengthFull/2))
+                .add(colinear.mul(length / 2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 B = this.getOrigin()
-                .sub(colinear.mul(CraftConfig.lengthFull/2))
+                .sub(colinear.mul(length / 2))
                 .add(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 C = this.getOrigin()
-                .sub(colinear.mul(CraftConfig.lengthFull/2))
+                .sub(colinear.mul(length / 2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
         Vector2 D = this.getOrigin()
-                .add(colinear.mul(CraftConfig.lengthFull/2))
+                .add(colinear.mul(length / 2))
                 .sub(orthogonal.mul(CraftConfig.bitWidth/2));
 
         return new Vector<>(Arrays.asList(
