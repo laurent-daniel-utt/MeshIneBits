@@ -237,7 +237,7 @@ public class GeneralTools {
      */
     public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> polyPoints, Vector2 startPoint) {
 
-        double bitLength = CraftConfig.lengthFull;
+        double bitLength = CraftConfig.lengthNormal; // todo : avant c'était lengthfull, modifié pour boderedpatten, voir si ça pose pb pour les autres algos
 
         // first we look for the segment on which the startPoint is.
         int startIndex = 0;

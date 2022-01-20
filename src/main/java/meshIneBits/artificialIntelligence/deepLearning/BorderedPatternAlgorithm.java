@@ -364,28 +364,8 @@ public class BorderedPatternAlgorithm {
      */
     private double getBitLengthFromSectionReduced(Vector<Vector2> sectionReduced, Vector2 bitCollinearVector) {
         Vector2 startPoint = sectionReduced.firstElement();
-        double newLengthBit = getDistFurthestPointFromRefPoint(startPoint, bitCollinearVector, sectionReduced);
+        double newLengthBit = getDistFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector, sectionReduced);
         return newLengthBit;
-    }
-
-
-    public Vector<Bit2D> getBits2(Slice slice, double minWidthToKeep) throws Exception {
-        System.out.println("PAVING SLICE " + slice.getAltitude());
-        Vector<Bit2D> bits = new Vector<>();
-
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-
-        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
-        //Vector2 startPoint = bounds.get(0).get(10);
-
-        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
-
-        Area areaSlice = AreaTool.getAreaFrom(slice);
-
-//        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
-//        DebugTools.pointsToDrawGREEN.add(startPoint);
-
-        return bits;
     }
 
     private Bit2D getBitFromSectionReduced(Vector<Vector2> sectionReduced, Area areaSlice) {
@@ -394,11 +374,14 @@ public class BorderedPatternAlgorithm {
         Vector2 positionCollinear = getBitPositionCollinear(bitCollinearVector, newLengthBit);
         Vector2 positionNormal = getPositionNormal(sectionReduced, areaSlice);
 
-        System.out.println(Math.sqrt(positionNormal.x * positionNormal.x + positionNormal.y * positionNormal.y));
+        // point sur lequel se se trouve une des arrêtes courtes du bit à placer
+        Vector2 startBit = getFurthestPointFromRefPointViaVector(sectionReduced.firstElement(), bitCollinearVector.getOpposite(), sectionReduced);
 
+        // au cas où startBit et startpoint sont différents
+        double compensationDistance = getDistFromFromRefPointViaVector(sectionReduced.firstElement(), startBit, positionNormal.normal());
+        positionNormal = positionNormal.sub(positionNormal.normal().mul(compensationDistance));
 
-        //bit.resize(newLengthBit / CraftConfig.lengthFull * 100, 100);
-        Vector2 bitPosition = sectionReduced.firstElement().add(positionCollinear).add(positionNormal);
+        Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
         Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y,
@@ -445,6 +428,26 @@ public class BorderedPatternAlgorithm {
         return result;
     }
 
+
+    public Vector<Bit2D> getBits2(Slice slice, double minWidthToKeep) throws Exception {
+        System.out.println("PAVING SLICE " + slice.getAltitude());
+        Vector<Bit2D> bits = new Vector<>();
+
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+
+        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
+        //Vector2 startPoint = bounds.get(0).get(10);
+
+        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
+
+        Area areaSlice = AreaTool.getAreaFrom(slice);
+
+//        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
+//        DebugTools.pointsToDrawGREEN.add(startPoint);
+
+        return bits;
+    }
+
     public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
@@ -461,7 +464,7 @@ public class BorderedPatternAlgorithm {
             System.out.println("firstStartpoint = " + nextStartPoint);
 
             Vector<Vector2> sectionPoints;
-            int nbMaxBits = 1;
+            int nbMaxBits = 0;
             Placement placement;
             do {
                 System.out.println("PLACEMENT BIT " + nbMaxBits + "====================");
@@ -480,7 +483,21 @@ public class BorderedPatternAlgorithm {
 
     }
 
-    private double getDistFurthestPointFromRefPoint(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
+    private Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
+        directionalVector = directionalVector.normal();
+        double maxDist = Double.NEGATIVE_INFINITY;
+        Vector2 furthestPoint = null;
+        for (Vector2 p : points) {
+            double dist = getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
+            if (dist > maxDist) {
+                maxDist = dist;
+                furthestPoint = p;
+            }
+        }
+        return furthestPoint;
+    }
+
+    private double getDistFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
         directionalVector = directionalVector.normal();
         double maxDist = Double.NEGATIVE_INFINITY;
         for (Vector2 p : points) {
