@@ -39,6 +39,8 @@ import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 
@@ -64,53 +66,78 @@ public class BorderedPatternAlgorithm {
 //        v.add(d);
 
         //System.out.println(getDistFurthestPointFromRefPoint(r,new Vector2(1, 1), v));
+//
+//        Vector2 constraintPoint = new Vector2(36.512649343232034, 248.44305388184796);
+//        Vector2 midpoint = new Vector2(14.487722601313394, 235.63393999281956);
+//        Vector2 dirConstraintSegmentNormal = new Vector2(0.08375151151741546, -0.9964866704168943);
+//
+//        System.out.println(getDistFromFromRefPointViaVector(constraintPoint, midpoint, dirConstraintSegmentNormal));
 
-        Vector2 constraintPoint = new Vector2(36.512649343232034, 248.44305388184796);
-        Vector2 midpoint = new Vector2(14.487722601313394, 235.63393999281956);
-        Vector2 dirConstraintSegmentNormal = new Vector2(0.08375151151741546, -0.9964866704168943);
+//        Vector<Vector2> list = new Vector<>();
+//        for (int i=0;i<5000;i++) {
+//            Vector2 start = new Vector2(Math.random(),Math.random());
+//            list.add(start);
+//        }
+//        list.add(new Vector2(0,200));
+//
+//        long start = System.currentTimeMillis();
+//        for (int i=0;i<5000;i++) {
+//            getDistFurthestPointFromRefPointViaVector2(new Vector2(0,0),new Vector2(100,100),list);
+//        }
+//        long end = System.currentTimeMillis();
+//        System.out.println(end-start);
+//        System.out.println(getDistFurthestPointFromRefPointViaVector(new Vector2(0,0),new Vector2(100,100),list));
+//        System.out.println(getDistFurthestPointFromRefPointViaVector2(new Vector2(0,0),new Vector2(100,100),list));
 
-        System.out.println(getDistFromFromRefPointViaVector(constraintPoint, midpoint, dirConstraintSegmentNormal));
-
+        //normale :7220
+        //nouvelle:
     }
 
-
-    private Segment2D getLongestSegment(Vector<Segment2D> segments) {
-        Segment2D longestSegment = null;
-        double maxLength = -1;
-        for (Segment2D s : segments) {
-            if (s.getLength() > maxLength) {
-                longestSegment = s;
-                maxLength = s.getLength();
-            }
-        }
-        return longestSegment;
+    /**
+     * Compute and return the longest segment of the given list
+     *
+     * @param segment2DS the segments list
+     * @return the longest segment
+     */
+    private Segment2D getLongestSegment(@NotNull Vector<Segment2D> segment2DS) {
+        return segment2DS
+                .stream()
+                .max(Comparator.comparing(Segment2D::getLength))
+                .orElseThrow(NoSuchElementException::new);
     }
 
-    private Vector2 getFurthestPointFromSegment(Segment2D s, Vector<Vector2> points) {
+    /**
+     * Compute and return the most distant point to a segment
+     *
+     * @param segment2D the segment
+     * @param points    the list of points
+     * @return the furthest point from the segment
+     */
+    private Vector2 getFurthestPointFromSegment(Segment2D segment2D, @NotNull Vector<Vector2> points) {
         Vector2 furthestPoint = null;
         double maxDistance = -1;
         for (Vector2 p : points) {
-            if (Vector2.Tools.distanceFromPointToLine(p, s) > maxDistance) {
+            if (Vector2.Tools.distanceFromPointToLine(p, segment2D) > maxDistance) {
                 furthestPoint = p;
-                maxDistance = Vector2.Tools.distanceFromPointToLine(p, s);
+                maxDistance = Vector2.Tools.distanceFromPointToLine(p, segment2D);
             }
         }
         return furthestPoint;
     }
 
 
-    private Vector2 getOrthogonalProjection(Segment2D AB, Vector2 C) {
+    //TODO JAMAIS UTILISEE ?
+    private Vector2 getOrthogonalProjection(@NotNull Segment2D AB, Vector2 C) {
         Vector2 vAC = AB.start.sub(C);
         Vector2 vAB = AB.getDirectionalVector().mul(AB.getLength());
         double orthogonalProjectionDist = vAB.dot(vAC) / AB.getLength();
         return AB.start.add(AB.getDirectionalVector().mul(-orthogonalProjectionDist));
     }
 
-    private static double getDistFromFromRefPointViaVector(Vector2 refPoint, Vector2 point, Vector2 directionalVector) {
+    private double getDistFromFromRefPointViaVector(Vector2 refPoint, Vector2 point, Vector2 directionalVector) {
         double dist = 0;
         if (point != refPoint) {
             double angle = Math.toRadians(directionalVector.getEquivalentAngle2() - point.sub(refPoint).getEquivalentAngle2());
-            //System.out.println("angle = " + angle);
             dist = Math.cos(angle) * Vector2.dist(point, refPoint);
         }
         return dist;
@@ -118,7 +145,7 @@ public class BorderedPatternAlgorithm {
 
     public Placement calculateBitPosition(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
 
-        double distExt = 0.1;
+        double distExt = 0.1;//TODO NEVER USED ?
 
         Vector<Vector2> sectionRepopulated = GeneralTools.repopulateWithNewPoints(100, sectionPoints, true);
 
@@ -147,7 +174,6 @@ public class BorderedPatternAlgorithm {
             double maxDistance = Vector2.Tools.distanceFromPointToLine(furthestPoint, constraintSegment);
 
             if (maxDistance > CraftConfig.bitWidth - minWidthToKeep) { // cas où on ne peut pas couvrir toute la section avec une lamelle
-//                System.out.println("superieur a largeur bit");
                 // recherche du point à pârtir duquel raccourcir la section
                 Vector<Vector2> cutPoints = new Vector<>();
                 cutPoints.add(constraintSegment.start);
@@ -159,7 +185,6 @@ public class BorderedPatternAlgorithm {
                     if (cutPoints.contains(sectionRepopulated.get(iSection))) {
                         while (sectionRepopulated.size() > iSection) { // todo
                             sectionRepopulated.remove(iSection);
-//                            System.out.println("aaaaaaaaa");
                         }
                         cutPointFound = true;
                     }
@@ -169,7 +194,6 @@ public class BorderedPatternAlgorithm {
                 sectionReductionCompleted = true;
             }
             cpt++;
-//            System.out.println("max distance = " + maxDistance + " and recuction completed = " + sectionReductionCompleted);
 
         }
         while (!sectionReductionCompleted);
@@ -252,17 +276,16 @@ public class BorderedPatternAlgorithm {
 
         Bit2D bit = getBitFromSectionReduced(sectionRepopulated, areaSlice);
 
-        Placement placement = new Placement(bit, sectionRepopulated);
-        return placement;
+        return new Placement(bit, sectionRepopulated);
     }
 
     /**
-     * revourne le vecteur unitaire colinéaire à la longueur du bit à placer, orienté vers la fin du bit
+     * Return a vector collinear to the bit to place on the sectionReduced, the vector is orienting toward the end of the bit
      *
-     * @param sectionReduced
-     * @return
+     * @param sectionReduced the reduced section of points
+     * @return the collinear vector
      */
-    private Vector2 getBitCollinearVector(Vector<Vector2> sectionReduced) {
+    private Vector2 getBitCollinearVector(@NotNull Vector<Vector2> sectionReduced) {
         Vector2 startPoint = sectionReduced.firstElement();
 
         // calculer les points du hull
@@ -282,33 +305,33 @@ public class BorderedPatternAlgorithm {
         Vector2 dirConstraintSegment = getLongestSegment(segmentsHull).getDirectionalVector();
 
         if (startToFurthestPoint.dot(dirConstraintSegment) < 0) {
-            dirConstraintSegment = dirConstraintSegment.getOpposite();
+            return dirConstraintSegment.getOpposite();
         }
-
         return dirConstraintSegment;
     }
 
     /**
      * retourne le vecteur de position du bit colinéaire à la longueur bit relatif au startpoint.
+     * Return the position of the bit //TODO DOC @ANDRE de cette fonction et dans la fonction
      *
      * @param bitCollinearVector
      * @param bitLength
      * @return
      */
-    private Vector2 getBitPositionCollinear(Vector2 bitCollinearVector, double bitLength) {
+    private Vector2 getBitPositionCollinear(@NotNull Vector2 bitCollinearVector, double bitLength) {
         // calculer la composante colinéaire à la longueur du bit, du le vecteur position du bit vis à vis du start point
-        Vector2 positionCollinear = bitCollinearVector.mul(bitLength / 2);
-        return positionCollinear;
+        return bitCollinearVector.mul(bitLength / 2);
     }
 
     /**
      * retourne le vecteur de position du bit normale à la longueur bit relatif au startpoint.
+     * //TODO DOC @ANDRE de cette fonction et dans la fonction
      *
      * @param sectionReduced
      * @param areaSlice
      * @return
      */
-    private Vector2 getPositionNormal(Vector<Vector2> sectionReduced, Area areaSlice) {
+    private Vector2 getPositionNormal(@NotNull Vector<Vector2> sectionReduced, Area areaSlice) {
         Vector2 startPoint = sectionReduced.firstElement();
         // calculer les points du hull
         Vector<Vector2> hullReduced = convex_hull(sectionReduced);
@@ -326,12 +349,10 @@ public class BorderedPatternAlgorithm {
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
         Vector2 positionNormal;
         if (constraintPoint.isOnSegment(constraintSegment)) { // cas 3
-            System.out.println("cas 3");
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
 
         } else if (areaSlice.contains(midPoint.x, midPoint.y)) { // cas 1 : constraint segment à l'intérieur et il fait inverser la direction de dirConstraintVectorNormal
-            System.out.println("cas 1");
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // dans le cas où le vecteur est dans le mauvais sens
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
 
@@ -340,34 +361,29 @@ public class BorderedPatternAlgorithm {
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
 
         } else { // cas 2
-            System.out.println("cas 2");
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(midPoint, startPoint, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-            System.out.println();
-//            DebugTools.pointsToDrawRED.add(midPoint);
-//            DebugTools.pointsToDrawGREEN.add(constraintPoint);
-//            DebugTools.pointsToDrawBLUE.add(midPoint.add(dirConstraintSegmentNormal.mul(100)));
-//            DebugTools.setPaintForDebug(true);
         }
         return positionNormal;
     }
 
     /**
-     * calcule la longueur à conserver du bit que l'on veut placer par rapport à la section reduced.
+     * Compute the new (reduced) length of the bit considering the section reduced
      *
-     * @param sectionReduced
-     * @param bitCollinearVector vecteur colinéraire à la longueur du bit, orienté vers la fin du bit
-     * @return
+     * @param sectionReduced     the reduced section of points
+     * @param bitCollinearVector the bit collinear vector
+     * @return the length of the bit
+     * @see #getBitCollinearVector(Vector)
      */
-    private double getBitLengthFromSectionReduced(Vector<Vector2> sectionReduced, Vector2 bitCollinearVector) {
+    private double getBitLengthFromSectionReduced(@NotNull Vector<Vector2> sectionReduced, Vector2 bitCollinearVector) {
         Vector2 startPoint = sectionReduced.firstElement();
-        double newLengthBit = getDistFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector, sectionReduced);
-        return newLengthBit;
+        return getDistFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector, sectionReduced);
     }
 
+    //TODO DOC @ANDRE de cette fonction et dans la fonction
     private Bit2D getBitFromSectionReduced(Vector<Vector2> sectionReduced, Area areaSlice) {
         Vector2 bitCollinearVector = getBitCollinearVector(sectionReduced);
         double newLengthBit = getBitLengthFromSectionReduced(sectionReduced, bitCollinearVector);
@@ -384,16 +400,15 @@ public class BorderedPatternAlgorithm {
         Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
-        Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y,
+        return new Bit2D(bitPosition.x, bitPosition.y,
                 newLengthBit, CraftConfig.bitWidth,
                 bitOrientation.x, bitOrientation.y);
-
-        return bit2D;
     }
 
+    //TODO DOC @ANDRE de cette fonction et dans la fonction
     // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
     // return true if check3 isn't part of the hull
-    public boolean OrientationMatch(Vector2 check1, Vector2 check2, Vector2 check3) {
+    public boolean OrientationMatch(@NotNull Vector2 check1, @NotNull Vector2 check2, @NotNull Vector2 check3) {
         double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
         if (check2.asGoodAsEqual(check3) || check1.asGoodAsEqual(check2) ||
                 (Math.abs(val) < Math.pow(10, -CraftConfig.errorAccepted)
@@ -403,8 +418,9 @@ public class BorderedPatternAlgorithm {
         return val <= Math.pow(10, -CraftConfig.errorAccepted);
     }
 
+    //TODO DOC @ANDRE de cette fonction et dans la fonction
     // https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
-    public Vector<Vector2> convex_hull(Vector<Vector2> points) {
+    public Vector<Vector2> convex_hull(@NotNull Vector<Vector2> points) {
         int lengths = points.size();
         if (lengths < 3) return null;
         Vector<Vector2> result = new Vector<>();
@@ -428,8 +444,8 @@ public class BorderedPatternAlgorithm {
         return result;
     }
 
-
-    public Vector<Bit2D> getBits2(Slice slice, double minWidthToKeep) throws Exception {
+    //TODO JAMAIS UTILISEE ?
+    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws Exception {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 
@@ -448,7 +464,14 @@ public class BorderedPatternAlgorithm {
         return bits;
     }
 
-    public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep) throws Exception {
+    /**
+     * Compute each bit to place on the border of the Slice
+     *
+     * @param slice          the slice to pave
+     * @param minWidthToKeep //TODO @ANDRE
+     * @return the list of bits for this Slice
+     */
+    public Vector<Bit2D> getBits(@NotNull Slice slice, double minWidthToKeep) {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 
@@ -475,7 +498,6 @@ public class BorderedPatternAlgorithm {
 
                 nbMaxBits++;
 
-                System.out.println();
             }
             while (!placement.sectionCovered.contains(veryFirstStartPoint)); //Add each bit on the bound
         }
@@ -496,6 +518,7 @@ public class BorderedPatternAlgorithm {
         }
         return furthestPoint;
     }
+
 
     private double getDistFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
         directionalVector = directionalVector.normal();
@@ -539,7 +562,7 @@ public class BorderedPatternAlgorithm {
         return dir;
     }
 
-    private class Placement {
+    private static class Placement {
         public final Bit2D bit2D;
         public final Vector<Vector2> sectionCovered;
         public final Vector2 end;

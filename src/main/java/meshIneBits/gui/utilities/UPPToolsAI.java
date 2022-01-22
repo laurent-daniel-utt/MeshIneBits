@@ -56,7 +56,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
         trainButton.addActionListener(e -> {
             try {
                 NNTraining nnTraining = new NNTraining();
-                if (trainButton.getText() == "Train AI") {
+                if (trainButton.getText().equals("Train AI")) {
                     trainButton.setText("Stop training");
                     nnTraining.train(true);
                     nnTraining.evaluateModel();
@@ -90,7 +90,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
         JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
         storeButton.addActionListener(e -> {
             try {
-                if (storeButton.getText() == TEXT_TOGGLE_FALSE) {
+                if (storeButton.getText().equals(TEXT_TOGGLE_FALSE)) {
                     storeButton.setText(TEXT_TOGGLE_TRUE);
                     deleteLastButton.setEnabled(true);
                     Acquisition.startStoringBits();

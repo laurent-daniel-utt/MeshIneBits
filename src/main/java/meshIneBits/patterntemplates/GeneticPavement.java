@@ -116,7 +116,8 @@ public class GeneticPavement extends PatternTemplate {
         Vector<Vector<Vector2>> boundsToCheckAssociated = new GeneralTools().getBoundsAndRearrange(slice);
 
         long start2 = System.currentTimeMillis(); //todo testOnly
-
+        //TODO ENLEVER
+        popSize = 2;
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
@@ -141,7 +142,7 @@ public class GeneticPavement extends PatternTemplate {
                 layerAvailableArea.subtract(bestBit.getArea());
                 startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
                 DebugTools.pointsToDrawGREEN.add(startPoint);
-                AI_Tool.getMeshController().AI_NeedPaint=true;
+                //AI_Tool.getMeshController().AI_NeedPaint=true;
                 associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
             }
         }
