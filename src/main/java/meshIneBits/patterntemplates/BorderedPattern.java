@@ -22,10 +22,10 @@ public class BorderedPattern extends PatternTemplate {
                 "min width to keep",
                 "Minimum bit width kept after cut",
                 0.0,
-                CraftConfig.bitWidth/2,
+                CraftConfig.bitWidth / 2,
                 3.0,
                 5.0));
-        config.add(AI_Tool.paramSafeguardSpace);
+        config.add(AI_Tool.paramSafeguardSpace);//TODO @Etienne faire mieux
 
     }
 
@@ -37,10 +37,10 @@ public class BorderedPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         try {
-            BorderedPatternAlgorithm magicAlgorithm = new BorderedPatternAlgorithm();
-            Collection<Bit2D> bits = magicAlgorithm.getBits(layer.getHorizontalSection(),
+            BorderedPatternAlgorithm borderedPatternAlgorithm = new BorderedPatternAlgorithm();
+            Collection<Bit2D> bits = borderedPatternAlgorithm.getBits(layer.getHorizontalSection(),
                     (double) config.get("minWidth").getCurrentValue());
-            //updateBitAreasWithSpaceAround(bits);
+            updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,13 +50,12 @@ public class BorderedPattern extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        System.out.println("Pave layer & area with AI... Not implemented yet.");
+        System.out.println("Pave layer & area with algorithms... Not implemented yet.");
         return null;
     }
 
     @Override
     public int optimize(Layer actualState) {
-        // TODO: 2021-01-17 implement optimization for last bit placement as in GeneticPavement.
         return -2;
     }
 
@@ -80,22 +79,25 @@ public class BorderedPattern extends PatternTemplate {
         return "";
     }
 
+    /**
+     * Cut the bits with the others according to the safeguardSpace
+     *
+     * @param bits the collection of bits to cut
+     */
+    //(Modified function for border algorithms, the other doesn't work)
     private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
-        Area availableArea = new Area();
-        for (Bit2D bit : bits) {
-            availableArea.add(bit.getArea());
-        }
-        for (Bit2D bit : bits) {
-            if (bit.getArea() == null) continue;
-            Area bitArea = bit.getArea();
-            bitArea.intersect(availableArea);
-            if (!bitArea.isEmpty()) {
-                bit.updateBoundaries(bitArea);
-                availableArea.subtract(AreaTool.expand(
-                        bitArea, // in real
-                        (double) config.get("safeguardSpace").getCurrentValue()));
+        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
+        for (Bit2D bit2DToCut : bits) {
+            Area bit2DToCutArea = bit2DToCut.getArea();
+            Area nonAvailableArea = new Area();
+            for (Bit2D bit2D : bits) {
+                if (!bit2D.equals(bit2DToCut)) {
+                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+                    nonAvailableArea.add(expand);
+                }
             }
+            bit2DToCutArea.subtract(nonAvailableArea);
+            bit2DToCut.updateBoundaries(bit2DToCutArea);
         }
-
     }
 }
