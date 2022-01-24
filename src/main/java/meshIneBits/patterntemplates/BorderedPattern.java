@@ -19,13 +19,21 @@ public class BorderedPattern extends PatternTemplate {
     protected void initiateConfig() {
         config.add(new DoubleParam(
                 "minWidth",
-                "min width to keep",
+                "Min width to keep",
                 "Minimum bit width kept after cut",
                 0.0,
                 CraftConfig.bitWidth / 2,
                 3.0,
                 5.0));
         config.add(AI_Tool.paramSafeguardSpace);//TODO @Etienne faire mieux
+        config.add(new DoubleParam(
+                "numberMaxBits",
+                "Bits max number",
+                "The maximum number of bits to place",
+                0.0,
+                Double.POSITIVE_INFINITY,
+                500.0,
+                1.0));
 
     }
 
@@ -39,7 +47,8 @@ public class BorderedPattern extends PatternTemplate {
         try {
             BorderedPatternAlgorithm borderedPatternAlgorithm = new BorderedPatternAlgorithm();
             Collection<Bit2D> bits = borderedPatternAlgorithm.getBits(layer.getHorizontalSection(),
-                    (double) config.get("minWidth").getCurrentValue());
+                    (double) config.get("minWidth").getCurrentValue(),
+                    (double) config.get("numberMaxBits").getCurrentValue());
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {

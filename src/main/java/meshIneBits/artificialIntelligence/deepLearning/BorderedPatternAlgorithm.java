@@ -369,9 +369,10 @@ public class BorderedPatternAlgorithm {
      *
      * @param slice          the slice to pave
      * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
+     * @param numberMaxBits
      * @return the list of bits for this Slice
      */
-    public Vector<Bit2D> getBits(@NotNull Slice slice, double minWidthToKeep) {
+    public Vector<Bit2D> getBits(@NotNull Slice slice, double minWidthToKeep, double numberMaxBits) {
         Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
@@ -394,7 +395,7 @@ public class BorderedPatternAlgorithm {
                 iBit++;
 
             }
-            while (!placement.sectionCovered.contains(veryFirstStartPoint)); //Add each bit on the bound
+            while (!placement.sectionCovered.contains(veryFirstStartPoint) && iBit < numberMaxBits); //Add each bit on the bound
         }
         return bits;
 
