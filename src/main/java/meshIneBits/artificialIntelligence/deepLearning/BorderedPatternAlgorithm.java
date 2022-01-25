@@ -131,7 +131,7 @@ public class BorderedPatternAlgorithm {
             hull.add(hull.firstElement());
             Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
 
-            // find the constraint segment, which is the longest segment of the hull // todo, peut être pas toujours le cas
+            // find the constraint segment, which is the longest segment of the hull // todo, maybe not always the case
             constraintSegment = getLongestSegment(segmentsHull);
 
             // find the constraint point, which is the convex hull's furthest point from the constraint segment
@@ -230,31 +230,35 @@ public class BorderedPatternAlgorithm {
         Vector2 startPoint = sectionReduced.firstElement();
         Vector<Vector2> hullReduced = getConvexHull(sectionReduced); //computes the convex hull points
         hullReduced.add(hullReduced.firstElement());
-        // calculer les segments du hull
+        // compute hull segments
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced); //computes the
+
         /*
-         trouver la direction du vecteur normal au bit que l'on veut placer, orienté vers l'intérieur de la forme à paver
-        3 cas possibles : voir SCHEMA 2
-        */
+        Find the direction of the bit normal vector. Oriented toward the inner
+        There are 3 possible cases :
+        1 : the segment that connects the end to the start of the hull is IN the Slice
+        2 : the segment is OUT of the Slice
+        3 : the segment is part of the Slice
+         */
         Segment2D constraintSegment = getLongestSegment(segmentsHull);
         Vector2 constraintPoint = getFurthestPointFromSegment(constraintSegment, hullReduced);
         Vector2 dirConstraintSegmentNormal = constraintSegment.getNormal();
         Vector2 midPoint = constraintSegment.getMidPoint();
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
         Vector2 positionNormal;
-        if (constraintPoint.isOnSegment(constraintSegment)) { // cas 3
+        if (constraintPoint.isOnSegment(constraintSegment)) { // case 3
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
 
-        } else if (areaSlice.contains(midPoint.x, midPoint.y)) { // cas 1 : constraint segment à l'intérieur et il fait inverser la direction de dirConstraintVectorNormal
-            if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // dans le cas où le vecteur est dans le mauvais sens
+        } else if (areaSlice.contains(midPoint.x, midPoint.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
+            if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // In the case of the vector is in the bad direction
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
 
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(constraintPoint, midPoint, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
 
-        } else { // cas 2
+        } else { // case 2
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2
@@ -348,16 +352,16 @@ public class BorderedPatternAlgorithm {
         for (int i = 1; i < lengths; i++)
             if (points.get(i).x < points.get(leftmost).x)
                 leftmost = i;
-        int p = leftmost, pointq;
+        int p = leftmost, pointQ;
         do {
             result.add(points.get(p));
-            pointq = (p + 1) % lengths;
+            pointQ = (p + 1) % lengths;
             for (int i = 0; i < lengths; i++) {
-                if (OrientationMatch(points.get(p), points.get(i), points.get(pointq))) {
-                    pointq = i;
+                if (OrientationMatch(points.get(p), points.get(i), points.get(pointQ))) {
+                    pointQ = i;
                 }
             }
-            p = pointq;
+            p = pointQ;
         }
         while (p != leftmost);
 
@@ -369,7 +373,7 @@ public class BorderedPatternAlgorithm {
      *
      * @param slice          the slice to pave
      * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
-     * @param numberMaxBits
+     * @param numberMaxBits  the maximum number of bits to place on each border
      * @return the list of bits for this Slice
      */
     public Vector<Bit2D> getBits(@NotNull Slice slice, double minWidthToKeep, double numberMaxBits) {
@@ -383,7 +387,7 @@ public class BorderedPatternAlgorithm {
             Vector2 nextStartPoint = bound.get(0);
 
             Vector<Vector2> sectionPoints;
-            int iBit = 0;//TODO DEBUGONLY
+            int iBit = 0;//TODO DebugOnly
             Placement placement;
             do {
                 System.out.println("PLACEMENT BIT " + iBit + "====================");
@@ -400,6 +404,7 @@ public class BorderedPatternAlgorithm {
         return bits;
 
     }
+
 
     /**
      * Finds the furthest point among a list of points from a reference point (refPoint), calculating direct distances
@@ -439,18 +444,17 @@ public class BorderedPatternAlgorithm {
         return dir;
     }
 
-    //TODO DEBUGONLY
+    //TODO DebugOnly
 
     /**
-     * Debug uniquement : peut être utilisée pour placer un seul bit à un endroit utilisé en choisissant les coodronnées
-     * du startPoint dans le code
+     * Debug Only : can be used to place only one bit and to choose its position by passing the startPoint coordinates in the code
      *
      * @param slice          the slice to pave
      * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
      *                       to be too fragile
      * @return the list of bits for this Slice
      */
-    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws Exception {
+    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 

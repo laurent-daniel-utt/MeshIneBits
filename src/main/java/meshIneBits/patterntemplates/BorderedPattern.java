@@ -4,7 +4,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deepLearning.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -25,7 +24,11 @@ public class BorderedPattern extends PatternTemplate {
                 CraftConfig.bitWidth / 2,
                 3.0,
                 5.0));
-        config.add(AI_Tool.paramSafeguardSpace);//TODO @Etienne faire mieux
+        config.add(new DoubleParam(
+                "safeguardSpace",
+                "Space around bit",
+                "In order to keep bits not overlapping or grazing each other",
+                1.0, 10.0, 3.0, 0.01));
         config.add(new DoubleParam(
                 "numberMaxBits",
                 "Bits max number",
