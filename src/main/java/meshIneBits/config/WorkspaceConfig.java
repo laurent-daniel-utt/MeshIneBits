@@ -35,7 +35,7 @@ public class WorkspaceConfig {
     /**
      * Increase rotation when scrolling mouse wheel
      */
-    public static int rotationSpeed = 5;
+    public static int rotationSpeed = 1;
     /**
      * Faster/Slower zooming. <tt>1</tt> means to never zoom
      */
