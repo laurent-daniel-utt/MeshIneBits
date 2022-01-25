@@ -31,7 +31,6 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -497,9 +496,12 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
     public void deleteSelectedBits() {
         //save action before doing
+        if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
+            Acquisition.deleteLastPlacedBits(selectedBitKeys.size());
+        }
         Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
         Set<Bit3D> bit3DSet = this.getSelectedBits();
-        handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet,previousKeys,null,null, this.getCurrentLayer().getLayerNumber()));
+        handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null, this.getCurrentLayer().getLayerNumber()));
 
         changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
         getCurrentLayer().removeBits(selectedBitKeys, true);
@@ -573,53 +575,21 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
         //add new action into HandlerRedoUndo
         setSelectedBitKeys(resultKey);
 
-
-        DebugTools.segmentsToDraw = new Vector<>();
-        Vector<Vector2> boundSegments = new GeneralTools().getBoundsAndRearrange(getCurrentLayer().getHorizontalSection()).get(0);
-/*        double dist= GeneralTools.getDistViaSegments(
-                boundSegments.get(0),
-                boundSegments.get(30),
-                GeneralTools.getSegment2DS(boundSegments));
-        AI_NeedPaint = true;
-        System.out.println(dist);
-*/
-        if (DebugTools.bit1 == null) {
-            DebugTools.bit1 = newBit;
-        } else {
-            DebugTools.bit2 = newBit;
-        }
-        double maxDistanceForNextStart = CraftConfig.lengthFull + CraftConfig.errorAccepted;
-
-        //System.out.println(getBit(startPoint));
-//        Vector2 nextStartPoint = null;
-//        try {
-//            Vector2 startPoint = GeneralTools.getBitAndContourFirstIntersectionPoint(DebugTools.bit2, boundSegments);
-//            nextStartPoint = new GeneralTools().getNextBitStartPoint(DebugTools.bit2, boundSegments, true, startPoint);
-//            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.getSegment2DS(boundSegments));
-//            System.out.println(distViaSegments);
-//            if (distViaSegments > maxDistanceForNextStart) {
-//                //bad = true;
-//                System.out.println("BAAAD for distViaSeg");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-
-        if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it
+        if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
             try {
                 Acquisition.addNewExampleBit(newBit);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        //TODO The handler redo undo correctly delete the last placed bit, but it must also delete it with Acquisition.deleteLastPlacedBit()
         this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey, this.getSelectedBits(), getCurrentLayer().getLayerNumber()));
     }
 
     public void addBit3Ds(Collection<Bit3D> bits3d) {
         for (Bit3D bit3d : bits3d) {
-            getCurrentLayer().addBit(bit3d.getBaseBit(), true);
+            Bit2D bit2d = bit3d.getBaseBit();
+            bit2d.setUsedForNN(bit3d.isUsedForNN());
+            getCurrentLayer().addBit(bit2d, true);
         }
     }
 

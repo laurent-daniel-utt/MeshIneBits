@@ -85,13 +85,18 @@ public class Bit3D implements Serializable, Cloneable {
     /**
      * contain angles made by two distants points
      */
-    private Vector<Double> listAngles=new Vector<>();
+    private Vector<Double> listAngles = new Vector<>();
 
     private boolean irregular = false;
     private double lowerAltitude;
     private double higherAltitude;
 
     private boolean reverseInCut;
+
+    /**
+     * <code>true</code> if the bit has been placed in a bid to feed the neural network.
+     */
+    private boolean usedForNN;
 
     public boolean isReverseInCut() {
         return reverseInCut;
@@ -101,7 +106,7 @@ public class Bit3D implements Serializable, Cloneable {
      * Construct bit 3D from horizontal section and calculate lift points
      *
      * @param baseBit horizontal cut
-     * @param layer in which this bit resides
+     * @param layer   in which this bit resides
      */
     Bit3D(Bit2D baseBit, Layer layer) {
         bit2dToExtrude = baseBit;
@@ -345,17 +350,25 @@ public class Bit3D implements Serializable, Cloneable {
         if (!allDistancePoints.isEmpty()){
             double minXDistancePoint=allDistancePoints.get(0).x;
             double maxXDistancePoint=allDistancePoints.get(0).x;
-            for (int i=0; i< allDistancePoints.size();i++){
-                if (allDistancePoints.get(i).x<minXDistancePoint){
-                    minXDistancePoint=allDistancePoints.get(i).x;
+            for (int i = 0; i < allDistancePoints.size(); i++) {
+                if (allDistancePoints.get(i).x < minXDistancePoint) {
+                    minXDistancePoint = allDistancePoints.get(i).x;
                 }
-                if (allDistancePoints.get(i).x>maxXDistancePoint){
-                    maxXDistancePoint=allDistancePoints.get(i).x;
+                if (allDistancePoints.get(i).x > maxXDistancePoint) {
+                    maxXDistancePoint = allDistancePoints.get(i).x;
                 }
             }
             xPositions.add(minXDistancePoint);
             xPositions.add(maxXDistancePoint);
         }
         return xPositions;
+    }
+
+    public boolean isUsedForNN() {
+        return usedForNN;
+    }
+
+    public void setUsedForNN(boolean usedForNN) {
+        this.usedForNN = usedForNN;
     }
 }

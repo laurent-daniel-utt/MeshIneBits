@@ -29,7 +29,9 @@
 
 package meshIneBits.util.supportUndoRedo;
 
+import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
+import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.util.Vector2;
 
@@ -63,7 +65,6 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
             this.resultKeys =resultKeys;
         }
         if(currentSelectedBits!=null){
-            //System.out.println("OKKK");
             this.currentSelectedBits=new HashSet<>(currentSelectedBits);
         }
         this.layerNum=layerNumber;
@@ -84,12 +85,14 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
     public void runUndo(MeshController meshController) {
         meshController.setLayer(this.layerNum);
         // Remove the latest bits with registered result keys
-        if(this.currentSelectedBits!=null&&this.resultKeys!=null){
-            meshController.deleteBitsByBitsAndKeys(this.currentSelectedBits,this.resultKeys);
+        if(this.currentSelectedBits!=null&&this.resultKeys!=null) {
+            meshController.deleteBitsByBitsAndKeys(this.currentSelectedBits, this.resultKeys);
+            RemoveLatestExamples(); //deepLearning
         }
         // Restore deleted bits
         // By adding the previous state
         if(this.previousState!=null&&this.previousState.size()!=0){
+            RestoreDeletedExamples(previousState); //deepLearning
             meshController.addBit3Ds(this.previousState);
             meshController.setSelectedBitKeys(this.previousSelectedBits);
         }
@@ -99,16 +102,46 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
     public void runRedo(MeshController meshController) {
         meshController.setLayer(this.layerNum);
         // Remove the latest bits with registered result keys
-        meshController.setSelectedBitKeys( this.previousSelectedBits);
-        if(this.previousState!=null&&this.previousState.size()!=0){
-            meshController.deleteBitsByBitsAndKeys(this.previousState,this.previousSelectedBits);
-
+        meshController.setSelectedBitKeys(this.previousSelectedBits);
+        if (this.previousState != null && this.previousState.size() != 0) {
+            meshController.deleteBitsByBitsAndKeys(this.previousState, this.previousSelectedBits);
+            RemoveLatestExamples(); //deepLearning
         }
         // Restore deleted bits
         // By adding the previous state
-        if(this.currentSelectedBits!=null){
+        if (this.currentSelectedBits != null) {
+            RestoreDeletedExamples(currentSelectedBits); //deepLearning
             meshController.addBit3Ds(this.currentSelectedBits);
             meshController.setSelectedBitKeys(this.resultKeys);
+        }
+    }
+
+    /**
+     * Remove the latest examples in the DataSet of deepLearning
+     */
+    private void RemoveLatestExamples() {
+        if (Acquisition.isStoringNewBits()) {//we also have to remove the bit in the dataSet
+            Acquisition.deleteLastPlacedBits(currentSelectedBits.size());
+        }
+    }
+
+    /**
+     * Restore the deleted examples in the DataSet of deepLearning
+     */
+    private void RestoreDeletedExamples(Set<Bit3D> currentSelectedBits) {
+        if (Acquisition.isStoringNewBits()) {//we also have to restore the bit in the dataSet
+            for (Bit3D bit3D : currentSelectedBits) { //we have to convert 3D bits to 2D bits
+                Bit2D bit2D = new Bit2D(bit3D.getOrigin(), bit3D.getOrientation());
+                if (!Acquisition.isIrregular(bit2D)) {
+                    bit2D.setUsedForNN(true);
+                    bit3D.setUsedForNN(true);
+                }
+                try {
+                    Acquisition.addNewExampleBit(bit2D);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

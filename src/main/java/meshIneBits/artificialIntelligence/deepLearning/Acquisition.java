@@ -42,8 +42,7 @@ import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -53,23 +52,24 @@ public class Acquisition {
     /**
      * If true, the bits placed manually by the user will be stored.
      */
-    private static boolean storeNewBits = false;
-    private static Bit2D lastPlacedBit; //useful to delete last placed bit
-    private static Map<Bit2D, Vector<Vector2>> storedExamplesBits;
+    private static boolean isStoringNewBits = false;
+    private static HashMap<Bit2D, Vector<Vector2>> bit2DVectorHashMap;
+    private static Vector<Bit2D> storedExamplesBits;//useful to delete lasts placed bit
 
     /**
      * The bits placed manually by the user will be stored.
      */
     public static void startStoringBits() {
-        storeNewBits = true;
-        storedExamplesBits = new LinkedHashMap<>();
+        isStoringNewBits = true;
+        bit2DVectorHashMap = new HashMap<>();
+        storedExamplesBits = new Vector<>();
     }
 
     /**
      * The bits placed manually by the user will not be stored.
      */
     public static void stopStoringBits() throws IOException {
-        storeNewBits = false;
+        isStoringNewBits = false;
         saveExamples();
     }
 
@@ -77,19 +77,16 @@ public class Acquisition {
      * Delete the last manually placed bit by the user from the dataSet.
      */
     public static void deleteLastPlacedBit() {
-        lastPlacedBit.setUsedForNN(false);
-        storedExamplesBits.remove(lastPlacedBit);
+        storedExamplesBits.lastElement().setUsedForNN(false);
+        bit2DVectorHashMap.remove(storedExamplesBits.lastElement());
+        storedExamplesBits.remove(storedExamplesBits.lastElement());
     }
 
-    /**
-     * Save all examples in a file.
-     */
-    private static void saveExamples() throws IOException {
-        for (Bit2D bit : storedExamplesBits.keySet()) {
-            DataLogEntry entry = new DataLogEntry(bit, storedExamplesBits.get(bit));
-            DataLogger.saveEntry(entry);
+    public static void deleteLastPlacedBits(int numberOfBitsToDelete) {
+        for (int i = 0; i < numberOfBitsToDelete; i++) {
+            deleteLastPlacedBit();
+            System.out.print("      N°" + i + " SUPPRIME \n");
         }
-        DataSetGenerator.generateCsvFile();
     }
 
     /**
@@ -99,15 +96,36 @@ public class Acquisition {
      */
     public static void addNewExampleBit(@NotNull Bit2D bit) throws Exception {
         if (isIrregular(bit)) {
-            System.out.println("Example not added !");
-            throw new Exception();
+            throw new Exception("Example not added !");
         }
 
         Vector<Vector2> points = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit);
-        storedExamplesBits.put(bit, points);
-        lastPlacedBit = bit;
-        System.out.println("Example added.");
+        bit2DVectorHashMap.put(bit, points);
+        storedExamplesBits.add(bit);
         bit.setUsedForNN(true);
+    }
+
+    /**
+     * Add new examples bits in the dataSet.
+     *
+     * @param bits the examples to be added.
+     */
+    public static void addNewExampleBits(@NotNull Vector<Bit2D> bits) throws Exception {
+        for (Bit2D bit : bits) {
+            addNewExampleBit(bit);
+        }
+    }
+
+
+    /**
+     * Save all examples in a file.
+     */
+    private static void saveExamples() throws IOException {
+        for (Bit2D bit : bit2DVectorHashMap.keySet()) {
+            DataLogEntry entry = new DataLogEntry(bit, bit2DVectorHashMap.get(bit));
+            DataLogger.saveEntry(entry);
+        }
+        DataSetGenerator.generateCsvFile();
     }
 
     /**
@@ -118,7 +136,7 @@ public class Acquisition {
      * @param bit a {@link Bit2D}
      * @return true if the bit can not be used by the neural net.
      */
-    private static boolean isIrregular(@NotNull Bit2D bit) {
+    public static boolean isIrregular(@NotNull Bit2D bit) {
         Vector<Segment2D> bitEdges = bit.getBitSidesSegments();
 
         Slice slice = AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection();
@@ -152,7 +170,7 @@ public class Acquisition {
         return true;
     }
 
-    public static boolean isStoreNewBits() {
-        return storeNewBits;
+    public static boolean isStoringNewBits() {
+        return isStoringNewBits;
     }
 }
