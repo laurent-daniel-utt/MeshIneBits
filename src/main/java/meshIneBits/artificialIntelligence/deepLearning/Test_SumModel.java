@@ -55,10 +55,10 @@ public class Test_SumModel {
         //Create the network
         int numInput = 20;
         int numOutputs = 2;
-        int nHidden = 30; //4.8 AVEC 50.   5.1 AVEC 60 OU 40. 4.7 AVEC 90
+        int nHidden = 30; //4.8 WITH 50.   5.1 with 60 OU 40. 4.7 with 90
         net = new MultiLayerNetwork(new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .weightInit(WeightInit.RELU) //XAVIER ou alors RELU avec RELU/LEAKYRELU en fonction d'activation
+                .weightInit(WeightInit.RELU) //XAVIER or RELU with RELU/LEAKYRELU as activation function
                 .activation(Activation.LEAKYRELU) //RELU ou LEAKYRELU
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new Nesterovs(0.01, 0.95))
@@ -141,6 +141,7 @@ public class Test_SumModel {
     /**
      * @return the number of lines of the dataSet file.
      */
+    @SuppressWarnings("unused")
     private static int getNumberOfExamples() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(AI_Tool.DATASET_FILE_PATH));
         int lines = 0;

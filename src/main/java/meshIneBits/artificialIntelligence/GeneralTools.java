@@ -237,7 +237,7 @@ public class GeneralTools {
      */
     public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> polyPoints, Vector2 startPoint) {
 
-        double bitLength = CraftConfig.lengthNormal; // todo : avant c'était lengthfull, modifié pour boderedpatten, voir si ça pose pb pour les autres algos
+        double bitLength = CraftConfig.lengthNormal; // todo @Etienne, it was lengthFull, modified for borderedPattern, does it create bugs ?
 
         // first we look for the segment on which the startPoint is.
         int startIndex = 0;
@@ -331,7 +331,7 @@ public class GeneralTools {
      * @return a new section of points, composed of the equally spaced points.
      */
     public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
-        int nbPoints = 10;//todo @Etienne ou Andre : mettre hidden_neurons_count en fonction de ca
+        int nbPoints = 10;//todo @Etienne ou Andre : hidden neurons count has to be in function of this
         return repopulateWithNewPoints(nbPoints, sectionPoints, false);
     }
 
@@ -347,7 +347,7 @@ public class GeneralTools {
 
         Vector<Vector2> newPoints = new Vector<>();
         Vector<Double> segmentLength = new Vector<>();
-        // todo ??@andre faire un tableau de longueurs des segments initiaux
+        //todo ?? @andre make a tab of initial segments lengths
         for (int i = 0; i < points.size() - 1; i++) {
             double size = Math.sqrt(Math.pow(points.get(i).x - points.get(i + 1).x, 2)
                     + Math.pow(points.get(i).y - points.get(i + 1).y, 2));
@@ -468,17 +468,17 @@ public class GeneralTools {
         Vector<Vector2> intersectionPoints = new Vector<>();
 
         for (Segment2D boundSegment : boundSegments) {
-            Vector<Vector2> intersectionsWithSegment = new Vector<>(); //liste des intersections entre le bit et le contour
+            Vector<Vector2> intersectionsWithSegment = new Vector<>(); //list of intersections between the bit and the Slice
 
             for (Segment2D bitSegment : bitSegments) {
-                //on recherche tous les points d'intersections entre le bit et le contour
+                //we search for all the intersection points between the bit and the Slice
                 if (Segment2D.doSegmentsIntersect(boundSegment, bitSegment)) {
-                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment); //TODO @ANDRE Voir pour les cas où les droites sont confondues
+                    Vector2 inter = Segment2D.getIntersectionPoint(bitSegment, boundSegment); //TODO @ANDRE What if the straight lines are combined
                     intersectionsWithSegment.add(inter);
                 }
             }
 
-            //on parcourt toutes ces intersections
+            // loop through the intersections
             if (intersectionsWithSegment.size()==1)
                 intersectionPoints.add(intersectionsWithSegment.get(0));
             else if (intersectionsWithSegment.size()==2 && Vector2.dist2(intersectionsWithSegment.get(0), boundSegment.start)<Vector2.dist2(intersectionsWithSegment.get(1), boundSegment.start))
@@ -488,7 +488,7 @@ public class GeneralTools {
                 intersectionPoints.add(intersectionsWithSegment.get(0));
             }
 
-//
+//TODO @ANDRE SUPPRESS IT?
 //            while (!intersectionsWithSegment.isEmpty()) {
 //                double distMin = Double.POSITIVE_INFINITY;
 //                Vector2 firstPoint = null;
@@ -506,20 +506,20 @@ public class GeneralTools {
         if(bit.getArea().contains(boundPoints.get(0).x,boundPoints.get(0).y) && boundPoints.firstElement()!=intersectionPoints.firstElement())
             return intersectionPoints.get(0);
         else
-            return intersectionPoints.get(1);//renvoie la deuxieme intersection
+            return intersectionPoints.get(1);//return the second intersection
     }
 
     /**
-     * Donne la distance entre le startPoint et le endPoint,
-     * mais en passant par les segments et non pas une distance directe
+     * Computes the distance between a startPoint and an endPoint. But not a direct distance.
+     * The distance is calculated passing by the segments of the bound
      *
-     * @param startPoint un point qui est sur un segment, mais pas forcément un bout du segment
-     * @param endPoint   un bout d'un segment
-     * @param bound      la slice
-     * @return la distance
+     * @param startPoint a point which is on a segment
+     * @param endPoint   the end of a segment
+     * @param bound      the Slice
+     * @return the distance
      */
     public static double getDistViaSegments(Vector2 startPoint, Vector2 endPoint, Vector<Segment2D> bound) {
-        //trouve le point le plus proche de startPoint et après le startPoint
+        //finds the nearest point from startPoint and which is after the startPoint
         Segment2D minSeg = null;
         Segment2D startSeg = null;
         for (Segment2D segment2D : bound) {
@@ -530,9 +530,9 @@ public class GeneralTools {
             }
         }
 
-        //dist entre startPoint et segment le plus proche
-        //puis on parcoure les segments en partant de minPoint jusqu'à end
-        double totalDist = minSeg.getLength();//+somme des segs
+        //distance between the startPoint and the nearest segment
+        //then we loop through the segments, starting from minPoint to end
+        double totalDist = minSeg.getLength();//+sum of segments
 
         for (Segment2D segment2D : bound.subList(bound.indexOf(startSeg), bound.size())) {
             if (endPoint.isOnSegment(segment2D)) {

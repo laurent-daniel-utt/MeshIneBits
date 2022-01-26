@@ -85,7 +85,6 @@ public class Acquisition {
     public static void deleteLastPlacedBits(int numberOfBitsToDelete) {
         for (int i = 0; i < numberOfBitsToDelete; i++) {
             deleteLastPlacedBit();
-            System.out.print("      N°" + i + " SUPPRIME \n");
         }
     }
 
@@ -103,17 +102,6 @@ public class Acquisition {
         bit2DVectorHashMap.put(bit, points);
         storedExamplesBits.add(bit);
         bit.setUsedForNN(true);
-    }
-
-    /**
-     * Add new examples bits in the dataSet.
-     *
-     * @param bits the examples to be added.
-     */
-    public static void addNewExampleBits(@NotNull Vector<Bit2D> bits) throws Exception {
-        for (Bit2D bit : bits) {
-            addNewExampleBit(bit);
-        }
     }
 
 

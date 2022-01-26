@@ -29,10 +29,7 @@
 
 package meshIneBits.artificialIntelligence.genetics;
 
-import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.util.DataSetGenerator;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -93,15 +90,15 @@ public class Generation {
         for (int pop = 0; pop < popSize; pop++) {
             this.solutions.add(createNewSolution(pointSection));
         }
-        this.solutions = new Vector<>();
-        Bit2D bit1 = DebugTools.bit1;
-        Bit2D bit2 = DebugTools.bit2;
-
-        double edgeAbscissa1 = DataSetGenerator.getBitEdgeAbscissa(bit1.getOrigin(), bit1.getOrientation(), startPoint);
-        double edgeAbscissa2 = DataSetGenerator.getBitEdgeAbscissa(bit2.getOrigin(), bit2.getOrientation(), startPoint);
-
-        solutions.add(createNewSolution(edgeAbscissa1, bit1.getOrientation()));
-        solutions.add(createNewSolution(edgeAbscissa2, bit2.getOrientation()));
+//        this.solutions = new Vector<>();
+//        Bit2D bit1 = DebugTools.bit1;
+//        Bit2D bit2 = DebugTools.bit2;
+//
+//        double edgeAbscissa1 = DataSetGenerator.getBitEdgeAbscissa(bit1.getOrigin(), bit1.getOrientation(), startPoint);
+//        double edgeAbscissa2 = DataSetGenerator.getBitEdgeAbscissa(bit2.getOrigin(), bit2.getOrientation(), startPoint);
+//
+//        solutions.add(createNewSolution(edgeAbscissa1, bit1.getOrientation()));
+//        solutions.add(createNewSolution(edgeAbscissa2, bit2.getOrientation()));
     }
 
     /**

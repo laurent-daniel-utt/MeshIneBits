@@ -118,7 +118,7 @@ public class NNTraining {
         System.out.println("dataSet Size : " + fullDataSet.numExamples());
         SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 1); // 100% for training and 0% for testing //todo @etienne
         trainingDataSet = testAndTrain.getTrain();
-        testDataSet = testAndTrain.getTest();//todo voir mini batches
+        testDataSet = testAndTrain.getTest();//todo see mini batches
 
 
     }
@@ -136,7 +136,7 @@ public class NNTraining {
 
         //The Neural Network configuration
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
-                .seed(12345)//todo enlever après les tests
+                .seed(12345)//todo remove after the tests
                 .activation(Activation.RELU)
                 //.weightInit(WeightInit.XAVIER)
                 .updater(new Adam(0.008))
@@ -208,7 +208,7 @@ public class NNTraining {
 
     }
 
-    //todo @Andre on vire ?
+    //todo @Andre can we suppress it ?
     public void evaluateModel() {
         INDArray features = testDataSet.getFeatures();
         INDArray labels = testDataSet.getLabels();

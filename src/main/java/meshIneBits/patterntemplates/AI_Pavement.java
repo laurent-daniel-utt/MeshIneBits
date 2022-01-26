@@ -58,7 +58,7 @@ public class AI_Pavement extends PatternTemplate {
     public Pavement pave(Layer layer) {
         try {
             Collection<Bit2D> bits = new AI_Tool().startNNPavement(layer.getHorizontalSection());
-            //updateBitAreasWithSpaceAround(bits);
+            updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();
@@ -98,22 +98,25 @@ public class AI_Pavement extends PatternTemplate {
         return "";
     }
 
+    /**
+     * Cut the bits with the others according to the safeguardSpace
+     *
+     * @param bits the collection of bits to cut
+     */
+    //(Modified function as for border algorithms, the other doesn't work)
     private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
-        Area availableArea = new Area();
-        for (Bit2D bit : bits) {
-            availableArea.add(bit.getArea());
-        }
-        for (Bit2D bit : bits) {
-            if (bit.getArea() == null) continue;
-            Area bitArea = bit.getArea();
-            bitArea.intersect(availableArea);
-            if (!bitArea.isEmpty()) {
-                bit.updateBoundaries(bitArea);
-                availableArea.subtract(AreaTool.expand(
-                        bitArea, // in real
-                        (double) config.get("safeguardSpace").getCurrentValue()));
+        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
+        for (Bit2D bit2DToCut : bits) {
+            Area bit2DToCutArea = bit2DToCut.getArea();
+            Area nonAvailableArea = new Area();
+            for (Bit2D bit2D : bits) {
+                if (!bit2D.equals(bit2DToCut)) {
+                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+                    nonAvailableArea.add(expand);
+                }
             }
+            bit2DToCutArea.subtract(nonAvailableArea);
+            bit2DToCut.updateBoundaries(bit2DToCutArea);
         }
-
     }
 }
