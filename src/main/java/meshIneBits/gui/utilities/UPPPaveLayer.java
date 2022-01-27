@@ -35,6 +35,9 @@ import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 public class UPPPaveLayer extends UtilityParametersPanel  {
@@ -51,13 +54,21 @@ public class UPPPaveLayer extends UtilityParametersPanel  {
         );
 
         JButton startButton = new JButton("Start");
-        startButton.addActionListener(e -> {
-            try {
-                meshController.paveLayer(patternComboBox.getCurrentChoice());
-            } catch (Exception e1) {
-                meshController.handleException(e1);
+        //shortcut for layer paving : Alt+Shift+P
+        Action buttonAction = new AbstractAction("Start") {
+            @Override public void actionPerformed(ActionEvent evt) {
+                startLayerPavement(meshController, patternComboBox);
             }
-        });
+        };
+
+        String key = "startPavement";
+        startButton.setAction(buttonAction);
+        buttonAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        startButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.SHIFT_DOWN_MASK+InputEvent.ALT_DOWN_MASK), key);
+        startButton.getActionMap().put(key, buttonAction);
+
+        startButton.addActionListener(e -> startLayerPavement(meshController, patternComboBox));
 
         // Layout
         setLayout(new GridBagLayout());
@@ -86,5 +97,13 @@ public class UPPPaveLayer extends UtilityParametersPanel  {
         c.anchor = GridBagConstraints.LINE_START;
         add(parametersPanel, c);
 
+    }
+
+    private void startLayerPavement(MeshController meshController, PatternComboBox patternComboBox) {
+        try {
+            meshController.paveLayer(patternComboBox.getCurrentChoice());
+        } catch (Exception e1) {
+            meshController.handleException(e1);
+        }
     }
 }
