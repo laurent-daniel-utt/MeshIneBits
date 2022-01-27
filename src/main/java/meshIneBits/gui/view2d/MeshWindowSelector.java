@@ -35,6 +35,9 @@ import meshIneBits.Mesh;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -63,6 +66,46 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
                         1));
         layerSpinner.setMaximumSize(new Dimension(520,40));
         layerSpinner.setFont( new Font("calibri", Font.PLAIN, 20));
+
+        //Accelerator keys to move to the next/previous layers
+        //ALT+UP or ALT+DOWN
+        Action actionLayerUp = new AbstractAction("") {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                layerSlider.setValue(layerSlider.getValue() + 1);
+
+                updateSlider(meshController);
+                updateSpinner(meshController);
+            }
+        };
+        Action actionLayerDown = new AbstractAction("") {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                layerSlider.setValue(layerSlider.getValue() - 1);
+
+                updateSlider(meshController);
+                updateSpinner(meshController);
+            }
+        };
+        JButton ghostButton1 = new JButton();
+        JButton ghostButton2 = new JButton();
+
+        //shortcuts to pass from one sliced layer to another
+        //use Alt+Up or Alt+Down
+        String keyUp = "UP";
+        String keyDown = "DOWN";
+        ghostButton1.setAction(actionLayerUp);
+        ghostButton2.setAction(actionLayerUp);
+        actionLayerUp.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        actionLayerDown.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.ALT_DOWN_MASK), keyUp);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.ALT_DOWN_MASK), keyDown);
+        this.getActionMap().put(keyUp, actionLayerUp);
+        this.getActionMap().put(keyDown, actionLayerDown);
+
+
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(layerSlider);
         add(layerSpinner);
@@ -70,18 +113,26 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
 
         layerSpinner.addChangeListener(e ->
         {
-            meshController.setLayer((int) layerSpinner.getValue());
-            layerSlider.setValue((int) layerSpinner.getValue());
+            updateSlider(meshController);
         });
 
         layerSlider.addChangeListener(e ->
         {
-            meshController.setLayer(layerSlider.getValue());
-            layerSpinner.setValue(layerSlider.getValue());
+            updateSpinner(meshController);
         });
         setOpaque(false);
         layerSpinner.setOpaque(false);
         layerSpinner.setOpaque(false);
+    }
+
+    private void updateSpinner(MeshController meshController) {
+        meshController.setLayer(layerSlider.getValue());
+        layerSpinner.setValue(layerSlider.getValue());
+    }
+
+    private void updateSlider(MeshController meshController) {
+        meshController.setLayer((int) layerSpinner.getValue());
+        layerSlider.setValue((int) layerSpinner.getValue());
     }
 
     @Override
