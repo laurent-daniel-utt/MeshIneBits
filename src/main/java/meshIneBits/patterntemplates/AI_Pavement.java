@@ -86,7 +86,7 @@ public class AI_Pavement extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "pattern-AI.png";
+        return "pattern-border.png";
     }
 
     @Override

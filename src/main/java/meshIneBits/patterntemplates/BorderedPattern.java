@@ -78,10 +78,13 @@ public class BorderedPattern extends PatternTemplate {
     @Override
     public Pavement pave(Layer layer) {
         try {
+            double numberMaxBits = (double) config.get("numberMaxBits").getCurrentValue();
+            double minWidth = (double) config.get("minWidth").getCurrentValue();
             BorderedPatternAlgorithm borderedPatternAlgorithm = new BorderedPatternAlgorithm();
-            Collection<Bit2D> bits = borderedPatternAlgorithm.getBits(layer.getHorizontalSection(),
-                    (double) config.get("minWidth").getCurrentValue(),
-                    (double) config.get("numberMaxBits").getCurrentValue());
+            //TODO @Etienne, move getBits here and refactor the structure
+            //TODO @Etienne, loop to find the best config
+            Collection<Bit2D> bits = borderedPatternAlgorithm.getBits(
+                    layer.getHorizontalSection(),minWidth,numberMaxBits);
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
@@ -108,12 +111,12 @@ public class BorderedPattern extends PatternTemplate {
 
     @Override
     public String getIconName() {
-        return "pattern-AI.png";
+        return "pattern-border.png";
     }
 
     @Override
     public String getDescription() {
-        return "Paves the bounds of the slices with a neural network";
+        return "Paves the bounds of the slices";
     }
 
     @Override
