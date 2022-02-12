@@ -42,7 +42,10 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
@@ -227,59 +230,130 @@ public class GeneralTools {
         return finalPoints;
     }
 
-
     /**
      * Takes a list of points, and returns the part of the polygon which can be used to place a bit.
      * Section acquisition is done clockwise.
      *
-     * @param polyPoints the points on which the bit will be placed
+     * @param bound      the bound from which the section will be extracted
      * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
-    public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> polyPoints, Vector2 startPoint) {
+    public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> bound, Vector2 startPoint) throws NoninvertibleTransformException {
 
-        double bitLength = CraftConfig.lengthNormal; // todo @Etienne, it was lengthFull, modified for borderedPattern, does it create bugs ?
+        double bitLength = CraftConfig.lengthNormal;
 
-        // first we look for the segment on which the startPoint is.
-        int startIndex = 0;
-        for (int i = 0; i < polyPoints.size() - 1; i++) {
-            Segment2D segment2D = new Segment2D(polyPoints.get(i), polyPoints.get(i + 1));
-            if (isPointOnSegment(startPoint, segment2D)) {
-                startIndex = i + 1;
-                break;
+        Vector<Segment2D> boundSegments = new Vector<>();
+        Segment2D startSegment = null; // the segment which has the startPoint as start.
+
+        // create a list of segments representing the bound, including the startPoint as an end of segments
+        for (int iBound = 0; iBound < bound.size() - 1; iBound++) {
+            Segment2D newSeg = new Segment2D(bound.get(iBound), bound.get(iBound + 1));
+            if (isPointOnSegment(startPoint, newSeg)
+                    && !startPoint.asGoodAsEqual(bound.get(iBound))
+                    && !startPoint.asGoodAsEqual(bound.get(iBound + 1))) {
+                // then startpoint is on this segment, so we split it in 2 to include the startPoint
+                boundSegments.add(new Segment2D(bound.get(iBound), startPoint));
+                startSegment = new Segment2D(startPoint, bound.get(iBound + 1));
+                boundSegments.add(startSegment);
+            } else if (isPointOnSegment(startPoint, newSeg)
+                    && startPoint.asGoodAsEqual(bound.get(iBound))) {
+                // the startPoint is the start of newSeg
+                startSegment = newSeg;
+                boundSegments.add(newSeg);
+            } else {
+                // the startPoint isn't on newSeg (last point of newSeg excluded
+                boundSegments.add(newSeg);
             }
         }
+        setNextSegments(boundSegments);
 
-        // so we will get the points starting from the one situated at startIndex, and add them to sectionPoints Vector, plus the startPoint
+        Segment2D currentSegment = startSegment;
         Vector<Vector2> sectionPoints = new Vector<>();
-        sectionPoints.add(startPoint); // first we add the startPoint which is the first point of the section
-
-        // direct distance between start point and selected point.
-        double d = Vector2.dist(startPoint, polyPoints.get(startIndex));
-        int iPoint = startIndex;
-
-        // we add all the point that are at less than bitLength distance from the startPoint
-        boolean revolutionCompleted = false;
-        while (d < bitLength && !revolutionCompleted) {
-            sectionPoints.add(polyPoints.get(iPoint));
-            iPoint++;
-            if (iPoint == startIndex) { // we have browsed all the points of the bound
-                revolutionCompleted = true;
+        boolean intersectionFound = false;
+        sectionPoints.add(currentSegment.start);
+        do {
+            Vector<Vector2> intersections = circleAndSegmentIntersection(currentSegment.start, currentSegment.end, startPoint, bitLength, true);
+            if (!intersections.isEmpty()) { // il y a une intersection donc on l'ajoute à la section et on a fini
+                sectionPoints.add(intersections.firstElement()); // dans notre cas comme on s'éloigne du startpoint il y aura forcément 1 intersection max
+                intersectionFound = true;
+            } else {
+                sectionPoints.add(currentSegment.end);
+                currentSegment = currentSegment.getNext();
             }
-            if (iPoint == polyPoints.size()) { // come back to index 0
-                iPoint = 0;
-            }
-            d = Vector2.dist(startPoint, polyPoints.get(iPoint));
         }
-
-        // this segment intersects with a circle : center -> startPoint; radius -> bitLength
-        Segment2D segment = new Segment2D(polyPoints.get(iPoint - 1), polyPoints.get(iPoint));
-
-        // find this intersection : this is the last point of the section
-        sectionPoints.add(circleAndSegmentIntersection(startPoint, bitLength,
-                segment));
+        while (!intersectionFound && currentSegment != startSegment);
 
         return sectionPoints;
+    }
+
+    // relie un segment de la liste au suivant avec setNext si la fin de l'un touche le début de l'autre
+    // todo commenter et peut être deplacer dans segment2D ?
+    private static void setNextSegments(Vector<Segment2D> segments) {
+        for (int i = 0; i < segments.size() - 1; i++) {
+            if (segments.get(i).end.asGoodAsEqual(segments.get(i + 1).start)) {
+                segments.get(i).setNext(segments.get(i + 1));
+            }
+        }
+        if (segments.lastElement().end.asGoodAsEqual(segments.firstElement().start)) {
+            segments.lastElement().setNext(segments.firstElement());
+        }
+    }
+
+
+    public static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center,
+                                                               double radius, boolean isSegment) throws NoninvertibleTransformException {
+
+        Point2D p1P2D = new Point2D.Double(p1.x, p1.y);
+        Point2D p2P2D = new Point2D.Double(p2.x, p2.y);
+        Point2D centerP2D = new Point2D.Double(center.x, center.y);
+
+        Vector<Vector2> result = new Vector<>();
+        double dx = p2P2D.getX() - p1P2D.getX();
+        double dy = p2P2D.getY() - p1P2D.getY();
+        AffineTransform trans = AffineTransform.getRotateInstance(dx, dy);
+        trans.invert();
+        trans.translate(-centerP2D.getX(), -centerP2D.getY());
+        Point2D p1a = trans.transform(p1P2D, null);
+        Point2D p2a = trans.transform(p2P2D, null);
+        double y = p1a.getY();
+        double minX = Math.min(p1a.getX(), p2a.getX());
+        double maxX = Math.max(p1a.getX(), p2a.getX());
+        if (y == radius || y == -radius) {
+            if (!isSegment || (0 <= maxX && 0 >= minX)) {
+                p1a.setLocation(0, y);
+                trans.inverseTransform(p1a, p1a);
+                result.add(new Vector2(p1a.getX(), p1a.getY()));
+            }
+        } else if (y < radius && y > -radius) {
+            double x = Math.sqrt(radius * radius - y * y);
+            if (!isSegment || (-x <= maxX && -x >= minX)) {
+                p1a.setLocation(-x, y);
+                trans.inverseTransform(p1a, p1a);
+                result.add(new Vector2(p1a.getX(), p1a.getY()));
+            }
+            if (!isSegment || (x <= maxX && x >= minX)) {
+                p2a.setLocation(x, y);
+                trans.inverseTransform(p2a, p2a);
+                result.add(new Vector2(p2a.getX(), p2a.getY()));
+            }
+        }
+        return result;
+    }
+
+
+    private static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
+        Vector<Vector2> distinctPoints = new Vector<>();
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            if (!points.get(i).asGoodAsEqual(points.get(i + 1))) {
+                distinctPoints.add(points.get(i));
+            }
+        }
+        if (points.firstElement() != points.lastElement()) {
+            distinctPoints.add(points.lastElement());
+        }
+
+        return distinctPoints;
     }
 
     /**
@@ -480,11 +554,11 @@ public class GeneralTools {
             }
 
             // loop through the intersections
-            if (intersectionsWithSegment.size()==1)
+            if (intersectionsWithSegment.size() == 1)
                 intersectionPoints.add(intersectionsWithSegment.get(0));
-            else if (intersectionsWithSegment.size()==2 && Vector2.dist2(intersectionsWithSegment.get(0), boundSegment.start)<Vector2.dist2(intersectionsWithSegment.get(1), boundSegment.start))
+            else if (intersectionsWithSegment.size() == 2 && Vector2.dist2(intersectionsWithSegment.get(0), boundSegment.start) < Vector2.dist2(intersectionsWithSegment.get(1), boundSegment.start))
                 intersectionPoints.addAll(intersectionsWithSegment);
-            else if (intersectionsWithSegment.size()==2){
+            else if (intersectionsWithSegment.size() == 2) {
                 intersectionPoints.add(intersectionsWithSegment.get(1));
                 intersectionPoints.add(intersectionsWithSegment.get(0));
             }
@@ -504,7 +578,7 @@ public class GeneralTools {
 //            }
 
         }
-        if(bit.getArea().contains(boundPoints.get(0).x,boundPoints.get(0).y) && boundPoints.firstElement()!=intersectionPoints.firstElement())
+        if (bit.getArea().contains(boundPoints.get(0).x, boundPoints.get(0).y) && boundPoints.firstElement() != intersectionPoints.firstElement())
             return intersectionPoints.get(0);
         else
             return intersectionPoints.get(1);//return the second intersection
@@ -715,35 +789,6 @@ public class GeneralTools {
         return sectionSegments;
     }
 
-    /**
-     * Find an approximation of the intersection point between a segment and a circle
-     * If there is more than one intersection, this method will return the point that is
-     * the closest to the end of the segment.
-     * Initial condition : an intersection should exist
-     *
-     * @param center center of the circle
-     * @param radius radius of the circle
-     * @param seg    segment
-     * @return an approximation of the intersection point between the segment and the circle
-     */
-    public static @NotNull Vector2 circleAndSegmentIntersection(Vector2 center, double radius, @NotNull Segment2D seg) {
-
-        double step = 0.01;
-
-        double t = 1;
-        double x = seg.end.x;
-        double y = seg.end.y;
-        double dist = Vector2.dist(center, new Vector2(x, y));
-
-        while (dist > radius) {
-            t = t - step;
-            x = seg.start.x + t * (seg.end.x - seg.start.x);
-            y = seg.start.y + t * (seg.end.y - seg.start.y);
-            dist = Vector2.dist(center, new Vector2(x, y));
-        }
-
-        return new Vector2(x, y);
-    }
 
     /**
      * Similar to isOnSegment() of Vector2, but more reliable

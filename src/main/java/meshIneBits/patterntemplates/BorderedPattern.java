@@ -37,7 +37,6 @@ import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.deepLearning.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
 import java.util.Collection;
@@ -131,18 +130,18 @@ public class BorderedPattern extends PatternTemplate {
      */
     //(Modified function for border algorithms, the other doesn't work)
     private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
-        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
-        for (Bit2D bit2DToCut : bits) {
-            Area bit2DToCutArea = bit2DToCut.getArea();
-            Area nonAvailableArea = new Area();
-            for (Bit2D bit2D : bits) {
-                if (!bit2D.equals(bit2DToCut)) {
-                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
-                    nonAvailableArea.add(expand);
-                }
-            }
-            bit2DToCutArea.subtract(nonAvailableArea);
-            bit2DToCut.updateBoundaries(bit2DToCutArea);
-        }
+//        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
+//        for (Bit2D bit2DToCut : bits) {
+//            Area bit2DToCutArea = bit2DToCut.getArea();
+//            Area nonAvailableArea = new Area();
+//            for (Bit2D bit2D : bits) {
+//                if (!bit2D.equals(bit2DToCut)) {
+//                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+//                    nonAvailableArea.add(expand);
+//                }
+//            }
+//            bit2DToCutArea.subtract(nonAvailableArea);
+//            bit2DToCut.updateBoundaries(bit2DToCutArea);
+//        }
     }
 }

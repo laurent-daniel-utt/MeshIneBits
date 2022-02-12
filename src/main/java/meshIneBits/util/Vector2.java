@@ -343,7 +343,7 @@ public class Vector2 implements Serializable {
          * @param line anywhere on same plan
          * @return <tt>true</tt> if directional product is negative
          */
-        static boolean checkOnDifferentSides(Vector2 p1, Vector2 p2, Segment2D line) {
+        public static boolean checkOnDifferentSides(Vector2 p1, Vector2 p2, Segment2D line) {
             // Construct the equation of the line
             Vector2 d = line.end.sub(line.start);// directional vector
             Vector2 n = (new Vector2(-d.y, d.x)).normal();// normal vector

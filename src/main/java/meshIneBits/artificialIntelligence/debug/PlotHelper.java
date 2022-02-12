@@ -51,9 +51,9 @@ public class PlotHelper {
                         title("Plot").
                         legend(Plot.LegendFormat.BOTTOM)).
                 xAxis("x", Plot.axisOpts().
-                        range(-60, 100)).
+                        range(-15, 15)).
                 yAxis("y", Plot.axisOpts().
-                        range(160, 240));
+                        range(-15, 15));
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(900, 800);
