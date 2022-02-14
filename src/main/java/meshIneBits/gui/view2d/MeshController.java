@@ -217,10 +217,6 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
             notifyObservers();
             return;
         }
-        if (AI_NeedPaint) {
-            setLayer(0);
-            meshWindow.initGadgets();
-        }
         if (arg instanceof MeshEvents)
             switch ((MeshEvents) arg) {
                 case READY:

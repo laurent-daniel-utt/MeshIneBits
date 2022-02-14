@@ -406,9 +406,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             if (meshController.isBulkSelecting()) {
                 paintBulkSelectZone(g2d);
             }
-        }
-        if (meshController.AI_NeedPaint) {
-            AIpaintForDebug(g2d);
+            if (meshController.AI_NeedPaint) {
+                AIpaintForDebug(g2d);
+            }
         }
         // Draw selected region
         if (meshController.isSelectingRegion()
