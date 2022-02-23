@@ -64,7 +64,7 @@ public class BorderedPattern extends PatternTemplate {
                 "The maximum number of bits to place",
                 0.0,
                 Double.POSITIVE_INFINITY,
-                500.0,
+                20.0,
                 1.0));
 
     }
