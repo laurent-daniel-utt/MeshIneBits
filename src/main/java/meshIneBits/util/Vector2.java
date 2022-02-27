@@ -168,8 +168,10 @@ public class Vector2 implements Serializable {
     }
 
     public static double getAngle(Vector2 A, Vector2 B, Vector2 C) {
-        double angle = Math.acos((dist2(B, A) + dist2(B, C) - dist2(A, C))
-                / (2 * (dist(B, A) * dist(B, C))));
+        double val = (dist2(B, A) + dist2(B, C) - dist2(A, C))
+                / (2 * (dist(B, A) * dist(B, C)));
+        val = Math.round(val * 1e10) / (1e10);
+        double angle = Math.acos(val);
         return Math.toDegrees(angle);
     }
 

@@ -32,7 +32,6 @@ package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.debug.PlotHelper;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -42,16 +41,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.Vector;
 
 
 public class BorderedPatternAlgorithm {
-
-    private PlotHelper plotHelper = new PlotHelper();
 
     /**
      * Compute and return the longest segment of the given list
@@ -280,17 +278,7 @@ public class BorderedPatternAlgorithm {
             boolean sectionIsClosed = sectionToReduce.firstElement().asGoodAsEqual(sectionToReduce.lastElement());
 
             // calculates the convex hull of the section's points
-            //todo
-            //sectionToReduce.remove(sectionToReduce.size() - 1);
-            //pointsToFile(sectionToReduce);
-            //System.out.println("heyy");
-            //Vector<Vector2> hull = getConvexHull(sectionToReduce);
-            Vector2[] pointsArray = new Vector2[sectionToReduce.size()];
-            for (int i = 0; i < sectionToReduce.size(); i++) {
-                pointsArray[i] = sectionToReduce.get(i);
-            }
-            QuickHull quickHull = new QuickHull(pointsArray);
-            Vector<Vector2> hull = quickHull.hullPoints;
+            Vector<Vector2> hull = getHull(sectionToReduce);
 
             Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
 
@@ -620,275 +608,83 @@ public class BorderedPatternAlgorithm {
         return bits;
     }
 
-    /**
-     * class that implements QuickHull algorithm to construct convex hull polygon<br>
-     * usage example:
-     * <blockquote><pre>
-     * int nDots = 500;
-     * int offset = 50;
-     * int sizeX = 400;
-     * int sizeY = 400;
-     * Point []dots = new Point[nDots];
-     * for(int i =0; i < dots.length; i++){
-     *     int px = (int)Math.round(offset + (sizeX - 2*offset)*Math.random());
-     *     int py = (int)Math.round(offset + (sizeY - 2*offset)*Math.random());
-     *     dots[i] = new Point(px,py);
-     * }
-     * qh = new QuickHull(dots);
-     * Point []dots = qh.getOriginalPoints();
-     * Vector outPoints = qh.getHullPointsAsVector();
-     * </pre></blockquote>
-     */
 
+    public Vector<Vector2> getHull(Vector<Vector2> points) {
+        System.out.println("START");
 
-    public class QuickHull {
-        Vector2[] originalPoints;
-        int fullSteps = 0;
-        Vector hullPoints = new Vector();
+        Vector<Vector2> hull = new Vector<>();
 
-        /*
-         * constructor for <code>QuickHull</code> class
-         * @param originalPoints {@link Point}[] initial points
-         */
-        public QuickHull(Vector2[] originalPoints) {
-            this.originalPoints = originalPoints;
-            qhull(originalPoints, 0, 0);
-            reorderPoints(hullPoints);
-        }
+        //trouver le point le plus en bas à gauche
+//        int startIndex = 0;
+//        for (int i = 0; i < points.size(); i++) {
+//            if (points.get(i).x <= points.get(startIndex).x
+//                    && points.get(i).y <= points.get(startIndex).y)
+//                startIndex = i;
+//        }
 
-        /**
-         * Returns original {@link Vector2} array.
-         *
-         * @return original {@link Vector2} array
-         */
-        public Vector2[] getOriginalPoints() {
-            return originalPoints;
-        }
-
-        /**
-         * Returns convex hull points as {@link Vector}.
-         *
-         * @return convex hull points as {@link Vector}.
-         */
-        public Vector getHullPointsAsVector() {
-            return (Vector) hullPoints.clone();
-        }
-
-        /**
-         * Returns convex hull points as {@link Vector2}[].
-         *
-         * @return convex hull points as {@link Vector2}[].
-         */
-        public Vector2[] getHullPointsAsArray() {
-            if (hullPoints == null) return null;
-            Vector2[] hulldots = new Vector2[hullPoints.size()];
-            for (int i = 0; i < hulldots.length; i++) {
-                hulldots[i] = (Vector2) hullPoints.elementAt(i);
-            }
-            return hulldots;
-        }
-
-
-        void reorderPoints(Vector v) {
-            AngleWrapper[] angleWrappers = new AngleWrapper[v.size()];
-            double xc = 0;
-            double yc = 0;
-            for (int i = 0; i < v.size(); i++) {
-                Vector2 pt = (Vector2) v.elementAt(i);
-                xc += pt.x;
-                yc += pt.y;
-            }
-
-            xc /= v.size();
-            yc /= v.size();
-
-            for (int i = 0; i < angleWrappers.length; i++) {
-                angleWrappers[i] = createAngleWrapper((Vector2) v.elementAt(i), xc, yc);
-            }
-            java.util.Arrays.sort(angleWrappers, new AngleComparator());
-            v.removeAllElements();
-            for (int i = 0; i < angleWrappers.length; i++) {
-                v.add(angleWrappers[i].pt);
+        // find leftMosts
+        Vector<Integer> iLeftMosts = new Vector<>();
+        double xMin = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < points.size(); i++) {
+            double x = points.get(i).x;
+            if (x <= xMin) {
+                xMin = x;
             }
         }
-
-        void qhull(Object[] dots0, int up, int step) {
-            fullSteps++;
-            if (dots0 == null || dots0.length < 1 || step > 200) return;
-            if (dots0.length < 2) {
-                addHullPoint((Vector2) dots0[0]);
-                return;
-            }
-            try {
-                int leftIndex = 0;
-                int rightIndex = 0;
-                for (int i = 1; i < dots0.length; i++) {
-                    if (((Vector2) dots0[i]).x < ((Vector2) dots0[leftIndex]).x) {
-                        leftIndex = i;
-                    }
-                    if (((Vector2) dots0[i]).x > ((Vector2) dots0[rightIndex]).x) {
-                        rightIndex = i;
-                    }
-                }
-                Vector2 leftPoint = (Vector2) dots0[leftIndex];
-                Vector2 rightPoint = (Vector2) dots0[rightIndex];
-                addHullPoint(leftPoint);
-                addHullPoint(rightPoint);
-                if (dots0.length == 3) {
-                    int middlePoint = -1;
-                    for (int i = 0; i < dots0.length; i++) {
-                        if (i == leftIndex || i == rightIndex) continue;
-                        middlePoint = i;
-                        break;
-                    }
-                    addHullPoint((Vector2) dots0[middlePoint]);
-                } else if (dots0.length > 3) {
-                    Vector vIn = new Vector();
-                    Vector vOut = new Vector();
-                    if (up >= 0) {
-                        int upIndex = selectPoints(dots0, leftPoint, rightPoint, true, vIn);
-                        if (upIndex >= 0 && vIn.size() > 0) {
-                            Vector2 upPoint = (Vector2) vIn.elementAt(upIndex);
-                            vOut.removeAllElements();
-                            selectPoints(vIn, leftPoint, upPoint, true, vOut);
-                            qhull(vOut.toArray(), 1, step + 1);
-                            vOut.removeAllElements();
-                            selectPoints(vIn, upPoint, rightPoint, true, vOut);
-                            qhull(vOut.toArray(), 1, step + 1);
-                        }
-                    }
-                    if (up <= 0) {
-                        vIn.removeAllElements();
-                        int downIndex = selectPoints(dots0, rightPoint, leftPoint, false, vIn);
-                        if (downIndex >= 0 && vIn.size() > 0) {
-                            Vector2 downPoint = (Vector2) vIn.elementAt(downIndex);
-                            vOut.removeAllElements();
-                            selectPoints(vIn, rightPoint, downPoint, false, vOut);
-                            qhull(vOut.toArray(), -1, step + 1);
-                            vOut.removeAllElements();
-                            selectPoints(vIn, downPoint, leftPoint, false, vOut);
-                            qhull(vOut.toArray(), -1, step + 1);
-                        }
-                    }
-                }
-            } catch (Throwable t) {
-            }
+        for (int i = 0; i < points.size(); i++) {
+            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5))
+                iLeftMosts.add(i);
         }
-
-        void addHullPoint(Vector2 pt) {
-            if (!hullPoints.contains(pt)) hullPoints.add(pt);
+        // find higher of leftMosts
+        int iHigherLeftMost = iLeftMosts.get(0);
+        for (int i = 1; i < iLeftMosts.size(); i++) {
+            if (points.get(iLeftMosts.get(i)).y < points.get(iHigherLeftMost).y)
+                iHigherLeftMost = iLeftMosts.get(i);
         }
+        int startIndex = iHigherLeftMost;
 
-        int selectPoints(Object[] pIn, Vector2 pLeft, Vector2 pRight, boolean up, Vector vOut) {
-            int retValue = -1;
-            if (pIn == null || vOut == null) return retValue;
-            double k = (double) (pRight.y - pLeft.y) / (double) (pRight.x - pLeft.x);
-            double A = -k;
-            double B = 1;
-            double C = k * pLeft.x - pLeft.y;
-            double dup = 0;
-            for (int i = 0; i < pIn.length; i++) {
-                Vector2 pt = (Vector2) pIn[i];
-                if (pt.equals(pLeft) || pt.equals(pRight)) continue;
-                double px = pt.x;
-                double py = pt.y;
-                double y = pLeft.y + k * (px - pLeft.x);
-                if ((!up && y < py) || (up && y > py)) {
-                    vOut.add(pt);
-                    double d = (A * px + B * py + C);
-                    if (d < 0) d = -d;
-                    if (d > dup) {
-                        dup = d;
-                        retValue = vOut.size() - 1;
-                    }
-                }
-            }
-            vOut.add(pLeft);
-            vOut.add(pRight);
-            return retValue;
-        }
+        hull.add(points.get(startIndex));
 
-        int selectPoints(Vector vIn, Vector2 pLeft, Vector2 pRight, boolean up, Vector vOut) {
-            int retValue = -1;
-            if (vIn == null || vOut == null) return retValue;
-            double k = (double) (pRight.y - pLeft.y) / (double) (pRight.x - pLeft.x);
-            double A = -k;
-            double B = 1;
-            double C = k * pLeft.x - pLeft.y;
-            double dup = 0;
-            for (int i = 0; i < vIn.size(); i++) {
-                Vector2 pt = (Vector2) vIn.elementAt(i);
-                if (pt.equals(pLeft) || pt.equals(pRight)) continue;
-                double px = pt.x;
-                double py = pt.y;
-                double y = pLeft.y + k * (px - pLeft.x);
-                if ((!up && y < py) || (up && y > py)) {
-                    vOut.add(pt);
-                    double d = (A * px + B * py + C);
-                    if (d < 0) d = -d;
-                    if (d > dup) {
-                        dup = d;
-                        retValue = vOut.size() - 1;
-                    }
-                }
-            }
-            vOut.add(pLeft);
-            vOut.add(pRight);
-            return retValue;
-        }
 
-        AngleWrapper createAngleWrapper(Vector2 pt, double xc, double yc) {
-            double angle = Math.atan2(pt.y - yc, pt.x - xc);
-            if (angle < 0) angle += 2 * Math.PI;
-            return new AngleWrapper(angle, pt.clone());
-        }
+        // en partant de ce point, trouver chaque prochain point dont l'angle est le plus grand
+        // jusqu'à ce qu'on retourne au point de départ
 
-        private Vector2[] readPointsFromFile() {
-            Vector<Vector2> points = new Vector<>();
-            try {
-                Scanner scanner = new Scanner(new File("src/points.txt"));
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    String[] vals = line.split(",");
-                    points.add(new Vector2(Double.parseDouble(vals[0]), Double.parseDouble(vals[1])));
-                }
-                scanner.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+        //calcul du second point
+        Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1, 0));
+        Vector2 pointMilieu = points.get(startIndex);
+        //points.add(points.get(startIndex));//on fait ca pour que l'optimisation du i= dans le for repasse par le premier point
 
-            Vector2[] pointsArray = new Vector2[points.size()];
+        int stop = 0;
+        int maxIndex = -1;
+//        while (maxIndex!=startIndex) {
+        while (hull.size() < 2 || hull.firstElement() != hull.lastElement()) {
+            stop++;
+//            if (stop>20)
+//                break;
+            double maxAngle = 0;
+            Vector<Vector2> pointsMaxAngles = new Vector<>();
             for (int i = 0; i < points.size(); i++) {
-                pointsArray[i] = points.get(i);
+                double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
+
+
+                if (angle >= maxAngle + 1e-10 && i != points.indexOf(pointMilieu)) {
+                    if (angle > maxAngle + 1e-10)
+                        pointsMaxAngles.removeAllElements();
+                    maxAngle = angle;
+                    maxIndex = i;
+                    pointsMaxAngles.add(points.get(i));
+                }
             }
 
-            return pointsArray;
+            hull.add(getFurthestPoint(pointMilieu, pointsMaxAngles));
+
+            previousPoint = pointMilieu;
+            pointMilieu = hull.lastElement();
         }
+        System.out.println("END");
 
-        class AngleComparator implements java.util.Comparator {
-            public int compare(Object obj1, Object obj2) {
-                if (!(obj1 instanceof AngleWrapper) || !(obj2 instanceof AngleWrapper)) return 0;
-                AngleWrapper ac1 = (AngleWrapper) obj1;
-                AngleWrapper ac2 = (AngleWrapper) obj2;
-                return (ac1.angle < ac2.angle) ? -1 : 1;
-            }
-        }
-
-        class AngleWrapper implements Comparable {
-            double angle;
-            Vector2 pt;
-
-            AngleWrapper(double angle, Vector2 pt) {
-                this.angle = angle;
-                this.pt = pt;
-            }
-
-            public int compareTo(Object obj) {
-                if (!(obj instanceof AngleWrapper)) return 0;
-                AngleWrapper ac = (AngleWrapper) obj;
-                return (ac.angle < angle) ? -1 : 1;
-            }
-        }
-
+        return hull;
     }
+
+
 }
