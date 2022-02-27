@@ -341,7 +341,7 @@ public class GeneralTools {
     }
 
 
-    private static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
+    public static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
         Vector<Vector2> distinctPoints = new Vector<>();
 
         for (int i = 0; i < points.size() - 1; i++) {
@@ -800,5 +800,14 @@ public class GeneralTools {
     public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
         double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
         return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
+    }
+
+    private static Vector<Vector2> reordonnatePoints(Vector<Vector2> messyList, Vector<Vector2> boundPoints) {
+        Vector<Vector2> reorderedPoints = new Vector<>();
+        for (Vector2 boundPoint : boundPoints) {
+            if (messyList.contains(boundPoint))
+                reorderedPoints.add(boundPoint);
+        }
+        return reorderedPoints;
     }
 }
