@@ -413,7 +413,8 @@ public class GeneralTools {
     /**
      * Repopulate a section a points with new points. Keep old ones if specified
      *
-     * @param nbNewPoints   the number of points to add between two points. If KeepOldPoints, old points are added to the total number of new points
+     * @param nbNewPoints   number of new points to add. If KeepOldPoints, new points are added if they're
+     *                      not {@link Vector2#asGoodAsEqual(Vector2)}l the old points
      * @param points        the section of points to repopulate
      * @param keepOldPoints true to keep old points in addition to the old ones.
      * @return the section repopulated with new points.
@@ -436,16 +437,22 @@ public class GeneralTools {
 
         // --- Positions one point after the other ---
 
+        if (keepOldPoints) { // add first point if keepOldPoints
+            newPoints.add(points.firstElement());
+        }
+
         for (int i = 0; i < nbNewPoints; i++) { // Placer un nouveau point
 
             double absNewPoint;
             double ordNewPoint;
 
-            // --- selection of the first segment to place a point on it---
+            // --- selection of the first segment to place a point on it + add old points---
             while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
                 if (keepOldPoints) {
+                    System.out.println("basePointsIndex = " + basePointsIndex);
+                    System.out.println("points.get(basePointsIndex) = " + points.get(basePointsIndex));
                     newPoints.add(points.get(basePointsIndex));
                 }
             }
@@ -467,13 +474,29 @@ public class GeneralTools {
 
             absNewPoint = points.get(basePointsIndex).x + sign * (newSegmentSum - baseSegmentSum) * Math.cos(segmentAngle);
             ordNewPoint = points.get(basePointsIndex).y + sign * (newSegmentSum - baseSegmentSum) * Math.sin(segmentAngle);
-
-            newPoints.add(new Vector2(absNewPoint, ordNewPoint));
+            Vector2 newPoint = new Vector2(absNewPoint, ordNewPoint);
+            if (!keepOldPoints || !containsAsGoodAsEqual(newPoint, points)) { // second condition is reached only if keepOldPoints is true
+                newPoints.add(newPoint);
+            }
 
             newSegmentSum += spacing;
 
         }
+
+        // add last point
+        newPoints.add(points.lastElement());
+
         return newPoints;
+    }
+
+    private static boolean containsAsGoodAsEqual(Vector2 v, Vector<Vector2> pts) {
+        boolean contains = false;
+        for (Vector2 p : pts) {
+            if (p.asGoodAsEqual(v)) {
+                contains = true;
+            }
+        }
+        return contains;
     }
 
     /**

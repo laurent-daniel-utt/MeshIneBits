@@ -31,6 +31,7 @@
 package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -122,25 +123,6 @@ public class BorderedPatternAlgorithm {
     }
 
     /**
-     * Checks if check3 is not part of the convex hull
-     *
-     * @return true if check3 is not part of the Hull
-     * @see #getConvexHull(Vector)
-     */
-    // Taken from : https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
-    private static boolean OrientationMatch(@NotNull Vector2 check1, @NotNull Vector2 check2, @NotNull Vector2 check3) {
-        double val = (check2.y - check1.y) * (check3.x - check2.x) - (check2.x - check1.x) * (check3.y - check2.y);
-
-        if (check2.asGoodAsEqual(check3) || check1.asGoodAsEqual(check2) ||
-                (Math.abs(val) < Math.pow(10, -5)
-                        && check3.sub(check2).dot(check1.sub(check2)) <= 0)) {
-            return false;
-        }
-        return val <= Math.pow(10, -5);
-    }
-
-
-    /**
      * Return a vector collinear to the bit to place on the sectionReduced, the vector is orienting toward the end of the bit
      *
      * @param sectionReduced the reduced section of points on which a bit can take place.
@@ -150,7 +132,7 @@ public class BorderedPatternAlgorithm {
         Vector2 startPoint = sectionReduced.firstElement();
 
         // compute the convex hull's points
-        Vector<Vector2> hullReduced = getConvexHull(sectionReduced);
+        Vector<Vector2> hullReduced = getHull(sectionReduced);
 
         // compute hull's segments
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced);
@@ -180,54 +162,6 @@ public class BorderedPatternAlgorithm {
         return bitCollinearVector.mul(bitLength / 2);
     }
 
-    /**
-     * Uses Gift-Wrapping algorithm
-     *
-     * @param points to points to compute the convex Hull on
-     * @return the points of the convex Hull that include the given points
-     */
-    // Taken from : https://www.tutorialcup.com/interview/algorithm/convex-hull-algorithm.htm
-    public static Vector<Vector2> getConvexHull(Vector<Vector2> points) {
-        int length = points.size();
-        Vector<Vector2> result = new Vector<>();
-        // find leftMosts
-        Vector<Integer> iLeftMosts = new Vector<>();
-        double xMin = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < length; i++) {
-            double x = points.get(i).x;
-            if (x <= xMin) {
-                xMin = x;
-                System.out.println("xMin = " + xMin);
-            }
-        }
-        for (int i = 0; i < length; i++) {
-            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5))
-                iLeftMosts.add(i);
-        }
-        // find higher of leftMosts
-        int iHigherLeftMost = iLeftMosts.get(0);
-        for (int i = 1; i < iLeftMosts.size(); i++) {
-            if (points.get(iLeftMosts.get(i)).y > points.get(iHigherLeftMost).y)
-                iHigherLeftMost = iLeftMosts.get(i);
-        }
-
-        int p = iHigherLeftMost, pointQ;
-        do {
-            result.add(points.get(p));
-            pointQ = (p + 1) % length;
-            for (int i = 0; i < length; i++) {
-                if (OrientationMatch(points.get(p), points.get(i), points.get(pointQ))) {
-                    pointQ = i;
-                }
-            }
-            p = pointQ;
-        }
-        while (p != iHigherLeftMost);
-
-        result.add(result.firstElement());
-
-        return result;
-    }
 
     /**
      * Compute the new (reduced) length of the bit considering the section reduced
@@ -263,10 +197,9 @@ public class BorderedPatternAlgorithm {
     //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
     private @NotNull Vector<Vector2> getSectionReduced(@NotNull Vector<Vector2> sectionPoints, double minWidthToKeep) {
         Vector<Vector2> sectionToReduce = GeneralTools.repopulateWithNewPoints(100, sectionPoints, true);
-        pointsToFile(sectionToReduce);
 
-//        System.out.println("sectionIsClosed = " + sectionIsClosed);
-//        System.out.println("sectionPoints = " + sectionPoints);
+        System.out.println("sectionPoints = " + sectionPoints);
+        System.out.println("sectionToReduce = " + sectionToReduce);
 
         boolean sectionReductionCompleted = false;
 
@@ -333,13 +266,13 @@ public class BorderedPatternAlgorithm {
      * This vector has to components : Collinear and Normal to the bit.
      *
      * @param sectionReduced the reduced section of points on which a bit can take place.
-     * @param areaSlice the area of the Slice
+     * @param areaSlice      the area of the Slice
      * @return the normal component of the vector.
      */
     private Vector2 getPositionNormal(@NotNull Vector<Vector2> sectionReduced, Area areaSlice) {
         boolean sectionReducedIsClosed = sectionReduced.firstElement().asGoodAsEqual(sectionReduced.lastElement());
         Vector2 startPoint = sectionReduced.firstElement();
-        Vector<Vector2> hullReduced = getConvexHull(sectionReduced); //computes the convex hull points
+        Vector<Vector2> hullReduced = getHull(sectionReduced); //computes the convex hull points
         // compute hull segments
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced); //computes the
 
@@ -356,15 +289,16 @@ public class BorderedPatternAlgorithm {
         Vector2 midPoint = constraintSegment.getMidPoint();
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
         Vector2 positionNormal;
+//        DebugTools.segmentsToDraw.add(constraintSegment);
+//        DebugTools.pointsToDrawRED.add(startPoint);
+//        DebugTools.pointsToDrawBLUE.add(constraintPoint);
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
             System.out.println("cas 3");
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
-            double lenPositionNormal = CraftConfig.bitWidth / 2;
-            // on veut que le vecteur parte du start point pour aller vers le constraint segment ou le constraint point en fonction duquel est à l'opposé de lui
-            //todo le faire
+            double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startPoint, constraintSegment);
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
             System.out.println("cas 4");
 
@@ -415,18 +349,22 @@ public class BorderedPatternAlgorithm {
         Vector2 positionNormal = getPositionNormal(sectionReduced, areaSlice);
 
         // the point on which we can place the start of the Bit
-        Vector2 startBit = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector.getOpposite(), sectionReduced);
+        // Vector2 startBit = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector.getOpposite(), sectionReduced);
 
         // the case when the startBit and the startPoint are different
-        double compensationDistance = getDistFromFromRefPointViaVector(startPoint, startBit, positionNormal.normal());
-        positionNormal = positionNormal.sub(positionNormal.normal().mul(compensationDistance));
-
-        Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
+//        double compensationDistance = getDistFromFromRefPointViaVector(startPoint, startBit, positionNormal.normal());
+//        positionNormal = positionNormal.sub(positionNormal.normal().mul(compensationDistance));
+        //todo startbit
+        Vector2 bitPosition = startPoint.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
         Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y,
                 newLengthBit, CraftConfig.bitWidth,
                 bitOrientation.x, bitOrientation.y);
+
+//        DebugTools.segmentsToDraw.addAll(bit2D.getBitSidesSegments());
+//        DebugTools.pointsToDrawORANGE.add(bitPosition);
+        DebugTools.setPaintForDebug(true);
 
 
         return new Placement(bit2D, sectionReduced);
@@ -488,6 +426,7 @@ public class BorderedPatternAlgorithm {
 
     }
 
+    // todo methode en double dans generalTools
     private boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, Vector<Vector2> containerList) {
         for (Vector2 p : containedList) {
             if (!listContainsAsGoodAsEqual(p, containerList)) {
@@ -614,14 +553,6 @@ public class BorderedPatternAlgorithm {
 
         Vector<Vector2> hull = new Vector<>();
 
-        //trouver le point le plus en bas à gauche
-//        int startIndex = 0;
-//        for (int i = 0; i < points.size(); i++) {
-//            if (points.get(i).x <= points.get(startIndex).x
-//                    && points.get(i).y <= points.get(startIndex).y)
-//                startIndex = i;
-//        }
-
         // find leftMosts
         Vector<Integer> iLeftMosts = new Vector<>();
         double xMin = Double.POSITIVE_INFINITY;
@@ -649,35 +580,39 @@ public class BorderedPatternAlgorithm {
         // en partant de ce point, trouver chaque prochain point dont l'angle est le plus grand
         // jusqu'à ce qu'on retourne au point de départ
 
+
         //calcul du second point
         Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1, 0));
         Vector2 pointMilieu = points.get(startIndex);
-        //points.add(points.get(startIndex));//on fait ca pour que l'optimisation du i= dans le for repasse par le premier point
 
-        int stop = 0;
-        int maxIndex = -1;
-//        while (maxIndex!=startIndex) {
         while (hull.size() < 2 || hull.firstElement() != hull.lastElement()) {
-            stop++;
-//            if (stop>20)
-//                break;
             double maxAngle = 0;
             Vector<Vector2> pointsMaxAngles = new Vector<>();
             for (int i = 0; i < points.size(); i++) {
-                double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
+                // le point pivot étant le dernier point ajouté cela ne sert à rien de le tester à nouveau, de plus cela entraine des calculs d'agles erronés
+                if (points.get(i) != pointMilieu) {
+                    double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
 
-
-                if (angle >= maxAngle + 1e-10 && i != points.indexOf(pointMilieu)) {
-                    if (angle > maxAngle + 1e-10)
-                        pointsMaxAngles.removeAllElements();
-                    maxAngle = angle;
-                    maxIndex = i;
-                    pointsMaxAngles.add(points.get(i));
+                    if (angle >= maxAngle - 1e-10 && i != points.indexOf(pointMilieu)) {
+                        if (angle > maxAngle + 1e-10) { // - et + ça permet de considérer que entre -1e-10 et +1e-10 les points sont alignés
+                            pointsMaxAngles.removeAllElements();
+                        }
+                        maxAngle = angle;
+                        pointsMaxAngles.add(points.get(i));
+                    }
                 }
             }
 
-            hull.add(getFurthestPoint(pointMilieu, pointsMaxAngles));
-
+            if (pointsMaxAngles.contains(hull.firstElement())) {
+                /*
+                dans une section fermée, le premier et le dernier élément de la section sont les mêmes,
+                mais à cause d'imprécisions dans les chiffres décimaux, parfois à la fin du hull c'est un point
+                légèrement différent du premier qui est ajouté, ce qui fait que la boucle while tourne à l'infini
+                 */
+                hull.add(hull.firstElement());
+            } else {
+                hull.add(getFurthestPoint(pointMilieu, pointsMaxAngles));
+            }
             previousPoint = pointMilieu;
             pointMilieu = hull.lastElement();
         }
