@@ -269,9 +269,8 @@ public class BorderedPatternAlgorithm {
      * @param areaSlice      the area of the Slice
      * @return the normal component of the vector.
      */
-    private Vector2 getPositionNormal(@NotNull Vector<Vector2> sectionReduced, Area areaSlice) {
+    private Vector2 getPositionNormal(Vector2 startBit, @NotNull Vector<Vector2> sectionReduced, Area areaSlice) {
         boolean sectionReducedIsClosed = sectionReduced.firstElement().asGoodAsEqual(sectionReduced.lastElement());
-        Vector2 startPoint = sectionReduced.firstElement();
         Vector<Vector2> hullReduced = getHull(sectionReduced); //computes the convex hull points
         // compute hull segments
         Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced); //computes the
@@ -289,16 +288,13 @@ public class BorderedPatternAlgorithm {
         Vector2 midPoint = constraintSegment.getMidPoint();
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
         Vector2 positionNormal;
-//        DebugTools.segmentsToDraw.add(constraintSegment);
-//        DebugTools.pointsToDrawRED.add(startPoint);
-//        DebugTools.pointsToDrawBLUE.add(constraintPoint);
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
             System.out.println("cas 3");
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
-            double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startPoint, constraintSegment);
+            double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startBit, constraintSegment);
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
             System.out.println("cas 4");
 
@@ -315,7 +311,7 @@ public class BorderedPatternAlgorithm {
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2
-                    - getDistFromFromRefPointViaVector(midPoint, startPoint, dirConstraintSegmentNormal);
+                    - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
             System.out.println("cas 2");
         }
@@ -344,18 +340,16 @@ public class BorderedPatternAlgorithm {
         Vector2 startPoint = sectionReduced.firstElement();
 
         Vector2 bitCollinearVector = getBitCollinearVector(sectionReduced);
-        double newLengthBit = getBitLengthFromSectionReduced(sectionReduced, bitCollinearVector);
-        Vector2 positionCollinear = getBitPositionCollinear(bitCollinearVector, newLengthBit);
-        Vector2 positionNormal = getPositionNormal(sectionReduced, areaSlice);
 
         // the point on which we can place the start of the Bit
-        // Vector2 startBit = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector.getOpposite(), sectionReduced);
+        Vector2 startBit = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector.getOpposite(), sectionReduced);
 
-        // the case when the startBit and the startPoint are different
-//        double compensationDistance = getDistFromFromRefPointViaVector(startPoint, startBit, positionNormal.normal());
-//        positionNormal = positionNormal.sub(positionNormal.normal().mul(compensationDistance));
-        //todo startbit
-        Vector2 bitPosition = startPoint.add(positionCollinear).add(positionNormal);
+        double newLengthBit = getBitLengthFromSectionReduced(sectionReduced, bitCollinearVector);
+
+        Vector2 positionCollinear = getBitPositionCollinear(bitCollinearVector, newLengthBit);
+        Vector2 positionNormal = getPositionNormal(startBit, sectionReduced, areaSlice);
+
+        Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
         Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y,
