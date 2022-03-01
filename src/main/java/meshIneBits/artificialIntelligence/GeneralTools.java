@@ -451,8 +451,6 @@ public class GeneralTools {
                 baseSegmentSum += segmentLength.get(basePointsIndex);
                 basePointsIndex += 1;
                 if (keepOldPoints) {
-                    System.out.println("basePointsIndex = " + basePointsIndex);
-                    System.out.println("points.get(basePointsIndex) = " + points.get(basePointsIndex));
                     newPoints.add(points.get(basePointsIndex));
                 }
             }

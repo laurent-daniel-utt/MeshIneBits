@@ -31,7 +31,6 @@
 package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -196,10 +195,11 @@ public class BorderedPatternAlgorithm {
 
     //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
     private @NotNull Vector<Vector2> getSectionReduced(@NotNull Vector<Vector2> sectionPoints, double minWidthToKeep) {
-        Vector<Vector2> sectionToReduce = GeneralTools.repopulateWithNewPoints(100, sectionPoints, true);
+        Vector<Vector2> sectionToReduce = GeneralTools.repopulateWithNewPoints(200, sectionPoints, true);
 
-        System.out.println("sectionPoints = " + sectionPoints);
-        System.out.println("sectionToReduce = " + sectionToReduce);
+//        DebugTools.pointsToDrawBLUE.clear();
+//        DebugTools.pointsToDrawBLUE.addAll(sectionToReduce);
+//        DebugTools.setPaintForDebug(true);
 
         boolean sectionReductionCompleted = false;
 
@@ -278,17 +278,24 @@ public class BorderedPatternAlgorithm {
         /*
         Find the direction of the bit normal vector. Oriented toward the inner
         There are 3 possible cases :
-        1 : the segment that connects the end to the start of the hull is IN the Slice
+        1 : the constraint segment is IN the Slice
         2 : the segment is OUT of the Slice
         3 : the segment is part of the Slice
+        4 : the section is closed and can be overlapped by a bit
          */
         Segment2D constraintSegment = getLongestSegment(segmentsHull);
         Vector2 constraintPoint = getFurthestPointFromSegment(constraintSegment, hullReduced);
         Vector2 dirConstraintSegmentNormal = constraintSegment.getNormal();
         Vector2 midPoint = constraintSegment.getMidPoint();
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
+        Vector2 check = constraintPoint.add(constraintToMidPoint).add(constraintToMidPoint.normal().mul(1e-5)); // todo
         Vector2 positionNormal;
-        if (constraintPoint.isOnSegment(constraintSegment)) { // case 3
+
+//        DebugTools.pointsToDrawBLUE.add(constraintPoint);
+//        DebugTools.segmentsToDraw.add(constraintSegment);
+//        DebugTools.setPaintForDebug(true);
+
+        if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
             System.out.println("cas 3");
@@ -298,14 +305,15 @@ public class BorderedPatternAlgorithm {
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
             System.out.println("cas 4");
 
-        } else if (areaSlice.contains(midPoint.x, midPoint.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
+        } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // In the case of the vector is in the bad direction
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
-
             double normPositionNormal = CraftConfig.bitWidth / 2
-                    - getDistFromFromRefPointViaVector(constraintPoint, midPoint, dirConstraintSegmentNormal);
+                    - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
             System.out.println("cas 1");
+
+//            DebugTools.pointsToDrawRED.add(dirConstraintSegmentNormal.mul(40));
 
         } else { // case 2
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
@@ -358,7 +366,7 @@ public class BorderedPatternAlgorithm {
 
 //        DebugTools.segmentsToDraw.addAll(bit2D.getBitSidesSegments());
 //        DebugTools.pointsToDrawORANGE.add(bitPosition);
-        DebugTools.setPaintForDebug(true);
+//        DebugTools.setPaintForDebug(true);
 
 
         return new Placement(bit2D, sectionReduced);
@@ -413,7 +421,7 @@ public class BorderedPatternAlgorithm {
                 iBit++;
 
             }
-            while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 100);
+            while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 1000);
             //while (!listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.subList(1, placement.sectionCovered.size())) && iBit<40); //Add each bit on the bound
         }
         return bits;
@@ -543,7 +551,6 @@ public class BorderedPatternAlgorithm {
 
 
     public Vector<Vector2> getHull(Vector<Vector2> points) {
-        System.out.println("START");
 
         Vector<Vector2> hull = new Vector<>();
 
@@ -610,8 +617,6 @@ public class BorderedPatternAlgorithm {
             previousPoint = pointMilieu;
             pointMilieu = hull.lastElement();
         }
-        System.out.println("END");
-
         return hull;
     }
 
