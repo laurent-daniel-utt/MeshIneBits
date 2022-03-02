@@ -298,12 +298,12 @@ public class BorderedPatternAlgorithm {
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
-//            System.out.println("cas 3");
+            System.out.println("cas 3");
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
             double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startBit, constraintSegment);
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
-//            System.out.println("cas 4");
+            System.out.println("cas 4");
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // In the case of the vector is in the bad direction
@@ -311,24 +311,15 @@ public class BorderedPatternAlgorithm {
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-//            System.out.println("cas 1");
-
-//            DebugTools.pointsToDrawRED.add(dirConstraintSegmentNormal.mul(40));
-
+            System.out.println("cas 1");
         } else { // case 2
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-//            System.out.println("cas 2");
+            System.out.println("cas 2");
         }
-
-//        DebugTools.pointsToDrawRED.add(constraintPoint);
-//        DebugTools.segmentsToDraw.add(constraintSegment);
-//        DebugTools.pointsToDrawBLUE.add(positionNormal);
-//        DebugTools.setPaintForDebug(true);
-
 
         return positionNormal;
     }
@@ -352,7 +343,7 @@ public class BorderedPatternAlgorithm {
         // the point on which we can place the start of the Bit
         Vector2 startBit = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector.getOpposite(), sectionReduced);
 
-        double newLengthBit = getBitLengthFromSectionReduced(sectionReduced, bitCollinearVector);
+        double newLengthBit = getBitLengthFromSectionReduced(sectionReduced, bitCollinearVector) + minWidthToKeep; //minWidthToKeep let the bit cover totally the section
 
         Vector2 positionCollinear = getBitPositionCollinear(bitCollinearVector, newLengthBit);
         Vector2 positionNormal = getPositionNormal(startBit, sectionReduced, areaSlice);
@@ -421,7 +412,7 @@ public class BorderedPatternAlgorithm {
                 iBit++;
 
             }
-            while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 1000);
+            while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 100);
             //while (!listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.subList(1, placement.sectionCovered.size())) && iBit<40); //Add each bit on the bound
         }
         return bits;
@@ -522,14 +513,14 @@ public class BorderedPatternAlgorithm {
         }
     }
 
-    /**
-     * Debug Only : can be used to place only one bit and to choose its position by passing the startPoint coordinates in the code
-     *
-     * @param slice          the slice to pave
-     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
-     *                       to be too fragile
-     * @return the list of bits for this Slice
-     */
+//    /**
+//     * Debug Only : can be used to place only one bit and to choose its position by passing the startPoint coordinates in the code
+//     *
+//     * @param slice          the slice to pave
+//     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
+//     *                       to be too fragile
+//     * @return the list of bits for this Slice
+//     */
 //    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws NoninvertibleTransformException {
 //        System.out.println("PAVING SLICE " + slice.getAltitude());
 //        Vector<Bit2D> bits = new Vector<>();
