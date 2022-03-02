@@ -298,12 +298,12 @@ public class BorderedPatternAlgorithm {
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
-            System.out.println("cas 3");
+//            System.out.println("cas 3");
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
             double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startBit, constraintSegment);
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
-            System.out.println("cas 4");
+//            System.out.println("cas 4");
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // In the case of the vector is in the bad direction
@@ -311,7 +311,7 @@ public class BorderedPatternAlgorithm {
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-            System.out.println("cas 1");
+//            System.out.println("cas 1");
 
 //            DebugTools.pointsToDrawRED.add(dirConstraintSegmentNormal.mul(40));
 
@@ -321,7 +321,7 @@ public class BorderedPatternAlgorithm {
             double normPositionNormal = CraftConfig.bitWidth / 2
                     - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-            System.out.println("cas 2");
+//            System.out.println("cas 2");
         }
 
 //        DebugTools.pointsToDrawRED.add(constraintPoint);
@@ -530,24 +530,24 @@ public class BorderedPatternAlgorithm {
      *                       to be too fragile
      * @return the list of bits for this Slice
      */
-    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws NoninvertibleTransformException {
-        System.out.println("PAVING SLICE " + slice.getAltitude());
-        Vector<Bit2D> bits = new Vector<>();
-
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-
-        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
-        //Vector2 startPoint = bounds.get(0).get(10);
-
-        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
-
-        Area areaSlice = AreaTool.getAreaFrom(slice);
-
-//        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
-//        DebugTools.pointsToDrawGREEN.add(startPoint);
-
-        return bits;
-    }
+//    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws NoninvertibleTransformException {
+//        System.out.println("PAVING SLICE " + slice.getAltitude());
+//        Vector<Bit2D> bits = new Vector<>();
+//
+//        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+//
+//        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
+//        //Vector2 startPoint = bounds.get(0).get(10);
+//
+//        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
+//
+//        Area areaSlice = AreaTool.getAreaFrom(slice);
+//
+////        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
+////        DebugTools.pointsToDrawGREEN.add(startPoint);
+//
+//        return bits;
+//    }
 
 
     public Vector<Vector2> getHull(Vector<Vector2> points) {

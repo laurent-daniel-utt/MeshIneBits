@@ -69,7 +69,7 @@ public final class DebugTools {
     public static @NotNull Segment2D currentSegToDraw = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
     public static @NotNull Segment2D currentSegToDraw2 = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
 
-    public static @NotNull Polygon poly = new Polygon();
+    public static @NotNull Vector<Polygon> polys = new Vector<>();
 
     public static @NotNull Area area = new Area();
     public static @Nullable Area areaToDraw = null;

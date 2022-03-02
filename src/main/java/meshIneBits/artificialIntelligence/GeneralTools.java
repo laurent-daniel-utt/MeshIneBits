@@ -56,32 +56,6 @@ import java.util.stream.IntStream;
 public class GeneralTools {
 
     /**
-     * Returns the points of each bound of a given Slice
-     * The points are rearranged to be in the correct order.
-     *
-     * @param currentSlice the slice to get the bounds.
-     * @return the bounds of the given slice, once rearranged.
-     * @see #rearrangeSegments
-     * @see #rearrangePoints
-     */
-    @SuppressWarnings("unchecked")
-    public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
-        /*
-         TODO: 2021-01-18
-        * this method could be replaced by the optimize method of Shape2D
-        *  Just make sure to get all "bounds" = all polygons that makes the Slice.
-        */
-        Vector<Vector<Vector2>> boundsList = new Vector<>();
-        Vector<Vector<Segment2D>> borderList = rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
-
-        for (Vector<Segment2D> border : borderList) {
-            Vector<Vector2> unorderedPoints = computePoints(border);
-            boundsList.add(rearrangePoints(unorderedPoints));
-        }
-        return boundsList;
-    }
-
-    /**
      * Rearranges the given segments so that each segment follows the previous one.
      *
      * @param segmentList the segments to rearranged
@@ -111,7 +85,7 @@ public class GeneralTools {
     private static @NotNull Vector<Vector2> rearrangePoints(@NotNull Vector<Vector2> pointList) {
         Vector<Vector2> newPointList = new Vector<>();
         int PointIndex;
-        double maxX = -1000000000;
+        double maxX = Double.NEGATIVE_INFINITY;
         int indexMax = 0;
 
         for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
@@ -134,12 +108,13 @@ public class GeneralTools {
      * @param segmentList the segment list
      * @return the list of point computed from the segment list
      */
-    private static @NotNull Vector<Vector2> computePoints(@NotNull Vector<Segment2D> segmentList) {
+    private static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
         Vector<Vector2> pointList = new Vector<>();
         for (Segment2D segment : segmentList) {
             pointList.add(new Vector2(segment.start.x, segment.start.y));
         }
-        pointList.remove(0);
+        if (pointList.firstElement().asGoodAsEqual(pointList.lastElement()))
+            pointList.remove(0);
         return pointList;
     }
 
@@ -207,7 +182,6 @@ public class GeneralTools {
         double angle = getLocalCoordinateSystemAngle(sectionPoints);
         return transformCoordinateSystem(sectionPoints, angle);
     }
-
 
     /**
      * Rotates a list of points by a given angle
@@ -299,7 +273,6 @@ public class GeneralTools {
         }
     }
 
-
     public static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center,
                                                                double radius, boolean isSegment) throws NoninvertibleTransformException {
 
@@ -339,7 +312,6 @@ public class GeneralTools {
         }
         return result;
     }
-
 
     public static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
         Vector<Vector2> distinctPoints = new Vector<>();
@@ -397,7 +369,6 @@ public class GeneralTools {
         }
         return leftPoints >= rightPoints;
     }
-
 
     /**
      * Positions a precise number of points on a section of points. Each point is equally spaced to the next point.
@@ -639,27 +610,6 @@ public class GeneralTools {
         return totalDist;
     }
 
-
-    /**
-     * Return the next Bit2D start point.
-     * It is the intersection between the slice and the end side of the Bit2D.
-     *
-     * @param bit              the current Bit2D (the last placed Bit2D by AI).
-     * @param boundPoints      the points of the bounds on which stands the bit.
-     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the size of a bit
-     * @return the next bit start point. Returns <code>null</code> if none was found.
-     */
-    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) throws Exception {
-
-        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints, limitTheDistance, startPoint);
-
-        if (nextBitStartPoint != null) {
-            return nextBitStartPoint;
-        } else {
-            throw new Exception("The bit start point has not been found.");
-        }
-    }
-
     /**
      * Returns the first intersection point between the bound and bit's edges
      *
@@ -749,6 +699,87 @@ public class GeneralTools {
     }
 
     /**
+     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
+     * following the order of the list of points given as entry.
+     *
+     * @param points the points requiring to be converted into segments.
+     * @return the segments resulting from the conversion.
+     */
+    @NotNull
+    public static Vector<Segment2D> getSegment2DS(@NotNull Vector<Vector2> points) {
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < points.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(
+                    points.get(i),
+                    points.get(i + 1)
+            ));
+        }
+        return sectionSegments;
+    }
+
+    /**
+     * Similar to isOnSegment() of Vector2, but more reliable
+     *
+     * @param v a point
+     * @param s a segment
+     * @return true if the point is on the segment
+     */
+    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
+        double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
+        return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
+    }
+
+    private static Vector<Vector2> reordonnatePoints(Vector<Vector2> messyList, Vector<Vector2> boundPoints) {
+        Vector<Vector2> reorderedPoints = new Vector<>();
+        for (Vector2 boundPoint : boundPoints) {
+            if (messyList.contains(boundPoint))
+                reorderedPoints.add(boundPoint);
+        }
+        return reorderedPoints;
+    }
+
+    /**
+     * Returns the points of each bound of a given Slice
+     * The points are rearranged to be in the correct order.
+     *
+     * @param currentSlice the slice to get the bounds.
+     * @return the bounds of the given slice, once rearranged.
+     * @see #rearrangeSegments
+     * @see #rearrangePoints
+     */
+    @SuppressWarnings("unchecked")
+    public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
+        Vector<Vector<Vector2>> boundsList = new Vector<>();
+        Vector<Vector<Segment2D>> borderList = rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
+
+        for (Vector<Segment2D> border : borderList) {
+            Vector<Vector2> unorderedPoints = segmentsToPoints(border);
+            boundsList.add(rearrangePoints(unorderedPoints));
+        }
+        return boundsList;
+    }
+
+    /**
+     * Return the next Bit2D start point.
+     * It is the intersection between the slice and the end side of the Bit2D.
+     *
+     * @param bit              the current Bit2D (the last placed Bit2D by AI).
+     * @param boundPoints      the points of the bounds on which stands the bit.
+     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the size of a bit
+     * @return the next bit start point. Returns <code>null</code> if none was found.
+     */
+    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) throws Exception {
+
+        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints, limitTheDistance, startPoint);
+
+        if (nextBitStartPoint != null) {
+            return nextBitStartPoint;
+        } else {
+            throw new Exception("The bit start point has not been found.");
+        }
+    }
+
+    /**
      * Returns points all points associated with a Bit2D.
      * Points associated are the points of the Slice from the startPoint of the Bit2D,
      * till the distance with the point become greater than the length of a Bit2D.
@@ -789,46 +820,5 @@ public class GeneralTools {
      */
     public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
         return getNextBitStartPoint(bit, boundPoints, false, null);
-    }
-
-    /**
-     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
-     * following the order of the list of points given as entry.
-     *
-     * @param points the points requiring to be converted into segments.
-     * @return the segments resulting from the conversion.
-     */
-    @NotNull
-    public static Vector<Segment2D> getSegment2DS(@NotNull Vector<Vector2> points) {
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < points.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(
-                    points.get(i),
-                    points.get(i + 1)
-            ));
-        }
-        return sectionSegments;
-    }
-
-
-    /**
-     * Similar to isOnSegment() of Vector2, but more reliable
-     *
-     * @param v a point
-     * @param s a segment
-     * @return true if the point is on the segment
-     */
-    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
-        double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
-        return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
-    }
-
-    private static Vector<Vector2> reordonnatePoints(Vector<Vector2> messyList, Vector<Vector2> boundPoints) {
-        Vector<Vector2> reorderedPoints = new Vector<>();
-        for (Vector2 boundPoint : boundPoints) {
-            if (messyList.contains(boundPoint))
-                reorderedPoints.add(boundPoint);
-        }
-        return reorderedPoints;
     }
 }

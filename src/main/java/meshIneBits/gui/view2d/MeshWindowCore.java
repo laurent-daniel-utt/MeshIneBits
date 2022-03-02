@@ -631,7 +631,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             drawModelPath2D(g2d, path);
         }
 
+        //Draw polygons
         int i = 0;
+        Color[] colors = {Color.blue, Color.red, Color.GREEN, Color.ORANGE};
+        for (Polygon poly : DebugTools.polys) {
+            g2d.setColor(colors[i]);
+            drawModelPath2D(g2d, poly.toPath2D());
+            i++;
+        }
+
+        i = 0;
         for (Vector2 point : DebugTools.pointsToDrawBLUE) {
             g2d.setColor(Color.blue);
             drawModelCircle(g2d, point.x, point.y, 1);
