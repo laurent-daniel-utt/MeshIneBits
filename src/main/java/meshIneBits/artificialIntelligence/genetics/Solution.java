@@ -187,7 +187,7 @@ public class Solution {
 
             //System.out.println(getBit(startPoint));
             Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, true, startPoint);
-            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.getSegment2DS(bound));
+            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.pointsToSegments(bound));
             //System.out.println(distViaSegments + getBit(startPoint).toString());
             if (distViaSegments > maxDistanceForNextStart) {
                 bad = true;
@@ -200,7 +200,7 @@ public class Solution {
             //Vector2 startPoint = bound.firstElement();
             //        DebugTools.pointsToDrawGREEN.add(startPoint);
             //        AI_Tool.getMeshController().AI_NeedPaint=true;
-            //Vector<Segment2D> segment2DS= GeneralTools.getSegment2DS(bound);
+            //Vector<Segment2D> segment2DS= GeneralTools.pointsToSegments(bound);
 //            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
 //            Vector2 bitDirector = getBit(startPoint).getOrientation();
 ////            System.out.println(bitDirector.dot(startToEnd));
@@ -229,7 +229,7 @@ public class Solution {
      * @return the number of intersections
      */
     private int getNumberOfIntersections(@NotNull Vector<Vector2> boundPoints) {
-        Vector<Segment2D> segmentsSlice = GeneralTools.getSegment2DS(boundPoints);
+        Vector<Segment2D> segmentsSlice = GeneralTools.pointsToSegments(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
         int intersectionCount = 0;
 

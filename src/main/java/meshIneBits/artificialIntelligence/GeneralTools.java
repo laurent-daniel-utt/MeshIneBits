@@ -32,7 +32,7 @@ package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.util.Curve;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
@@ -42,12 +42,9 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
 import java.util.Vector;
-import java.util.stream.IntStream;
+
 
 /**
  * GeneralTools groups together the methods used to prepare the data for Neural Network or Genetic Algorithms.
@@ -56,297 +53,20 @@ import java.util.stream.IntStream;
 public class GeneralTools {
 
     /**
-     * Rearranges the given segments so that each segment follows the previous one.
-     *
-     * @param segmentList the segments to rearranged
-     * @return the rearranged segments. Returns more than one Vector of Segment2D if there's more than one bound on the Slice
-     */
-    private static @NotNull Vector<Vector<Segment2D>> rearrangeSegments(@NotNull Vector<Segment2D> segmentList) {
-        Vector<Vector<Segment2D>> list = new Vector<>();
-        Vector<Segment2D> newSegmentList = new Vector<>();
-        newSegmentList.add(segmentList.get(0));
-        list.add(newSegmentList);
-
-        while (!segmentList.isEmpty()) {
-            searchNextSegment(segmentList.get(0), segmentList, newSegmentList);
-            newSegmentList = new Vector<>();
-            list.add(newSegmentList);
-        }
-        list.removeIf(Vector::isEmpty);
-        return list;
-    }
-
-    /**
-     * Rearranges the given points so that the list begins at the rightmost point
-     *
-     * @param pointList the points to be rearranged.
-     * @return the rearranged points.
-     */
-    private static @NotNull Vector<Vector2> rearrangePoints(@NotNull Vector<Vector2> pointList) {
-        Vector<Vector2> newPointList = new Vector<>();
-        int PointIndex;
-        double maxX = Double.NEGATIVE_INFINITY;
-        int indexMax = 0;
-
-        for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
-            Vector2 actualPoint = pointList.get(PointIndex);
-            if (actualPoint.x > maxX) {
-                maxX = actualPoint.x;
-                indexMax = PointIndex;
-            }
-        }
-
-        IntStream.range(indexMax, pointList.size()).mapToObj(pointList::get).forEachOrdered(newPointList::add);
-        IntStream.range(0, indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
-
-        return newPointList;
-    }
-
-    /**
-     * Returns a point list from a segment list
+     * Returns a point list from a segment list.
+     * If the first and last segment are connected, the first point is not added.
      *
      * @param segmentList the segment list
      * @return the list of point computed from the segment list
      */
     private static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
-        Vector<Vector2> pointList = new Vector<>();
+        Vector<Vector2> pointsList = new Vector<>();
         for (Segment2D segment : segmentList) {
-            pointList.add(new Vector2(segment.start.x, segment.start.y));
+            pointsList.add(new Vector2(segment.start.x, segment.start.y));
         }
-        if (pointList.firstElement().asGoodAsEqual(pointList.lastElement()))
-            pointList.remove(0);
-        return pointList;
-    }
-
-    /**
-     * Searches the next segment of the given segment, in a list of segments.
-     * And returns the rearranged list.
-     *
-     * @param segment        the current segment.
-     * @param segmentList    the list of all segments.
-     * @param newSegmentList the list segments that have already been rearranged.
-     * @return the rearranged list.
-     * @see #rearrangeSegments
-     */
-    private static @NotNull Vector<Segment2D> searchNextSegment(@NotNull Segment2D segment, @NotNull Vector<Segment2D> segmentList, @NotNull Vector<Segment2D> newSegmentList) {
-        for (Segment2D segmentSearch : segmentList) {
-            if (segmentSearch.start == segment.end) {
-                newSegmentList.add(segmentSearch);
-                segmentList.remove(segmentSearch);
-                newSegmentList = searchNextSegment(segmentSearch, segmentList, newSegmentList);
-                return newSegmentList;
-            }
-        }
-        return newSegmentList;
-    }
-
-    /**
-     * Calculates the angle of the local coordinate system used for the coordinate system transformation made
-     * by {@link #getSectionInLocalCoordinateSystem(Vector)}.
-     *
-     * @param sectionPoints the points that we want to transform in a local coordinate system.
-     * @return the angle of the local coordinate system.
-     */
-    public static double getLocalCoordinateSystemAngle(@NotNull Vector<Vector2> sectionPoints) {
-
-        //map for more accurate result
-        Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints, false);
-
-        //get an angle in degrees
-        double angle = getSectionOrientation(mappedPoints);
-
-        //check if abscissa axe of local coordinate system and section are directed in the same direction.
-        if (arePointsMostlyOrientedToTheLeft(sectionPoints, sectionPoints.firstElement())) {
-            angle += 180; //rotate coordinate system
-        }
-        if (angle > 180) { // make sure that the angle is between -180 and 180 degrees
-            angle -= 360;
-        }
-
-        return angle;
-    }
-
-    /**
-     * Translates and rotates a curve to put it in a local coordinate system, centered on the first point of the curve,
-     * with the abscissa axis in the direction of the average angle of the curve (regarding in the global coordinate
-     * system).
-     *
-     * @param sectionPoints the points we want to convert in a local coordinate system
-     * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
-     */
-    public static @NotNull Vector<Vector2> getSectionInLocalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints) {
-        /*
-         * TODO: 2021-01-20
-         *  methods that transform points from one Coordinate System to another one should be replaced with AffineTransform.
-         */
-        double angle = getLocalCoordinateSystemAngle(sectionPoints);
-        return transformCoordinateSystem(sectionPoints, angle);
-    }
-
-    /**
-     * Rotates a list of points by a given angle
-     *
-     * @param points the points to transform
-     * @param angle  the angle in degrees
-     * @return the rotated list of points
-     */
-    private static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, double angle) {
-        angle = Math.toRadians(angle);
-        Vector<Vector2> finalPoints = new Vector<>();
-        finalPoints.add(new Vector2(0, 0)); // first point is always on origin
-        double translationX = points.firstElement().x * Math.cos(angle) + points.firstElement().y * Math.sin(angle);
-        double translationY = -points.firstElement().x * Math.sin(angle) + points.firstElement().y * Math.cos(angle);
-        for (int i = 1; i < points.size(); i++) {
-            double x = points.get(i).x * Math.cos(angle) + points.get(i).y * Math.sin(angle) - translationX;
-            double y = -points.get(i).x * Math.sin(angle) + points.get(i).y * Math.cos(angle) + -translationY;
-            finalPoints.add(new Vector2(x, y));
-        }
-        return finalPoints;
-    }
-
-    /**
-     * Takes a list of points, and returns the part of the polygon which can be used to place a bit.
-     * Section acquisition is done clockwise.
-     *
-     * @param bound      the bound from which the section will be extracted
-     * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
-     * @return a vector of vector2, the part of the polygon which can be used to place a bit
-     */
-    public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> bound, Vector2 startPoint) throws NoninvertibleTransformException {
-
-        double bitLength = CraftConfig.lengthNormal;
-
-        Vector<Segment2D> boundSegments = new Vector<>();
-        Segment2D startSegment = null; // the segment which has the startPoint as start.
-
-        // create a list of segments representing the bound, including the startPoint as an end of segments
-        for (int iBound = 0; iBound < bound.size() - 1; iBound++) {
-            Segment2D newSeg = new Segment2D(bound.get(iBound), bound.get(iBound + 1));
-            if (isPointOnSegment(startPoint, newSeg)
-                    && !startPoint.asGoodAsEqual(bound.get(iBound))
-                    && !startPoint.asGoodAsEqual(bound.get(iBound + 1))) {
-                // then startpoint is on this segment, so we split it in 2 to include the startPoint
-                boundSegments.add(new Segment2D(bound.get(iBound), startPoint));
-                startSegment = new Segment2D(startPoint, bound.get(iBound + 1));
-                boundSegments.add(startSegment);
-            } else if (isPointOnSegment(startPoint, newSeg)
-                    && startPoint.asGoodAsEqual(bound.get(iBound))) {
-                // the startPoint is the start of newSeg
-                startSegment = newSeg;
-                boundSegments.add(newSeg);
-            } else {
-                // the startPoint isn't on newSeg (last point of newSeg excluded
-                boundSegments.add(newSeg);
-            }
-        }
-        setNextSegments(boundSegments);
-
-        Segment2D currentSegment = startSegment;
-        Vector<Vector2> sectionPoints = new Vector<>();
-        boolean intersectionFound = false;
-        sectionPoints.add(currentSegment.start);
-        do {
-            Vector<Vector2> intersections = circleAndSegmentIntersection(currentSegment.start, currentSegment.end, startPoint, bitLength, true);
-            if (!intersections.isEmpty()) { // il y a une intersection donc on l'ajoute à la section et on a fini
-                sectionPoints.add(intersections.firstElement()); // dans notre cas comme on s'éloigne du startpoint il y aura forcément 1 intersection max
-                intersectionFound = true;
-            } else {
-                sectionPoints.add(currentSegment.end);
-                currentSegment = currentSegment.getNext();
-            }
-        }
-        while (!intersectionFound && currentSegment != startSegment);
-
-        return sectionPoints;
-    }
-
-    // relie un segment de la liste au suivant avec setNext si la fin de l'un touche le début de l'autre
-    // todo commenter et peut être deplacer dans segment2D ?
-    private static void setNextSegments(Vector<Segment2D> segments) {
-        for (int i = 0; i < segments.size() - 1; i++) {
-            if (segments.get(i).end.asGoodAsEqual(segments.get(i + 1).start)) {
-                segments.get(i).setNext(segments.get(i + 1));
-            }
-        }
-        if (segments.lastElement().end.asGoodAsEqual(segments.firstElement().start)) {
-            segments.lastElement().setNext(segments.firstElement());
-        }
-    }
-
-    public static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center,
-                                                               double radius, boolean isSegment) throws NoninvertibleTransformException {
-
-        Point2D p1P2D = new Point2D.Double(p1.x, p1.y);
-        Point2D p2P2D = new Point2D.Double(p2.x, p2.y);
-        Point2D centerP2D = new Point2D.Double(center.x, center.y);
-
-        Vector<Vector2> result = new Vector<>();
-        double dx = p2P2D.getX() - p1P2D.getX();
-        double dy = p2P2D.getY() - p1P2D.getY();
-        AffineTransform trans = AffineTransform.getRotateInstance(dx, dy);
-        trans.invert();
-        trans.translate(-centerP2D.getX(), -centerP2D.getY());
-        Point2D p1a = trans.transform(p1P2D, null);
-        Point2D p2a = trans.transform(p2P2D, null);
-        double y = p1a.getY();
-        double minX = Math.min(p1a.getX(), p2a.getX());
-        double maxX = Math.max(p1a.getX(), p2a.getX());
-        if (y == radius || y == -radius) {
-            if (!isSegment || (0 <= maxX && 0 >= minX)) {
-                p1a.setLocation(0, y);
-                trans.inverseTransform(p1a, p1a);
-                result.add(new Vector2(p1a.getX(), p1a.getY()));
-            }
-        } else if (y < radius && y > -radius) {
-            double x = Math.sqrt(radius * radius - y * y);
-            if (!isSegment || (-x <= maxX && -x >= minX)) {
-                p1a.setLocation(-x, y);
-                trans.inverseTransform(p1a, p1a);
-                result.add(new Vector2(p1a.getX(), p1a.getY()));
-            }
-            if (!isSegment || (x <= maxX && x >= minX)) {
-                p2a.setLocation(x, y);
-                trans.inverseTransform(p2a, p2a);
-                result.add(new Vector2(p2a.getX(), p2a.getY()));
-            }
-        }
-        return result;
-    }
-
-    public static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
-        Vector<Vector2> distinctPoints = new Vector<>();
-
-        for (int i = 0; i < points.size() - 1; i++) {
-            if (!points.get(i).asGoodAsEqual(points.get(i + 1))) {
-                distinctPoints.add(points.get(i));
-            }
-        }
-        if (points.firstElement() != points.lastElement()) {
-            distinctPoints.add(points.lastElement());
-        }
-
-        return distinctPoints;
-    }
-
-    /**
-     * Returns the angle of the line that fit a list of points
-     *
-     * @param points the points
-     * @return an angle between -90 and 90 degrees
-     */
-    public static Double getSectionOrientation(@NotNull Vector<Vector2> points) {
-        // prepare fitting
-        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(1);//degree 1
-        WeightedObservedPoints weightedObservedPoints = new WeightedObservedPoints();
-        weightedObservedPoints.add(1000, points.get(0).x, points.get(0).y);
-
-        for (int i = 1; i < points.size(); i++) {
-            weightedObservedPoints.add(points.get(i).x, points.get(i).y);
-        }
-
-        // fit
-        double[] coefficients_inverse = fitter.fit(weightedObservedPoints.toList());
-        return Math.toDegrees(Math.atan(coefficients_inverse[1]));
+        if (pointsList.firstElement()
+                .asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
+        return pointsList;
     }
 
     /**
@@ -377,96 +97,10 @@ public class GeneralTools {
      * @return a new section of points, composed of the equally spaced points.
      */
     public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
-        int nbPoints = 10;//todo @Etienne ou Andre : hidden neurons count has to be in function of this
-        return repopulateWithNewPoints(nbPoints, sectionPoints, false);
+        int nbPoints = 10;//todo @Etienne ou Andre : hidden neurons count has depend of this
+        return SectionTransformer.repopulateWithNewPoints(nbPoints, sectionPoints, false);
     }
 
-    /**
-     * Repopulate a section a points with new points. Keep old ones if specified
-     *
-     * @param nbNewPoints   number of new points to add. If KeepOldPoints, new points are added if they're
-     *                      not {@link Vector2#asGoodAsEqual(Vector2)}l the old points
-     * @param points        the section of points to repopulate
-     * @param keepOldPoints true to keep old points in addition to the old ones.
-     * @return the section repopulated with new points.
-     */
-    public static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points, boolean keepOldPoints) {
-
-        Vector<Vector2> newPoints = new Vector<>();
-        Vector<Double> segmentLength = new Vector<>();
-        //todo ?? @andre make a tab of initial segments lengths
-        for (int i = 0; i < points.size() - 1; i++) {
-            double size = Math.sqrt(Math.pow(points.get(i).x - points.get(i + 1).x, 2)
-                    + Math.pow(points.get(i).y - points.get(i + 1).y, 2));
-            segmentLength.add(size);
-        }
-        double spacing = segmentLength.stream().mapToDouble(Double::valueOf).sum() / (nbNewPoints - 1);
-
-        double baseSegmentSum = 0;
-        double newSegmentSum = 0;
-        int basePointsIndex = 0;
-
-        // --- Positions one point after the other ---
-
-        if (keepOldPoints) { // add first point if keepOldPoints
-            newPoints.add(points.firstElement());
-        }
-
-        for (int i = 0; i < nbNewPoints; i++) { // Placer un nouveau point
-
-            double absNewPoint;
-            double ordNewPoint;
-
-            // --- selection of the first segment to place a point on it + add old points---
-            while (basePointsIndex < points.size() - 2 && baseSegmentSum + segmentLength.get(basePointsIndex) <= newSegmentSum) {
-                baseSegmentSum += segmentLength.get(basePointsIndex);
-                basePointsIndex += 1;
-                if (keepOldPoints) {
-                    newPoints.add(points.get(basePointsIndex));
-                }
-            }
-
-            //Calculate the angle between the segment and the abscissa axis
-            double segmentAngle;
-            if (points.get(basePointsIndex).x == points.get(basePointsIndex + 1).x
-                    && points.get(basePointsIndex).y <= points.get(basePointsIndex + 1).y) { // then the segment is vertical
-                segmentAngle = Math.PI / 2;
-            } else {
-                segmentAngle = Math.atan((points.get(basePointsIndex + 1).y - points.get(basePointsIndex).y)
-                        / (points.get(basePointsIndex + 1).x - points.get(basePointsIndex).x)); // slope of the segment
-            }
-
-            int sign = 1;
-            if (points.get(basePointsIndex + 1).x < points.get(basePointsIndex).x) {
-                sign = -1;
-            }
-
-            absNewPoint = points.get(basePointsIndex).x + sign * (newSegmentSum - baseSegmentSum) * Math.cos(segmentAngle);
-            ordNewPoint = points.get(basePointsIndex).y + sign * (newSegmentSum - baseSegmentSum) * Math.sin(segmentAngle);
-            Vector2 newPoint = new Vector2(absNewPoint, ordNewPoint);
-            if (!keepOldPoints || !containsAsGoodAsEqual(newPoint, points)) { // second condition is reached only if keepOldPoints is true
-                newPoints.add(newPoint);
-            }
-
-            newSegmentSum += spacing;
-
-        }
-
-        // add last point
-        newPoints.add(points.lastElement());
-
-        return newPoints;
-    }
-
-    private static boolean containsAsGoodAsEqual(Vector2 v, Vector<Vector2> pts) {
-        boolean contains = false;
-        for (Vector2 p : pts) {
-            if (p.asGoodAsEqual(v)) {
-                contains = true;
-            }
-        }
-        return contains;
-    }
 
     /**
      * This method makes a double non-linear regression over a section of points saved in DataLog.csv.
@@ -498,8 +132,12 @@ public class GeneralTools {
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
         for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
-            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
-            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
+            weightedObservedPointsX.add(xCurve.getPoints()
+                                                .get(i).x, xCurve.getPoints()
+                                                .get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints()
+                                                .get(i).x, yCurve.getPoints()
+                                                .get(i).y);
         }
         // fit
         double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
@@ -530,7 +168,7 @@ public class GeneralTools {
      */
     public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
 
-        Vector<Segment2D> boundSegments = getSegment2DS(boundPoints);
+        Vector<Segment2D> boundSegments = pointsToSegments(boundPoints);
         Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
         Vector<Vector2> intersectionPoints = new Vector<>();
 
@@ -546,8 +184,7 @@ public class GeneralTools {
             }
 
             // loop through the intersections
-            if (intersectionsWithSegment.size() == 1)
-                intersectionPoints.add(intersectionsWithSegment.get(0));
+            if (intersectionsWithSegment.size() == 1) intersectionPoints.add(intersectionsWithSegment.get(0));
             else if (intersectionsWithSegment.size() == 2 && Vector2.dist2(intersectionsWithSegment.get(0), boundSegment.start) < Vector2.dist2(intersectionsWithSegment.get(1), boundSegment.start))
                 intersectionPoints.addAll(intersectionsWithSegment);
             else if (intersectionsWithSegment.size() == 2) {
@@ -570,10 +207,10 @@ public class GeneralTools {
 //            }
 
         }
-        if (bit.getArea().contains(boundPoints.get(0).x, boundPoints.get(0).y) && boundPoints.firstElement() != intersectionPoints.firstElement())
+        if (bit.getArea()
+                .contains(boundPoints.get(0).x, boundPoints.get(0).y) && boundPoints.firstElement() != intersectionPoints.firstElement())
             return intersectionPoints.get(0);
-        else
-            return intersectionPoints.get(1);//return the second intersection
+        else return intersectionPoints.get(1);//return the second intersection
     }
 
     /**
@@ -624,8 +261,7 @@ public class GeneralTools {
         // first we fill with the points of the bound a vector of segments:
         Vector<Segment2D> boundSegments = new Vector<>();
         for (int i = 0; i < boundPoints.size() - 1; i++) {
-            boundSegments.add(
-                    new Segment2D(boundPoints.get(i), boundPoints.get(i + 1)));
+            boundSegments.add(new Segment2D(boundPoints.get(i), boundPoints.get(i + 1)));
         }
 
         // We will have to scan each segment of the bound, to check if an edge of the bit intersects with it.
@@ -634,13 +270,13 @@ public class GeneralTools {
         // So first we have to find a segment whose its start is not under the bit.
 
         Polygon rectangle = new Polygon();
-        bit.getBitSidesSegments().forEach(rectangle::addEnd);
+        bit.getBitSidesSegments()
+                .forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         int startSegIndex = 0;
 
-        while (bitRectangleArea.contains(boundSegments.get(startSegIndex).start.x,
-                boundSegments.get(startSegIndex).start.y)) {
+        while (bitRectangleArea.contains(boundSegments.get(startSegIndex).start.x, boundSegments.get(startSegIndex).start.y)) {
             startSegIndex++;
         }
 
@@ -706,37 +342,14 @@ public class GeneralTools {
      * @return the segments resulting from the conversion.
      */
     @NotNull
-    public static Vector<Segment2D> getSegment2DS(@NotNull Vector<Vector2> points) {
+    public static Vector<Segment2D> pointsToSegments(@NotNull Vector<Vector2> points) {
         Vector<Segment2D> sectionSegments = new Vector<>();
         for (int i = 0; i < points.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(
-                    points.get(i),
-                    points.get(i + 1)
-            ));
+            sectionSegments.add(new Segment2D(points.get(i), points.get(i + 1)));
         }
         return sectionSegments;
     }
 
-    /**
-     * Similar to isOnSegment() of Vector2, but more reliable
-     *
-     * @param v a point
-     * @param s a segment
-     * @return true if the point is on the segment
-     */
-    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
-        double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
-        return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
-    }
-
-    private static Vector<Vector2> reordonnatePoints(Vector<Vector2> messyList, Vector<Vector2> boundPoints) {
-        Vector<Vector2> reorderedPoints = new Vector<>();
-        for (Vector2 boundPoint : boundPoints) {
-            if (messyList.contains(boundPoint))
-                reorderedPoints.add(boundPoint);
-        }
-        return reorderedPoints;
-    }
 
     /**
      * Returns the points of each bound of a given Slice
@@ -744,17 +357,18 @@ public class GeneralTools {
      *
      * @param currentSlice the slice to get the bounds.
      * @return the bounds of the given slice, once rearranged.
-     * @see #rearrangeSegments
-     * @see #rearrangePoints
+     * @see SectionTransformer#rearrangeSegments
+     * @see SectionTransformer#rearrangePoints
      */
     @SuppressWarnings("unchecked")
     public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
         Vector<Vector<Vector2>> boundsList = new Vector<>();
-        Vector<Vector<Segment2D>> borderList = rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
+        Vector<Vector<Segment2D>> borderList = SectionTransformer.rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList()
+                .clone());
 
         for (Vector<Segment2D> border : borderList) {
             Vector<Vector2> unorderedPoints = segmentsToPoints(border);
-            boundsList.add(rearrangePoints(unorderedPoints));
+            boundsList.add(SectionTransformer.rearrangePoints(unorderedPoints));
         }
         return boundsList;
     }
@@ -790,7 +404,9 @@ public class GeneralTools {
     public @NotNull Vector<Vector2> getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
-        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController()
+                                                                           .getCurrentLayer()
+                                                                           .getHorizontalSection());
 
         // finds the startPoint (if exists) and the bound related to this startPoint
         int iContour = 0;
@@ -798,16 +414,13 @@ public class GeneralTools {
         boolean boundFound = false;
         while (iContour < boundsList.size() && !boundFound) {
             startPoint = getBitAndContourFirstIntersectionPoint(bit2D, boundsList.get(iContour));
-            if (startPoint != null)
-                boundFound = true;
+            if (startPoint != null) boundFound = true;
             iContour++;
         }
 
         // finds the points associated with the bit, using the startPoint and the bound previously found
-        if (startPoint != null)
-            return getSectionPointsFromBound(boundsList.get(iContour - 1), startPoint);
-        else
-            throw new Exception("The bit start point has not been found.");
+        if (startPoint != null) return SectionTransformer.getSectionPointsFromBound(boundsList.get(iContour - 1), startPoint);
+        else throw new Exception("The bit start point has not been found.");
     }
 
     /**

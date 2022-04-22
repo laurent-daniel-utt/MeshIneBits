@@ -62,7 +62,7 @@ public final class DataSetGenerator {
             // format data for dl
             Vector2 startPoint = entry.getAssociatedPoints().firstElement();
 
-            Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(entry.getAssociatedPoints());
+            Vector<Vector2> transformedPoints = SectionTransformer.getSectionInLocalCoordinateSystem(entry.getAssociatedPoints());
             Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(transformedPoints);
 
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
@@ -127,7 +127,7 @@ public final class DataSetGenerator {
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
     private static double getBitAngleInLocalSystem(@NotNull Vector2 bitAngle, @NotNull Vector<Vector2> sectionPoints) {
-        Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(GeneralTools.getLocalCoordinateSystemAngle(sectionPoints));
+        Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());
 

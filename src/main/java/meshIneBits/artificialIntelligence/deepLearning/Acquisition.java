@@ -105,7 +105,6 @@ public class Acquisition {
         bit.setUsedForNN(true);
     }
 
-
     /**
      * Save all examples in a file.
      */

@@ -611,15 +611,11 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             drawModelCircle(g2d, point.x, point.y, 7);
         }
 
-        //Draw Segment2D
-        Path2D path = new GeneralPath();
-        Segment2D seg = DebugTools.currentSegToDraw;
-        Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
-        path.append(shape, false);
-        drawModelPath2D(g2d, path);
 
-        seg = DebugTools.currentSegToDraw2;
-        shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+
+        Segment2D seg = DebugTools.currentSegToDraw2;
+        Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        Path2D path = new GeneralPath();
         path.append(shape, false);
         drawModelPath2D(g2d, path);
 
@@ -630,6 +626,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             g2d.setColor(Color.blue);
             drawModelPath2D(g2d, path);
         }
+
+        //Draw Segment2D
+        path = new GeneralPath();
+        seg = DebugTools.currentSegToDraw;
+        shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
+        path.append(shape, false);
+        g2d.setColor(Color.orange);
+        drawModelPath2D(g2d, path);
 
         //Draw polygons
         int i = 0;

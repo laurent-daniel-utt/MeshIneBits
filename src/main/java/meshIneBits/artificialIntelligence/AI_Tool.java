@@ -32,6 +32,7 @@ package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.deepLearning.NNExploitation;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
@@ -111,10 +112,10 @@ public class AI_Tool {
             Vector<Vector2> sectionPoints;
             int nbMaxBits = 0;
             do{
-                sectionPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
-                double angleLocalSystem = GeneralTools.getLocalCoordinateSystemAngle(sectionPoints);
+                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
+                double angleLocalSystem = SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> transformedPoints = GeneralTools.getSectionInLocalCoordinateSystem(sectionPoints);
+                Vector<Vector2> transformedPoints = SectionTransformer.getSectionInLocalCoordinateSystem(sectionPoints);
                 Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(transformedPoints);
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
@@ -154,7 +155,7 @@ public class AI_Tool {
     public boolean hasCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 nextStartPoint, Bit2D bit2D, Vector<Vector2> bound) {
         return bit2D.getArea().contains(veryFirstStartPoint.x, veryFirstStartPoint.y)
                 && GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, bound) != veryFirstStartPoint
-                || GeneralTools.getDistViaSegments(nextStartPoint, veryFirstStartPoint, GeneralTools.getSegment2DS(bound)) < AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
+                || GeneralTools.getDistViaSegments(nextStartPoint, veryFirstStartPoint, GeneralTools.pointsToSegments(bound)) < AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
     }
 
 }

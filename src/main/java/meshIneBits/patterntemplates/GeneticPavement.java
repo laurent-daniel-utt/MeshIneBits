@@ -38,6 +38,7 @@ import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.genetics.Evolution;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
@@ -122,7 +123,7 @@ public class GeneticPavement extends PatternTemplate {
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
-            Vector<Vector2> associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+            Vector<Vector2> associatedPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
             DebugTools.pointsToDrawBLUE.add(startPoint);
 
             Bit2D bestBit;
@@ -144,7 +145,7 @@ public class GeneticPavement extends PatternTemplate {
                 startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
                 DebugTools.pointsToDrawGREEN.add(startPoint);
                 //AI_Tool.getMeshController().AI_NeedPaint=true;
-                associatedPoints = GeneralTools.getSectionPointsFromBound(bound, startPoint);
+                associatedPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
             }
         }
         long end2 = System.currentTimeMillis();

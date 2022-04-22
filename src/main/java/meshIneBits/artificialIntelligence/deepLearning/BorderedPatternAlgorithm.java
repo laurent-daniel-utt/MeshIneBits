@@ -31,13 +31,14 @@
 package meshIneBits.artificialIntelligence.deepLearning;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
@@ -51,17 +52,32 @@ import java.util.Vector;
 
 public class BorderedPatternAlgorithm {
 
+
+    public static void pointsToFile(Vector<Vector2> points) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("src/main/java/meshIneBits/artificialIntelligence/debug/points.txt", false));
+            for (Vector2 point : points) {
+                String line = point.x + "," + point.y + "\n";
+                writer.append(line);
+            }
+
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * Compute and return the longest segment of the given list
      *
      * @param segment2DS the segments list
      * @return the longest segment
      */
-    private Segment2D getLongestSegment(@NotNull Vector<Segment2D> segment2DS) {
-        return segment2DS
-                .stream()
-                .max(Comparator.comparing(Segment2D::getLength))
-                .orElseThrow(NoSuchElementException::new);
+    private Segment2D getLongestSegment(Vector<Segment2D> segment2DS) {
+        return segment2DS.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
     }
 
     /**
@@ -71,7 +87,7 @@ public class BorderedPatternAlgorithm {
      * @param points    the list of points
      * @return the furthest point from the segment
      */
-    private Vector2 getFurthestPointFromSegment(Segment2D segment2D, @NotNull Vector<Vector2> points) {
+    private Vector2 getFurthestPointFromSegment(Segment2D segment2D, Vector<Vector2> points) {
         Vector2 furthestPoint = null;
         double maxDistance = -1;
         for (Vector2 p : points) {
@@ -107,7 +123,7 @@ public class BorderedPatternAlgorithm {
      * @param points            the points of the section
      * @return the furthest point
      */
-    private Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector, @NotNull Vector<Vector2> points) {
+    private Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector,   Vector<Vector2> points) {
         directionalVector = directionalVector.normal();
         double maxDist = Double.NEGATIVE_INFINITY;
         Vector2 furthestPoint = null;
@@ -127,14 +143,14 @@ public class BorderedPatternAlgorithm {
      * @param sectionReduced the reduced section of points on which a bit can take place.
      * @return the collinear vector
      */
-    private Vector2 getBitCollinearVector(@NotNull Vector<Vector2> sectionReduced) {
+    private Vector2 getBitCollinearVector(  Vector<Vector2> sectionReduced) {
         Vector2 startPoint = sectionReduced.firstElement();
 
         // compute the convex hull's points
         Vector<Vector2> hullReduced = getHull(sectionReduced);
 
         // compute hull's segments
-        Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced);
+        Vector<Segment2D> segmentsHull = GeneralTools.pointsToSegments(hullReduced);
 
         // find the vector which connect the startPoint to the furthest (from the startPoint) point of the section
         Vector2 furthestPoint = getFurthestPoint(startPoint, sectionReduced);
@@ -157,10 +173,9 @@ public class BorderedPatternAlgorithm {
      * @param bitLength          the length of the Bit placed.
      * @return the collinear component of the vector.
      */
-    private Vector2 getBitPositionCollinear(@NotNull Vector2 bitCollinearVector, double bitLength) {
+    private Vector2 getBitPositionCollinear(  Vector2 bitCollinearVector, double bitLength) {
         return bitCollinearVector.mul(bitLength / 2);
     }
-
 
     /**
      * Compute the new (reduced) length of the bit considering the section reduced
@@ -170,32 +185,15 @@ public class BorderedPatternAlgorithm {
      * @return the length of the bit
      * @see #getBitCollinearVector(Vector)
      */
-    private double getBitLengthFromSectionReduced(@NotNull Vector<Vector2> sectionReduced, Vector2 bitCollinearVector) {
+    private double getBitLengthFromSectionReduced(  Vector<Vector2> sectionReduced, Vector2 bitCollinearVector) {
         Vector2 startPoint = sectionReduced.firstElement();
         Vector2 furthestPoint = getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector, sectionReduced);
         return getDistFromFromRefPointViaVector(startPoint, furthestPoint, bitCollinearVector);
     }
 
-    public static void pointsToFile(Vector<Vector2> points) {
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter("src/main/java/meshIneBits/artificialIntelligence/debug/points.txt", false));
-            for (Vector2 point : points) {
-                String line = point.x + "," + point.y + "\n";
-                writer.append(line);
-            }
-
-
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
-    private @NotNull Vector<Vector2> getSectionReduced(@NotNull Vector<Vector2> sectionPoints, double minWidthToKeep) {
-        Vector<Vector2> sectionToReduce = GeneralTools.repopulateWithNewPoints(200, sectionPoints, true);
+    private   Vector<Vector2> getSectionReduced(  Vector<Vector2> sectionPoints, double minWidthToKeep) {
+        Vector<Vector2> sectionToReduce = SectionTransformer.repopulateWithNewPoints(200, sectionPoints, true);
 
 //        DebugTools.pointsToDrawBLUE.clear();
 //        DebugTools.pointsToDrawBLUE.addAll(sectionToReduce);
@@ -213,7 +211,7 @@ public class BorderedPatternAlgorithm {
             // calculates the convex hull of the section's points
             Vector<Vector2> hull = getHull(sectionToReduce);
 
-            Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hull);
+            Vector<Segment2D> segmentsHull = GeneralTools.pointsToSegments(hull);
 
             // find the constraint segment, which is the longest segment of the hull // todo, maybe not always the case
             constraintSegment = getLongestSegment(segmentsHull);
@@ -230,8 +228,7 @@ public class BorderedPatternAlgorithm {
              starting by the last point, until the first "cut point" (the constraint point or an end of the
              constraint segment) reached, thus this point is the fist one that prevents the section to be thinner.
              */
-            if ((!sectionIsClosed && (sectionWidth > CraftConfig.bitWidth - minWidthToKeep))
-                    || (sectionIsClosed && sectionWidth > CraftConfig.bitWidth)) {
+            if ((!sectionIsClosed && (sectionWidth > CraftConfig.bitWidth - minWidthToKeep)) || (sectionIsClosed && sectionWidth > CraftConfig.bitWidth)) {
 
                 // list the cut points
                 Vector<Vector2> cutPoints = new Vector<>();
@@ -269,11 +266,11 @@ public class BorderedPatternAlgorithm {
      * @param areaSlice      the area of the Slice
      * @return the normal component of the vector.
      */
-    private Vector2 getPositionNormal(Vector2 startBit, @NotNull Vector<Vector2> sectionReduced, Area areaSlice) {
+    private Vector2 getPositionNormal(Vector2 startBit,   Vector<Vector2> sectionReduced, Area areaSlice) {
         boolean sectionReducedIsClosed = sectionReduced.firstElement().asGoodAsEqual(sectionReduced.lastElement());
         Vector<Vector2> hullReduced = getHull(sectionReduced); //computes the convex hull points
         // compute hull segments
-        Vector<Segment2D> segmentsHull = GeneralTools.getSegment2DS(hullReduced); //computes the
+        Vector<Segment2D> segmentsHull = GeneralTools.pointsToSegments(hullReduced); //computes the
 
         /*
         Find the direction of the bit normal vector. Oriented toward the inner
@@ -306,17 +303,35 @@ public class BorderedPatternAlgorithm {
             System.out.println("cas 4");
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
+            //todo dans ce cas, on voudrait que les bits soient parallèles au contour comme sur Tour.stl
+            //on teste : si un segment de la section est plus grand que le constraint segment : alors on s'aligne plutot sur ce segment
+
+            //recherche d'un segment plus long:
+            double lengthMax = 0;
+            for (Segment2D segment2D : segmentsHull.subList(0,segmentsHull.size()-1)) {//le dernier c'est celui qui referme le hull
+                System.out.println("segment2D.getLength() = " + segment2D.getLength() + "constraint seg : " + constraintSegment.getLength());
+                DebugTools.segmentsToDraw.add(segment2D);
+                if (segment2D.getLength() > lengthMax ) {
+                    constraintSegment = segment2D;
+                    lengthMax = segment2D.getLength();
+                }
+                System.out.println("lengthMax = " + lengthMax);
+            }
+            DebugTools.setPaintForDebug(true);
+            DebugTools.currentSegToDraw = constraintSegment;
+            dirConstraintSegmentNormal = constraintSegment.getNormal();
+
+
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) < 0) // In the case of the vector is in the bad direction
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
-            double normPositionNormal = CraftConfig.bitWidth / 2
-                    - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
+            double normPositionNormal = CraftConfig.bitWidth / 2 - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
             System.out.println("cas 1");
+
         } else { // case 2
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
-            double normPositionNormal = CraftConfig.bitWidth / 2
-                    - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
+            double normPositionNormal = CraftConfig.bitWidth / 2 - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
             System.out.println("cas 2");
         }
@@ -333,7 +348,7 @@ public class BorderedPatternAlgorithm {
      * @return the Placement object of the Bit
      * @see Placement
      */
-    private Placement getBitPlacement(@NotNull Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
+    private Placement getBitPlacement(  Vector<Vector2> sectionPoints, Area areaSlice, double minWidthToKeep) {
 
         Vector<Vector2> sectionReduced = getSectionReduced(sectionPoints, minWidthToKeep);
         Vector2 startPoint = sectionReduced.firstElement();
@@ -351,14 +366,7 @@ public class BorderedPatternAlgorithm {
         Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
-        Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y,
-                newLengthBit, CraftConfig.bitWidth,
-                bitOrientation.x, bitOrientation.y);
-
-//        DebugTools.segmentsToDraw.addAll(bit2D.getBitSidesSegments());
-//        DebugTools.pointsToDrawORANGE.add(bitPosition);
-//        DebugTools.setPaintForDebug(true);
-
+        Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y, newLengthBit, CraftConfig.bitWidth, bitOrientation.x, bitOrientation.y);
 
         return new Placement(bit2D, sectionReduced);
     }
@@ -371,7 +379,7 @@ public class BorderedPatternAlgorithm {
      * @param numberMaxBits  the maximum number of bits to place on each border
      * @return the list of bits for this Slice
      */
-    public Vector<Bit2D> getBits(@NotNull Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
+    public Vector<Bit2D> getBits(  Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
         Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
@@ -389,7 +397,7 @@ public class BorderedPatternAlgorithm {
             Placement placement;
             do {
                 System.out.println("PLACEMENT BIT " + iBit + "====================");
-                sectionPoints = GeneralTools.getSectionPointsFromBound(bound, nextStartPoint);
+                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
 
 //                System.out.println("dist = " + Vector2.dist(sectionPoints.lastElement(), nextStartPoint));
 
@@ -411,8 +419,7 @@ public class BorderedPatternAlgorithm {
 
                 iBit++;
 
-            }
-            while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 100);
+            } while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < 4);
             //while (!listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.subList(1, placement.sectionCovered.size())) && iBit<40); //Add each bit on the bound
         }
         return bits;
@@ -496,51 +503,6 @@ public class BorderedPatternAlgorithm {
 
     }
 
-
-    /**
-     * The description of the placement of a {@link Bit2D} : the bit2D, the section covered by it
-     * and the last point of the section.
-     */
-    private static class Placement {
-        public final Bit2D bit2D;
-        public final Vector<Vector2> sectionCovered;
-        public final Vector2 end;
-
-        public Placement(Bit2D bit2D, Vector<Vector2> sectionCovered) {
-            this.bit2D = bit2D;
-            this.sectionCovered = sectionCovered;
-            this.end = sectionCovered.lastElement();
-        }
-    }
-
-//    /**
-//     * Debug Only : can be used to place only one bit and to choose its position by passing the startPoint coordinates in the code
-//     *
-//     * @param slice          the slice to pave
-//     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
-//     *                       to be too fragile
-//     * @return the list of bits for this Slice
-//     */
-//    public Vector<Bit2D> getBits2(@NotNull Slice slice, double minWidthToKeep) throws NoninvertibleTransformException {
-//        System.out.println("PAVING SLICE " + slice.getAltitude());
-//        Vector<Bit2D> bits = new Vector<>();
-//
-//        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-//
-//        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
-//        //Vector2 startPoint = bounds.get(0).get(10);
-//
-//        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
-//
-//        Area areaSlice = AreaTool.getAreaFrom(slice);
-//
-////        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
-////        DebugTools.pointsToDrawGREEN.add(startPoint);
-//
-//        return bits;
-//    }
-
-
     public Vector<Vector2> getHull(Vector<Vector2> points) {
 
         Vector<Vector2> hull = new Vector<>();
@@ -555,14 +517,12 @@ public class BorderedPatternAlgorithm {
             }
         }
         for (int i = 0; i < points.size(); i++) {
-            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5))
-                iLeftMosts.add(i);
+            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5)) iLeftMosts.add(i);
         }
         // find higher of leftMosts
         int iHigherLeftMost = iLeftMosts.get(0);
         for (int i = 1; i < iLeftMosts.size(); i++) {
-            if (points.get(iLeftMosts.get(i)).y < points.get(iHigherLeftMost).y)
-                iHigherLeftMost = iLeftMosts.get(i);
+            if (points.get(iLeftMosts.get(i)).y < points.get(iHigherLeftMost).y) iHigherLeftMost = iLeftMosts.get(i);
         }
         int startIndex = iHigherLeftMost;
 
@@ -609,6 +569,49 @@ public class BorderedPatternAlgorithm {
             pointMilieu = hull.lastElement();
         }
         return hull;
+    }
+
+//    /**
+//     * Debug Only : can be used to place only one bit and to choose its position by passing the startPoint coordinates in the code
+//     *
+//     * @param slice          the slice to pave
+//     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
+//     *                       to be too fragile
+//     * @return the list of bits for this Slice
+//     */
+//    public Vector<Bit2D> getBits2(  Slice slice, double minWidthToKeep) throws NoninvertibleTransformException {
+//        System.out.println("PAVING SLICE " + slice.getAltitude());
+//        Vector<Bit2D> bits = new Vector<>();
+//
+//        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+//
+//        Vector2 startPoint = new Vector2(86.28867818076299, 236.48951109657744);
+//        //Vector2 startPoint = bounds.get(0).get(10);
+//
+//        Vector<Vector2> sectionPoints = GeneralTools.getSectionPointsFromBound(bounds.get(0), startPoint);
+//
+//        Area areaSlice = AreaTool.getAreaFrom(slice);
+//
+////        bits.add(calculateBitPosition(sectionPoints, areaSlice, minWidthToKeep));
+////        DebugTools.pointsToDrawGREEN.add(startPoint);
+//
+//        return bits;
+//    }
+
+    /**
+     * The description of the placement of a {@link Bit2D} : the bit2D, the section covered by it
+     * and the last point of the section.
+     */
+    private static class Placement {
+        public final Bit2D bit2D;
+        public final Vector<Vector2> sectionCovered;
+        public final Vector2 end;
+
+        public Placement(Bit2D bit2D, Vector<Vector2> sectionCovered) {
+            this.bit2D = bit2D;
+            this.sectionCovered = sectionCovered;
+            this.end = sectionCovered.lastElement();
+        }
     }
 
 

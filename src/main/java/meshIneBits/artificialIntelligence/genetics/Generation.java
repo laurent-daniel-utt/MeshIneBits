@@ -31,6 +31,7 @@
 package meshIneBits.artificialIntelligence.genetics;
 
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -117,7 +118,7 @@ public class Generation {
     private @NotNull Solution createNewSolution(@NotNull Vector<Vector2> pointSection) {
         double position = Math.random() * CraftConfig.bitWidth;
 
-        double angleSection = GeneralTools.
+        double angleSection = SectionTransformer.
                 getSectionOrientation(pointSection);
 
         if (GeneralTools.arePointsMostlyOrientedToTheLeft(pointSection, pointSection.firstElement())) {
