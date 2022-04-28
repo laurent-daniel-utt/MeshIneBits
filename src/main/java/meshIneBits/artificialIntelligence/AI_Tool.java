@@ -115,7 +115,7 @@ public class AI_Tool {
                 sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
                 double angleLocalSystem = SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> transformedPoints = SectionTransformer.getSectionInLocalCoordinateSystem(sectionPoints);
+                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints, angleLocalSystem, startPoint);//TODO @Etienne TESTER
                 Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(transformedPoints);
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);

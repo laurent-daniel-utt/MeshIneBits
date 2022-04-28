@@ -166,8 +166,7 @@ public class SectionTransformer {
     }
 
     /**
-     * Calculates the angle of the local coordinate system used for the coordinate system transformation made
-     * by {@link #getSectionInLocalCoordinateSystem(Vector)}.
+     * Calculates the angle of the local coordinate system used for the coordinate system transformation.
      *
      * @param sectionPoints the points that we want to transform in a local coordinate system.
      * @return the angle of the local coordinate system.
@@ -199,20 +198,25 @@ public class SectionTransformer {
      * @param sectionPoints the points we want to convert in a local coordinate system
      * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
      */
-    public static @NotNull Vector<Vector2> getSectionInLocalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints) {
-        double angle = getLocalCoordinateSystemAngle(sectionPoints);
-        return transformCoordinateSystemToLocal(sectionPoints, angle);
+    public static @NotNull Vector<Vector2> getGlobalSectionInLocalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints, double angle, Vector2 startPoint) {
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.toRadians(-angle));
+        transform.translate(-startPoint.x,-startPoint.y);
+        return transformCoordinateSystem(sectionPoints, transform);
     }
 
     /**
-     * Rotates a list of points by a given angle and translates them to make the first point the origin
-     *
-     * @param points the points to transform
-     * @param angle  the angle in degrees
-     * @return the transformed list of points
+     * Translates and rotates a curve to put it in the global coordinate system
+     * @param sectionPoints the points we want to convert in a global coordinate system
+     * @param angle the angle of the local coordinate system
+     * @param startPoint the point that is the origin of the local coordinate system
+     * @return a new {@link Vector} that is the points entered as parameter, transformed in the global coordinate system.
      */
-    public static @NotNull Vector<Vector2> transformCoordinateSystemToLocal(@NotNull Vector<Vector2> points, double angle) {
-        return transformCoordinateSystem(points, angle, points.firstElement());
+    public static @NotNull Vector<Vector2> getLocalSectionInGlobalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints, double angle, Vector2 startPoint) throws NoninvertibleTransformException {
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.toRadians(-angle));
+        transform.translate(-startPoint.x,-startPoint.y);
+        return transformCoordinateSystem(sectionPoints, transform.createInverse());
     }
 
 
@@ -220,30 +224,29 @@ public class SectionTransformer {
      * Rotates a list of points by a given angle and translates them to make the first point the origin (startPoint)
      *
      * @param points     the points to transform
-     * @param angle      the angle in degrees
-     * @param startPoint the point that will be the origin of the coordinate system
+     * @param transform  the transformation to apply
      * @return the transformed list of points
      */
-    public static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, double angle, Vector2 startPoint) {
+    public static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, AffineTransform transform) {
         Vector<Vector2> result = new Vector<>();
         for (Vector2 point : points) {
-            result.add(transformCoordinateSystem(point, angle, startPoint));
+            result.add(transformCoordinateSystem(point, transform));
         }
         return result;
     }
 
-    /**
-     * Rotates a point by a given angle and translates it to make the first point the origin (startPoint)
-     *
-     * @param point      the point to transform
-     * @param angle      the angle in degrees
-     * @param startPoint the point that will be the origin of the coordinate system
-     * @return the transformed point
-     */
-    public static @NotNull Vector2 transformCoordinateSystem(Vector2 point, double angle, Vector2 startPoint) {
-        point = point.sub(startPoint);
-        point = point.rotate(Vector2.getEquivalentVector(-angle));
-        return point;
+
+        /**
+         * Rotates a point by a given angle and translates it to make the first point the origin (startPoint)
+         *
+         * @param vectorToTransform the point to transform
+         * @param transform   the transformation to apply
+         * @return the transformed point
+         */
+    public static @NotNull Vector2 transformCoordinateSystem(Vector2 vectorToTransform, AffineTransform transform) {
+        Point2D.Double point = new Point2D.Double(vectorToTransform.x, vectorToTransform.y);
+        transform.transform(point, point);
+        return new Vector2(point.getX(), point.getY());
     }
 
     /**

@@ -59,10 +59,13 @@ public final class DataSetGenerator {
 
             DataLogEntry entry = DataLogger.getEntryFromFile(logLine);
 
-            // format data for dl
+            // format data for deep learning
             Vector2 startPoint = entry.getAssociatedPoints().firstElement();
 
-            Vector<Vector2> transformedPoints = SectionTransformer.getSectionInLocalCoordinateSystem(entry.getAssociatedPoints());
+            Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(
+                    entry.getAssociatedPoints(),
+                    SectionTransformer.getLocalCoordinateSystemAngle(entry.getAssociatedPoints()),
+                    startPoint); //TODO @Etienne TESTER
             Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(transformedPoints);
 
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
