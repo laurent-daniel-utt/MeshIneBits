@@ -29,74 +29,74 @@
 
 package meshIneBits.patterntemplates;
 
+import java.awt.geom.Area;
+import java.util.ArrayList;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 
-import java.awt.geom.Area;
-import java.util.ArrayList;
-
 /**
- * This pattern does not do anything in process. In fact, it allows user to
- * freely construct a layer with other provided tools
+ * This pattern does not do anything in process. In fact, it allows user to freely construct a layer
+ * with other provided tools
  */
 public class ManualPattern extends PatternTemplate {
-    @Override
-    protected void initiateConfig() {
-        // Nothing
-    }
 
-    @Override
-    public boolean ready(Mesh mesh) {
-        return true;
-    }
+  @Override
+  protected void initiateConfig() {
+    // Nothing
+  }
 
-    @Override
-    public Pavement pave(Layer layer) {
-        return new Pavement(new ArrayList<>());
-    }
+  @Override
+  public boolean ready(Mesh mesh) {
+    return true;
+  }
 
-    @Override
-    public Pavement pave(Layer layer, Area area) {
-        return new Pavement(new ArrayList<>());
-    }
+  @Override
+  public Pavement pave(Layer layer) {
+    return new Pavement(new ArrayList<>());
+  }
 
-    @Override
-    public int optimize(Layer actualState) {
-        return -2;
-    }
+  @Override
+  public Pavement pave(Layer layer, Area area) {
+    return new Pavement(new ArrayList<>());
+  }
 
-    /**
-     * @return the full name of icon representation the template
-     */
-    public String getIconName() {
-        return "pattern-manual.png";
-    }
+  @Override
+  public int optimize(Layer actualState) {
+    return -2;
+  }
 
-    /**
-     * @return the common name of the template
-     */
-    public String getCommonName() {
-        return "Manual Pattern";
-    }
+  /**
+   * @return the full name of icon representation the template
+   */
+  public String getIconName() {
+    return "pattern-manual.png";
+  }
 
-    /**
-     * @return a block of text of description about this template
-     */
-    public String getDescription() {
-        return "A white paper in which you can draw as you like. "
-                + "No optimizing or paving algorithm is implemented.";
-    }
+  /**
+   * @return the common name of the template
+   */
+  public String getCommonName() {
+    return "Manual Pattern";
+  }
 
-    /**
-     * @return a block of text about how to use this template
-     */
-    public String getHowToUse() {
-        return "Use the provided tools to pave bits into layer.";
-    }
+  /**
+   * @return a block of text of description about this template
+   */
+  public String getDescription() {
+    return "A white paper in which you can draw as you like. "
+        + "No optimizing or paving algorithm is implemented.";
+  }
 
-    public PatternConfig getPatternConfig() {
-        return config;
-    }
+  /**
+   * @return a block of text about how to use this template
+   */
+  public String getHowToUse() {
+    return "Use the provided tools to pave bits into layer.";
+  }
+
+  public PatternConfig getPatternConfig() {
+    return config;
+  }
 }

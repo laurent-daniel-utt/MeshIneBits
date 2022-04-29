@@ -29,81 +29,86 @@
 
 package meshIneBits.gui.utilities;
 
+import java.awt.ComponentOrientation;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Arrays;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.gui.view2d.MeshToggleAction;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.Arrays;
-
 public class UPPPaveRegion extends UtilityParametersPanel {
-    public UPPPaveRegion(MeshController meshController) {
-        super("Pave Region");
-        // Init components
-        JPanel parametersPanel = new JPanel();
-        parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-        parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        MeshToggleAction toggleSelectingRegion = new MeshToggleAction(
-                "selectRegion",
-                "Select Region",
-                "region-select.png",
-                "Select a region to pave. Press ENTER to close the region",
-                "",
-                meshController,
-                MeshController.SELECTING_REGION
-        );
-        ToggleIcon regionSelectTool = new ToggleIcon(toggleSelectingRegion);
+  public UPPPaveRegion(MeshController meshController) {
+    super("Pave Region");
+    // Init components
+    JPanel parametersPanel = new JPanel();
+    parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+    parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        final PatternComboBox patternComboBox = new PatternComboBox(
-                Arrays.asList(CraftConfig.clonePreloadedPatterns()),
-                parametersPanel
-        );
+    MeshToggleAction toggleSelectingRegion = new MeshToggleAction(
+        "selectRegion",
+        "Select Region",
+        "region-select.png",
+        "Select a region to pave. Press ENTER to close the region",
+        "",
+        meshController,
+        MeshController.SELECTING_REGION
+    );
+    ToggleIcon regionSelectTool = new ToggleIcon(toggleSelectingRegion);
 
-        JButton startButton = new JButton("Pave");
-        startButton.addActionListener(e -> {
-            try {
-                meshController.paveSelectedRegion(patternComboBox.getCurrentChoice());
-            } catch (Exception e1) {
-                meshController.handleException(e1);
-            }
-        });
+    final PatternComboBox patternComboBox = new PatternComboBox(
+        Arrays.asList(CraftConfig.clonePreloadedPatterns()),
+        parametersPanel
+    );
 
-        // Layout
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.LINE_START;
-        c.insets = new Insets(0, 5, 0, 10);
-        add(regionSelectTool, c);
+    JButton startButton = new JButton("Pave");
+    startButton.addActionListener(e -> {
+      try {
+        meshController.paveSelectedRegion(patternComboBox.getCurrentChoice());
+      } catch (Exception e1) {
+        meshController.handleException(e1);
+      }
+    });
 
-        c = new GridBagConstraints();
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.CENTER;
-        add(patternComboBox, c);
+    // Layout
+    setLayout(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weighty = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.LINE_START;
+    c.insets = new Insets(0, 5, 0, 10);
+    add(regionSelectTool, c);
 
-        c = new GridBagConstraints();
-        c.gridx = 2;
-        c.gridy = 0;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.CENTER;
-        add(startButton, c);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    c.weighty = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.CENTER;
+    add(patternComboBox, c);
 
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 3;
-        c.gridy = 0;
-        c.weighty = 1;
-        c.weightx = 1;
-        c.anchor = GridBagConstraints.LINE_START;
-        add(parametersPanel, c);
-    }
+    c = new GridBagConstraints();
+    c.gridx = 2;
+    c.gridy = 0;
+    c.weighty = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.CENTER;
+    add(startButton, c);
+
+    c = new GridBagConstraints();
+    c.fill = GridBagConstraints.BOTH;
+    c.gridx = 3;
+    c.gridy = 0;
+    c.weighty = 1;
+    c.weightx = 1;
+    c.anchor = GridBagConstraints.LINE_START;
+    add(parametersPanel, c);
+  }
 }

@@ -29,116 +29,123 @@
 
 package meshIneBits.gui.view2d;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Collection;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 
-import javax.swing.*;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
-
 /**
- * Display properties of {@link Mesh}, {@link Layer} and {@link Bit3D}.
- * Observes {@link MeshController}.
+ * Display properties of {@link Mesh}, {@link Layer} and {@link Bit3D}. Observes {@link
+ * MeshController}.
  */
 public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeListener {
-    private MeshPropertyPanel meshPropertyPanel = new MeshPropertyPanel();
-    private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
-    private BitsPropertyPanel bitsPropertyPanel;
 
-    MeshWindowPropertyPanel(MeshController meshController) {
-        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
-        setPreferredSize(new Dimension(400, getHeight()));
-        meshController.addPropertyChangeListener("", this);
-        this.setLayout(new BorderLayout());
-        JPanel content = new JPanel();
-        content.setOpaque(false);
-        content.setLayout(new GridBagLayout());
+  private MeshPropertyPanel meshPropertyPanel = new MeshPropertyPanel();
+  private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
+  private BitsPropertyPanel bitsPropertyPanel;
 
-        this.bitsPropertyPanel = new BitsPropertyPanel(meshController.getMesh());
+  MeshWindowPropertyPanel(MeshController meshController) {
+    setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+    setPreferredSize(new Dimension(400, getHeight()));
+    meshController.addPropertyChangeListener("", this);
+    this.setLayout(new BorderLayout());
+    JPanel content = new JPanel();
+    content.setOpaque(false);
+    content.setLayout(new GridBagLayout());
 
-        GridBagConstraints meshPropertyPanelGBC = new GridBagConstraints();
-        meshPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
-        meshPropertyPanelGBC.gridx = 0;
-        meshPropertyPanelGBC.gridy = 0;
-        meshPropertyPanelGBC.weightx = 1;
-        meshPropertyPanelGBC.weighty = 0;
-        content.add(meshPropertyPanel, meshPropertyPanelGBC);
+    this.bitsPropertyPanel = new BitsPropertyPanel(meshController.getMesh());
 
-        GridBagConstraints layerPropertyPanelGBC = new GridBagConstraints();
-        layerPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
-        layerPropertyPanelGBC.gridx = 0;
-        layerPropertyPanelGBC.gridy = 1;
-        layerPropertyPanelGBC.weightx = 1;
-        layerPropertyPanelGBC.weighty = 0;
-        content.add(layerPropertyPanel, layerPropertyPanelGBC);
+    GridBagConstraints meshPropertyPanelGBC = new GridBagConstraints();
+    meshPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
+    meshPropertyPanelGBC.gridx = 0;
+    meshPropertyPanelGBC.gridy = 0;
+    meshPropertyPanelGBC.weightx = 1;
+    meshPropertyPanelGBC.weighty = 0;
+    content.add(meshPropertyPanel, meshPropertyPanelGBC);
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.PAGE_START;
-        c.gridx = 0;
-        c.gridy = 2;
-        c.weighty = 1;
-        c.weightx = 1;
-        content.add(bitsPropertyPanel, c);
+    GridBagConstraints layerPropertyPanelGBC = new GridBagConstraints();
+    layerPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
+    layerPropertyPanelGBC.gridx = 0;
+    layerPropertyPanelGBC.gridy = 1;
+    layerPropertyPanelGBC.weightx = 1;
+    layerPropertyPanelGBC.weighty = 0;
+    content.add(layerPropertyPanel, layerPropertyPanelGBC);
 
-        JScrollPane scrollPane = new JScrollPane(content);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        this.add(scrollPane, BorderLayout.CENTER);
-        this.setOpaque(false);
+    GridBagConstraints c = new GridBagConstraints();
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.anchor = GridBagConstraints.PAGE_START;
+    c.gridx = 0;
+    c.gridy = 2;
+    c.weighty = 1;
+    c.weightx = 1;
+    content.add(bitsPropertyPanel, c);
+
+    JScrollPane scrollPane = new JScrollPane(content);
+    scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+    this.add(scrollPane, BorderLayout.CENTER);
+    this.setOpaque(false);
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    String msg = evt.getPropertyName();
+    Object val = evt.getNewValue();
+    switch (msg) {
+      case MeshController.MESH_SLICED:
+        meshPropertyPanel.updateProperties(val);
+        break;
+      case MeshController.LAYER_CHOSEN:
+        layerPropertyPanel.updateProperties(val);
+        break;
+      case MeshController.MESH_OPENED:
+        meshPropertyPanel.updateProperties(val);
+        break;
+      case MeshController.MESH_PAVED:
+        meshPropertyPanel.updateMeshProperties();
+        break;
+      case MeshController.MESH_OPTIMIZED:
+        break;
+      case MeshController.LAYER_PAVED:
+        layerPropertyPanel.updateProperties(val);
+        meshPropertyPanel.updateMeshProperties();
+        break;
+      case MeshController.BIT_SELECTED:
+        bitsPropertyPanel.selectBit((Bit3D) val);
+        meshPropertyPanel.updateMeshProperties();
+        break;
+      case MeshController.BIT_UNSELECTED:
+        bitsPropertyPanel.unselectBit((Bit3D) val);
+        meshPropertyPanel.updateMeshProperties();
+        break;
+      case MeshController.BITS_SELECTED:
+        bitsPropertyPanel.selectBits((Collection<Bit3D>) val);
+        meshPropertyPanel.updateMeshProperties();
+        break;
+      case MeshController.DELETING_BITS:
+        bitsPropertyPanel.unselectBits((Collection<Bit3D>) val);
+        break;
+      case MeshController.BITS_DELETED:
+        layerPropertyPanel.updateProperties(val);
+        meshPropertyPanel.updateMeshProperties();
+        break;
     }
+    revalidate();
+  }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        String msg = evt.getPropertyName();
-        Object val = evt.getNewValue();
-        switch (msg) {
-            case MeshController.MESH_SLICED:
-                meshPropertyPanel.updateProperties(val);
-                break;
-            case MeshController.LAYER_CHOSEN:
-                layerPropertyPanel.updateProperties(val);
-                break;
-            case MeshController.MESH_OPENED:
-                meshPropertyPanel.updateProperties(val);
-                break;
-            case MeshController.MESH_PAVED:
-                meshPropertyPanel.updateMeshProperties();
-                break;
-            case MeshController.MESH_OPTIMIZED:
-                break;
-            case MeshController.LAYER_PAVED:
-                layerPropertyPanel.updateProperties(val);
-                meshPropertyPanel.updateMeshProperties();
-                break;
-            case MeshController.BIT_SELECTED:
-                bitsPropertyPanel.selectBit((Bit3D) val);
-                meshPropertyPanel.updateMeshProperties();
-                break;
-            case MeshController.BIT_UNSELECTED:
-                bitsPropertyPanel.unselectBit((Bit3D) val);
-                meshPropertyPanel.updateMeshProperties();
-                break;
-            case MeshController.BITS_SELECTED:
-                bitsPropertyPanel.selectBits((Collection<Bit3D>) val);
-                meshPropertyPanel.updateMeshProperties();
-                break;
-            case MeshController.DELETING_BITS:
-                bitsPropertyPanel.unselectBits((Collection<Bit3D>) val);
-                break;
-            case MeshController.BITS_DELETED:
-                layerPropertyPanel.updateProperties(val);
-                meshPropertyPanel.updateMeshProperties();
-                break;
-        }
-        revalidate();
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return new Dimension(400, getHeight());
-    }
+  @Override
+  public Dimension getMinimumSize() {
+    return new Dimension(400, getHeight());
+  }
 }

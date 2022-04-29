@@ -35,29 +35,29 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class EconomicPatternIntegrityTest extends PatternIntegrityTest {
 
-    static {
-        logger = meshIneBits.util.Logger.createSimpleInstanceFor(EconomicPatternIntegrityTest.class);
-    }
+  static {
+    logger = meshIneBits.util.Logger.createSimpleInstanceFor(EconomicPatternIntegrityTest.class);
+  }
 
-    @BeforeEach
-    void setUp() {
-        pattern = new EconomicPattern();
-        CraftConfig.templateChoice = pattern;
-    }
+  @BeforeEach
+  void setUp() {
+    pattern = new EconomicPattern();
+    CraftConfig.templateChoice = pattern;
+  }
 
-    @Override
-    protected void checkSlicedPart() {
-        // Nothing to check
-    }
+  @Override
+  protected void checkSlicedPart() {
+    // Nothing to check
+  }
 
-    @Override
-    protected void checkPavedMesh() {
+  @Override
+  protected void checkPavedMesh() {
 //        for (Layer layer : mesh.getLayers()) {
 //            // Assure each layer is empty
 //            assertEquals(0, layer.getFlatPavement().getBitsKeys().size(),
 //                    "Layer " + layer.getLayerNumber() + " should be empty");
 //        }
-        // Nothing to check
-    }
+    // Nothing to check
+  }
 
 }

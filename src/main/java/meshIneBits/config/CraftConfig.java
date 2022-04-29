@@ -29,464 +29,466 @@
 
 package meshIneBits.config;
 
-import meshIneBits.patterntemplates.*;
-import meshIneBits.scheduler.AScheduler;
-import meshIneBits.scheduler.BasicScheduler;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import meshIneBits.patterntemplates.AI_Pavement;
+import meshIneBits.patterntemplates.ClassicBrickPattern;
+import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
+import meshIneBits.patterntemplates.EconomicPattern;
+import meshIneBits.patterntemplates.GeneticPavement;
+import meshIneBits.patterntemplates.ImprovedBrickPattern;
+import meshIneBits.patterntemplates.ManualPattern;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.patterntemplates.UnitSquarePattern;
+import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.AdvancedScheduler;
+import meshIneBits.scheduler.BasicScheduler;
 
 /**
- * The CraftConfig class contains the configurable
- * settings for the slicer. Reflection and annotations
- * are used to make it easy to generate the configuration
- * dialog.
- * NOTE: Do not auto format this file. Manual format keeps it readable!
+ * The CraftConfig class contains the configurable settings for the slicer. Reflection and
+ * annotations are used to make it easy to generate the configuration dialog. NOTE: Do not auto
+ * format this file. Manual format keeps it readable!
  */
 public class CraftConfig {
-    static final String VERSION = "Dev-Prerelease";
 
-            // Slicer options
-    @DoubleSetting(
-            title = "Space between layers (mm)",
-            description = "The vertical gap between each layers",
-            step = 0.01,
-            minValue = 0.01,
-            maxValue = 100.0,
-            defaultValue = 0.25
-    )
-    @SlicerSetting(
-            order = 0
-    )
-    public static double layersOffset = 0.25;
+  static final String VERSION = "Dev-Prerelease";
 
-    @DoubleSetting(
-            title = "First slice height (% of a bit's thickness)",
-            description = "Starting height of the first slice in the model. 50% is the default.",
-            minValue = 1.0,
-            maxValue = 99.0,
-            defaultValue = 50
-    )
-    @SlicerSetting(
-            order = 1
-    )
-    public static double firstSliceHeightPercent = 50;
+  // Slicer options
+  @DoubleSetting(
+      title = "Space between layers (mm)",
+      description = "The vertical gap between each layers",
+      step = 0.01,
+      minValue = 0.01,
+      maxValue = 100.0,
+      defaultValue = 0.25
+  )
+  @SlicerSetting(
+      order = 0
+  )
+  public static double layersOffset = 0.25;
 
-    @DoubleSetting(
-            title = "Minimal line segment cosine value",
-            description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
-            minValue = 0.95,
-            maxValue = 1.0,
-            defaultValue = 0.995
-    )
-    @SlicerSetting(
-            order = 2
-    )
-    public static double joinMinCosAngle = 0.995;
+  @DoubleSetting(
+      title = "First slice height (% of a bit's thickness)",
+      description = "Starting height of the first slice in the model. 50% is the default.",
+      minValue = 1.0,
+      maxValue = 99.0,
+      defaultValue = 50
+  )
+  @SlicerSetting(
+      order = 1
+  )
+  public static double firstSliceHeightPercent = 50;
 
-
-
+  @DoubleSetting(
+      title = "Minimal line segment cosine value",
+      description = "If the cosine of the line angle difference is higher then this value then 2 lines are joined into 1.\nSpeeding up the slicing, and creating less gcode commands. Lower values makes circles less round,\nfor a faster slicing and less GCode. A value of 1.0 leaves every line intact.",
+      minValue = 0.95,
+      maxValue = 1.0,
+      defaultValue = 0.995
+  )
+  @SlicerSetting(
+      order = 2
+  )
+  public static double joinMinCosAngle = 0.995;
 
 
+  // Bits options
+  @DoubleSetting(
+      title = "Bit thickness (mm)",
+      description = "Thickness of the bits",
+      minValue = 1.0,
+      maxValue = 1000.0,
+      defaultValue = 8.0
+  )
+  @BitSetting(
+      order = 0
+  )
+  public static double bitThickness = 8.0;
 
-            // Bits options
-    @DoubleSetting(
-            title = "Bit thickness (mm)",
-            description = "Thickness of the bits",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 8.0
-    )
-    @BitSetting(
-            order = 0
-    )
-    public static double bitThickness = 8.0;
+  @DoubleSetting(
+      title = "Bit width (mm)",
+      description = "Width of the bits",
+      minValue = 1.0,
+      maxValue = 1000.0,
+      defaultValue = 24.0
+  )
+  @BitSetting(
+      order = 1
+  )
+  public static double bitWidth = 23.0;
 
-    @DoubleSetting(
-            title = "Bit width (mm)",
-            description = "Width of the bits",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 24.0
-    )
-    @BitSetting(
-            order = 1
-    )
-    public static double bitWidth = 23.0;
+  @DoubleSetting(
+      title = "Bit full length  (mm)",
+      description = "Length full of the bits",
+      minValue = 1.0,
+      maxValue = 1000.0,
+      defaultValue = 160.0
+  )
+  @BitSetting(
+      order = 2
+  )
+  public static double lengthFull = 160.0;
 
-    @DoubleSetting(
-            title = "Bit full length  (mm)",
-            description = "Length full of the bits",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 160.0
-    )
-    @BitSetting(
-            order = 2
-    )
-    public static double lengthFull = 160.0;
+  @DoubleSetting(
+      title = "Bit length (mm)",
+      description = "Length of the bits",
+      minValue = 1.0,
+      maxValue = 1000.0,
+      defaultValue = 160.0
+  )
+  @BitSetting(
+      order = 2
+  )
+  public static double lengthNormal = 150.0;
 
-    @DoubleSetting(
-            title = "Bit length (mm)",
-            description = "Length of the bits",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 160.0
-    )
-    @BitSetting(
-            order = 2
-    )
-    public static double lengthNormal = 150.0;
+  @DoubleSetting(
+      title = "section holding to cut (mm)",
+      description = "section holding to cut",
+      minValue = 1.0,
+      maxValue = 1000.0,
+      defaultValue = 10.0
+  )
+  @BitSetting(
+      order = 2
+  )
+  public static double sectionHoldingToCut = 10.0;
 
-    @DoubleSetting(
-            title = "section holding to cut (mm)",
-            description = "section holding to cut",
-            minValue = 1.0,
-            maxValue = 1000.0,
-            defaultValue = 10.0
-    )
-    @BitSetting(
-            order = 2
-    )
-    public static double sectionHoldingToCut = 10.0;
-    
-    @DoubleSetting(
-            title = "incertitude ",
-            description = "incertitude of length bits",
-            minValue = 0.0001,
-            maxValue = 100.0,
-            defaultValue = 1.0
-    )
-    @BitSetting(
-            order = 2
-    )
-    public static double incertitude = 0.001;
+  @DoubleSetting(
+      title = "incertitude ",
+      description = "incertitude of length bits",
+      minValue = 0.0001,
+      maxValue = 100.0,
+      defaultValue = 1.0
+  )
+  @BitSetting(
+      order = 2
+  )
+  public static double incertitude = 0.002 ;
 
+  // Pattern choices
+  /**
+   * The provided templates
+   */
+  public static PatternTemplate[] templatesPreloaded = {
+      new ManualPattern(),
+      new ClassicBrickPattern(),
+      new DiagonalHerringbonePattern(),
+      new ImprovedBrickPattern(),
+      new EconomicPattern(),
+      new UnitSquarePattern(),
+      new AI_Pavement(),
+      new GeneticPavement()
+  };
 
-
-
-
-  
-            // Pattern choices
-    /**
-     * The provided templates
-     */
-    public static PatternTemplate[] templatesPreloaded = {
-            new ManualPattern(),
-            new ClassicBrickPattern(),
-            new DiagonalHerringbonePattern(),
-            new ImprovedBrickPattern(),
-            new EconomicPattern(),
-            new UnitSquarePattern(),
-            new AI_Pavement(),
-            new GeneticPavement()
-    };
-
-    /**
-     * @return new instance of each pattern builder
-     */
-    public static PatternTemplate[] clonePreloadedPatterns() {
-        PatternTemplate[] patternsList = new PatternTemplate[CraftConfig.templatesPreloaded.length];
-        for (int i = 0; i < CraftConfig.templatesPreloaded.length; i++) {
-            try {
-                patternsList[i] = CraftConfig.templatesPreloaded[i].getClass().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return patternsList;
+  /**
+   * @return new instance of each pattern builder
+   */
+  public static PatternTemplate[] clonePreloadedPatterns() {
+    PatternTemplate[] patternsList = new PatternTemplate[CraftConfig.templatesPreloaded.length];
+    for (int i = 0; i < CraftConfig.templatesPreloaded.length; i++) {
+      try {
+        patternsList[i] = CraftConfig.templatesPreloaded[i].getClass()
+            .newInstance();
+      } catch (InstantiationException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
     }
+    return patternsList;
+  }
 
-    /**
-     * The default chosen pattern
-     */
-    public static PatternTemplate templateChoice = templatesPreloaded[0];
+  /**
+   * The default chosen pattern
+   */
+  public static PatternTemplate templateChoice = templatesPreloaded[0];
 
-    @DoubleSetting(
-            title = "Suction cup diameter (mm)",
-            description = "Diameter of the suction cup which lifts the bits",
-            minValue = 1.0,
-            maxValue = 100.0,
-            defaultValue = 10.0
-    )
-    @AssemblerSetting(
-            order = 0
-    )
-    public static double suckerDiameter = 10.0;
+  @DoubleSetting(
+      title = "Suction cup diameter (mm)",
+      description = "Diameter of the suction cup which lifts the bits",
+      minValue = 1.0,
+      maxValue = 100.0,
+      defaultValue = 10.0
+  )
+  @AssemblerSetting(
+      order = 0
+  )
+  public static double suckerDiameter = 10.0;
 
+  // Other parameters
+  /**
+   * Save the directory of last opened {@link meshIneBits.Model}
+   */
+  @StringSetting(
+      title = "Last Model",
+      description = "Path of the last opened model"
+  )
+  public static String lastModel = "";
 
+  /**
+   * To know the lastly selected pattern configuration file
+   */
+  @StringSetting(
+      title = "Last Pattern Config",
+      description = "Path of the last opened pattern configuration"
+  )
+  public static String lastPatternConfigFile = "";
 
+  /**
+   * Save the directory of last opened {@link meshIneBits.Mesh}
+   */
+  @StringSetting(
+      title = "Last Mesh",
+      description = "Path of the last opened Mesh"
+  )
+  public static String lastMesh = "";
 
-            // Other parameters
-    /**
-     * Save the directory of last opened {@link meshIneBits.Model}
-     */
-    @StringSetting(
-            title = "Last Model",
-            description = "Path of the last opened model"
-    )
-    public static String lastModel = "";
-
-    /**
-     * To know the lastly selected pattern configuration file
-     */
-    @StringSetting(
-            title = "Last Pattern Config",
-            description = "Path of the last opened pattern configuration"
-    )
-    public static String lastPatternConfigFile = "";
-
-    /**
-     * Save the directory of last opened {@link meshIneBits.Mesh}
-     */
-    @StringSetting(
-            title = "Last Mesh",
-            description = "Path of the last opened Mesh"
-    )
-    public static String lastMesh = "";
-
-    @IntegerSetting(
-            title = "Acceptable error",
-            description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation",
-            defaultValue = 5
-    )
-    @AssemblerSetting(
-            order = 1
-    )
-    public static int errorAccepted = 5;
-
+  @IntegerSetting(
+      title = "Acceptable error",
+      description = "Equivalent to 10^(-errorAccepted). Describing the maximum error accepted for accelerating the calculation",
+      defaultValue = 5
+  )
+  @AssemblerSetting(
+      order = 1
+  )
+  public static int errorAccepted = 5;
 
 
+  //Printer parameter
+  @FloatSetting(
+      title = "Printer X (mm)",
+      description = "Length of printer",
+      minValue = 1,
+      defaultValue = 3000
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float printerX = 3000f;
 
-            //Printer parameter
-    @FloatSetting(
-            title = "Printer X (mm)",
-            description = "Length of printer",
-            minValue = 1,
-            defaultValue = 3000
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float printerX = 3000f;
+  @FloatSetting(
+      title = "Printer Y (mm)",
+      description = "Width of printer",
+      minValue = 1,
+      defaultValue = 2000
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float printerY = 2000f;
 
-    @FloatSetting(
-            title = "Printer Y (mm)",
-            description = "Width of printer",
-            minValue = 1,
-            defaultValue = 2000
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float printerY = 2000f;
+  @FloatSetting(
+      title = "Printer Z (mm)",
+      description = "Height of printer",
+      minValue = 1,
+      defaultValue = 1500
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float printerZ = 1500f;
 
-    @FloatSetting(
-            title = "Printer Z (mm)",
-            description = "Height of printer",
-            minValue = 1,
-            defaultValue = 1500
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float printerZ = 1500f;
+  @FloatSetting(
+      title = "Box width  (mm)",
+      minValue = 1,
+      defaultValue = 648
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float Box = 648;
 
-    @FloatSetting(
-            title = "Box width  (mm)",
-            minValue = 1,
-            defaultValue = 648
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float Box = 648;
+  @FloatSetting(
+      title = "Working width (mm)",
+      minValue = 1,
+      defaultValue = 300
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float workingWidth = 500f;
 
-    @FloatSetting(
-            title = "Working width (mm)",
-            minValue = 1,
-            defaultValue = 300
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float workingWidth = 500f;
+  @FloatSetting(
+      title = "Y empty Space in the Box (mm)",
+      minValue = 0,
+      defaultValue = 60
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static float yEmptySpace = 60f;
 
-    @FloatSetting(
-            title = "Y empty Space in the Box (mm)",
-            minValue = 0,
-            defaultValue = 60
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static float yEmptySpace= 60f;
+  // Width taken by the length of the rakes in the box
+  @DoubleSetting(
+      title = "Rake box Width (mm)",
+      minValue = 1,
+      defaultValue = 263
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static double rakeBoxWidth = 263.0;
 
-    // Width taken by the length of the rakes in the box
-    @DoubleSetting(
-            title = "Rake box Width (mm)",
-            minValue = 1,
-            defaultValue = 263
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static double rakeBoxWidth = 263.0;
+  // Width of the Rakes' Table
+  @DoubleSetting(
+      title = "Rake Table Width (mm)",
+      minValue = 1,
+      defaultValue = 280
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static double rakeTableWidth = 280.0;
 
-    // Width of the Rakes' Table
-    @DoubleSetting(
-            title = "Rake Table Width (mm)",
-            minValue = 1,
-            defaultValue = 280
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static double rakeTableWidth = 280.0;
+  @DoubleSetting(
+      title = "Gluer (mm)",
+      minValue = 0,
+      defaultValue = 52
+  )
+  @PrinterSetting(
+      order = 0
+  )
+  public static double gluer = 52.0;
 
-    @DoubleSetting(
-            title = "Gluer (mm)",
-            minValue = 0,
-            defaultValue = 52
-    )
-    @PrinterSetting(
-            order = 0
-    )
-    public static double gluer= 52.0;
+  @DoubleSetting(
+      title = "Rake Box and gluer (mm)",
+      minValue = 0,
+      defaultValue = 320
+  )
+  @PrinterSetting()
+  public static double rakeBoxGluerWidth = rakeBoxWidth + gluer + 5.0;
 
-    @DoubleSetting(
-            title = "Rake Box and gluer (mm)",
-            minValue= 0,
-            defaultValue =  320
-    )
-    @PrinterSetting()
-    public static double rakeBoxGluerWidth= rakeBoxWidth+gluer+5.0;
-
-    @DoubleSetting(
-            title = "Start X Printing Space (mm)",
-            minValue=0,
-            defaultValue = 800
-    )
-    @PrinterSetting()
-    public static double xPrintingSpace = rakeBoxGluerWidth+rakeBoxWidth+rakeTableWidth+10.0;
-
+  @DoubleSetting(
+      title = "Start X Printing Space (mm)",
+      minValue = 0,
+      defaultValue = 800
+  )
+  @PrinterSetting()
+  public static double xPrintingSpace = rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0;
 
 
+  @FloatSetting(
+      title = "Margin (mm)",
+      minValue = 0,
+      defaultValue = 10
 
+  )
+  @XMLSetting(
+      order = 1
+  )
+  public static float margin = 0;
 
+  @IntegerSetting(
+      title = "Number of bits",
+      minValue = 1,
+      defaultValue = 50
+  )
+  @XMLSetting(
+      order = 2
+  )
+  public static int nbBits = 50;
 
+  @IntegerSetting(
+      title = "Number of bits on a plate",
+      minValue = 1,
+      defaultValue = 10
+  )
+  @PrinterSetting()
+  public static int nbBitesByPlat = 10;
 
+  @IntegerSetting(
+      title = "Number of bits on a Batch",
+      minValue = 1,
+      defaultValue = 50
+  )
+  @PrinterSetting()
+  public static int nbBitesBatch = 50;
 
+  @DoubleSetting(
+      title = "Plate width",
+      minValue = 1,
+      defaultValue = 50
+  )
+  @PrinterSetting()
+  public static double plateWidth = 50;
 
-    @FloatSetting(
-            title = "Margin (mm)",
-            minValue = 0,
-            defaultValue = 10
+  @DoubleSetting(
+      title = "First bit x position",
+      minValue = 1,
+      defaultValue = 1
+  )
+  @PrinterSetting()
+  public static double firstBitX = 1;
 
-    )
-    @XMLSetting(
-            order = 1
-    )
-    public static float margin = 0;
+  @DoubleSetting(
+      title = "Bit inter space",
+      minValue = 1,
+      defaultValue = 1
+  )
+  @PrinterSetting()
+  public static double plateBitSpace = 1;
 
-    @IntegerSetting(
-            title = "Number of bits",
-            minValue = 1,
-            defaultValue = 50
-    )
-    @XMLSetting(
-            order = 2
-    )
-    public static int nbBits = 50;
+  /**
+   * The provided templates
+   */
+  public static AScheduler[] schedulerPreloaded = {
+      new AdvancedScheduler(),
+  };
 
-    @IntegerSetting(
-            title = "Number of bits on a plate",
-            minValue = 1,
-            defaultValue = 10
-    )
-    @PrinterSetting()
-    public static int nbBitesByPlat = 10;
+  public static List<Field> settings = new ArrayList<>();
 
-    @IntegerSetting(
-            title = "Number of bits on a Batch",
-            minValue = 1,
-            defaultValue = 50
-    )
-    @PrinterSetting()
-    public static int nbBitesBatch = 50;
+  public static List<Field> printerSettings = new ArrayList<>();
 
-    @DoubleSetting(
-            title = "Plate width",
-            minValue = 1,
-            defaultValue = 50
-    )
-    @PrinterSetting()
-    public static double plateWidth = 50;
+  public static List<Field> bitSettings = new ArrayList<>();
 
-    @DoubleSetting(
-            title = "First bit x position",
-            minValue = 1,
-            defaultValue = 1
-    )
-    @PrinterSetting()
-    public static double firstBitX = 1;
+  public static List<Field> slicerSettings = new ArrayList<>();
 
-    @DoubleSetting(
-            title = "Bit inter space",
-            minValue = 1,
-            defaultValue = 1
-    )
-    @PrinterSetting()
-    public static double plateBitSpace = 1;
+  public static List<Field> assemblerSettings = new ArrayList<>();
 
-    /**
-     * The provided templates
-     */
-    public static AScheduler[] schedulerPreloaded = {
-            new BasicScheduler(),
-    };
+  public static List<Field> xmlSettings = new ArrayList<>();
 
-    public static List<Field> settings = new ArrayList<>();
+  public static List<Field> schedulerSettings = new ArrayList<>();
 
-    public static List<Field> printerSettings = new ArrayList<>();
-
-    public static List<Field> bitSettings = new ArrayList<>();
-
-    public static List<Field> slicerSettings = new ArrayList<>();
-
-    public static List<Field> assemblerSettings = new ArrayList<>();
-
-    public static List<Field> xmlSettings = new ArrayList<>();
-
-    public static List<Field> schedulerSettings = new ArrayList<>();
-
-    static {
-        Field[] fields = CraftConfig.class.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.getDeclaredAnnotations().length > 0) {
-                settings.add(field);
-                // Categorize
-                if (field.isAnnotationPresent(PrinterSetting.class))
-                    printerSettings.add(field);
-                if (field.isAnnotationPresent(BitSetting.class))
-                    bitSettings.add(field);
-                if (field.isAnnotationPresent(SlicerSetting.class))
-                    slicerSettings.add(field);
-                if (field.isAnnotationPresent(AssemblerSetting.class))
-                    assemblerSettings.add(field);
-                if (field.isAnnotationPresent(XMLSetting.class))
-                    xmlSettings.add(field);
-                if (field.isAnnotationPresent(SchedulerSetting.class))
-                    schedulerSettings.add(field);
-            }
+  static {
+    Field[] fields = CraftConfig.class.getDeclaredFields();
+    for (Field field : fields) {
+      if (field.getDeclaredAnnotations().length > 0) {
+        settings.add(field);
+        // Categorize
+        if (field.isAnnotationPresent(PrinterSetting.class)) {
+          printerSettings.add(field);
         }
-        printerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(PrinterSetting.class).order()));
-        bitSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(BitSetting.class).order()));
-        slicerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SlicerSetting.class).order()));
-        assemblerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(AssemblerSetting.class).order()));
-        xmlSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(XMLSetting.class).order()));
-        schedulerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SchedulerSetting.class).order()));
+        if (field.isAnnotationPresent(BitSetting.class)) {
+          bitSettings.add(field);
+        }
+        if (field.isAnnotationPresent(SlicerSetting.class)) {
+          slicerSettings.add(field);
+        }
+        if (field.isAnnotationPresent(AssemblerSetting.class)) {
+          assemblerSettings.add(field);
+        }
+        if (field.isAnnotationPresent(XMLSetting.class)) {
+          xmlSettings.add(field);
+        }
+        if (field.isAnnotationPresent(SchedulerSetting.class)) {
+          schedulerSettings.add(field);
+        }
+      }
     }
+    printerSettings.sort(
+        Comparator.comparingInt(o -> o.getAnnotation(PrinterSetting.class)
+            .order()));
+    bitSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(BitSetting.class)
+        .order()));
+    slicerSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(SlicerSetting.class)
+        .order()));
+    assemblerSettings.sort(
+        Comparator.comparingInt(o -> o.getAnnotation(AssemblerSetting.class)
+            .order()));
+    xmlSettings.sort(Comparator.comparingInt(o -> o.getAnnotation(XMLSetting.class)
+        .order()));
+    schedulerSettings.sort(
+        Comparator.comparingInt(o -> o.getAnnotation(SchedulerSetting.class)
+            .order()));
+  }
 }

@@ -30,96 +30,100 @@
 
 package meshIneBits.gui.utilities;
 
+import java.awt.ComponentOrientation;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.io.IOException;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
 import meshIneBits.artificialIntelligence.deepLearning.NNTraining;
 import meshIneBits.gui.view2d.MeshController;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-
 public class UPPToolsIA extends UtilityParametersPanel {
-    private final static String TEXT_TOGGLE_FALSE = "Store new inputs";
-    private final static String TEXT_TOGGLE_TRUE = "Recording new inputs..";
 
-    public UPPToolsIA(MeshController meshController) {
-        super("AI-Tools");
-        // Init components
-        AI_Tool.setMeshController(meshController);
-        JPanel parametersPanel = new JPanel();
-        parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-        parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+  private final static String TEXT_TOGGLE_FALSE = "Store new inputs";
+  private final static String TEXT_TOGGLE_TRUE = "Recording new inputs..";
 
-        JButton trainButton = new JButton("Train AI");
-        trainButton.addActionListener(e -> {
-            try {
-                NNTraining nnTraining = new NNTraining();
-                nnTraining.train(true);
-                nnTraining.evaluateModel();
-                try {
-                    nnTraining.save();
-                } catch (IOException eSave) {
-                    System.out.println("Neural Network training params could not be saved !");
-                }
-            } catch (Exception e1) {
-                meshController.handleException(e1);
-            }
-        });
+  public UPPToolsIA(MeshController meshController) {
+    super("AI-Tools");
+    // Init components
+    AI_Tool.setMeshController(meshController);
+    JPanel parametersPanel = new JPanel();
+    parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+    parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        JButton deleteLastButton = new JButton("Delete last bit placed");
-        deleteLastButton.setEnabled(false);
-        deleteLastButton.addActionListener(_e -> {
-            try {
-                Acquisition.deleteLastPlacedBit();
-            } catch (Exception _e1) {
-                meshController.handleException(_e1);
-            }
-        });
+    JButton trainButton = new JButton("Train AI");
+    trainButton.addActionListener(e -> {
+      try {
+        NNTraining nnTraining = new NNTraining();
+        nnTraining.train(true);
+        nnTraining.evaluateModel();
+        try {
+          nnTraining.save();
+        } catch (IOException eSave) {
+          System.out.println("Neural Network training params could not be saved !");
+        }
+      } catch (Exception e1) {
+        meshController.handleException(e1);
+      }
+    });
 
-        JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
-        storeButton.addActionListener(e -> {
-            try {
-                if (storeButton.getText() == TEXT_TOGGLE_FALSE) {
-                    storeButton.setText(TEXT_TOGGLE_TRUE);
-                    deleteLastButton.setEnabled(true);
-                    Acquisition.startStoringBits();
-                } else {
-                    storeButton.setText(TEXT_TOGGLE_FALSE);
-                    deleteLastButton.setEnabled(false);
-                    Acquisition.stopStoringBits();
-                }
-            } catch (Exception e1) {
-                meshController.handleException(e1);
-            }
-        });
+    JButton deleteLastButton = new JButton("Delete last bit placed");
+    deleteLastButton.setEnabled(false);
+    deleteLastButton.addActionListener(_e -> {
+      try {
+        Acquisition.deleteLastPlacedBit();
+      } catch (Exception _e1) {
+        meshController.handleException(_e1);
+      }
+    });
 
+    JToggleButton storeButton = new JToggleButton(TEXT_TOGGLE_FALSE);
+    storeButton.addActionListener(e -> {
+      try {
+        if (storeButton.getText() == TEXT_TOGGLE_FALSE) {
+          storeButton.setText(TEXT_TOGGLE_TRUE);
+          deleteLastButton.setEnabled(true);
+          Acquisition.startStoringBits();
+        } else {
+          storeButton.setText(TEXT_TOGGLE_FALSE);
+          deleteLastButton.setEnabled(false);
+          Acquisition.stopStoringBits();
+        }
+      } catch (Exception e1) {
+        meshController.handleException(e1);
+      }
+    });
 
-        // Layout
-        setLayout(new GridBagLayout());
+    // Layout
+    setLayout(new GridBagLayout());
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.LINE_START;
-        add(storeButton, c);
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 0;
+    c.weighty = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.LINE_START;
+    add(storeButton, c);
 
-        c = new GridBagConstraints();
-        c.gridx = 1;
-        c.gridy = 1;
-        c.weighty = 0;
-        c.weightx = 0;
-        c.anchor = GridBagConstraints.CENTER;
-        add(trainButton, c);
+    c = new GridBagConstraints();
+    c.gridx = 1;
+    c.gridy = 1;
+    c.weighty = 0;
+    c.weightx = 0;
+    c.anchor = GridBagConstraints.CENTER;
+    add(trainButton, c);
 
-        c = new GridBagConstraints();
-        c.gridx = 2;
-        c.gridy = 0;
-        c.weighty = 1;
-        c.weightx = 1;
-        c.anchor = GridBagConstraints.LINE_START;
-        add(deleteLastButton, c);
-    }
+    c = new GridBagConstraints();
+    c.gridx = 2;
+    c.gridy = 0;
+    c.weighty = 1;
+    c.weightx = 1;
+    c.anchor = GridBagConstraints.LINE_START;
+    add(deleteLastButton, c);
+  }
 }

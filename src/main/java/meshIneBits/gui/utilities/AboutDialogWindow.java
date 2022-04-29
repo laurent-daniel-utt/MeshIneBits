@@ -29,99 +29,111 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.util.Logger;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import meshIneBits.util.Logger;
 
 public class AboutDialogWindow extends JDialog {
-    private static final long serialVersionUID = -3389839563563221684L;
 
-    public AboutDialogWindow(JFrame parent, String title, boolean modal) {
-        super(parent, title, modal);
+  private static final long serialVersionUID = -3389839563563221684L;
 
-        // Visual options
-        Image windowIcon = IconLoader.get("icon.png").getImage();
-        this.setIconImage(windowIcon);
-        this.setSize(500, 300);
-        this.setLocationRelativeTo(null);
-        this.setResizable(false);
+  public AboutDialogWindow(JFrame parent, String title, boolean modal) {
+    super(parent, title, modal);
 
-        // Setting up the dialog
-        JPanel jp = new JPanel();
-        jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
+    // Visual options
+    Image windowIcon = IconLoader.get("icon.png")
+        .getImage();
+    this.setIconImage(windowIcon);
+    this.setSize(500, 300);
+    this.setLocationRelativeTo(null);
+    this.setResizable(false);
 
-        JLabel bg = new JLabel("");
-        ImageIcon icon = IconLoader.get("MeshIneBits.png", 248, 42);
-        bg.setIcon(icon);
-        bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
-        bg.setForeground(new Color(0, 0, 0, 8));
-        bg.setAlignmentX(Component.CENTER_ALIGNMENT);
+    // Setting up the dialog
+    JPanel jp = new JPanel();
+    jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
 
-        JLabel copyrightLabel0 = new JLabel("Copyright (C) 2016-2021 DANIEL Laurent.");
-        copyrightLabel0.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel1 = new JLabel("Copyright (C) 2016 CASSARD Thibault & GOUJU Nicolas.");
-        copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel2 = new JLabel("Copyright (C) 2017-2018 TRAN Quoc Nhat Han.");
-        copyrightLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel3 = new JLabel("Copyright (C) 2018 VALLON Benjamin.");
-        copyrightLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel4 = new JLabel("Copyright (C) 2018 LORIMER Campbell.");
-        copyrightLabel4.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel5 = new JLabel("Copyright (C) 2018 D'AUTUME Christian.");
-        copyrightLabel5.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel6 = new JLabel("Copyright (C) 2019 DURINGER Nathan (Tests).");
-        copyrightLabel6.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel7 = new JLabel("Copyright (C) 2020 CLARIS Etienne & RUSSO André .");
-        copyrightLabel7.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel8 = new JLabel("Copyright (C) 2020-2021 DO Quang Bao.");
-        copyrightLabel8.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel copyrightLabel9 = new JLabel("Copyright (C) 2021 VANNIYASINGAM Mithulan.");
-        copyrightLabel9.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel bg = new JLabel("");
+    ImageIcon icon = IconLoader.get("MeshIneBits.png", 248, 42);
+    bg.setIcon(icon);
+    bg.setFont(new Font(null, Font.BOLD | Font.ITALIC, 120));
+    bg.setForeground(new Color(0, 0, 0, 8));
+    bg.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+    JLabel copyrightLabel0 = new JLabel("Copyright (C) 2016-2021 DANIEL Laurent.");
+    copyrightLabel0.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel1 = new JLabel("Copyright (C) 2016 CASSARD Thibault & GOUJU Nicolas.");
+    copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel2 = new JLabel("Copyright (C) 2017-2018 TRAN Quoc Nhat Han.");
+    copyrightLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel3 = new JLabel("Copyright (C) 2018 VALLON Benjamin.");
+    copyrightLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel4 = new JLabel("Copyright (C) 2018 LORIMER Campbell.");
+    copyrightLabel4.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel5 = new JLabel("Copyright (C) 2018 D'AUTUME Christian.");
+    copyrightLabel5.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel6 = new JLabel("Copyright (C) 2019 DURINGER Nathan (Tests).");
+    copyrightLabel6.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel7 = new JLabel("Copyright (C) 2020 CLARIS Etienne & RUSSO André .");
+    copyrightLabel7.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel8 = new JLabel("Copyright (C) 2020-2021 DO Quang Bao.");
+    copyrightLabel8.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JLabel copyrightLabel9 = new JLabel("Copyright (C) 2021 VANNIYASINGAM Mithulan.");
+    copyrightLabel9.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton helpFileBtn = new JButton("Open help file (PDF format)");
-        helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+    JButton helpFileBtn = new JButton("Open help file (PDF format)");
+    helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        jp.add(new JLabel(" "));
-        jp.add(bg);
-        jp.add(copyrightLabel0);
-        jp.add(copyrightLabel1);
-        jp.add(copyrightLabel2);
-        jp.add(copyrightLabel3);
-        jp.add(copyrightLabel4);
-        jp.add(copyrightLabel5);
-        jp.add(copyrightLabel6);
-        jp.add(copyrightLabel7);
-        jp.add(copyrightLabel8);
-        jp.add(copyrightLabel9);
-        jp.add(new JLabel(" "));
-        jp.add(helpFileBtn);
-        this.getContentPane().add(jp, BorderLayout.CENTER);
+    jp.add(new JLabel(" "));
+    jp.add(bg);
+    jp.add(copyrightLabel0);
+    jp.add(copyrightLabel1);
+    jp.add(copyrightLabel2);
+    jp.add(copyrightLabel3);
+    jp.add(copyrightLabel4);
+    jp.add(copyrightLabel5);
+    jp.add(copyrightLabel6);
+    jp.add(copyrightLabel7);
+    jp.add(copyrightLabel8);
+    jp.add(copyrightLabel9);
+    jp.add(new JLabel(" "));
+    jp.add(helpFileBtn);
+    this.getContentPane()
+        .add(jp, BorderLayout.CENTER);
 
-        // Actions listener
-        helpFileBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutDialogWindow.this.dispose();
-                Desktop dt = Desktop.getDesktop();
-                try {
-                    dt.open(new File(
-                            Objects.requireNonNull(this.getClass()
-                                    .getClassLoader()
-                                    .getResource("resources/help.pdf"))
-                                    .getPath()));
-                } catch (IOException e1) {
-                    Logger.error("Failed to load help file");
-                }
-            }
-        });
+    // Actions listener
+    helpFileBtn.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        AboutDialogWindow.this.dispose();
+        Desktop dt = Desktop.getDesktop();
+        try {
+          dt.open(new File(
+              Objects.requireNonNull(this.getClass()
+                      .getClassLoader()
+                      .getResource("resources/help.pdf"))
+                  .getPath()));
+        } catch (IOException e1) {
+          Logger.error("Failed to load help file");
+        }
+      }
+    });
 
-        this.setVisible(true);
-    }
+    this.setVisible(true);
+  }
 }

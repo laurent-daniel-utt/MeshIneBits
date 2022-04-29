@@ -29,44 +29,47 @@
 
 package meshIneBits.gui.utilities;
 
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.scheduler.AScheduler;
 
-import javax.swing.*;
-import java.awt.*;
-
 public class UPPScheduleMesh extends UtilityParametersPanel {
-    public UPPScheduleMesh(MeshController meshController) {
-        super("Bit cut and place scheduling");
-        setLayout(new FlowLayout(FlowLayout.LEADING));
-        setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        JComboBox<AScheduler> schedulerChoice = new JComboBox<>(CraftConfig.schedulerPreloaded);
-        JButton processingViewSchedulerBtn = new JButton("Run");
-        add(schedulerChoice);
-        add(processingViewSchedulerBtn);
+  public UPPScheduleMesh(MeshController meshController) {
+    super("Bit cut and place scheduling");
+    setLayout(new FlowLayout(FlowLayout.LEADING));
+    setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        processingViewSchedulerBtn.addActionListener(e -> {
-            try {
-                meshController.scheduleMesh();
-            } catch (Exception e1) {
-                meshController.handleException(e1);
-            }
-        });
+    JComboBox<AScheduler> schedulerChoice = new JComboBox<>(CraftConfig.schedulerPreloaded);
+    JButton processingViewSchedulerBtn = new JButton("Run");
+    add(schedulerChoice);
+    add(processingViewSchedulerBtn);
 
-        schedulerChoice.addActionListener(e -> {
-            JComboBox sC = (JComboBox) e.getSource();
-            try {
-                meshController.setScheduler((AScheduler) sC.getSelectedItem());
-            } catch (Exception e1) {
-                meshController.handleException(e1);
-            }
-        });
-    }
+    processingViewSchedulerBtn.addActionListener(e -> {
+      try {
+        meshController.scheduleMesh();
+      } catch (Exception e1) {
+        meshController.handleException(e1);
+      }
+    });
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(getWidth(), 70);
-    }
+    schedulerChoice.addActionListener(e -> {
+      JComboBox sC = (JComboBox) e.getSource();
+      try {
+        meshController.setScheduler((AScheduler) sC.getSelectedItem());
+      } catch (Exception e1) {
+        meshController.handleException(e1);
+      }
+    });
+  }
+
+  @Override
+  public Dimension getPreferredSize() {
+    return new Dimension(getWidth(), 70);
+  }
 }

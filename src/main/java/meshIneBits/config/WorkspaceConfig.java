@@ -29,53 +29,59 @@
 
 package meshIneBits.config;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Stroke;
 
 public class WorkspaceConfig {
-    /**
-     * Increase rotation when scrolling mouse wheel
-     */
-    public static int rotationSpeed = 5;
-    /**
-     * Faster/Slower zooming. <tt>1</tt> means to never zoom
-     */
-    public static double zoomSpeed = 1.25;
-    /**
-     * Previous layer
-     */
-    public static Color previousLayerColor = Color.DARK_GRAY;
-    /**
-     * Realisable bit
-     */
-    public static Color regularBitColor = new Color(164, 180, 200, 200);
-    /**
-     * Irrealisable bit
-     */
-    public static Color irregularBitColor = new Color(255, 0, 0, 100);
-    public static Color bitNotFullLength =Color.orange;
-    /**
-     * Bit used to feed the neural network.
-     * @see meshIneBits.artificialIntelligence.deepLearning.Acquisition
-     */
-    public static Color forAI_BitColor = new Color(227, 196, 116);
-    public static Color cutpathColor = Color.BLUE.darker();
-    public static Stroke cutpathStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
-    public static Color liftpointColor = Color.RED;
-    public static Stroke liftpointStroke = new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
-    public static Color layerBorderColor = Color.BLACK;
-    public static Stroke layerBorderStroke = new BasicStroke(1.0f);
-    public static Color bitControlColor = new Color(94, 125, 215);
-    public static int paddingBitControl = 15;
-    public static Color bitPreviewBorderColor = Color.BLUE.darker();
-    public static Stroke bitPreviewBorderStroke = new BasicStroke(1.1f);
-    public static Color bitPreviewColor = new Color(164, 180, 200, 100);
-    public static Color irregularBitPreviewBorderColor = Color.RED.darker();
-    public static Stroke irregularBitPreviewBorderStroke = new BasicStroke(1.1f);
-    public static Color irregularBitPreviewColor = new Color(250, 0, 100, 100);
-    public static Color vertexColor = new Color(255, 0, 100, 200);
-    public static int vertexRadius = 10;
-    public static Color regionColor = new Color(255, 0, 100, 100);
-    public static Stroke regionStroke = new BasicStroke(2f);
-    public static Color bulkSelectZoneColor = new Color(200, 180, 255, 100);
-    public static Stroke bulkSelectZoneStroke = new BasicStroke(1.2f);
+
+  /**
+   * Increase rotation when scrolling mouse wheel
+   */
+  public static int rotationSpeed = 5;
+  /**
+   * Faster/Slower zooming. <tt>1</tt> means to never zoom
+   */
+  public static double zoomSpeed = 1.25;
+  /**
+   * Previous layer
+   */
+  public static Color previousLayerColor = Color.DARK_GRAY;
+  /**
+   * Realisable bit
+   */
+  public static Color regularBitColor = new Color(164, 180, 200, 200);
+  /**
+   * Irrealisable bit
+   */
+  public static Color irregularBitColor = new Color(255, 0, 0, 100);
+  public static Color bitNotFullLength = Color.orange;
+  /**
+   * Bit used to feed the neural network.
+   *
+   * @see meshIneBits.artificialIntelligence.deepLearning.Acquisition
+   */
+  public static Color forAI_BitColor = new Color(227, 196, 116);
+  public static Color cutpathColor = Color.BLUE.darker();
+  public static Stroke cutpathStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT,
+      BasicStroke.JOIN_BEVEL);
+  public static Color liftpointColor = Color.RED;
+  public static Stroke liftpointStroke = new BasicStroke(0.0f, BasicStroke.CAP_BUTT,
+      BasicStroke.JOIN_BEVEL);
+  public static Color layerBorderColor = Color.BLACK;
+  public static Stroke layerBorderStroke = new BasicStroke(1.0f);
+  public static Color bitControlColor = new Color(94, 125, 215);
+  public static int paddingBitControl = 15;
+  public static Color bitPreviewBorderColor = Color.BLUE.darker();
+  public static Stroke bitPreviewBorderStroke = new BasicStroke(1.1f);
+  public static Color bitPreviewColor = new Color(164, 180, 200, 100);
+  public static Color irregularBitPreviewBorderColor = Color.RED.darker();
+  public static Stroke irregularBitPreviewBorderStroke = new BasicStroke(1.1f);
+  public static Color irregularBitPreviewColor = new Color(250, 0, 100, 100);
+  public static Color vertexColor = new Color(255, 0, 100, 200);
+  public static int vertexRadius = 10;
+  public static Color regionColor = new Color(255, 0, 100, 100);
+  public static Stroke regionStroke = new BasicStroke(2f);
+  public static Color bulkSelectZoneColor = new Color(200, 180, 255, 100);
+  public static Stroke bulkSelectZoneStroke = new BasicStroke(1.2f);
 }

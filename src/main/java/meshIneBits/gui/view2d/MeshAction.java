@@ -29,51 +29,53 @@
 
 package meshIneBits.gui.view2d;
 
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 import meshIneBits.gui.utilities.IconLoader;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-
 public class MeshAction extends AbstractAction {
-    public final String uuid;
-    public final KeyStroke acceleratorKey;
-    public final String combo;
-    public final MeshActionInterface action;
 
-    public MeshAction(String uuid,
-                      String name,
-                      String iconname,
-                      String description,
-                      String acceleratorKey,
-                      MeshActionInterface action) {
-        super(name, IconLoader.get(iconname));
-        putValue(SHORT_DESCRIPTION, description);
-        this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
-        putValue(ACCELERATOR_KEY, this.acceleratorKey);
-        this.uuid = uuid;
-        combo = translate(acceleratorKey);
-        this.action = action;
-    }
+  public final String uuid;
+  public final KeyStroke acceleratorKey;
+  public final String combo;
+  public final MeshActionInterface action;
 
-    private String translate(String acceleratorKey) {
-        return acceleratorKey
-                .trim()
-                .replace(" ", " + ")
-                .replace("control", "Ctrl")
-                .replace("shift", "Shift")
-                .replace("alt", "Alt");
-    }
+  public MeshAction(String uuid,
+      String name,
+      String iconName,
+      String description,
+      String acceleratorKey,
+      MeshActionInterface action) {
+    super(name, IconLoader.get(iconName));
+    putValue(SHORT_DESCRIPTION, description);
+    this.acceleratorKey = KeyStroke.getKeyStroke(acceleratorKey);
+    putValue(ACCELERATOR_KEY, this.acceleratorKey);
+    this.uuid = uuid;
+    combo = translate(acceleratorKey);
+    this.action = action;
+  }
 
-    public String getToolTipText() {
-        return "<html>"
-                + "<p><b>" + this.getValue(NAME).toString() + "</b>" +
-                (!combo.equals("") ? " (" + combo + ")" : "") + "</p>"
-                + "<p><i>" + this.getValue(SHORT_DESCRIPTION) + "</i></p>"
-                ;
-    }
+  private String translate(String acceleratorKey) {
+    return acceleratorKey
+        .trim()
+        .replace(" ", " + ")
+        .replace("control", "Ctrl")
+        .replace("shift", "Shift")
+        .replace("alt", "Alt");
+  }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        action.execute();
-    }
+  public String getToolTipText() {
+    return "<html>"
+        + "<p><b>" + this.getValue(NAME)
+        .toString() + "</b>" +
+        (!combo.equals("") ? " (" + combo + ")" : "") + "</p>"
+        + "<p><i>" + this.getValue(SHORT_DESCRIPTION) + "</i></p>"
+        ;
+  }
+
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    action.execute();
+  }
 }

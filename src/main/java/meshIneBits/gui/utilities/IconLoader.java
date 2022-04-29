@@ -29,55 +29,58 @@
 
 package meshIneBits.gui.utilities;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Image;
 import java.util.Objects;
+import javax.swing.ImageIcon;
 
 public class IconLoader {
-    private static int defaultScaleAlgorithm = Image.SCALE_AREA_AVERAGING;
-    private static int defaultWidth = 36;
-    private static int defaultHeight = 36;
 
-    /**
-     * Get icon with default width and height
-     *
-     * @param filename relative path
-     * @return scaled icon
-     */
-    public static ImageIcon get(String filename) {
-        return get(filename, defaultWidth, defaultHeight);
-    }
+  private static int defaultScaleAlgorithm = Image.SCALE_AREA_AVERAGING;
+  private static int defaultWidth = 36;
+  private static int defaultHeight = 36;
 
-    /**
-     * Get icon from file
-     *
-     * @param iconName relative path
-     * @param width    0 to get original image
-     * @param height   0 to get original image
-     * @return scaled icon
-     */
-    public static ImageIcon get(String iconName, int width, int height) {
-        ImageIcon imageIcon = new ImageIcon(
-                Objects.requireNonNull(
-                        IconLoader.class
-                                .getClassLoader()
-                                .getResource("resources/" + iconName)));
-        if (width == 0 || height == 0) return imageIcon;
-        // Fit image into cadre
-        int originalWidth = imageIcon.getIconWidth(),
-                originalHeight = imageIcon.getIconHeight(),
-                newWidth = originalWidth,
-                newHeight = originalHeight;
-        if (originalWidth > width) {
-            newWidth = width;
-            newHeight = newWidth * originalHeight / originalWidth;
-        }
-        if (newHeight > height) {
-            newHeight = height;
-            newWidth = originalWidth * height / originalHeight;
-        }
-        // Scale
-        Image image = imageIcon.getImage();
-        return new ImageIcon(image.getScaledInstance(newWidth, newHeight, defaultScaleAlgorithm));
+  /**
+   * Get icon with default width and height
+   *
+   * @param filename relative path
+   * @return scaled icon
+   */
+  public static ImageIcon get(String filename) {
+    return get(filename, defaultWidth, defaultHeight);
+  }
+
+  /**
+   * Get icon from file
+   *
+   * @param iconName relative path
+   * @param width    0 to get original image
+   * @param height   0 to get original image
+   * @return scaled icon
+   */
+  public static ImageIcon get(String iconName, int width, int height) {
+    ImageIcon imageIcon = new ImageIcon(
+        Objects.requireNonNull(
+            IconLoader.class
+                .getClassLoader()
+                .getResource("resources/" + iconName)));
+    if (width == 0 || height == 0) {
+      return imageIcon;
     }
+    // Fit image into cadre
+    int originalWidth = imageIcon.getIconWidth(),
+        originalHeight = imageIcon.getIconHeight(),
+        newWidth = originalWidth,
+        newHeight = originalHeight;
+    if (originalWidth > width) {
+      newWidth = width;
+      newHeight = newWidth * originalHeight / originalWidth;
+    }
+    if (newHeight > height) {
+      newHeight = height;
+      newWidth = originalWidth * height / originalHeight;
+    }
+    // Scale
+    Image image = imageIcon.getImage();
+    return new ImageIcon(image.getScaledInstance(newWidth, newHeight, defaultScaleAlgorithm));
+  }
 }

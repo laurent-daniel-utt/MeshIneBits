@@ -33,59 +33,68 @@ import meshIneBits.Layer;
 import meshIneBits.util.Logger;
 
 public class LayerPropertyPanel extends PropertyPanel {
-    private static final String LAYER_INDEX = "Layer Index";
-    private static final String LAYER_IS_PAVED = "Is Paved?";
-    private static final String LAYER_PATTERN = "Pattern Applied";
-    private static final String LAYER_BITS = "Bits";
-    private static final String LAYER_IRREGULAR_BITS = "Irregular Bits";
-    private static final String LAYER_LOWER_ALTITUDE = "Lower Altitude";
-    private static final String LAYER_HIGHER_ALTITUDE = "Higher Altitude";
-    private static final String LAYER_SLICE_ALTITUDE = "Slice Altitude";
 
-    LayerPropertyPanel() {
-        super("Current Layer");
-        initTable(getPropertiesOf(null));
-    }
+  private static final String LAYER_INDEX = "Layer Index";
+  private static final String LAYER_IS_PAVED = "Is Paved?";
+  private static final String LAYER_PATTERN = "Pattern Applied";
+  private static final String LAYER_BITS = "Bits";
+  private static final String LAYER_IRREGULAR_BITS = "Irregular Bits";
+  private static final String LAYER_LOWER_ALTITUDE = "Lower Altitude";
+  private static final String LAYER_HIGHER_ALTITUDE = "Higher Altitude";
+  private static final String LAYER_SLICE_ALTITUDE = "Slice Altitude";
 
-    private static String[][] getPropertiesOf(Layer layer) {
-        if (layer == null)
-            // Default value
-            return new String[][]{
-                    {LAYER_INDEX, "UNSET"},
-                    {LAYER_IS_PAVED, "FALSE"},
-                    {LAYER_PATTERN, "NONE"},
-                    {LAYER_BITS, "0"},
-                    {LAYER_IRREGULAR_BITS, "0"},
-                    {LAYER_LOWER_ALTITUDE, "UNKNOWN"},
-                    {LAYER_HIGHER_ALTITUDE, "UNKNOWN"},
-                    {LAYER_SLICE_ALTITUDE, "UNKNOWN"}
-            };
-        else
-            return new String[][]{
-                    {LAYER_INDEX, String.valueOf(layer.getLayerNumber())},
-                    {LAYER_IS_PAVED, String.valueOf(layer.isPaved())},
-                    {LAYER_PATTERN,
-                            layer.getPatternTemplate() == null ? "None" : layer.getPatternTemplate().getCommonName()},
-                    {LAYER_BITS,
-                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getBits3dKeys().size())},
-                    {LAYER_IRREGULAR_BITS,
-                            layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getKeysOfIrregularBits().size())},
-                    {LAYER_LOWER_ALTITUDE, String.valueOf(layer.getLowerAltitude())},
-                    {LAYER_HIGHER_ALTITUDE, String.valueOf(layer.getHigherAltitude())},
-                    {LAYER_SLICE_ALTITUDE, String.valueOf(layer.getHorizontalSection().getAltitude())}
-            };
-    }
+  LayerPropertyPanel() {
+    super("Current Layer");
+    initTable(getPropertiesOf(null));
+  }
 
-    @Override
-    public void updateProperties(Object object) {
-        try {
-            String[][] properties = getPropertiesOf((Layer) object);
-            for (String[] property : properties) {
-                updateProperty(property[0], property[1]);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
-        }
+  private static String[][] getPropertiesOf(Layer layer) {
+    if (layer == null)
+    // Default value
+    {
+      return new String[][]{
+          {LAYER_INDEX, "UNSET"},
+          {LAYER_IS_PAVED, "FALSE"},
+          {LAYER_PATTERN, "NONE"},
+          {LAYER_BITS, "0"},
+          {LAYER_IRREGULAR_BITS, "0"},
+          {LAYER_LOWER_ALTITUDE, "UNKNOWN"},
+          {LAYER_HIGHER_ALTITUDE, "UNKNOWN"},
+          {LAYER_SLICE_ALTITUDE, "UNKNOWN"}
+      };
+    } else {
+      return new String[][]{
+          {LAYER_INDEX, String.valueOf(layer.getLayerNumber())},
+          {LAYER_IS_PAVED, String.valueOf(layer.isPaved())},
+          {LAYER_PATTERN,
+              layer.getPatternTemplate() == null ? "None"
+                  : layer.getPatternTemplate()
+                      .getCommonName()},
+          {LAYER_BITS,
+              layer.getFlatPavement() == null ? "0" : String.valueOf(layer.getBits3dKeys()
+                  .size())},
+          {LAYER_IRREGULAR_BITS,
+              layer.getFlatPavement() == null ? "0"
+                  : String.valueOf(layer.getKeysOfIrregularBits()
+                      .size())},
+          {LAYER_LOWER_ALTITUDE, String.valueOf(layer.getLowerAltitude())},
+          {LAYER_HIGHER_ALTITUDE, String.valueOf(layer.getHigherAltitude())},
+          {LAYER_SLICE_ALTITUDE, String.valueOf(layer.getHorizontalSection()
+              .getAltitude())}
+      };
     }
+  }
+
+  @Override
+  public void updateProperties(Object object) {
+    try {
+      String[][] properties = getPropertiesOf((Layer) object);
+      for (String[] property : properties) {
+        updateProperty(property[0], property[1]);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      Logger.error(e.getMessage());
+    }
+  }
 }
