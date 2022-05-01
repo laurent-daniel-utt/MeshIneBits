@@ -44,12 +44,14 @@ import java.util.*;
  * Options are self-descriptive, see also samples.
  * 
  * @author Yuriy Guskov
- * http://yuriy-g.github.io/simple-java-plot/
+ * <a href="http://yuriy-g.github.io/simple-java-plot/">http://yuriy-g.github.io/simple-java-plot/</a>
  */
 public class Plot {
 
-	public enum Line { NONE, SOLID, DASHED };
-	public enum Marker { NONE, CIRCLE, SQUARE, DIAMOND, COLUMN, BAR };
+	public enum Line { NONE, SOLID, DASHED }
+
+	public enum Marker { NONE, CIRCLE, SQUARE, DIAMOND, COLUMN, BAR }
+
 	public enum AxisFormat { NUMBER, NUMBER_KGM, NUMBER_INT, TIME_HM, TIME_HMS, DATE, DATETIME_HM, DATETIME_HMS }
 	public enum LegendFormat { NONE, TOP, RIGHT, BOTTOM }
 	
@@ -58,11 +60,11 @@ public class Plot {
 
 	private PlotOptions opts = new PlotOptions();
 	
-	private Rectangle boundRect;
-	private PlotArea plotArea;
-	private Map<String, Axis> xAxes = new HashMap<String, Axis>(3);
-	private Map<String, Axis> yAxes = new HashMap<String, Axis>(3);
-	private Map<String, DataSeries> dataSeriesMap = new LinkedHashMap<String, DataSeries>(5);
+	private final Rectangle boundRect;
+	private final PlotArea plotArea;
+	private final Map<String, Axis> xAxes = new HashMap<>(3);
+	private final Map<String, Axis> yAxes = new HashMap<>(3);
+	private final Map<String, DataSeries> dataSeriesMap = new LinkedHashMap<>(5);
 	
 	public static Plot plot(PlotOptions opts) {
 		return new Plot(opts);
@@ -83,7 +85,7 @@ public class Plot {
 		private int padding = 10; // padding for the entire image
 		private int plotPadding = 5; // padding for plot area (to have min and max values padded)
 		private int labelPadding = 10;
-		private int defaultLegendSignSize = 10;
+		private final int defaultLegendSignSize = 10;
 		private int legendSignSize = 10;
 		private Point grids = new Point(10 ,10); // grid lines by x and y
 		private Color gridColor = Color.GRAY;
@@ -265,13 +267,13 @@ public class Plot {
 	
 	private class PlotArea {
 	
-		private Rectangle plotBorderRect = new Rectangle(); // boundRect | labels/legend | plotBorderRect | plotPadding | plotRect/clipRect
-		private Rectangle plotRect = new Rectangle();
-		private Rectangle plotClipRect = new Rectangle();
-		private Legend legend = new Legend();
+		private final Rectangle plotBorderRect = new Rectangle(); // boundRect | labels/legend | plotBorderRect | plotPadding | plotRect/clipRect
+		private final Rectangle plotRect = new Rectangle();
+		private final Rectangle plotClipRect = new Rectangle();
+		private final Legend legend = new Legend();
 		
-		private Range xPlotRange = new Range(0, 0);
-		private Range yPlotRange = new Range(0, 0);
+		private final Range xPlotRange = new Range(0, 0);
+		private final Range yPlotRange = new Range(0, 0);
 		
 		public PlotArea() {
 			clear();
@@ -440,11 +442,8 @@ public class Plot {
 				}
 			}
 			Map<String, Axis> axes = isX ? xAxes : yAxes;
-			for (Iterator<Axis> it = axes.values().iterator(); it.hasNext(); ) {
-				Axis axis = it.next();
-				if (axis.opts.range == null)
-					it.remove();
-			}
+			axes.values()
+					.removeIf(axis -> axis.opts.range == null);
 		}
 
 		private void drawAxes(Graphics2D g) {
@@ -650,7 +649,7 @@ public class Plot {
 	
 	private class Axis {
 
-		private String name;
+		private final String name;
 		private AxisOptions opts = new AxisOptions();
 		private Rectangle2D labelRect;
 		private String[] labels;
@@ -767,8 +766,8 @@ public class Plot {
 		
 		public Data xy(double x, double y) {
 			if (this.x2 == null || this.y2 == null) {
-				this.x2 = new ArrayList<Double>(10);
-				this.y2 = new ArrayList<Double>(10);
+				this.x2 = new ArrayList<>(10);
+				this.y2 = new ArrayList<>(10);
 			}
 			x2.add(x);
 			y2.add(y);
@@ -809,7 +808,7 @@ public class Plot {
 	
 	public class DataSeries {
 
-		private String name;
+		private final String name;
 		private String nameWithAxes;
 		private DataSeriesOptions opts = new DataSeriesOptions();
 		private Data data;

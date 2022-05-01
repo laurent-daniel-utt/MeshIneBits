@@ -28,11 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.deepLearning;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -54,7 +53,7 @@ public class BorderedPatternAlgorithm {
 
 
     public static void pointsToFile(Vector<Vector2> points) {
-        BufferedWriter writer = null;
+        BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter("src/main/java/meshIneBits/artificialIntelligence/debug/points.txt", false));
             for (Vector2 point : points) {
@@ -510,8 +509,8 @@ public class BorderedPatternAlgorithm {
         // find leftMosts
         Vector<Integer> iLeftMosts = new Vector<>();
         double xMin = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < points.size(); i++) {
-            double x = points.get(i).x;
+        for (Vector2 point : points) {
+            double x = point.x;
             if (x <= xMin) {
                 xMin = x;
             }

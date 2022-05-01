@@ -34,7 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
-import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;

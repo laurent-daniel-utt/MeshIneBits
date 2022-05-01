@@ -28,14 +28,14 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.deepLearning;
+package meshIneBits.artificialIntelligence;
 
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
 
 public class QuickHull {
-    public Vector<Vector2> hull;
+    public final Vector<Vector2> hull;
 
     public QuickHull(Vector<Vector2> points) {
         hull = getHull(points);

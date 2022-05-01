@@ -35,7 +35,7 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;

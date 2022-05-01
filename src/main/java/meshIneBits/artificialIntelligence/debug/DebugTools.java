@@ -28,9 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.artificialIntelligence.debug;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -53,8 +54,8 @@ import java.util.Vector;
 @SuppressWarnings("unused")
 public final class DebugTools {
 
-    public static @NotNull Bit2D bit1 = null;
-    public static @NotNull Bit2D bit2 = null;
+    public static Bit2D bit1 = null;
+    public static Bit2D bit2 = null;
 
     public static @NotNull AffineTransform transformArea = new AffineTransform();
 

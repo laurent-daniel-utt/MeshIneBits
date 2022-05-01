@@ -107,7 +107,7 @@ public class NNTraining {
                 System.out.println("Neural Network training params could not be saved !");
             }
         } catch (Exception e1) {
-            System.out.println(e1);
+            e1.printStackTrace();
         }
     }
 

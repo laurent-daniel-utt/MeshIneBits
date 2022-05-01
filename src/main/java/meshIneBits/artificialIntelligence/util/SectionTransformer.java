@@ -281,8 +281,8 @@ public class SectionTransformer {
      */
     public static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points, boolean keepOldPoints) {
 
-        Vector<Vector2> newPoints = new Vector<Vector2>();
-        Vector<Double> segmentLength = new Vector<Double>(); //contains the length of each segment
+        Vector<Vector2> newPoints = new Vector<>();
+        Vector<Double> segmentLength = new Vector<>(); //contains the length of each segment
 
         for (int i = 0; i < points.size() - 1; i++) {
             double size = Math.sqrt(Math.pow(points.get(i).x - points.get(i + 1).x, 2) + Math.pow(points.get(i).y - points.get(i + 1).y, 2));

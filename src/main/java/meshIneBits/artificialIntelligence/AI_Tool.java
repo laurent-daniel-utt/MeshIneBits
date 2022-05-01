@@ -31,6 +31,7 @@
 package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.deepLearning.NNExploitation;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;

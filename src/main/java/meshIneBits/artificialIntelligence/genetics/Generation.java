@@ -51,7 +51,7 @@ public class Generation {
      * The max angle between the section and the bit when creating a new Solution.
      */
     private static final double MAX_ANGLE = 179.0;//179.0;//89.0;
-    public @NotNull Vector<Solution> solutions;
+    public final @NotNull Vector<Solution> solutions;
     private final Vector<Vector2> bound;
     private final Vector2 startPoint;
     private final int popSize;

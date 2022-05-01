@@ -34,7 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.deepLearning.BorderedPatternAlgorithm;
+import meshIneBits.artificialIntelligence.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 
