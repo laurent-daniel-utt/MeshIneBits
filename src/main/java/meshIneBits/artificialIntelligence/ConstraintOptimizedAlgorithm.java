@@ -236,7 +236,7 @@ public class ConstraintOptimizedAlgorithm {
         for (int i = 0; i < x.length; i++) {
             DebugTools.pointsToDrawGREEN.add(new Vector2(solution.getIntVal(x[i]), solution.getIntVal(y[i])));
         }
-        DebugTools.segmentsToDraw.add(new Segment2D(
+        DebugTools.segmentsToDrawBlue.add(new Segment2D(
                 new Vector2(solution.getIntVal(x[0]), solution.getIntVal(y[0]))
                 , new Vector2(solution.getIntVal(x[x.length-1]), solution.getIntVal(y[y.length-1]))));
         return resultBits;

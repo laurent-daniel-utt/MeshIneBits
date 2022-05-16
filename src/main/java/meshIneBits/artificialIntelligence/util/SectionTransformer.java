@@ -64,7 +64,9 @@ public class SectionTransformer {
         // create a list of segments representing the bound, including the startPoint as an end of segments
         for (int iBound = 0; iBound < bound.size() - 1; iBound++) {
             Segment2D newSeg = new Segment2D(bound.get(iBound), bound.get(iBound + 1));
-            if (isPointOnSegment(startPoint, newSeg) && !startPoint.asGoodAsEqual(bound.get(iBound)) && !startPoint.asGoodAsEqual(bound.get(iBound + 1))) {
+            if (isPointOnSegment(startPoint, newSeg)
+                    && !startPoint.asGoodAsEqual(bound.get(iBound))
+                    && !startPoint.asGoodAsEqual(bound.get(iBound + 1))) {
                 // then startpoint is on this segment, so we split it in 2 to include the startPoint
                 boundSegments.add(new Segment2D(bound.get(iBound), startPoint));
                 startSegment = new Segment2D(startPoint, bound.get(iBound + 1));
@@ -74,7 +76,7 @@ public class SectionTransformer {
                 startSegment = newSeg;
                 boundSegments.add(newSeg);
             } else {
-                // the startPoint isn't on newSeg (last point of newSeg excluded
+                // the startPoint isn't on newSeg (last point of newSeg excluded)
                 boundSegments.add(newSeg);
             }
         }

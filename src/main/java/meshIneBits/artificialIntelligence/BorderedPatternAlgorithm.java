@@ -309,7 +309,7 @@ public class BorderedPatternAlgorithm {
             double lengthMax = 0;
             for (Segment2D segment2D : segmentsHull.subList(0,segmentsHull.size()-1)) {//le dernier c'est celui qui referme le hull
                 System.out.println("segment2D.getLength() = " + segment2D.getLength() + "constraint seg : " + constraintSegment.getLength());
-                DebugTools.segmentsToDraw.add(segment2D);
+                DebugTools.segmentsToDrawBlue.add(segment2D);
                 if (segment2D.getLength() > lengthMax ) {
                     constraintSegment = segment2D;
                     lengthMax = segment2D.getLength();

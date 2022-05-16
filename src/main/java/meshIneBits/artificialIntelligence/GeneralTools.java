@@ -31,8 +31,10 @@
 package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.util.Curve;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
@@ -43,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.Area;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -64,8 +67,7 @@ public class GeneralTools {
         for (Segment2D segment : segmentList) {
             pointsList.add(new Vector2(segment.start.x, segment.start.y));
         }
-        if (pointsList.firstElement()
-                .asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
+        if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
         return pointsList;
     }
 
@@ -132,12 +134,8 @@ public class GeneralTools {
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
         for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
-            weightedObservedPointsX.add(xCurve.getPoints()
-                                                .get(i).x, xCurve.getPoints()
-                                                .get(i).y);
-            weightedObservedPointsY.add(yCurve.getPoints()
-                                                .get(i).x, yCurve.getPoints()
-                                                .get(i).y);
+            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
         }
         // fit
         double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
@@ -156,6 +154,48 @@ public class GeneralTools {
         return coefficients;
     }
 
+    //todo description
+    /**
+     * @param bit
+     * @param boundPoints
+     * @param limitTheDistance
+     * @param startPoint
+     * @return
+     */
+    public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
+        Vector<Segment2D> bitSidesSegments = bit.getBitSidesSegments();
+        System.out.println("boundPoints = " + boundPoints);
+        Vector<Segment2D> contourSegments = GeneralTools.pointsToSegments(boundPoints);
+        //On ajoute le dernier segment pour pouvoir calculer les intersections. On le retire à la fin
+        contourSegments.add(new Segment2D(boundPoints.get(boundPoints.size() - 2), boundPoints.get(0)));
+
+        System.out.println("contourSegments = " + contourSegments);
+        Vector<Vector2> intersections = new Vector<>();
+        DebugTools.segmentsToDrawBlue.clear();
+        DebugTools.currentSegToDraw2 = contourSegments.lastElement();
+        DebugTools.segmentsToDrawBlue.addAll(contourSegments);
+
+        for (Segment2D bitSideSegment : bitSidesSegments) {
+            for (Segment2D contourSegment : contourSegments) {
+//                DebugTools.segmentsToDrawBlue.add(bitSideSegment);
+//                DebugTools.segmentsToDrawBlue.add(contourSegment);
+                Vector2 intersection = Segment2D.getIntersectionPoint(bitSideSegment, contourSegment);
+                if (intersection != null) {
+                    intersections.add(intersection);
+                }
+            }
+        }
+
+        if (intersections.size() != 2) {
+            throw new IllegalArgumentException("The bit and the contour must have only one intersection point");
+        }
+
+        contourSegments.remove(contourSegments.size() - 1);
+
+        return intersections.get(1);
+
+    }
+
     /**
      * Looks for an intersection point between a side of a bit and a closed contour (bound). The point returned
      * is the first intersection between the bit and the contour, while scanning the contour in the direction of
@@ -163,10 +203,63 @@ public class GeneralTools {
      *
      * @param bit              a {@link Bit2D}.
      * @param boundPoints      the points of the contour.
-     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the size of a bit
+     * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the length of a bit
      * @return the first intersection between the bit and the closed contour.
      */
-    public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
+  //TODO enlever
+    public static Vector2 getBitAndContourSecondIntersectionPoint3(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
+        Vector2 intersectionPoint = null;
+        Vector2 firstIntersectionPoint = getBitAndContourFirstIntersectionPoint(bit, boundPoints);
+        //on trouve le startIndex pour commencer à chercher une intersection.
+        // Le startIndex est l'indice du point qui est la fin du segment sur lequel est placé le startPoint
+        int startIndex = 0;
+        for (int i = 0; i < boundPoints.size() - 1; i++) {
+            Segment2D tempSeg = new Segment2D(boundPoints.get(i), boundPoints.get(i + 1));
+            if (firstIntersectionPoint.isOnSegment(tempSeg)) {
+                //on commence sur le premier segment, car le segment peut être plus long que la longueur d'un bit
+                if (tempSeg.getLength() >= CraftConfig.lengthNormal)
+                    startIndex = i;
+                else //sinon sur le second
+                    startIndex = i + 1;
+                System.out.println("startIndex = " + startIndex);
+                break;
+            }
+        }
+
+
+        for (int i = startIndex; i < boundPoints.size(); i++) {
+            Vector2 boundPoint = boundPoints.get(i);
+            Vector2 intersection = getBitAndLineIntersectionPoint(bit, boundPoint, boundPoints.get(i + 1));
+            if (intersection != null) {
+                if (limitTheDistance) {
+                    if (Math.abs(intersection.x - bit.getCenter().x) < bit.getLength() / 2 && Math.abs(intersection.y - bit.getCenter().y) < bit.getLength() / 2) {
+                        intersectionPoint = intersection;
+                        break;
+                    }
+                } else {
+                    intersectionPoint = intersection;
+                    break;
+                }
+            }
+        }
+        return intersectionPoint;
+    }
+
+    private static Vector2 getBitAndLineIntersectionPoint(Bit2D bit, Vector2 boundPoint, Vector2 nextBoundPoint) {
+        Segment2D segment2D = new Segment2D(boundPoint, nextBoundPoint);
+        Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
+        Vector2 intersectionPoint = null;
+        for (Segment2D bitSegment : bitSegments) {
+            Vector2 intersection = Segment2D.getIntersectionPoint(bitSegment, segment2D);
+            if (intersection != null) {
+                intersectionPoint = intersection;
+            }
+        }
+        return intersectionPoint;
+    }
+
+    //TODO enlever
+    public static Vector2 getBitAndContourSecondIntersectionPoint2(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
 
         Vector<Segment2D> boundSegments = pointsToSegments(boundPoints);
         Vector<Segment2D> bitSegments = bit.getBitSidesSegments();
@@ -207,8 +300,7 @@ public class GeneralTools {
 //            }
 
         }
-        if (bit.getArea()
-                .contains(boundPoints.get(0).x, boundPoints.get(0).y) && boundPoints.firstElement() != intersectionPoints.firstElement())
+        if (bit.getArea().contains(boundPoints.get(0).x, boundPoints.get(0).y) && boundPoints.firstElement() != intersectionPoints.firstElement())
             return intersectionPoints.get(0);
         else return intersectionPoints.get(1);//return the second intersection
     }
@@ -270,8 +362,7 @@ public class GeneralTools {
         // So first we have to find a segment whose its start is not under the bit.
 
         Polygon rectangle = new Polygon();
-        bit.getBitSidesSegments()
-                .forEach(rectangle::addEnd);
+        bit.getBitSidesSegments().forEach(rectangle::addEnd);
         Area bitRectangleArea = new Area(rectangle.toPath2D());
 
         int startSegIndex = 0;
@@ -336,16 +427,23 @@ public class GeneralTools {
 
     /**
      * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
-     * following the order of the list of points given as entry.
+     * following the order of the list of points given as entry. Deletes the points that are duplicated.
      *
      * @param points the points requiring to be converted into segments.
      * @return the segments resulting from the conversion.
      */
     @NotNull
-    public static Vector<Segment2D> pointsToSegments(@NotNull Vector<Vector2> points) {
+    public static Vector<Segment2D> pointsToSegments(List<Vector2> points) {
+        //remove the duplicated points
+        Vector<Vector2> pointsNoDuplicates = new Vector<>();
+        for (Vector2 point : points) {
+            if (!pointsNoDuplicates.contains(point)) {
+                pointsNoDuplicates.add(point);
+            }
+        }
         Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < points.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(points.get(i), points.get(i + 1)));
+        for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
         }
         return sectionSegments;
     }
@@ -367,9 +465,11 @@ public class GeneralTools {
                 .clone());
 
         for (Vector<Segment2D> border : borderList) {
+//            boundsList.add(segmentsToPoints(border));
             Vector<Vector2> unorderedPoints = segmentsToPoints(border);
             boundsList.add(SectionTransformer.rearrangePoints(unorderedPoints));
         }
+        System.out.println("borderList = " + borderList);
         return boundsList;
     }
 
@@ -404,9 +504,7 @@ public class GeneralTools {
     public @NotNull Vector<Vector2> getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
-        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController()
-                                                                           .getCurrentLayer()
-                                                                           .getHorizontalSection());
+        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
 
         // finds the startPoint (if exists) and the bound related to this startPoint
         int iContour = 0;
@@ -419,7 +517,8 @@ public class GeneralTools {
         }
 
         // finds the points associated with the bit, using the startPoint and the bound previously found
-        if (startPoint != null) return SectionTransformer.getSectionPointsFromBound(boundsList.get(iContour - 1), startPoint);
+        if (startPoint != null)
+            return SectionTransformer.getSectionPointsFromBound(boundsList.get(iContour - 1), startPoint);
         else throw new Exception("The bit start point has not been found.");
     }
 

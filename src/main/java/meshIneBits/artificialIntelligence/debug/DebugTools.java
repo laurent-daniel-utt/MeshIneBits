@@ -63,10 +63,12 @@ public final class DebugTools {
     public static @NotNull Vector<Vector2> pointsToDrawGREEN = new Vector<>();
     public static @NotNull Vector<Vector2> pointsToDrawBLUE = new Vector<>();
     public static @NotNull Vector<Vector2> pointsToDrawORANGE = new Vector<>();
+    public static @NotNull Vector<Vector2> pointsToDrawBLACK = new Vector<>();
 
     public static @NotNull Path2D cutPathToDraw = new Path2D.Double();
 
-    public static @NotNull Vector<Segment2D> segmentsToDraw = new Vector<>();
+    public static @NotNull Vector<Segment2D> segmentsToDrawBlue = new Vector<>();
+    public static @NotNull Vector<Segment2D> segmentsToDrawRed = new Vector<>();
     public static @NotNull Segment2D currentSegToDraw = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
     public static @NotNull Segment2D currentSegToDraw2 = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
 
