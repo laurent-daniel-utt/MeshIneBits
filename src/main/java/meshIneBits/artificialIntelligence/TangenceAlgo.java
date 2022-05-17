@@ -178,8 +178,6 @@ public class TangenceAlgo {
                 System.out.println("CONVEX TYPE : " + convexType);
                 System.out.println("sectionPoints = " + sectionPoints);
                 DebugTools.setPaintForDebug(true);
-                DebugTools.pointsToDrawRED.clear();
-                DebugTools.pointsToDrawRED.addAll(sectionPoints);
                 DebugTools.segmentsToDrawBlue.clear();
                 DebugTools.segmentsToDrawBlue.addAll(GeneralTools.pointsToSegments(sectionPoints));
 

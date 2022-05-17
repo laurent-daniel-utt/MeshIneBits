@@ -155,6 +155,7 @@ public class GeneralTools {
     }
 
     //todo description
+
     /**
      * @param bit
      * @param boundPoints
@@ -162,6 +163,14 @@ public class GeneralTools {
      * @param startPoint
      * @return
      */
+/*
+Plusieurs cas possibles :
+  - 0 intersections --> exception, le bit est mal placé
+  - 1 intersection  --> exception, le bit est mal placé
+  - 2 intersections --> le bit est bien placé. Cas typique, on renvoie le second point
+  - 3 intersections --> le bit est bien placé. Cas segment orthogonaux, on renvoie le second point, car le troisième est après le deuxième.
+  - 3 intersections --> le bit est bien placé. Cas segment orthogonaux, on renvoie le troisième point, car le premier est avant le startPoint
+ */
     public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
         Vector<Segment2D> bitSidesSegments = bit.getBitSidesSegments();
         System.out.println("boundPoints = " + boundPoints);
@@ -171,29 +180,54 @@ public class GeneralTools {
 
         System.out.println("contourSegments = " + contourSegments);
         Vector<Vector2> intersections = new Vector<>();
-        DebugTools.segmentsToDrawBlue.clear();
-        DebugTools.currentSegToDraw2 = contourSegments.lastElement();
-        DebugTools.segmentsToDrawBlue.addAll(contourSegments);
 
-        for (Segment2D bitSideSegment : bitSidesSegments) {
-            for (Segment2D contourSegment : contourSegments) {
-//                DebugTools.segmentsToDrawBlue.add(bitSideSegment);
-//                DebugTools.segmentsToDrawBlue.add(contourSegment);
+        //le startIndex est l'index du
+
+
+        for (int i = 0; i < contourSegments.size(); i++) {
+            Segment2D contourSegment = contourSegments.get(i);
+            for (Segment2D bitSideSegment : bitSidesSegments) {
                 Vector2 intersection = Segment2D.getIntersectionPoint(bitSideSegment, contourSegment);
-                if (intersection != null) {
+                //vérifie si l'intersection trouvée n'est pas quasiment le startPoint
+                if (intersection != null && !intersections.contains(intersection)){// && Vector2.dist(intersection, startPoint) > 2) { // todo, mettre une valeur sur le 1
+                    System.out.println("GeneralTools.getDistViaSegments(startPoint,intersection,contourSegments) = " + GeneralTools.getDistViaSegments(startPoint, intersection, contourSegments));
+//                    if (GeneralTools.getDistViaSegments(startPoint,intersection,contourSegments)<=CraftConfig.lengthFull+CraftConfig.bitWidth) {
                     intersections.add(intersection);
+                    System.out.println("Vector2.dist() = " + Vector2.dist(intersection, startPoint));
+                    System.out.println("intersection = " + intersection);
+                    System.out.println("startPoint = " + startPoint);
+//                    }
                 }
             }
         }
 
-        if (intersections.size() != 2) {
-            throw new IllegalArgumentException("The bit and the contour must have only one intersection point");
+        DebugTools.pointsToDrawRED.clear();
+        DebugTools.pointsToDrawRED.addAll(intersections);
+        System.out.println("intersections = " + intersections);
+        if (intersections.size() == 0) {
+            throw new RuntimeException("No intersection found");
         }
 
         contourSegments.remove(contourSegments.size() - 1);
 
-        return intersections.get(1);
+        // si la première intersection est le startPoint, on prend la troisième intersection
+        if (intersections.size()==3 && GeneralTools.isABeforeBOnPolygon(intersections.get(0), startPoint, contourSegments)) {
+            return intersections.get(2);
+        }
 
+        return intersections.get(1);
+    }
+
+    private static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
+        // on parcourt le polygon, et on regarde si on trouve le point A avant le point B
+        for (Segment2D segment : polygon) {
+            if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
+                return Vector2.dist(segment.start, A) < Vector2.dist(segment.start, B);
+            }
+            if (A.isOnSegment(segment)) return true;
+            if (B.isOnSegment(segment)) return false;
+        }
+        throw new RuntimeException("Points not found on polygon");
     }
 
     /**
@@ -206,7 +240,7 @@ public class GeneralTools {
      * @param limitTheDistance if true, it will only look for the next start point at a maximum distance of the length of a bit
      * @return the first intersection between the bit and the closed contour.
      */
-  //TODO enlever
+    //TODO enlever
     public static Vector2 getBitAndContourSecondIntersectionPoint3(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, boolean limitTheDistance, Vector2 startPoint) {
         Vector2 intersectionPoint = null;
         Vector2 firstIntersectionPoint = getBitAndContourFirstIntersectionPoint(bit, boundPoints);
@@ -217,8 +251,7 @@ public class GeneralTools {
             Segment2D tempSeg = new Segment2D(boundPoints.get(i), boundPoints.get(i + 1));
             if (firstIntersectionPoint.isOnSegment(tempSeg)) {
                 //on commence sur le premier segment, car le segment peut être plus long que la longueur d'un bit
-                if (tempSeg.getLength() >= CraftConfig.lengthNormal)
-                    startIndex = i;
+                if (tempSeg.getLength() >= CraftConfig.lengthNormal) startIndex = i;
                 else //sinon sur le second
                     startIndex = i + 1;
                 System.out.println("startIndex = " + startIndex);
@@ -461,8 +494,7 @@ public class GeneralTools {
     @SuppressWarnings("unchecked")
     public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
         Vector<Vector<Vector2>> boundsList = new Vector<>();
-        Vector<Vector<Segment2D>> borderList = SectionTransformer.rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList()
-                .clone());
+        Vector<Vector<Segment2D>> borderList = SectionTransformer.rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
 
         for (Vector<Segment2D> border : borderList) {
 //            boundsList.add(segmentsToPoints(border));
