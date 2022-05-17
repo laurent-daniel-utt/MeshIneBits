@@ -186,7 +186,7 @@ public class Solution {
             double maxDistanceForNextStart = CraftConfig.lengthFull + CraftConfig.errorAccepted;
 
             //System.out.println(getBit(startPoint));
-            Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, true, startPoint);
+            Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, startPoint);
             double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.pointsToSegments(bound));
             //System.out.println(distViaSegments + getBit(startPoint).toString());
             if (distViaSegments > maxDistanceForNextStart) {

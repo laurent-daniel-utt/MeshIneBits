@@ -186,7 +186,7 @@ public class TangenceAlgo {
                 if (bit != null) {
                     bits.add(bit);
 
-                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, false, nextStartPoint);//TODO DEBUG si c'est une ligne droite
+                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);//TODO DEBUG si c'est une ligne droite
                     System.out.println("nextStartPoint = " + nextStartPoint);
                     DebugTools.pointsToDrawORANGE.add(nextStartPoint);
                     System.out.println("FIN PLACEMENT BIT " + iBit + "====================");

@@ -91,7 +91,7 @@ public class COAlgo2 {
                     bits.add(bit);
 //                placement = getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
 //                bits.add(placement.bit2D);
-                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, false, nextStartPoint);
+                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
                     System.out.println("FIN PLACEMENT BIT " + iBit + "====================");
                 }
                 iBit++;
