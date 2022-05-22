@@ -43,7 +43,14 @@ import java.util.Vector;
 
 public class TangenceAlgo {
 
+    /**
+     * The error threshold for the convexity computation.
+     */
     private static final int CONVEX_ERROR = -4;
+    /**
+     * The minimum distance to keep between the bound and the bit in order to avoid the bit to be placed exactly
+     * on the bound. Which causes the intersection computations to fail.
+     */
     private final double MARGIN_EXT = 1;
     /**
      * The minimum segment length to consider when computing the convexity.
@@ -51,6 +58,13 @@ public class TangenceAlgo {
      */
     private final double MIN_SEGMENT_LENGTH = 3;
 
+    /**
+     * Places all the bits on the bound of the given Slice.
+     * @param slice the slice to pave.
+     * @param minWidth the minimum bit width to keep
+     * @param numberMaxBits the maximum number of bits to place on a bound
+     * @return the list of placed bits.
+     */
     public Vector<Bit2D> getBits(Slice slice, double minWidth, double numberMaxBits) throws NoninvertibleTransformException {
         Vector<Bit2D> bits = new Vector<>();
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
@@ -63,30 +77,28 @@ public class TangenceAlgo {
             List<Vector2> sectionPoints;
             int iBit = 0;
             do {
-                System.out.print("\t " + "PLACEMENT BIT " + iBit + "\t");
+                System.out.print("\t " + "BIT PLACEMENT : " + iBit + "\t");
+                int convexType = 0;
                 sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
 
-
-                int convexType = 1000;
-                //we first want to know if the beginning of the section is convex or concave
+                //We first want to know if the beginning of the section is convex or concave
                 //we then want to find the max convex or concave section
 
                 Vector2 ORIGIN = new Vector2(0, 0);
                 sectionPoints.add(ORIGIN);
 
-                // pour savoir si on commence par une section convexe ou concave, on regarde tous les points
-                // qui sont à une distance de BitLength/2 par exemple
+                // In order to know if the beginning of the section is convex or concave, we look at
+                // all the points that are at a distance less than a bit length from the startPoint.
                 int nbPointsToCheck = 0;
                 for (Vector2 point : sectionPoints) {
                     nbPointsToCheck++;
-                    if (Vector2.dist(point, nextStartPoint) >= CraftConfig.lengthNormal / 2) {
-                        break;
-                    }
+                    if (Vector2.dist(point, nextStartPoint) >= CraftConfig.lengthNormal / 2) break;
                 }
 
+                //Computes the convexity of the section
                 List<Vector2> maxConvexSection = new Vector<>();
                 if (isConvex(sectionPoints.subList(0, nbPointsToCheck))) {
-                    //section convexe
+                    //convex section
                     convexType = 1;
 
                     List<Vector2> convexSection = new Vector<>();
@@ -95,7 +107,7 @@ public class TangenceAlgo {
                     }
                     convexSection.add(ORIGIN);
 
-                    //on agrandit convexSection tant que la section est convexe
+                    // we add the points while the section is convex
                     int i = nbPointsToCheck;
                     do {
                         convexSection.add(convexSection.size() - 1, sectionPoints.get(i));
@@ -105,9 +117,9 @@ public class TangenceAlgo {
                     maxConvexSection.remove(ORIGIN);
                 }
 
-                if (maxConvexSection.size() > 0) { //on a trouvé une section convexe
+                if (maxConvexSection.size() > 0) { //a convex section has been found
                     sectionPoints = maxConvexSection;
-                } else { //on a trouvé une section concave
+                } else { //else, the section is concave
                     convexType = -1;
                     sectionPoints.remove(ORIGIN);
                 }
@@ -119,7 +131,7 @@ public class TangenceAlgo {
                     bits.add(bit);
 
                     nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                    System.out.println("FIN PLACEMENT BIT ");
+                    System.out.println("END BIT PLACEMENT");
                 } else {
                     throw new RuntimeException("Bit could not be placed !");
                 }
@@ -133,53 +145,58 @@ public class TangenceAlgo {
         return bits;
     }
 
+    /**
+     * Computes the placement of a single Bit from a section, using the convexity type of the section.
+     * @param sectionPoints the section points.
+     * @param startPoint the start point of the section to place a bit.
+     * @param MinWidth the minimum bit width to keep.
+     * @param convexType the convexity type of the section (1 for convex, -1 for concave).
+     * @return the placed bit.
+     */
     public Bit2D getBitFromSectionWithTangence(List<Vector2> sectionPoints, Vector2 startPoint, double MinWidth, int convexType) {
         Vector<Segment2D> segmentsSection = GeneralTools.pointsToSegments(sectionPoints);
-        Segment2D lastSegmentPossible = null;
+        Segment2D lastPossibleSegment = null;
 
         for (Segment2D segment : segmentsSection) {
-            //si jamais la longueur du segment est très petite (possible des fois), on passe ce segment.
+            // if the segment is too short, we skip it.
             if (segment.getLength() < MIN_SEGMENT_LENGTH) continue;
+            //computes the position of the bottom-left edge of the bit
+            Vector2 bottomLeftEdge = getProjStartPoint(startPoint, segment);
 
-            //pour chaque segment, on calcule la distance entre le début de segment et le startPoint.
-            //on projette cette distance vers le vecteur orthogonal au segment.
-            //on l'ajoute au startPoint. et ca nous donne le coinHautGauche du bit.
-            Vector2 coinBasGauche = getProjStartPoint(startPoint, segment);
             //si la distance entre le point projeté (coinHautGauche) et le startPoint est inférieure à la largeur du bit, on a un bit possible
             //il faut également que l'on soit du bon côté de la section.
 
-            if (convexType == 1 && Vector2.dist(coinBasGauche, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth || convexType == -1 && Vector2.dist(coinBasGauche, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
-                Segment2D segmentDecale = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)), segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));
-                if (getNumberOfIntersection(segmentDecale, sectionPoints) == 0 && convexType == 1) {//todo faire mieux pour ne pas utiliser les intersections
-                    lastSegmentPossible = segment;
-                } else if (getNumberOfIntersection(segmentDecale, sectionPoints) <= 2 && convexType == -1) {
-                    lastSegmentPossible = segment;
+            if (convexType !=0 && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
+                Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)),
+                                                          segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
+                if (getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == 1) {//todo faire mieux pour ne pas utiliser les intersections
+                    lastPossibleSegment = segment;
+                } else if (getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == -1) {
+                    lastPossibleSegment = segment;
                 }
             }
         }
 
-        if (lastSegmentPossible == null)
-            lastSegmentPossible = segmentsSection.lastElement();//todo marche temporairement
+        if (lastPossibleSegment == null)
+            lastPossibleSegment = segmentsSection.lastElement();//todo marche temporairement
 
-        Vector2 coinBasGauche = getProjStartPoint(startPoint, lastSegmentPossible);
+        Vector2 bottomLeftEdge = getProjStartPoint(startPoint, lastPossibleSegment);
 
-        //on calcule le centre du bit, situé à une distance de CraftConfig.bitWidth/2 et CraftConfig.lengthNormal/2
-        // de coinHautGauche, dans les bonnes directions.
-        Vector2 vecSegment = lastSegmentPossible.getDirectionalVector().normal();
+        //Computes the center of the bit
+        Vector2 vecSegment = lastPossibleSegment.getDirectionalVector().normal();
         Vector2 vecSegmentOrthogonal = vecSegment.getCWAngularRotated().normal();
         Vector2 origin;
 
         if (convexType == -1) {//concave
-            //si le coinBasGauche est situé à l'extérieur de la section, on doit soustraire, et sinon ajouter
-            origin = coinBasGauche.sub(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
+            //if the bottomLeftEdge is outside the section, we must subtract, and otherwise add
+            origin = bottomLeftEdge.sub(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
             origin = origin.add(new Vector2(MinWidth, 0).rotate(vecSegmentOrthogonal));
 
         } else {//convexe
-            //si le coinBasGauche est situé à l'extérieur de la section, on doit soustraire, et sinon ajouter
-            origin = coinBasGauche.add(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
+            origin = bottomLeftEdge.add(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
             origin = origin.sub(new Vector2(MARGIN_EXT, 0).rotate(vecSegmentOrthogonal));
-            if (coinBasGauche.sub(startPoint).dot(vecSegmentOrthogonal) > 0) {
-                origin = origin.sub(new Vector2(Vector2.dist(origin, coinBasGauche), 0).rotate(vecSegmentOrthogonal));
+            if (bottomLeftEdge.sub(startPoint).dot(vecSegmentOrthogonal) > 0) {
+                origin = origin.sub(new Vector2(Vector2.dist(origin, bottomLeftEdge), 0).rotate(vecSegmentOrthogonal));
             }
         }
 
@@ -187,6 +204,11 @@ public class TangenceAlgo {
         return new Bit2D(origin, vecSegment);
     }
 
+    /**
+     * Computes the convexity of a given list of points.
+     * @param pts the list of points.
+     * @return true if the list is convex, false otherwise.
+     */
     static boolean isConvex(List<Vector2> pts) {
         boolean sign = false;
         int n = pts.size();
@@ -198,19 +220,31 @@ public class TangenceAlgo {
             double distY2 = pts.get(i).y - pts.get((i + 1) % n).y;
             double zCrossProduct = distX1 * distY2 - distY1 * distX2;
 
-            //on regarde si le signe est le même pour tous les points avec une marge de précision
+            //we check if the sign is the same for all points with a precision margin
             if (i == 0) sign = zCrossProduct > CONVEX_ERROR;
             else if (sign != (zCrossProduct > CONVEX_ERROR)) return false;
         }
         return true;
     }
 
+    /**
+     * Computes the projection of a point on a segment, orthogonal to the segment.
+     * @param startPoint the point to project.
+     * @param segment the segment to project on.
+     * @return the projection of the point on the segment.
+     */
     private Vector2 getProjStartPoint(Vector2 startPoint, Segment2D segment) {
         Vector2 distance = segment.start.sub(startPoint);
         Vector2 orthogonal = segment.getNormal();
-        return startPoint.add(orthogonal.mul(distance.dot(orthogonal))); //le projeté orthogonal
-    }//todo traduire tout en anglais
+        return startPoint.add(orthogonal.mul(distance.dot(orthogonal))); // the orthogonal projection
+    }
 
+    /**
+     * Computes the number of intersection between a segment and a list of points. The points are first converted into segments.
+     * @param segmentToTest the segment to test.
+     * @param sectionPoints the list of points.
+     * @return the number of intersection between the segment and the list of points.
+     */
     private int getNumberOfIntersection(Segment2D segmentToTest, List<Vector2> sectionPoints) {
         int nbIntersections = 0;
         Vector<Segment2D> segments = GeneralTools.pointsToSegments(sectionPoints);
