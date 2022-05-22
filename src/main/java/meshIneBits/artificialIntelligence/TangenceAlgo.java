@@ -58,13 +58,12 @@ public class TangenceAlgo {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 nextStartPoint = bound.get(0);
 
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++");
 
             List<Vector2> sectionPoints;
             int iBit = 0;
             do {
-                System.out.println("PLACEMENT BIT " + iBit + "====================");
-                System.out.println("NEXT START POINT : " + nextStartPoint);
+                System.out.print("\t " + "PLACEMENT BIT " + iBit + "\t");
                 sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
 
 
@@ -113,20 +112,16 @@ public class TangenceAlgo {
                     sectionPoints.remove(ORIGIN);
                 }
 
-
                 sectionPoints.remove(ORIGIN);
-                System.out.println("CONVEX TYPE : " + convexType);
-                System.out.println("sectionPoints = " + sectionPoints);
 
                 Bit2D bit = getBitFromSectionWithTangence(sectionPoints, nextStartPoint, minWidth, convexType);
                 if (bit != null) {
                     bits.add(bit);
 
                     nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                    System.out.println("nextStartPoint = " + nextStartPoint);
-                    System.out.println("FIN PLACEMENT BIT " + iBit + "====================");
+                    System.out.println("FIN PLACEMENT BIT ");
                 } else {
-                    System.out.println("BIT " + iBit + " NON PLACÉ");
+                    throw new RuntimeException("Bit could not be placed !");
                 }
                 iBit++;
 
@@ -141,12 +136,6 @@ public class TangenceAlgo {
     public Bit2D getBitFromSectionWithTangence(List<Vector2> sectionPoints, Vector2 startPoint, double MinWidth, int convexType) {
         Vector<Segment2D> segmentsSection = GeneralTools.pointsToSegments(sectionPoints);
         Segment2D lastSegmentPossible = null;
-
-        for (Segment2D segment : segmentsSection) {
-            if (segment.start == segment.end) {
-                throw new RuntimeException("segment.start==segment.end"); //todo faire qqc
-            }
-        }
 
         for (Segment2D segment : segmentsSection) {
             //si jamais la longueur du segment est très petite (possible des fois), on passe ce segment.
@@ -171,8 +160,6 @@ public class TangenceAlgo {
 
         if (lastSegmentPossible == null)
             lastSegmentPossible = segmentsSection.lastElement();//todo marche temporairement
-        if (lastSegmentPossible.start == lastSegmentPossible.end) //todo debugonly, enlever ?
-            throw new RuntimeException("lastSegmentPossible.start==lastSegmentPossible.end");
 
         Vector2 coinBasGauche = getProjStartPoint(startPoint, lastSegmentPossible);
 
