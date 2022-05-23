@@ -64,8 +64,8 @@ public class Section {
      * @param segment2DS the segments list
      * @return the longest segment
      */
-    public static Segment2D getLongestSegment(Vector<Segment2D> segment2DS) {
-        return segment2DS.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
+    public Segment2D getLongestSegment() {
+        return segments.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
     }
 
     /**
@@ -75,7 +75,7 @@ public class Section {
      * @param points    the list of points
      * @return the furthest point from the segment
      */
-    public static Vector2 getFurthestPointFromSegment(Segment2D segment2D, Vector<Vector2> points) {
+    public Vector2 getFurthestPointFromSegment(Segment2D segment2D) {
         Vector2 furthestPoint = null;
         double maxDistance = -1;
         for (Vector2 p : points) {
@@ -87,21 +87,6 @@ public class Section {
         return furthestPoint;
     }
 
-    /**
-     * Return the distance between two points via a vector by computing a projection along the vector.
-     *
-     * @param refPoint          the first point
-     * @param point             the second point
-     * @param directionalVector the directional vector
-     * @return the projected distance
-     */
-    public static double getDistFromFromRefPointViaVector(Vector2 refPoint, Vector2 point, Vector2 directionalVector) {
-        if (point != refPoint) {
-            double angle = Math.toRadians(directionalVector.getEquivalentAngle2() - point.sub(refPoint).getEquivalentAngle2());
-            return Math.cos(angle) * Vector2.dist(point, refPoint);
-        }
-        return 0;
-    }
 
     /**
      * Search for the furthest point from ref point via a vector by computing a projection along the vector.
@@ -111,12 +96,12 @@ public class Section {
      * @param points            the points of the section
      * @return the furthest point
      */
-    public static Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector, Vector<Vector2> points) {
+    public Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector) {
         directionalVector = directionalVector.normal();
         double maxDist = Double.NEGATIVE_INFINITY;
         Vector2 furthestPoint = null;
         for (Vector2 p : points) {
-            double dist = getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
+            double dist = BorderedPatternAlgorithm.getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
             if (dist > maxDist) {
                 maxDist = dist;
                 furthestPoint = p;
@@ -143,7 +128,7 @@ public class Section {
      * @param points   the list of points among which the methods search the furthest point from the refPoint
      * @return the furthest point from refPoint among the list  of points
      */
-    public static Vector2 getFurthestPoint(Vector2 refPoint, Vector<Vector2> points) {
+    public Vector2 getFurthestPoint(Vector2 refPoint) {
         double maxDist = 0;
         Vector2 furthestPoint = null;
         for (Vector2 p : points) {
@@ -166,7 +151,7 @@ public class Section {
     }
 
     //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
-    public Section getSectionReduced(Vector<Vector2> sectionPoints, double minWidthToKeep) {
+    public Section getSectionReduced(Section sectionPoints, double minWidthToKeep) {
         Section sectionToReduce = new Section(SectionTransformer.repopulateWithNewPoints(200, sectionPoints, true));
 
         boolean sectionReductionCompleted = false;
@@ -179,15 +164,15 @@ public class Section {
             boolean sectionIsClosed = sectionToReduce.startPoint.asGoodAsEqual(sectionToReduce.points.lastElement());
 
             // calculates the convex hull of the section's points
-            Vector<Vector2> hull = sectionToReduce.getHull();
+            Section hull = sectionToReduce.getHull();
 
-            Vector<Segment2D> segmentsHull = GeneralTools.pointsToSegments(hull);
+            Vector<Segment2D> segmentsHull = hull.getSegments();
 
             // find the constraint segment, which is the longest segment of the hull // todo, maybe not always the case
-            constraintSegment = getLongestSegment(segmentsHull);
+            constraintSegment = hull.getLongestSegment();
 
             // find the constraint point, which is the convex hull's furthest point from the constraint segment
-            furthestPoint = getFurthestPointFromSegment(constraintSegment, hull);
+            furthestPoint = hull.getFurthestPointFromSegment(constraintSegment);
 
             // calculate distance between constraint point and constraint segment
             double sectionWidth = Vector2.Tools.distanceFromPointToLine(furthestPoint, constraintSegment);
@@ -228,7 +213,7 @@ public class Section {
         return sectionToReduce;
     }
 
-    public Vector<Vector2> getHull() {
+    public Section getHull() {
         Vector<Vector2> hull = new Vector<>();
 
         // find leftMosts
@@ -265,7 +250,7 @@ public class Section {
             double maxAngle = 0;
             Vector<Vector2> pointsMaxAngles = new Vector<>();
             for (int i = 0; i < points.size(); i++) {
-                // le point pivot étant le dernier point ajouté cela ne sert à rien de le tester à nouveau, de plus cela entraine des calculs d'agles erronés
+                // le point pivot étant le dernier point ajouté cela ne sert à rien de le tester à nouveau, de plus cela entraine des calculs d'angles erronés
                 if (points.get(i) != pointMilieu) {
                     double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
 
@@ -287,12 +272,13 @@ public class Section {
                  */
                 hull.add(hull.firstElement());
             } else {
-                hull.add(getFurthestPoint(pointMilieu, pointsMaxAngles));
+                Section maxAnglesSection = new Section(pointsMaxAngles);
+                hull.add(maxAnglesSection.getFurthestPoint(pointMilieu));
             }
             previousPoint = pointMilieu;
             pointMilieu = hull.lastElement();
         }
-        return hull;
+        return new Section(hull);
     }
 
     //GETTERS

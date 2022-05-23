@@ -31,7 +31,6 @@
 package meshIneBits.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.borderPaver.NNExploitation;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -110,20 +109,20 @@ public class AI_Tool {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);
 
-            Vector<Vector2> sectionPoints;
+            Section sectionPoints;
             int nbMaxBits = 0;
-            do{
-                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
+            do{//todo @Etienne passer les méthodes de sectionTransformer dans Section et créer une section ici
+                sectionPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
                 double angleLocalSystem = SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints, angleLocalSystem, startPoint);//TODO @Etienne TESTER
-                Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(transformedPoints);
+                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints.getPoints(), angleLocalSystem, startPoint);//TODO @Etienne TESTER
+                Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(new Section(transformedPoints));//todo better, cf au dessus
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
                 startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
                 nbMaxBits++;
             }
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints) && nbMaxBits < AI_Tool.paramEarlyStopping.getCurrentValue()); //Add each bit on the bound
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints.getPoints()) && nbMaxBits < AI_Tool.paramEarlyStopping.getCurrentValue()); //Add each bit on the bound
 
         }
         return bits;
@@ -138,14 +137,10 @@ public class AI_Tool {
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
     public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 NextStartPoint, @NotNull Vector<Vector2> associatedPoints) {
-        DebugTools.pointsToDrawGREEN.add(NextStartPoint);
-        DebugTools.pointsToDrawRED.add(veryFirstStartPoint);
-        //DebugTools.pointsToDrawBLUE=associatedPoints;
-        DebugTools.setPaintForDebug(true);
         if (associatedPoints.firstElement() == veryFirstStartPoint) //to avoid returning false on the first placement
             return true;
-        if (Vector2.dist(veryFirstStartPoint, NextStartPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10
-            ) { //standard safe distance between two bits
+        if (Vector2.dist(veryFirstStartPoint, NextStartPoint) < AI_Tool.paramSafeguardSpace.getCurrentValue() * 10) {
+            //standard safe distance between two bits
             //todo refactor le param paramSafeguardSpace @Andre
             return false;
         }

@@ -33,20 +33,18 @@ package meshIneBits.artificialIntelligence;
 import meshIneBits.Bit2D;
 import meshIneBits.util.Vector2;
 
-import java.util.Vector;
-
 /**
  * The description of the placement of a {@link Bit2D} : the bit2D, the section covered by it
  * and the last point of the section.
  */
 public class Placement {
     public final Bit2D bit2D;
-    public final Vector<Vector2> sectionCovered;
+    public final Section sectionCovered;
     public final Vector2 end;
 
-    public Placement(Bit2D bit2D, Vector<Vector2> sectionCovered) {
+    public Placement(Bit2D bit2D, Section sectionCovered) {
         this.bit2D = bit2D;
         this.sectionCovered = sectionCovered;
-        this.end = sectionCovered.lastElement();
+        this.end = sectionCovered.getPoints().lastElement();
     }
 }

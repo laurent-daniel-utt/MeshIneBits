@@ -96,7 +96,7 @@ public class GeneralTools {
      * @param sectionPoints the initial section of points.
      * @return a new section of points, composed of the equally spaced points.
      */
-    public static @NotNull Vector<Vector2> getInputPointsForDL(@NotNull Vector<Vector2> sectionPoints) {
+    public static @NotNull Vector<Vector2> getInputPointsForDL(Section sectionPoints) {
         int nbPoints = 10;//todo @Etienne ou Andre : hidden neurons count has depend of this
         return SectionTransformer.repopulateWithNewPoints(nbPoints, sectionPoints, false);
     }
@@ -412,7 +412,7 @@ public class GeneralTools {
      * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public @NotNull Vector<Vector2> getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
+    public Section getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
         Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
@@ -429,7 +429,7 @@ public class GeneralTools {
 
         // finds the points associated with the bit, using the startPoint and the bound previously found
         if (startPoint != null)
-            return SectionTransformer.getSectionPointsFromBound(boundsList.get(iContour - 1), startPoint);
+            return SectionTransformer.getSectionFromBound(boundsList.get(iContour - 1), startPoint);
         else throw new Exception("The bit start point has not been found.");
     }
 

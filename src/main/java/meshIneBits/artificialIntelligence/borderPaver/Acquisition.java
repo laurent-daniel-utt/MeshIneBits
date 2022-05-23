@@ -33,6 +33,7 @@ package meshIneBits.artificialIntelligence.borderPaver;
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.Section;
 import meshIneBits.artificialIntelligence.util.DataLogEntry;
 import meshIneBits.artificialIntelligence.util.DataLogger;
 import meshIneBits.artificialIntelligence.util.DataSetGenerator;
@@ -99,8 +100,8 @@ public class Acquisition {
             throw new Exception("Example not added !");
         }
 
-        Vector<Vector2> points = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit);
-        bit2DVectorHashMap.put(bit, points);
+        Section sectionPoints = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit);
+        bit2DVectorHashMap.put(bit, sectionPoints.getPoints());
         storedExamplesBits.add(bit);
         bit.setUsedForNN(true);
     }

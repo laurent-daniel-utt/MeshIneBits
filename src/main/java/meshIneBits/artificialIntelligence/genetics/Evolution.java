@@ -86,7 +86,7 @@ public class Evolution {
      * @param RATIO              the ratio between the area and the length, used when calculating the score.
      */
     public Evolution(Area layerAvailableArea, Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int nbOfGenerations, int popSize, int RATIO) {
-        this.layerAvailableArea = layerAvailableArea;
+        this.layerAvailableArea = layerAvailableArea; //todo @etienne refactor here to take a Section in parameter
         this.pointSection = pointSection;
         this.startPoint = startPoint;
         this.bound = bound;

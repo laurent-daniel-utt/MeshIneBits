@@ -31,6 +31,7 @@
 package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -55,7 +56,7 @@ public class SectionTransformer {
      * @param startPoint the point on which the left side of the bit will be placed. startPoint must be on the polygon.
      * @return a vector of vector2, the part of the polygon which can be used to place a bit
      */
-    public static @NotNull Vector<Vector2> getSectionPointsFromBound(@NotNull Vector<Vector2> bound, Vector2 startPoint) throws NoninvertibleTransformException {
+    public static Section getSectionFromBound(@NotNull Vector<Vector2> bound, Vector2 startPoint) throws NoninvertibleTransformException {
 
         double bitLength = CraftConfig.lengthNormal;
 
@@ -98,7 +99,7 @@ public class SectionTransformer {
             }
         } while (!intersectionFound && currentSegment != startSegment);
 
-        return sectionPoints;
+        return new Section(sectionPoints);
     }
 
 
@@ -174,7 +175,7 @@ public class SectionTransformer {
      * @param sectionPoints the points that we want to transform in a local coordinate system.
      * @return the angle of the local coordinate system.
      */
-    public static double getLocalCoordinateSystemAngle(@NotNull Vector<Vector2> sectionPoints) {
+    public static double getLocalCoordinateSystemAngle(Section sectionPoints) {
 
         //map for more accurate result
         Vector<Vector2> mappedPoints = repopulateWithNewPoints(30, sectionPoints, false);
@@ -183,7 +184,7 @@ public class SectionTransformer {
         double angle = getSectionOrientation(mappedPoints);
 
         //check if abscissa axe of local coordinate system and section are directed in the same direction.
-        if (GeneralTools.arePointsMostlyOrientedToTheLeft(sectionPoints, sectionPoints.firstElement())) {
+        if (GeneralTools.arePointsMostlyOrientedToTheLeft(sectionPoints.getPoints(), sectionPoints.getStartPoint())) {
             angle += 180; //rotate coordinate system
         }
         if (angle > 180) { // make sure that the angle is between -180 and 180 degrees
@@ -282,8 +283,8 @@ public class SectionTransformer {
      * @param keepOldPoints true to keep old points in addition to the old ones.
      * @return the section repopulated with new points.
      */
-    public static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, @NotNull Vector<Vector2> points, boolean keepOldPoints) {
-
+    public static @NotNull Vector<Vector2> repopulateWithNewPoints(int nbNewPoints, Section section, boolean keepOldPoints) {
+        Vector<Vector2> points = section.getPoints();
         Vector<Vector2> newPoints = new Vector<>();
         Vector<Double> segmentLength = new Vector<>(); //contains the length of each segment
 

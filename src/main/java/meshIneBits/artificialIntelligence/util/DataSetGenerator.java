@@ -32,6 +32,7 @@ package meshIneBits.artificialIntelligence.util;
 
 import meshIneBits.artificialIntelligence.AI_Tool;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -61,15 +62,15 @@ public final class DataSetGenerator {
 
             // format data for deep learning
             Vector2 startPoint = entry.getAssociatedPoints().firstElement();
-
+//todo pareil créer une Section à chaque fois (3 fois ici)
             Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(
                     entry.getAssociatedPoints(),
-                    SectionTransformer.getLocalCoordinateSystemAngle(entry.getAssociatedPoints()),
+                    SectionTransformer.getLocalCoordinateSystemAngle(new Section(entry.getAssociatedPoints())),
                     startPoint); //TODO @Etienne TESTER
-            Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(transformedPoints);
+            Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(new Section(transformedPoints));
 
             double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
-            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), entry.getAssociatedPoints());
+            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), new Section(entry.getAssociatedPoints()));
 
             //generates one line (corresponds to the data of one bit)
             StringBuilder csvLine = new StringBuilder(""
@@ -129,7 +130,7 @@ public final class DataSetGenerator {
      * between -90 and 90. Otherwise, as the orientation is expressed in regard to the center of the bit,
      * the angles -100 and -10 degrees (for example) would have been equivalent.
      */
-    private static double getBitAngleInLocalSystem(@NotNull Vector2 bitAngle, @NotNull Vector<Vector2> sectionPoints) {
+    private static double getBitAngleInLocalSystem(@NotNull Vector2 bitAngle, Section sectionPoints) {
         Vector2 localCoordinateSystemAngle = Vector2.getEquivalentVector(SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints));
 
         System.out.println("localCoordinateSystemAngle = " + localCoordinateSystemAngle.getEquivalentAngle2());

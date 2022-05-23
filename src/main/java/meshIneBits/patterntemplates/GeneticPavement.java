@@ -35,8 +35,9 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.Section;
+import meshIneBits.artificialIntelligence.debug.DebugTools;
 import meshIneBits.artificialIntelligence.genetics.Evolution;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -123,19 +124,19 @@ public class GeneticPavement extends PatternTemplate {
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
-            Vector<Vector2> associatedPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
+            Section associatedPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
             DebugTools.pointsToDrawBLUE.add(startPoint);
 
             Bit2D bestBit;
             int bitNumber = 0;
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints)) { //Add each bit on the bound
+            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints.getPoints())) { //Add each bit on the bound
                 bitNumber++;
                 if (bitNumber > maxBitNumber)//number max of bits to place on a bound before stopping
                     break;
                 printInfos(boundsToCheckAssociated, bound, bitNumber);
 
                 //Find a new Solution
-                currentEvolution = new Evolution(layerAvailableArea, associatedPoints, startPoint, bound, (int)genNumber, (int)popSize, (int)ratio);
+                currentEvolution = new Evolution(layerAvailableArea, associatedPoints.getPoints(), startPoint, bound, (int)genNumber, (int)popSize, (int)ratio);
                 currentEvolution.run();
                 bestBit = currentEvolution.bestSolution.getBit();
                 solutions.add(bestBit);
@@ -145,7 +146,7 @@ public class GeneticPavement extends PatternTemplate {
                 startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
                 DebugTools.pointsToDrawGREEN.add(startPoint);
                 //AI_Tool.getMeshController().AI_NeedPaint=true;
-                associatedPoints = SectionTransformer.getSectionPointsFromBound(bound, startPoint);
+                associatedPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
             }
         }
         long end2 = System.currentTimeMillis();

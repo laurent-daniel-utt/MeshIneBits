@@ -37,6 +37,7 @@ import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.BorderedPatternAlgorithm;
 import meshIneBits.artificialIntelligence.GeneralTools;
 import meshIneBits.artificialIntelligence.Placement;
+import meshIneBits.artificialIntelligence.Section;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -118,36 +119,21 @@ public class BorderedPattern extends PatternTemplate {
 
             System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
 
-            Vector<Vector2> sectionPoints;
             int iBit = 0;
             Placement placement;
             do {
                 System.out.println("\tPLACEMENT BIT " + iBit + "====================");
-                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
 
-//                System.out.println("dist = " + Vector2.dist(sectionPoints.lastElement(), nextStartPoint));
-
+                Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 placement = BorderedPatternAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(placement.bit2D);
                 nextStartPoint = placement.end;
-//                System.out.println("veryFirstStartPoint = " + veryFirstStartPoint);
-//                System.out.println("section covered = " + placement.sectionCovered);
-
-
-//                DebugTools.pointsToDrawBLUE.addAll(sectionPoints);
-//                DebugTools.pointsToDrawRED.addAll(placement.sectionCovered);
-//                DebugTools.setPaintForDebug(true);
-//                System.out.println("sectionPoints.lastElement() = " + sectionPoints.lastElement());
-//                System.out.println("placement.sectionCovered.lastElement() = " + placement.sectionCovered.lastElement());
-
 
                 System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
-
                 iBit++;
 
-            } while (!((BorderedPatternAlgorithm.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1)
-                    || BorderedPatternAlgorithm.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < numberMaxBits);
-            //while (!listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.subList(1, placement.sectionCovered.size())) && iBit<40); //Add each bit on the bound
+            } while (!((BorderedPatternAlgorithm.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
+                    || BorderedPatternAlgorithm.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
         }
         return bits;
 

@@ -79,7 +79,7 @@ public class TangenceAlgorithm {
             do {
                 System.out.print("\t " + "BIT PLACEMENT : " + iBit + "\t");
                 int convexType = 0;
-                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
+                sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint).getPoints();
 
                 //We first want to know if the beginning of the section is convex or concave
                 //we then want to find the max convex or concave section
