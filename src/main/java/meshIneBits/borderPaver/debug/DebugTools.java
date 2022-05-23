@@ -28,10 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.debug;
+package meshIneBits.borderPaver.debug;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.borderPaver.AI_Tool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;

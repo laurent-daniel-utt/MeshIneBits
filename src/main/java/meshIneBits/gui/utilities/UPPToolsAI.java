@@ -31,9 +31,9 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.borderPaver.Acquisition;
-import meshIneBits.artificialIntelligence.borderPaver.NNTraining;
+import meshIneBits.borderPaver.AI_Tool;
+import meshIneBits.borderPaver.borderPaver.Acquisition;
+import meshIneBits.borderPaver.borderPaver.NNTraining;
 import meshIneBits.gui.view2d.MeshController;
 
 import javax.swing.*;

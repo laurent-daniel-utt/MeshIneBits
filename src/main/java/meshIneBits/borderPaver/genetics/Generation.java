@@ -28,10 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.genetics;
+package meshIneBits.borderPaver.genetics;
 
-import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.Section;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -88,19 +88,10 @@ public class Generation {
     /**
      * Initialize a Generation. Creates its solutions.
      */
-    public void initialize(@NotNull Vector<Vector2> pointSection) {
+    public void initialize(Section pointSection) {
         for (int pop = 0; pop < popSize; pop++) {
             this.solutions.add(createNewSolution(pointSection));
         }
-//        this.solutions = new Vector<>();
-//        Bit2D bit1 = DebugTools.bit1;
-//        Bit2D bit2 = DebugTools.bit2;
-//
-//        double edgeAbscissa1 = DataSetGenerator.getBitEdgeAbscissa(bit1.getOrigin(), bit1.getOrientation(), startPoint);
-//        double edgeAbscissa2 = DataSetGenerator.getBitEdgeAbscissa(bit2.getOrigin(), bit2.getOrientation(), startPoint);
-//
-//        solutions.add(createNewSolution(edgeAbscissa1, bit1.getOrientation()));
-//        solutions.add(createNewSolution(edgeAbscissa2, bit2.getOrientation()));
     }
 
     /**
@@ -115,13 +106,13 @@ public class Generation {
      *
      * @return the new random solution.
      */
-    private @NotNull Solution createNewSolution(@NotNull Vector<Vector2> pointSection) {
+    private @NotNull Solution createNewSolution(Section pointSection) {
         double position = Math.random() * CraftConfig.bitWidth;
 
         double angleSection = SectionTransformer.
-                getSectionOrientation(pointSection);
+                getSectionOrientation(pointSection.getPoints());
 
-        if (GeneralTools.arePointsMostlyOrientedToTheLeft(pointSection, pointSection.firstElement())) {
+        if (pointSection.arePointsMostlyOrientedToTheLeft()) {
             angleSection = -Math.signum(angleSection) * 180 + angleSection;
         }
         int dir = Math.random() > 0.5 ? 1 : -1;
@@ -211,7 +202,7 @@ public class Generation {
      *
      * @return the completely new solutions.
      */
-    public @NotNull Vector<Solution> completeWithNewSolutions(@NotNull Vector<Vector2> pointSection) {
+    public @NotNull Vector<Solution> completeWithNewSolutions(Section pointSection) {
         Vector<Solution> newSolutions = new Vector<>();
         int nbOfNewSolutions = this.popSize - this.solutions.size();
         for (int i = 0; i < nbOfNewSolutions; i++) {

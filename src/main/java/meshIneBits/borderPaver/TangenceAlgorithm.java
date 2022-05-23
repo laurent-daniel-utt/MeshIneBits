@@ -28,10 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
@@ -154,7 +154,7 @@ public class TangenceAlgorithm {
      * @return the placed bit.
      */
     public Bit2D getBitFromSectionWithTangence(List<Vector2> sectionPoints, Vector2 startPoint, double MinWidth, int convexType) {
-        Vector<Segment2D> segmentsSection = GeneralTools.pointsToSegments(sectionPoints);
+        Vector<Segment2D> segmentsSection = Section.pointsToSegments(sectionPoints);
         Segment2D lastPossibleSegment = null;
 
         for (Segment2D segment : segmentsSection) {
@@ -247,7 +247,7 @@ public class TangenceAlgorithm {
      */
     private int getNumberOfIntersection(Segment2D segmentToTest, List<Vector2> sectionPoints) {
         int nbIntersections = 0;
-        Vector<Segment2D> segments = GeneralTools.pointsToSegments(sectionPoints);
+        Vector<Segment2D> segments = Section.pointsToSegments(sectionPoints);
         for (Segment2D segment2D : segments) {
             if (Segment2D.doSegmentsIntersect(segmentToTest, segment2D)) {// && segment2D.end != Segment2D.getIntersectionPoint(segmentToTest, segment2D)) {
                 nbIntersections++;

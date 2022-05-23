@@ -28,9 +28,9 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.util;
+package meshIneBits.borderPaver.util;
 
-import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.borderPaver.AI_Tool;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 

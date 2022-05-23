@@ -28,11 +28,11 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.util.Curve;
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.util.Curve;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
@@ -43,7 +43,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.Area;
-import java.util.List;
 import java.util.Vector;
 
 
@@ -52,43 +51,6 @@ import java.util.Vector;
  * It also provides methods to perform intersection point search.
  */
 public class GeneralTools {
-
-    /**
-     * Returns a point list from a segment list.
-     * If the first and last segment are connected, the first point is not added.
-     *
-     * @param segmentList the segment list
-     * @return the list of point computed from the segment list
-     */
-    private static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
-        Vector<Vector2> pointsList = new Vector<>();
-        for (Segment2D segment : segmentList) {
-            pointsList.add(new Vector2(segment.start.x, segment.start.y));
-        }
-        if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
-        return pointsList;
-    }
-
-    /**
-     * Checks if most of the points given as parameter are located at the left of a reference point, also given
-     * in parameters.
-     *
-     * @param points   the points whose location we want to test.
-     * @param refPoint the reference point.
-     * @return true if most of the points are at the left of the reference point.
-     */
-    public static boolean arePointsMostlyOrientedToTheLeft(@NotNull Vector<Vector2> points, @NotNull Vector2 refPoint) {
-        int leftPoints = 0;
-        int rightPoints = 0;
-        for (Vector2 point : points) {
-            if (point.x < refPoint.x) {
-                leftPoints++;
-            } else {
-                rightPoints++;
-            }
-        }
-        return leftPoints >= rightPoints;
-    }
 
     /**
      * Positions a precise number of points on a section of points. Each point is equally spaced to the next point.
@@ -104,10 +66,10 @@ public class GeneralTools {
 
     /**
      * This method makes a double non-linear regression over a section of points saved in DataLog.csv.
-     * This an alternative approach to {@link #getInputPointsForDL(Vector)} method : the returned values describe
+     * This an alternative approach to getInputPointsForDL method : the returned values describe
      * approximately the shape of the section of points entered as parameter. Then the coefficients returned could
      * be used in a neural net.
-     * The interest of this method over {@link #getInputPointsForDL(Vector)} is that it reduces the number of features
+     * The interest of this method over getInputPointsForDL is that it reduces the number of features
      * injected in the neural. In return, the representation of the section may be less accurate.
      * The steps below describe how the double non-linear regression works :
      * 1 - The section is split into two curves : x(t) and y(t), where the parameter t is the curvilinear abscissa of
@@ -171,7 +133,7 @@ public class GeneralTools {
      */
     public static Vector2 getBitAndContourSecondIntersectionPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, Vector2 startPoint) {
         Vector<Segment2D> bitSidesSegments = bit.getBitSidesSegments();
-        Vector<Segment2D> contourSegments = GeneralTools.pointsToSegments(boundPoints);
+        Vector<Segment2D> contourSegments = Section.pointsToSegments(boundPoints);
         //We add the last segment to be able to calculate the intersections. We remove it at the end
         contourSegments.add(new Segment2D(boundPoints.get(boundPoints.size() - 2), boundPoints.get(0)));
 
@@ -193,66 +155,13 @@ public class GeneralTools {
         contourSegments.remove(contourSegments.size() - 1);
 
         // if the first intersection is the startPoint, we take the third intersection
-        if (intersections.size() == 3 && GeneralTools.isABeforeBOnPolygon(intersections.get(0), startPoint, contourSegments)) {
+        if (intersections.size() == 3 && Section.isABeforeBOnPolygon(intersections.get(0), startPoint, contourSegments)) {
             return intersections.get(2);
         }
 
         return intersections.get(1);
     }
 
-    /**
-     * Checks if the given point A is located before the given point B on the given polygon.
-     * @param A a {@link Vector2}.
-     * @param B a {@link Vector2}.
-     * @param polygon a {@link Vector} of {@link Vector2}.
-     * @return true if A is located before B on the polygon, false otherwise.
-     */
-    private static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
-        // on parcourt le polygon, et on regarde si on trouve le point A avant le point B
-        for (Segment2D segment : polygon) {
-            if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
-                return Vector2.dist(segment.start, A) < Vector2.dist(segment.start, B);
-            }
-            if (A.isOnSegment(segment)) return true;
-            if (B.isOnSegment(segment)) return false;
-        }
-        throw new RuntimeException("Points not found on polygon");
-    }
-
-
-    /**
-     * Computes the distance between a startPoint and an endPoint. But not a direct distance.
-     * The distance is calculated passing by the segments of the bound
-     *
-     * @param startPoint a point which is on a segment
-     * @param endPoint   the end of a segment
-     * @param bound      the Slice
-     * @return the distance
-     */
-    public static double getDistViaSegments(Vector2 startPoint, Vector2 endPoint, Vector<Segment2D> bound) {
-        //finds the nearest point from startPoint and which is after the startPoint
-        Segment2D minSeg = null;
-        Segment2D startSeg = null;
-        for (Segment2D segment2D : bound) {
-            if (startPoint.isOnSegment(segment2D)) {
-                startSeg = segment2D;
-                minSeg = new Segment2D(segment2D.end, startPoint);
-                break;
-            }
-        }
-
-        //distance between the startPoint and the nearest segment
-        //then we loop through the segments, starting from minPoint to end
-        double totalDist = minSeg.getLength();//+sum of segments
-
-        for (Segment2D segment2D : bound.subList(bound.indexOf(startSeg), bound.size())) {
-            if (endPoint.isOnSegment(segment2D)) {
-                return totalDist + new Segment2D(endPoint, segment2D.start).getLength();
-            }
-            totalDist += segment2D.getLength();
-        }
-        return totalDist;
-    }
 
     /**
      * Returns the first intersection point between the bound and bit's edges
@@ -340,29 +249,6 @@ public class GeneralTools {
         return null;
     }
 
-    /**
-     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
-     * following the order of the list of points given as entry. Deletes the points that are duplicated.
-     *
-     * @param points the points requiring to be converted into segments.
-     * @return the segments resulting from the conversion.
-     */
-    @NotNull
-    public static Vector<Segment2D> pointsToSegments(List<Vector2> points) {
-        //remove the duplicated points
-        Vector<Vector2> pointsNoDuplicates = new Vector<>();
-        for (Vector2 point : points) {
-            if (!pointsNoDuplicates.contains(point)) {
-                pointsNoDuplicates.add(point);
-            }
-        }
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
-        }
-        return sectionSegments;
-    }
-
 
     /**
      * Returns the points of each bound of a given Slice
@@ -379,7 +265,7 @@ public class GeneralTools {
         Vector<Vector<Segment2D>> borderList = SectionTransformer.rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
 
         for (Vector<Segment2D> border : borderList) {
-            Vector<Vector2> unorderedPoints = segmentsToPoints(border);
+            Vector<Vector2> unorderedPoints = Section.segmentsToPoints(border);
             boundsList.add(SectionTransformer.rearrangePoints(unorderedPoints));
         }
         return boundsList;

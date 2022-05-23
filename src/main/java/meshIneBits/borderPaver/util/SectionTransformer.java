@@ -28,10 +28,9 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.util;
+package meshIneBits.borderPaver.util;
 
-import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.Section;
+import meshIneBits.borderPaver.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -184,7 +183,7 @@ public class SectionTransformer {
         double angle = getSectionOrientation(mappedPoints);
 
         //check if abscissa axe of local coordinate system and section are directed in the same direction.
-        if (GeneralTools.arePointsMostlyOrientedToTheLeft(sectionPoints.getPoints(), sectionPoints.getStartPoint())) {
+        if (sectionPoints.arePointsMostlyOrientedToTheLeft()) {
             angle += 180; //rotate coordinate system
         }
         if (angle > 180) { // make sure that the angle is between -180 and 180 degrees

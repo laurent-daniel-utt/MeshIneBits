@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.debug;
+package meshIneBits.borderPaver.debug;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.debug;
+package meshIneBits.borderPaver.debug;
 
 import meshIneBits.util.Vector2;
 

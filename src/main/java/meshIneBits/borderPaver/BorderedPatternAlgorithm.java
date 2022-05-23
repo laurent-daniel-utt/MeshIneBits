@@ -28,10 +28,10 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.debug.DebugTools;
+import meshIneBits.borderPaver.debug.DebugTools;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -105,9 +105,6 @@ public class BorderedPatternAlgorithm {
         // compute the convex hull's points
         Section hullReduced =sectionReduced.getHull();
 
-        // compute hull's segments
-        Vector<Segment2D> segmentsHull = hullReduced.getSegments();
-
         // find the vector which connect the startPoint to the furthest (from the startPoint) point of the section
         Vector2 furthestPoint = sectionReduced.getFurthestPoint(startPoint);
         Vector2 startToFurthestPoint = furthestPoint.sub(startPoint);
@@ -125,7 +122,7 @@ public class BorderedPatternAlgorithm {
      * The position du bit is given by a vector that connects startPoint to the center of the bit.
      * This vector has to components : Collinear and Normal to the bit.
      *
-     * @param bitCollinearVector the vector given by {@link BorderedPatternAlgorithm#getBitCollinearVector(Vector)}
+     * @param bitCollinearVector the vector given by
      * @param bitLength          the length of the Bit placed.
      * @return the collinear component of the vector.
      */
@@ -139,7 +136,6 @@ public class BorderedPatternAlgorithm {
      * @param sectionReduced     the reduced section of points
      * @param bitCollinearVector the bit collinear vector
      * @return the length of the bit
-     * @see #getBitCollinearVector(Vector)
      */
     private static double getBitLengthFromSectionReduced(Section sectionReduced, Vector2 bitCollinearVector) {
         Vector2 startPoint = sectionReduced.getStartPoint();
@@ -176,10 +172,6 @@ public class BorderedPatternAlgorithm {
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
         Vector2 check = constraintPoint.add(constraintToMidPoint).add(constraintToMidPoint.normal().mul(1e-5)); // todo
         Vector2 positionNormal;
-
-//        DebugTools.pointsToDrawBLUE.add(constraintPoint);
-//        DebugTools.segmentsToDraw.add(constraintSegment);
-//        DebugTools.setPaintForDebug(true);
 
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
@@ -271,27 +263,6 @@ public class BorderedPatternAlgorithm {
     }
 
     /**
-     * Finds the furthest point among a list of points from a reference point (refPoint), calculating direct distances
-     * between them.
-     *
-     * @param refPoint the point from which the method calculates the distances
-     * @param points   the list of points among which the methods search the furthest point from the refPoint
-     * @return the furthest point from refPoint among the list  of points
-     */
-    private static Vector2 getFurthestPoint(Vector2 refPoint, Vector<Vector2> points) {
-        double maxDist = 0;
-        Vector2 furthestPoint = null;
-        for (Vector2 p : points) {
-            double dist = Vector2.dist(refPoint, p);
-            if (dist > maxDist) {
-                maxDist = dist;
-                furthestPoint = p;
-            }
-        }
-        return furthestPoint;
-    }
-
-    /**
      * A {@link Segment2D} is part of the boundary of an {@link Area}. This method finds a {@link Vector2}, normal
      * to the segment, oriented toward the inside of the area.
      *
@@ -309,11 +280,6 @@ public class BorderedPatternAlgorithm {
         return dir;
     }
 
-//    private Segment2D getConstraintSegment(Vector<Vector2> section, Vector<Vector2> hull, Area sliceArea) {
-//        double threshold = 40; //todo
-//        if(Vector2.dist(section..get(0), section.get(1))>threshold)
-//    }
-
     public static boolean listContainsAsGoodAsEqual(Vector2 point, Vector<Vector2> points) {
         for (Vector2 p : points) {
             if (point.asGoodAsEqual(p)) {
@@ -321,73 +287,5 @@ public class BorderedPatternAlgorithm {
             }
         }
         return false;
-    }
-
-    public static Vector<Vector2> getHull(Vector<Vector2> points) {
-
-        Vector<Vector2> hull = new Vector<>();
-
-        // find leftMosts
-        Vector<Integer> iLeftMosts = new Vector<>();
-        double xMin = Double.POSITIVE_INFINITY;
-        for (Vector2 point : points) {
-            double x = point.x;
-            if (x <= xMin) {
-                xMin = x;
-            }
-        }
-        for (int i = 0; i < points.size(); i++) {
-            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5)) iLeftMosts.add(i);
-        }
-        // find higher of leftMosts
-        int iHigherLeftMost = iLeftMosts.get(0);
-        for (int i = 1; i < iLeftMosts.size(); i++) {
-            if (points.get(iLeftMosts.get(i)).y < points.get(iHigherLeftMost).y) iHigherLeftMost = iLeftMosts.get(i);
-        }
-        int startIndex = iHigherLeftMost;
-
-        hull.add(points.get(startIndex));
-
-
-        // en partant de ce point, trouver chaque prochain point dont l'angle est le plus grand
-        // jusqu'à ce qu'on retourne au point de départ
-
-
-        //calcul du second point
-        Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1, 0));
-        Vector2 pointMilieu = points.get(startIndex);
-
-        while (hull.size() < 2 || hull.firstElement() != hull.lastElement()) {
-            double maxAngle = 0;
-            Vector<Vector2> pointsMaxAngles = new Vector<>();
-            for (int i = 0; i < points.size(); i++) {
-                // le point pivot étant le dernier point ajouté cela ne sert à rien de le tester à nouveau, de plus cela entraine des calculs d'agles erronés
-                if (points.get(i) != pointMilieu) {
-                    double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
-
-                    if (angle >= maxAngle - 1e-10 && i != points.indexOf(pointMilieu)) {
-                        if (angle > maxAngle + 1e-10) { // - et + ça permet de considérer qu'entre -1e-10 et +1e-10 les points sont alignés
-                            pointsMaxAngles.removeAllElements();
-                        }
-                        maxAngle = angle;
-                        pointsMaxAngles.add(points.get(i));
-                    }
-                }
-            }
-
-            if (pointsMaxAngles.contains(hull.firstElement())) {
-                /*
-                dans une section fermée, le premier et le dernier élément de la section sont les mêmes,
-                mais à cause d'imprécisions dans les chiffres décimaux, parfois à la fin du hull c'est un point
-                légèrement différent du premier qui est ajouté, ce qui fait que la boucle while tourne à l'infini
-                 */
-                hull.add(hull.firstElement());
-            } else {
-                hull.add(getFurthestPoint(pointMilieu, pointsMaxAngles));
-            }
-            previousPoint = pointMilieu;
-            pointMilieu = hull.lastElement();
-        }
-        return hull;
     }
 }

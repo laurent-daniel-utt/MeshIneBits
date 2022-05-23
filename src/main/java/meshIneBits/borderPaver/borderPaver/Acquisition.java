@@ -28,15 +28,15 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.borderPaver;
+package meshIneBits.borderPaver.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.AI_Tool;
-import meshIneBits.artificialIntelligence.GeneralTools;
-import meshIneBits.artificialIntelligence.Section;
-import meshIneBits.artificialIntelligence.util.DataLogEntry;
-import meshIneBits.artificialIntelligence.util.DataLogger;
-import meshIneBits.artificialIntelligence.util.DataSetGenerator;
+import meshIneBits.borderPaver.AI_Tool;
+import meshIneBits.borderPaver.GeneralTools;
+import meshIneBits.borderPaver.Section;
+import meshIneBits.borderPaver.util.DataLogEntry;
+import meshIneBits.borderPaver.util.DataLogger;
+import meshIneBits.borderPaver.util.DataSetGenerator;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;

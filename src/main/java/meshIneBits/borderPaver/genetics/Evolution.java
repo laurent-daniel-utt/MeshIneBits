@@ -28,9 +28,9 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.genetics;
+package meshIneBits.borderPaver.genetics;
 
-import meshIneBits.artificialIntelligence.Section;
+import meshIneBits.borderPaver.Section;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
@@ -73,6 +73,7 @@ public class Evolution {
     private final Vector<Vector2> bound;
     private final Vector<Generation> generations = new Vector<>();
     private final Area layerAvailableArea;
+    private final Section section;
     public Solution bestSolution;
 
     /**
@@ -93,6 +94,7 @@ public class Evolution {
         this.NB_OF_GENERATIONS = nbOfGenerations;
         this.POP_SIZE = popSize;
         this.RATIO = RATIO;
+        this.section = section;
     }
 
     /**
@@ -110,7 +112,7 @@ public class Evolution {
                 startPoint,
                 bound
         );
-        initGeneration.initialize(pointSection);
+        initGeneration.initialize(section);
         int currentGenerationNumber = 0;
         generations.add(initGeneration);
 
@@ -136,7 +138,7 @@ public class Evolution {
             newSolutions.addAll(sortedSolutions);
             newSolutions.addAll(reproducedSolutions);
             currentGeneration.initializeWith(newSolutions);
-            Vector<Solution> solutionsToCompleteWith = currentGeneration.completeWithNewSolutions(pointSection);
+            Vector<Solution> solutionsToCompleteWith = currentGeneration.completeWithNewSolutions(section);
             currentGeneration.solutions.addAll(solutionsToCompleteWith);
 
             //evaluates and deletes bad solutions

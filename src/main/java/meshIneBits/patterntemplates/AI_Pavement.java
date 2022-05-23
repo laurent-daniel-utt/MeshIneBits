@@ -34,7 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.AI_Tool;
+import meshIneBits.borderPaver.AI_Tool;
 import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;

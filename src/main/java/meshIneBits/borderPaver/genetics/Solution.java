@@ -28,11 +28,12 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.genetics;
+package meshIneBits.borderPaver.genetics;
 
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.borderPaver.GeneralTools;
+import meshIneBits.borderPaver.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
 import meshIneBits.util.Segment2D;
@@ -187,7 +188,7 @@ public class Solution {
 
             //System.out.println(getBit(startPoint));
             Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, startPoint);
-            double distViaSegments = GeneralTools.getDistViaSegments(startPoint, nextStartPoint, GeneralTools.pointsToSegments(bound));
+            double distViaSegments = Section.getDistViaSegments(startPoint, nextStartPoint, Section.pointsToSegments(bound));
             //System.out.println(distViaSegments + getBit(startPoint).toString());
             if (distViaSegments > maxDistanceForNextStart) {
                 bad = true;
@@ -229,7 +230,7 @@ public class Solution {
      * @return the number of intersections
      */
     private int getNumberOfIntersections(@NotNull Vector<Vector2> boundPoints) {
-        Vector<Segment2D> segmentsSlice = GeneralTools.pointsToSegments(boundPoints);
+        Vector<Segment2D> segmentsSlice = Section.pointsToSegments(boundPoints);
         Vector<Segment2D> bitSides = getBit(startPoint).getBitSidesSegments();
         int intersectionCount = 0;
 

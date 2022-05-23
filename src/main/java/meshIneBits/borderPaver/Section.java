@@ -28,14 +28,16 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.borderPaver;
 
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -47,21 +49,85 @@ public class Section {
 
     public Section(Vector<Vector2> sectionPoints) {
         this.points = sectionPoints;
-        this.segments = GeneralTools.pointsToSegments(sectionPoints);
+        this.segments = pointsToSegments(sectionPoints);
         this.startPoint = sectionPoints.firstElement();
     }
 
-    public Section(Vector<Vector2> sectionPoints, Vector2 startPoint) {
-        this.points = sectionPoints;
-        this.segments = GeneralTools.pointsToSegments(sectionPoints);
-        this.startPoint = startPoint;
+    /**
+     * Computes the distance between a startPoint and an endPoint. But not a direct distance.
+     * The distance is calculated passing by the segments of the bound
+     *
+     * @param startPoint a point which is on a segment
+     * @param endPoint   the end of a segment
+     * @param bound      the Slice
+     * @return the distance
+     */
+    public static double getDistViaSegments(Vector2 startPoint, Vector2 endPoint, Vector<Segment2D> bound) {
+        //finds the nearest point from startPoint and which is after the startPoint
+        Segment2D minSeg = null;
+        Segment2D startSeg = null;
+        for (Segment2D segment2D : bound) {
+            if (startPoint.isOnSegment(segment2D)) {
+                startSeg = segment2D;
+                minSeg = new Segment2D(segment2D.end, startPoint);
+                break;
+            }
+        }
+
+        //distance between the startPoint and the nearest segment
+        //then we loop through the segments, starting from minPoint to end
+        double totalDist = minSeg.getLength();//+sum of segments
+
+        for (Segment2D segment2D : bound.subList(bound.indexOf(startSeg), bound.size())) {
+            if (endPoint.isOnSegment(segment2D)) {
+                return totalDist + new Segment2D(endPoint, segment2D.start).getLength();
+            }
+            totalDist += segment2D.getLength();
+        }
+        return totalDist;
+    }
+
+    /**
+     * Checks if the given point A is located before the given point B on the given polygon.
+     * @param A a {@link Vector2}.
+     * @param B a {@link Vector2}.
+     * @param polygon a {@link Vector} of {@link Vector2}.
+     * @return true if A is located before B on the polygon, false otherwise.
+     */
+    static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
+        // on parcourt le polygon, et on regarde si on trouve le point A avant le point B
+        for (Segment2D segment : polygon) {
+            if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
+                return Vector2.dist(segment.start, A) < Vector2.dist(segment.start, B);
+            }
+            if (A.isOnSegment(segment)) return true;
+            if (B.isOnSegment(segment)) return false;
+        }
+        throw new RuntimeException("Points not found on polygon");
+    }
+
+    /**
+     * Checks if most of the points are located at the left of a reference point
+     *
+     * @return true if most of the points are at the left of the reference point.
+     */
+    public boolean arePointsMostlyOrientedToTheLeft() {
+        int leftPoints = 0;
+        int rightPoints = 0;
+        for (Vector2 point : points) {
+            if (point.x < startPoint.x) {
+                leftPoints++;
+            } else {
+                rightPoints++;
+            }
+        }
+        return leftPoints >= rightPoints;
     }
 
 
     /**
      * Compute and return the longest segment of the given list
      *
-     * @param segment2DS the segments list
      * @return the longest segment
      */
     public Segment2D getLongestSegment() {
@@ -72,7 +138,6 @@ public class Section {
      * Compute and return the most distant point to a segment
      *
      * @param segment2D the segment
-     * @param points    the list of points
      * @return the furthest point from the segment
      */
     public Vector2 getFurthestPointFromSegment(Segment2D segment2D) {
@@ -93,7 +158,6 @@ public class Section {
      *
      * @param refPoint          the first point
      * @param directionalVector the second point
-     * @param points            the points of the section
      * @return the furthest point
      */
     public Vector2 getFurthestPointFromRefPointViaVector(Vector2 refPoint, Vector2 directionalVector) {
@@ -110,22 +174,11 @@ public class Section {
         return furthestPoint;
     }
 
-    // todo methode en double dans generalTools
-    public static boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, Vector<Vector2> containerList) {
-        for (Vector2 p : containedList) {
-            if (!listContainsAsGoodAsEqual(p, containerList)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Finds the furthest point among a list of points from a reference point (refPoint), calculating direct distances
      * between them.
-     *
      * @param refPoint the point from which the method calculates the distances
-     * @param points   the list of points among which the methods search the furthest point from the refPoint
      * @return the furthest point from refPoint among the list  of points
      */
     public Vector2 getFurthestPoint(Vector2 refPoint) {
@@ -139,15 +192,6 @@ public class Section {
             }
         }
         return furthestPoint;
-    }
-
-    public static boolean listContainsAsGoodAsEqual(Vector2 point, Vector<Vector2> points) {
-        for (Vector2 p : points) {
-            if (point.asGoodAsEqual(p)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
@@ -165,8 +209,6 @@ public class Section {
 
             // calculates the convex hull of the section's points
             Section hull = sectionToReduce.getHull();
-
-            Vector<Segment2D> segmentsHull = hull.getSegments();
 
             // find the constraint segment, which is the longest segment of the hull // todo, maybe not always the case
             constraintSegment = hull.getLongestSegment();
@@ -216,8 +258,8 @@ public class Section {
     public Section getHull() {
         Vector<Vector2> hull = new Vector<>();
 
-        // find leftMosts
-        Vector<Integer> iLeftMosts = new Vector<>();
+        // find leftMost
+        Vector<Integer> iLeftMost = new Vector<>();
         double xMin = Double.POSITIVE_INFINITY;
         for (Vector2 point : points) {
             double x = point.x;
@@ -226,12 +268,12 @@ public class Section {
             }
         }
         for (int i = 0; i < points.size(); i++) {
-            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5)) iLeftMosts.add(i);
+            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5)) iLeftMost.add(i);
         }
-        // find higher of leftMosts
-        int iHigherLeftMost = iLeftMosts.get(0);
-        for (int i = 1; i < iLeftMosts.size(); i++) {
-            if (points.get(iLeftMosts.get(i)).y < points.get(iHigherLeftMost).y) iHigherLeftMost = iLeftMosts.get(i);
+        // find higher of leftMost
+        int iHigherLeftMost = iLeftMost.get(0);
+        for (int i = 1; i < iLeftMost.size(); i++) {
+            if (points.get(iLeftMost.get(i)).y < points.get(iHigherLeftMost).y) iHigherLeftMost = iLeftMost.get(i);
         }
         int startIndex = iHigherLeftMost;
 
@@ -279,6 +321,46 @@ public class Section {
             pointMilieu = hull.lastElement();
         }
         return new Section(hull);
+    }
+
+
+    /**
+     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
+     * following the order of the list of points given as entry. Deletes the points that are duplicated.
+     *
+     * @param points the points requiring to be converted into segments.
+     * @return the segments resulting from the conversion.
+     */
+    @NotNull
+    public static Vector<Segment2D> pointsToSegments(List<Vector2> points) {
+        //remove the duplicated points
+        Vector<Vector2> pointsNoDuplicates = new Vector<>();
+        for (Vector2 point : points) {
+            if (!pointsNoDuplicates.contains(point)) {
+                pointsNoDuplicates.add(point);
+            }
+        }
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
+        }
+        return sectionSegments;
+    }
+
+    /**
+     * Returns a point list from a segment list.
+     * If the first and last segment are connected, the first point is not added.
+     *
+     * @param segmentList the segment list
+     * @return the list of point computed from the segment list
+     */
+    static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
+        Vector<Vector2> pointsList = new Vector<>();
+        for (Segment2D segment : segmentList) {
+            pointsList.add(new Vector2(segment.start.x, segment.start.y));
+        }
+        if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
+        return pointsList;
     }
 
     //GETTERS

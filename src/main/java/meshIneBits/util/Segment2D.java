@@ -30,7 +30,7 @@
 
 package meshIneBits.util;
 
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.util.SectionTransformer;
 
 import java.io.Serializable;
 import java.util.Vector;

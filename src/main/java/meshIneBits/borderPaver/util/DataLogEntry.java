@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.util;
+package meshIneBits.borderPaver.util;
 
 import meshIneBits.Bit2D;
 import meshIneBits.util.Vector2;

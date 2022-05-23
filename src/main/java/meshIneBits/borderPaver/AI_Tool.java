@@ -28,11 +28,11 @@
  *
  */
 
-package meshIneBits.artificialIntelligence;
+package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.artificialIntelligence.borderPaver.NNExploitation;
-import meshIneBits.artificialIntelligence.util.SectionTransformer;
+import meshIneBits.borderPaver.borderPaver.NNExploitation;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;
@@ -151,7 +151,7 @@ public class AI_Tool {
     public boolean hasCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 nextStartPoint, Bit2D bit2D, Vector<Vector2> bound) {
         return bit2D.getArea().contains(veryFirstStartPoint.x, veryFirstStartPoint.y)
                 && GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, bound) != veryFirstStartPoint
-                || GeneralTools.getDistViaSegments(nextStartPoint, veryFirstStartPoint, GeneralTools.pointsToSegments(bound)) < AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
+                || Section.getDistViaSegments(nextStartPoint, veryFirstStartPoint, Section.pointsToSegments(bound)) < AI_Tool.paramSafeguardSpace.getCurrentValue(); //TODO
     }
 
 }
