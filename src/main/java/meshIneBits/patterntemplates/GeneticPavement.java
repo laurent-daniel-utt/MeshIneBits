@@ -136,7 +136,7 @@ public class GeneticPavement extends PatternTemplate {
                 printInfos(boundsToCheckAssociated, bound, bitNumber);
 
                 //Find a new Solution
-                currentEvolution = new Evolution(layerAvailableArea, associatedPoints.getPoints(), startPoint, bound, (int)genNumber, (int)popSize, (int)ratio);
+                currentEvolution = new Evolution(layerAvailableArea, associatedPoints, bound, (int)genNumber, (int)popSize, (int)ratio);
                 currentEvolution.run();
                 bestBit = currentEvolution.bestSolution.getBit();
                 solutions.add(bestBit);

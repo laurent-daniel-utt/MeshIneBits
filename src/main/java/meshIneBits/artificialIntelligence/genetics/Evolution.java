@@ -30,6 +30,7 @@
 
 package meshIneBits.artificialIntelligence.genetics;
 
+import meshIneBits.artificialIntelligence.Section;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
@@ -78,17 +79,16 @@ public class Evolution {
      * An evolution searches the best Solution for a given set of points.
      *
      * @param layerAvailableArea the available Area of the layer.
-     * @param pointSection       the points on which the Bit2D will be placed.
-     * @param startPoint         the startPoint where to place the bit;
+     * @param section            the section to place the bit on.
      * @param bound              the bound where the bit has to be placed.
      * @param nbOfGenerations    the number of generations to generate.
      * @param popSize            the size of the population to keep alive during the process.
      * @param RATIO              the ratio between the area and the length, used when calculating the score.
      */
-    public Evolution(Area layerAvailableArea, Vector<Vector2> pointSection, Vector2 startPoint, Vector<Vector2> bound, int nbOfGenerations, int popSize, int RATIO) {
-        this.layerAvailableArea = layerAvailableArea; //todo @etienne refactor here to take a Section in parameter
-        this.pointSection = pointSection;
-        this.startPoint = startPoint;
+    public Evolution(Area layerAvailableArea, Section section, Vector<Vector2> bound, int nbOfGenerations, int popSize, int RATIO) {
+        this.layerAvailableArea = layerAvailableArea;
+        this.pointSection = section.getPoints();
+        this.startPoint = section.getStartPoint();
         this.bound = bound;
         this.NB_OF_GENERATIONS = nbOfGenerations;
         this.POP_SIZE = popSize;
