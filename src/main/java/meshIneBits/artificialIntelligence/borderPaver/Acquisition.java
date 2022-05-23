@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.deepLearning;
+package meshIneBits.artificialIntelligence.borderPaver;
 
 import meshIneBits.Bit2D;
 import meshIneBits.artificialIntelligence.AI_Tool;

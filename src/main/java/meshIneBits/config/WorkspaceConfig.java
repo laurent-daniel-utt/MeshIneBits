@@ -57,7 +57,7 @@ public class WorkspaceConfig {
     /**
      * Bit used to feed the neural network.
      *
-     * @see meshIneBits.artificialIntelligence.deepLearning.Acquisition
+     * @see meshIneBits.artificialIntelligence.borderPaver.Acquisition
      */
     public static Color forAI_BitColor = new Color(212, 176, 85);
     public static Color cutpathColor = Color.BLUE.darker();

@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.artificialIntelligence.deepLearning;
+package meshIneBits.artificialIntelligence.borderPaver;
 
 import meshIneBits.artificialIntelligence.AI_Tool;
 import org.datavec.api.records.reader.RecordReader;

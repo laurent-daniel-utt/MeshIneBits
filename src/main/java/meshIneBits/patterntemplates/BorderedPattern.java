@@ -36,6 +36,7 @@ import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.BorderedPatternAlgorithm;
 import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.Placement;
 import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -119,7 +120,7 @@ public class BorderedPattern extends PatternTemplate {
 
             Vector<Vector2> sectionPoints;
             int iBit = 0;
-            BorderedPatternAlgorithm.Placement placement;
+            Placement placement;
             do {
                 System.out.println("\tPLACEMENT BIT " + iBit + "====================");
                 sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);

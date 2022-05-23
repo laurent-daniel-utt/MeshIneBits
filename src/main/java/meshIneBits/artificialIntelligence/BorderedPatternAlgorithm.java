@@ -476,22 +476,4 @@ public class BorderedPatternAlgorithm {
         }
         return hull;
     }
-
-    /**
-     * The description of the placement of a {@link Bit2D} : the bit2D, the section covered by it
-     * and the last point of the section.
-     */
-    public static class Placement {
-        public final Bit2D bit2D;
-        public final Vector<Vector2> sectionCovered;
-        public final Vector2 end;
-
-        public Placement(Bit2D bit2D, Vector<Vector2> sectionCovered) {
-            this.bit2D = bit2D;
-            this.sectionCovered = sectionCovered;
-            this.end = sectionCovered.lastElement();
-        }
-    }
-
-
 }
