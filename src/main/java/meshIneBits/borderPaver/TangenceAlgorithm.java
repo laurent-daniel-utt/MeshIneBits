@@ -31,6 +31,8 @@
 package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.GeneralTools;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.slicer.Slice;
@@ -43,10 +45,6 @@ import java.util.Vector;
 
 public class TangenceAlgorithm {
 
-    /**
-     * The error threshold for the convexity computation.
-     */
-    private static final int CONVEX_ERROR = -4;
     /**
      * The minimum distance to keep between the bound and the bit in order to avoid the bit to be placed exactly
      * on the bound. Which causes the intersection computations to fail.
@@ -97,7 +95,7 @@ public class TangenceAlgorithm {
 
                 //Computes the convexity of the section
                 List<Vector2> maxConvexSection = new Vector<>();
-                if (isConvex(sectionPoints.subList(0, nbPointsToCheck))) {
+                if (Section.isConvex(sectionPoints.subList(0, nbPointsToCheck))) {
                     //convex section
                     convexType = 1;
 
@@ -112,7 +110,7 @@ public class TangenceAlgorithm {
                     do {
                         convexSection.add(convexSection.size() - 1, sectionPoints.get(i));
                         i++;
-                    } while (i < sectionPoints.size() && isConvex(convexSection));
+                    } while (i < sectionPoints.size() && Section.isConvex(convexSection));
                     maxConvexSection = convexSection;
                     maxConvexSection.remove(ORIGIN);
                 }
@@ -138,7 +136,7 @@ public class TangenceAlgorithm {
                 iBit++;
 
 
-            } while (!((listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
         }
 
 
@@ -169,9 +167,9 @@ public class TangenceAlgorithm {
             if (convexType !=0 && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
                 Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)),
                                                           segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
-                if (getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == 1) {//todo faire mieux pour ne pas utiliser les intersections
+                if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == 1) {//todo faire mieux pour ne pas utiliser les intersections
                     lastPossibleSegment = segment;
-                } else if (getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == -1) {
+                } else if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == -1) {
                     lastPossibleSegment = segment;
                 }
             }
@@ -205,29 +203,6 @@ public class TangenceAlgorithm {
     }
 
     /**
-     * Computes the convexity of a given list of points.
-     * @param pts the list of points.
-     * @return true if the list is convex, false otherwise.
-     */
-    static boolean isConvex(List<Vector2> pts) {
-        boolean sign = false;
-        int n = pts.size();
-
-        for (int i = 0; i < n; i++) {
-            double distX1 = pts.get((i + 2) % n).x - pts.get((i + 1) % n).x;
-            double distY1 = pts.get((i + 2) % n).y - pts.get((i + 1) % n).y;
-            double distX2 = pts.get(i).x - pts.get((i + 1) % n).x;
-            double distY2 = pts.get(i).y - pts.get((i + 1) % n).y;
-            double zCrossProduct = distX1 * distY2 - distY1 * distX2;
-
-            //we check if the sign is the same for all points with a precision margin
-            if (i == 0) sign = zCrossProduct > CONVEX_ERROR;
-            else if (sign != (zCrossProduct > CONVEX_ERROR)) return false;
-        }
-        return true;
-    }
-
-    /**
      * Computes the projection of a point on a segment, orthogonal to the segment.
      * @param startPoint the point to project.
      * @param segment the segment to project on.
@@ -237,43 +212,5 @@ public class TangenceAlgorithm {
         Vector2 distance = segment.start.sub(startPoint);
         Vector2 orthogonal = segment.getNormal();
         return startPoint.add(orthogonal.mul(distance.dot(orthogonal))); // the orthogonal projection
-    }
-
-    /**
-     * Computes the number of intersection between a segment and a list of points. The points are first converted into segments.
-     * @param segmentToTest the segment to test.
-     * @param sectionPoints the list of points.
-     * @return the number of intersection between the segment and the list of points.
-     */
-    private int getNumberOfIntersection(Segment2D segmentToTest, List<Vector2> sectionPoints) {
-        int nbIntersections = 0;
-        Vector<Segment2D> segments = Section.pointsToSegments(sectionPoints);
-        for (Segment2D segment2D : segments) {
-            if (Segment2D.doSegmentsIntersect(segmentToTest, segment2D)) {// && segment2D.end != Segment2D.getIntersectionPoint(segmentToTest, segment2D)) {
-                nbIntersections++;
-            }
-        }
-        return nbIntersections;
-    }
-
-
-    //todo duplicated code
-    private boolean listContainsAsGoodAsEqual(Vector2 point, List<Vector2> points) {
-        for (Vector2 p : points) {
-            if (point.asGoodAsEqual(p)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //todo duplicated code
-    private boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, List<Vector2> containerList) {
-        for (Vector2 p : containedList) {
-            if (!listContainsAsGoodAsEqual(p, containerList)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

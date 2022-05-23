@@ -30,7 +30,7 @@
 
 package meshIneBits.borderPaver.genetics;
 
-import meshIneBits.borderPaver.Section;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Vector2;

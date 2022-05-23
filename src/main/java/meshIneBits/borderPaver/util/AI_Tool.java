@@ -28,11 +28,10 @@
  *
  */
 
-package meshIneBits.borderPaver;
+package meshIneBits.borderPaver.util;
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.borderPaver.NNExploitation;
-import meshIneBits.borderPaver.util.SectionTransformer;
+import meshIneBits.borderPaver.artificialIntelligence.NNExploitation;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.slicer.Slice;

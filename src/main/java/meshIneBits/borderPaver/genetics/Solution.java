@@ -32,8 +32,8 @@ package meshIneBits.borderPaver.genetics;
 
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.GeneralTools;
-import meshIneBits.borderPaver.Section;
+import meshIneBits.borderPaver.util.GeneralTools;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CalculateAreaSurface;
 import meshIneBits.util.Segment2D;

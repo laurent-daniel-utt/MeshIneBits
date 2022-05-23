@@ -32,7 +32,7 @@ package meshIneBits.util.supportUndoRedo;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
-import meshIneBits.borderPaver.borderPaver.Acquisition;
+import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.util.Vector2;
 

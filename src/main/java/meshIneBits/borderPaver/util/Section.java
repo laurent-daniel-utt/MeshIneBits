@@ -28,9 +28,9 @@
  *
  */
 
-package meshIneBits.borderPaver;
+package meshIneBits.borderPaver.util;
 
-import meshIneBits.borderPaver.util.SectionTransformer;
+import meshIneBits.borderPaver.BorderedPatternAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -42,6 +42,10 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 public class Section {
+    /**
+     * The error threshold for the convexity computation.
+     */
+    private static final int CONVEX_ERROR = -4;
     private final Vector2 startPoint;
     private final Vector<Vector2> points;
     private final Vector<Segment2D> segments;
@@ -94,7 +98,7 @@ public class Section {
      * @param polygon a {@link Vector} of {@link Vector2}.
      * @return true if A is located before B on the polygon, false otherwise.
      */
-    static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
+    public static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
         // on parcourt le polygon, et on regarde si on trouve le point A avant le point B
         for (Segment2D segment : polygon) {
             if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
@@ -104,6 +108,74 @@ public class Section {
             if (B.isOnSegment(segment)) return false;
         }
         throw new RuntimeException("Points not found on polygon");
+    }
+
+    public static boolean listContainsAsGoodAsEqual(Vector2 point, List<Vector2> points) {
+        for (Vector2 p : points) {
+            if (point.asGoodAsEqual(p)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, List<Vector2> containerList) {
+        for (Vector2 p : containedList) {
+            if (!listContainsAsGoodAsEqual(p, containerList)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Compute and return the longest segment of the given list
+     *
+     * @param segment2DS the segments list
+     * @return the longest segment
+     */
+    public static Segment2D getLongestSegment(Vector<Segment2D> segment2DS) {
+        return segment2DS.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
+    }
+
+    /**
+     * Computes the convexity of a given list of points.
+     * @param pts the list of points.
+     * @return true if the list is convex, false otherwise.
+     */
+    public static boolean isConvex(List<Vector2> pts) {
+        boolean sign = false;
+        int n = pts.size();
+
+        for (int i = 0; i < n; i++) {
+            double distX1 = pts.get((i + 2) % n).x - pts.get((i + 1) % n).x;
+            double distY1 = pts.get((i + 2) % n).y - pts.get((i + 1) % n).y;
+            double distX2 = pts.get(i).x - pts.get((i + 1) % n).x;
+            double distY2 = pts.get(i).y - pts.get((i + 1) % n).y;
+            double zCrossProduct = distX1 * distY2 - distY1 * distX2;
+
+            //we check if the sign is the same for all points with a precision margin
+            if (i == 0) sign = zCrossProduct > CONVEX_ERROR;
+            else if (sign != (zCrossProduct > CONVEX_ERROR)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Computes the number of intersection between a segment and a list of points. The points are first converted into segments.
+     * @param segmentToTest the segment to test.
+     * @param sectionPoints the list of points.
+     * @return the number of intersection between the segment and the list of points.
+     */
+    public static int getNumberOfIntersection(Segment2D segmentToTest, List<Vector2> sectionPoints) {
+        int nbIntersections = 0;
+        Vector<Segment2D> segments = pointsToSegments(sectionPoints);
+        for (Segment2D segment2D : segments) {
+            if (Segment2D.doSegmentsIntersect(segmentToTest, segment2D)) {// && segment2D.end != Segment2D.getIntersectionPoint(segmentToTest, segment2D)) {
+                nbIntersections++;
+            }
+        }
+        return nbIntersections;
     }
 
     /**
@@ -354,7 +426,7 @@ public class Section {
      * @param segmentList the segment list
      * @return the list of point computed from the segment list
      */
-    static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
+    public static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
         Vector<Vector2> pointsList = new Vector<>();
         for (Segment2D segment : segmentList) {
             pointsList.add(new Vector2(segment.start.x, segment.start.y));
@@ -362,6 +434,8 @@ public class Section {
         if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
         return pointsList;
     }
+
+
 
     //GETTERS
     public Vector2 getStartPoint() {
@@ -375,6 +449,4 @@ public class Section {
     public Vector<Segment2D> getSegments() {
         return segments;
     }
-
-
 }

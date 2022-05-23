@@ -28,9 +28,10 @@
  *
  */
 
-package meshIneBits.borderPaver;
+package meshIneBits.borderPaver.util;
 
 import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.util.Vector2;
 
 /**

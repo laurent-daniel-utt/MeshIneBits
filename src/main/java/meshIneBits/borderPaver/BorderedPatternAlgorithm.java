@@ -32,29 +32,17 @@ package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
 import meshIneBits.borderPaver.debug.DebugTools;
+import meshIneBits.borderPaver.util.Placement;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 
 
 public class BorderedPatternAlgorithm {
-
-    /**
-     * Compute and return the longest segment of the given list
-     *
-     * @param segment2DS the segments list
-     * @return the longest segment
-     */
-    private static Segment2D getLongestSegment(Vector<Segment2D> segment2DS) {
-        return segment2DS.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
-    }
-
-
     /**
      * Return the distance between two points via a vector by computing a projection along the vector.
      *
@@ -63,7 +51,7 @@ public class BorderedPatternAlgorithm {
      * @param directionalVector the directional vector
      * @return the projected distance
      */
-    static double getDistFromFromRefPointViaVector(Vector2 refPoint, Vector2 point, Vector2 directionalVector) {
+    public static double getDistFromFromRefPointViaVector(Vector2 refPoint, Vector2 point, Vector2 directionalVector) {
         if (point != refPoint) {
             double angle = Math.toRadians(directionalVector.getEquivalentAngle2() - point.sub(refPoint).getEquivalentAngle2());
             return Math.cos(angle) * Vector2.dist(point, refPoint);
@@ -165,7 +153,7 @@ public class BorderedPatternAlgorithm {
         3 : the segment is part of the Slice
         4 : the section is closed and can be overlapped by a bit
          */
-        Segment2D constraintSegment = getLongestSegment(segmentsHull);
+        Segment2D constraintSegment = hullReduced.getLongestSegment();
         Vector2 constraintPoint = hullReduced.getFurthestPointFromSegment(constraintSegment);
         Vector2 dirConstraintSegmentNormal = constraintSegment.getNormal();
         Vector2 midPoint = constraintSegment.getMidPoint();
@@ -252,16 +240,6 @@ public class BorderedPatternAlgorithm {
         return new Placement(bit2D, sectionReduced);
     }
 
-    // todo methode en double dans generalTools
-    public static boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, Vector<Vector2> containerList) {
-        for (Vector2 p : containedList) {
-            if (!listContainsAsGoodAsEqual(p, containerList)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * A {@link Segment2D} is part of the boundary of an {@link Area}. This method finds a {@link Vector2}, normal
      * to the segment, oriented toward the inside of the area.
@@ -278,14 +256,5 @@ public class BorderedPatternAlgorithm {
             dir = dir.getOpposite();
         }
         return dir;
-    }
-
-    public static boolean listContainsAsGoodAsEqual(Vector2 point, Vector<Vector2> points) {
-        for (Vector2 p : points) {
-            if (point.asGoodAsEqual(p)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

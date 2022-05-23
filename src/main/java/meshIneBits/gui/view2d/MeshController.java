@@ -32,7 +32,7 @@ package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
 import meshIneBits.borderPaver.debug.DebugTools;
-import meshIneBits.borderPaver.borderPaver.Acquisition;
+import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;

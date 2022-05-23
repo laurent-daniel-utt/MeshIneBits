@@ -30,7 +30,6 @@
 
 package meshIneBits.borderPaver.util;
 
-import meshIneBits.borderPaver.AI_Tool;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 

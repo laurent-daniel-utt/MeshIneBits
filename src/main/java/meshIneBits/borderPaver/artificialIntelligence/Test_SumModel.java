@@ -28,9 +28,9 @@
  *
  */
 
-package meshIneBits.borderPaver.borderPaver;
+package meshIneBits.borderPaver.artificialIntelligence;
 
-import meshIneBits.borderPaver.AI_Tool;
+import meshIneBits.borderPaver.util.AI_Tool;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;

@@ -28,11 +28,9 @@
  *
  */
 
-package meshIneBits.borderPaver;
+package meshIneBits.borderPaver.util;
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.util.Curve;
-import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;

@@ -30,7 +30,6 @@
 
 package meshIneBits.borderPaver.util;
 
-import meshIneBits.borderPaver.Section;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;

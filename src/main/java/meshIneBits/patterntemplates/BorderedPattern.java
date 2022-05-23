@@ -35,9 +35,9 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.borderPaver.BorderedPatternAlgorithm;
-import meshIneBits.borderPaver.GeneralTools;
-import meshIneBits.borderPaver.Placement;
-import meshIneBits.borderPaver.Section;
+import meshIneBits.borderPaver.util.GeneralTools;
+import meshIneBits.borderPaver.util.Placement;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -132,8 +132,8 @@ public class BorderedPattern extends PatternTemplate {
                 System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
                 iBit++;
 
-            } while (!((BorderedPatternAlgorithm.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
-                    || BorderedPatternAlgorithm.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
+                    || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
         }
         return bits;
 
