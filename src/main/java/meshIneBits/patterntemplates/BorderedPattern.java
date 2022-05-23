@@ -35,10 +35,16 @@ import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
 import meshIneBits.artificialIntelligence.BorderedPatternAlgorithm;
+import meshIneBits.artificialIntelligence.GeneralTools;
+import meshIneBits.artificialIntelligence.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -64,7 +70,7 @@ public class BorderedPattern extends PatternTemplate {
                 "The maximum number of bits to place",
                 0.0,
                 Double.POSITIVE_INFINITY,
-                5.0,
+                50.0,
                 1.0));
 
     }
@@ -79,17 +85,71 @@ public class BorderedPattern extends PatternTemplate {
         try {
             double numberMaxBits = (double) config.get("numberMaxBits").getCurrentValue();
             double minWidth = (double) config.get("minWidth").getCurrentValue();
-            BorderedPatternAlgorithm borderedPatternAlgorithm = new BorderedPatternAlgorithm();
-            //TODO @Etienne, move getBits here and refactor the structure
-            //TODO @Etienne, loop to find the best config
-            Collection<Bit2D> bits = borderedPatternAlgorithm.getBits(
-                    layer.getHorizontalSection(),minWidth,numberMaxBits);
+            //TODO @Etienne, loop to find the best config ?
+            Collection<Bit2D> bits = getBits(layer.getHorizontalSection(),minWidth,numberMaxBits);
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Pavement(new Vector<>());
+    }
+
+
+    /**
+     * Compute each bit to place on the border of the Slice using BorderedPattern algorithms
+     *
+     * @param slice          the slice to pave
+     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
+     * @param numberMaxBits  the maximum number of bits to place on each border
+     * @return the list of bits for this Slice
+     */
+    public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
+        Vector<Bit2D> bits = new Vector<>();
+
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Area areaSlice = AreaTool.getAreaFrom(slice);
+
+
+        for (Vector<Vector2> bound : bounds) {
+            Vector2 veryFirstStartPoint = bound.get(0);
+            Vector2 nextStartPoint = bound.get(0);
+
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+
+            Vector<Vector2> sectionPoints;
+            int iBit = 0;
+            BorderedPatternAlgorithm.Placement placement;
+            do {
+                System.out.println("\tPLACEMENT BIT " + iBit + "====================");
+                sectionPoints = SectionTransformer.getSectionPointsFromBound(bound, nextStartPoint);
+
+//                System.out.println("dist = " + Vector2.dist(sectionPoints.lastElement(), nextStartPoint));
+
+                placement = BorderedPatternAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
+                bits.add(placement.bit2D);
+                nextStartPoint = placement.end;
+//                System.out.println("veryFirstStartPoint = " + veryFirstStartPoint);
+//                System.out.println("section covered = " + placement.sectionCovered);
+
+
+//                DebugTools.pointsToDrawBLUE.addAll(sectionPoints);
+//                DebugTools.pointsToDrawRED.addAll(placement.sectionCovered);
+//                DebugTools.setPaintForDebug(true);
+//                System.out.println("sectionPoints.lastElement() = " + sectionPoints.lastElement());
+//                System.out.println("placement.sectionCovered.lastElement() = " + placement.sectionCovered.lastElement());
+
+
+                System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
+
+                iBit++;
+
+            } while (!((BorderedPatternAlgorithm.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered) && iBit > 1)
+                    || BorderedPatternAlgorithm.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered)) && iBit < numberMaxBits);
+            //while (!listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.subList(1, placement.sectionCovered.size())) && iBit<40); //Add each bit on the bound
+        }
+        return bits;
+
     }
 
     @Override
@@ -115,7 +175,7 @@ public class BorderedPattern extends PatternTemplate {
 
     @Override
     public String getDescription() {
-        return "Paves the bounds of the slices";
+        return "Paves the bounds of the slices. Best performance for slices with curves.";
     }
 
     @Override

@@ -34,7 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.TangenceAlgo;
+import meshIneBits.artificialIntelligence.TangenceAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
@@ -80,7 +80,7 @@ public class TangenceBorderedPattern extends PatternTemplate {
         try {
             double numberMaxBits = (double) config.get("numberMaxBits").getCurrentValue();
             double minWidth = (double) config.get("minWidth").getCurrentValue();
-            Collection<Bit2D> bits = new TangenceAlgo().getBits(
+            Collection<Bit2D> bits = new TangenceAlgorithm().getBits(
                     layer.getHorizontalSection(),minWidth,numberMaxBits);
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
@@ -113,7 +113,7 @@ public class TangenceBorderedPattern extends PatternTemplate {
 
     @Override
     public String getDescription() {
-        return "Paves the bounds of the slices";
+        return "Paves the bounds of the slices. Best performance for slices with straight lines.";
     }
 
     @Override
@@ -127,7 +127,7 @@ public class TangenceBorderedPattern extends PatternTemplate {
      * @param bits the collection of bits to cut
      */
     //(Modified function for border algorithms, the other doesn't work)
-    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) { //TODO @Etienne
+    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) { //TODO @Etienne duplicated code
         double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
         for (Bit2D bit2DToCut : bits) {
             Area bit2DToCutArea = bit2DToCut.getArea();

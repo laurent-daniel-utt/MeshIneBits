@@ -41,7 +41,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.util.List;
 import java.util.Vector;
 
-public class TangenceAlgo {
+public class TangenceAlgorithm {
 
     /**
      * The error threshold for the convexity computation.

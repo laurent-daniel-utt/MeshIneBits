@@ -44,6 +44,7 @@ import java.awt.geom.Point2D;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
+//todo @Etienn créer une classe SECTION
 public class SectionTransformer {
 
     /**
