@@ -30,7 +30,7 @@
 
 package meshIneBits.borderPaver.util;
 
-import meshIneBits.borderPaver.BorderedPatternAlgorithm;
+import meshIneBits.borderPaver.ConvexBorderAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -288,7 +288,7 @@ public class Section {
         double maxDist = Double.NEGATIVE_INFINITY;
         Vector2 furthestPoint = null;
         for (Vector2 p : points) {
-            double dist = BorderedPatternAlgorithm.getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
+            double dist = ConvexBorderAlgorithm.getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
             if (dist > maxDist) {
                 maxDist = dist;
                 furthestPoint = p;

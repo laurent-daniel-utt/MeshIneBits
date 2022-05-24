@@ -176,8 +176,8 @@ public class CraftConfig {
      */
     public static PatternTemplate[] templatesPreloaded = {
             new BorderPaverPattern(),
-            new TangenceBorderedPattern(),
-            new BorderedPattern(),
+//            new TangenceBorderedPattern(),
+//            new BorderedPattern(),//todo @Etienne
             new GeneticPavement(),
             new ManualPattern(),
             new ClassicBrickPattern(),

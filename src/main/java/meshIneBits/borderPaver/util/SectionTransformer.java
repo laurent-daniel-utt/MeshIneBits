@@ -43,7 +43,7 @@ import java.awt.geom.Point2D;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
-//todo @Etienn créer une classe SECTION
+//todo @Etienne créer une classe SECTION
 public class SectionTransformer {
 
     /**
@@ -67,7 +67,7 @@ public class SectionTransformer {
             if (isPointOnSegment(startPoint, newSeg)
                     && !startPoint.asGoodAsEqual(bound.get(iBound))
                     && !startPoint.asGoodAsEqual(bound.get(iBound + 1))) {
-                // then startpoint is on this segment, so we split it in 2 to include the startPoint
+                // then the startPoint is on this segment, so we split it in 2 to include the startPoint
                 boundSegments.add(new Segment2D(bound.get(iBound), startPoint));
                 startSegment = new Segment2D(startPoint, bound.get(iBound + 1));
                 boundSegments.add(startSegment);
@@ -89,7 +89,7 @@ public class SectionTransformer {
         do {
             Vector<Vector2> intersections = circleAndSegmentIntersection(currentSegment.start, currentSegment.end, startPoint, bitLength, true);
             if (!intersections.isEmpty()) { // il y a une intersection donc on l'ajoute à la section et on a fini
-                sectionPoints.add(intersections.firstElement()); // dans notre cas comme on s'éloigne du startpoint il y aura forcément 1 intersection max
+                sectionPoints.add(intersections.firstElement()); // dans notre cas comme on s'éloigne du the startPoint il y aura forcément 1 intersection max
                 intersectionFound = true;
             } else {
                 sectionPoints.add(currentSegment.end);

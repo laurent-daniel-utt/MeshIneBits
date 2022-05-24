@@ -34,18 +34,14 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.borderPaver.BorderPaver;
-import meshIneBits.borderPaver.util.GeneralTools;
-import meshIneBits.borderPaver.util.Placement;
-import meshIneBits.borderPaver.util.Section;
-import meshIneBits.borderPaver.util.SectionTransformer;
+import meshIneBits.borderPaver.ConvexBorderAlgorithm;
+import meshIneBits.borderPaver.TangenceBorderAlgorithm;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.config.patternParameter.BooleanParam;
 import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.AreaTool;
 
 import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -73,7 +69,11 @@ public class BorderPaverPattern extends PatternTemplate {
                 Double.POSITIVE_INFINITY,
                 50.0,
                 1.0));
-
+        config.add(new BooleanParam(
+                "straightLines",
+                "Has most straight lines",
+                "True if the Slice has most straight lines",
+                false));
     }
 
     @Override
@@ -86,55 +86,18 @@ public class BorderPaverPattern extends PatternTemplate {
         try {
             double numberMaxBits = (double) config.get("numberMaxBits").getCurrentValue();
             double minWidth = (double) config.get("minWidth").getCurrentValue();
-            Collection<Bit2D> bits = getBits(layer.getHorizontalSection(),minWidth,numberMaxBits);
+            Collection<Bit2D> bits;
+            if (((boolean) config.get("straightLines").getCurrentValue())) {
+                bits = TangenceBorderAlgorithm.getBits(layer.getHorizontalSection(), minWidth, numberMaxBits);
+            } else {
+                bits = ConvexBorderAlgorithm.getBits(layer.getHorizontalSection(), minWidth, numberMaxBits);
+            }
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Pavement(new Vector<>());
-    }
-
-
-    /**
-     * Compute each bit to place on the border of the Slice using BorderedPattern algorithms
-     *
-     * @param slice          the slice to pave
-     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
-     * @param numberMaxBits  the maximum number of bits to place on each border
-     * @return the list of bits for this Slice
-     */
-    public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
-        Vector<Bit2D> bits = new Vector<>();
-
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-
-
-        for (Vector<Vector2> bound : bounds) {
-            Vector2 veryFirstStartPoint = bound.get(0);
-            Vector2 nextStartPoint = bound.get(0);
-
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
-
-            int iBit = 0;
-            Placement placement;
-            Section sectionPoints;
-            do {
-                System.out.println("\tPLACEMENT BIT " + iBit + "====================");
-
-                sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
-                placement = BorderPaver.getBit(sectionPoints, minWidthToKeep, slice,bound);
-                bits.add(placement.bit2D);
-                nextStartPoint = placement.nextStartPoint;
-
-                System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
-                iBit++;
-
-            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints.getPoints()) && iBit > 1)
-                    || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints.getPoints())) && iBit < numberMaxBits);
-        }
-        return bits;
-
     }
 
     @Override
@@ -174,19 +137,19 @@ public class BorderPaverPattern extends PatternTemplate {
      * @param bits the collection of bits to cut
      */
     //(Modified function for border algorithms, the other doesn't work)
-    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
-//        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
-//        for (Bit2D bit2DToCut : bits) {
-//            Area bit2DToCutArea = bit2DToCut.getArea();
-//            Area nonAvailableArea = new Area();
-//            for (Bit2D bit2D : bits) {
-//                if (!bit2D.equals(bit2DToCut)) {
-//                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
-//                    nonAvailableArea.add(expand);
-//                }
-//            }
-//            bit2DToCutArea.subtract(nonAvailableArea);
-//            bit2DToCut.updateBoundaries(bit2DToCutArea);
-//        }
+    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) { //TODO @Etienne duplicated code
+        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
+        for (Bit2D bit2DToCut : bits) {
+            Area bit2DToCutArea = bit2DToCut.getArea();
+            Area nonAvailableArea = new Area();
+            for (Bit2D bit2D : bits) {
+                if (!bit2D.equals(bit2DToCut)) {
+                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+                    nonAvailableArea.add(expand);
+                }
+            }
+            bit2DToCutArea.subtract(nonAvailableArea);
+            bit2DToCut.updateBoundaries(bit2DToCutArea);
+        }
     }
 }
