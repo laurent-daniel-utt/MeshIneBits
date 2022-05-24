@@ -169,12 +169,10 @@ public class ConvexBorderAlgorithm {
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
-            System.out.println("cas 3");//todo enlever les prints
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
             double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startBit, constraintSegment);
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
-            System.out.println("cas 4");
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
             //todo dans ce cas, on voudrait que les bits soient parallèles au contour comme sur Tour.stl
@@ -182,12 +180,10 @@ public class ConvexBorderAlgorithm {
             // research of the longest segment
             double lengthMax = 0;
             for (Segment2D segment2D : segmentsHull.subList(0, segmentsHull.size() - 1)) {//le dernier, c'est celui qui referme le hull
-                System.out.println("segment2D.getLength() = " + segment2D.getLength() + "constraint seg : " + constraintSegment.getLength());
                 if (segment2D.getLength() > lengthMax) {
                     constraintSegment = segment2D;
                     lengthMax = segment2D.getLength();
                 }
-                System.out.println("lengthMax = " + lengthMax);
             }
             dirConstraintSegmentNormal = constraintSegment.getNormal();
 
@@ -196,14 +192,12 @@ public class ConvexBorderAlgorithm {
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2 - getDistFromFromRefPointViaVector(constraintPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-            System.out.println("cas 1");
 
         } else { // case 2
             if (dirConstraintSegmentNormal.dot(constraintToMidPoint) > 0)
                 dirConstraintSegmentNormal = dirConstraintSegmentNormal.getOpposite();
             double normPositionNormal = CraftConfig.bitWidth / 2 - getDistFromFromRefPointViaVector(midPoint, startBit, dirConstraintSegmentNormal);
             positionNormal = dirConstraintSegmentNormal.mul(normPositionNormal);
-            System.out.println("cas 2");
         }
 
         return positionNormal;
@@ -286,14 +280,14 @@ public class ConvexBorderAlgorithm {
             int iBit = 0;
             Placement placement;
             do {
-                System.out.println("\tPLACEMENT BIT " + iBit + "====================");
+                System.out.print("\t " + "BIT PLACEMENT"+"\tCONVEXE\t"+" : " + iBit + "\t");
 
                 Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 placement = ConvexBorderAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(placement.bit2D);
                 nextStartPoint = placement.nextStartPoint;
 
-                System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
+                System.out.println(": END");
                 iBit++;
 
             } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);

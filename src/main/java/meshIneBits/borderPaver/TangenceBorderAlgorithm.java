@@ -145,25 +145,23 @@ public class TangenceBorderAlgorithm {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 nextStartPoint = bound.get(0);
 
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++");
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
 
             List<Vector2> sectionPoints;
             Section section;
             int iBit = 0;
             do {
-                System.out.print("\t " + "BIT PLACEMENT : " + iBit + "\t");
+                System.out.print("\t " + "BIT PLACEMENT"+"\tTANGENT\t"+" : " + iBit + "\t");
                 section = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 sectionPoints = section.getPoints();
 
-                //We first want to know if the beginning of the section is convex or concave
-                //we then want to find the max convex or concave section
                 int convexType = section.getConvexType(nextStartPoint);
 
                 Bit2D bit = TangenceBorderAlgorithm.getBitFromSectionWithTangence(sectionPoints, nextStartPoint, minWidth, convexType);
                 bits.add(bit);
 
                 nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                System.out.println("END BIT PLACEMENT");
+                System.out.println(": END");
                 iBit++;
 
             } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
