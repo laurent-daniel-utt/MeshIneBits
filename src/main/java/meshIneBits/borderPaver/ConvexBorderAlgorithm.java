@@ -262,7 +262,6 @@ public class ConvexBorderAlgorithm {
     }
 
 
-
     /**
      * Compute each bit to place on the border of the Slice using BorderedPattern algorithms
      *
@@ -297,8 +296,7 @@ public class ConvexBorderAlgorithm {
                 System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
                 iBit++;
 
-            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
-                    || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
         }
         return bits;
 

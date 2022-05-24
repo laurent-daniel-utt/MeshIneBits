@@ -48,32 +48,10 @@ import java.util.Vector;
 public class BorderPaverPattern extends PatternTemplate {
     @Override
     protected void initiateConfig() {
-        config.add(new DoubleParam(
-                "minWidth",
-                "Min width to keep",
-                "Minimum bit width kept after cut",
-                0.0,
-                CraftConfig.bitWidth / 2,
-                3.0,
-                5.0));
-        config.add(new DoubleParam(
-                "safeguardSpace",
-                "Space around bit",
-                "In order to keep bits not overlapping or grazing each other",
-                1.0, 10.0, 3.0, 0.01));
-        config.add(new DoubleParam(
-                "numberMaxBits",
-                "Bits max number",
-                "The maximum number of bits to place",
-                0.0,
-                Double.POSITIVE_INFINITY,
-                50.0,
-                1.0));
-        config.add(new BooleanParam(
-                "straightLines",
-                "Has most straight lines",
-                "True if the Slice has most straight lines",
-                false));
+        config.add(new DoubleParam("minWidth", "Min width to keep", "Minimum bit width kept after cut", 0.0, CraftConfig.bitWidth / 2, 3.0, 5.0));
+        config.add(new DoubleParam("safeguardSpace", "Space around bit", "In order to keep bits not overlapping or grazing each other", 1.0, 10.0, 3.0, 0.01));
+        config.add(new DoubleParam("numberMaxBits", "Bits max number", "The maximum number of bits to place", 0.0, Double.POSITIVE_INFINITY, 50.0, 1.0));
+        config.add(new BooleanParam("straightLines", "Has most straight lines", "True if the Slice has most straight lines", false));
     }
 
     @Override
