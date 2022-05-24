@@ -90,7 +90,7 @@ public class BorderedPatternAlgorithm {
         Vector2 startPoint = sectionReduced.getStartPoint();
 
         // compute the convex hull's points
-        Section hullReduced =sectionReduced.getHull();
+        Section hullReduced = sectionReduced.getHull();
 
         // find the vector which connect the startPoint to the furthest (from the startPoint) point of the section
         Vector2 furthestPoint = sectionReduced.getFurthestPoint(startPoint);
@@ -106,7 +106,7 @@ public class BorderedPatternAlgorithm {
     }
 
     /**
-     * The position du bit is given by a vector that connects startPoint to the center of the bit.
+     * The position of the bit is given by a vector that connects startPoint to the center of the bit.
      * This vector has to components : Collinear and Normal to the bit.
      *
      * @param bitCollinearVector the vector given by
@@ -126,14 +126,15 @@ public class BorderedPatternAlgorithm {
      */
     private static double getBitLengthFromSectionReduced(Section sectionReduced, Vector2 bitCollinearVector) {
         Vector2 startPoint = sectionReduced.getStartPoint();
-        Vector2 furthestPoint = sectionReduced.getFurthestPointFromRefPointViaVector(startPoint,bitCollinearVector);
+        Vector2 furthestPoint = sectionReduced.getFurthestPointFromRefPointViaVector(startPoint, bitCollinearVector);
         return getDistFromFromRefPointViaVector(startPoint, furthestPoint, bitCollinearVector);
     }
 
     /**
-     * The position du bit is given by a vector that connects startPoint to the center of the bit.
+     * The position of the bit is given by a vector that connects startPoint to the center of the bit.
      * This vector has to components : Collinear and Normal to the bit.
      *
+     * @param startBit       todo
      * @param sectionReduced the reduced section of points on which a bit can take place.
      * @param areaSlice      the area of the Slice
      * @return the normal component of the vector.
@@ -142,7 +143,7 @@ public class BorderedPatternAlgorithm {
         boolean sectionReducedIsClosed = sectionReduced.getStartPoint().asGoodAsEqual(sectionReduced.getPoints().lastElement());
         Section hullReduced = sectionReduced.getHull(); //computes the convex hull points
         // compute hull segments
-        Vector<Segment2D> segmentsHull = hullReduced.getSegments(); //computes the
+        Vector<Segment2D> segmentsHull = hullReduced.getSegments();
 
         /*
         Find the direction of the bit normal vector. Oriented toward the inner
@@ -231,8 +232,10 @@ public class BorderedPatternAlgorithm {
         Vector2 bitOrientation = positionCollinear.normal();
 
         Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y, newLengthBit, CraftConfig.bitWidth, bitOrientation.x, bitOrientation.y);
-
-        return new Placement(bit2D, sectionReduced);
+        Placement placement = new Placement(bit2D);
+        placement.setSectionCovered(sectionReduced);
+        placement.setNextStartPoint(sectionReduced.getPoints().lastElement());
+        return placement;
     }
 
     /**

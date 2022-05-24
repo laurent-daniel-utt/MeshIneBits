@@ -30,20 +30,32 @@
 
 package meshIneBits.borderPaver;
 
+import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Placement;
 import meshIneBits.borderPaver.util.Section;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 import java.util.Vector;
 
 public class BorderPaver {
 
-    public static Placement getBitPlacement(Section sectionPoints, double minWidthToKeep) {
+    public static Placement getBit(Section sectionPoints, double minWidthToKeep, Slice slice, Vector<Vector2> bound) {
         Vector2 startPoint = sectionPoints.getStartPoint();
-        Vector<Vector2> points = sectionPoints.getPoints();
 
         int convexType = sectionPoints.getConvexType(startPoint);
 
-        return null;
+        if (convexType == Section.CONVEX_TYPE_CONVEX) {
+            System.out.println("CONVEEEEEEEEEEX");
+            return BorderedPatternAlgorithm.getBitPlacement(sectionPoints, AreaTool.getAreaFrom(slice), minWidthToKeep);//auto set the nextStartPoint
+        } else {
+            System.out.println("CONCAAAAAAAAAVE");//todo harmoniser
+            Bit2D bit = TangenceAlgorithm.getBitFromSectionWithTangence(sectionPoints.getPoints(), startPoint, minWidthToKeep, convexType);
+            Placement placement = new Placement(bit);
+            placement.setNextStartPoint(GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, startPoint));
+            return placement;
+        }
     }
 }

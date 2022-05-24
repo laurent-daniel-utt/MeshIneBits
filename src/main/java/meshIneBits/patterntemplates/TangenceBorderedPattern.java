@@ -181,16 +181,11 @@ public class TangenceBorderedPattern extends PatternTemplate {
                 int convexType = section.getConvexType(nextStartPoint);
 
                 Bit2D bit = TangenceAlgorithm.getBitFromSectionWithTangence(sectionPoints, nextStartPoint, minWidth, convexType);
-                if (bit != null) {
-                    bits.add(bit);
+                bits.add(bit);
 
-                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                    System.out.println("END BIT PLACEMENT");
-                } else {
-                    throw new RuntimeException("Bit could not be placed !");
-                }
+                nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
+                System.out.println("END BIT PLACEMENT");
                 iBit++;
-
 
             } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
         }

@@ -175,6 +175,7 @@ public class CraftConfig {
      * The provided templates
      */
     public static PatternTemplate[] templatesPreloaded = {
+            new BorderPaverPattern(),
             new TangenceBorderedPattern(),
             new BorderedPattern(),
             new GeneticPavement(),

@@ -42,7 +42,6 @@ import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.AreaTool;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
@@ -109,7 +108,6 @@ public class BorderPaverPattern extends PatternTemplate {
         Vector<Bit2D> bits = new Vector<>();
 
         Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-        Area areaSlice = AreaTool.getAreaFrom(slice);
 
 
         for (Vector<Vector2> bound : bounds) {
@@ -120,19 +118,20 @@ public class BorderPaverPattern extends PatternTemplate {
 
             int iBit = 0;
             Placement placement;
+            Section sectionPoints;
             do {
                 System.out.println("\tPLACEMENT BIT " + iBit + "====================");
 
-                Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
-                placement = BorderPaver.getBitPlacement(sectionPoints, minWidthToKeep);
+                sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
+                placement = BorderPaver.getBit(sectionPoints, minWidthToKeep, slice,bound);
                 bits.add(placement.bit2D);
                 nextStartPoint = placement.nextStartPoint;
 
                 System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
                 iBit++;
 
-            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
-                    || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints.getPoints()) && iBit > 1)
+                    || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints.getPoints())) && iBit < numberMaxBits);
         }
         return bits;
 

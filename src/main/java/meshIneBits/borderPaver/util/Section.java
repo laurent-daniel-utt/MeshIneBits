@@ -46,6 +46,9 @@ import java.util.Vector;
  * Contains methods to convert (vector2 <-> segment2D, compute hull, convexity,...)
  */
 public class Section {
+    public static final int CONVEX_TYPE_CONVEX = 1;
+    public static final int CONVEX_TYPE_CONCAVE = -1;
+    public static final int CONVEX_TYPE_UNDEFINED = 0;
     /**
      * The error threshold for the convexity computation.
      */
@@ -97,8 +100,9 @@ public class Section {
 
     /**
      * Checks if the given point A is located before the given point B on the given polygon.
-     * @param A a {@link Vector2}.
-     * @param B a {@link Vector2}.
+     *
+     * @param A       a {@link Vector2}.
+     * @param B       a {@link Vector2}.
      * @param polygon a {@link Vector} of {@link Vector2}.
      * @return true if A is located before B on the polygon, false otherwise.
      */
@@ -116,7 +120,8 @@ public class Section {
 
     /**
      * Checks if a given point is in a list of points with an error threshold.
-     * @param point a {@link Vector2}.
+     *
+     * @param point  a {@link Vector2}.
      * @param points a {@link Vector} of {@link Vector2}.
      * @return true if the point is in the list of points, false otherwise.
      */
@@ -131,6 +136,7 @@ public class Section {
 
     /**
      * Checks if a given list of points is contained in a list of points with an error threshold.
+     *
      * @param containedList a {@link Vector} of {@link Vector2}.
      * @param containerList a {@link Vector} of {@link Vector2}.
      * @return true if the list of points is entirely contained in the list of points, false otherwise.
@@ -146,6 +152,7 @@ public class Section {
 
     /**
      * Computes the convexity of a given list of points.
+     *
      * @param pts the list of points.
      * @return true if the list is convex, false otherwise.
      */
@@ -169,6 +176,7 @@ public class Section {
 
     /**
      * Computes the number of intersection between a segment and a list of points. The points are first converted into segments.
+     *
      * @param segmentToTest the segment to test.
      * @param sectionPoints the list of points.
      * @return the number of intersection between the segment and the list of points.
@@ -185,7 +193,47 @@ public class Section {
     }
 
     /**
+     * Converts a list of {@link Vector2} to a list of {@link Segment2D} that would connect each point to the other,
+     * following the order of the list of points given as entry. Deletes the points that are duplicated.
+     *
+     * @param points the points requiring to be converted into segments.
+     * @return the segments resulting from the conversion.
+     */
+    @NotNull
+    public static Vector<Segment2D> pointsToSegments(List<Vector2> points) {
+        //remove the duplicated points
+        Vector<Vector2> pointsNoDuplicates = new Vector<>();
+        for (Vector2 point : points) {
+            if (!pointsNoDuplicates.contains(point)) {
+                pointsNoDuplicates.add(point);
+            }
+        }
+        Vector<Segment2D> sectionSegments = new Vector<>();
+        for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
+            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
+        }
+        return sectionSegments;
+    }
+
+    /**
+     * Converts a list of {@link Segment2D} to a list of {@link Vector2} that would connect each point to the other,
+     * If the first and last segment are connected, the first point is not added.
+     *
+     * @param segmentList the segment list
+     * @return the list of point computed from the segment list
+     */
+    public static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
+        Vector<Vector2> pointsList = new Vector<>();
+        for (Segment2D segment : segmentList) {
+            pointsList.add(new Vector2(segment.start.x, segment.start.y));
+        }
+        if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
+        return pointsList;
+    }
+
+    /**
      * Checks if most of the points are located at the left of a reference point
+     *
      * @return true if most of the points are at the left of the reference point.
      */
     public boolean arePointsMostlyOrientedToTheLeft() {
@@ -201,9 +249,9 @@ public class Section {
         return leftPoints >= rightPoints;
     }
 
-
     /**
      * Compute and return the longest segment of the given list
+     *
      * @return the longest segment
      */
     public Segment2D getLongestSegment() {
@@ -228,7 +276,6 @@ public class Section {
         return furthestPoint;
     }
 
-
     /**
      * Search for the furthest point from ref point via a vector by computing a projection along the vector.
      *
@@ -250,10 +297,10 @@ public class Section {
         return furthestPoint;
     }
 
-
     /**
      * Finds the furthest point among a list of points from a reference point (refPoint), calculating direct distances
      * between them.
+     *
      * @param refPoint the point from which the method calculates the distances
      * @return the furthest point from refPoint among the list  of points
      */
@@ -270,10 +317,10 @@ public class Section {
         return furthestPoint;
     }
 
-
     /**
      * Does successive reductions of the section until all points fit under a bit.
-     * @param sectionPoints the list of points to reduce.
+     *
+     * @param sectionPoints  the list of points to reduce.
      * @param minWidthToKeep the minimum width to keep.
      * @return the reduced section
      */
@@ -339,6 +386,7 @@ public class Section {
 
     /**
      * Computes the convexHull of the section's points.
+     *
      * @return the convexHull.
      */
     public Section getHull() {
@@ -364,7 +412,6 @@ public class Section {
         int startIndex = iHigherLeftMost;
 
         hull.add(points.get(startIndex));
-
 
 
         // starting from that point, find each next point whose angle is the biggest until we return to the start point
@@ -407,48 +454,6 @@ public class Section {
         return new Section(hull);
     }
 
-
-    /**
-     * Converts a list of {@link Vector2} to a list of {@link Segment2D} that would connect each point to the other,
-     * following the order of the list of points given as entry. Deletes the points that are duplicated.
-     *
-     * @param points the points requiring to be converted into segments.
-     * @return the segments resulting from the conversion.
-     */
-    @NotNull
-    public static Vector<Segment2D> pointsToSegments(List<Vector2> points) {
-        //remove the duplicated points
-        Vector<Vector2> pointsNoDuplicates = new Vector<>();
-        for (Vector2 point : points) {
-            if (!pointsNoDuplicates.contains(point)) {
-                pointsNoDuplicates.add(point);
-            }
-        }
-        Vector<Segment2D> sectionSegments = new Vector<>();
-        for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
-        }
-        return sectionSegments;
-    }
-
-    /**
-     * Converts a list of {@link Segment2D} to a list of {@link Vector2} that would connect each point to the other,
-     * If the first and last segment are connected, the first point is not added.
-     *
-     * @param segmentList the segment list
-     * @return the list of point computed from the segment list
-     */
-    public static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
-        Vector<Vector2> pointsList = new Vector<>();
-        for (Segment2D segment : segmentList) {
-            pointsList.add(new Vector2(segment.start.x, segment.start.y));
-        }
-        if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
-        return pointsList;
-    }
-
-
-
     //GETTERS
     public Vector2 getStartPoint() {
         return startPoint;
@@ -466,11 +471,8 @@ public class Section {
         List<Vector2> tempPoints = new Vector<>(points);
         int convexType = 0;
 
-        //We first want to know if the beginning of the section is convex or concave
-        //we then want to find the max convex or concave section
-
         Vector2 ORIGIN = new Vector2(0, 0);
-        tempPoints.add(ORIGIN);
+        tempPoints.add(ORIGIN);//convexity in regard to the origin
 
         // In order to know if the beginning of the section is convex or concave, we look at
         // all the points that are at a distance less than a bit length from the startPoint.
@@ -484,7 +486,7 @@ public class Section {
         List<Vector2> maxConvexSection = new Vector<>();
         if (Section.isConvex(tempPoints.subList(0, nbPointsToCheck))) {
             //convex section
-            convexType = 1;
+            convexType = CONVEX_TYPE_CONVEX;
 
             List<Vector2> convexSection = new Vector<>();
             for (int i = 0; i < nbPointsToCheck; i++) {
@@ -502,13 +504,9 @@ public class Section {
             maxConvexSection.remove(ORIGIN);
         }
 
-        if (maxConvexSection.size() > 0) { //a convex section has been found
-            tempPoints = maxConvexSection;
-        } else { //else, the section is concave
-            convexType = -1;
+        if (maxConvexSection.size() <= 0) { //the section is concave
+            convexType = CONVEX_TYPE_CONCAVE;
         }
-
-        tempPoints.remove(ORIGIN);
 
         return convexType;
     }

@@ -39,12 +39,18 @@ import meshIneBits.util.Vector2;
  */
 public class Placement {
     public final Bit2D bit2D;
-    public final Section sectionCovered;
-    public final Vector2 nextStartPoint;
+    public Section sectionCovered;
+    public Vector2 nextStartPoint;
 
-    public Placement(Bit2D bit2D, Section sectionCovered) {
+    public Placement(Bit2D bit2D) {
         this.bit2D = bit2D;
+    }
+
+    public void setNextStartPoint(Vector2 nextStartPoint) {
+        this.nextStartPoint = nextStartPoint;
+    }
+
+    public void setSectionCovered(Section sectionCovered) {
         this.sectionCovered = sectionCovered;
-        this.nextStartPoint = sectionCovered.getPoints().lastElement();
     }
 }

@@ -39,18 +39,20 @@ import meshIneBits.util.Vector2;
 import java.util.List;
 import java.util.Vector;
 
+import static meshIneBits.borderPaver.util.Section.*;
+
 public class TangenceAlgorithm {
 
     /**
      * The minimum distance to keep between the bound and the bit in order to avoid the bit to be placed exactly
      * on the bound. Which causes the intersection computations to fail.
      */
-    private static final double MARGIN_EXT = 1;
+    static final double MARGIN_EXT = 1;
     /**
      * The minimum segment length to consider when computing the convexity.
      * The convexity is computed only for segments longer than this value.
      */
-    private static final double MIN_SEGMENT_LENGTH = 3;
+    static final double MIN_SEGMENT_LENGTH = 3;
 
     /**
      * Computes the placement of a single Bit from a section, using the convexity type of the section.
@@ -73,12 +75,12 @@ public class TangenceAlgorithm {
             //si la distance entre le point projeté (coinHautGauche) et le startPoint est inférieure à la largeur du bit, on a un bit possible
             //il faut également que l'on soit du bon côté de la section.
 
-            if (convexType !=0 && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
+            if (convexType !=CONVEX_TYPE_UNDEFINED && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
                 Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)),
                                                           segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
-                if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == 1) {//todo faire mieux pour ne pas utiliser les intersections
+                if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == CONVEX_TYPE_CONVEX) {//todo faire mieux pour ne pas utiliser les intersections
                     lastPossibleSegment = segment;
-                } else if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == -1) {
+                } else if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == CONVEX_TYPE_CONCAVE) {
                     lastPossibleSegment = segment;
                 }
             }
@@ -95,7 +97,6 @@ public class TangenceAlgorithm {
         Vector2 origin;
 
         if (convexType == -1) {//concave
-            //if the bottomLeftEdge is outside the section, we must subtract, and otherwise add
             origin = bottomLeftEdge.sub(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
             origin = origin.add(new Vector2(MinWidth, 0).rotate(vecSegmentOrthogonal));
 
@@ -117,7 +118,7 @@ public class TangenceAlgorithm {
      * @param segment the segment to project on.
      * @return the projection of the point on the segment.
      */
-    private static Vector2 getProjStartPoint(Vector2 startPoint, Segment2D segment) {
+    public static Vector2 getProjStartPoint(Vector2 startPoint, Segment2D segment) {
         Vector2 distance = segment.start.sub(startPoint);
         Vector2 orthogonal = segment.getNormal();
         return startPoint.add(orthogonal.mul(distance.dot(orthogonal))); // the orthogonal projection
