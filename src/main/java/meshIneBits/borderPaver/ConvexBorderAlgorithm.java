@@ -31,17 +31,22 @@
 package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Placement;
 import meshIneBits.borderPaver.util.Section;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.Vector;
 
 
-public class BorderedPatternAlgorithm {
+public class ConvexBorderAlgorithm {
     /**
      * Return the distance between two points via a vector by computing a projection along the vector.
      *
@@ -254,5 +259,48 @@ public class BorderedPatternAlgorithm {
             dir = dir.getOpposite();
         }
         return dir;
+    }
+
+
+
+    /**
+     * Compute each bit to place on the border of the Slice using BorderedPattern algorithms
+     *
+     * @param slice          the slice to pave
+     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
+     * @param numberMaxBits  the maximum number of bits to place on each border
+     * @return the list of bits for this Slice
+     */
+    public static Vector<Bit2D> getBits(Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
+        Vector<Bit2D> bits = new Vector<>();
+
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Area areaSlice = AreaTool.getAreaFrom(slice);
+
+
+        for (Vector<Vector2> bound : bounds) {
+            Vector2 veryFirstStartPoint = bound.get(0);
+            Vector2 nextStartPoint = bound.get(0);
+
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+
+            int iBit = 0;
+            Placement placement;
+            do {
+                System.out.println("\tPLACEMENT BIT " + iBit + "====================");
+
+                Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
+                placement = ConvexBorderAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
+                bits.add(placement.bit2D);
+                nextStartPoint = placement.nextStartPoint;
+
+                System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
+                iBit++;
+
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
+                    || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
+        }
+        return bits;
+
     }
 }

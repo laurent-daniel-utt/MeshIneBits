@@ -31,17 +31,21 @@
 package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.slicer.Slice;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.List;
 import java.util.Vector;
 
 import static meshIneBits.borderPaver.util.Section.*;
 
-public class TangenceAlgorithm {
+public class TangenceBorderAlgorithm {
 
     /**
      * The minimum distance to keep between the bound and the bit in order to avoid the bit to be placed exactly
@@ -56,10 +60,11 @@ public class TangenceAlgorithm {
 
     /**
      * Computes the placement of a single Bit from a section, using the convexity type of the section.
+     *
      * @param sectionPoints the section points.
-     * @param startPoint the start point of the section to place a bit.
-     * @param MinWidth the minimum bit width to keep.
-     * @param convexType the convexity type of the section (1 for convex, -1 for concave).
+     * @param startPoint    the start point of the section to place a bit.
+     * @param MinWidth      the minimum bit width to keep.
+     * @param convexType    the convexity type of the section (1 for convex, -1 for concave).
      * @return the placed bit.
      */
     public static Bit2D getBitFromSectionWithTangence(List<Vector2> sectionPoints, Vector2 startPoint, double MinWidth, int convexType) {
@@ -75,9 +80,8 @@ public class TangenceAlgorithm {
             //si la distance entre le point projeté (coinHautGauche) et le startPoint est inférieure à la largeur du bit, on a un bit possible
             //il faut également que l'on soit du bon côté de la section.
 
-            if (convexType !=CONVEX_TYPE_UNDEFINED && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
-                Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)),
-                                                          segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
+            if (convexType != CONVEX_TYPE_UNDEFINED && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
+                Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)), segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
                 if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == CONVEX_TYPE_CONVEX) {//todo faire mieux pour ne pas utiliser les intersections
                     lastPossibleSegment = segment;
                 } else if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == CONVEX_TYPE_CONCAVE) {
@@ -114,13 +118,58 @@ public class TangenceAlgorithm {
 
     /**
      * Computes the projection of a point on a segment, orthogonal to the segment.
+     *
      * @param startPoint the point to project.
-     * @param segment the segment to project on.
+     * @param segment    the segment to project on.
      * @return the projection of the point on the segment.
      */
     public static Vector2 getProjStartPoint(Vector2 startPoint, Segment2D segment) {
         Vector2 distance = segment.start.sub(startPoint);
         Vector2 orthogonal = segment.getNormal();
         return startPoint.add(orthogonal.mul(distance.dot(orthogonal))); // the orthogonal projection
+    }
+
+
+    /**
+     * Places all the bits on the bound of the given Slice.
+     *
+     * @param slice         the slice to pave.
+     * @param minWidth      the minimum bit width to keep
+     * @param numberMaxBits the maximum number of bits to place on a bound
+     * @return the list of placed bits.
+     */
+    public static Vector<Bit2D> getBits(Slice slice, double minWidth, double numberMaxBits) throws NoninvertibleTransformException {
+        Vector<Bit2D> bits = new Vector<>();
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        for (Vector<Vector2> bound : bounds) {
+            Vector2 veryFirstStartPoint = bound.get(0);
+            Vector2 nextStartPoint = bound.get(0);
+
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++");
+
+            List<Vector2> sectionPoints;
+            Section section;
+            int iBit = 0;
+            do {
+                System.out.print("\t " + "BIT PLACEMENT : " + iBit + "\t");
+                section = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
+                sectionPoints = section.getPoints();
+
+                //We first want to know if the beginning of the section is convex or concave
+                //we then want to find the max convex or concave section
+                int convexType = section.getConvexType(nextStartPoint);
+
+                Bit2D bit = TangenceBorderAlgorithm.getBitFromSectionWithTangence(sectionPoints, nextStartPoint, minWidth, convexType);
+                bits.add(bit);
+
+                nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
+                System.out.println("END BIT PLACEMENT");
+                iBit++;
+
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
+        }
+
+
+        return bits;
     }
 }
