@@ -37,7 +37,6 @@ import meshIneBits.Pavement;
 import meshIneBits.borderPaver.util.AI_Tool;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
-import meshIneBits.borderPaver.debug.DebugTools;
 import meshIneBits.borderPaver.genetics.Evolution;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
@@ -125,7 +124,6 @@ public class GeneticPavement extends PatternTemplate {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
             Section associatedPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
-            DebugTools.pointsToDrawBLUE.add(startPoint);
 
             Bit2D bestBit;
             int bitNumber = 0;
@@ -144,8 +142,6 @@ public class GeneticPavement extends PatternTemplate {
                 //Prepare to find the next Solution
                 layerAvailableArea.subtract(bestBit.getArea());
                 startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
-                DebugTools.pointsToDrawGREEN.add(startPoint);
-                //AI_Tool.getMeshController().AI_NeedPaint=true;
                 associatedPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
             }
         }

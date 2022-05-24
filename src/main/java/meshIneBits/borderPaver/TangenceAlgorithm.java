@@ -190,7 +190,7 @@ public class TangenceAlgorithm {
             origin = bottomLeftEdge.sub(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
             origin = origin.add(new Vector2(MinWidth, 0).rotate(vecSegmentOrthogonal));
 
-        } else {//convexe
+        } else {//convex
             origin = bottomLeftEdge.add(new Vector2(CraftConfig.bitWidth / 2, 0).rotate(vecSegmentOrthogonal));
             origin = origin.sub(new Vector2(MARGIN_EXT, 0).rotate(vecSegmentOrthogonal));
             if (bottomLeftEdge.sub(startPoint).dot(vecSegmentOrthogonal) > 0) {

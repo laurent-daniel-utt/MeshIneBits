@@ -31,7 +31,6 @@
 package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.debug.DebugTools;
 import meshIneBits.borderPaver.util.Placement;
 import meshIneBits.borderPaver.util.Section;
 import meshIneBits.config.CraftConfig;
@@ -164,7 +163,7 @@ public class BorderedPatternAlgorithm {
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
             dirConstraintSegmentNormal = getInnerDirectionalVector(constraintSegment, areaSlice);
             positionNormal = dirConstraintSegmentNormal.mul(CraftConfig.bitWidth / 2);
-            System.out.println("cas 3");
+            System.out.println("cas 3");//todo enlever les prints
 
         } else if (sectionReducedIsClosed) { // case 4 : covered section closed
             double lenPositionNormal = CraftConfig.bitWidth / 2 - Vector2.Tools.distanceFromPointToLine(startBit, constraintSegment);
@@ -173,21 +172,17 @@ public class BorderedPatternAlgorithm {
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
             //todo dans ce cas, on voudrait que les bits soient parallèles au contour comme sur Tour.stl
-            //on teste : si un segment de la section est plus grand que le constraint segment : alors on s'aligne plutôt sur ce segment
 
-            //recherche d'un segment plus long :
+            // research of the longest segment
             double lengthMax = 0;
             for (Segment2D segment2D : segmentsHull.subList(0, segmentsHull.size() - 1)) {//le dernier, c'est celui qui referme le hull
                 System.out.println("segment2D.getLength() = " + segment2D.getLength() + "constraint seg : " + constraintSegment.getLength());
-                DebugTools.segmentsToDrawBlue.add(segment2D);
                 if (segment2D.getLength() > lengthMax) {
                     constraintSegment = segment2D;
                     lengthMax = segment2D.getLength();
                 }
                 System.out.println("lengthMax = " + lengthMax);
             }
-            DebugTools.setPaintForDebug(true);
-            DebugTools.currentSegToDraw = constraintSegment;
             dirConstraintSegmentNormal = constraintSegment.getNormal();
 
 

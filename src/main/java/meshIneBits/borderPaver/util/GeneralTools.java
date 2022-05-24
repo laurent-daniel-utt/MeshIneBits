@@ -45,7 +45,7 @@ import java.util.Vector;
 
 
 /**
- * GeneralTools groups together the methods used to prepare the data for Neural Network or Genetic Algorithms.
+ * GeneralTools groups together the methods used to prepare the data for algorithms that pave the border of the Slice.
  * It also provides methods to perform intersection point search.
  */
 public class GeneralTools {

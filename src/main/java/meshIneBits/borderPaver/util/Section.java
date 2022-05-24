@@ -41,6 +41,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+/**
+ * The description of a list of {@link Vector2}s or {@link Segment2D}s which make a section.
+ * Contains methods to convert (vector2 <-> segment2D, compute hull, convexity,...)
+ */
 public class Section {
     /**
      * The error threshold for the convexity computation.
@@ -99,7 +103,7 @@ public class Section {
      * @return true if A is located before B on the polygon, false otherwise.
      */
     public static boolean isABeforeBOnPolygon(Vector2 A, Vector2 B, Vector<Segment2D> polygon) {
-        // on parcourt le polygon, et on regarde si on trouve le point A avant le point B
+        // we go through the polygon, and we look if we find the point A before the point B
         for (Segment2D segment : polygon) {
             if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
                 return Vector2.dist(segment.start, A) < Vector2.dist(segment.start, B);
@@ -110,6 +114,12 @@ public class Section {
         throw new RuntimeException("Points not found on polygon");
     }
 
+    /**
+     * Checks if a given point is in a list of points with an error threshold.
+     * @param point a {@link Vector2}.
+     * @param points a {@link Vector} of {@link Vector2}.
+     * @return true if the point is in the list of points, false otherwise.
+     */
     public static boolean listContainsAsGoodAsEqual(Vector2 point, List<Vector2> points) {
         for (Vector2 p : points) {
             if (point.asGoodAsEqual(p)) {
@@ -119,6 +129,12 @@ public class Section {
         return false;
     }
 
+    /**
+     * Checks if a given list of points is contained in a list of points with an error threshold.
+     * @param containedList a {@link Vector} of {@link Vector2}.
+     * @param containerList a {@link Vector} of {@link Vector2}.
+     * @return true if the list of points is entirely contained in the list of points, false otherwise.
+     */
     public static boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, List<Vector2> containerList) {
         for (Vector2 p : containedList) {
             if (!listContainsAsGoodAsEqual(p, containerList)) {
@@ -126,16 +142,6 @@ public class Section {
             }
         }
         return true;
-    }
-
-    /**
-     * Compute and return the longest segment of the given list
-     *
-     * @param segment2DS the segments list
-     * @return the longest segment
-     */
-    public static Segment2D getLongestSegment(Vector<Segment2D> segment2DS) {
-        return segment2DS.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
     }
 
     /**
@@ -180,7 +186,6 @@ public class Section {
 
     /**
      * Checks if most of the points are located at the left of a reference point
-     *
      * @return true if most of the points are at the left of the reference point.
      */
     public boolean arePointsMostlyOrientedToTheLeft() {
@@ -199,7 +204,6 @@ public class Section {
 
     /**
      * Compute and return the longest segment of the given list
-     *
      * @return the longest segment
      */
     public Segment2D getLongestSegment() {
@@ -266,7 +270,13 @@ public class Section {
         return furthestPoint;
     }
 
-    //minimum distance of wood needed to be kept when placing, in order to avoid the cut bit
+
+    /**
+     * Does successive reductions of the section until all points fit under a bit.
+     * @param sectionPoints the list of points to reduce.
+     * @param minWidthToKeep the minimum width to keep.
+     * @return the reduced section
+     */
     public Section getSectionReduced(Section sectionPoints, double minWidthToKeep) {
         Section sectionToReduce = new Section(SectionTransformer.repopulateWithNewPoints(200, sectionPoints, true));
 
@@ -327,6 +337,10 @@ public class Section {
         return sectionToReduce;
     }
 
+    /**
+     * Computes the convexHull of the section's points.
+     * @return the convexHull.
+     */
     public Section getHull() {
         Vector<Vector2> hull = new Vector<>();
 
@@ -352,11 +366,9 @@ public class Section {
         hull.add(points.get(startIndex));
 
 
-        // en partant de ce point, trouver chaque prochain point dont l'angle est le plus grand
-        // jusqu'à ce qu'on retourne au point de départ
 
-
-        //calcul du second point
+        // starting from that point, find each next point whose angle is the biggest until we return to the start point
+        //second point computing
         Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1, 0));
         Vector2 pointMilieu = points.get(startIndex);
 
@@ -364,12 +376,12 @@ public class Section {
             double maxAngle = 0;
             Vector<Vector2> pointsMaxAngles = new Vector<>();
             for (int i = 0; i < points.size(); i++) {
-                // le point pivot étant le dernier point ajouté cela ne sert à rien de le tester à nouveau, de plus cela entraine des calculs d'angles erronés
+                // if the pivot point is the last point added, it doesn't need to be tested again, plus it causes inaccurate angles
                 if (points.get(i) != pointMilieu) {
                     double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
 
                     if (angle >= maxAngle - 1e-10 && i != points.indexOf(pointMilieu)) {
-                        if (angle > maxAngle + 1e-10) { // - et + ça permet de considérer qu'entre -1e-10 et +1e-10 les points sont alignés
+                        if (angle > maxAngle + 1e-10) {  //the points are aligned if the angle is between -1e-10 and +1e-10
                             pointsMaxAngles.removeAllElements();
                         }
                         maxAngle = angle;
@@ -380,9 +392,9 @@ public class Section {
 
             if (pointsMaxAngles.contains(hull.firstElement())) {
                 /*
-                dans une section fermée, le premier et le dernier élément de la section sont les mêmes,
-                mais à cause d'imprécisions dans les chiffres décimaux, parfois à la fin du hull c'est un point
-                légèrement différent du premier qui est ajouté, ce qui fait que la boucle while tourne à l'infini
+                in a closed section, the first and the last element of the section are the same, but because of
+                imprecision in the decimal numbers, at the end of the hull, it is a different point from the
+                first point, which causes the while loop to run infinitely
                  */
                 hull.add(hull.firstElement());
             } else {
@@ -397,7 +409,7 @@ public class Section {
 
 
     /**
-     * Converts a list of {@link Vector2} to a list of {@link Vector} that would connect each point to the other,
+     * Converts a list of {@link Vector2} to a list of {@link Segment2D} that would connect each point to the other,
      * following the order of the list of points given as entry. Deletes the points that are duplicated.
      *
      * @param points the points requiring to be converted into segments.
@@ -420,7 +432,7 @@ public class Section {
     }
 
     /**
-     * Returns a point list from a segment list.
+     * Converts a list of {@link Segment2D} to a list of {@link Vector2} that would connect each point to the other,
      * If the first and last segment are connected, the first point is not added.
      *
      * @param segmentList the segment list

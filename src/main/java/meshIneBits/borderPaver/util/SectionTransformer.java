@@ -101,8 +101,10 @@ public class SectionTransformer {
     }
 
 
-    // relie un segment de la liste au suivant avec setNext si la fin de l'un touche le début de l'autre
-    // todo commenter et peut être deplacer dans segment2D ?
+    /**
+     * Links each segment of the list to the next one if the end of one touches the start of the next.
+     * @param segments the list of segments to link
+     */
     private static void setNextSegments(Vector<Segment2D> segments) {
         for (int i = 0; i < segments.size() - 1; i++) {
             if (segments.get(i).end.asGoodAsEqual(segments.get(i + 1).start)) {
@@ -128,6 +130,15 @@ public class SectionTransformer {
         return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
     }
 
+    /**
+     * Calculates the intersection between a circle and a segment.
+     * @param p1 the first point of the segment
+     * @param p2 the second point of the segment
+     * @param center the center of the circle
+     * @param radius the radius of the circle
+     * @param isSegment true if the two points forms a segment and false if it is a straight line
+     * @return a vector of vector2, the intersection points
+     */
     public static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center, double radius, boolean isSegment) throws NoninvertibleTransformException {
 
         Point2D p1P2D = new Point2D.Double(p1.x, p1.y);
@@ -238,13 +249,13 @@ public class SectionTransformer {
     }
 
 
-        /**
-         * Rotates a point by a given angle and translates it to make the first point the origin (startPoint)
-         *
-         * @param vectorToTransform the point to transform
-         * @param transform   the transformation to apply
-         * @return the transformed point
-         */
+    /**
+     * Rotates a point by a given angle and translates it to make the first point the origin (startPoint)
+     *
+     * @param vectorToTransform the point to transform
+     * @param transform   the transformation to apply
+     * @return the transformed point
+     */
     public static @NotNull Vector2 transformCoordinateSystem(Vector2 vectorToTransform, AffineTransform transform) {
         Point2D.Double point = new Point2D.Double(vectorToTransform.x, vectorToTransform.y);
         transform.transform(point, point);
@@ -277,7 +288,7 @@ public class SectionTransformer {
      *
      * @param nbNewPoints   number of new points to add. If KeepOldPoints, new points are added if they're
      *                      not {@link Vector2#asGoodAsEqual(Vector2)}l the old points
-     * @param points        the section of points to repopulate
+     * @param section        the section of points to repopulate
      * @param keepOldPoints true to keep old points in addition to the old ones.
      * @return the section repopulated with new points.
      */
@@ -346,15 +357,6 @@ public class SectionTransformer {
         newPoints.add(points.lastElement());
 
         return newPoints;
-    }
-
-    //todo delete ?
-    public static Vector<Vector2> reordonnatePoints(Vector<Vector2> messyList, Vector<Vector2> boundPoints) {
-        Vector<Vector2> reorderedPoints = new Vector<>();
-        for (Vector2 boundPoint : boundPoints) {
-            if (messyList.contains(boundPoint)) reorderedPoints.add(boundPoint);
-        }
-        return reorderedPoints;
     }
 
 
@@ -443,21 +445,5 @@ public class SectionTransformer {
             }
         }
         return newSegmentList;
-    }
-
-    public static Vector<Vector2> removeDuplicatedPoints(Vector<Vector2> points) {
-        Vector<Vector2> distinctPoints = new Vector<>();
-
-        for (int i = 0; i < points.size() - 1; i++) {
-            if (!points.get(i)
-                    .asGoodAsEqual(points.get(i + 1))) {
-                distinctPoints.add(points.get(i));
-            }
-        }
-        if (points.firstElement() != points.lastElement()) {
-            distinctPoints.add(points.lastElement());
-        }
-
-        return distinctPoints;
     }
 }
