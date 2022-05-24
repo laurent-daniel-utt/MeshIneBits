@@ -127,7 +127,7 @@ public class BorderedPattern extends PatternTemplate {
                 Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 placement = BorderedPatternAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(placement.bit2D);
-                nextStartPoint = placement.end;
+                nextStartPoint = placement.nextStartPoint;
 
                 System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
                 iBit++;

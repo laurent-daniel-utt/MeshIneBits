@@ -34,8 +34,9 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.borderPaver.TangenceAlgorithm;
+import meshIneBits.borderPaver.BorderPaver;
 import meshIneBits.borderPaver.util.GeneralTools;
+import meshIneBits.borderPaver.util.Placement;
 import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
@@ -47,10 +48,9 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Vector;
 
-public class TangenceBorderedPattern extends PatternTemplate {
+public class BorderPaverPattern extends PatternTemplate {
     @Override
     protected void initiateConfig() {
         config.add(new DoubleParam(
@@ -87,14 +87,55 @@ public class TangenceBorderedPattern extends PatternTemplate {
         try {
             double numberMaxBits = (double) config.get("numberMaxBits").getCurrentValue();
             double minWidth = (double) config.get("minWidth").getCurrentValue();
-            Collection<Bit2D> bits = getBits(
-                    layer.getHorizontalSection(),minWidth,numberMaxBits);
+            Collection<Bit2D> bits = getBits(layer.getHorizontalSection(),minWidth,numberMaxBits);
             updateBitAreasWithSpaceAround(bits);
             return new Pavement(bits);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Pavement(new Vector<>());
+    }
+
+
+    /**
+     * Compute each bit to place on the border of the Slice using BorderedPattern algorithms
+     *
+     * @param slice          the slice to pave
+     * @param minWidthToKeep minimum distance of wood needed to be kept when placing, in order to avoid the cut bit to be too fragile
+     * @param numberMaxBits  the maximum number of bits to place on each border
+     * @return the list of bits for this Slice
+     */
+    public Vector<Bit2D> getBits(Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
+        Vector<Bit2D> bits = new Vector<>();
+
+        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Area areaSlice = AreaTool.getAreaFrom(slice);
+
+
+        for (Vector<Vector2> bound : bounds) {
+            Vector2 veryFirstStartPoint = bound.get(0);
+            Vector2 nextStartPoint = bound.get(0);
+
+            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+
+            int iBit = 0;
+            Placement placement;
+            do {
+                System.out.println("\tPLACEMENT BIT " + iBit + "====================");
+
+                Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
+                placement = BorderPaver.getBitPlacement(sectionPoints, minWidthToKeep);
+                bits.add(placement.bit2D);
+                nextStartPoint = placement.nextStartPoint;
+
+                System.out.println("\t FIN PLACEMENT BIT " + iBit + "====================");
+                iBit++;
+
+            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1)
+                    || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);
+        }
+        return bits;
+
     }
 
     @Override
@@ -110,17 +151,17 @@ public class TangenceBorderedPattern extends PatternTemplate {
 
     @Override
     public String getCommonName() {
-        return "Tangence Pattern";
+        return "Border Paver";
     }
 
     @Override
     public String getIconName() {
-        return "pattern-tangence.png";
+        return "pattern-border.png";
     }
 
     @Override
     public String getDescription() {
-        return "Paves the bounds of the slices. Best performance for slices with straight lines.";
+        return "Paves the bounds of the slices. Best performance for slices with curves.";
     }
 
     @Override
@@ -134,68 +175,19 @@ public class TangenceBorderedPattern extends PatternTemplate {
      * @param bits the collection of bits to cut
      */
     //(Modified function for border algorithms, the other doesn't work)
-    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) { //TODO @Etienne duplicated code
-        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
-        for (Bit2D bit2DToCut : bits) {
-            Area bit2DToCutArea = bit2DToCut.getArea();
-            Area nonAvailableArea = new Area();
-            for (Bit2D bit2D : bits) {
-                if (!bit2D.equals(bit2DToCut)) {
-                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
-                    nonAvailableArea.add(expand);
-                }
-            }
-            bit2DToCutArea.subtract(nonAvailableArea);
-            bit2DToCut.updateBoundaries(bit2DToCutArea);
-        }
-    }
-
-
-
-    /**
-     * Places all the bits on the bound of the given Slice.
-     * @param slice the slice to pave.
-     * @param minWidth the minimum bit width to keep
-     * @param numberMaxBits the maximum number of bits to place on a bound
-     * @return the list of placed bits.
-     */
-    public Vector<Bit2D> getBits(Slice slice, double minWidth, double numberMaxBits) throws NoninvertibleTransformException {
-        Vector<Bit2D> bits = new Vector<>();
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-        for (Vector<Vector2> bound : bounds) {
-            Vector2 veryFirstStartPoint = bound.get(0);
-            Vector2 nextStartPoint = bound.get(0);
-
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++");
-
-            List<Vector2> sectionPoints;
-            Section section;
-            int iBit = 0;
-            do {
-                System.out.print("\t " + "BIT PLACEMENT : " + iBit + "\t");
-                section = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
-                sectionPoints = section.getPoints();
-
-                //We first want to know if the beginning of the section is convex or concave
-                //we then want to find the max convex or concave section
-                int convexType = section.getConvexType(nextStartPoint);
-
-                Bit2D bit = TangenceAlgorithm.getBitFromSectionWithTangence(sectionPoints, nextStartPoint, minWidth, convexType);
-                if (bit != null) {
-                    bits.add(bit);
-
-                    nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                    System.out.println("END BIT PLACEMENT");
-                } else {
-                    throw new RuntimeException("Bit could not be placed !");
-                }
-                iBit++;
-
-
-            } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);
-        }
-
-
-        return bits;
+    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
+//        double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
+//        for (Bit2D bit2DToCut : bits) {
+//            Area bit2DToCutArea = bit2DToCut.getArea();
+//            Area nonAvailableArea = new Area();
+//            for (Bit2D bit2D : bits) {
+//                if (!bit2D.equals(bit2DToCut)) {
+//                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+//                    nonAvailableArea.add(expand);
+//                }
+//            }
+//            bit2DToCutArea.subtract(nonAvailableArea);
+//            bit2DToCut.updateBoundaries(bit2DToCutArea);
+//        }
     }
 }

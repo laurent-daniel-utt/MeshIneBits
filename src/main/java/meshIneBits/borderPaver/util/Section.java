@@ -461,4 +461,55 @@ public class Section {
     public Vector<Segment2D> getSegments() {
         return segments;
     }
+
+    public int getConvexType(Vector2 startPoint) {
+        List<Vector2> tempPoints = new Vector<>(points);
+        int convexType = 0;
+
+        //We first want to know if the beginning of the section is convex or concave
+        //we then want to find the max convex or concave section
+
+        Vector2 ORIGIN = new Vector2(0, 0);
+        tempPoints.add(ORIGIN);
+
+        // In order to know if the beginning of the section is convex or concave, we look at
+        // all the points that are at a distance less than a bit length from the startPoint.
+        int nbPointsToCheck = 0;
+        for (Vector2 point : tempPoints) {
+            nbPointsToCheck++;
+            if (Vector2.dist(point, startPoint) >= CraftConfig.lengthNormal / 2) break;
+        }
+
+        //Computes the convexity of the section
+        List<Vector2> maxConvexSection = new Vector<>();
+        if (Section.isConvex(tempPoints.subList(0, nbPointsToCheck))) {
+            //convex section
+            convexType = 1;
+
+            List<Vector2> convexSection = new Vector<>();
+            for (int i = 0; i < nbPointsToCheck; i++) {
+                convexSection.add(tempPoints.get(i));
+            }
+            convexSection.add(ORIGIN);
+
+            // we add the points while the section is convex
+            int i = nbPointsToCheck;
+            do {
+                convexSection.add(convexSection.size() - 1, tempPoints.get(i));
+                i++;
+            } while (i < tempPoints.size() && Section.isConvex(convexSection));
+            maxConvexSection = convexSection;
+            maxConvexSection.remove(ORIGIN);
+        }
+
+        if (maxConvexSection.size() > 0) { //a convex section has been found
+            tempPoints = maxConvexSection;
+        } else { //else, the section is concave
+            convexType = -1;
+        }
+
+        tempPoints.remove(ORIGIN);
+
+        return convexType;
+    }
 }

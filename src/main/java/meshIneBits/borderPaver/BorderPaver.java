@@ -28,23 +28,22 @@
  *
  */
 
-package meshIneBits.borderPaver.util;
+package meshIneBits.borderPaver;
 
-import meshIneBits.Bit2D;
+import meshIneBits.borderPaver.util.Placement;
+import meshIneBits.borderPaver.util.Section;
 import meshIneBits.util.Vector2;
 
-/**
- * The description of the placement of a {@link Bit2D} : the bit2D, the section covered by it
- * and the last point of the section.
- */
-public class Placement {
-    public final Bit2D bit2D;
-    public final Section sectionCovered;
-    public final Vector2 nextStartPoint;
+import java.util.Vector;
 
-    public Placement(Bit2D bit2D, Section sectionCovered) {
-        this.bit2D = bit2D;
-        this.sectionCovered = sectionCovered;
-        this.nextStartPoint = sectionCovered.getPoints().lastElement();
+public class BorderPaver {
+
+    public static Placement getBitPlacement(Section sectionPoints, double minWidthToKeep) {
+        Vector2 startPoint = sectionPoints.getStartPoint();
+        Vector<Vector2> points = sectionPoints.getPoints();
+
+        int convexType = sectionPoints.getConvexType(startPoint);
+
+        return null;
     }
 }
