@@ -23,7 +23,7 @@ public class ReadResponse implements ICustomResponse {
   }
 
   @Override
-  public String getNodeId() {
+  public Object getNodeId() {
     return null;
   }
 }

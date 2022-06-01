@@ -86,8 +86,8 @@ public class AssemblingMachineSimulator extends AssemblingMachineOPCUAHelper {
       try {
         while (isActivated.get()) {
           if (pausing.get()) {
-            synchronized (AssemblingMachineSimulator.AssemblingIncreaseTask.this) {
-              AssemblingMachineSimulator.AssemblingIncreaseTask.this.wait();
+            synchronized (AssemblingIncreaseTask.this) {
+              AssemblingIncreaseTask.this.wait();
             }
           }
           Thread.sleep(((int) (Math.random() * range) + min) * 1000);
