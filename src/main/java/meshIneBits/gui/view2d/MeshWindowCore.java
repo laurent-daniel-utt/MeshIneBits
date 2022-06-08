@@ -34,7 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
-import meshIneBits.borderPaver.debug.DebugTools;
+import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
@@ -568,16 +568,15 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
     private void AIpaintForDebug(Graphics2D g2d) {
         //STROKE COMMANDS
-        g2d.setStroke(new BasicStroke(2f));
-        g2d.setColor(Color.RED);
+//        g2d.setStroke(new BasicStroke(2f));
+//        g2d.setColor(Color.RED);
 
         //Draw Polygon
-        /*
-        drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
-         */
+//        drawModelPath2D(g2d,poly.toPath2D());
+
 
         //Draw bits Areas
-        Vector<Bit2D> bits = DebugTools.Bits;
+        Vector<Bit2D> bits = drawDebug.Bits;
         for (Bit2D bit : bits) {
             Area area = bit.getArea();
             area.transform(realToView);
@@ -588,8 +587,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         }
 
         //Draw an area
-        if(DebugTools.areaToDraw!=null){
-            Area area = DebugTools.areaToDraw;
+        if(drawDebug.areaToDraw!=null){
+            Area area = drawDebug.areaToDraw;
             area.transform(realToView);
             g2d.setColor(Color.BLUE);
             g2d.fill(area);
@@ -598,68 +597,52 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         }
 
         //Draw points
-        for (Vector2 point : DebugTools.pointsToDrawRED) {
+        for (Vector2 point : drawDebug.pointsToDrawRED) {
             g2d.setColor(Color.red);
             drawModelCircle(g2d, point.x, point.y, 3);
         }
-        for (Vector2 point : DebugTools.pointsToDrawGREEN) {
+        for (Vector2 point : drawDebug.pointsToDrawGREEN) {
             g2d.setColor(Color.green);
             drawModelCircle(g2d, point.x, point.y, 5);
         }
-        for (Vector2 point : DebugTools.pointsToDrawORANGE) {
+        for (Vector2 point : drawDebug.pointsToDrawORANGE) {
             g2d.setColor(Color.orange);
             drawModelCircle(g2d, point.x, point.y, 7);
         }
-        for (Vector2 point : DebugTools.pointsToDrawBLACK) {
+        for (Vector2 point : drawDebug.pointsToDrawBLACK) {
             g2d.setColor(Color.black);
             drawModelCircle(g2d, point.x, point.y, 7);
         }
 
-
-
-        Segment2D seg = DebugTools.currentSegToDraw2;
-        Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
-        Path2D path = new GeneralPath();
-        path.append(shape, false);
-        g2d.setColor(Color.red);
-        drawModelPath2D(g2d, path);
-
-
         //Draw a list of Segment2D
-        for (Segment2D segment : DebugTools.segmentsToDrawRed) {
-            shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+        Path2D path = new GeneralPath();
+        for (Segment2D segment : drawDebug.segmentsToDrawRed) {
+            Shape shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
             path.append(shape, false);
             g2d.setColor(Color.red);
             drawModelPath2D(g2d, path);
         }
 
         //Draw a list of Segment2D
-        for (Segment2D segment : DebugTools.segmentsToDrawBlue) {
-            shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
-            path.append(shape, false);
+        Path2D path2 = new GeneralPath();
+        for (Segment2D segment : drawDebug.segmentsToDrawBlue) {
+            Shape shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+            path2.append(shape, false);
             g2d.setColor(Color.blue);
-            drawModelPath2D(g2d, path);
+            drawModelPath2D(g2d, path2);
         }
-
-        //Draw Segment2D
-        path = new GeneralPath();
-        seg = DebugTools.currentSegToDraw;
-        shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
-        path.append(shape, false);
-        g2d.setColor(Color.orange);
-        drawModelPath2D(g2d, path);
 
         //Draw polygons
         int i = 0;
         Color[] colors = {Color.blue, Color.red, Color.GREEN, Color.ORANGE};
-        for (Polygon poly : DebugTools.polys) {
+        for (Polygon poly : drawDebug.polys) {
             g2d.setColor(colors[i]);
             drawModelPath2D(g2d, poly.toPath2D());
             i++;
         }
 
         i = 0;
-        for (Vector2 point : DebugTools.pointsToDrawBLUE) {
+        for (Vector2 point : drawDebug.pointsToDrawBLUE) {
             g2d.setColor(Color.blue);
             drawModelCircle(g2d, point.x, point.y, 1);
             g2d.drawString(Integer.toString(i), (int) (2 * point.x + 100), (int) (2 * point.y + 10));

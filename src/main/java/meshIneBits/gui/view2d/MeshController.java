@@ -31,7 +31,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.*;
-import meshIneBits.borderPaver.debug.DebugTools;
+import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
@@ -176,8 +176,8 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
     private Rectangle2D.Double bulkSelectZone;
 
     /**
-     * For debug, let displaying segments, points and areas via DebugTools.
-     * @see DebugTools
+     * For debug, let displaying segments, points and areas via drawDebug.
+     * @see drawDebug
      */
     public boolean AI_NeedPaint = false;
 

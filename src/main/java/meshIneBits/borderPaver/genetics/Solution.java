@@ -196,10 +196,10 @@ public class Solution {
             }
 
 
-            //DebugTools.pointsToDrawRED.add(nextStartPoint);
+            //drawDebug.pointsToDrawRED.add(nextStartPoint);
 
             //Vector2 startPoint = bound.firstElement();
-            //        DebugTools.pointsToDrawGREEN.add(startPoint);
+            //        drawDebug.pointsToDrawGREEN.add(startPoint);
             //        AI_Pavement.getCurrentSlice().AI_NeedPaint=true;
             //Vector<Segment2D> segment2DS= GeneralTools.pointsToSegments(bound);
 //            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();

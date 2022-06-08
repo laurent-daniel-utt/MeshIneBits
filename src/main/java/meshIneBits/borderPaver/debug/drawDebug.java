@@ -43,21 +43,16 @@ import java.awt.geom.Path2D;
 import java.util.Vector;
 
 /**
- * DebugTools is useful for debugging.
+ * drawDebug is useful for debugging.
  * Was used with Genetics and NN Pavement.
  * <p>
- * Set its variables depending on what you want to draw, and call DebugTools.setPaintForDebug(true);
- * It will draw on the screen what is stored in the variables of DebugTools.
+ * Set its variables depending on what you want to draw, and call drawDebug.setPaintForDebug(true);
+ * It will draw on the screen what is stored in the variables of drawDebug.
  * You may have to modify the method AIpaintForDebug in MeshWindowsCore to paint exactly what you need.
  */
 @SuppressWarnings("unused")
-public final class DebugTools {
-
-    public static Bit2D bit1 = null;
-    public static Bit2D bit2 = null;
-
+public final class drawDebug {
     public static @NotNull AffineTransform transformArea = new AffineTransform();
-
     public static @NotNull Vector<Vector2> pointsToDrawRED = new Vector<>();
     public static @NotNull Vector<Vector2> pointsToDrawGREEN = new Vector<>();
     public static @NotNull Vector<Vector2> pointsToDrawBLUE = new Vector<>();
@@ -65,12 +60,8 @@ public final class DebugTools {
     public static @NotNull Vector<Vector2> pointsToDrawBLACK = new Vector<>();
 
     public static @NotNull Path2D cutPathToDraw = new Path2D.Double();
-
     public static @NotNull Vector<Segment2D> segmentsToDrawBlue = new Vector<>();
     public static @NotNull Vector<Segment2D> segmentsToDrawRed = new Vector<>();
-    public static @NotNull Segment2D currentSegToDraw = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
-    public static @NotNull Segment2D currentSegToDraw2 = new Segment2D(new Vector2(0, 0), new Vector2(0, 0));
-
     public static @NotNull Vector<Polygon> polys = new Vector<>();
 
     public static @NotNull Area area = new Area();
