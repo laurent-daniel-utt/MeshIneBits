@@ -96,6 +96,9 @@ public class NNTraining {
     private boolean stop_training = false;
     private boolean is_training = false;
 
+    /**
+     * Let train the neural network without having to start meshineBits interface.
+     */
     public static void main(String[] args) {
         try {
             NNTraining nnTraining = new NNTraining();
