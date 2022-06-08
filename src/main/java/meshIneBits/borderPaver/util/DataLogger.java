@@ -30,6 +30,7 @@
 
 package meshIneBits.borderPaver.util;
 
+import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +54,7 @@ public final class DataLogger {
      * @return the number of entries.
      */
     static public long getNumberOfEntries() throws IOException {
-        return Files.lines(Paths.get(AI_Tool.DATA_LOG_FILE_PATH)).count();
+        return Files.lines(Paths.get(AI_Pavement.DATA_LOG_FILE_PATH)).count();
     }
 
     /**
@@ -70,7 +71,7 @@ public final class DataLogger {
         for (Vector2 point : dataLogEntry.getAssociatedPoints()) {
             line.append(",").append(point.x).append(",").append(point.y);
         }
-        FileWriter fw = new FileWriter(AI_Tool.DATA_LOG_FILE_PATH, true);
+        FileWriter fw = new FileWriter(AI_Pavement.DATA_LOG_FILE_PATH, true);
         fw.write(line + "\n");
         fw.close();
     }
@@ -95,7 +96,7 @@ public final class DataLogger {
      * @return the DataLogEntry read.
      */
     static public @NotNull DataLogEntry getEntryFromFile(long lineNumber) throws IOException {
-        Stream<String> lines = Files.lines(Paths.get(AI_Tool.DATA_LOG_FILE_PATH));
+        Stream<String> lines = Files.lines(Paths.get(AI_Pavement.DATA_LOG_FILE_PATH));
         Optional<String> str = lines.skip(lineNumber - 1).findFirst();
         String line = null;
         if (str.isPresent()) {

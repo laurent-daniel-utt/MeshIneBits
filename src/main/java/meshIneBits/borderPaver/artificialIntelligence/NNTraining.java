@@ -30,7 +30,7 @@
 
 package meshIneBits.borderPaver.artificialIntelligence;
 
-import meshIneBits.borderPaver.util.AI_Tool;
+import meshIneBits.patterntemplates.AI_Pavement;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -130,7 +130,7 @@ public class NNTraining {
     private void initDatasetsAndNormalizer() throws IOException, InterruptedException {
         // 1) datasets
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
+        rr.initialize(new FileSplit(new File(AI_Pavement.DATASET_FILE_PATH)));
         DataSetIterator iter = new RecordReaderDataSetIterator(rr, getNumberOfExamples()/100, 0, 1, true); //debugOnly
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
@@ -281,13 +281,13 @@ public class NNTraining {
      */
     public void save() throws IOException {
         //1) save model
-        File locationToSave = new File(AI_Tool.MODEL_PATH); // where to save the model
+        File locationToSave = new File(AI_Pavement.MODEL_PATH); // where to save the model
         // write the model
         ModelSerializer.writeModel(model, locationToSave, false);
 
         // 2) save Normalizer
         NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
+        File normalsFile = new File(AI_Pavement.NORMALIZER_PATH);
         saver.write(normalizer, normalsFile);
 
         System.out.println("The neural network parameters and configuration have been saved.");
@@ -297,7 +297,7 @@ public class NNTraining {
      * @return the number of lines of the dataSet file.
      */
     private int getNumberOfExamples() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(AI_Tool.DATASET_FILE_PATH));
+        BufferedReader reader = new BufferedReader(new FileReader(AI_Pavement.DATASET_FILE_PATH));
         int lines = 0;
         while (reader.readLine() != null) lines++;
         reader.close();

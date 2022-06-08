@@ -200,7 +200,7 @@ public class Solution {
 
             //Vector2 startPoint = bound.firstElement();
             //        DebugTools.pointsToDrawGREEN.add(startPoint);
-            //        AI_Tool.getMeshController().AI_NeedPaint=true;
+            //        AI_Pavement.getCurrentSlice().AI_NeedPaint=true;
             //Vector<Segment2D> segment2DS= GeneralTools.pointsToSegments(bound);
 //            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
 //            Vector2 bitDirector = getBit(startPoint).getOrientation();

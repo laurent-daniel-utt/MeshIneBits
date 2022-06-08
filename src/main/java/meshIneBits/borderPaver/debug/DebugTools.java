@@ -31,7 +31,6 @@
 package meshIneBits.borderPaver.debug;
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.util.AI_Tool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
@@ -78,11 +77,4 @@ public final class DebugTools {
     public static @Nullable Area areaToDraw = null;
 
     public static @NotNull Vector<Bit2D> Bits = new Vector<>();
-
-    /**
-     * Authorize (or not) to paint on the screen what is stored in the variables of DebugTools.
-     */
-    public static void setPaintForDebug(boolean b) {
-        AI_Tool.getMeshController().AI_NeedPaint = b;
-    }
 }

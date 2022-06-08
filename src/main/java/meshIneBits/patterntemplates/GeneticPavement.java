@@ -34,7 +34,6 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
-import meshIneBits.borderPaver.util.AI_Tool;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.genetics.Evolution;
@@ -89,7 +88,7 @@ public class GeneticPavement extends PatternTemplate {
                 Double.POSITIVE_INFINITY,
                 50.0,
                 5.0));
-        config.add(AI_Tool.paramSafeguardSpace);
+        config.add(AI_Pavement.paramSafeguardSpace);
     }
 
     @Override
@@ -127,7 +126,7 @@ public class GeneticPavement extends PatternTemplate {
 
             Bit2D bestBit;
             int bitNumber = 0;
-            while (new AI_Tool().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints.getPoints())) { //Add each bit on the bound
+            while (new AI_Pavement().hasNotCompletedTheBound(veryFirstStartPoint, startPoint, associatedPoints.getPoints())) { //Add each bit on the bound
                 bitNumber++;
                 if (bitNumber > maxBitNumber)//number max of bits to place on a bound before stopping
                     break;

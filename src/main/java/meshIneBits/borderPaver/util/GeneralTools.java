@@ -296,10 +296,10 @@ public class GeneralTools {
      * @param bit2D The Bit2D we want to get the points associated with.
      * @return the associated points.
      */
-    public Section getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D) throws Exception {
+    public Section getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D, Slice currentSlice) throws Exception {
 
         //First we get all the points of the Slice. getContours returns the points already rearranged.
-        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection());
+        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(currentSlice);
 
         // finds the startPoint (if exists) and the bound related to this startPoint
         int iContour = 0;

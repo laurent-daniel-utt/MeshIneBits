@@ -30,7 +30,6 @@
 
 package meshIneBits.borderPaver.artificialIntelligence;
 
-import meshIneBits.borderPaver.util.AI_Tool;
 import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
@@ -117,7 +116,7 @@ public class Test_SumModel {
 
         //Generate the training data
         RecordReader rr = new CSVRecordReader();
-        rr.initialize(new FileSplit(new File(AI_Tool.DATASET_FILE_PATH)));
+        rr.initialize(new FileSplit(new File(meshIneBits.patterntemplates.AI_Pavement.DATASET_FILE_PATH)));
         DataSetIterator iterator = new RecordReaderDataSetIterator(rr, batchSize, 0, 1, true);
         //DataSet fullDataSet = iterator.next();
         //fullDataSet.shuffle();
@@ -156,13 +155,13 @@ public class Test_SumModel {
      */
     public static void save() throws IOException {
         //1) save model
-        File locationToSave = new File(AI_Tool.MODEL_PATH); // where to save the model
+        File locationToSave = new File(meshIneBits.patterntemplates.AI_Pavement.MODEL_PATH); // where to save the model
         // write the model
         ModelSerializer.writeModel(net, locationToSave, false);
 
         // 2) save Normalizer
         // NormalizerSerializer saver = NormalizerSerializer.getDefault();
-        //File normalsFile = new File(AI_Tool.NORMALIZER_PATH);
+        //File normalsFile = new File(AI_Pavement.NORMALIZER_PATH);
         //saver.write(normalizer, normalsFile);
 
         System.out.println("The neural network parameters and configuration have been saved.");
@@ -173,7 +172,7 @@ public class Test_SumModel {
      */
     @SuppressWarnings("unused")
     private static int getNumberOfExamples() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(AI_Tool.DATASET_FILE_PATH));
+        BufferedReader reader = new BufferedReader(new FileReader(meshIneBits.patterntemplates.AI_Pavement.DATASET_FILE_PATH));
         int lines = 0;
         while (reader.readLine() != null) lines++;
         reader.close();

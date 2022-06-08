@@ -31,6 +31,7 @@
 package meshIneBits.borderPaver.util;
 
 import meshIneBits.config.CraftConfig;
+import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +52,7 @@ public final class DataSetGenerator {
 
         long dataLogSize;
         dataLogSize = DataLogger.getNumberOfEntries();
-        FileWriter fw = new FileWriter(AI_Tool.DATASET_FILE_PATH, false);
+        FileWriter fw = new FileWriter(AI_Pavement.DATASET_FILE_PATH, false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 

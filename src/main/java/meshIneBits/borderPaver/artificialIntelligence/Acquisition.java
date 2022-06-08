@@ -31,20 +31,17 @@
 package meshIneBits.borderPaver.artificialIntelligence;
 
 import meshIneBits.Bit2D;
-import meshIneBits.borderPaver.util.AI_Tool;
-import meshIneBits.borderPaver.util.GeneralTools;
-import meshIneBits.borderPaver.util.Section;
-import meshIneBits.borderPaver.util.DataLogEntry;
-import meshIneBits.borderPaver.util.DataLogger;
-import meshIneBits.borderPaver.util.DataSetGenerator;
-import meshIneBits.config.CraftConfig;
+import meshIneBits.Bit3D;
+import meshIneBits.borderPaver.util.*;
+import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -57,6 +54,11 @@ public class Acquisition {
     private static boolean isStoringNewBits = false;
     private static HashMap<Bit2D, Vector<Vector2>> bit2DVectorHashMap;
     private static Vector<Bit2D> storedExamplesBits;//useful to delete lasts placed bit
+    private static MeshController meshController;
+
+    public static void setMeshController(MeshController meshController) {
+        Acquisition.meshController = meshController;
+    }
 
     /**
      * The bits placed manually by the user will be stored.
@@ -95,13 +97,14 @@ public class Acquisition {
      *
      * @param bit the example to be added.
      */
-    public static void addNewExampleBit(@NotNull Bit2D bit) throws Exception {
-        if (isIrregular(bit)) {
+    public static void addNewExampleBit(@NotNull Bit2D bit, Slice currentSlice) throws Exception {
+        if (AI_Pavement.isIrregular(bit, currentSlice)) {
             throw new Exception("Example not added !");
         }
 
-        Section sectionPoints = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit);
-        bit2DVectorHashMap.put(bit, sectionPoints.getPoints());
+        Section sectionPoints = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit,meshController.getCurrentLayer().getHorizontalSection());
+        bit2DVectorHashMap.put(bit,
+                               sectionPoints.getPoints());
         storedExamplesBits.add(bit);
         bit.setUsedForNN(true);
     }
@@ -111,55 +114,48 @@ public class Acquisition {
      */
     private static void saveExamples() throws IOException {
         for (Bit2D bit : bit2DVectorHashMap.keySet()) {
-            DataLogEntry entry = new DataLogEntry(bit, bit2DVectorHashMap.get(bit));
+            DataLogEntry entry = new DataLogEntry(bit,
+                                                  bit2DVectorHashMap.get(bit));
             DataLogger.saveEntry(entry);
         }
         DataSetGenerator.generateCsvFile();
     }
 
+    public static boolean isStoringNewBits() {
+        return isStoringNewBits;
+    }
+
+    public static Slice getCurrentSlice() {
+        return meshController.getCurrentLayer().getHorizontalSection();
+    }
+
     /**
-     * checks if a bit can be used to train the neural net.
-     * A bit can be used by the neural net only if the first intersection between an edge of the bit and the bound
-     * (scanning it in the direction of the increasing indices) is made by a short edge of the bit.
-     *
-     * @param bit a {@link Bit2D}
-     * @return true if the bit can not be used by the neural net.
+     * Restore the deleted examples in the DataSet of deepLearning
      */
-    public static boolean isIrregular(@NotNull Bit2D bit) {
-        Vector<Segment2D> bitEdges = bit.getBitSidesSegments();
-
-        Slice slice = AI_Tool.getMeshController().getCurrentLayer().getHorizontalSection();
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
-
-        for (Vector<Vector2> bound : bounds) {
-            for (int i = 0; i < bound.size() - 1; i++) {
-                Segment2D boundSegment = new Segment2D(bound.get(i), bound.get(i + 1));
-
-                Segment2D firstIntersectingEdge = null;
-                double maxDistance = Double.POSITIVE_INFINITY;
-
-                for (Segment2D bitEdge : bitEdges) {
-
-                    // finds the edge of the bit that intersects the first
-                    if (Segment2D.doSegmentsIntersect(bitEdge, boundSegment)
-                            && Vector2.dist(bound.get(i), Segment2D.getIntersectionPoint(bitEdge, boundSegment)) < maxDistance) {
-                        maxDistance = Vector2.dist(bound.get(i), Segment2D.getIntersectionPoint(bitEdge, boundSegment));
-                        firstIntersectingEdge = bitEdge;
-                    }
-
-                    // check if the position of the bit is irregular
-                    if (firstIntersectingEdge != null) {
-                        if (Math.abs(firstIntersectingEdge.getLength() - CraftConfig.bitWidth) < Math.pow(10, -CraftConfig.errorAccepted))
-                            return false; // the first intersection is a short edge of the bit
-                    }
+    public static void RestoreDeletedExamples(Set<Bit3D> currentSelectedBits) {
+        if (isStoringNewBits()) {//we also have to restore the bit in the dataSet
+            for (Bit3D bit3D : currentSelectedBits) { //we have to convert 3D bits to 2D bits
+                Bit2D bit2D = new Bit2D(bit3D.getOrigin(), bit3D.getOrientation());
+                if (!AI_Pavement.isIrregular(bit2D,
+                                             getCurrentSlice())) {
+                    bit2D.setUsedForNN(true);
+                    bit3D.setUsedForNN(true);
+                }
+                try {
+                    addNewExampleBit(bit2D, getCurrentSlice());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
-        // only reached if the bit doesn't intersect with a bound
-        return true;
     }
 
-    public static boolean isStoringNewBits() {
-        return isStoringNewBits;
+    /**
+     * Remove the latest examples in the DataSet of deepLearning
+     */
+    public static void RemoveLatestExamples(int size) {
+        if (isStoringNewBits()) {//we also have to remove the bit in the dataSet
+            deleteLastPlacedBits(size);
+        }
     }
 }

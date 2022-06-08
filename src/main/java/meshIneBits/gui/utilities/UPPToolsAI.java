@@ -31,7 +31,6 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.borderPaver.util.AI_Tool;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.artificialIntelligence.NNTraining;
 import meshIneBits.gui.view2d.MeshController;
@@ -48,7 +47,6 @@ public class UPPToolsAI extends UtilityParametersPanel {
     public UPPToolsAI(MeshController meshController) {
         super("AI-Tools");
         // Init components
-        AI_Tool.setMeshController(meshController);
         parametersPanel = new JPanel();
         parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);

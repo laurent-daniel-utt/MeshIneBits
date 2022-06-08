@@ -574,7 +574,7 @@ public class MeshController extends Observable implements Observer, HandlerRedoU
 
         if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
             try {
-                Acquisition.addNewExampleBit(newBit);
+                Acquisition.addNewExampleBit(newBit, currentLayer.getHorizontalSection());
             } catch (Exception e) {
                 e.printStackTrace();
             }
