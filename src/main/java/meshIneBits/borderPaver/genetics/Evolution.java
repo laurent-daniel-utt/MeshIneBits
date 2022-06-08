@@ -68,7 +68,6 @@ public class Evolution {
      * The size of the population to keep alive.
      */
     private final int POP_SIZE;
-    private final Vector<Vector2> pointSection;
     private final Vector2 startPoint;
     private final Vector<Vector2> bound;
     private final Vector<Generation> generations = new Vector<>();
@@ -88,7 +87,7 @@ public class Evolution {
      */
     public Evolution(Area layerAvailableArea, Section section, Vector<Vector2> bound, int nbOfGenerations, int popSize, int RATIO) {
         this.layerAvailableArea = layerAvailableArea;
-        this.pointSection = section.getPoints();
+        Vector<Vector2> pointSection = section.getPoints();
         this.startPoint = section.getStartPoint();
         this.bound = bound;
         this.NB_OF_GENERATIONS = nbOfGenerations;

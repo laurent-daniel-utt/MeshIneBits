@@ -171,50 +171,22 @@ public class Solution {
 
         /*
         Adding getNumberOfIntersections usage will improve the performances.
-        Needs to be debugged. Works elsewhere but not here... :(
+        Needs to be debugged. Works elsewhere but seems to not work here... :(
         */
-
        /* int intersections_count = getNumberOfIntersections(bound);
-        System.out.println(intersections_count);
-        if (intersections_count!=3) { //todo @Etienne
+        if (intersections_count!=3) {
             bad = true;
         }
-
         */
-
 
         try {
             double maxDistanceForNextStart = CraftConfig.lengthFull + CraftConfig.errorAccepted;
 
-            //System.out.println(getBit(startPoint));
             Vector2 nextStartPoint = new GeneralTools().getNextBitStartPoint(getBit(startPoint), bound, startPoint);
             double distViaSegments = Section.getDistViaSegments(startPoint, nextStartPoint, Section.pointsToSegments(bound));
-            //System.out.println(distViaSegments + getBit(startPoint).toString());
             if (distViaSegments > maxDistanceForNextStart) {
                 bad = true;
-                System.out.println("BAAAD for distViaSeg");
             }
-
-
-            //drawDebug.pointsToDrawRED.add(nextStartPoint);
-
-            //Vector2 startPoint = bound.firstElement();
-            //        drawDebug.pointsToDrawGREEN.add(startPoint);
-            //        AI_Pavement.getCurrentSlice().AI_NeedPaint=true;
-            //Vector<Segment2D> segment2DS= GeneralTools.pointsToSegments(bound);
-//            Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
-//            Vector2 bitDirector = getBit(startPoint).getOrientation();
-////            System.out.println(bitDirector.dot(startToEnd));
-//            if (bitDirector.dot(startToEnd) < 0) {
-//                bad = true;
-//            }
-            //Vector2 startToEnd = new Segment2D(startPoint, nextStartPoint).getDirectionalVector();
-            //Vector2 bitDirector = getBit(startPoint).getOrientation();
-            //System.out.println(startToEnd.add(bitDirector.getOpposite()).getEquivalentAngle2());
-//            System.out.println(bitDirector.dot(startToEnd));
-            //if (bitDirector.dot(startToEnd) < 0) {
-            //bad = true;
-            //}
         } catch (Exception e) {
             bad = true;
             System.out.println("BAD, " + e);
