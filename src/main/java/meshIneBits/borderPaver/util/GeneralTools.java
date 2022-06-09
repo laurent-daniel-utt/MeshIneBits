@@ -212,8 +212,10 @@ public class GeneralTools {
      * @param boundPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, Vector2 startPoint) throws Exception {
-        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints, startPoint);
+    public static Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, Vector2 startPoint) throws Exception {
+        Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit,
+                                                                            boundPoints,
+                                                                            startPoint);
 
         if (nextBitStartPoint != null) {
             return nextBitStartPoint;

@@ -137,6 +137,7 @@ public class BorderPaverPattern extends PatternTemplate {
      */
     //(Modified function for border algorithms, the other doesn't work)
     private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
+        // TODO: 09/06/2022 - does not always work
         double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
         for (Bit2D bit2DToCut : bits) {
             Area bit2DToCutArea = bit2DToCut.getArea();
