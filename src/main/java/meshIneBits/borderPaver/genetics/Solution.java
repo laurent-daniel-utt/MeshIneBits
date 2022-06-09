@@ -140,7 +140,6 @@ public class Solution {
             return score;
         }
     }
-
     /**
      * Mutates parameters of the solution.
      */
@@ -189,7 +188,6 @@ public class Solution {
             }
         } catch (Exception e) {
             bad = true;
-            System.out.println("BAD, " + e);
         }
         hasBeenCheckedBad = true;
         return bad;

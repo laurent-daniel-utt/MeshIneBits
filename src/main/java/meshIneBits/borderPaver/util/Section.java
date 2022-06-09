@@ -34,12 +34,15 @@ import meshIneBits.borderPaver.ConvexBorderAlgorithm;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
+import org.apache.commons.math3.fitting.PolynomialCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+import java.util.stream.IntStream;
 
 /**
  * The description of a list of {@link Vector2}s or {@link Segment2D}s which make a section.
@@ -232,6 +235,85 @@ public class Section {
     }
 
     /**
+     * This method makes a double non-linear regression over a section of points saved in DataLog.csv.
+     * This an alternative approach to getInputPointsForDL method : the returned values describe
+     * approximately the shape of the section of points entered as parameter. Then the coefficients returned could
+     * be used in a neural net.
+     * The interest of this method over getInputPointsForDL is that it reduces the number of features
+     * injected in the neural. In return, the representation of the section may be less accurate.
+     * The steps below describe how the double non-linear regression works :
+     * 1 - The section is split into two curves : x(t) and y(t), where the parameter t is the curvilinear abscissa of
+     * the section.
+     * 2 - A non-linear regression is made over each curve.
+     * 3 - We get two arrays of coefficients related to the two curves.
+     *
+     * @param sectionPoints the points on which the regression is performed.
+     * @param degree        the degree of the regression, witch is linked to the accuracy of the regression performed.
+     * @return a {@link Vector} of two {@link Vector} of coefficients related the section entered as parameter.
+     */
+    @SuppressWarnings("unused")
+    private static @NotNull Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
+        Section inputCurve = new Section(sectionPoints);
+        Section[] splitCurve = inputCurve.splitCurveInTwo();
+        Section xCurve = splitCurve[0];
+        Section yCurve = splitCurve[1];
+
+        // prepare fitting
+        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
+        WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
+        WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
+        for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
+            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
+        }
+        // fit
+        double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
+        double[] coefficients_inverseY = fitter.fit(weightedObservedPointsY.toList());
+        // invert coefficients
+        Vector<Double> coefficientsX = new Vector<>();
+        Vector<Double> coefficientsY = new Vector<>();
+        for (int i = 0; i < coefficients_inverseX.length; i++) {
+            coefficientsX.add(coefficients_inverseX[coefficients_inverseX.length - i - 1]);
+            coefficientsY.add(coefficients_inverseY[coefficients_inverseX.length - i - 1]);
+        }
+        // return result
+        Vector<Vector<Double>> coefficients = new Vector<>();
+        coefficients.add(coefficientsX);
+        coefficients.add(coefficientsY);
+        return coefficients;
+    }
+
+    /**
+     * Rearranges the given points so that the list begins at the rightmost point
+     *
+     * @param pointList the points to be rearranged.
+     * @return the rearranged points.
+     */
+    public static @NotNull Vector<Vector2> rearrangePoints(@NotNull Vector<Vector2> pointList) {
+        Vector<Vector2> newPointList = new Vector<>();
+        int PointIndex;
+        double maxX = Double.NEGATIVE_INFINITY;
+        int indexMax = 0;
+
+        for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
+            Vector2 actualPoint = pointList.get(PointIndex);
+            if (actualPoint.x > maxX) {
+                maxX = actualPoint.x;
+                indexMax = PointIndex;
+            }
+        }
+
+        IntStream.range(indexMax, pointList.size())
+                .mapToObj(pointList::get)
+                .forEachOrdered(newPointList::add);
+        IntStream.range(0, indexMax + 1)
+                .mapToObj(pointList::get)
+                .forEachOrdered(newPointList::add);
+
+        return newPointList;
+    }
+
+    /**
      * Checks if most of the points are located at the left of a reference point
      *
      * @return true if most of the points are at the left of the reference point.
@@ -254,7 +336,7 @@ public class Section {
      *
      * @return the longest segment
      */
-    public Segment2D getLongestSegment() {
+     public Segment2D getLongestSegment() {
         return segments.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
     }
 
@@ -339,7 +421,7 @@ public class Section {
             // calculates the convex hull of the section's points
             Section hull = sectionToReduce.getHull();
 
-            // find the constraint segment, which is the longest segment of the hull // todo, maybe not always the case
+            // find the constraint segment, which is the longest segment of the hull // todo @Andre, maybe not always the case
             constraintSegment = hull.getLongestSegment();
 
             // find the constraint point, which is the convex hull's furthest point from the constraint segment
@@ -509,5 +591,44 @@ public class Section {
         }
 
         return convexType;
+    }
+
+    public int getNumberOfPoints() {
+        return points.size();
+    }
+
+
+    /**
+     * Splits a curve in x(t) and y(t) as in parametric curves.
+     * @return the x(t) and y(t) curves.
+     */
+    @SuppressWarnings("SuspiciousNameCombination")
+    public Section @NotNull [] splitCurveInTwo() {
+
+        Vector<Vector2> pointsX = new Vector<>();
+        Vector<Vector2> pointsY = new Vector<>();
+        double curvilinearAbs = 0;
+
+        pointsX.add(new Vector2(curvilinearAbs, points.get(0).x));
+        pointsY.add(new Vector2(curvilinearAbs, points.get(0).y));
+
+        for (int i = 1; i < this.points.size(); i++) {
+            curvilinearAbs += Math.sqrt(Math.pow(points.get(i - 1).x - points.get(i).x, 2)
+                                                + Math.pow(points.get(i - 1).y - points.get(i).y, 2));
+            pointsX.add(new Vector2(curvilinearAbs, points.get(i).x));
+            pointsY.add(new Vector2(curvilinearAbs, points.get(i).y));
+        }
+
+        Section curveX = new Section(pointsX);
+        Section curveY = new Section(pointsY);
+
+        return new Section[]{curveX, curveY};
+    }
+    public @NotNull String toString() {
+        StringBuilder str = new StringBuilder("Section = \n");
+        for (Vector2 v : points) {
+            str.append(v.x).append("\t").append(v.y).append("\n");
+        }
+        return str.toString();
     }
 }

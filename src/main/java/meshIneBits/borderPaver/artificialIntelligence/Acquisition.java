@@ -32,7 +32,9 @@ package meshIneBits.borderPaver.artificialIntelligence;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
-import meshIneBits.borderPaver.util.*;
+import meshIneBits.borderPaver.util.GeneralTools;
+import meshIneBits.borderPaver.util.Section;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.slicer.Slice;
@@ -48,6 +50,7 @@ import java.util.Vector;
  * Let the user save new inputs to store in the dataSet to later train the neural network.
  */
 public class Acquisition {
+    public static final int nbPointsSectionDL = 10;//todo @Etienne ou Andre : hidden neurons count has depend of this
     /**
      * If true, the bits placed manually by the user will be stored.
      */
@@ -98,11 +101,12 @@ public class Acquisition {
      * @param bit the example to be added.
      */
     public static void addNewExampleBit(@NotNull Bit2D bit, Slice currentSlice) throws Exception {
-        if (AI_Pavement.isIrregular(bit, currentSlice)) {
+        if (AI_Pavement.isIrregular(bit,
+                                    currentSlice)) {
             throw new Exception("Example not added !");
         }
 
-        Section sectionPoints = new GeneralTools().getCurrentLayerBitAssociatedPoints(bit,meshController.getCurrentLayer().getHorizontalSection());
+        Section sectionPoints = getCurrentLayerBitAssociatedPoints(bit, meshController.getCurrentLayer().getHorizontalSection());
         bit2DVectorHashMap.put(bit,
                                sectionPoints.getPoints());
         storedExamplesBits.add(bit);
@@ -135,14 +139,16 @@ public class Acquisition {
     public static void RestoreDeletedExamples(Set<Bit3D> currentSelectedBits) {
         if (isStoringNewBits()) {//we also have to restore the bit in the dataSet
             for (Bit3D bit3D : currentSelectedBits) { //we have to convert 3D bits to 2D bits
-                Bit2D bit2D = new Bit2D(bit3D.getOrigin(), bit3D.getOrientation());
+                Bit2D bit2D = new Bit2D(bit3D.getOrigin(),
+                                        bit3D.getOrientation());
                 if (!AI_Pavement.isIrregular(bit2D,
                                              getCurrentSlice())) {
                     bit2D.setUsedForNN(true);
                     bit3D.setUsedForNN(true);
                 }
                 try {
-                    addNewExampleBit(bit2D, getCurrentSlice());
+                    addNewExampleBit(bit2D,
+                                     getCurrentSlice());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -158,4 +164,35 @@ public class Acquisition {
             deleteLastPlacedBits(size);
         }
     }
+
+
+    /**
+     * Returns points all points associated with a Bit2D.
+     * Points associated are the points of the Slice from the startPoint of the Bit2D,
+     * till the distance with the point become greater than the length of a Bit2D.
+     *
+     * @param bit2D The Bit2D we want to get the points associated with.
+     * @return the associated points.
+     */
+    public static Section getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D, Slice currentSlice) throws Exception {
+
+        //First we get all the points of the Slice. getContours returns the points already rearranged.
+        Vector<Vector<Vector2>> boundsList = GeneralTools.getBoundsAndRearrange(currentSlice);
+
+        // finds the startPoint (if exists) and the bound related to this startPoint
+        int iContour = 0;
+        Vector2 startPoint = null;
+        boolean boundFound = false;
+        while (iContour < boundsList.size() && !boundFound) {
+            startPoint = GeneralTools.getBitAndContourFirstIntersectionPoint(bit2D, boundsList.get(iContour));
+            if (startPoint != null) boundFound = true;
+            iContour++;
+        }
+
+        // finds the points associated with the bit, using the startPoint and the bound previously found
+        if (startPoint != null)
+            return SectionTransformer.getSectionFromBound(boundsList.get(iContour - 1), startPoint);
+        else throw new Exception("The bit start point has not been found.");
+    }
+
 }

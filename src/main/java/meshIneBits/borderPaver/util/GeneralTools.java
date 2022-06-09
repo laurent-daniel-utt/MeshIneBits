@@ -35,8 +35,6 @@ import meshIneBits.slicer.Slice;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-import org.apache.commons.math3.fitting.PolynomialCurveFitter;
-import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,69 +47,6 @@ import java.util.Vector;
  * It also provides methods to perform intersection point search.
  */
 public class GeneralTools {
-
-    /**
-     * Positions a precise number of points on a section of points. Each point is equally spaced to the next point.
-     *
-     * @param sectionPoints the initial section of points.
-     * @return a new section of points, composed of the equally spaced points.
-     */
-    public static @NotNull Vector<Vector2> getInputPointsForDL(Section sectionPoints) {
-        int nbPoints = 10;//todo @Etienne ou Andre : hidden neurons count has depend of this
-        return SectionTransformer.repopulateWithNewPoints(nbPoints, sectionPoints, false);
-    }
-
-
-    /**
-     * This method makes a double non-linear regression over a section of points saved in DataLog.csv.
-     * This an alternative approach to getInputPointsForDL method : the returned values describe
-     * approximately the shape of the section of points entered as parameter. Then the coefficients returned could
-     * be used in a neural net.
-     * The interest of this method over getInputPointsForDL is that it reduces the number of features
-     * injected in the neural. In return, the representation of the section may be less accurate.
-     * The steps below describe how the double non-linear regression works :
-     * 1 - The section is split into two curves : x(t) and y(t), where the parameter t is the curvilinear abscissa of
-     * the section.
-     * 2 - A non-linear regression is made over each curve.
-     * 3 - We get two arrays of coefficients related to the two curves.
-     *
-     * @param sectionPoints the points on which the regression is performed.
-     * @param degree        the degree of the regression, witch is linked to the accuracy of the regression performed.
-     * @return a {@link Vector} of two {@link Vector} of coefficients related the section entered as parameter.
-     */
-    @SuppressWarnings("unused")
-    private static @NotNull Vector<Vector<Double>> getInputSlopesForDL(Vector<Vector2> sectionPoints, int degree) {
-        Curve inputCurve = new Curve("input curve");
-        inputCurve.generateCurve(sectionPoints);
-        Curve[] splitCurve = inputCurve.splitCurveInTwo();
-        Curve xCurve = splitCurve[0];
-        Curve yCurve = splitCurve[1];
-
-        // prepare fitting
-        PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
-        WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
-        WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
-        for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
-            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
-            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
-        }
-        // fit
-        double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
-        double[] coefficients_inverseY = fitter.fit(weightedObservedPointsY.toList());
-        // invert coefficients
-        Vector<Double> coefficientsX = new Vector<>();
-        Vector<Double> coefficientsY = new Vector<>();
-        for (int i = 0; i < coefficients_inverseX.length; i++) {
-            coefficientsX.add(coefficients_inverseX[coefficients_inverseX.length - i - 1]);
-            coefficientsY.add(coefficients_inverseY[coefficients_inverseX.length - i - 1]);
-        }
-        // return result
-        Vector<Vector<Double>> coefficients = new Vector<>();
-        coefficients.add(coefficientsX);
-        coefficients.add(coefficientsY);
-        return coefficients;
-    }
-
 
     /**
      * Looks for an intersection point between a side of a bit and a closed contour (bound). The point returned
@@ -255,16 +190,16 @@ public class GeneralTools {
      * @param currentSlice the slice to get the bounds.
      * @return the bounds of the given slice, once rearranged.
      * @see SectionTransformer#rearrangeSegments
-     * @see SectionTransformer#rearrangePoints
+     * @see Section#rearrangePoints
      */
     @SuppressWarnings("unchecked")
-    public @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
+    public static @NotNull Vector<Vector<Vector2>> getBoundsAndRearrange(@NotNull Slice currentSlice) {
         Vector<Vector<Vector2>> boundsList = new Vector<>();
         Vector<Vector<Segment2D>> borderList = SectionTransformer.rearrangeSegments((Vector<Segment2D>) currentSlice.getSegmentList().clone());
 
         for (Vector<Segment2D> border : borderList) {
             Vector<Vector2> unorderedPoints = Section.segmentsToPoints(border);
-            boundsList.add(SectionTransformer.rearrangePoints(unorderedPoints));
+            boundsList.add(Section.rearrangePoints(unorderedPoints));
         }
         return boundsList;
     }
@@ -278,7 +213,6 @@ public class GeneralTools {
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
     public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints, Vector2 startPoint) throws Exception {
-
         Vector2 nextBitStartPoint = getBitAndContourSecondIntersectionPoint(bit, boundPoints, startPoint);
 
         if (nextBitStartPoint != null) {
@@ -286,35 +220,6 @@ public class GeneralTools {
         } else {
             throw new Exception("The bit start point has not been found.");
         }
-    }
-
-    /**
-     * Returns points all points associated with a Bit2D.
-     * Points associated are the points of the Slice from the startPoint of the Bit2D,
-     * till the distance with the point become greater than the length of a Bit2D.
-     *
-     * @param bit2D The Bit2D we want to get the points associated with.
-     * @return the associated points.
-     */
-    public Section getCurrentLayerBitAssociatedPoints(@NotNull Bit2D bit2D, Slice currentSlice) throws Exception {
-
-        //First we get all the points of the Slice. getContours returns the points already rearranged.
-        Vector<Vector<Vector2>> boundsList = getBoundsAndRearrange(currentSlice);
-
-        // finds the startPoint (if exists) and the bound related to this startPoint
-        int iContour = 0;
-        Vector2 startPoint = null;
-        boolean boundFound = false;
-        while (iContour < boundsList.size() && !boundFound) {
-            startPoint = getBitAndContourFirstIntersectionPoint(bit2D, boundsList.get(iContour));
-            if (startPoint != null) boundFound = true;
-            iContour++;
-        }
-
-        // finds the points associated with the bit, using the startPoint and the bound previously found
-        if (startPoint != null)
-            return SectionTransformer.getSectionFromBound(boundsList.get(iContour - 1), startPoint);
-        else throw new Exception("The bit start point has not been found.");
     }
 
     /**

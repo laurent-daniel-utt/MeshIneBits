@@ -140,18 +140,18 @@ public class TangenceBorderAlgorithm {
      */
     public static Vector<Bit2D> getBits(Slice slice, double minWidth, double numberMaxBits) throws NoninvertibleTransformException {
         Vector<Bit2D> bits = new Vector<>();
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = GeneralTools.getBoundsAndRearrange(slice);
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 nextStartPoint = bound.get(0);
 
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+            System.out.println("\033[0;34m" + "++++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++++" + "\033[0m");
 
             List<Vector2> sectionPoints;
             Section section;
             int iBit = 0;
             do {
-                System.out.print("\t " + "BIT PLACEMENT"+"\tTANGENT\t"+" : " + iBit + "\t");
+                System.out.print("\033[0;32m" +"\t " + "BIT PLACEMENT"+"\tTANGENT\t"+" : " + iBit + "\033[0m");
                 section = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 sectionPoints = section.getPoints();
 
@@ -161,7 +161,7 @@ public class TangenceBorderAlgorithm {
                 bits.add(bit);
 
                 nextStartPoint = GeneralTools.getBitAndContourSecondIntersectionPoint(bit, bound, nextStartPoint);
-                System.out.println(": END");
+                System.out.println("\033[0;32m" +"\t: END" + "\033[0m");
                 iBit++;
 
             } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, sectionPoints) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, sectionPoints)) && iBit < numberMaxBits);

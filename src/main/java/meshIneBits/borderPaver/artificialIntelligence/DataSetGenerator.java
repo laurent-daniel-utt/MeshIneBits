@@ -28,8 +28,10 @@
  *
  */
 
-package meshIneBits.borderPaver.util;
+package meshIneBits.borderPaver.artificialIntelligence;
 
+import meshIneBits.borderPaver.util.Section;
+import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.util.Vector2;
@@ -52,29 +54,33 @@ public final class DataSetGenerator {
 
         long dataLogSize;
         dataLogSize = DataLogger.getNumberOfEntries();
-        FileWriter fw = new FileWriter(AI_Pavement.DATASET_FILE_PATH, false);
+        FileWriter fw = new FileWriter(AI_Pavement.DATASET_FILE_PATH,
+                                       false);
 
         for (int logLine = 1; logLine <= dataLogSize; logLine++) {
 
             DataLogEntry entry = DataLogger.getEntryFromFile(logLine);
 
             // format data for deep learning
-            Vector2 startPoint = entry.getAssociatedPoints().firstElement();
-//todo pareil créer une Section à chaque fois (3 fois ici)
-            Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(
-                    entry.getAssociatedPoints(),
-                    SectionTransformer.getLocalCoordinateSystemAngle(new Section(entry.getAssociatedPoints())),
-                    startPoint); //TODO @Etienne TESTER
-            Vector<Vector2> pointsForDl = GeneralTools.getInputPointsForDL(new Section(transformedPoints));
+            Section section = new Section(entry.getAssociatedPoints());
 
-            double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(), entry.getBitOrientation(), startPoint);
-            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(), new Section(entry.getAssociatedPoints()));
+            Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(
+                    section,
+                    SectionTransformer.getLocalCoordinateSystemAngle(new Section(entry.getAssociatedPoints()))); //TODO @Etienne TESTER
+            Vector<Vector2> pointsForDl = SectionTransformer.repopulateWithNewPoints(Acquisition.nbPointsSectionDL,
+                                                                                     new Section(transformedPoints),
+                                                                                     false);
+            double edgeAbscissa = getBitEdgeAbscissa(entry.getBitPosition(),
+                                                     entry.getBitOrientation(),
+                                                     section.getStartPoint());
+            double bitOrientation = getBitAngleInLocalSystem(entry.getBitOrientation(),
+                                                             new Section(entry.getAssociatedPoints()));
 
             //generates one line (corresponds to the data of one bit)
             StringBuilder csvLine = new StringBuilder(""
-                    + edgeAbscissa // adds position
-                    + ","
-                    + bitOrientation); //adds bitOrientation
+                                                              + edgeAbscissa // adds position
+                                                              + ","
+                                                              + bitOrientation); //adds bitOrientation
             for (Vector2 point : pointsForDl) { // add points
                 csvLine.append(",").append(point.x);
                 csvLine.append(",").append(point.y);
@@ -101,13 +107,15 @@ public final class DataSetGenerator {
     public static double getBitEdgeAbscissa(@NotNull Vector2 bitOrigin, @NotNull Vector2 bitAngle, Vector2 startPoint) {
 
         Vector2 collinear = bitAngle.normal();
-        Vector2 orthogonal = collinear.rotate(new Vector2(0, -1)); // 90deg anticlockwise rotation
+        Vector2 orthogonal = collinear.rotate(new Vector2(0,
+                                                          -1)); // 90deg anticlockwise rotation
 
         //this point is used as a local origin for the new coordinate system
         Vector2 originVertex = bitOrigin.add(orthogonal.mul(CraftConfig.bitWidth / 2))
                 .sub(collinear.mul(CraftConfig.lengthFull / 2));
 
-        if (Vector2.dist(originVertex, startPoint) > CraftConfig.bitWidth) {
+        if (Vector2.dist(originVertex,
+                         startPoint) > CraftConfig.bitWidth) {
             //this case is not possible. this means that originVertex should be the opposite point compared to bitOrigin
             originVertex = bitOrigin.sub(orthogonal.mul(CraftConfig.bitWidth / 2))
                     .add(collinear.mul(CraftConfig.lengthFull / 2));
@@ -118,7 +126,8 @@ public final class DataSetGenerator {
         // and the last placed bit's end edge
 
         // todo @Andre: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
-        return Vector2.dist(originVertex, startPoint);
+        return Vector2.dist(originVertex,
+                            startPoint);
     }
 
     /**
@@ -136,7 +145,8 @@ public final class DataSetGenerator {
         // = if angle between the vector is more than 90 degrees
         // (the point of rotation is the center of the bit, so both angles are equivalent)
         if (bitAngle.dot(localCoordinateSystemAngle) < 0) {
-            bitAngle = new Vector2(-bitAngle.x, -bitAngle.y);
+            bitAngle = new Vector2(-bitAngle.x,
+                                   -bitAngle.y);
         }
 
         double x1 = localCoordinateSystemAngle.x;

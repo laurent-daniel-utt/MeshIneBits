@@ -34,6 +34,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.artificialIntelligence.NNExploitation;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
@@ -180,7 +181,7 @@ public class AI_Pavement extends PatternTemplate {
         System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
 
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = GeneralTools.getBoundsAndRearrange(slice);
 
         NNExploitation nnExploitation = new NNExploitation();
 
@@ -194,8 +195,8 @@ public class AI_Pavement extends PatternTemplate {
                 sectionPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
                 double angleLocalSystem = SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints.getPoints(), angleLocalSystem, startPoint);//TODO @Etienne TESTER
-                Vector<Vector2> sectionPointsReg = GeneralTools.getInputPointsForDL(new Section(transformedPoints));//todo better, cf au dessus
+                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints, angleLocalSystem);//TODO @Etienne TESTER
+                Vector<Vector2> sectionPointsReg = SectionTransformer.repopulateWithNewPoints(Acquisition.nbPointsSectionDL, new Section(transformedPoints), false);//todo better, cf au dessus
                 Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
                 bits.add(bit);
                 startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
@@ -211,14 +212,14 @@ public class AI_Pavement extends PatternTemplate {
      * Check if the bound of the Slice has been entirely paved.
      *
      * @param veryFirstStartPoint the point of the bound on which the very first bit was placed.
-     * @param NextStartPoint TODO etienne
+     * @param _nextStartPoint    the point of the bound on which the next bit was placed.
      * @param associatedPoints    the points on which a bit has just been placed.
      * @return <code>true</code> if the bound of the Slice has been entirely paved. <code>false</code> otherwise.
      */
-    public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 NextStartPoint, @NotNull Vector<Vector2> associatedPoints) {
+    public boolean hasNotCompletedTheBound(Vector2 veryFirstStartPoint, Vector2 _nextStartPoint, @NotNull Vector<Vector2> associatedPoints) {
         if (associatedPoints.firstElement() == veryFirstStartPoint) //to avoid returning false on the first placement
             return true;
-        if (Vector2.dist(veryFirstStartPoint, NextStartPoint) < paramSafeguardSpace.getCurrentValue() * 10) {
+        if (Vector2.dist(veryFirstStartPoint, _nextStartPoint) < paramSafeguardSpace.getCurrentValue() * 10) {
             //standard safe distance between two bits
             //todo refactor le param paramSafeguardSpace @Andre
             return false;
@@ -234,13 +235,13 @@ public class AI_Pavement extends PatternTemplate {
      * (scanning it in the direction of the increasing indices) is made by a short edge of the bit.
      *
      * @param bit   a {@link Bit2D}
-     * @param slice
+     * @param slice a {@link Slice}
      * @return true if the bit can not be used by the neural net.
      */
     public static boolean isIrregular(@NotNull Bit2D bit, @NotNull Slice slice) {
         Vector<Segment2D> bitEdges = bit.getBitSidesSegments();
 
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = GeneralTools.getBoundsAndRearrange(slice);
 
         for (Vector<Vector2> bound : bounds) {
             for (int i = 0; i < bound.size() - 1; i++) {

@@ -176,16 +176,14 @@ public class CraftConfig {
      */
     public static PatternTemplate[] templatesPreloaded = {
             new BorderPaverPattern(),
-//            new TangenceBorderedPattern(),
-//            new BorderedPattern(),//todo @Etienne
-            new GeneticPavement(),
+//            new GeneticPavement(),
+//            new AI_Pavement(),
             new ManualPattern(),
             new ClassicBrickPattern(),
             new DiagonalHerringbonePattern(),
             new ImprovedBrickPattern(),
             new EconomicPattern(),
-            new UnitSquarePattern(),
-            new AI_Pavement()
+            new UnitSquarePattern()
     };
 
     /**

@@ -41,9 +41,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.util.Vector;
-import java.util.stream.IntStream;
 
-//todo @Etienne créer une classe SECTION
 public class SectionTransformer {
 
     /**
@@ -125,57 +123,9 @@ public class SectionTransformer {
      * @param s a segment
      * @return true if the point is on the segment
      */
-    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) {
+    public static boolean isPointOnSegment(Vector2 v, @NotNull Segment2D s) { //todo @Etienne @Andre mettre dans Segment2D?
         double errorAccepted = Math.pow(10, -CraftConfig.errorAccepted);
         return Math.abs(Vector2.dist(s.start, v) + Vector2.dist(s.end, v) - s.getLength()) < errorAccepted;
-    }
-
-    /**
-     * Calculates the intersection between a circle and a segment.
-     * @param p1 the first point of the segment
-     * @param p2 the second point of the segment
-     * @param center the center of the circle
-     * @param radius the radius of the circle
-     * @param isSegment true if the two points forms a segment and false if it is a straight line
-     * @return a vector of vector2, the intersection points
-     */
-    public static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center, double radius, boolean isSegment) throws NoninvertibleTransformException {
-
-        Point2D p1P2D = new Point2D.Double(p1.x, p1.y);
-        Point2D p2P2D = new Point2D.Double(p2.x, p2.y);
-        Point2D centerP2D = new Point2D.Double(center.x, center.y);
-
-        Vector<Vector2> result = new Vector<>();
-        double dx = p2P2D.getX() - p1P2D.getX();
-        double dy = p2P2D.getY() - p1P2D.getY();
-        AffineTransform trans = AffineTransform.getRotateInstance(dx, dy);
-        trans.invert();
-        trans.translate(-centerP2D.getX(), -centerP2D.getY());
-        Point2D p1a = trans.transform(p1P2D, null);
-        Point2D p2a = trans.transform(p2P2D, null);
-        double y = p1a.getY();
-        double minX = Math.min(p1a.getX(), p2a.getX());
-        double maxX = Math.max(p1a.getX(), p2a.getX());
-        if (y == radius || y == -radius) {
-            if (!isSegment || (0 <= maxX && 0 >= minX)) {
-                p1a.setLocation(0, y);
-                trans.inverseTransform(p1a, p1a);
-                result.add(new Vector2(p1a.getX(), p1a.getY()));
-            }
-        } else if (y < radius && y > -radius) {
-            double x = Math.sqrt(radius * radius - y * y);
-            if (!isSegment || (-x <= maxX && -x >= minX)) {
-                p1a.setLocation(-x, y);
-                trans.inverseTransform(p1a, p1a);
-                result.add(new Vector2(p1a.getX(), p1a.getY()));
-            }
-            if (!isSegment || (x <= maxX && x >= minX)) {
-                p2a.setLocation(x, y);
-                trans.inverseTransform(p2a, p2a);
-                result.add(new Vector2(p2a.getX(), p2a.getY()));
-            }
-        }
-        return result;
     }
 
     /**
@@ -208,14 +158,15 @@ public class SectionTransformer {
      * with the abscissa axis in the direction of the average angle of the curve (regarding in the global coordinate
      * system).
      *
-     * @param sectionPoints the points we want to convert in a local coordinate system
+     * @param section the points we want to convert in a local coordinate system
+     * @param angle   the angle of the local coordinate system
      * @return a new {@link Vector} that is the points entered as parameter, transformed in the local coordinate system.
      */
-    public static @NotNull Vector<Vector2> getGlobalSectionInLocalCoordinateSystem(@NotNull Vector<Vector2> sectionPoints, double angle, Vector2 startPoint) {
+    public static @NotNull Vector<Vector2> getGlobalSectionInLocalCoordinateSystem(@NotNull Section section, double angle) {
         AffineTransform transform = new AffineTransform();
         transform.rotate(Math.toRadians(-angle));
-        transform.translate(-startPoint.x,-startPoint.y);
-        return transformCoordinateSystem(sectionPoints, transform);
+        transform.translate(-section.getStartPoint().x,-section.getStartPoint().y);
+        return transformCoordinateSystem(section.getPoints(), transform);
     }
 
     /**
@@ -240,7 +191,7 @@ public class SectionTransformer {
      * @param transform  the transformation to apply
      * @return the transformed list of points
      */
-    public static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, AffineTransform transform) {
+    private static @NotNull Vector<Vector2> transformCoordinateSystem(@NotNull Vector<Vector2> points, AffineTransform transform) {
         Vector<Vector2> result = new Vector<>();
         for (Vector2 point : points) {
             result.add(transformCoordinateSystem(point, transform));
@@ -256,7 +207,7 @@ public class SectionTransformer {
      * @param transform   the transformation to apply
      * @return the transformed point
      */
-    public static @NotNull Vector2 transformCoordinateSystem(Vector2 vectorToTransform, AffineTransform transform) {
+    private static @NotNull Vector2 transformCoordinateSystem(Vector2 vectorToTransform, AffineTransform transform) {
         Point2D.Double point = new Point2D.Double(vectorToTransform.x, vectorToTransform.y);
         transform.transform(point, point);
         return new Vector2(point.getX(), point.getY());
@@ -375,36 +326,6 @@ public class SectionTransformer {
     }
 
     /**
-     * Rearranges the given points so that the list begins at the rightmost point
-     *
-     * @param pointList the points to be rearranged.
-     * @return the rearranged points.
-     */
-    public static @NotNull Vector<Vector2> rearrangePoints(@NotNull Vector<Vector2> pointList) {
-        Vector<Vector2> newPointList = new Vector<>();
-        int PointIndex;
-        double maxX = Double.NEGATIVE_INFINITY;
-        int indexMax = 0;
-
-        for (PointIndex = 0; PointIndex < pointList.size(); PointIndex++) {
-            Vector2 actualPoint = pointList.get(PointIndex);
-            if (actualPoint.x > maxX) {
-                maxX = actualPoint.x;
-                indexMax = PointIndex;
-            }
-        }
-
-        IntStream.range(indexMax, pointList.size())
-                .mapToObj(pointList::get)
-                .forEachOrdered(newPointList::add);
-        IntStream.range(0, indexMax + 1)
-                .mapToObj(pointList::get)
-                .forEachOrdered(newPointList::add);
-
-        return newPointList;
-    }
-
-    /**
      * Rearranges the given segments so that each segment follows the previous one.
      *
      * @param segmentList the segments to rearranged
@@ -445,5 +366,53 @@ public class SectionTransformer {
             }
         }
         return newSegmentList;
+    }
+
+    /**
+     * Calculates the intersection between a circle and a segment.
+     * @param p1 the first point of the segment
+     * @param p2 the second point of the segment
+     * @param center the center of the circle
+     * @param radius the radius of the circle
+     * @param isSegment true if the two points forms a segment and false if it is a straight line
+     * @return a vector of vector2, the intersection points
+     */
+    private static Vector<Vector2> circleAndSegmentIntersection(Vector2 p1, Vector2 p2, Vector2 center, double radius, boolean isSegment) throws NoninvertibleTransformException {
+
+        Point2D p1P2D = new Point2D.Double(p1.x, p1.y);
+        Point2D p2P2D = new Point2D.Double(p2.x, p2.y);
+        Point2D centerP2D = new Point2D.Double(center.x, center.y);
+
+        Vector<Vector2> result = new Vector<>();
+        double dx = p2P2D.getX() - p1P2D.getX();
+        double dy = p2P2D.getY() - p1P2D.getY();
+        AffineTransform trans = AffineTransform.getRotateInstance(dx, dy);
+        trans.invert();
+        trans.translate(-centerP2D.getX(), -centerP2D.getY());
+        Point2D p1a = trans.transform(p1P2D, null);
+        Point2D p2a = trans.transform(p2P2D, null);
+        double y = p1a.getY();
+        double minX = Math.min(p1a.getX(), p2a.getX());
+        double maxX = Math.max(p1a.getX(), p2a.getX());
+        if (y == radius || y == -radius) {
+            if (!isSegment || (0 <= maxX && 0 >= minX)) {
+                p1a.setLocation(0, y);
+                trans.inverseTransform(p1a, p1a);
+                result.add(new Vector2(p1a.getX(), p1a.getY()));
+            }
+        } else if (y < radius && y > -radius) {
+            double x = Math.sqrt(radius * radius - y * y);
+            if (!isSegment || (-x <= maxX && -x >= minX)) {
+                p1a.setLocation(-x, y);
+                trans.inverseTransform(p1a, p1a);
+                result.add(new Vector2(p1a.getX(), p1a.getY()));
+            }
+            if (!isSegment || (x <= maxX && x >= minX)) {
+                p2a.setLocation(x, y);
+                trans.inverseTransform(p2a, p2a);
+                result.add(new Vector2(p2a.getX(), p2a.getY()));
+            }
+        }
+        return result;
     }
 }

@@ -267,7 +267,7 @@ public class ConvexBorderAlgorithm {
     public static Vector<Bit2D> getBits(Slice slice, double minWidthToKeep, double numberMaxBits) throws NoninvertibleTransformException {
         Vector<Bit2D> bits = new Vector<>();
 
-        Vector<Vector<Vector2>> bounds = new GeneralTools().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> bounds = GeneralTools.getBoundsAndRearrange(slice);
         Area areaSlice = AreaTool.getAreaFrom(slice);
 
 
@@ -275,19 +275,19 @@ public class ConvexBorderAlgorithm {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 nextStartPoint = bound.get(0);
 
-            System.out.println("++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++");
+            System.out.println("\033[0;34m" + "++++++++++++++++ BOUND " + bounds.indexOf(bound) + " ++++++++++++++++++" + "\033[0m");
 
             int iBit = 0;
             Placement placement;
             do {
-                System.out.print("\t " + "BIT PLACEMENT"+"\tCONVEXE\t"+" : " + iBit + "\t");
+                System.out.print("\033[0;32m" +"\t " + "BIT PLACEMENT"+"\tCONVEXE\t"+" : " + iBit + "\033[0m");
 
                 Section sectionPoints = SectionTransformer.getSectionFromBound(bound, nextStartPoint);
                 placement = ConvexBorderAlgorithm.getBitPlacement(sectionPoints, areaSlice, minWidthToKeep);
                 bits.add(placement.bit2D);
                 nextStartPoint = placement.nextStartPoint;
 
-                System.out.println(": END");
+                System.out.println("\033[0;32m" +"\t: END" + "\033[0m");
                 iBit++;
 
             } while (!((Section.listContainsAsGoodAsEqual(veryFirstStartPoint, placement.sectionCovered.getPoints()) && iBit > 1) || Section.listContainsAllAsGoodAsEqual(bound, placement.sectionCovered.getPoints())) && iBit < numberMaxBits);

@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.borderPaver.util;
+package meshIneBits.borderPaver.artificialIntelligence;
 
 import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.util.Vector2;
