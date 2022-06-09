@@ -139,7 +139,7 @@ public class ConvexBorderAlgorithm {
      * The position of the bit is given by a vector that connects startPoint to the center of the bit.
      * This vector has to components : Collinear and Normal to the bit.
      *
-     * @param startBit       todo
+     * @param startBit       the start bit
      * @param sectionReduced the reduced section of points on which a bit can take place.
      * @param areaSlice      the area of the Slice
      * @return the normal component of the vector.
@@ -163,7 +163,7 @@ public class ConvexBorderAlgorithm {
         Vector2 dirConstraintSegmentNormal = constraintSegment.getNormal();
         Vector2 midPoint = constraintSegment.getMidPoint();
         Vector2 constraintToMidPoint = midPoint.sub(constraintPoint);
-        Vector2 check = constraintPoint.add(constraintToMidPoint).add(constraintToMidPoint.normal().mul(1e-5)); // todo
+        Vector2 check = constraintPoint.add(constraintToMidPoint).add(constraintToMidPoint.normal().mul(1e-5));
         Vector2 positionNormal;
 
         if (constraintPoint.isOnSegment(constraintSegment)) { // case 3 : the hull is a straight line
@@ -175,11 +175,12 @@ public class ConvexBorderAlgorithm {
             positionNormal = dirConstraintSegmentNormal.mul(lenPositionNormal);
 
         } else if (areaSlice.contains(check.x, check.y)) { // case 1 : constraint segment is in, so we have to inverse the direction of dirConstraintVectorNormal
-            //todo dans ce cas, on voudrait que les bits soient parallèles au contour comme sur Tour.stl
+            //Here we want the bit to be placed parallel to slice (as in Tour.stl), but currently doesn't work.
 
             // research of the longest segment
             double lengthMax = 0;
-            for (Segment2D segment2D : segmentsHull.subList(0, segmentsHull.size() - 1)) {//le dernier, c'est celui qui referme le hull
+            for (Segment2D segment2D : segmentsHull.subList(0,
+                                                            segmentsHull.size() - 1)) {//the last one, is the one that closes the hull
                 if (segment2D.getLength() > lengthMax) {
                     constraintSegment = segment2D;
                     lengthMax = segment2D.getLength();

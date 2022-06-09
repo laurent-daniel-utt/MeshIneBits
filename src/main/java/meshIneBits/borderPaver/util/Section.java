@@ -83,7 +83,8 @@ public class Section {
         for (Segment2D segment2D : bound) {
             if (startPoint.isOnSegment(segment2D)) {
                 startSeg = segment2D;
-                minSeg = new Segment2D(segment2D.end, startPoint);
+                minSeg = new Segment2D(segment2D.end,
+                                       startPoint);
                 break;
             }
         }
@@ -92,9 +93,11 @@ public class Section {
         //then we loop through the segments, starting from minPoint to end
         double totalDist = minSeg.getLength();//+sum of segments
 
-        for (Segment2D segment2D : bound.subList(bound.indexOf(startSeg), bound.size())) {
+        for (Segment2D segment2D : bound.subList(bound.indexOf(startSeg),
+                                                 bound.size())) {
             if (endPoint.isOnSegment(segment2D)) {
-                return totalDist + new Segment2D(endPoint, segment2D.start).getLength();
+                return totalDist + new Segment2D(endPoint,
+                                                 segment2D.start).getLength();
             }
             totalDist += segment2D.getLength();
         }
@@ -113,7 +116,9 @@ public class Section {
         // we go through the polygon, and we look if we find the point A before the point B
         for (Segment2D segment : polygon) {
             if (A.isOnSegment(segment) && B.isOnSegment(segment)) {
-                return Vector2.dist(segment.start, A) < Vector2.dist(segment.start, B);
+                return Vector2.dist(segment.start,
+                                    A) < Vector2.dist(segment.start,
+                                                      B);
             }
             if (A.isOnSegment(segment)) return true;
             if (B.isOnSegment(segment)) return false;
@@ -146,7 +151,8 @@ public class Section {
      */
     public static boolean listContainsAllAsGoodAsEqual(Vector<Vector2> containedList, List<Vector2> containerList) {
         for (Vector2 p : containedList) {
-            if (!listContainsAsGoodAsEqual(p, containerList)) {
+            if (!listContainsAsGoodAsEqual(p,
+                                           containerList)) {
                 return false;
             }
         }
@@ -188,7 +194,8 @@ public class Section {
         int nbIntersections = 0;
         Vector<Segment2D> segments = pointsToSegments(sectionPoints);
         for (Segment2D segment2D : segments) {
-            if (Segment2D.doSegmentsIntersect(segmentToTest, segment2D)) {// && segment2D.end != Segment2D.getIntersectionPoint(segmentToTest, segment2D)) {
+            if (Segment2D.doSegmentsIntersect(segmentToTest,
+                                              segment2D)) {// && segment2D.end != Segment2D.getIntersectionPoint(segmentToTest, segment2D)) {
                 nbIntersections++;
             }
         }
@@ -213,7 +220,8 @@ public class Section {
         }
         Vector<Segment2D> sectionSegments = new Vector<>();
         for (int i = 0; i < pointsNoDuplicates.size() - 1; i++) {
-            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i), pointsNoDuplicates.get(i + 1)));
+            sectionSegments.add(new Segment2D(pointsNoDuplicates.get(i),
+                                              pointsNoDuplicates.get(i + 1)));
         }
         return sectionSegments;
     }
@@ -228,7 +236,8 @@ public class Section {
     public static @NotNull Vector<Vector2> segmentsToPoints(@NotNull Vector<Segment2D> segmentList) {
         Vector<Vector2> pointsList = new Vector<>();
         for (Segment2D segment : segmentList) {
-            pointsList.add(new Vector2(segment.start.x, segment.start.y));
+            pointsList.add(new Vector2(segment.start.x,
+                                       segment.start.y));
         }
         if (pointsList.firstElement().asGoodAsEqual(pointsList.lastElement())) pointsList.remove(0);
         return pointsList;
@@ -263,8 +272,10 @@ public class Section {
         WeightedObservedPoints weightedObservedPointsX = new WeightedObservedPoints();
         WeightedObservedPoints weightedObservedPointsY = new WeightedObservedPoints();
         for (int i = 0; i < inputCurve.getNumberOfPoints(); i++) {
-            weightedObservedPointsX.add(xCurve.getPoints().get(i).x, xCurve.getPoints().get(i).y);
-            weightedObservedPointsY.add(yCurve.getPoints().get(i).x, yCurve.getPoints().get(i).y);
+            weightedObservedPointsX.add(xCurve.getPoints().get(i).x,
+                                        xCurve.getPoints().get(i).y);
+            weightedObservedPointsY.add(yCurve.getPoints().get(i).x,
+                                        yCurve.getPoints().get(i).y);
         }
         // fit
         double[] coefficients_inverseX = fitter.fit(weightedObservedPointsX.toList());
@@ -303,12 +314,10 @@ public class Section {
             }
         }
 
-        IntStream.range(indexMax, pointList.size())
-                .mapToObj(pointList::get)
-                .forEachOrdered(newPointList::add);
-        IntStream.range(0, indexMax + 1)
-                .mapToObj(pointList::get)
-                .forEachOrdered(newPointList::add);
+        IntStream.range(indexMax,
+                        pointList.size()).mapToObj(pointList::get).forEachOrdered(newPointList::add);
+        IntStream.range(0,
+                        indexMax + 1).mapToObj(pointList::get).forEachOrdered(newPointList::add);
 
         return newPointList;
     }
@@ -336,7 +345,7 @@ public class Section {
      *
      * @return the longest segment
      */
-     public Segment2D getLongestSegment() {
+    public Segment2D getLongestSegment() {
         return segments.stream().max(Comparator.comparing(Segment2D::getLength)).orElseThrow(NoSuchElementException::new);
     }
 
@@ -350,9 +359,11 @@ public class Section {
         Vector2 furthestPoint = null;
         double maxDistance = -1;
         for (Vector2 p : points) {
-            if (Vector2.Tools.distanceFromPointToLine(p, segment2D) > maxDistance) {
+            if (Vector2.Tools.distanceFromPointToLine(p,
+                                                      segment2D) > maxDistance) {
                 furthestPoint = p;
-                maxDistance = Vector2.Tools.distanceFromPointToLine(p, segment2D);
+                maxDistance = Vector2.Tools.distanceFromPointToLine(p,
+                                                                    segment2D);
             }
         }
         return furthestPoint;
@@ -370,7 +381,9 @@ public class Section {
         double maxDist = Double.NEGATIVE_INFINITY;
         Vector2 furthestPoint = null;
         for (Vector2 p : points) {
-            double dist = ConvexBorderAlgorithm.getDistFromFromRefPointViaVector(refPoint, p, directionalVector);
+            double dist = ConvexBorderAlgorithm.getDistFromFromRefPointViaVector(refPoint,
+                                                                                 p,
+                                                                                 directionalVector);
             if (dist > maxDist) {
                 maxDist = dist;
                 furthestPoint = p;
@@ -390,7 +403,8 @@ public class Section {
         double maxDist = 0;
         Vector2 furthestPoint = null;
         for (Vector2 p : points) {
-            double dist = Vector2.dist(refPoint, p);
+            double dist = Vector2.dist(refPoint,
+                                       p);
             if (dist > maxDist) {
                 maxDist = dist;
                 furthestPoint = p;
@@ -407,7 +421,9 @@ public class Section {
      * @return the reduced section
      */
     public Section getSectionReduced(Section sectionPoints, double minWidthToKeep) {
-        Section sectionToReduce = new Section(SectionTransformer.repopulateWithNewPoints(200, sectionPoints, true));
+        Section sectionToReduce = new Section(SectionTransformer.repopulateWithNewPoints(200,
+                                                                                         sectionPoints,
+                                                                                         true));
 
         boolean sectionReductionCompleted = false;
 
@@ -421,14 +437,16 @@ public class Section {
             // calculates the convex hull of the section's points
             Section hull = sectionToReduce.getHull();
 
-            // find the constraint segment, which is the longest segment of the hull // todo @Andre, maybe not always the case
+            // find the constraint segment, which is often the longest segment of the hull.
+            //todo use the method hull.getConstraintSegment() instead, which does not work properly.
             constraintSegment = hull.getLongestSegment();
 
             // find the constraint point, which is the convex hull's furthest point from the constraint segment
             furthestPoint = hull.getFurthestPointFromSegment(constraintSegment);
 
             // calculate distance between constraint point and constraint segment
-            double sectionWidth = Vector2.Tools.distanceFromPointToLine(furthestPoint, constraintSegment);
+            double sectionWidth = Vector2.Tools.distanceFromPointToLine(furthestPoint,
+                                                                        constraintSegment);
 
             /*
              If this condition is true is executed, this means the bit can't be placed over all the section's points
@@ -467,6 +485,33 @@ public class Section {
     }
 
     /**
+     * For each point of the hull find the furthest point from the segment. <p>
+     * if the distance is the smallest, the segment is the constraint segment
+     *
+     * @return the constraint segment
+     */
+    private Segment2D getConstraintSegment() {//todo @ANDRE ETIENNE
+        Segment2D constraintSegment = null;
+        double minDistance = Double.POSITIVE_INFINITY;
+
+        for (Segment2D segment : segments) {
+            double maxDistancePoint = Double.NEGATIVE_INFINITY;
+            for (Vector2 point : points) {//for each point of the hull find the furthest point from the segment
+                if (Vector2.Tools.distanceFromPointToLine(point,
+                                                          segment) > maxDistancePoint) {
+                    maxDistancePoint = Vector2.Tools.distanceFromPointToLine(point,
+                                                                             segment);
+                }
+            }
+            if (maxDistancePoint < minDistance) { //if the distance is the smallest, the segment is the constraint segment
+                minDistance = maxDistancePoint;
+                constraintSegment = segment;
+            }
+        }
+        return constraintSegment;
+    }
+
+    /**
      * Computes the convexHull of the section's points.
      *
      * @return the convexHull.
@@ -484,7 +529,8 @@ public class Section {
             }
         }
         for (int i = 0; i < points.size(); i++) {
-            if (Math.abs(points.get(i).x - xMin) < Math.pow(10, -5)) iLeftMost.add(i);
+            if (Math.abs(points.get(i).x - xMin) < Math.pow(10,
+                                                            -5)) iLeftMost.add(i);
         }
         // find higher of leftMost
         int iHigherLeftMost = iLeftMost.get(0);
@@ -498,7 +544,8 @@ public class Section {
 
         // starting from that point, find each next point whose angle is the biggest until we return to the start point
         //second point computing
-        Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1, 0));
+        Vector2 previousPoint = points.get(startIndex).sub(new Vector2(-1,
+                                                                       0));
         Vector2 pointMilieu = points.get(startIndex);
 
         while (hull.size() < 2 || hull.firstElement() != hull.lastElement()) {
@@ -507,7 +554,9 @@ public class Section {
             for (int i = 0; i < points.size(); i++) {
                 // if the pivot point is the last point added, it doesn't need to be tested again, plus it causes inaccurate angles
                 if (points.get(i) != pointMilieu) {
-                    double angle = Vector2.getAngle(previousPoint, pointMilieu, points.get(i));
+                    double angle = Vector2.getAngle(previousPoint,
+                                                    pointMilieu,
+                                                    points.get(i));
 
                     if (angle >= maxAngle - 1e-10 && i != points.indexOf(pointMilieu)) {
                         if (angle > maxAngle + 1e-10) {  //the points are aligned if the angle is between -1e-10 and +1e-10
@@ -553,7 +602,8 @@ public class Section {
         List<Vector2> tempPoints = new Vector<>(points);
         int convexType = 0;
 
-        Vector2 ORIGIN = new Vector2(0, 0);
+        Vector2 ORIGIN = new Vector2(0,
+                                     0);
         tempPoints.add(ORIGIN);//convexity in regard to the origin
 
         // In order to know if the beginning of the section is convex or concave, we look at
@@ -561,12 +611,14 @@ public class Section {
         int nbPointsToCheck = 0;
         for (Vector2 point : tempPoints) {
             nbPointsToCheck++;
-            if (Vector2.dist(point, startPoint) >= CraftConfig.lengthNormal / 2) break;
+            if (Vector2.dist(point,
+                             startPoint) >= CraftConfig.lengthNormal / 2) break;
         }
 
         //Computes the convexity of the section
         List<Vector2> maxConvexSection = new Vector<>();
-        if (Section.isConvex(tempPoints.subList(0, nbPointsToCheck))) {
+        if (Section.isConvex(tempPoints.subList(0,
+                                                nbPointsToCheck))) {
             //convex section
             convexType = CONVEX_TYPE_CONVEX;
 
@@ -579,7 +631,8 @@ public class Section {
             // we add the points while the section is convex
             int i = nbPointsToCheck;
             do {
-                convexSection.add(convexSection.size() - 1, tempPoints.get(i));
+                convexSection.add(convexSection.size() - 1,
+                                  tempPoints.get(i));
                 i++;
             } while (i < tempPoints.size() && Section.isConvex(convexSection));
             maxConvexSection = convexSection;
@@ -600,6 +653,7 @@ public class Section {
 
     /**
      * Splits a curve in x(t) and y(t) as in parametric curves.
+     *
      * @return the x(t) and y(t) curves.
      */
     @SuppressWarnings("SuspiciousNameCombination")
@@ -609,14 +663,19 @@ public class Section {
         Vector<Vector2> pointsY = new Vector<>();
         double curvilinearAbs = 0;
 
-        pointsX.add(new Vector2(curvilinearAbs, points.get(0).x));
-        pointsY.add(new Vector2(curvilinearAbs, points.get(0).y));
+        pointsX.add(new Vector2(curvilinearAbs,
+                                points.get(0).x));
+        pointsY.add(new Vector2(curvilinearAbs,
+                                points.get(0).y));
 
         for (int i = 1; i < this.points.size(); i++) {
-            curvilinearAbs += Math.sqrt(Math.pow(points.get(i - 1).x - points.get(i).x, 2)
-                                                + Math.pow(points.get(i - 1).y - points.get(i).y, 2));
-            pointsX.add(new Vector2(curvilinearAbs, points.get(i).x));
-            pointsY.add(new Vector2(curvilinearAbs, points.get(i).y));
+            curvilinearAbs += Math.sqrt(Math.pow(points.get(i - 1).x - points.get(i).x,
+                                                 2) + Math.pow(points.get(i - 1).y - points.get(i).y,
+                                                               2));
+            pointsX.add(new Vector2(curvilinearAbs,
+                                    points.get(i).x));
+            pointsY.add(new Vector2(curvilinearAbs,
+                                    points.get(i).y));
         }
 
         Section curveX = new Section(pointsX);
@@ -624,6 +683,7 @@ public class Section {
 
         return new Section[]{curveX, curveY};
     }
+
     public @NotNull String toString() {
         StringBuilder str = new StringBuilder("Section = \n");
         for (Vector2 v : points) {

@@ -146,7 +146,7 @@ public class Evolution {
                 if (solution.isBad())
                     badSolutions.add(solution);
             }
-            System.out.println("bad sol in gen " + currentGenerationNumber + " : " + badSolutions.size() + "/" + currentGeneration.solutions.size());//todo debugOnly
+            System.out.println("bad sol in gen " + currentGenerationNumber + " : " + badSolutions.size() + "/" + currentGeneration.solutions.size());
             currentGeneration.solutions.removeAll(badSolutions);
             currentGeneration.evaluateGeneration();
             bestSolution = currentGeneration.bestSolution;

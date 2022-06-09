@@ -66,7 +66,7 @@ public final class DataSetGenerator {
 
             Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(
                     section,
-                    SectionTransformer.getLocalCoordinateSystemAngle(new Section(entry.getAssociatedPoints()))); //TODO @Etienne TESTER
+                    SectionTransformer.getLocalCoordinateSystemAngle(new Section(entry.getAssociatedPoints())));
             Vector<Vector2> pointsForDl = SectionTransformer.repopulateWithNewPoints(Acquisition.nbPointsSectionDL,
                                                                                      new Section(transformedPoints),
                                                                                      false);
@@ -124,8 +124,6 @@ public final class DataSetGenerator {
         // edgeAbscissa is the distance between the startPoint and the originVertex
         // the startPoint on which the new bit should be placed : the intersection between the slice border
         // and the last placed bit's end edge
-
-        // todo @Andre: this suppose that the bit's end edge is already placed on the start point. How can we be sure of that ?
         return Vector2.dist(originVertex,
                             startPoint);
     }

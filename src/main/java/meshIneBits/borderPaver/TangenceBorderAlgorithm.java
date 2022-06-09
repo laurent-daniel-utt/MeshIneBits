@@ -81,17 +81,21 @@ public class TangenceBorderAlgorithm {
             //il faut également que l'on soit du bon côté de la section.
 
             if (convexType != CONVEX_TYPE_UNDEFINED && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
-                Segment2D offsetSegment = new Segment2D(segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)), segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));//todo faire une operation plus simple
-                if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) == 0 && convexType == CONVEX_TYPE_CONVEX) {//todo faire mieux pour ne pas utiliser les intersections
+                Segment2D offsetSegment = new Segment2D(
+                        segment.start.add(segment.getNormal().normal().mul(MARGIN_EXT)).sub(segment.getDirectionalVector().mul(400)),
+                        segment.end.add(segment.getNormal().normal().mul(MARGIN_EXT)).add(segment.getDirectionalVector().mul(400)));
+                if (Section.getNumberOfIntersection(offsetSegment,
+                                                    sectionPoints) == 0 && convexType == CONVEX_TYPE_CONVEX) {
                     lastPossibleSegment = segment;
-                } else if (Section.getNumberOfIntersection(offsetSegment, sectionPoints) <= 2 && convexType == CONVEX_TYPE_CONCAVE) {
+                } else if (Section.getNumberOfIntersection(offsetSegment,
+                                                           sectionPoints) <= 2 && convexType == CONVEX_TYPE_CONCAVE) {
                     lastPossibleSegment = segment;
                 }
             }
         }
 
         if (lastPossibleSegment == null)
-            lastPossibleSegment = segmentsSection.lastElement();//todo marche temporairement
+            lastPossibleSegment = segmentsSection.lastElement(); //could be better
 
         Vector2 bottomLeftEdge = getProjStartPoint(startPoint, lastPossibleSegment);
 

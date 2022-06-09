@@ -136,14 +136,15 @@ public class BorderPaverPattern extends PatternTemplate {
      * @param bits the collection of bits to cut
      */
     //(Modified function for border algorithms, the other doesn't work)
-    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) { //TODO @Etienne duplicated code
+    private void updateBitAreasWithSpaceAround(Collection<Bit2D> bits) {
         double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
         for (Bit2D bit2DToCut : bits) {
             Area bit2DToCutArea = bit2DToCut.getArea();
             Area nonAvailableArea = new Area();
             for (Bit2D bit2D : bits) {
                 if (!bit2D.equals(bit2DToCut)) {
-                    Area expand = AreaTool.expand(bit2D.getArea(), safeguardSpace);
+                    Area expand = AreaTool.expand(bit2D.getArea(),
+                                                  safeguardSpace);
                     nonAvailableArea.add(expand);
                 }
             }

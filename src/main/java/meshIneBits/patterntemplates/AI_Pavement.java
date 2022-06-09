@@ -191,15 +191,22 @@ public class AI_Pavement extends PatternTemplate {
 
             Section sectionPoints;
             int nbMaxBits = 0;
-            do{//todo @Etienne passer les méthodes de sectionTransformer dans Section et créer une section ici
-                sectionPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
+            do {
+                sectionPoints = SectionTransformer.getSectionFromBound(bound,
+                                                                       startPoint);
                 double angleLocalSystem = SectionTransformer.getLocalCoordinateSystemAngle(sectionPoints);
 
-                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints, angleLocalSystem);//TODO @Etienne TESTER
-                Vector<Vector2> sectionPointsReg = SectionTransformer.repopulateWithNewPoints(Acquisition.nbPointsSectionDL, new Section(transformedPoints), false);//todo better, cf au dessus
-                Bit2D bit = nnExploitation.getBit(sectionPointsReg, startPoint, angleLocalSystem);
+                Vector<Vector2> transformedPoints = SectionTransformer.getGlobalSectionInLocalCoordinateSystem(sectionPoints,
+                                                                                                               angleLocalSystem);
+                Vector<Vector2> sectionPointsReg = SectionTransformer.repopulateWithNewPoints(Acquisition.nbPointsSectionDL,
+                                                                                              new Section(transformedPoints),
+                                                                                              false);
+                Bit2D bit = nnExploitation.getBit(sectionPointsReg,
+                                                  startPoint,
+                                                  angleLocalSystem);
                 bits.add(bit);
-                startPoint = new GeneralTools().getNextBitStartPoint(bit, bound);
+                startPoint = new GeneralTools().getNextBitStartPoint(bit,
+                                                                     bound);
                 nbMaxBits++;
             }
             while (hasNotCompletedTheBound(veryFirstStartPoint, startPoint, sectionPoints.getPoints()) && nbMaxBits < paramEarlyStopping.getCurrentValue()); //Add each bit on the bound
@@ -221,7 +228,6 @@ public class AI_Pavement extends PatternTemplate {
             return true;
         if (Vector2.dist(veryFirstStartPoint, _nextStartPoint) < paramSafeguardSpace.getCurrentValue() * 10) {
             //standard safe distance between two bits
-            //todo refactor le param paramSafeguardSpace @Andre
             return false;
         }
 

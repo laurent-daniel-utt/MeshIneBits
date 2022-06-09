@@ -54,6 +54,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -86,6 +87,7 @@ public class NNTraining {
      * The number of neurons in a hidden layer.
      */
     public static final int HIDDEN_NEURONS_COUNT = 30; // This number could also be specified for each layer.
+    public static final int NUMBER_OF_MINI_BATCHES = 100;
 
     private DataNormalization normalizer;
     private MultiLayerNetwork model;
@@ -134,26 +136,28 @@ public class NNTraining {
         // 1) datasets
         RecordReader rr = new CSVRecordReader();
         rr.initialize(new FileSplit(new File(AI_Pavement.DATASET_FILE_PATH)));
-        DataSetIterator iter = new RecordReaderDataSetIterator(rr, getNumberOfExamples()/100, 0, 1, true); //debugOnly
+        DataSetIterator iter = new RecordReaderDataSetIterator(rr,
+                                                               getNumberOfExamples() / NUMBER_OF_MINI_BATCHES,
+                                                               0,
+                                                               1,
+                                                               true);
         // 0 and 1 because our labels are columns 0 and 1
         DataSet fullDataSet = iter.next();
         fullDataSet.shuffle();
 
 
-        // 3) normalizer
-        /*normalizer = new NormalizerStandardize();
+        // 2) normalizer
+        normalizer = new NormalizerStandardize();
         normalizer.fitLabel(true);
         normalizer.fit(fullDataSet);
-        normalizer.transform(fullDataSet); //todo @etienne
+        normalizer.transform(fullDataSet);
         iter.setPreProcessor(normalizer);
-*/
-        // 2) split data in two
+
+        // 3) split data in two
         System.out.println("dataSet Size : " + fullDataSet.numExamples());
-        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 1); // 100% for training and 0% for testing //todo @etienne
+        SplitTestAndTrain testAndTrain = fullDataSet.splitTestAndTrain(fullDataSet.numExamples() - 1); // 100% for training and 0% for testing
         trainingDataSet = testAndTrain.getTrain();
-        testDataSet = testAndTrain.getTest();//todo see mini batches
-
-
+        testDataSet = testAndTrain.getTest();
     }
 
     /**
@@ -165,6 +169,7 @@ public class NNTraining {
           - inquire about neural networks configuration and find the one that suit the best our application
           - test different nn configurations (activations, weightInits, updaters, l2 regularization, neurons count, layers count, backpropagation...)
           - propose to the user to configure nn hyper-parameters in meshineBits UI, and display the training score at the end
+          - see if we can use the mini batches
          */
 
         //The Neural Network configuration
@@ -241,15 +246,14 @@ public class NNTraining {
 
     }
 
-    //todo @Andre can we suppress it ?
     public void evaluateModel() {
         INDArray features = testDataSet.getFeatures();
         INDArray labels = testDataSet.getLabels();
-        INDArray prediction = model.output(features, false);
-      //  normalizer.revert(testDataSet);
-      //  normalizer.revertLabels(prediction);
-        //todo @Andre print score sinon
-        System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels); //debugOnly
+        INDArray prediction = model.output(features,
+                                           false);
+        normalizer.revert(testDataSet);
+        normalizer.revertLabels(prediction);
+        System.out.println("predictions : \n" + prediction + "\n\n labels : \n" + labels);
         System.out.println(model.score());
     }
 
@@ -274,7 +278,7 @@ public class NNTraining {
         is_training = false;
     }
 
-    public void stop_training() { //todo @Etienne
+    public void stop_training() {
         if (is_training)
             stop_training = true;
     }

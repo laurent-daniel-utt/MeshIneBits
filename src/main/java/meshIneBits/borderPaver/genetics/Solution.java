@@ -125,7 +125,7 @@ public class Solution {
         Area availableBitArea = bit.getArea();
         availableBitArea.intersect(layerAvailableArea);
 
-        if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular //todo @etienne
+        if (availableBitArea.isEmpty()) {// || DetectorTool.checkIrregular(availableBitArea)) { // Outside of border or irregular
             this.generation.solutions.remove(this);
             return 0;
         } else {
@@ -133,9 +133,14 @@ public class Solution {
             bit.updateBoundaries(availableBitArea);
             bit.calcCutPath();
 
-            Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, CraftConfig.lengthFull, CraftConfig.bitWidth);
-            double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D), 0);
-            double area = CalculateAreaSurface.approxArea(bit.getArea(), 0);
+            Rectangle2D rectangle2D = new Rectangle2D.Double(0,
+                                                             0,
+                                                             CraftConfig.lengthFull,
+                                                             CraftConfig.bitWidth);
+            double maxArea = CalculateAreaSurface.approxArea(new Area(rectangle2D),
+                                                             0);
+            double area = CalculateAreaSurface.approxArea(bit.getArea(),
+                                                          0);
             score = ((1 - RATIO / 100.0) * area / maxArea);
             return score;
         }
@@ -240,8 +245,10 @@ public class Solution {
      */
     private double getLengthScore() throws Exception {
         Bit2D bit2D = getBit(startPoint);
-        Vector2 nextBitStartPoint = new GeneralTools().getNextBitStartPoint(bit2D, bound);
-        double coveredDistance = Vector2.dist(startPoint, nextBitStartPoint);
+        Vector2 nextBitStartPoint = GeneralTools.getNextBitStartPoint(bit2D,
+                                                                      bound);
+        double coveredDistance = Vector2.dist(startPoint,
+                                              nextBitStartPoint);
         return RATIO / 100.0 * coveredDistance / CraftConfig.lengthFull;
     }
 

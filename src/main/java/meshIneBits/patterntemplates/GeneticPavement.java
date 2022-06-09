@@ -34,9 +34,9 @@ import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
 import meshIneBits.Pavement;
+import meshIneBits.borderPaver.genetics.Evolution;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
-import meshIneBits.borderPaver.genetics.Evolution;
 import meshIneBits.borderPaver.util.SectionTransformer;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
@@ -114,11 +114,8 @@ public class GeneticPavement extends PatternTemplate {
      */
     private void start(Area layerAvailableArea, double genNumber, double popSize, double ratio, double maxBitNumber) throws Exception {
         Slice slice = layer.getHorizontalSection();
-        Vector<Vector<Vector2>> boundsToCheckAssociated = new GeneralTools().getBoundsAndRearrange(slice);
+        Vector<Vector<Vector2>> boundsToCheckAssociated = GeneralTools.getBoundsAndRearrange(slice);
 
-        long start2 = System.currentTimeMillis(); //todo testOnly
-        //TODO ENLEVER
-//        popSize = 2;
         for (Vector<Vector2> bound : boundsToCheckAssociated) {
             Vector2 startPoint = bound.get(0);
             Vector2 veryFirstStartPoint = startPoint;
@@ -140,12 +137,12 @@ public class GeneticPavement extends PatternTemplate {
 
                 //Prepare to find the next Solution
                 layerAvailableArea.subtract(bestBit.getArea());
-                startPoint = new GeneralTools().getNextBitStartPoint(bestBit, bound); //todo j'ai inversé ces deux lignes
-                associatedPoints = SectionTransformer.getSectionFromBound(bound, startPoint);
+                startPoint = GeneralTools.getNextBitStartPoint(bestBit,
+                                                               bound);
+                associatedPoints = SectionTransformer.getSectionFromBound(bound,
+                                                                          startPoint);
             }
         }
-        long end2 = System.currentTimeMillis();
-        System.out.println("Elapsed Time in milli seconds: "+ (end2-start2));
     }
 
     /**

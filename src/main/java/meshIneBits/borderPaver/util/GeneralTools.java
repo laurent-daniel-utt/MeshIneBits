@@ -230,7 +230,9 @@ public class GeneralTools {
      * @param boundPoints the points of the bounds on which stands the bit.
      * @return the next bit start point. Returns <code>null</code> if none was found.
      */
-    public Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
-        return getNextBitStartPoint(bit, boundPoints, null);
+    public static Vector2 getNextBitStartPoint(@NotNull Bit2D bit, @NotNull Vector<Vector2> boundPoints) throws Exception {
+        return getNextBitStartPoint(bit,
+                                    boundPoints,
+                                    null);
     }
 }
