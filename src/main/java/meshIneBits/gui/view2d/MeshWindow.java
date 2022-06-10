@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.gui.view2d;
@@ -69,7 +70,7 @@ import meshIneBits.gui.utilities.UPPPaveLayer;
 import meshIneBits.gui.utilities.UPPPaveMesh;
 import meshIneBits.gui.utilities.UPPPaveRegion;
 import meshIneBits.gui.utilities.UPPScheduleMesh;
-import meshIneBits.gui.utilities.UPPToolsIA;
+import meshIneBits.gui.utilities.UPPToolsAI;
 import meshIneBits.gui.utilities.UtilityParametersPanel;
 import meshIneBits.gui.view3d.view.AssemblingProcessView;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
@@ -121,11 +122,12 @@ public class MeshWindow extends JFrame {
         .getScreenSize();
     setTitle("MeshIneBits");
     setSize(dim.width, dim.height - 100);
-    setResizable(true);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    // setLocation(dim.width/2-this.getSize().width/2, 0);
-    init();
-    setJMenuBar(menuBar);
+    setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        setResizable(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       // setLocation(dim.width/2-this.getSize().width/2, 0);
+        init();
+        setJMenuBar(menuBar);
 
     // Grid Bag Layout
     setLayout(new GridBagLayout());
@@ -516,7 +518,7 @@ public class MeshWindow extends JFrame {
         "alt A",
         null) {
 
-      final UPPToolsIA uppToolsIA = new UPPToolsIA(meshController);
+      final UPPToolsAI uppToolsIA = new UPPToolsAI(meshController);
 
       @Override
       public void actionPerformed(ActionEvent e) {

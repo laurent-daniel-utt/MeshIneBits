@@ -9,7 +9,7 @@
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.gui.view2d;
@@ -57,8 +58,8 @@ import meshIneBits.Mesh;
 import meshIneBits.MeshEvents;
 import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
-import meshIneBits.artificialIntelligence.DebugTools;
-import meshIneBits.artificialIntelligence.deepLearning.Acquisition;
+import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
+import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.CraftConfigLoader;
 import meshIneBits.config.patternParameter.BooleanParam;
@@ -147,6 +148,14 @@ public class MeshController extends Observable implements Observer,
       true
   );
   private final MeshWindow meshWindow;
+  private final List<Point2D.Double> regionVertices = new ArrayList<>();
+  private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
+  /**
+   * For debug, let displaying segments, points and areas via drawDebug.
+   *
+   * @see drawDebug
+   */
+  public boolean AI_NeedPaint = false;
   private Mesh mesh;
   private int layerNumber = -1;
   private Set<Vector2> selectedBitKeys = new HashSet<>();
@@ -169,15 +178,30 @@ public class MeshController extends Observable implements Observer,
   private Area bitAreaPreview;
   private boolean selectingRegion;
   private boolean selectedRegion;
-  private final List<Point2D.Double> regionVertices = new ArrayList<>();
   private Path2D.Double currentSelectedRegion = new Path2D.Double();
-  private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
   private Point2D currentPoint;
   private Area areaHoldingCut;
   //this variable is used to calc bit full length when paint preview
   private boolean fullLength = true;
   private CustomLogger logger = new CustomLogger(this.getClass());
+  /**
+   * In real coordinate system
+   */
+  private Point2D bulkSelectZoneUpperLeft;
+  private Point2D bulkSelectZoneBottomRight;
+  private Rectangle2D.Double bulkSelectZone;
+  /**
+   * used to register action of user for redo/undo function
+   */
+  private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo(this);
+  /**
+   *
+   */
+  private ITheardServiceExecutor serviceExecutor = MultiThreadServiceExecutor.instance;
 
+  MeshController(MeshWindow meshWindow) {
+    this.meshWindow = meshWindow;
+  }
 
   public boolean isFullLength() {
     return fullLength;
@@ -185,35 +209,6 @@ public class MeshController extends Observable implements Observer,
 
   public void setCurrentPoint(Point2D currentPoint) {
     this.currentPoint = currentPoint;
-  }
-
-  /**
-   * In real coordinate system
-   */
-  private Point2D bulkSelectZoneUpperLeft;
-  private Point2D bulkSelectZoneBottomRight;
-  private Rectangle2D.Double bulkSelectZone;
-
-  /**
-   * For debug, let displaying segments, points and areas via DebugTools.
-   *
-   * @see DebugTools
-   */
-  public boolean AI_NeedPaint = false;
-
-  /**
-   * used to register action of user for redo/undo function
-   */
-  private HandlerRedoUndo handlerRedoUndo = new HandlerRedoUndo(this);
-
-  /**
-   *
-   */
-  private ITheardServiceExecutor serviceExecutor = MultiThreadServiceExecutor.instance;
-
-
-  MeshController(MeshWindow meshWindow) {
-    this.meshWindow = meshWindow;
   }
 
   public Mesh getMesh() {
@@ -248,10 +243,6 @@ public class MeshController extends Observable implements Observer,
       setChanged();
       notifyObservers();
       return;
-    }
-    if (AI_NeedPaint) {
-      setLayer(0);
-      meshWindow.initGadgets();
     }
     if (arg instanceof MeshEvents) {
       switch ((MeshEvents) arg) {
@@ -579,11 +570,13 @@ public class MeshController extends Observable implements Observer,
 
   public void deleteSelectedBits() {
     //save action before doing
+    if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
+      Acquisition.deleteLastPlacedBits(selectedBitKeys.size());
+    }
     Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
     Set<Bit3D> bit3DSet = this.getSelectedBits();
     handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
-        this.getCurrentLayer()
-            .getLayerNumber()));
+        this.getCurrentLayer().getLayerNumber()));
 
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(selectedBitKeys, true);
@@ -665,9 +658,10 @@ public class MeshController extends Observable implements Observer,
     getCurrentLayer().addBit(newBit, true);
     //add new action into HandlerRedoUndo
     setSelectedBitKeys(resultKey);
-    if (Acquisition.isStoreNewBits()) { //if AI is storing new examples bits, we send the bit to it
+
+    if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
       try {
-        Acquisition.addNewExampleBit(newBit);
+        Acquisition.addNewExampleBit(newBit, currentLayer.getHorizontalSection());
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -678,7 +672,9 @@ public class MeshController extends Observable implements Observer,
 
   public void addBit3Ds(Collection<Bit3D> bits3d) {
     for (Bit3D bit3d : bits3d) {
-      getCurrentLayer().addBit(bit3d.getBaseBit(), true);
+      Bit2D bit2d = bit3d.getBaseBit();
+      bit2d.setUsedForNN(bit3d.isUsedForNN());
+      getCurrentLayer().addBit(bit2d, true);
     }
   }
 
@@ -1173,6 +1169,59 @@ public class MeshController extends Observable implements Observer,
   }
 
   /**
+   * Call to back to step previous
+   */
+  public void undo() {
+    if (handlerRedoUndo.getPreviousActionOfUserBits() != null
+        && !handlerRedoUndo.getPreviousActionOfUserBits()
+        .isEmpty()) {
+      handlerRedoUndo.undo(this);
+    }
+  }
+
+  public void redo() {
+    if (handlerRedoUndo.getPreviousActionOfUserBits() != null
+        && handlerRedoUndo.getAfterActionOfUserBits()
+        .size() != 0) {
+      handlerRedoUndo.redo(this);
+    }
+  }
+
+  @Override
+  public void onUndoListener(HandlerRedoUndo.ActionOfUser a) {
+    a.runUndo(this);
+  }
+
+  @Override
+  public void onRedoListener(HandlerRedoUndo.ActionOfUser a) {
+    a.runRedo(this);
+  }
+
+  public void resetAll() {
+    resetMesh();
+    layerNumber = -1;
+    selectedBitKeys.clear();
+    zoom = 1;
+    showSlice = true;
+    showLiftPoints = false;
+    showPreviousLayer = false;
+    showCutPaths = false;
+    showIrregularBits = false;
+    addingBits = false;
+    regionVertices.clear();
+    currentSelectedRegion = new Path2D.Double();
+    availableArea = null;
+    bitAreaPreview = null;
+    layerNumber = -1;
+    currentPoint = null;
+    areaHoldingCut = null;
+    fullLength = true;
+    handlerRedoUndo.reset();
+    setChanged();
+    notifyObservers();
+  }
+
+  /**
    * Convenient class to run async tasks
    */
   private abstract class MeshOperator extends Observable implements Runnable {
@@ -1243,61 +1292,6 @@ public class MeshController extends Observable implements Observer,
         notifyObservers(MeshEvents.OPEN_FAILED);
       }
     }
-  }
-
-
-  /**
-   * Call to back to step previous
-   */
-  public void undo() {
-    if (handlerRedoUndo.getPreviousActionOfUserBits() != null
-        && !handlerRedoUndo.getPreviousActionOfUserBits()
-        .isEmpty()) {
-      handlerRedoUndo.undo(this);
-    }
-  }
-
-  public void redo() {
-    if (handlerRedoUndo.getPreviousActionOfUserBits() != null
-        && handlerRedoUndo.getAfterActionOfUserBits()
-        .size() != 0) {
-      handlerRedoUndo.redo(this);
-    }
-  }
-
-
-  @Override
-  public void onUndoListener(HandlerRedoUndo.ActionOfUser a) {
-    a.runUndo(this);
-  }
-
-  @Override
-  public void onRedoListener(HandlerRedoUndo.ActionOfUser a) {
-    a.runRedo(this);
-  }
-
-  public void resetAll() {
-    resetMesh();
-    layerNumber = -1;
-    selectedBitKeys.clear();
-    zoom = 1;
-    showSlice = true;
-    showLiftPoints = false;
-    showPreviousLayer = false;
-    showCutPaths = false;
-    showIrregularBits = false;
-    addingBits = false;
-    regionVertices.clear();
-    currentSelectedRegion = new Path2D.Double();
-    availableArea = null;
-    bitAreaPreview = null;
-    layerNumber = -1;
-    currentPoint = null;
-    areaHoldingCut = null;
-    fullLength = true;
-    handlerRedoUndo.reset();
-    setChanged();
-    notifyObservers();
   }
 
 }

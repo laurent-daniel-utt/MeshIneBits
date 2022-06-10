@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.gui.view2d;
@@ -70,7 +71,7 @@ import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
-import meshIneBits.artificialIntelligence.DebugTools;
+import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
@@ -455,9 +456,9 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       if (meshController.isBulkSelecting()) {
         paintBulkSelectZone(g2d);
       }
-    }
-    if (meshController.AI_NeedPaint) {
-      AIpaintForDebug(g2d);
+        if (meshController.AI_NeedPaint) {
+                AIpaintForDebug(g2d);
+            }
     }
     // Draw selected region
     if (meshController.isSelectingRegion()
@@ -632,18 +633,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
   }
 
-  private void AIpaintForDebug(Graphics2D g2d) {
-    //STROKE COMMANDS
-    g2d.setStroke(new BasicStroke(2f));
-    g2d.setColor(Color.RED);
+    private void AIpaintForDebug(Graphics2D g2d) {
+        //STROKE COMMANDS
+//        g2d.setStroke(new BasicStroke(2f));
+//        g2d.setColor(Color.RED);
 
     //Draw Polygon
-        /*
-        drawModelPath2D(g2d,meshController.ai_Tool.dataPrep.poly.toPath2D());
-         */
+//        drawModelPath2D(g2d,poly.toPath2D());
 
     //Draw bits Areas
-    Vector<Bit2D> bits = DebugTools.Bits;
+    Vector<Bit2D> bits = drawDebug.Bits;
     for (Bit2D bit : bits) {
       Area area = bit.getAreaCS();
       area.transform(realToView);
@@ -654,8 +653,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     //Draw an area
-    if (DebugTools.areaToDraw != null) {
-      Area area = DebugTools.areaToDraw;
+    if (drawDebug.areaToDraw != null) {
+      Area area = drawDebug.areaToDraw;
       area.transform(realToView);
       g2d.setColor(Color.BLUE);
       g2d.fill(area);
@@ -664,36 +663,55 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
 
     //Draw points
-    for (Vector2 point : DebugTools.pointsToDrawRED) {
+    for (Vector2 point : drawDebug.pointsToDrawRED) {
       g2d.setColor(Color.red);
-      drawModelCircle(g2d, point.x, point.y, 4);
+      drawModelCircle(g2d, point.x, point.y, 3);
     }
-    for (Vector2 point : DebugTools.pointsToDrawGREEN) {
+    for (Vector2 point : drawDebug.pointsToDrawGREEN) {
       g2d.setColor(Color.green);
       drawModelCircle(g2d, point.x, point.y, 5);
     }
-    for (Vector2 point : DebugTools.pointsToDrawBLUE) {
-      g2d.setColor(Color.blue);
-      drawModelCircle(g2d, point.x, point.y, 3);
-    }
-
-    //Draw Segment2D
-    Path2D path = new GeneralPath();
-    Segment2D seg = DebugTools.currentSegToDraw;
-    Shape shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
-    path.append(shape, false);
-    drawModelPath2D(g2d, path);
-
-    seg = DebugTools.currentSegToDraw2;
-    shape = new Line2D.Double(seg.start.x, seg.start.y, seg.end.x, seg.end.y);
-    path.append(shape, false);
-    drawModelPath2D(g2d, path);
+    for (Vector2 point : drawDebug.pointsToDrawORANGE) {
+      g2d.setColor(Color.orange);
+      drawModelCircle(g2d, point.x, point.y, 7);
+        }
+        for (Vector2 point : drawDebug.pointsToDrawBLACK) {
+            g2d.setColor(Color.black);
+            drawModelCircle(g2d, point.x, point.y, 7);
+        }
+    //Draw a list of Segment2D
+        Path2D path = new GeneralPath();
+        for (Segment2D segment : drawDebug.segmentsToDrawRed) {
+            Shape shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+            path.append(shape, false);
+            g2d.setColor(Color.red);
+            drawModelPath2D(g2d, path);
+        }
 
     //Draw a list of Segment2D
-    for (Segment2D segment : DebugTools.segmentsToDraw) {
-      shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
-      path.append(shape, false);
-      drawModelPath2D(g2d, path);
+    Path2D path2 = new GeneralPath();
+        for (Segment2D segment : drawDebug.segmentsToDrawBlue) {
+      Shape shape = new Line2D.Double(segment.start.x, segment.start.y, segment.end.x, segment.end.y);
+            path2.append(shape, false);
+      g2d.setColor(Color.blue);
+            drawModelPath2D(g2d, path2);
+        }
+
+        //Draw polygons
+        int i = 0;
+        Color[] colors = {Color.blue, Color.red, Color.GREEN, Color.ORANGE};
+        for (Polygon poly : drawDebug.polys) {
+            g2d.setColor(colors[i]);
+            drawModelPath2D(g2d, poly.toPath2D());
+            i++;
+        }
+
+        i = 0;
+        for (Vector2 point : drawDebug.pointsToDrawBLUE) {
+            g2d.setColor(Color.blue);
+            drawModelCircle(g2d, point.x, point.y, 1);
+            g2d.drawString(Integer.toString(i), (int) (2 * point.x + 100), (int) (2 * point.y + 10));
+            i++;
     }
 
     //Draw Text

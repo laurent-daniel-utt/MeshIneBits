@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits;
@@ -108,6 +109,33 @@ public class Bit2D implements Cloneable, Serializable {
     buildBoundaries();
   }
 
+  public Bit2D(double boundaryCenterX,
+      double boundaryCenterY,
+      double length,
+      double width,
+      double orientationX,
+      double orientationY) {
+    orientation = new Vector2(
+        orientationX,
+        orientationY
+    );
+    this.length = length;
+    this.width = width;
+    origin = new Vector2(boundaryCenterX, boundaryCenterY)
+        .sub(
+            // Vector distance in Bit coordinate system
+            new Vector2(
+                -CraftConfig.lengthFull / 2 + length / 2,
+                -CraftConfig.bitWidth / 2 + width / 2
+            )
+                // Rotate into Mesh coordinate system
+                .rotate(orientation)
+        );
+
+    setTransfoMatrix();
+    buildBoundaries();
+  }
+
 
   /**
    * Constructor for custom length and width.
@@ -164,21 +192,21 @@ public class Bit2D implements Cloneable, Serializable {
     Vector2 orthogonal = colinear.rotate(
         new Vector2(0, -1).normal()); // 90deg anticlockwise rotation
 
-    Vector2 A = this.getOriginCS()
-        .add(colinear.mul(CraftConfig.lengthFull / 2))
-        .add(orthogonal.mul(CraftConfig.bitWidth / 2));
+        Vector2 A = this.getCenter()
+                .add(colinear.mul(CraftConfig.lengthNormal / 2-CraftConfig.sectionHoldingToCut/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 B = this.getOriginCS()
-        .sub(colinear.mul(CraftConfig.lengthFull / 2))
-        .add(orthogonal.mul(CraftConfig.bitWidth / 2));
+        Vector2 B = this.getCenter()
+                .sub(colinear.mul(CraftConfig.lengthNormal / 2+CraftConfig.sectionHoldingToCut/2))
+                .add(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 C = this.getOriginCS()
-        .sub(colinear.mul(CraftConfig.lengthFull / 2))
-        .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
+        Vector2 C = this.getCenter()
+                .sub(colinear.mul(CraftConfig.lengthNormal / 2+CraftConfig.sectionHoldingToCut/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
-    Vector2 D = this.getOriginCS()
-        .add(colinear.mul(CraftConfig.lengthFull / 2))
-        .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
+        Vector2 D = this.getCenter()
+                .add(colinear.mul(CraftConfig.lengthNormal / 2-CraftConfig.sectionHoldingToCut/2))
+                .sub(orthogonal.mul(CraftConfig.bitWidth / 2));
 
     return new Vector<>(Arrays.asList(
         new Segment2D(A, B),

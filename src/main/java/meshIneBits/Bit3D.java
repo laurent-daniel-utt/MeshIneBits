@@ -96,6 +96,11 @@ public class Bit3D implements Serializable, Cloneable {
 
   private boolean reverseInCut;
 
+  /**
+   * <code>true</code> if the bit has been placed in a bid to feed the neural network.
+   */
+  private boolean usedForNN;
+
   public boolean isReverseInCut() {
     return reverseInCut;
   }
@@ -390,7 +395,15 @@ public class Bit3D implements Serializable, Cloneable {
     return xPositions;
   }
 
-  public Vector<SubBit2D> getSubBits(){
+  public boolean isUsedForNN() {
+    return usedForNN;
+  }
+
+  public void setUsedForNN(boolean usedForNN) {
+    this.usedForNN = usedForNN;
+  }
+
+  public Vector<SubBit2D> getSubBits() {
     return new Vector<>();
   }
 }

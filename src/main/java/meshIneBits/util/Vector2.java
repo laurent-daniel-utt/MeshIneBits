@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.util;
@@ -61,43 +62,46 @@ public class Vector2 implements Serializable {
     return Math.sqrt(dist2(v, w));
   }
 
-  /**
-   * @param angleDegrees in degrees
-   * @return The orientation vector equivalent to the given angle
-   */
-  public static Vector2 getEquivalentVector(double angleDegrees) {
-    double angleRadian = Math.toRadians(angleDegrees);
-    return new Vector2(Rounder.round(Math.cos(angleRadian), CraftConfig.errorAccepted),
-        Rounder.round(Math.sin(angleRadian), CraftConfig.errorAccepted));
-  }
+    /**
+     * @param angleDegrees in degrees
+     * @return The orientation vector equivalent to the given angle
+     */
+    public static Vector2 getEquivalentVector(double angleDegrees) {
+        double angleRadian = Math.toRadians(angleDegrees);
+        return new Vector2(Rounder.round(Math.cos(angleRadian), CraftConfig.errorAccepted),
+                Rounder.round(Math.sin(angleRadian), CraftConfig.errorAccepted));
+    }
 
-  public static double calcAngleBetweenVectorAndAxeX(Vector2 v) {
-    double angle = calcAngleBetweenTwoVector(v, new Vector2(1, 0)) * 180 / Math.PI;
-    return v.y > 0 ? angle : -angle;
-  }
+    public static double calcAngleBetweenVectorAndAxeX(Vector2 v) {
+        double angle = calcAngleBetweenTwoVector(v, new Vector2(1, 0)) * 180 / Math.PI;
+        return v.y > 0 ? angle : -angle;}
 
-  /**
-   * Calculate angle in radian between 2 vector
-   *
-   * @param point1 coordinate vector
-   * @param point2 coordinate vector
-   * @return angle in radian
-   */
-  public static double calcAngleBetweenTwoVector(Vector2 point1, Vector2 point2) {
-    double num = (point1.x * point2.x + point1.y * point2.y);
-    double den = (Math.sqrt(Math.pow(point1.x, 2) + Math.pow(point1.y, 2)) * (Math.sqrt(
-        Math.pow(point2.x, 2) + Math.pow(point2.y, 2))));
-    double cos = num / den;
-    return Math.acos(cos);
-  }
+
+    /**
+     * Calculate angle in radian between 2 vector
+     *
+     * @param point1 coordinate vector
+     * @param point2 coordinate vector
+     * @return angle in radian
+     */
+    public static double calcAngleBetweenTwoVector(Vector2 point1, Vector2 point2) {
+        double num = (point1.x * point2.x + point1.y * point2.y);
+        double den = (Math.sqrt(Math.pow(point1.x, 2) + Math.pow(point1.y, 2)) * (Math.sqrt(Math.pow(point2.x, 2) + Math.pow(point2.y, 2))));
+        double cos = num / den;
+        return Math.acos(cos);
+    }
 
   public static void main(String[] args) {
-    Vector2 point1 = new Vector2(1, -1);
-    Vector2 point2 = new Vector2(1, 0);
-    calcAngleBetweenVectorAndAxeX(point1);
-    System.out.println(point1.y > 0 ? calcAngleBetweenVectorAndAxeX(point1) * 180 / Math.PI
-        : -calcAngleBetweenVectorAndAxeX(point1) * 180 / Math.PI);
-  }
+    //Vector2 point1 = new Vector2(1, -1);
+
+        Vector2 point2 = new Vector2(1, 1);
+        System.out.println(calcAngleBetweenVectorAndAxeX(point2));
+        point2= point2.rotate(Vector2.getEquivalentVector(90));
+    System.out.println(calcAngleBetweenVectorAndAxeX(point2));
+
+
+//        System.out.println(point1.y > 0 ? calcAngleBetweenVectorAndAxeX(point1) * 180 / Math.PI : -calcAngleBetweenVectorAndAxeX(point1) * 180 / Math.PI);
+    }
 
   public Vector2 add(Vector2 v) {
     return new Vector2(x + v.x, y + v.y);
@@ -166,17 +170,24 @@ public class Vector2 implements Serializable {
   }
 
   public static double getAngle(Vector2 A, Vector2 B, Vector2 C) {
-    double angle = Math.acos((dist2(B, A) + dist2(B, C) - dist2(A, C))
-        / (2 * (dist(B, A) * dist(B, C))));
+    double val = (dist2(B, A) + dist2(B, C) - dist2(A, C))
+        / (2 * (dist(B, A) * dist(B, C)));
+        val = Math.round(val * 1e10) / (1e10);
+        double angle = Math.acos(val);
     return Math.toDegrees(angle);
   }
 
-  public Vector2 rotate(Vector2 additionalRotation) {
-    return new Vector2(
-        this.x * additionalRotation.x - this.y * additionalRotation.y,
-        this.x * additionalRotation.y + this.y * additionalRotation.x
-    );
-  }
+  /**
+     *
+     * @param additionalRotation
+     * @return
+     */
+    public Vector2 rotate(Vector2 additionalRotation) {
+        return new Vector2(
+                this.x * additionalRotation.x - this.y * additionalRotation.y,
+                this.x * additionalRotation.y + this.y * additionalRotation.x
+        );
+    }
 
   public Vector2 getTransformed(AffineTransform transfoMatrix) {
     Point2D.Double point = new Point2D.Double(this.x, this.y);
@@ -192,18 +203,18 @@ public class Vector2 implements Serializable {
       }
     }
 
-    return false;
-  }
-
-  public boolean isOnArea(Area area) {
-    Vector<double[]> points = AreaTool.getListPointBorderOfArea(area);
-    for (double[] point : points) {
-      if (this.asGoodAsEqual(new Vector2(point[1], point[2]))) {
-        return true;
-      }
+        return false;
     }
-    return false;
-  }
+
+    public boolean isOnArea(Area area) {
+        Vector<double[]> points = AreaTool.getListPointBorderOfArea(area);
+        for (double[] point : points) {
+            if (this.asGoodAsEqual(new Vector2(point[1], point[2]))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
   /*
    * Taken from http://stackoverflow.com/a/17590923
@@ -231,11 +242,10 @@ public class Vector2 implements Serializable {
     double x2 = segment.end.x;
     double y2 = segment.end.y;
 
-    double AB = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
-    double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
-    double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
-
-    return AB <= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
+        double AB = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+        double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
+        double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
+        return AB - Math.pow(10, -CraftConfig.errorAccepted)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
   }
 
   /**
@@ -338,13 +348,13 @@ public class Vector2 implements Serializable {
      * @param line anywhere on same plan
      * @return <tt>true</tt> if directional product is negative
      */
-    static boolean checkOnDifferentSides(Vector2 p1, Vector2 p2, Segment2D line) {
-      // Construct the equation of the line
-      Vector2 d = line.end.sub(line.start);// directional vector
-      Vector2 n = (new Vector2(-d.y, d.x)).normal();// normal vector
-      // Equation: n * (v - start) = 0 with v = (x,y)
-      return (n.dot(p1.sub(line.start))) * (n.dot(p2.sub(line.start))) < 0;
-    }
+    public static boolean checkOnDifferentSides(Vector2 p1, Vector2 p2, Segment2D line) {
+            // Construct the equation of the line
+            Vector2 d = line.end.sub(line.start);// directional vector
+            Vector2 n = (new Vector2(-d.y, d.x)).normal();// normal vector
+            // Equation: n * (v - start) = 0 with v = (x,y)
+            return (n.dot(p1.sub(line.start))) * (n.dot(p2.sub(line.start))) < 0;
+        }
 
     /**
      * Calculate the distance from a point to the a line (or a segment)
@@ -388,8 +398,9 @@ public class Vector2 implements Serializable {
     }
   }
 
-  public Vector2 clone() {
-    return new Vector2(this.x, this.y);
-  }
+
+    public Vector2 clone() {
+        return new Vector2(this.x, this.y);
+    }
 
 }

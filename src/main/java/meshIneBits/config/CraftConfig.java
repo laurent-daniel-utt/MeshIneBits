@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.config;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import meshIneBits.patterntemplates.AI_Pavement;
+import meshIneBits.patterntemplates.BorderPaverPattern;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
 import meshIneBits.patterntemplates.EconomicPattern;
@@ -172,15 +174,16 @@ public class CraftConfig {
    * The provided templates
    */
   public static PatternTemplate[] templatesPreloaded = {
-      new ManualPattern(),
-      new ClassicBrickPattern(),
-      new DiagonalHerringbonePattern(),
-      new ImprovedBrickPattern(),
-      new EconomicPattern(),
-      new UnitSquarePattern(),
-      new AI_Pavement(),
-      new GeneticPavement()
-  };
+      new BorderPaverPattern(),
+//            new GeneticPavement(),
+//            new AI_Pavement(),
+            new ManualPattern(),
+            new ClassicBrickPattern(),
+            new DiagonalHerringbonePattern(),
+            new ImprovedBrickPattern(),
+            new EconomicPattern(),
+            new UnitSquarePattern()
+    };
 
   /**
    * @return new instance of each pattern builder

@@ -25,9 +25,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits;
+
+import meshIneBits.config.patternParameter.DoubleParam;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;

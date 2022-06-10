@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2021 DANIEL Laurent.
+ * Copyright (C) 2016-2022 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
+ * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,6 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits.gui.utilities;
@@ -39,14 +40,20 @@ import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 
-public class UPPPaveLayer extends UtilityParametersPanel {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
-  public UPPPaveLayer(MeshController meshController) {
-    super("Pave Layer");
-    // Init components
-    JPanel parametersPanel = new JPanel();
-    parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-    parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+public class UPPPaveLayer extends UtilityParametersPanel  {
+    public UPPPaveLayer(MeshController meshController) {
+        super("Pave Layer");
+        // Init components
+        JPanel parametersPanel = new JPanel();
+        parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
     final PatternComboBox patternComboBox = new PatternComboBox(
         Arrays.asList(CraftConfig.clonePreloadedPatterns()),
@@ -54,13 +61,21 @@ public class UPPPaveLayer extends UtilityParametersPanel {
     );
 
     JButton startButton = new JButton("Start");
-    startButton.addActionListener(e -> {
-      try {
-        meshController.paveLayer(patternComboBox.getCurrentChoice());
-      } catch (Exception e1) {
-        meshController.handleException(e1);
-      }
-    });
+    //shortcut for layer paving : Alt+Shift+P
+        Action buttonAction = new AbstractAction("Start") {
+      @Override public void actionPerformed(ActionEvent evt) {
+        startLayerPavement(meshController, patternComboBox);
+            }
+        };
+
+        String key = "startPavement";
+        startButton.setAction(buttonAction);
+        buttonAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        startButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.SHIFT_DOWN_MASK+InputEvent.ALT_DOWN_MASK), key);
+        startButton.getActionMap().put(key, buttonAction);
+
+    startButton.addActionListener(e -> startLayerPavement(meshController, patternComboBox));
 
     // Layout
     setLayout(new GridBagLayout());
@@ -90,4 +105,12 @@ public class UPPPaveLayer extends UtilityParametersPanel {
     add(parametersPanel, c);
 
   }
+
+    private void startLayerPavement(MeshController meshController, PatternComboBox patternComboBox) {
+        try {
+            meshController.paveLayer(patternComboBox.getCurrentChoice());
+        } catch (Exception e1) {
+            meshController.handleException(e1);
+        }
+    }
 }

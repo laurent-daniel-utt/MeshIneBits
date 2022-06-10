@@ -25,10 +25,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package meshIneBits;
 
+import javafx.util.Pair;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.patterntemplates.ManualPattern;
+import meshIneBits.patterntemplates.PatternTemplate;
+import meshIneBits.slicer.Slice;
+import meshIneBits.util.AreaTool;
+import meshIneBits.util.Logger;
+import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -37,14 +48,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
