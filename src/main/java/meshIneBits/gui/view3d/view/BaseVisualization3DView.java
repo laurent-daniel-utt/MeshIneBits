@@ -14,12 +14,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Vector;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view3d.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
-import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.Visualization3DConfig;
+import meshIneBits.gui.view3d.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView.ModelChangesListener;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
@@ -143,20 +143,20 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
   private void updatePositionChangesOnModel() {
     if (mcListener != null) {
       mcListener.onPositionChange(Double.parseDouble(df.format(frame.position()
-              .x())),
+              .x()).replace(",", ".")),
           Double.parseDouble(df.format(frame.position()
-              .y())),
+              .y()).replace(",", ".")),
           Double.parseDouble(df.format(frame.position()
-              .z())));
+              .z()).replace(",", ".")));
     }
   }
 
   private void updateSizeChangesOnModel() {
     if (mcListener != null) {
       mcListener.onSizeChange(Double.parseDouble(df.format(frame.scaling())),
-          Double.parseDouble(df.format(shape.getDepth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getWidth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getHeight() * frame.scaling())));
+          Double.parseDouble(df.format(shape.getDepth() * frame.scaling()).replace(",", ".")),
+          Double.parseDouble(df.format(shape.getWidth() * frame.scaling()).replace(",", ".")),
+          Double.parseDouble(df.format(shape.getHeight() * frame.scaling()).replace(",", ".")));
     }
 
   }
