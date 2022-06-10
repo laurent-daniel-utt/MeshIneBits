@@ -30,11 +30,11 @@
 
 package meshIneBits.gui.utilities.patternParamRenderer;
 
-import meshIneBits.config.patternParameter.OptionParam;
-
-import javax.swing.*;
+import java.awt.BorderLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import meshIneBits.config.patternParameter.OptionParam;
 
 /**
  * Renders {@link OptionParam}
@@ -43,41 +43,42 @@ import java.awt.*;
  */
 public class Selector extends Renderer {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 4913058735577067521L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 4913058735577067521L;
 
-    private JComboBox<String> options;
-    private OptionParam config;
+  private JComboBox<String> options;
+  private OptionParam config;
 
-    /**
-     * @param config predefined parameter
-     */
-    public Selector(OptionParam config) {
-        super();
-        this.config = config;
-        this.initGUI();
-    }
+  /**
+   * @param config predefined parameter
+   */
+  public Selector(OptionParam config) {
+    super();
+    this.config = config;
+    this.initGUI();
+  }
 
-    private void initGUI() {
-        // Visual options
-        this.setOpaque(false);
-        this.setLayout(new BorderLayout());
-        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+  private void initGUI() {
+    // Visual options
+    this.setOpaque(false);
+    this.setLayout(new BorderLayout());
+    this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        // Label
-        JLabel lblName = new JLabel(config.getTitle());
-        lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
-        this.add(lblName, BorderLayout.WEST);
+    // Label
+    JLabel lblName = new JLabel(config.getTitle());
+    lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
+    this.add(lblName, BorderLayout.WEST);
 
-        // Choices
-        options = new JComboBox<>((String[]) config.getChoices().toArray());
-        options.setSelectedItem(config.getDefaultValue());
-        options.addActionListener(e -> {
-            // Update config
-            config.setCurrentValue(options.getSelectedItem());
-        });
-        this.add(options, BorderLayout.EAST);
-    }
+    // Choices
+    options = new JComboBox<>((String[]) config.getChoices()
+        .toArray());
+    options.setSelectedItem(config.getDefaultValue());
+    options.addActionListener(e -> {
+      // Update config
+      config.setCurrentValue(options.getSelectedItem());
+    });
+    this.add(options, BorderLayout.EAST);
+  }
 }

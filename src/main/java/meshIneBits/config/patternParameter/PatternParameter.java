@@ -30,11 +30,10 @@
 
 package meshIneBits.config.patternParameter;
 
-import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import meshIneBits.gui.utilities.patternParamRenderer.Renderer;
 
 /**
  * Describe a parameter of pattern <br>
@@ -43,66 +42,66 @@ import java.io.Serializable;
  */
 public abstract class PatternParameter implements Serializable {
 
-    /**
-     *
-     */
-    static final long serialVersionUID = -1032848466522000185L;
-    String title;
-    String codename;
-    String description;
-    transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
+  /**
+   *
+   */
+  static final long serialVersionUID = -1032848466522000185L;
+  String title;
+  String codename;
+  String description;
+  transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
-    /**
-     * Type of current value depends on sub class
-     *
-     * @return predictable type
-     */
-    public abstract Object getCurrentValue();
+  /**
+   * Type of current value depends on sub class
+   *
+   * @return predictable type
+   */
+  public abstract Object getCurrentValue();
 
-    /**
-     * This method will be use by interfaces on each change event
-     *
-     * @param newValue will be filtered before affecting, in the same way of
-     *                 <tt>defaultValue</tt>
-     */
-    public abstract void setCurrentValue(Object newValue);
+  /**
+   * This method will be use by interfaces on each change event
+   *
+   * @param newValue will be filtered before affecting, in the same way of
+   *                 <tt>defaultValue</tt>
+   */
+  public abstract void setCurrentValue(Object newValue);
 
-    /**
-     * @return name of parameters. Should be different among parameters.
-     */
-    public String getCodename() {
-        return codename;
-    }
+  /**
+   * @return name of parameters. Should be different among parameters.
+   */
+  public String getCodename() {
+    return codename;
+  }
 
-    /**
-     * @return human-readable name
-     */
-    public String getTitle() {
-        return title;
-    }
+  /**
+   * @return human-readable name
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * @return what it is and how to use
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * @return what it is and how to use
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * @return encoded string
-     */
-    public abstract String toString();
+  /**
+   * @return encoded string
+   */
+  public abstract String toString();
 
-    /**
-     * @return gui of parameter
-     */
-    public abstract Renderer getRenderer();
+  /**
+   * @return gui of parameter
+   */
+  public abstract Renderer getRenderer();
 
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        changes.addPropertyChangeListener(l);
-    }
+  public void addPropertyChangeListener(PropertyChangeListener l) {
+    changes.addPropertyChangeListener(l);
+  }
 
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        changes.removePropertyChangeListener(l);
-    }
+  public void removePropertyChangeListener(PropertyChangeListener l) {
+    changes.removePropertyChangeListener(l);
+  }
 }

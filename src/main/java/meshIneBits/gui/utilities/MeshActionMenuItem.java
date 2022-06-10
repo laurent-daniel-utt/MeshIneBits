@@ -30,13 +30,14 @@
 
 package meshIneBits.gui.utilities;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Insets;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
 
 public class MeshActionMenuItem extends JMenuItem {
 
-    public MeshActionMenuItem(Action a) {
-        super(a);
-        setMargin(new Insets(1, 1, 1, 2));
-    }
+  public MeshActionMenuItem(Action a) {
+    super(a);
+    setMargin(new Insets(1, 1, 1, 2));
+  }
 }

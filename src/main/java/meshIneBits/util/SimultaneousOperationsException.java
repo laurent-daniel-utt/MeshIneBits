@@ -33,8 +33,9 @@ package meshIneBits.util;
 import meshIneBits.Mesh;
 
 public class SimultaneousOperationsException extends Exception {
-    public SimultaneousOperationsException(Mesh mesh) {
-        super("The mesh is undergoing an other task. " + mesh.getState()
-                + ". Please wait until that task is done.");
-    }
+
+  public SimultaneousOperationsException(Mesh mesh) {
+    super("The mesh is undergoing an other task. " + mesh.getState()
+        + ". Please wait until that task is done.");
+  }
 }

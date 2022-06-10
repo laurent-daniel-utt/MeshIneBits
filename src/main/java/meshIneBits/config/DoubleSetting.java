@@ -30,21 +30,26 @@
 
 package meshIneBits.config;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Documented
 public @interface DoubleSetting {
-    double step() default 1;
 
-    String title() default "";
+  double step() default 1;
 
-    String description() default "";
+  String title() default "";
 
-    double minValue() default Double.MIN_VALUE;
+  String description() default "";
 
-    double defaultValue();
+  double minValue() default Double.MIN_VALUE;
 
-    double maxValue() default Double.MAX_VALUE;
+  double defaultValue();
+
+  double maxValue() default Double.MAX_VALUE;
 }

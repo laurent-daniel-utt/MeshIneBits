@@ -30,9 +30,8 @@
 
 package meshIneBits.gui.utilities.patternParamRenderer;
 
+import javax.swing.JPanel;
 import meshIneBits.config.patternParameter.PatternParameter;
-
-import javax.swing.*;
 
 /**
  * Responsible for rendering {@link PatternParameter}
@@ -41,9 +40,9 @@ import javax.swing.*;
  */
 public class Renderer extends JPanel {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
 }

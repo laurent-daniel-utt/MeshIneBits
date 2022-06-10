@@ -30,14 +30,13 @@
 
 package meshIneBits.util;
 
+import java.awt.geom.Area;
+import java.util.ArrayList;
+import java.util.List;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
-
-import java.awt.geom.Area;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * To determine if a bit is not regular (not having a lift point)
@@ -46,54 +45,55 @@ import java.util.List;
  */
 public class DetectorTool {
 
-    /**
-     * @param pavement container of all bits in a slice, already computed (limited by
-     *                 boundary)
-     * @return all irregular bits in the given layer
-     */
-    public static List<Vector2> detectIrregularBits(Pavement pavement) {
-        List<Vector2> result = new ArrayList<>();
-        for (Vector2 bitKey : pavement.getBitsKeys()) {
-            Bit2D bit = pavement.getBit(bitKey);
-            if (checkIrregular(bit)) {
-                result.add(bitKey);
-            }
-        }
-        return result;
+  /**
+   * @param pavement container of all bits in a slice, already computed (limited by boundary)
+   * @return all irregular bits in the given layer
+   */
+  public static List<Vector2> detectIrregularBits(Pavement pavement) {
+    List<Vector2> result = new ArrayList<>();
+    for (Vector2 bitKey : pavement.getBitsKeys()) {
+      Bit2D bit = pavement.getBit(bitKey);
+      if (checkIrregular(bit)) {
+        result.add(bitKey);
+      }
     }
+    return result;
+  }
 
-    /**
-     * Check if a bit is irregular.
-     * <ol>
-     * <li>Can have multiple separated areas.</li>
-     * <li>Each area is large enough to contain one lift point</li>
-     * </ol>
-     *
-     * @param bit target
-     * @return <tt>true</tt> if this bit is irregular, <tt>false</tt> otherwise.
-     */
-    public static boolean checkIrregular(Bit2D bit) {
-        return checkIrregular(bit.getArea());
-    }
+  /**
+   * Check if a bit is irregular.
+   * <ol>
+   * <li>Can have multiple separated areas.</li>
+   * <li>Each area is large enough to contain one lift point</li>
+   * </ol>
+   *
+   * @param bit target
+   * @return <tt>true</tt> if this bit is irregular, <tt>false</tt> otherwise.
+   */
+  public static boolean checkIrregular(Bit2D bit) {
+    return checkIrregular(bit.getAreaCS());
+  }
 
-    public static boolean checkIrregular(Bit3D bit3D) {
-        return bit3D.isIrregular();
-    }
+  public static boolean checkIrregular(Bit3D bit3D) {
+    return bit3D.isIrregular();
+  }
 
-    /**
-     * Check if an area is irregular
-     *
-     * @param area closed zone
-     * @return <tt>true</tt> if a sub surface has no lift point
-     * or <tt>area</tt> is <tt>null</tt> or empty
-     */
-    public static boolean checkIrregular(Area area) {
-        if (area == null || area.isEmpty()) return true;
-        return AreaTool.segregateArea(area)
-                .stream()
-                .anyMatch(subarea ->
-                        AreaTool.getLiftPoint(
-                                area,
-                                CraftConfig.suckerDiameter / 2) == null);
+  /**
+   * Check if an area is irregular
+   *
+   * @param area closed zone
+   * @return <tt>true</tt> if a sub surface has no lift point
+   * or <tt>area</tt> is <tt>null</tt> or empty
+   */
+  public static boolean checkIrregular(Area area) {
+    if (area == null || area.isEmpty()) {
+      return true;
     }
+    return AreaTool.segregateArea(area)
+        .stream()
+        .anyMatch(subarea ->
+            AreaTool.getLiftPoint(
+                area,
+                CraftConfig.suckerDiameter / 2) == null);
+  }
 }

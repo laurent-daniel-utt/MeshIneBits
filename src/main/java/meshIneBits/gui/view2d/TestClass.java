@@ -30,12 +30,13 @@
 
 package meshIneBits.gui.view2d;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
 
 public class TestClass extends AbstractAction {
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
-    }
+  @Override
+  public void actionPerformed(ActionEvent e) {
+
+  }
 }

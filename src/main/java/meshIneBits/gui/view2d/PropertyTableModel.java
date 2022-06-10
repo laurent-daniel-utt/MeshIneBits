@@ -30,53 +30,55 @@
 
 package meshIneBits.gui.view2d;
 
-import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.table.AbstractTableModel;
 
 class PropertyTableModel extends AbstractTableModel {
-    private static String[] columnNames = {
-            "Property",
-            "Value"
-    };
-    private String[][] properties;
-    private List<String> propertyLabels = new ArrayList<>();
 
-    PropertyTableModel(String[][] properties) {
-        this.properties = properties;
-        for (String[] property : properties) {
-            propertyLabels.add(property[0]);
-        }
-    }
+  private static String[] columnNames = {
+      "Property",
+      "Value"
+  };
+  private String[][] properties;
+  private List<String> propertyLabels = new ArrayList<>();
 
-    @Override
-    public int getRowCount() {
-        return properties.length;
+  PropertyTableModel(String[][] properties) {
+    this.properties = properties;
+    for (String[] property : properties) {
+      propertyLabels.add(property[0]);
     }
+  }
 
-    @Override
-    public int getColumnCount() {
-        return columnNames.length;
-    }
+  @Override
+  public int getRowCount() {
+    return properties.length;
+  }
 
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;
-    }
+  @Override
+  public int getColumnCount() {
+    return columnNames.length;
+  }
 
-    @Override
-    public String getValueAt(int rowIndex, int columnIndex) {
-        if (columnIndex < 2 && rowIndex < properties.length)
-            return properties[rowIndex][columnIndex];
-        else
-            return "";
-    }
+  @Override
+  public boolean isCellEditable(int row, int column) {
+    return false;
+  }
 
-    void setValueAt(String label, String value) {
-        int i = propertyLabels.indexOf(label);
-        if (i > -1) {
-            properties[i][1] = value;
-            fireTableCellUpdated(i, 1);
-        }
+  @Override
+  public String getValueAt(int rowIndex, int columnIndex) {
+    if (columnIndex < 2 && rowIndex < properties.length) {
+      return properties[rowIndex][columnIndex];
+    } else {
+      return "";
     }
+  }
+
+  void setValueAt(String label, String value) {
+    int i = propertyLabels.indexOf(label);
+    if (i > -1) {
+      properties[i][1] = value;
+      fireTableCellUpdated(i, 1);
+    }
+  }
 }

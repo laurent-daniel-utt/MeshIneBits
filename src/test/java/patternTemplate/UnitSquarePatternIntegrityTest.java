@@ -30,49 +30,48 @@
 
 package patternTemplate;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.UnitSquarePattern;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.logging.Handler;
-import java.util.logging.Level;
-
 public class UnitSquarePatternIntegrityTest extends PatternIntegrityTest {
 
-    static {
-        logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
-    }
+  static {
+    logger = meshIneBits.util.Logger.createSimpleInstanceFor(UnitSquarePatternIntegrityTest.class);
+  }
 
-    @BeforeEach
-    void setUp() {
-        pattern = new UnitSquarePattern();
-        UnitSquarePattern p = (UnitSquarePattern) pattern;
-        logger.info("applyQuickRegroup=true");
-        p.setApplyQuickRegroup(true);
-        logger.info("limitAction=10000");
-        p.setLimitAction(10000);
-        logger.info("cutDetails=true");
-        p.setCutDetails(true);
-        CraftConfig.templateChoice = pattern;
-        // Reduce the logger's verbalism
-        UnitSquarePattern.LOGGER.setLevel(Level.INFO);
-        for (Handler handler : UnitSquarePattern.LOGGER.getHandlers()) {
-            handler.setLevel(Level.INFO);
-        }
+  @BeforeEach
+  void setUp() {
+    pattern = new UnitSquarePattern();
+    UnitSquarePattern p = (UnitSquarePattern) pattern;
+    logger.info("applyQuickRegroup=true");
+    p.setApplyQuickRegroup(true);
+    logger.info("limitAction=10000");
+    p.setLimitAction(10000);
+    logger.info("cutDetails=true");
+    p.setCutDetails(true);
+    CraftConfig.templateChoice = pattern;
+    // Reduce the logger's verbalism
+    UnitSquarePattern.LOGGER.setLevel(Level.INFO);
+    for (Handler handler : UnitSquarePattern.LOGGER.getHandlers()) {
+      handler.setLevel(Level.INFO);
     }
+  }
 
-    @Override
-    protected void checkSlicedPart() {
-        // Nothing to check
-    }
+  @Override
+  protected void checkSlicedPart() {
+    // Nothing to check
+  }
 
-    @Override
-    protected void checkPavedMesh() {
+  @Override
+  protected void checkPavedMesh() {
 //        for (Layer layer : mesh.getLayers()) {
 //            // Assure each layer is empty
 //            assertEquals(0, layer.getFlatPavement().getBitsKeys().size(),
 //                    "Layer " + layer.getLayerNumber() + " should be empty");
 //        }
-        // Nothing to check
-    }
+    // Nothing to check
+  }
 }

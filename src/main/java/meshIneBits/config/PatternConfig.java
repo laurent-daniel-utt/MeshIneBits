@@ -30,25 +30,25 @@
 
 package meshIneBits.config;
 
-import meshIneBits.config.patternParameter.PatternParameter;
-
 import java.io.Serializable;
 import java.util.HashMap;
+import meshIneBits.config.patternParameter.PatternParameter;
 
 /**
- * This class is to declare all parameters which are customizable by users. All
- * for the sake of saving configurations.
+ * This class is to declare all parameters which are customizable by users. All for the sake of
+ * saving configurations.
  *
  * @author NHATHAN
  */
-public class PatternConfig extends HashMap<String, PatternParameter> implements Serializable, Cloneable {
+public class PatternConfig extends HashMap<String, PatternParameter> implements Serializable,
+    Cloneable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -2295740737265238707L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = -2295740737265238707L;
 
-    public void add(PatternParameter paramConf) {
-        this.put(paramConf.getCodename(), paramConf);
-    }
+  public void add(PatternParameter paramConf) {
+    this.put(paramConf.getCodename(), paramConf);
+  }
 }

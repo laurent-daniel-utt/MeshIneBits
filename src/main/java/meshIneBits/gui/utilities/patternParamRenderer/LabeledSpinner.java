@@ -29,206 +29,213 @@
  */
 package meshIneBits.gui.utilities.patternParamRenderer;
 
+import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.border.EmptyBorder;
 import meshIneBits.config.DoubleSetting;
 import meshIneBits.config.FloatSetting;
 import meshIneBits.config.IntegerSetting;
 import meshIneBits.config.patternParameter.DoubleParam;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.reflect.Field;
-
 public class LabeledSpinner extends Renderer implements PropertyChangeListener {
 
-    private static final long serialVersionUID = 6726754934854914029L;
+  private static final long serialVersionUID = 6726754934854914029L;
 
-    private FixedWidthSpinner spinner;
+  private FixedWidthSpinner spinner;
 
-    private JLabel lblName;
+  private JLabel lblName;
 
-    public void setEnabled(boolean enabled) {
-        spinner.setEnabled(enabled);
-        lblName.setEnabled(enabled);
-    }
+  public void setEnabled(boolean enabled) {
+    spinner.setEnabled(enabled);
+    lblName.setEnabled(enabled);
+  }
 
-    public LabeledSpinner(Field field, DoubleSetting setting) {
-        // Visual options
-        this.setOpaque(false);
-        this.setLayout(new BorderLayout());
-        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+  public LabeledSpinner(Field field, DoubleSetting setting) {
+    // Visual options
+    this.setOpaque(false);
+    this.setLayout(new BorderLayout());
+    this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        // Setting up
-        lblName = new JLabel(setting.title());
-        lblName.setToolTipText(setting.description());
-        this.add(lblName, BorderLayout.WEST);
+    // Setting up
+    lblName = new JLabel(setting.title());
+    lblName.setToolTipText(setting.description());
+    this.add(lblName, BorderLayout.WEST);
+    try {
+      spinner = new FieldSpinner(
+          new SpinnerNumberModel(
+              field.getDouble(null),
+              setting.minValue(),
+              setting.maxValue(),
+              setting.step()),
+          setting.defaultValue());
+      spinner.addChangeListener(e -> {
         try {
-            spinner = new FieldSpinner(
-                    new SpinnerNumberModel(
-                            field.getDouble(null),
-                            setting.minValue(),
-                            setting.maxValue(),
-                            setting.step()),
-                    setting.defaultValue());
-            spinner.addChangeListener(e -> {
-                try {
-                    field.setDouble(null, (double) spinner.getValue());
-                } catch (IllegalArgumentException | IllegalAccessException e1) {
-                    e1.printStackTrace();
-                }
-            });
-            this.add(spinner, BorderLayout.EAST);
-        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+          field.setDouble(null, (double) spinner.getValue());
+        } catch (IllegalArgumentException | IllegalAccessException e1) {
+          e1.printStackTrace();
         }
+      });
+      this.add(spinner, BorderLayout.EAST);
+    } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+      e.printStackTrace();
     }
+  }
 
-    public LabeledSpinner(Field field, FloatSetting setting) {
-        // Visual options
-        this.setOpaque(false);
-        this.setLayout(new BorderLayout());
-        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+  public LabeledSpinner(Field field, FloatSetting setting) {
+    // Visual options
+    this.setOpaque(false);
+    this.setLayout(new BorderLayout());
+    this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        // Setting up
-        lblName = new JLabel(setting.title());
-        lblName.setToolTipText(setting.description());
-        this.add(lblName, BorderLayout.WEST);
+    // Setting up
+    lblName = new JLabel(setting.title());
+    lblName.setToolTipText(setting.description());
+    this.add(lblName, BorderLayout.WEST);
+    try {
+      spinner = new FieldSpinner(
+          new SpinnerNumberModel(
+              (Number) field.getFloat(null),
+              setting.minValue(),
+              setting.maxValue(),
+              setting.step()),
+          setting.defaultValue());
+      spinner.addChangeListener(e -> {
         try {
-            spinner = new FieldSpinner(
-                    new SpinnerNumberModel(
-                            (Number) field.getFloat(null),
-                            setting.minValue(),
-                            setting.maxValue(),
-                            setting.step()),
-                    setting.defaultValue());
-            spinner.addChangeListener(e -> {
-                try {
-                    field.setFloat(null, (Float) spinner.getValue());
-                } catch (IllegalArgumentException | IllegalAccessException e1) {
-                    e1.printStackTrace();
-                }
-            });
-            this.add(spinner, BorderLayout.EAST);
-        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+          field.setFloat(null, (Float) spinner.getValue());
+        } catch (IllegalArgumentException | IllegalAccessException e1) {
+          e1.printStackTrace();
         }
+      });
+      this.add(spinner, BorderLayout.EAST);
+    } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+      e.printStackTrace();
     }
+  }
 
-    public LabeledSpinner(Field field, IntegerSetting setting) {
-        // Visual options
-        this.setOpaque(false);
-        this.setLayout(new BorderLayout());
-        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+  public LabeledSpinner(Field field, IntegerSetting setting) {
+    // Visual options
+    this.setOpaque(false);
+    this.setLayout(new BorderLayout());
+    this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        // Setting up
-        lblName = new JLabel(setting.title());
-        lblName.setToolTipText(setting.description());
-        this.add(lblName, BorderLayout.WEST);
+    // Setting up
+    lblName = new JLabel(setting.title());
+    lblName.setToolTipText(setting.description());
+    this.add(lblName, BorderLayout.WEST);
+    try {
+      spinner = new FieldSpinner(
+          new SpinnerNumberModel(
+              field.getInt(null),
+              setting.minValue(),
+              setting.maxValue(),
+              setting.step()),
+          setting.defaultValue());
+      spinner.addChangeListener(e -> {
         try {
-            spinner = new FieldSpinner(
-                    new SpinnerNumberModel(
-                            field.getInt(null),
-                            setting.minValue(),
-                            setting.maxValue(),
-                            setting.step()),
-                    setting.defaultValue());
-            spinner.addChangeListener(e -> {
-                try {
-                    field.setInt(null, (int) spinner.getValue());
-                } catch (IllegalArgumentException | IllegalAccessException e1) {
-                    e1.printStackTrace();
-                }
-            });
-            this.add(spinner, BorderLayout.EAST);
-        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+          field.setInt(null, (int) spinner.getValue());
+        } catch (IllegalArgumentException | IllegalAccessException e1) {
+          e1.printStackTrace();
         }
+      });
+      this.add(spinner, BorderLayout.EAST);
+    } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * This constructor is to render {@link DoubleParam}
-     *
-     * @param config predefined parameter
-     */
-    public LabeledSpinner(DoubleParam config) {
-        // Visual options
-        this.setOpaque(false);
-        this.setLayout(new BorderLayout());
-        this.setBorder(new EmptyBorder(4, 0, 0, 0));
+  /**
+   * This constructor is to render {@link DoubleParam}
+   *
+   * @param config predefined parameter
+   */
+  public LabeledSpinner(DoubleParam config) {
+    // Visual options
+    this.setOpaque(false);
+    this.setLayout(new BorderLayout());
+    this.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        // Setting up
-        lblName = new JLabel(config.getTitle());
-        lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
-        this.add(lblName, BorderLayout.WEST);
+    // Setting up
+    lblName = new JLabel(config.getTitle());
+    lblName.setToolTipText("<html><div>" + config.getDescription() + "</div></html>");
+    this.add(lblName, BorderLayout.WEST);
 
-        spinner = new ParamSpinner(
-                new SpinnerNumberModel(
-                        config.getCurrentValue(),
-                        config.getMinValue(),
-                        config.getMaxValue(),
-                        config.getStep()),
-                config.getDefaultValue());
-        spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
-        this.add(spinner, BorderLayout.EAST);
-        config.addPropertyChangeListener(this);
+    spinner = new ParamSpinner(
+        new SpinnerNumberModel(
+            config.getCurrentValue(),
+            config.getMinValue(),
+            config.getMaxValue(),
+            config.getStep()),
+        config.getDefaultValue());
+    spinner.addChangeListener(e -> config.setCurrentValue(spinner.getValue()));
+    this.add(spinner, BorderLayout.EAST);
+    config.addPropertyChangeListener(this);
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (evt.getPropertyName()
+        .equals("currentValue")) {
+      spinner.setValue(evt.getNewValue());
+    }
+  }
+
+  public void reset() {
+    try {
+      spinner.reset();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private interface Resetable {
+
+    void reset() throws IllegalAccessException;
+  }
+
+  private abstract class FixedWidthSpinner extends JSpinner implements Resetable {
+
+    static final int MAX_CHAR_WIDTH = 6;
+
+    FixedWidthSpinner(SpinnerModel model) {
+      super(model);
+      ((JSpinner.DefaultEditor) this.getEditor()).getTextField()
+          .setColumns(MAX_CHAR_WIDTH);
+    }
+  }
+
+  private class ParamSpinner extends FixedWidthSpinner {
+
+    private final Object defaultValue;
+
+    ParamSpinner(SpinnerModel model, Object defaultValue) {
+      super(model);
+      this.defaultValue = defaultValue;
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("currentValue")) {
-            spinner.setValue(evt.getNewValue());
-        }
-    }
-
     public void reset() {
-        try {
-            spinner.reset();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+      spinner.setValue(defaultValue);
+    }
+  }
+
+  private class FieldSpinner extends FixedWidthSpinner {
+
+    private final Object defaultValue;
+
+    FieldSpinner(SpinnerModel model, Object defaultValue) {
+      super(model);
+      this.defaultValue = defaultValue;
     }
 
-    private interface Resetable {
-        void reset() throws IllegalAccessException;
+    @Override
+    public void reset() {
+      spinner.setValue(defaultValue); // static field
     }
-
-    private abstract class FixedWidthSpinner extends JSpinner implements Resetable {
-        static final int MAX_CHAR_WIDTH = 6;
-
-        FixedWidthSpinner(SpinnerModel model) {
-            super(model);
-            ((JSpinner.DefaultEditor) this.getEditor()).getTextField().setColumns(MAX_CHAR_WIDTH);
-        }
-    }
-
-    private class ParamSpinner extends FixedWidthSpinner {
-
-        private final Object defaultValue;
-
-        ParamSpinner(SpinnerModel model, Object defaultValue) {
-            super(model);
-            this.defaultValue = defaultValue;
-        }
-
-        @Override
-        public void reset() {
-            spinner.setValue(defaultValue);
-        }
-    }
-
-    private class FieldSpinner extends FixedWidthSpinner {
-        private final Object defaultValue;
-
-        FieldSpinner(SpinnerModel model, Object defaultValue) {
-            super(model);
-            this.defaultValue = defaultValue;
-        }
-
-        @Override
-        public void reset() {
-            spinner.setValue(defaultValue); // static field
-        }
-    }
+  }
 }

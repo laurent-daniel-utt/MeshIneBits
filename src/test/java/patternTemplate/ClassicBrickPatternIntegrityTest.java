@@ -37,23 +37,24 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class ClassicBrickPatternIntegrityTest extends PatternIntegrityTest {
 
-    static {
-        logger = meshIneBits.util.Logger.createSimpleInstanceFor(ClassicBrickPatternIntegrityTest.class);
-    }
+  static {
+    logger = meshIneBits.util.Logger.createSimpleInstanceFor(
+        ClassicBrickPatternIntegrityTest.class);
+  }
 
-    @BeforeEach
-    void setUp() {
-        pattern = new ClassicBrickPattern();
-        CraftConfig.templateChoice = pattern;
-    }
+  @BeforeEach
+  void setUp() {
+    pattern = new ClassicBrickPattern();
+    CraftConfig.templateChoice = pattern;
+  }
 
-    @Override
-    protected void checkSlicedPart() {
-        // Nothing to check
-    }
+  @Override
+  protected void checkSlicedPart() {
+    // Nothing to check
+  }
 
-    @Override
-    protected void checkPavedMesh() {
-    }
+  @Override
+  protected void checkPavedMesh() {
+  }
 
 }

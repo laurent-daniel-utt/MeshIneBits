@@ -30,20 +30,21 @@
 
 package meshIneBits.gui.utilities;
 
+import javax.swing.JComponent;
+import javax.swing.JToolBar;
 import meshIneBits.gui.view2d.MeshAction;
 import meshIneBits.gui.view2d.MeshToggleAction;
 
-import javax.swing.*;
-
 public class MeshActionToolbar extends JToolBar {
-    public void add(MeshAction a) {
-        JComponent buttonIcon = new ButtonIcon(a);
-        add(buttonIcon);
-        buttonIcon.setToolTipText(a.getToolTipText());
-    }
 
-    public void addToggleButton(MeshToggleAction meshToggleAction) {
-        JComponent toggleIcon = new ToggleIcon(meshToggleAction);
-        add(toggleIcon);
-    }
+  public void add(MeshAction a) {
+    JComponent buttonIcon = new ButtonIcon(a);
+    add(buttonIcon);
+    buttonIcon.setToolTipText(a.getToolTipText());
+  }
+
+  public void addToggleButton(MeshToggleAction meshToggleAction) {
+    JComponent toggleIcon = new ToggleIcon(meshToggleAction);
+    add(toggleIcon);
+  }
 }

@@ -30,64 +30,66 @@
 
 package meshIneBits.gui.utilities;
 
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JButton;
+import javax.swing.border.EmptyBorder;
 import meshIneBits.gui.view2d.MeshAction;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-
 public class ButtonIcon extends JButton {
-    private static final long serialVersionUID = 4439705350058229259L;
 
-    public ButtonIcon(String label, String iconName) {
-        this(label, iconName, false);
-    }
+  private static final long serialVersionUID = 4439705350058229259L;
 
-    public ButtonIcon(String label, String iconName, boolean onlyIcon) {
-        this(label, iconName, onlyIcon, 22, 22);
-    }
+  public ButtonIcon(String label, String iconName) {
+    this(label, iconName, false);
+  }
 
-    public ButtonIcon(String label, String iconName, boolean onlyIcon, int width, int height) {
-        super((label.isEmpty() ? "" : " ") + label);
-        this.setHorizontalAlignment(LEFT);
-        this.setMargin(new Insets(0, 0, 0, 2));
-        this.setIcon(IconLoader.get(iconName, width, height));
+  public ButtonIcon(String label, String iconName, boolean onlyIcon) {
+    this(label, iconName, onlyIcon, 22, 22);
+  }
 
-        if (onlyIcon) {
-            setContentAreaFilled(false);
-            setBorder(new EmptyBorder(3, 3, 3, 3));
+  public ButtonIcon(String label, String iconName, boolean onlyIcon, int width, int height) {
+    super((label.isEmpty() ? "" : " ") + label);
+    this.setHorizontalAlignment(LEFT);
+    this.setMargin(new Insets(0, 0, 0, 2));
+    this.setIcon(IconLoader.get(iconName, width, height));
 
-            // Actions listener
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    setContentAreaFilled(true);
-                }
+    if (onlyIcon) {
+      setContentAreaFilled(false);
+      setBorder(new EmptyBorder(3, 3, 3, 3));
 
-                @Override
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    setContentAreaFilled(false);
-                }
-            });
+      // Actions listener
+      addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseEntered(MouseEvent evt) {
+          setContentAreaFilled(true);
         }
-    }
 
-    public ButtonIcon(MeshAction meshAction) {
-        super(meshAction);
-        setHideActionText(true);
-        setToolTipText(meshAction.getToolTipText());
+        @Override
+        public void mouseExited(MouseEvent evt) {
+          setContentAreaFilled(false);
+        }
+      });
+    }
+  }
+
+  public ButtonIcon(MeshAction meshAction) {
+    super(meshAction);
+    setHideActionText(true);
+    setToolTipText(meshAction.getToolTipText());
+    setContentAreaFilled(true);
+    setBorder(new EmptyBorder(3, 3, 3, 3));
+    addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseEntered(java.awt.event.MouseEvent evt) {
         setContentAreaFilled(true);
-        setBorder(new EmptyBorder(3, 3, 3, 3));
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setContentAreaFilled(true);
-            }
+      }
 
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                setContentAreaFilled(false);
-            }
-        });
-    }
+      @Override
+      public void mouseExited(java.awt.event.MouseEvent evt) {
+        setContentAreaFilled(false);
+      }
+    });
+  }
 }

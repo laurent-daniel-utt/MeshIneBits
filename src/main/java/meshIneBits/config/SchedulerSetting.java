@@ -37,5 +37,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface SchedulerSetting {
-    int order() default 0;
+
+  int order() default 0;
 }

@@ -30,52 +30,55 @@
 
 package meshIneBits.gui.view2d;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
 
 /**
  * Pseudo table of properties
  */
 abstract class PropertyPanel extends JPanel {
 
-    private PropertyTableModel propertyTableModel;
+  private PropertyTableModel propertyTableModel;
 
-    PropertyPanel(String title) {
-        super();
-        setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                title,
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
-        this.setLayout(new BorderLayout());
-        this.setOpaque(false);
-    }
+  PropertyPanel(String title) {
+    super();
+    setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createEtchedBorder(),
+        title,
+        TitledBorder.CENTER,
+        TitledBorder.TOP));
+    this.setLayout(new BorderLayout());
+    this.setOpaque(false);
+  }
 
-    void initTable(String[][] properties) {
-        propertyTableModel = new PropertyTableModel(properties);
-        JTable propertyTable = new JTable(propertyTableModel) {
-            @Override
-            public String getToolTipText(MouseEvent event) {
-                Point p = event.getPoint();
-                int rowIndex = rowAtPoint(p);
-                int colIndex = columnAtPoint(p);
-                int realColumnIndex = convertColumnIndexToModel(colIndex);
-                try {
-                    return propertyTableModel.getValueAt(rowIndex, realColumnIndex);
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        };
-        propertyTable.setOpaque(false);
-        this.add(propertyTable, BorderLayout.CENTER);
-    }
+  void initTable(String[][] properties) {
+    propertyTableModel = new PropertyTableModel(properties);
+    JTable propertyTable = new JTable(propertyTableModel) {
+      @Override
+      public String getToolTipText(MouseEvent event) {
+        Point p = event.getPoint();
+        int rowIndex = rowAtPoint(p);
+        int colIndex = columnAtPoint(p);
+        int realColumnIndex = convertColumnIndexToModel(colIndex);
+        try {
+          return propertyTableModel.getValueAt(rowIndex, realColumnIndex);
+        } catch (Exception e) {
+          return null;
+        }
+      }
+    };
+    propertyTable.setOpaque(false);
+    this.add(propertyTable, BorderLayout.CENTER);
+  }
 
-    public abstract void updateProperties(Object object);
+  public abstract void updateProperties(Object object);
 
-    void updateProperty(String label, String value) {
-        propertyTableModel.setValueAt(label, value);
-    }
+  void updateProperty(String label, String value) {
+    propertyTableModel.setValueAt(label, value);
+  }
 }

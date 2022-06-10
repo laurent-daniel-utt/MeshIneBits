@@ -30,15 +30,18 @@
 
 package meshIneBits.gui.utilities;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 public class MeshActionMenu extends JMenu {
-    public MeshActionMenu(String name) {
-        super(name);
-    }
 
-    @Override
-    public JMenuItem add(Action a) {
-        return super.add(new MeshActionMenuItem(a));
-    }
+  public MeshActionMenu(String name) {
+    super(name);
+  }
+
+  @Override
+  public JMenuItem add(Action a) {
+    return super.add(new MeshActionMenuItem(a));
+  }
 }

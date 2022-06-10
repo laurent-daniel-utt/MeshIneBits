@@ -34,8 +34,7 @@ import meshIneBits.Mesh;
 
 public interface InterfaceXmlTool {
 
-    void writeMeshToXML(Mesh mesh);
-
+  void writeMeshToXML(Mesh mesh);
 
 
 }

@@ -30,9 +30,8 @@
 
 package meshIneBits.slicer;
 
-import meshIneBits.util.Shape2D;
-
 import java.io.Serializable;
+import meshIneBits.util.Shape2D;
 
 /**
  * A slice is the projection of the boundaries of the mesh on a plane.
@@ -41,16 +40,17 @@ import java.io.Serializable;
  * @see Shape2D
  */
 public class Slice extends Shape2D implements Serializable {
-    public Slice() {
-    }
 
-    private double altitude;
+  public Slice() {
+  }
 
-    public double getAltitude() {
-        return altitude;
-    }
+  private double altitude;
 
-    public void setAltitude(double altitude) {
-        this.altitude = altitude;
-    }
+  public double getAltitude() {
+    return altitude;
+  }
+
+  public void setAltitude(double altitude) {
+    this.altitude = altitude;
+  }
 }

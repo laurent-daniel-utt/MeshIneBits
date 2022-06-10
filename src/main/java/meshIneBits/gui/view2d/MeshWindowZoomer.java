@@ -30,90 +30,97 @@
 
 package meshIneBits.gui.view2d;
 
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.ButtonIcon;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 class MeshWindowZoomer extends JPanel {
-    private static final double MIN_ZOOM_VALUE = 0.5;
-    private final int MIN_ZOOM_SLIDER_VALUE = 1;
-    private final int MAX_ZOOM_SLIDER_VALUE = 500;
-    // Following attributes are the coefficients from the formula Y = a * EXP(b * x)
-    // used for the zoom's log scale
-    private final double bCoefficient;
-    private final double aCoefficient;
-    /**
-     * Replica of {@link MeshController#getZoom()} to simplify callee
-     */
-    private double zoom = 1;
-    // Components
-    private JSlider zoomSlider = new JSlider(
-            SwingConstants.HORIZONTAL,
-           MIN_ZOOM_SLIDER_VALUE,
-            MAX_ZOOM_SLIDER_VALUE,
-            MIN_ZOOM_SLIDER_VALUE);
 
-    JButton zoomButton =new JButton("Init Zoom");
-    private MeshController meshController;
-    private MeshWindowCore meshWindowCore;
+  private static final double MIN_ZOOM_VALUE = 0.5;
+  private final int MIN_ZOOM_SLIDER_VALUE = 1;
+  private final int MAX_ZOOM_SLIDER_VALUE = 500;
+  // Following attributes are the coefficients from the formula Y = a * EXP(b * x)
+  // used for the zoom's log scale
+  private final double bCoefficient;
+  private final double aCoefficient;
+  /**
+   * Replica of {@link MeshController#getZoom()} to simplify callee
+   */
+  private double zoom = 1;
+  // Components
+  private JSlider zoomSlider = new JSlider(
+      SwingConstants.HORIZONTAL,
+      MIN_ZOOM_SLIDER_VALUE,
+      MAX_ZOOM_SLIDER_VALUE,
+      MIN_ZOOM_SLIDER_VALUE);
 
-    MeshWindowZoomer(MeshController meshController, MeshWindowCore core) {
-        this.meshController = meshController;
-        this.meshWindowCore = core;
-        bCoefficient = Math.log(MIN_ZOOM_VALUE / 10) / (MIN_ZOOM_SLIDER_VALUE - MAX_ZOOM_SLIDER_VALUE);
-        aCoefficient = MIN_ZOOM_VALUE / Math.exp(bCoefficient * MIN_ZOOM_SLIDER_VALUE);
-        //zoomSlider.setMaximumSize(new Dimension(500, 20));
-        setOpaque(false);
+  JButton zoomButton = new JButton("Init Zoom");
+  private MeshController meshController;
+  private MeshWindowCore meshWindowCore;
 
-        setLayout(new FlowLayout(FlowLayout.CENTER));
-        ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
-        add(zoomMinusBtn);
+  MeshWindowZoomer(MeshController meshController, MeshWindowCore core) {
+    this.meshController = meshController;
+    this.meshWindowCore = core;
+    bCoefficient = Math.log(MIN_ZOOM_VALUE / 10) / (MIN_ZOOM_SLIDER_VALUE - MAX_ZOOM_SLIDER_VALUE);
+    aCoefficient = MIN_ZOOM_VALUE / Math.exp(bCoefficient * MIN_ZOOM_SLIDER_VALUE);
+    //zoomSlider.setMaximumSize(new Dimension(500, 20));
+    setOpaque(false);
 
-        add(zoomButton);
-        zoomButton.setFont(new Font("calibri", Font.PLAIN, 20));
-        zoomButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                meshController.setZoom(1);
-                core.setViewOffset();
-            }
-        });
-        ButtonIcon zoomPlusBtn = new ButtonIcon("", "search-plus.png", true);
-        add(zoomPlusBtn);
-        setAlignmentX(Component.CENTER_ALIGNMENT);
-        zoomSlider.addChangeListener(e ->
-                setZoom(getConvertedZoomValue(zoomSlider.getValue())));
-        zoomMinusBtn.addActionListener(e ->
-        {
-            setZoom(zoom / WorkspaceConfig.zoomSpeed);
-            zoomSlider.setValue(getSliderZoomValueFrom(zoom));
-        });
-        zoomPlusBtn.addActionListener(e ->
-        {
-            setZoom(zoom * WorkspaceConfig.zoomSpeed);
-            zoomSlider.setValue(getSliderZoomValueFrom(zoom));
-        });
-        zoomSlider.setOpaque(false);
+    setLayout(new FlowLayout(FlowLayout.CENTER));
+    ButtonIcon zoomMinusBtn = new ButtonIcon("", "search-minus.png", true);
+    add(zoomMinusBtn);
 
-        // Not show if mesh not sliced yet
-        if (meshController.getMesh() == null || !(meshController.getMesh().isSliced()))
-            setVisible(false);
+    add(zoomButton);
+    zoomButton.setFont(new Font("calibri", Font.PLAIN, 20));
+    zoomButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        meshController.setZoom(1);
+        core.setViewOffset();
+      }
+    });
+    ButtonIcon zoomPlusBtn = new ButtonIcon("", "search-plus.png", true);
+    add(zoomPlusBtn);
+    setAlignmentX(Component.CENTER_ALIGNMENT);
+    zoomSlider.addChangeListener(e ->
+        setZoom(getConvertedZoomValue(zoomSlider.getValue())));
+    zoomMinusBtn.addActionListener(e ->
+    {
+      setZoom(zoom / WorkspaceConfig.zoomSpeed);
+      zoomSlider.setValue(getSliderZoomValueFrom(zoom));
+    });
+    zoomPlusBtn.addActionListener(e ->
+    {
+      setZoom(zoom * WorkspaceConfig.zoomSpeed);
+      zoomSlider.setValue(getSliderZoomValueFrom(zoom));
+    });
+    zoomSlider.setOpaque(false);
+
+    // Not show if mesh not sliced yet
+    if (meshController.getMesh() == null || !(meshController.getMesh()
+        .isSliced())) {
+      setVisible(false);
     }
+  }
 
-    private double getConvertedZoomValue(int zoomSliderValue) {
-        return aCoefficient * Math.exp(bCoefficient * zoomSliderValue);
-    }
+  private double getConvertedZoomValue(int zoomSliderValue) {
+    return aCoefficient * Math.exp(bCoefficient * zoomSliderValue);
+  }
 
-    private int getSliderZoomValueFrom(double real) {
-        return (int) Math.round(Math.log(real / aCoefficient) / bCoefficient);
-    }
+  private int getSliderZoomValueFrom(double real) {
+    return (int) Math.round(Math.log(real / aCoefficient) / bCoefficient);
+  }
 
-    private void setZoom(double zoomValue) {
-        this.zoom = zoomValue <= MIN_ZOOM_VALUE ? MIN_ZOOM_VALUE : zoomValue;
-        meshController.setZoom(this.zoom);
-    }
+  private void setZoom(double zoomValue) {
+    this.zoom = zoomValue <= MIN_ZOOM_VALUE ? MIN_ZOOM_VALUE : zoomValue;
+    meshController.setZoom(this.zoom);
+  }
 }

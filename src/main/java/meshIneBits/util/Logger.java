@@ -45,68 +45,69 @@ import java.util.logging.SimpleFormatter;
  */
 public class Logger {
 
-    private static HashSet<LoggingInterface> loggers = new HashSet<>();
+  private static HashSet<LoggingInterface> loggers = new HashSet<>();
 
-    public static void error(String error) {
-        System.err.println(error);
-        for (LoggingInterface li : loggers) {
-            li.error(error);
-        }
+  public static void error(String error) {
+    System.err.println(error);
+    for (LoggingInterface li : loggers) {
+      li.error(error);
     }
+  }
 
-    public static void message(String message) {
-        System.out.println(message);
-        for (LoggingInterface li : loggers) {
-            li.message(message);
-        }
+  public static void message(String message) {
+    System.out.println(message);
+    for (LoggingInterface li : loggers) {
+      li.message(message);
     }
+  }
 
-    public static void register(LoggingInterface obj) {
-        loggers.add(obj);
+  public static void register(LoggingInterface obj) {
+    loggers.add(obj);
+  }
+
+  public static void setProgress(int value, int max) {
+    // System.out.println(value + "/" + max);
+    for (LoggingInterface li : loggers) {
+      li.setProgress(value, max);
     }
+  }
 
-    public static void setProgress(int value, int max) {
-        // System.out.println(value + "/" + max);
-        for (LoggingInterface li : loggers) {
-            li.setProgress(value, max);
-        }
+  public static void unRegister(LoggingInterface obj) {
+    loggers.remove(obj);
+  }
+
+  public static void updateStatus(String status) {
+    System.out.println(status);
+    for (LoggingInterface li : loggers) {
+      li.updateStatus(status);
     }
+  }
 
-    public static void unRegister(LoggingInterface obj) {
-        loggers.remove(obj);
+  public static void warning(String warning) {
+    System.err.println(warning);
+    for (LoggingInterface li : loggers) {
+      li.warning(warning);
     }
+  }
 
-    public static void updateStatus(String status) {
-        System.out.println(status);
-        for (LoggingInterface li : loggers) {
-            li.updateStatus(status);
-        }
-    }
+  public static java.util.logging.Logger createSimpleInstanceFor(Class<?> cls) {
+    final String simpleName = cls.getSimpleName();
+    java.util.logging.Logger mainLogger = java.util.logging.Logger.getLogger(simpleName);
+    mainLogger.setUseParentHandlers(false);
+    ConsoleHandler handler = new ConsoleHandler();
+    mainLogger.setLevel(Level.ALL);
+    handler.setLevel(Level.ALL);
+    handler.setFormatter(new SimpleFormatter() {
+      private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
 
-    public static void warning(String warning) {
-        System.err.println(warning);
-        for (LoggingInterface li : loggers) {
-            li.warning(warning);
-        }
-    }
-
-    public static java.util.logging.Logger createSimpleInstanceFor(Class<?> cls) {
-        final String simpleName = cls.getSimpleName();
-        java.util.logging.Logger mainLogger = java.util.logging.Logger.getLogger(simpleName);
-        mainLogger.setUseParentHandlers(false);
-        ConsoleHandler handler = new ConsoleHandler();
-        mainLogger.setLevel(Level.ALL);
-        handler.setLevel(Level.ALL);
-        handler.setFormatter(new SimpleFormatter() {
-            private static final String format = "[%1$tF %1$tT] [%2$s] [%4$s] %3$s %n";
-
-            @Override
-            public synchronized String format(LogRecord lr) {
-                return String.format(format, new Date(lr.getMillis()), lr.getLevel().getName(),
-                        lr.getMessage(), simpleName);
-            }
-        });
-        mainLogger.addHandler(handler);
-        return mainLogger;
-    }
+      @Override
+      public synchronized String format(LogRecord lr) {
+        return String.format(format, new Date(lr.getMillis()), lr.getLevel()
+                .getName(),
+            lr.getMessage(), simpleName);
+      }
+    });
+    mainLogger.addHandler(handler);
+    return mainLogger;
+  }
 }

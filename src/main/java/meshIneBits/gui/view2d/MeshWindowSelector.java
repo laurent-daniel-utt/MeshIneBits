@@ -30,33 +30,40 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.Mesh;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import meshIneBits.Mesh;
 
 public class MeshWindowSelector extends JPanel implements PropertyChangeListener {
-    private JSlider layerSlider;
-    private JSpinner layerSpinner;
 
-    public MeshWindowSelector(MeshController meshController) {
-        Mesh mesh = meshController.getMesh();
-        meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
+  private JSlider layerSlider;
+  private JSpinner layerSpinner;
 
-        layerSlider = new JSlider(
-                SwingConstants.VERTICAL,
-                0,
-                mesh.getLayers().size() - 1,
-                0);
-        //layerSlider.setMinimumSize(new Dimension(20,200));
-        //layerSlider.setMaximumSize(new Dimension(20,200));
-        layerSlider.setFocusable(false);
+  public MeshWindowSelector(MeshController meshController) {
+    Mesh mesh = meshController.getMesh();
+    meshController.addPropertyChangeListener(MeshController.SETTING_LAYER, this);
+
+    layerSlider = new JSlider(
+        SwingConstants.VERTICAL,
+        0,
+        mesh.getLayers()
+            .size() - 1,
+        0);
+    //layerSlider.setMinimumSize(new Dimension(20,200));
+    //layerSlider.setMaximumSize(new Dimension(20,200));
+    layerSlider.setFocusable(false);
 
         layerSpinner = new JSpinner(
                 new SpinnerNumberModel(
@@ -111,21 +118,21 @@ public class MeshWindowSelector extends JPanel implements PropertyChangeListener
         add(layerSpinner);
         setBorder(new EmptyBorder(50, 5, 50, 0));
 
-        layerSpinner.addChangeListener(e ->
-        {
-            updateSlider(meshController);
-        });
+    layerSpinner.addChangeListener(e ->
+    {
+      updateSlider(meshController);
+    });
 
-        layerSlider.addChangeListener(e ->
-        {
-            updateSpinner(meshController);
-        });
-        setOpaque(false);
-        layerSpinner.setOpaque(false);
-        layerSpinner.setOpaque(false);
-    }
+    layerSlider.addChangeListener(e ->
+    {
+      updateSpinner(meshController);
+    });
+    setOpaque(false);
+    layerSpinner.setOpaque(false);
+    layerSpinner.setOpaque(false);
+  }
 
-    private void updateSpinner(MeshController meshController) {
+  private void updateSpinner(MeshController meshController) {
         meshController.setLayer(layerSlider.getValue());
         layerSpinner.setValue(layerSlider.getValue());
     }

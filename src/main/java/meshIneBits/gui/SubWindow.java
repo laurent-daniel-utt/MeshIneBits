@@ -35,15 +35,15 @@ import meshIneBits.Mesh;
 /**
  * @author Quoc Nhat Han TRAN
  * <p>
- * Describe the view (2D or 3D) of the loaded model. Windows
- * implementing this interface should have {@link javax.swing.WindowConstants#HIDE_ON_CLOSE}
- * behavior.
+ * Describe the view (2D or 3D) of the loaded model. Windows implementing this interface should have
+ * {@link javax.swing.WindowConstants#HIDE_ON_CLOSE} behavior.
  */
 public interface SubWindow {
-    /**
-     * Switch visibility
-     */
-    void toggle();
 
-    void setCurrentMesh(Mesh mesh);
+  /**
+   * Switch visibility
+   */
+  void toggle();
+
+  void setCurrentMesh(Mesh mesh);
 }
