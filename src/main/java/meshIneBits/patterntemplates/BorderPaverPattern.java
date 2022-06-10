@@ -140,11 +140,11 @@ public class BorderPaverPattern extends PatternTemplate {
         // TODO: 09/06/2022 - does not always work
         double safeguardSpace = (double) config.get("safeguardSpace").getCurrentValue();
         for (Bit2D bit2DToCut : bits) {
-            Area bit2DToCutArea = bit2DToCut.getArea();
+            Area bit2DToCutArea = bit2DToCut.getAreaCS();
             Area nonAvailableArea = new Area();
             for (Bit2D bit2D : bits) {
                 if (!bit2D.equals(bit2DToCut)) {
-                    Area expand = AreaTool.expand(bit2D.getArea(),
+                    Area expand = AreaTool.expand(bit2D.getAreaCS(),
                                                   safeguardSpace);
                     nonAvailableArea.add(expand);
                 }

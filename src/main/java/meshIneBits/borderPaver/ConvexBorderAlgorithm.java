@@ -31,6 +31,7 @@
 package meshIneBits.borderPaver;
 
 import meshIneBits.Bit2D;
+import meshIneBits.NewBit2D;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Placement;
 import meshIneBits.borderPaver.util.Section;
@@ -231,7 +232,7 @@ public class ConvexBorderAlgorithm {
         Vector2 bitPosition = startBit.add(positionCollinear).add(positionNormal);
         Vector2 bitOrientation = positionCollinear.normal();
 
-        Bit2D bit2D = new Bit2D(bitPosition.x, bitPosition.y, newLengthBit, CraftConfig.bitWidth, bitOrientation.x, bitOrientation.y);
+        Bit2D bit2D = new NewBit2D(bitPosition.x, bitPosition.y, newLengthBit, CraftConfig.bitWidth, bitOrientation.x, bitOrientation.y);
         Placement placement = new Placement(bit2D);
         placement.setSectionCovered(sectionReduced);
         placement.setNextStartPoint(sectionReduced.getPoints().lastElement());

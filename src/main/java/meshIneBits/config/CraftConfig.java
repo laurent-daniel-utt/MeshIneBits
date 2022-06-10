@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import meshIneBits.patterntemplates.AI_Pavement;
+import meshIneBits.patterntemplates.BorderPaverPattern;
 import meshIneBits.patterntemplates.ClassicBrickPattern;
 import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
 import meshIneBits.patterntemplates.EconomicPattern;

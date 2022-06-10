@@ -7,7 +7,6 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import meshIneBits.SubBit2D.SubBitBuilder;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +16,17 @@ public class NewBit2D extends Bit2D {
 
   public NewBit2D(Vector2 origin, Vector2 orientation) {
     this(origin, orientation, CraftConfig.lengthFull, CraftConfig.bitWidth);
+  }
+
+  public NewBit2D(double boundaryCenterX,
+      double boundaryCenterY,
+      double length,
+      double width,
+      double orientationX,
+      double orientationY) {
+    super(boundaryCenterX, boundaryCenterY, length, width, orientationX, orientationY);
+    calcCutPath();
+    buildSubBits(getAreasCS(), getCutPathsCB());
   }
 
   public NewBit2D(Vector2 origin, Vector2 orientation, double length, double width) {
@@ -40,6 +50,9 @@ public class NewBit2D extends Bit2D {
 
   private void buildSubBits(Vector<Area> areas, Vector<Path2D> cutPaths) {
     subBits.clear();
+    if (areas.isEmpty()) {
+      return;
+    }
     if (cutPaths.size() == 0) {
       SubBitBuilder builder = new SubBitBuilder();
       SubBit2D subBit2D = builder.setOriginPositionCS(getOriginCS())

@@ -34,7 +34,6 @@ import meshIneBits.borderPaver.util.SectionTransformer;
 
 import java.io.Serializable;
 import java.util.Vector;
-import meshIneBits.artificialIntelligence.GeneralTools;
 
 /**
  * Segment2D represents a line in 2D space.

@@ -76,16 +76,11 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
+import meshIneBits.util.CustomLogger;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.util.*;
 
 /**
  * Sketch of slice and layer. Observes the {@link MeshController}.

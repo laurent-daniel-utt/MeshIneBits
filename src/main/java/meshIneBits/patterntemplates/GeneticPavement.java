@@ -136,7 +136,7 @@ public class GeneticPavement extends PatternTemplate {
                 solutions.add(bestBit);
 
                 //Prepare to find the next Solution
-                layerAvailableArea.subtract(bestBit.getArea());
+                layerAvailableArea.subtract(bestBit.getAreaCS());
                 startPoint = GeneralTools.getNextBitStartPoint(bestBit,
                                                                bound);
                 associatedPoints = SectionTransformer.getSectionFromBound(bound,
@@ -195,11 +195,11 @@ public class GeneticPavement extends PatternTemplate {
     private void updateBitAreasWithSpaceAround() {
         Area availableArea = new Area();
         for (Bit2D bit : solutions) {
-            availableArea.add(bit.getArea());
+            availableArea.add(bit.getAreaCS());
         }
         for (Bit2D bit : solutions) {
-            if (bit.getArea() == null) continue;
-            Area bitArea = bit.getArea();
+            if (bit.getAreasCB() == null) continue;
+            Area bitArea = bit.getAreaCS();
             bitArea.intersect(availableArea);
             if (!bitArea.isEmpty()) {
                 bit.updateBoundaries(bitArea);

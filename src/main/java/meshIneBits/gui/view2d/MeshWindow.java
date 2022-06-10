@@ -70,7 +70,7 @@ import meshIneBits.gui.utilities.UPPPaveLayer;
 import meshIneBits.gui.utilities.UPPPaveMesh;
 import meshIneBits.gui.utilities.UPPPaveRegion;
 import meshIneBits.gui.utilities.UPPScheduleMesh;
-import meshIneBits.gui.utilities.UPPToolsIA;
+import meshIneBits.gui.utilities.UPPToolsAI;
 import meshIneBits.gui.utilities.UtilityParametersPanel;
 import meshIneBits.gui.view3d.view.AssemblingProcessView;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;

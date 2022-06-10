@@ -109,6 +109,33 @@ public class Bit2D implements Cloneable, Serializable {
     buildBoundaries();
   }
 
+  public Bit2D(double boundaryCenterX,
+      double boundaryCenterY,
+      double length,
+      double width,
+      double orientationX,
+      double orientationY) {
+    orientation = new Vector2(
+        orientationX,
+        orientationY
+    );
+    this.length = length;
+    this.width = width;
+    origin = new Vector2(boundaryCenterX, boundaryCenterY)
+        .sub(
+            // Vector distance in Bit coordinate system
+            new Vector2(
+                -CraftConfig.lengthFull / 2 + length / 2,
+                -CraftConfig.bitWidth / 2 + width / 2
+            )
+                // Rotate into Mesh coordinate system
+                .rotate(orientation)
+        );
+
+    setTransfoMatrix();
+    buildBoundaries();
+  }
+
 
   /**
    * Constructor for custom length and width.

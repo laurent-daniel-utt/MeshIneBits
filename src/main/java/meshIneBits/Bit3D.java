@@ -2,14 +2,14 @@
  * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  * into a network of standard parts (called "Bits").
  *
- * Copyright (C) 2016-2022 DANIEL Laurent.
+ * Copyright (C) 2016-2021 DANIEL Laurent.
  * Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
  * Copyright (C) 2017-2018  TRAN Quoc Nhat Han.
  * Copyright (C) 2018 VALLON Benjamin.
  * Copyright (C) 2018 LORIMER Campbell.
  * Copyright (C) 2018 D'AUTUME Christian.
  * Copyright (C) 2019 DURINGER Nathan (Tests).
- * Copyright (C) 2020-2021 CLAIRIS Etienne & RUSSO André.
+ * Copyright (C) 2020 CLARIS Etienne & RUSSO André.
  * Copyright (C) 2020-2021 DO Quang Bao.
  * Copyright (C) 2021 VANNIYASINGAM Mithulan.
  *
@@ -25,16 +25,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
 package meshIneBits;
-
-import meshIneBits.config.CraftConfig;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.CutPathUtil;
-import meshIneBits.util.Vector2;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -104,13 +97,13 @@ public class Bit3D implements Serializable, Cloneable {
   private boolean reverseInCut;
 
   /**
-     * <code>true</code> if the bit has been placed in a bid to feed the neural network.
-     */
-    private boolean usedForNN;
+   * <code>true</code> if the bit has been placed in a bid to feed the neural network.
+   */
+  private boolean usedForNN;
 
-    public boolean isReverseInCut() {
-        return reverseInCut;
-    }
+  public boolean isReverseInCut() {
+    return reverseInCut;
+  }
 
   /**
    * Construct bit 3D from horizontal section and calculate lift points
@@ -385,28 +378,32 @@ public class Bit3D implements Serializable, Cloneable {
 
     ArrayList<Double> xPositions = new ArrayList<Double>();
 
-        if (!allDistancePoints.isEmpty()){
-            double minXDistancePoint=allDistancePoints.get(0).x;
-            double maxXDistancePoint=allDistancePoints.get(0).x;
-            for (int i = 0; i < allDistancePoints.size(); i++) {
-                if (allDistancePoints.get(i).x < minXDistancePoint) {
-                    minXDistancePoint = allDistancePoints.get(i).x;
-                }
-                if (allDistancePoints.get(i).x > maxXDistancePoint) {
-                    maxXDistancePoint = allDistancePoints.get(i).x;
-                }
-            }
-            xPositions.add(minXDistancePoint);
-            xPositions.add(maxXDistancePoint);
+    if (!allDistancePoints.isEmpty()) {
+      double minXDistancePoint = allDistancePoints.get(0).x;
+      double maxXDistancePoint = allDistancePoints.get(0).x;
+      for (int i = 0; i < allDistancePoints.size(); i++) {
+        if (allDistancePoints.get(i).x < minXDistancePoint) {
+          minXDistancePoint = allDistancePoints.get(i).x;
         }
-        return xPositions;
+        if (allDistancePoints.get(i).x > maxXDistancePoint) {
+          maxXDistancePoint = allDistancePoints.get(i).x;
+        }
+      }
+      xPositions.add(minXDistancePoint);
+      xPositions.add(maxXDistancePoint);
     }
+    return xPositions;
+  }
 
-    public boolean isUsedForNN() {
-        return usedForNN;
-    }
+  public boolean isUsedForNN() {
+    return usedForNN;
+  }
 
-    public void setUsedForNN(boolean usedForNN) {
-        this.usedForNN = usedForNN;
-    }
+  public void setUsedForNN(boolean usedForNN) {
+    this.usedForNN = usedForNN;
+  }
+
+  public Vector<SubBit2D> getSubBits() {
+    return new Vector<>();
+  }
 }
