@@ -14,12 +14,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Vector;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view3d.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
-import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.Visualization3DConfig;
+import meshIneBits.gui.view3d.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView.ModelChangesListener;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
@@ -111,9 +111,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
 
   public void setup() {
     configWindow(
-        Visualization3DConfig.VISUALIZATION_3D_WINDOW_TITLE,
-        Visualization3DConfig.V3D_WINDOW_LOCATION_X,
-        Visualization3DConfig.V3D_WINDOW_LOCATION_Y);
+            Visualization3DConfig.VISUALIZATION_3D_WINDOW_TITLE,
+            Visualization3DConfig.V3D_WINDOW_LOCATION_X,
+            Visualization3DConfig.V3D_WINDOW_LOCATION_Y);
     initWorkspace();
     init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
     init3DFrame();
@@ -143,20 +143,20 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
   private void updatePositionChangesOnModel() {
     if (mcListener != null) {
       mcListener.onPositionChange(Double.parseDouble(df.format(frame.position()
-              .x())),
-          Double.parseDouble(df.format(frame.position()
-              .y())),
-          Double.parseDouble(df.format(frame.position()
-              .z())));
+                      .x()).replace(",", ".")),
+              Double.parseDouble(df.format(frame.position()
+                      .y()).replace(",", ".")),
+              Double.parseDouble(df.format(frame.position()
+                      .z()).replace(",", ".")));
     }
   }
 
   private void updateSizeChangesOnModel() {
     if (mcListener != null) {
       mcListener.onSizeChange(Double.parseDouble(df.format(frame.scaling())),
-          Double.parseDouble(df.format(shape.getDepth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getWidth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getHeight() * frame.scaling())));
+              Double.parseDouble(df.format(shape.getDepth() * frame.scaling()).replace(",", ".")),
+              Double.parseDouble(df.format(shape.getWidth() * frame.scaling()).replace(",", ".")),
+              Double.parseDouble(df.format(shape.getHeight() * frame.scaling()).replace(",", ".")));
     }
 
   }
@@ -177,19 +177,19 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
 
     uipwController = new UIPWController(processor);
     uipwView = buildControllerWindow(UIPWView.class,
-        uipwController,
-        "View Configuration",
-        Visualization3DConfig.UIP_WINDOW_WIDTH,
-        Visualization3DConfig.UIP_WINDOW_HEIGHT);
+            uipwController,
+            "View Configuration",
+            Visualization3DConfig.UIP_WINDOW_WIDTH,
+            Visualization3DConfig.UIP_WINDOW_HEIGHT);
     uipwAnimation = buildControllerWindow(UIPWAnimation.class,
-        uipwController,
-        "View Animation",
-        Visualization3DConfig.UIP_WINDOW_WIDTH,
-        Visualization3DConfig.UIP_WINDOW_HEIGHT);
+            uipwController,
+            "View Animation",
+            Visualization3DConfig.UIP_WINDOW_WIDTH,
+            Visualization3DConfig.UIP_WINDOW_HEIGHT);
 
     if (processor instanceof BaseVisualization3DProcessor && uipwAnimation != null) {
       ((BaseVisualization3DProcessor) processor).getAnimationProcessor()
-          .addOnIndexIncreasedListener((AnimationIndexIncreasedListener) uipwAnimation);
+              .addOnIndexIncreasedListener((AnimationIndexIncreasedListener) uipwAnimation);
     }
   }
 
@@ -201,7 +201,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
 
   private void initProcessor() {
     processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
-        this);
+            this);
   }
 
   private void init3DFrame() {
@@ -211,9 +211,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
     frame = new CustomInteractiveFrame(scene);
     //set position of frame in scene
     frame.translate(
-        (float) MeshProvider.getInstance().getModel().getPos().x,
-        (float) MeshProvider.getInstance().getModel().getPos().y,
-        (float) MeshProvider.getInstance().getModel().getPos().z);
+            (float) MeshProvider.getInstance().getModel().getPos().x,
+            (float) MeshProvider.getInstance().getModel().getPos().y,
+            (float) MeshProvider.getInstance().getModel().getPos().z);
     customFrameBindings(frame);
   }
 
@@ -224,10 +224,10 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
     frame.setGrabsInputThreshold(scene.radius() / 3);
     frame.setRotationSensitivity(3);
     if (!MeshProvider.getInstance().getCurrentMesh()
-        .isSliced()) {
+            .isSliced()) {
       frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
       frame.setMotionBinding(WHEEL_ID,
-          scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+              scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
     }
     frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
   }
@@ -287,13 +287,13 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
   @SuppressWarnings("all")
   private <T extends UIParameterWindow> T
   buildControllerWindow(Class<T> c, UIPWListener listener,
-      String title, int width, int height) {
+                        String title, int width, int height) {
     UIParameterWindow.WindowBuilder windowBuilder = new UIParameterWindow.WindowBuilder();
     try {
       T obj = windowBuilder.setTitle(title)
-          .setListener(listener)
-          .setSize(width, height)
-          .build(c);
+              .setListener(listener)
+              .setSize(width, height)
+              .build(c);
       return obj;
     } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
       e.printStackTrace();
@@ -306,9 +306,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
     background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
     lights();
     ambientLight(
-        Visualization3DConfig.V3D_AMBIENT_LIGHT.getRed(),
-        Visualization3DConfig.V3D_AMBIENT_LIGHT.getGreen(),
-        Visualization3DConfig.V3D_AMBIENT_LIGHT.getBlue());
+            Visualization3DConfig.V3D_AMBIENT_LIGHT.getRed(),
+            Visualization3DConfig.V3D_AMBIENT_LIGHT.getGreen(),
+            Visualization3DConfig.V3D_AMBIENT_LIGHT.getBlue());
     drawWorkspace();
     drawWorkingSpace();
     startExport();
@@ -336,27 +336,27 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
       switch (processor.getDisplayState().getState()) {
         case MODEL_VIEW:
           exportFileName.append(modelName)
-              .append("-")
-              .append(indexExport)
-              .append(".obj");
+                  .append("-")
+                  .append(indexExport)
+                  .append(".obj");
           break;
         case PAVED_VIEW:
           exportFileName.append(modelName)
-              .append("-")
-              .append(indexExport)
-              .append("-Paved")
-              .append(".obj");
+                  .append("-")
+                  .append(indexExport)
+                  .append("-Paved")
+                  .append(".obj");
           break;
         case ANIMATION_VIEW:
           exportFileName.append(modelName)
-              .append("-")
-              .append(indexExport)
-              .append("-Animation")
-              .append(".obj");
+                  .append("-")
+                  .append(indexExport)
+                  .append("-Animation")
+                  .append(".obj");
           break;
         default:
           throw new IllegalStateException(
-              "Unexpected value: " + processor.getDisplayState().getState());
+                  "Unexpected value: " + processor.getDisplayState().getState());
       }
       logger.logDEBUGMessage("Exporting " + exportFileName);
       beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER, exportFileName.toString());
@@ -377,7 +377,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
         break;
       default:
         throw new IllegalStateException(
-            "Unexpected value: " + processor.getDisplayState().getState());
+                "Unexpected value: " + processor.getDisplayState().getState());
     }
   }
 
@@ -427,7 +427,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView {
   private void drawWorkingSpace() {
     stroke(255, 0, 0);
     rect(-printerX / 2 - CraftConfig.workingWidth - 20,
-        -printerY / 2, CraftConfig.workingWidth,
-        CraftConfig.printerY);
+            -printerY / 2, CraftConfig.workingWidth,
+            CraftConfig.printerY);
   }
 }
