@@ -18,10 +18,10 @@ public abstract class BitSLickrMachineAdapter implements IBitSLickrMachine, ICli
   public BitSLickrMachineAdapter(ROBOT robot){
     this.robot=robot;
     if (this.robot==ROBOT.DECOUPE) {
-      this.url= BitSLickrHelperConfig.robot_decoupe_url;
+      this.url= BitSLicRHelperConfig.robot_decoupe_url;
     }
     else {
-      this.url= BitSLickrHelperConfig.robot_manip_url;
+      this.url= BitSLicRHelperConfig.robot_manip_url;
     }
 
     clientRunner=new ClientRunner(this);

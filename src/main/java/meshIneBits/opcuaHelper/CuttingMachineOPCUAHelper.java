@@ -67,6 +67,6 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
   @Override
   public String getEndpointUrl() {
-    return BitSLickrHelperConfig.cutting_machine_url;
+    return BitSLicRHelperConfig.cutting_machine_url;
   }
 }

@@ -62,8 +62,8 @@ public class ClientRunner {
             .findFirst(),
         configBuilder ->
             configBuilder
-                .setApplicationName(LocalizedText.english(BitSLickrHelperConfig.APPLICATION_NAME))
-                .setApplicationUri(BitSLickrHelperConfig.APPLICATION_URI)
+                .setApplicationName(LocalizedText.english(BitSLicRHelperConfig.APPLICATION_NAME))
+                .setApplicationUri(BitSLicRHelperConfig.APPLICATION_URI)
                 .setKeyPair(loader.getClientKeyPair())
                 .setCertificate(loader.getClientCertificate())
                 .setCertificateChain(loader.getClientCertificateChain())

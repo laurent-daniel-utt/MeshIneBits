@@ -218,4 +218,7 @@ public class AssemblingProcessView extends PApplet {
   public static void startProcessingModelView() {
     PApplet.main(AssemblingProcessView.class.getCanonicalName());
   }
+  public static void main(String[] args){
+    PApplet.main(AssemblingProcessView.class.getCanonicalName());
+  }
 }

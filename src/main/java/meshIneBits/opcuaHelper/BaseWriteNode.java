@@ -44,8 +44,8 @@ public class BaseWriteNode implements IWriteNode {
 
   private ICustomResponse buildStatusCode(
           Object nodeIdString,
-      String typeValue,
-      StatusCode statusCode) {
+          String typeValue,
+          StatusCode statusCode) {
 
     BaseCustomResponseBuilder builder = new BaseCustomResponseBuilder()
         .setMessage(statusCode.toString())
