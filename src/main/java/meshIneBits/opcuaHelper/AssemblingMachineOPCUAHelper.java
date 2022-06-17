@@ -63,6 +63,6 @@ public class AssemblingMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
   @Override
   public String getEndpointUrl() {
-    return BitSLickrHelperConfig.assembling_machine_url;
+    return BitSLicRHelperConfig.assembling_machine_url;
   }
 }

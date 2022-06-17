@@ -1,7 +1,8 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.concurrent.CompletableFuture;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+
+import java.util.concurrent.CompletableFuture;
 
 public interface IClientAction<T> {
 

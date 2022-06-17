@@ -31,6 +31,24 @@ public class GraphicElementLabel {
   public static final String Start_ASSEMBLING_MACHINE = "Start assembling machine";
   public static final String STOP_ASSEMBLING_MACHINE = "Stop assembling machine";
 
+
+
+  public static final String START_DEPOSITING_MACHINE = "Start depositing machine";
+  public static final String STOP_DEPOSITING_MACHINE = "Stop depositing machine";
+  public static final String PAUSE_DEPOSITING_MACHINE = "Pause depositing machine";
+  public static final String CONTINUE_DEPOSITING_MACHINE = "Continue depositing machine";
+  public static final String RESET_DEPOSITING_MACHINE = "RESET depositing machine";
+  public static final String CONTINUE_AFTER_E_STOP_DEPOSITING_MACHINE = "Continue after emergency stop depositing machine";
+  public static final String CONTINUE_AFTER_TURN_OFF_DEPOSITING_MACHINE = "Continue after turn OFF depositing machine";
+  public static final String CAMERA_LOGIN_DEPOSITING_MACHINE = "Camera login depositing machine";
+  public static final String CAMERA_CAPTURE_IMAGE_DEPOSITING_MACHINE = "Camera capture image depositing machine";
+  public static final String ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE = "Acknowledge error depositing machine";
+  public static final String MESSAGE_ERROR_DEPOSITING_MACHINE = "Message error depositing machine";
+  public static final String EXIT_WINDOW_DEPOSITING_MACHINE = "Exit UI depositing machine";
+
+
+
+
   //for CuttingProcessView
   public static final String BIT_ID_LABEL = "Bit ID";
   public static final String NUMBER_SUB_BIT_LABEL = "Number of subBits";

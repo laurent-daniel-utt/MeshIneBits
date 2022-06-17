@@ -1,9 +1,10 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import meshIneBits.opcuaHelper.BaseCustomResponse.BaseCustomResponseBuilder;
 import meshIneBits.util.MultiThreadServiceExecutor;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AssemblingMachineSimulator extends AssemblingMachineOPCUAHelper {
 
@@ -86,8 +87,8 @@ public class AssemblingMachineSimulator extends AssemblingMachineOPCUAHelper {
       try {
         while (isActivated.get()) {
           if (pausing.get()) {
-            synchronized (AssemblingMachineSimulator.AssemblingIncreaseTask.this) {
-              AssemblingMachineSimulator.AssemblingIncreaseTask.this.wait();
+            synchronized (AssemblingIncreaseTask.this) {
+              AssemblingIncreaseTask.this.wait();
             }
           }
           Thread.sleep(((int) (Math.random() * range) + min) * 1000);

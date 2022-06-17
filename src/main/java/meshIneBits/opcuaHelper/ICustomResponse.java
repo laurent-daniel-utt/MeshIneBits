@@ -5,5 +5,5 @@ public interface ICustomResponse {
   String getMessage();
   Object getValue();
   String getTypeValue();
-  String getNodeId();
+  Object getNodeId();
 }
