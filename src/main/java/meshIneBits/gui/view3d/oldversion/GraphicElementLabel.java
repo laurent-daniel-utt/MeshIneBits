@@ -44,7 +44,7 @@ public class GraphicElementLabel {
   public static final String CAMERA_CAPTURE_IMAGE_DEPOSITING_MACHINE = "Camera capture image depositing machine";
   public static final String ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE = "Acknowledge error depositing machine";
   public static final String MESSAGE_ERROR_DEPOSITING_MACHINE = "Message error depositing machine";
-  public static final String EXIT_WINDOW_DEPOSITING_MACHINE = "Exit UI depositing machine";
+  public static final String CURRENT_BIT_DATA_DEPOSITING_MACHINE = "data of current bit depositing machine";
 
 
 

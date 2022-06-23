@@ -4,12 +4,15 @@ import controlP5.Button;
 import controlP5.ControlEvent;
 import controlP5.Textlabel;
 import meshIneBits.gui.view3d.Processor.DeposeMachineProcessor;
+import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
 import processing.core.PShape;
 
+import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 
@@ -22,6 +25,7 @@ public class DeposeProcessView extends UIParameterWindow {
   private static final Color button_color = new Color(10, 115, 119);
   private static final Color button_color_on_mouse = new Color(14, 156, 161);
   private static final Color font_color = new Color(253, 186, 33);
+  private static final Color bit_data_color = new Color(0, 128, 0);
 
   private static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -41,8 +45,9 @@ public class DeposeProcessView extends UIParameterWindow {
   private Textlabel messageError;
   private PShape rect1Background;
   private PShape rect2Background;
+  private Textlabel[] currentBitData;
 
-  private Button exitButton;
+ // private Button exitButton;
 
   private DeposeMachineProcessor processor;
 
@@ -50,30 +55,26 @@ public class DeposeProcessView extends UIParameterWindow {
     PApplet.main(DeposeProcessView.class.getCanonicalName());
   }
 
-  private void initComponentPositions() {
-
-    startButton.setPosition(0.01f*width,0.35f*height);
-    pauseButton.setPosition(0.01f*width,0.42f*height);
-    continueButton.setPosition(0.01f*width,0.49f*height);
-    stopButton.setPosition(0.01f*width,0.56f*height);
-    resetButton.setPosition(0.01f*width,0.63f*height);
-    continueAfterEStopButton.setPosition(0.01f*width,0.7f*height);
-    continueAfterTurnOffButton.setPosition(0.01f*width,0.77f*height);
-    cameraLoginButton.setPosition(width-width/4,0.35f*height);
-    cameraCaptureImageButton.setPosition(width-width/4,0.42f*height);
-    messageError.setPosition(0.30f * width, 0.70f * height);
-    acknowledgeErrorButton.setPosition(0.30f * width, 0.75f * height);
-
-    exitButton.setPosition(width-0.18f*width,height-0.08f*height);
-
+  public static void startProcessingModelView() {
+    PApplet.main(DeposeProcessView.class.getCanonicalName());
   }
 
+
   public void settings() {
-    size(SCREEN_SIZE.width / 2, SCREEN_SIZE.height / 2, P3D);
+   // size(SCREEN_SIZE.width-SCREEN_SIZE.width/10 , SCREEN_SIZE.height-SCREEN_SIZE.height/10, P3D);
+  //  surface.setSize(100,100);
   }
 
   @Override
   public void setup() {
+    PSurfaceAWT.SmoothCanvas smoothCanvas = (PSurfaceAWT.SmoothCanvas)surface.getNative();
+    JFrame jframe = (JFrame) smoothCanvas.getFrame();
+    jframe.setSize(SCREEN_SIZE.width, SCREEN_SIZE.height - 100);
+ //   jframe.setExtendedState(jframe.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+    jframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//    jframe.setResizable(true);
+    jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     super.setup();
     processor = new DeposeMachineProcessor(this::updateInfos);
     setUIControllerListener(processor);
@@ -85,6 +86,8 @@ public class DeposeProcessView extends UIParameterWindow {
 
   @Override
   public void onClose() {
+  //  processor.subscriptionTask.stop();
+ //   exitActual();
   }
 
   @Override
@@ -97,7 +100,7 @@ public class DeposeProcessView extends UIParameterWindow {
     rect2Background.setFill(rect2_color.getRGB());
 
     icon = loadImage(cutting_machine_icon);
-    icon.resize(100, 100);
+    icon.resize(width / 8, width / 8);
 
     machinePhoto = loadImage(depositing_machine_photo);
     machinePhoto.resize(400, 300);
@@ -191,7 +194,26 @@ public class DeposeProcessView extends UIParameterWindow {
             .setText("Message error: ")
             .setColor(font_color.getRGB())
             .setFont(createFont("arial bold", sizeFont));
+    currentBitData = new Textlabel[11];
+    for (int i=0;i<11;i++){
+      currentBitData[i] =getControl()
+              .addTextlabel("CURRENT_BIT_DATA_DEPOSITING_MACHINE "+i)
+              .setText("current bit data")
+              .setColor(bit_data_color.getRGB())
+              .setFont(createFont("arial bold", sizeFont));
+    }
+    /*
+    String text = "<html>" +
+            "<font size='16' <br> or='orange'><strong>Hello World!</strong></font>" +
+            "</html>";
+    currentBitData =getControl()
+            .addTextlabel(CURRENT_BIT_DATA_DEPOSITING_MACHINE)
+            .setText(text)
+            .setColor(bit_data_color.getRGB())
+            .setFont(createFont("arial bold", sizeFont));*/
 
+
+/*
     exitButton = getControl()
             .addButton(EXIT_WINDOW_DEPOSITING_MACHINE)
             .setLabel("Exit")
@@ -200,8 +222,32 @@ public class DeposeProcessView extends UIParameterWindow {
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
             .setFont(text_font_default);
+*/
+        initComponentPositions();
+  }
 
-    initComponentPositions();
+  private void initComponentPositions() {
+
+    startButton.setPosition(0.01f*width,0.35f*height);
+    pauseButton.setPosition(0.01f*width,0.42f*height);
+    continueButton.setPosition(0.01f*width,0.49f*height);
+    stopButton.setPosition(0.01f*width,0.56f*height);
+    resetButton.setPosition(0.01f*width,0.63f*height);
+    continueAfterEStopButton.setPosition(0.01f*width,0.7f*height);
+    continueAfterTurnOffButton.setPosition(0.01f*width,0.77f*height);
+
+    cameraLoginButton.setPosition(width-width/4,0.7f*height);
+    cameraCaptureImageButton.setPosition(width-width/4,0.75f*height);
+
+    messageError.setPosition(0.30f * width, 0.70f * height);
+    acknowledgeErrorButton.setPosition(0.30f * width, 0.75f * height);
+
+
+    for (int i=0;i<11;i++){
+      currentBitData[i].setPosition(width-width/4,0.1f*height+i*0.025f*height);
+    }
+
+    //   exitButton.setPosition(width-0.18f*width,height-0.08f*height);
   }
   @Override
   public void controlEvent(ControlEvent theEvent) {
@@ -221,15 +267,12 @@ public class DeposeProcessView extends UIParameterWindow {
       case ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE:
         getListener().onActionListener(this, theEvent.getName(), theEvent.getValue());
         break;
-      case EXIT_WINDOW_DEPOSITING_MACHINE:
-        processor.subscriptionTask.stop();
-        this.closeWindow();
-        break;
     }
   }
 
   @Override
   protected void updateButton() {
+    initComponentPositions();
     shape(rect1Background);
     shape(rect2Background);
     image(icon, 50, 50);
@@ -239,8 +282,33 @@ public class DeposeProcessView extends UIParameterWindow {
   public void setMessageError(String messageError){
     this.messageError.setText("Message error: "+messageError);
   }
-
-  private void updateInfos(String messageError) {
-    setMessageError(messageError);
+  public void setCurrentBitData(String[] data){
+    currentBitData[1].setText("id : "+data[0]);
+    currentBitData[2].setText("id in batch : "+data[1]);
+    currentBitData[3].setText("X : "+data[2]);
+    currentBitData[4].setText("Z : "+data[3]);
+    currentBitData[5].setText("Y : "+data[4]);
+    currentBitData[6].setText("SubX : "+data[5]);
+    currentBitData[7].setText("Rotation : "+data[6]);
+    currentBitData[8].setText("Refline_vu : "+data[7]);
+    currentBitData[9].setText("Refline_rot : "+data[8]);
+    currentBitData[10].setText("Theta : "+data[9]);
   }
+  public void setContinueButton(boolean b){// after pause, continue will lock during deceleration
+    if(b) continueButton.lock();
+    else continueButton.unlock();
+  }
+
+  private void updateInfos(String messageError,
+                           String[] currentBitData,
+                           boolean continueButtonLock)
+  {
+    setMessageError(messageError);
+    setCurrentBitData(currentBitData);
+    setContinueButton(continueButtonLock);
+  }
+
+
 }
+
+

@@ -5,14 +5,16 @@ import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
 import meshIneBits.opcuaHelper.DeposeMachineCommander;
+import meshIneBits.util.MultiThreadServiceExecutor;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 public class DeposeMachineProcessor implements UIPWListener {
 
   public interface DepositingProcessCallback {
-      void callback( String messageError);
+      void callback( String messageError, String[] currentBitData,boolean continueButtonLock);
   }
 
   private final DeposeMachineCommander commander;
@@ -32,10 +34,10 @@ public class DeposeMachineProcessor implements UIPWListener {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
     commander = new DeposeMachineCommander(mesh);
     this.callback = callback;
-    subscriptionTask=new SubscriptionTask();
-    t=new Thread(subscriptionTask);
-    t.start();
- //   MultiThreadServiceExecutor.instance.execute(new DeposeMachineProcessor.SubscriptionTask());
+ //   subscriptionTask=new SubscriptionTask();
+ //   t=new Thread(subscriptionTask);
+ //   t.start();
+    MultiThreadServiceExecutor.instance.execute(new DeposeMachineProcessor.SubscriptionTask());
  //   MultiThreadServiceExecutor.instance.execute(subscriptionTask);
   }
 
@@ -147,21 +149,52 @@ public class DeposeMachineProcessor implements UIPWListener {
   }
 
   public class SubscriptionTask implements Runnable {
-    private boolean exitThread=false;// to exit th thread when we close the window interface
+    private boolean exitThread=false;
+//    private String messageError;
+    private String[] currentBitData;
     @Override
     public void run() {
       try {
         while(!exitThread){
-          String messageError=commander.getMessageError();
-          callback.callback(messageError);
+//          messageError=commander.getMessageError();
+          callback.callback(commander.getMessageError(),getCurrentBitData(), commander.getLockContinueButton());
           Thread.sleep(100);
         }
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
+    private String[] getCurrentBitData(){
+      currentBitData=new String[10];
+      try {
+        currentBitData[0]= String.valueOf(commander.getCurrentBitId());
+        currentBitData[1]= String.valueOf(commander.getCurrentBitIdInBatch());
+        currentBitData[2]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitX()));
+        currentBitData[3]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitZ()));
+        currentBitData[4]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitY()));
+        currentBitData[5]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitSubX()));
+        currentBitData[6]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitRotation()));
+        currentBitData[7]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitReflineVu()));
+        currentBitData[8]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitReflineRot()));
+        currentBitData[9]= String.valueOf(new DecimalFormat("0.00").format(commander.getCurrentBitTheta()));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return currentBitData;
+    }
+
     public void stop(){
       exitThread=true;
     }
   }
+
+  public void powershell(String msg){
+    String command = "powershell.exe ssh pi@voiceslicr-nog ./speak2.sh "+msg;
+    try {
+      Runtime.getRuntime().exec(command);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 }

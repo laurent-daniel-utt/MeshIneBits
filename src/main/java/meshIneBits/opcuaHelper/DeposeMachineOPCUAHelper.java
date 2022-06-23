@@ -9,17 +9,6 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
     private static final CustomLogger logger = new CustomLogger(DeposeMachineOPCUAHelper.class);
 
-   /*
-    public final String deposeStart = "|var|CPX-E-CEC-M1-PN.Application.GVL.START";
-    public final String deposeGearMethode = "|var|CPX-E-CEC-M1-PN.Application.GVL.gearMethod.";
-    public final String deposeVitesse = "|var|CPX-E-CEC-M1-PN.Application.GVL.vitesse";
-    public final String deposePosition = "|var|CPX-E-CEC-M1-PN.Application.GVL.pos";
-    public final String deposeMoveX1 = "|var|CPX-E-CEC-M1-PN.Application.GVL.x1";
-    public final String deposeMoveX2 = "|var|CPX-E-CEC-M1-PN.Application.GVL.x2";
-    public final String deposeSynchro = "|var|CPX-E-CEC-M1-PN.Application.GVL.synchrox1x2";
-    public final String deposeMove = "|var|CPX-E-CEC-M1-PN.Application.GVL.movex1x3";
-*/
-
     public final String start_depose = "|var|CPX-E-CEC-M1-PN.Application.visu.start_button";
     public final String stop_depose = "|var|CPX-E-CEC-M1-PN.Application.visu.stop_button";
     public final String reset_depose = "|var|CPX-E-CEC-M1-PN.Application.visu.reset_button";
@@ -31,6 +20,23 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
     public final String camera_capture_image = "|var|CPX-E-CEC-M1-PN.Application.visu.camera_capture_image_button";
     public final String acknowledge_error = "|var|CPX-E-CEC-M1-PN.Application.visu.acknowledge_error_button";
     public final String message_error = "|var|CPX-E-CEC-M1-PN.Application.GDA.message_error";
+    public final String lock_continue_button="|var|CPX-E-CEC-M1-PN.Application.visu.lock_continue_button";
+    public final String x_current_position = "|var|CPX-E-CEC-M1-PN.Application.Synchronization_X.T1_Position";
+    public final String z_current_position = "|var|CPX-E-CEC-M1-PN.Application.Synchronization_Z.T3_Position";
+    public final String y_current_position = "|var|CPX-E-CEC-M1-PN.Application.Control_Y.T5_Position";
+    public final String subx_current_position = "|var|CPX-E-CEC-M1-PN.Application.Control_SubX.T6_Position";
+    public final String subz_current_position = "|var|CPX-E-CEC-M1-PN.Application.Control_SubZ.T7_Position";
+    public final String theta_current_position = "|var|CPX-E-CEC-M1-PN.Application.Control_Theta.T8_Position";
+    public final String current_bit_id = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.id";
+    public final String current_bit_id_in_batch = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.id_in_batch";
+    public final String current_bit_x = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.x";
+    public final String current_bit_z = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.z";
+    public final String current_bit_y = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.y";
+    public final String current_bit_subx = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.subx";
+    public final String current_bit_rotation = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.rotation";
+    public final String current_bit_refline_vu = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.refline_vu";
+    public final String current_bit_refline_rot = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.refline_rot";
+    public final String current_bit_theta = "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.theta";
 
 
     @Override
@@ -120,6 +126,125 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
             throw new RuntimeException(e.getMessage());
         }
     }
+    public ICustomResponse getLockContinueButton(){
+        try {
+            return readVariableNode(lock_continue_button);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getXCurrentPosition(){
+        try {
+            return readVariableNode(x_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getZCurrentPosition(){
+        try {
+            return readVariableNode(z_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getYCurrentPosition(){
+        try {
+            return readVariableNode(y_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getSubXCurrentPosition(){
+        try {
+            return readVariableNode(subx_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getSubZCurrentPosition(){
+        try {
+            return readVariableNode(subz_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getThetaCurrentPosition(){
+        try {
+            return readVariableNode(theta_current_position);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitId(){
+        try {
+            return readVariableNode(current_bit_id);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitIdInBatch(){
+        try {
+            return readVariableNode(current_bit_id_in_batch);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitX(){
+        try {
+            return readVariableNode(current_bit_x);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitZ(){
+        try {
+            return readVariableNode(current_bit_z);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitY(){
+        try {
+            return readVariableNode(current_bit_y);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitSubX(){
+        try {
+            return readVariableNode(current_bit_subx);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitRotation(){
+        try {
+            return readVariableNode(current_bit_rotation);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitReflineVu(){
+        try {
+            return readVariableNode(current_bit_refline_vu);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitReflineRot(){
+        try {
+            return readVariableNode(current_bit_refline_rot);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    public ICustomResponse getCurrentBitTheta(){
+        try {
+            return readVariableNode(current_bit_theta);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 
 
@@ -127,14 +252,6 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
 
 /*
-    public ICustomResponse gearMethode(boolean b) {
-        try {
-            return writeVariableNode(deposeGearMethode, "Boolean", b);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
     public ICustomResponse setPosition(double p) {
         try {
             return writeVariableNode(deposePosition, "short", p);
@@ -142,51 +259,9 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
             throw new RuntimeException(e.getMessage());
         }
     }
-    public ICustomResponse getPosition(){
-        try {
-            return readVariableNode(deposePosition);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
     public ICustomResponse setVitesse(short v) {
         try {
             return writeVariableNode(deposeVitesse, "short", v);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-    public ICustomResponse getVitesse(){
-        try {
-            return readVariableNode(deposeVitesse);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-    public ICustomResponse moveX1() {
-        try {
-            return writeVariableNode(deposeMoveX1, "Boolean", true);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-    public ICustomResponse moveX2() {
-        try {
-            return writeVariableNode(deposeMoveX2, "Boolean", true);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-    public ICustomResponse deposeMove() {
-        try {
-            return writeVariableNode(deposeMove, "Boolean", true);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-    public ICustomResponse deposeSynchro() {
-        try {
-            return writeVariableNode(deposeSynchro, "Boolean", true);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -200,14 +275,6 @@ public class DeposeMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
     @Override
     public ICustomResponse pauseMachine() {
-        return null;
-    }
-
-    public ICustomResponse getCuttingBitId(){
-        return null;
-    }
-
-    public ICustomResponse getCuttingPathId(){
         return null;
     }
 

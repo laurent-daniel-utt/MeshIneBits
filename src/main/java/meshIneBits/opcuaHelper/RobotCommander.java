@@ -3,6 +3,7 @@ package meshIneBits.opcuaHelper;
 
 import meshIneBits.util.CustomLogger;
 
+import java.io.IOException;
 import java.util.*;
 
 public class RobotCommander {
@@ -68,10 +69,12 @@ public class RobotCommander {
         return res;
     }
 
+
+
     public static void main(String[] args){
         RobotCommander robotManip=new RobotCommander(ROBOT.MANIP);
         RobotCommander robotDecoup=new RobotCommander(ROBOT.DECOUPE);
-
+/*
 
         try {
             Map<Integer,Short> map;
@@ -114,7 +117,7 @@ public class RobotCommander {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
 

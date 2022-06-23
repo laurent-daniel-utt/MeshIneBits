@@ -14,24 +14,6 @@ public class MeshIneBitNodeId {
 
 
 // nodes machine de depose
-/*
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeStart = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.START");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeGearMethode = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.gearMethod");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposePosition = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.pos");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeVitesse = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.vitesse");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeMoveX1 = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.x1");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeMoveX2 = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.x2");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeSynchro = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.synchrox1x2");
-  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
-  public static final NodeId deposeMove = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GVL.movex1x3");
- */
   @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
   public static final NodeId start_depose = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.visu.start_button");
   @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
@@ -54,6 +36,40 @@ public class MeshIneBitNodeId {
   public static final NodeId acknowledge_error = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.visu.acknowledge_error_button");
   @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
   public static final NodeId message_error = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.message_error");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId lock_continue_button = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.visu.lock_continue_button");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId x_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Synchronization_X.T1_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId z_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Synchronization_Z.T3_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId y_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Control_Y.T5_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId subx_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Control_SubX.T6_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId subz_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Control_SubZ.T7_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId theta_current_position = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.Control_Theta.T8_Position");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_id = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.id");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_id_in_batch = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.id_in_batch");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_x = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.x");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_z = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.z");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_y = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.y");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_subx = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.subx");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_rotation = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.rotation");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_refline_vu = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.refline_vu");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_refline_rot = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.refline_rot");
+  @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
+  public static final NodeId current_bit_theta = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.GDA.current_bit.theta");
 
 
 // nodes robot manip

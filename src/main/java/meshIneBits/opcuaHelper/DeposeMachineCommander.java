@@ -1,6 +1,7 @@
 
 package meshIneBits.opcuaHelper;
 
+
 import meshIneBits.Mesh;
 import meshIneBits.util.CustomLogger;
 
@@ -117,18 +118,289 @@ public class DeposeMachineCommander {
                     "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
                             + res.getStatusCode());
         } else {
-     /*          logger.logINFOMessage("Starting...");
-            if (res.getValue() instanceof Double) {
-                //  System.out.println(res.getValue());
-                return (double) res.getValue();
+            if (res.getValue() instanceof String) {
             } else {
                 throw new Exception(
-                        "Value returned must be boolean type, Type of obj actual: " + res.getTypeValue());
+                        "Value returned must be String type, Type of obj actual: " + res.getTypeValue());
             }
-      */
             return res.getValue().toString();
         }
     }
+    public boolean getLockContinueButton() throws Exception {
+        ICustomResponse res = helper.getLockContinueButton();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Boolean) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Boolean type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (boolean)res.getValue();
+        }
+    }
+    public double getXCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getXCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getZCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getZCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getYCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getYCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getSubXCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getSubXCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getSubZCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getSubZCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getThetaCurrentPosition() throws Exception {
+        ICustomResponse res = helper.getThetaCurrentPosition();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public long getCurrentBitId() throws Exception {
+        ICustomResponse res = helper.getCurrentBitId();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Long) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Long type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (long)res.getValue();
+        }
+    }
+    public long getCurrentBitIdInBatch() throws Exception {
+        ICustomResponse res = helper.getCurrentBitIdInBatch();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Long) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Integer type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (long)res.getValue();
+        }
+    }
+    public double getCurrentBitX() throws Exception {
+        ICustomResponse res = helper.getCurrentBitX();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitZ() throws Exception {
+        ICustomResponse res = helper.getCurrentBitZ();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitY() throws Exception {
+        ICustomResponse res = helper.getCurrentBitY();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitSubX() throws Exception {
+        ICustomResponse res = helper.getCurrentBitSubX();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitRotation() throws Exception {
+        ICustomResponse res = helper.getCurrentBitRotation();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitReflineVu() throws Exception {
+        ICustomResponse res = helper.getCurrentBitReflineVu();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitReflineRot() throws Exception {
+        ICustomResponse res = helper.getCurrentBitReflineRot();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+    public double getCurrentBitTheta() throws Exception {
+        ICustomResponse res = helper.getCurrentBitTheta();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception(
+                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
+                            + res.getStatusCode());
+        } else {
+            if (res.getValue() instanceof Double) {
+            } else {
+                throw new Exception(
+                        "Value returned must be Double type, Type of obj actual: " + res.getTypeValue());
+            }
+            return (double)res.getValue();
+        }
+    }
+
+
+
 
 
 
@@ -142,25 +414,6 @@ public class DeposeMachineCommander {
             logger.logINFOMessage("Starting...");
         }
     }
-
-    public double getPosition() throws Exception {
-        ICustomResponse res = helper.getPosition();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception(
-                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
-                            + res.getStatusCode());
-        } else {
-            logger.logINFOMessage("Starting...");
-            if (res.getValue() instanceof Double) {
-              //  System.out.println(res.getValue());
-                return (double) res.getValue();
-            } else {
-                throw new Exception(
-                        "Value returned must be boolean type, Type of obj actual: " + res.getTypeValue());
-            }
-        }
-    }
     public void setVitesse(short v) throws Exception {
         ICustomResponse res = helper.setVitesse(v);
         if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
@@ -170,62 +423,6 @@ public class DeposeMachineCommander {
             logger.logINFOMessage("Starting...");
         }
     }
-
-    public short getVitesse() throws Exception {
-        ICustomResponse res = helper.getVitesse();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception(
-                    "Error of sending request to server :" + helper.getEndpointUrl() + ", status code: "
-                            + res.getStatusCode());
-        } else {
-            logger.logINFOMessage("Starting...");
-            if (res.getValue() instanceof Short) {
-                System.out.println(res.getValue());
-                return (short) res.getValue();
-            } else {
-                throw new Exception(
-                        "Value returned must be boolean type, Type of obj actual: " + res.getTypeValue());
-            }
-        }
-    }
-    public void moveX1() throws Exception {
-        ICustomResponse res = helper.moveX1();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Starting...");
-        }
-    }
-    public void moveX2() throws Exception {
-        ICustomResponse res = helper.moveX2();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Starting...");
-        }
-    }
-    public void deposeMove() throws Exception {
-        ICustomResponse res = helper.deposeMove();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Starting...");
-        }
-    }
-    public void deposeSynchro() throws Exception {
-        ICustomResponse res = helper.deposeSynchro();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Starting...");
-        }
-    }
-
 */
 
 
@@ -234,7 +431,8 @@ public class DeposeMachineCommander {
         DeposeMachineCommander test=new DeposeMachineCommander();
         int i=0;
         try {
-            test.resetDepose();
+            System.out.println(test.getCurrentBitId());
+            System.out.println(test.getCurrentBitIdInBatch());
 /*
             while(true){
                 i++;
