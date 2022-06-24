@@ -25,7 +25,7 @@ public class DeposeProcessView extends UIParameterWindow {
   private static final Color button_color = new Color(10, 115, 119);
   private static final Color button_color_on_mouse = new Color(14, 156, 161);
   private static final Color font_color = new Color(253, 186, 33);
-  private static final Color bit_data_color = new Color(0, 128, 0);
+  private static final Color bit_data_color = new Color(254, 254, 254);
 
   private static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -61,7 +61,7 @@ public class DeposeProcessView extends UIParameterWindow {
 
 
   public void settings() {
-   // size(SCREEN_SIZE.width-SCREEN_SIZE.width/10 , SCREEN_SIZE.height-SCREEN_SIZE.height/10, P3D);
+   // size(SCREEN_SIZE.width/2, SCREEN_SIZE.height, P3D);
   //  surface.setSize(100,100);
   }
 
@@ -69,9 +69,12 @@ public class DeposeProcessView extends UIParameterWindow {
   public void setup() {
     PSurfaceAWT.SmoothCanvas smoothCanvas = (PSurfaceAWT.SmoothCanvas)surface.getNative();
     JFrame jframe = (JFrame) smoothCanvas.getFrame();
-    jframe.setSize(SCREEN_SIZE.width, SCREEN_SIZE.height - 100);
+    jframe.setSize(SCREEN_SIZE.width/2, SCREEN_SIZE.height);
+//    jframe.setSize(SCREEN_SIZE.width, SCREEN_SIZE.height);
+    jframe.setLocation(0,0);
+ //   jframe.setSize(SCREEN_SIZE.width/2, SCREEN_SIZE.height);
  //   jframe.setExtendedState(jframe.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-    jframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+ //   jframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
 //    jframe.setResizable(true);
     jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -93,17 +96,17 @@ public class DeposeProcessView extends UIParameterWindow {
   @Override
   protected void generateButton() {
 
-    rect1Background = createShape(RECT, 0, 0, (float) width / 4, height);
+    rect1Background = createShape(RECT, 0, 0, (float) 1.15*width / 4, height);
     rect1Background.setFill(rect1_color.getRGB());
 
-    rect2Background = createShape(RECT, (float) width / 4, 0, width - (float) width / 4, height);
+    rect2Background = createShape(RECT, (float) 1.15*width / 4, 0, width - (float) 1.15*width / 4, height);
     rect2Background.setFill(rect2_color.getRGB());
 
     icon = loadImage(cutting_machine_icon);
-    icon.resize(width / 8, width / 8);
+    icon.resize(width / 7, width / 7);
 
     machinePhoto = loadImage(depositing_machine_photo);
-    machinePhoto.resize(400, 300);
+    machinePhoto.resize(436, 329);
 
     int component_label_color = 255;
     int sizeFont = 15;
@@ -112,7 +115,7 @@ public class DeposeProcessView extends UIParameterWindow {
     startButton = getControl().
         addButton(START_DEPOSITING_MACHINE)
         .setLabel("Start")
-        .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+        .setSize(width / 4 , 50)
         .setColorLabel(component_label_color)
         .setColorBackground(button_color.getRGB())
         .setColorForeground(button_color_on_mouse.getRGB())
@@ -120,7 +123,7 @@ public class DeposeProcessView extends UIParameterWindow {
     stopButton = getControl().
         addButton(STOP_DEPOSITING_MACHINE)
         .setLabel("Stop")
-        .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+          .setSize(width / 4 , 50)
         .setColorLabel(component_label_color)
         .setColorBackground(button_color.getRGB())
         .setColorForeground(button_color_on_mouse.getRGB())
@@ -128,7 +131,7 @@ public class DeposeProcessView extends UIParameterWindow {
     pauseButton = getControl().
             addButton(PAUSE_DEPOSITING_MACHINE)
             .setLabel("Pause")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -136,7 +139,7 @@ public class DeposeProcessView extends UIParameterWindow {
     continueButton = getControl().
             addButton(CONTINUE_DEPOSITING_MACHINE)
             .setLabel("Continue")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -144,7 +147,7 @@ public class DeposeProcessView extends UIParameterWindow {
     resetButton = getControl().
             addButton(RESET_DEPOSITING_MACHINE)
             .setLabel("Reset")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -152,7 +155,7 @@ public class DeposeProcessView extends UIParameterWindow {
     continueAfterEStopButton = getControl().
             addButton(CONTINUE_AFTER_E_STOP_DEPOSITING_MACHINE)
             .setLabel("Continue After E Stop")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -160,7 +163,7 @@ public class DeposeProcessView extends UIParameterWindow {
     continueAfterTurnOffButton = getControl().
             addButton(CONTINUE_AFTER_TURN_OFF_DEPOSITING_MACHINE)
             .setLabel("Continue After turn off")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -168,7 +171,7 @@ public class DeposeProcessView extends UIParameterWindow {
     cameraLoginButton = getControl().
             addButton(CAMERA_LOGIN_DEPOSITING_MACHINE)
             .setLabel("Camera login")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -176,7 +179,7 @@ public class DeposeProcessView extends UIParameterWindow {
     cameraCaptureImageButton = getControl().
             addButton(CAMERA_CAPTURE_IMAGE_DEPOSITING_MACHINE)
             .setLabel("Camera Capture image")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -184,7 +187,7 @@ public class DeposeProcessView extends UIParameterWindow {
     acknowledgeErrorButton = getControl().
             addButton(ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE)
             .setLabel("Acknowledge error")
-            .setSize((int) (width / 4 - 2 * 0.01f * width), 30)
+            .setSize(width / 4 , 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -201,50 +204,35 @@ public class DeposeProcessView extends UIParameterWindow {
               .setText("current bit data")
               .setColor(bit_data_color.getRGB())
               .setFont(createFont("arial bold", sizeFont));
+
     }
-    /*
-    String text = "<html>" +
-            "<font size='16' <br> or='orange'><strong>Hello World!</strong></font>" +
-            "</html>";
-    currentBitData =getControl()
-            .addTextlabel(CURRENT_BIT_DATA_DEPOSITING_MACHINE)
-            .setText(text)
-            .setColor(bit_data_color.getRGB())
-            .setFont(createFont("arial bold", sizeFont));*/
-
-
-/*
-    exitButton = getControl()
-            .addButton(EXIT_WINDOW_DEPOSITING_MACHINE)
-            .setLabel("Exit")
-            .setSize((int) (width / 4 - 8 * 0.01f * width), 30)
-            .setColorLabel(component_label_color)
-            .setColorBackground(button_color.getRGB())
-            .setColorForeground(button_color_on_mouse.getRGB())
-            .setFont(text_font_default);
-*/
         initComponentPositions();
+        showWebCamera();
+  }
+
+  public void showWebCamera(){
+      SwingUtilities.invokeLater(new WebcamViewer(SCREEN_SIZE.width/2, SCREEN_SIZE.height));
   }
 
   private void initComponentPositions() {
 
-    startButton.setPosition(0.01f*width,0.35f*height);
-    pauseButton.setPosition(0.01f*width,0.42f*height);
-    continueButton.setPosition(0.01f*width,0.49f*height);
-    stopButton.setPosition(0.01f*width,0.56f*height);
-    resetButton.setPosition(0.01f*width,0.63f*height);
-    continueAfterEStopButton.setPosition(0.01f*width,0.7f*height);
-    continueAfterTurnOffButton.setPosition(0.01f*width,0.77f*height);
+    startButton.setPosition(0.0175f*width,0.3f*height);
+    pauseButton.setPosition(0.0175f*width,0.37f*height);
+    continueButton.setPosition(0.0175f*width,0.44f*height);
+    stopButton.setPosition(0.0175f*width,0.51f*height);
+    resetButton.setPosition(0.0175f*width,0.58f*height);
+    continueAfterEStopButton.setPosition(0.0175f*width,0.65f*height);
+    continueAfterTurnOffButton.setPosition(0.0175f*width,0.72f*height);
 
-    cameraLoginButton.setPosition(width-width/4,0.7f*height);
-    cameraCaptureImageButton.setPosition(width-width/4,0.75f*height);
+    cameraLoginButton.setPosition(0.31f * width,0.55f*height);
+    cameraCaptureImageButton.setPosition(0.31f * width,0.62f*height);
 
-    messageError.setPosition(0.30f * width, 0.70f * height);
-    acknowledgeErrorButton.setPosition(0.30f * width, 0.75f * height);
+    messageError.setPosition(0.31f * width, 0.38f * height);
+    acknowledgeErrorButton.setPosition(0.31f * width, 0.42f * height);
 
 
     for (int i=0;i<11;i++){
-      currentBitData[i].setPosition(width-width/4,0.1f*height+i*0.025f*height);
+      currentBitData[i].setPosition(width-width/5,0.06f*height+i*0.025f*height);
     }
 
     //   exitButton.setPosition(width-0.18f*width,height-0.08f*height);
@@ -275,8 +263,8 @@ public class DeposeProcessView extends UIParameterWindow {
     initComponentPositions();
     shape(rect1Background);
     shape(rect2Background);
-    image(icon, 50, 50);
-    image(machinePhoto, (float) width / 4 + 50, 50);
+    image(icon, 50, 75);
+    image(machinePhoto, (float) width / 4 + 60, 40);
   }
 
   public void setMessageError(String messageError){

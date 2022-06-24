@@ -43,6 +43,7 @@ public class DeposeMachineProcessor implements UIPWListener {
 
   private void startDepose() {
     try {
+      this.powershell("ssh pi@voiceslicr-nog ./speak2.sh please clear the machine area ; ssh pi@voiceslicr-nog omxplayer --vol -2000 -o local /home/pi/music/rocknroll.mp3");
       commander.startDepose();
     } catch (Exception e) {
       e.printStackTrace();
@@ -189,7 +190,8 @@ public class DeposeMachineProcessor implements UIPWListener {
   }
 
   public void powershell(String msg){
-    String command = "powershell.exe ssh pi@voiceslicr-nog ./speak2.sh "+msg;
+ //   String command = "powershell.exe ssh pi@voiceslicr-nog "+msg;
+    String command = "powershell.exe "+msg;
     try {
       Runtime.getRuntime().exec(command);
     } catch (IOException e) {
