@@ -26,6 +26,8 @@ sourceCompatibility = 1.8
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
+    implementation "com.github.sarxos:webcam-capture:0.3.12"
+
     implementation "org.eclipse.milo:sdk-client:0.6.3"
 
     implementation 'org.jetbrains:annotations:19.0.0'
