@@ -5,17 +5,17 @@ package meshIneBits.opcuaHelper;
 import meshIneBits.Mesh;
 import meshIneBits.util.CustomLogger;
 
-public class DeposeMachineCommander {
+public class DepositingMachineCommander {
 
     private final CustomLogger logger = new CustomLogger(this.getClass());
     private final Mesh mesh;
-    private DeposeMachineOPCUAHelper helper =new DeposeMachineOPCUAHelper();
+    private DepositingMachineOPCUAHelper helper =new DepositingMachineOPCUAHelper();
 
-    public DeposeMachineCommander(Mesh mesh) {
+    public DepositingMachineCommander(Mesh mesh) {
         this.mesh = mesh;
     }
 
-    public DeposeMachineCommander() {
+    public DepositingMachineCommander() {
 
         mesh = null;
     }
@@ -81,24 +81,6 @@ public class DeposeMachineCommander {
             throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
         } else {
             logger.logINFOMessage("Continuing after emergency stop...");
-        }
-    }
-    public void cameraLogin() throws Exception {
-        ICustomResponse res = helper.cameraLogin();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Camera logging...");
-        }
-    }
-    public void cameraCaptureImage() throws Exception {
-        ICustomResponse res = helper.cameraCaptureImage();
-        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
-            logger.logERRORMessage(res.getMessage());
-            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
-        } else {
-            logger.logINFOMessage("Capturing image...");
         }
     }
     public void acknowledgeError() throws Exception {
@@ -398,11 +380,114 @@ public class DeposeMachineCommander {
             return (double)res.getValue();
         }
     }
-
-
-
-
-
+    public void cameraLogin() throws Exception {
+        ICustomResponse res = helper.cameraLogin();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Camera logging...");
+        }
+    }
+    public void cameraCaptureImage() throws Exception {
+        ICustomResponse res = helper.cameraCaptureImage();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
+    public void resetPowerAxes() throws Exception {
+        ICustomResponse res = helper.resetPowerAxes();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("reset power axes...");
+        }
+    }
+    public void takeBatch() throws Exception {
+        ICustomResponse res = helper.takeBatch();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
+    public void deposeBatch() throws Exception {
+        ICustomResponse res = helper.deposeBatch();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Camera logging...");
+        }
+    }
+    public void readXMLFile() throws Exception {
+        ICustomResponse res = helper.readXMLFile();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
+    public void renameXMLFile() throws Exception {
+        ICustomResponse res = helper.renameXMLFile();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Camera logging...");
+        }
+    }
+    public void synchroAxesX() throws Exception {
+        ICustomResponse res = helper.synchroAxesX();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
+    public void synchroAxesZ() throws Exception {
+        ICustomResponse res = helper.synchroAxesZ();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Camera logging...");
+        }
+    }
+    public void homingAxisSubX() throws Exception {
+        ICustomResponse res = helper.homingAxisSubX();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
+    public void homingAxisSubZ() throws Exception {
+        ICustomResponse res = helper.homingAxisSubZ();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Camera logging...");
+        }
+    }
+    public void homingAxisTheta() throws Exception {
+        ICustomResponse res = helper.homingAxisTheta();
+        if (res.getStatusCode() != CustomStatusCode.STATUS_GOOD) {
+            logger.logERRORMessage(res.getMessage());
+            throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
+        } else {
+            logger.logINFOMessage("Capturing image...");
+        }
+    }
 
     /*
     public void setPosition(double p) throws Exception {
@@ -428,26 +513,13 @@ public class DeposeMachineCommander {
 
 
     public static void main(String[] args){
-        DeposeMachineCommander test=new DeposeMachineCommander();
+        DepositingMachineCommander test=new DepositingMachineCommander();
         int i=0;
         try {
-            System.out.println(test.getCurrentBitId());
-            System.out.println(test.getCurrentBitIdInBatch());
-/*
-            while(true){
-                i++;
-                System.out.println(test.getPosition());
-                test.setPosition(i);
-            System.out.println(test.getPosition());
-//            i++;
-//            test.setPosition(i);
-//            System.out.println(test.getPosition());
-            }
-//s
-//            test.moveX1();
-//            test.deposeMove();
+            test.resetPowerAxes();
+        //    System.out.println(test.getCurrentBitId());
+         //   System.out.println(test.getCurrentBitIdInBatch());
 
- */
         } catch (Exception e) {
             e.printStackTrace();
         }

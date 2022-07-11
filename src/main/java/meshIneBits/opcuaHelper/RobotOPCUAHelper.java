@@ -18,20 +18,10 @@ public class RobotOPCUAHelper extends BitSLickrMachineAdapter {
 
     public RobotOPCUAHelper(ROBOT robot){
         super(robot);
-
     }
 
     public RobotOPCUAHelper(){
         super();
-    }
-    @Override
-    public ICustomResponse stopMachine(){
-        return null;
-    }
-
-    @Override
-    public ICustomResponse startMachine() {
-        return null;
     }
 
     public ICustomResponse getHoldingRegisters(){
@@ -48,18 +38,6 @@ public class RobotOPCUAHelper extends BitSLickrMachineAdapter {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-    @Override
-    public ICustomResponse getMachineState() {
-        return null;
-    }
-
-    @Override
-    public ICustomResponse pauseMachine() {
-        return null;
-    }
-
-
 
     @Override
     public String getEndpointUrl() {

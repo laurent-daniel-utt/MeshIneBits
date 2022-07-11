@@ -54,23 +54,16 @@ public class WebcamViewer extends JFrame implements Runnable, WebcamListener, Wi
 		
 		addWindowListener(this);
 
-		picker = new WebcamPicker();
-		picker.addItemListener(this);
+	//	picker = new WebcamPicker();
+	//	picker.addItemListener(this);
 
-		//webcam = picker.getSelectedWebcam();
-		//webcam=picker.getSelectedWebcam().getWebcamByName("LRCP  USB2.0 1");
-//********************************************************************************************************
-//		System.out.println(picker.getSelectedWebcam().getName());
-//		System.out.println(picker.getSelectedWebcam().getWebcams());
-//		webcam=picker.getSelectedWebcam().getWebcamByName("LRCP  USB2.0 1");
-//**********************************************************************************************************
-		webcams = Webcam.getWebcams();
+		webcams = Webcam.getWebcams();// get all detected webcams
 		if(webcams.isEmpty()){
 			System.out.println("No webcams found...");
 			System.exit(1);
 		}
 		if(webcams.size()==1) webcam=webcams.get(0);
-		else webcam=webcams.get(1);
+		else webcam=webcams.get(1);// if more than one webcam is detected, we choose the second one ---- normally it is our case
 
 		if (webcam == null) {
 			System.out.println("No webcams found...");
@@ -82,7 +75,7 @@ public class WebcamViewer extends JFrame implements Runnable, WebcamListener, Wi
 
 		panel = new WebcamPanel(webcam, false);
 		panel.setFPSDisplayed(true);
-		
+
 	//	setSize(WebcamResolution.VGA.getSize().width*2,WebcamResolution.VGA.getSize().height*2);;
 	//	add(picker, BorderLayout.NORTH);
 		add(panel, BorderLayout.CENTER);

@@ -44,7 +44,16 @@ public class GraphicElementLabel {
   public static final String CAMERA_CAPTURE_IMAGE_DEPOSITING_MACHINE = "Camera capture image depositing machine";
   public static final String ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE = "Acknowledge error depositing machine";
   public static final String MESSAGE_ERROR_DEPOSITING_MACHINE = "Message error depositing machine";
-  public static final String CURRENT_BIT_DATA_DEPOSITING_MACHINE = "data of current bit depositing machine";
+  public static final String RESET_POWER_AXES_DEPOSITING_MACHINE = "reset power axes depositing machine";
+  public static final String TAKE_BATCH_DEPOSITING_MACHINE = "take batch depositing machine";
+  public static final String DEPOSE_BATCH_DEPOSITING_MACHINE = "depose batch depositing machine";
+  public static final String READ_XML_FILE_DEPOSITING_MACHINE = "read xml file depositing machine";
+  public static final String RENAME_XML_FILE_DEPOSITING_MACHINE = "rename xml file depositing machine";
+  public static final String SYNCHRO_AXES_X_DEPOSITING_MACHINE = "synchro axes x depositing machine";
+  public static final String SYNCHRO_AXES_Z_DEPOSITING_MACHINE = "synchro axes z depositing machine";
+  public static final String HOMING_AXIS_SUBX_DEPOSITING_MACHINE = "homing axis SubX depositing machine";
+  public static final String HOMING_AXIS_SUBZ_DEPOSITING_MACHINE = "homing axis SubZ depositing machine";
+  public static final String HOMING_AXIS_Theta_DEPOSITING_MACHINE = "homing axis Theta depositing machine";
 
 
 

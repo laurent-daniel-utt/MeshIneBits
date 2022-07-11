@@ -6,11 +6,7 @@ public class BitSLicRHelperConfig {
   public static final String APPLICATION_URI = "urn:MeshIneBits:client";
 
   //Cutting machine config
-  public static final String cutting_machine_url = "opc.tcp://192.168.10.20:4840";
-
-
-
-  public static final String assembling_machine_url = "opc.tcp://192.168.10.20:4840";
+  public static final String cutting_machine_url = "opc.tcp://192.168.10.40:4840";
 
   public static final String depose_machine_url = "opc.tcp://192.168.10.20:4840";
 

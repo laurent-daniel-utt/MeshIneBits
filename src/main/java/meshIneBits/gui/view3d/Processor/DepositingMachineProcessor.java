@@ -4,20 +4,20 @@ import meshIneBits.Mesh;
 import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
-import meshIneBits.opcuaHelper.DeposeMachineCommander;
+import meshIneBits.opcuaHelper.DepositingMachineCommander;
 import meshIneBits.util.MultiThreadServiceExecutor;
 
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-public class DeposeMachineProcessor implements UIPWListener {
+public class DepositingMachineProcessor implements UIPWListener {
 
   public interface DepositingProcessCallback {
-      void callback( String messageError, String[] currentBitData,boolean continueButtonLock);
+      void callback( String messageError, String[] currentBitData,boolean continueButtonLock, String[] currentAxesPositions);
   }
 
-  private final DeposeMachineCommander commander;
+  private final DepositingMachineCommander commander;
   private final DepositingProcessCallback callback;
   private final DecimalFormat df;
 
@@ -27,18 +27,11 @@ public class DeposeMachineProcessor implements UIPWListener {
     df.setRoundingMode(RoundingMode.CEILING);
   }
 
-  public SubscriptionTask subscriptionTask;
-  private Thread t;
-
-  public DeposeMachineProcessor(DepositingProcessCallback callback) {
+  public DepositingMachineProcessor(DepositingProcessCallback callback) {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
-    commander = new DeposeMachineCommander(mesh);
+    commander = new DepositingMachineCommander(mesh);
     this.callback = callback;
- //   subscriptionTask=new SubscriptionTask();
- //   t=new Thread(subscriptionTask);
- //   t.start();
-    MultiThreadServiceExecutor.instance.execute(new DeposeMachineProcessor.SubscriptionTask());
- //   MultiThreadServiceExecutor.instance.execute(subscriptionTask);
+    MultiThreadServiceExecutor.instance.execute(new DepositingMachineProcessor.SubscriptionTask());
   }
 
   private void startDepose() {
@@ -112,6 +105,76 @@ public class DeposeMachineProcessor implements UIPWListener {
       e.printStackTrace();
     }
   }
+  private void resetPowerAxes() {
+    try {
+      commander.resetPowerAxes();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void takeBatch() {
+    try {
+      commander.takeBatch();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void deposeBatch() {
+    try {
+      commander.deposeBatch();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void readXMLFile() {
+    try {
+      commander.readXMLFile();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void renameXMLFile() {
+    try {
+      commander.renameXMLFile();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void synchroAxesX() {
+    try {
+      commander.synchroAxesX();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void synchroAxesZ() {
+    try {
+      commander.synchroAxesZ();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void homingAxisSubX() {
+    try {
+      commander.homingAxisSubX();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void homingAxisSubZ() {
+    try {
+      commander.homingAxisSubZ();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  private void homingAxisTheta() {
+    try {
+      commander.homingAxisTheta();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   @Override
   public void onActionListener(Object callbackObj, String event, Object value) {
@@ -146,19 +209,46 @@ public class DeposeMachineProcessor implements UIPWListener {
       case (ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE):
         acknowledgeError();
         break;
+      case (RESET_POWER_AXES_DEPOSITING_MACHINE):
+        resetPowerAxes();
+        break;
+      case (TAKE_BATCH_DEPOSITING_MACHINE):
+        takeBatch();
+        break;
+      case (DEPOSE_BATCH_DEPOSITING_MACHINE):
+        deposeBatch();
+        break;
+      case (READ_XML_FILE_DEPOSITING_MACHINE):
+        readXMLFile();
+        break;
+      case (RENAME_XML_FILE_DEPOSITING_MACHINE):
+        renameXMLFile();
+        break;
+      case (SYNCHRO_AXES_X_DEPOSITING_MACHINE):
+        synchroAxesX();
+        break;
+      case (SYNCHRO_AXES_Z_DEPOSITING_MACHINE):
+        synchroAxesZ();
+        break;
+      case (HOMING_AXIS_SUBX_DEPOSITING_MACHINE):
+        homingAxisSubX();
+        break;
+      case (HOMING_AXIS_SUBZ_DEPOSITING_MACHINE):
+        homingAxisSubZ();
+        break;
+      case (HOMING_AXIS_Theta_DEPOSITING_MACHINE):
+        homingAxisTheta();
+        break;
     }
   }
 
   public class SubscriptionTask implements Runnable {
     private boolean exitThread=false;
-//    private String messageError;
-    private String[] currentBitData;
     @Override
     public void run() {
       try {
         while(!exitThread){
-//          messageError=commander.getMessageError();
-          callback.callback(commander.getMessageError(),getCurrentBitData(), commander.getLockContinueButton());
+          callback.callback(commander.getMessageError(),getCurrentBitData(), commander.getLockContinueButton(),getCurrentAxesPositions());
           Thread.sleep(100);
         }
       } catch (Exception e) {
@@ -166,6 +256,7 @@ public class DeposeMachineProcessor implements UIPWListener {
       }
     }
     private String[] getCurrentBitData(){
+      String[] currentBitData;
       currentBitData=new String[10];
       try {
         currentBitData[0]= String.valueOf(commander.getCurrentBitId());
@@ -184,11 +275,29 @@ public class DeposeMachineProcessor implements UIPWListener {
       return currentBitData;
     }
 
+
+    private String[] getCurrentAxesPositions(){
+      String[] currentAxesPositions;
+      currentAxesPositions=new String[6];
+      try {
+        currentAxesPositions[0]= String.valueOf(new DecimalFormat("0.00").format(commander.getXCurrentPosition()));
+        currentAxesPositions[1]= String.valueOf(new DecimalFormat("0.00").format(commander.getZCurrentPosition()));
+        currentAxesPositions[2]= String.valueOf(new DecimalFormat("0.00").format(commander.getYCurrentPosition()));
+        currentAxesPositions[3]= String.valueOf(new DecimalFormat("0.00").format(commander.getSubXCurrentPosition()));
+        currentAxesPositions[4]= String.valueOf(new DecimalFormat("0.00").format(commander.getSubZCurrentPosition()));
+        currentAxesPositions[5]= String.valueOf(new DecimalFormat("0.00").format(commander.getThetaCurrentPosition()));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return currentAxesPositions;
+    }
+
     public void stop(){
       exitThread=true;
     }
   }
 
+  // voice SlicR :)
   public void powershell(String msg){
  //   String command = "powershell.exe ssh pi@voiceslicr-nog "+msg;
     String command = "powershell.exe "+msg;

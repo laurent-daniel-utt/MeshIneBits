@@ -13,7 +13,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
   public final String cuttingButNodeId = "cuttingNodeId";
   public final String cuttingPathId = "cuttingPathId";
 
-  @Override
+
   public ICustomResponse startMachine() {
     try {
       return writeVariableNode(startNodeId, "Boolean", true);
@@ -22,7 +22,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse stopMachine() {
     try {
       return writeVariableNode(startNodeId, "Boolean", false);
@@ -31,7 +31,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse getMachineState() {
     try {
       return readVariableNode(startNodeId);
@@ -40,7 +40,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse pauseMachine() {
     try {
       return writeVariableNode(pauseNodeId, "String", "");

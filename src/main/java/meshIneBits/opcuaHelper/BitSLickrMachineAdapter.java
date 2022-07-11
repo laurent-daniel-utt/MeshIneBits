@@ -3,13 +3,13 @@ package meshIneBits.opcuaHelper;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public abstract class BitSLickrMachineAdapter implements IBitSLickrMachine, IClientHelper {
+public abstract class BitSLickrMachineAdapter implements IClientHelper {
 
   protected ClientRunner clientRunner;
   private CompletableFuture<ICustomResponse> future;
+
   public BitSLickrMachineAdapter(){
     clientRunner=new ClientRunner(this);
-    //future = new CompletableFuture<>();
   }
 
   protected ROBOT robot;
@@ -23,10 +23,7 @@ public abstract class BitSLickrMachineAdapter implements IBitSLickrMachine, ICli
     else {
       this.url= BitSLicRHelperConfig.robot_manip_url;
     }
-
     clientRunner=new ClientRunner(this);
-
-    //future = new CompletableFuture<>();
   }
 
   ICustomResponse writeVariableNode(
@@ -34,15 +31,12 @@ public abstract class BitSLickrMachineAdapter implements IBitSLickrMachine, ICli
       String typeValue,
       Object value) throws ExecutionException, InterruptedException {
     future = new CompletableFuture<>();
-    //new ClientRunner(this).runAction(getWriteAction(nodeId, typeValue, value), future);
     clientRunner.runAction(getWriteAction(nodeId, typeValue, value), future);
     return future.get();
   }
 
   ICustomResponse readVariableNode(Object nodeId) throws ExecutionException, InterruptedException {
-    //CompletableFuture<ICustomResponse> future = new CompletableFuture<>();
     future = new CompletableFuture<>();
-    //new ClientRunner(this).runAction(getReadAction(nodeId), future);
     clientRunner.runAction(getReadAction(nodeId), future);
     return future.get();
   }
