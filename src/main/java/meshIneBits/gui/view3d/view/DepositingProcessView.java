@@ -480,7 +480,6 @@ public class DepositingProcessView extends UIParameterWindow {
     updateCurrentAxesPositions(AxesPositions);
   }
 
-
 }
 
 
