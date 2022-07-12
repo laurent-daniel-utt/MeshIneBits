@@ -464,7 +464,7 @@ public class DepositingProcessView extends UIParameterWindow {
     currentAxesPositions[6].setText("Theta : "+data[5]);
   }
 
-  public void setContinueButton(boolean b){// after pressing pause, continue locks during deceleration
+  public void setContinueButton(boolean b){// after pressing pause, the continue button locks during deceleration
     if(b) continueButton.lock();
     else continueButton.unlock();
   }
