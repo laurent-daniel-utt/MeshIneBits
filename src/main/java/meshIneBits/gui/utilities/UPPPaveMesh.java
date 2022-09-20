@@ -30,13 +30,6 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.Arrays;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 
@@ -48,7 +41,7 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 public class UPPPaveMesh extends UtilityParametersPanel {
-
+public static JButton button;
   public UPPPaveMesh(MeshController meshController) {
     super("Pave Mesh");
     // Init components
@@ -61,11 +54,13 @@ public class UPPPaveMesh extends UtilityParametersPanel {
         parametersPanel
     );
 
-    JButton startButton = new JButton("Start");
+    JButton startButton = new JButton();
     //shortcut for mesh paving : Alt+P
         Action buttonAction = new AbstractAction("Start") {
       @Override public void actionPerformed(ActionEvent evt) {
-        startMeshPavement(meshController, patternComboBox);
+
+
+          startMeshPavement(meshController, patternComboBox);
             }
         };
 
@@ -94,7 +89,7 @@ public class UPPPaveMesh extends UtilityParametersPanel {
     c.weightx = 0;
     c.anchor = GridBagConstraints.CENTER;
     add(startButton, c);
-
+button=startButton;
     c = new GridBagConstraints();
     c.fill = GridBagConstraints.BOTH;
     c.gridx = 2;

@@ -30,22 +30,6 @@
 
 package meshIneBits;
 
-import java.awt.geom.Area;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
@@ -56,6 +40,11 @@ import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
+
+import java.awt.geom.Area;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This object is the equivalent of the piece which will be printed
@@ -80,7 +69,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     setState(MeshEvents.READY);
     this.scheduler.setMesh(this);
   }
-
+  public Object clone()throws CloneNotSupportedException{
+    return super.clone();
+  }
   public static Mesh open(File file) throws IOException, ClassNotFoundException {
     Logger.message("open starts");
     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -162,12 +153,12 @@ public class Mesh extends Observable implements Observer, Serializable {
     Logger.updateStatus("Ready to generate bits");
     template.ready(this);
     // New worker
-    if (template.isInterdependent()) {
+    if (template.isInterdependent()) { System.out.println("Interdepenent?");
       SequentialPavingWorker sequentialPavingWorker = new SequentialPavingWorker(template);
       sequentialPavingWorker.addObserver(this);
 //            (new Thread(sequentialPavingWorker)).start();
       sequentialPavingWorker.run();
-    } else {
+    } else { System.out.println("Worker Master?");
       PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
       pavingWorkerMaster.addObserver(this);
 //            (new Thread(pavingWorkerMaster)).start();
@@ -179,8 +170,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     if (state.isWorking()) {
       throw new SimultaneousOperationsException(this);
     }
-    if (!isSliced()) {
+    if (!isSliced()) {Logger.updateStatus("make sure the Mesh is Sliced");
       throw new Exception("The mesh cannot be paved until it is sliced");
+
     }
   }
 
@@ -217,7 +209,7 @@ public class Mesh extends Observable implements Observer, Serializable {
   /**
    * @return <tt>true</tt> if all {@link Layer} is paved
    */
-  public boolean isPaved() {
+  public  boolean isPaved() {
     if (state.getCode() >= MeshEvents.PAVED_MESH.getCode()) {
       return true;
     } else {
@@ -269,7 +261,6 @@ public class Mesh extends Observable implements Observer, Serializable {
    */
   public void export(File file) throws Exception {
     exportationSafetyCheck();
-
     setState(MeshEvents.EXPORTING);
     MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
 //        Thread t = new Thread(meshXMLExporter);
@@ -541,7 +532,11 @@ public class Mesh extends Observable implements Observer, Serializable {
             .size())
         .sum();
   }
-
+  public int countBits() {
+    return layers.stream()
+            .mapToInt(layer -> layer.getBitsNb())
+            .sum();
+  }
   /**
    * In charge of paving layers sequentially
    */
@@ -574,12 +569,17 @@ public class Mesh extends Observable implements Observer, Serializable {
       for (int i = 0; i < jobsize; i++) {
         layers.get(i)
             .setPatternTemplate(patternTemplate);
+
         layers.get(i)
             .startPaver();
+
         Logger.setProgress(i + 1, jobsize);
+
       }
       Logger.updateStatus(layers.size() + " layers have been paved");
     }
+
+
   }
 
   /**
@@ -628,7 +628,15 @@ public class Mesh extends Observable implements Observer, Serializable {
         // Notify
         setChanged();
         notifyObservers(MeshEvents.PAVED_MESH);
+      /*if(WindowStatus==true) {
+        processor.onTerminated();
+        uipwAnimation.closeWindow();
+        uipwView.closeWindow();
+        uipwController.close();
+
+      }*/
       }
+
     }
   }
 

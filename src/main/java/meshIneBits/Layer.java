@@ -40,7 +40,6 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 import java.awt.geom.AffineTransform;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -52,14 +51,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.patterntemplates.ManualPattern;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
 
 
 /**
@@ -188,11 +179,16 @@ public class Layer extends Observable implements Serializable {
    * Rebuild the whole layer. To be called after overall changes made on this {@link Layer}
    */
   public void rebuild() {
+
     flatPavement.computeBits(horizontalArea);
+
     extrudeBitsTo3D();
+
     findKeysOfIrregularBits();
+
     setChanged();
     notifyObservers(new M(
+
         M.LAYER_REBUILT,
         M.map(
             M.REBUILT_LAYER,
@@ -215,12 +211,14 @@ public class Layer extends Observable implements Serializable {
    * @since 0.3
    */
   private void extrudeBitsTo3D() {
+
     mapBits3D = flatPavement.getBitsKeys()
         .parallelStream()
         .collect(Collectors.toConcurrentMap(key -> key,
             key -> new NewBit3D((NewBit2D) flatPavement.getBit(key), this),
             (u, v) -> u, // Preserve the first
             ConcurrentHashMap::new));
+
   }
 
   /**
@@ -234,8 +232,10 @@ public class Layer extends Observable implements Serializable {
       mapBits3D.put(key, bit3D);
       if (bit3D.isIrregular()) {
         irregularBits.add(key);
+
       }
     }
+
   }
 
   public Vector<Vector2> getBits3dKeys() {
@@ -245,6 +245,16 @@ public class Layer extends Observable implements Serializable {
     return new Vector<>(mapBits3D.keySet());
   }
 
+  public int getBitsNb(){
+    if (mapBits3D == null) {return 0; }
+    else {
+
+
+      return mapBits3D.size();
+    }
+
+
+  }
   /**
    * Construct new empty layer. No {@link PatternTemplate}, no {@link Pavement}
    *
@@ -283,6 +293,8 @@ public class Layer extends Observable implements Serializable {
         }
       }
     }
+
+
     keySet.sort((v1, v2) -> {
       if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {
         return Double.compare(v1.getValue().x, v2.getValue().x);
@@ -290,6 +302,7 @@ public class Layer extends Observable implements Serializable {
         return Double.compare(v1.getValue().y, v2.getValue().y);
       }
     });
+
     return keySet;
 //    return mapBits3D.values().stream().sorted((bit1, bit2) -> {
 //      Vector2 v1 = bit1.getOrigin();
@@ -597,6 +610,7 @@ public class Layer extends Observable implements Serializable {
    */
   public void startPaver() {
     this.flatPavement = this.patternTemplate.pave(this);
+
     paved = true;
     rebuild();
 

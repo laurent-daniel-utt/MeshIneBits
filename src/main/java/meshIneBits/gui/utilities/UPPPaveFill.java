@@ -30,18 +30,15 @@
 
 package meshIneBits.gui.utilities;
 
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.Arrays;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view2d.MeshController;
 
-public class UPPPaveFill extends UtilityParametersPanel {
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
 
+public class UPPPaveFill extends UtilityParametersPanel {
+//public StartButton startButton;
   public UPPPaveFill(MeshController meshController) {
     super("Pave Fill");
     // Init components
@@ -54,7 +51,8 @@ public class UPPPaveFill extends UtilityParametersPanel {
         parametersPanel
     );
 
-    JButton startButton = new JButton("Start");
+
+     JButton startButton = new JButton("Start");
     startButton.addActionListener(e -> {
       try {
         meshController.paveFill(patternComboBox.getCurrentChoice());

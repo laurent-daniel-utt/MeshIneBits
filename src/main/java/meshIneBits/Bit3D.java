@@ -29,22 +29,19 @@
 
 package meshIneBits;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
-import java.util.stream.Collectors;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by extrusion of a
@@ -79,6 +76,8 @@ public class Bit3D implements Serializable, Cloneable {
    * List two points correspond  areas in key In {@link #bit2dToExtrude} coordinate system
    */
   private Vector<Vector<Vector2>> listTwoDistantPoints = new Vector<>();
+
+  private Vector<Vector<Vector2>> listTwoExtremePoints = new Vector<>();
 
   public Vector<Double> getListAngles() {
 //        if(listAngles.size()==0) throw new NullPointerException("List of angles is not calculated");
@@ -117,8 +116,8 @@ public class Bit3D implements Serializable, Cloneable {
     orientation = baseBit.getOrientation();
     rawCutPaths = baseBit.getCutPathsCB();
     reverseInCut = baseBit.getInverseInCut();
-//    computeLiftPoints();
-//    computeTwoPointNearTwoPointMostDistantOnBit();
+    computeLiftPoints();// why it was in comment
+   // computeTwoPointNearTwoPointMostDistantOnBit();//why it was in comment
     lowerAltitude = layer.getLowerAltitude();
     higherAltitude = layer.getHigherAltitude();
   }
@@ -129,7 +128,7 @@ public class Bit3D implements Serializable, Cloneable {
     orientation = bit3D.getOrientation();
     rawCutPaths = (Vector<Path2D>) bit3D.getCutPathsCB();
     computeLiftPoints();
-    computeTwoPointNearTwoPointMostDistantOnBit();
+    //computeTwoPointNearTwoPointMostDistantOnBit();
     lowerAltitude = bit3D.getLowerAltitude();
     higherAltitude = bit3D.getHigherAltitude();
     reverseInCut = bit3D.isReverseInCut();
@@ -150,10 +149,13 @@ public class Bit3D implements Serializable, Cloneable {
       if (liftPoint != null) {
         liftPointsCB.add(liftPoint);
         liftPointsCS.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()));
+
+        //System.out.println("liftPointsCS="+liftPointsCS.toString());
       } else {
         irregular = true;
       }
     }
+    //System.out.println("liftPointsCS="+liftPointsCS.toString());
   }
 
   public List<Path2D> getCutPathsCB() {
@@ -221,9 +223,12 @@ public class Bit3D implements Serializable, Cloneable {
     for (Area area : bit2dToExtrude.getAreasCB()) {
       Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
           area, CraftConfig.suckerDiameter / 4);
+      Vector<Vector2> TwoExtremePoints=AreaTool.getTwoMostDistantPointFromArea(area);
       if (listPoint != null) {
         listTwoDistantPoints.add(listPoint);
       }
+    if(TwoExtremePoints!=null)listTwoExtremePoints.add(TwoExtremePoints);
+
     }
   }
 
@@ -255,6 +260,29 @@ public class Bit3D implements Serializable, Cloneable {
         ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()))));
     return listPoints;
   }
+
+  public Vector<Vector2> getTwoExtremePointsCS() {
+    Vector<Vector2> listPoints = new Vector<>();
+    listTwoDistantPoints.forEach(list -> list.forEach(
+            ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()))));
+    return listPoints;
+  }
+
+
+  public Vector<Vector2> getTwoExtremeXPointsCS() {
+    Vector<Vector2> listPoints = new Vector<>();
+    listTwoDistantPoints.forEach(list -> list.forEach(
+            ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()))));
+    return listPoints;
+  }
+
+  public double getMinX(){
+
+
+    return getTwoExtremeXPointsCS().get(0).x;
+  }
+
+
 
   public Vector<Vector2> getTwoDistantPoints() {
     Vector<Vector2> listPoints = new Vector<>();
@@ -320,6 +348,7 @@ public class Bit3D implements Serializable, Cloneable {
     //reverse angle array to correspond with two distants points array
     Collections.reverse(this.listAngles);
     this.listTwoDistantPoints.clear();
+
     for (int i = listTwoDistantPoints.size() - 1; i >= 0; i--) {
 //            System.out.println(listTwoDistantPoints.get(i).firstElement().toString()+"------"+listTwoDistantPoints.get(i).lastElement());
       List<Vector2> list = listTwoDistantPoints.get(i)

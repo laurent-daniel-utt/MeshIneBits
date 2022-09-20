@@ -1,12 +1,13 @@
 package meshIneBits.scheduler;
 
-import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.NewBit2D;
 import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CustomLogger;
+
+import java.util.Vector;
 
 public class AdvancedScheduler extends BasicScheduler {
 
@@ -29,6 +30,7 @@ public class AdvancedScheduler extends BasicScheduler {
 //              return 0;
 //            });
         subBit2Ds.addAll(((NewBit2D) bit.getKey().getBaseBit()).getValidSubBits());
+
       });
 
     } catch (ClassCastException e) {
@@ -59,7 +61,8 @@ public class AdvancedScheduler extends BasicScheduler {
       return 0;
     }
     int index = this.getIndexOfSubBit(subBit2D);
-    return index > 0 ? index / CraftConfig.nbBitesBatch : -1;
+    return index > 0 ? (index / CraftConfig.nbBitesBatch) : -1;
+   // return index > 0 ? (index / 72) : -1;
   }
 
   public int getSubBitPlate(SubBit2D subBit2D) {

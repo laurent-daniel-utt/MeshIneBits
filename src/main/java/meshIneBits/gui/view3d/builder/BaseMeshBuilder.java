@@ -1,12 +1,7 @@
 package meshIneBits.gui.view3d.builder;
 
-import java.util.Collection;
-import java.util.Vector;
-import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
-import meshIneBits.NewBit2D;
-import meshIneBits.NewBit3D;
-import meshIneBits.SubBit2D;
+import meshIneBits.*;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.scheduler.AdvancedScheduler;
@@ -15,21 +10,26 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 
+import java.util.*;
+
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
+
 public class BaseMeshBuilder implements IMeshShapeBuilder {
 
   public static final CustomLogger logger = new CustomLogger(BaseMeshBuilder.class);
   private final PApplet context;
   private final Mesh mesh;
-
+//private Vector<Strip> layerstrips=new Vector<>();
+private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   public BaseMeshBuilder(PApplet context, Mesh mesh) {
     this.context = context;
     this.mesh = mesh;
   }
 
   @Override
-  public PavedMeshBuilderResult buildMeshShape() {
+  public PavedMeshBuilderResult buildMeshShape() {System.out.println("IN constructor buildMeshShape");
     //TODO mesh has to be scheduled before build the shape of mesh.
-    if (!mesh.isPaved()) {
+    if (!mesh.isPaved()) {System.out.println("IN if buildMeshShape");
       return new PavedMeshBuilderResult(null, null);
     }
     Vector<BitShape> bitShapes = new Vector<>();
@@ -38,16 +38,32 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
       //TODO temporary code, need to be clean after!!!
       Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
           mesh.getScheduler().filterBits(layer.sortBits()));
+
+
+
+
+
+
       int layerId = layer.getLayerNumber();
+
       bitsInCurrentLayer.forEach(bit3D -> {
+
+
+
+
+
+
         BitShape bitShape = buildBitShape((NewBit3D) bit3D);
+
         updateBitShapeLocation(bit3D, bitShape);
+
         bitShape.setLayerId(layerId);
         NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
         Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
         for (int i = 0; i < validSubBits.size(); i++) {
           int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(
               validSubBits.get(i));
+          //System.out.println("batchId="+batchId);
           if (batchId != -1) {
             bitShape.getSubBitShapes()
                 .get(i)
@@ -55,10 +71,16 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
                 .setBatchId(batchId);
           }
         }
+
+
+
+
         meshShape.addChild(bitShape.getShape());
         bitShapes.add(bitShape);
       });
+
     });
+
     return new PavedMeshBuilderResult(meshShape, bitShapes);
   }
 
@@ -80,6 +102,7 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
       shapeBit.addChild(subBit);
     });
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
+
     return shapeBit;
   }
 
@@ -92,8 +115,84 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
           .buildShapeFromArea(context, subBit2D.getAreaCB(), Visualization3DConfig.BIT_THICKNESS);
       SubBitShape subBitShape = new SubBitShape(shape);
       shapeBit.addSubBit(subBitShape);
+
     });
+
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
+   if(WindowStatus==2){
+    shapeBit.getShape().setStrokeWeight(1);
+    //shapeBit.getShape().setStroke(-199999980);
+    shapeBit.getShape().setStroke(-999999999);
+   }
     return shapeBit;
+
   }
+
+public ArrayList<ArrayList<Strip>> build_strips(){System.out.println("IN  buildstrips");
+
+
+  if (!mesh.isPaved()) {System.out.println("IN if buildstrips");
+    return null;
+  }
+
+
+  mesh.getLayers().forEach((layer) -> {
+
+    Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
+            mesh.getScheduler().filterBits(layer.sortBits()));
+    ArrayList<Strip> layerstrips=new ArrayList<>();
+    bitsInCurrentLayer=new HashSet<>(bitsInCurrentLayer);
+    HashSet<Bit3D> toremove=new HashSet<>();
+
+   // Iterator<Bit3D> itFirst=bitsInCurrentLayer.iterator();
+    //layerstrips.add(  new Strip ((NewBit3D)itFirst.next(),layer));
+int size=bitsInCurrentLayer.size();
+while(bitsInCurrentLayer.size()>0){
+
+  System.out.println("S="+bitsInCurrentLayer.size());
+  System.out.println("size="+size);
+// loop to find the extremist bit to left
+
+  TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
+
+
+  for (Bit3D bit:bitsInCurrentLayer){
+tofindfirstbit.add(bit);
+  }
+
+  Iterator<Bit3D>itfirst=tofindfirstbit.iterator();
+  layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
+
+   for(Bit3D bit3D:bitsInCurrentLayer){
+
+        //we verify if the bit can fit in the current strip if not we create a new strip
+        if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
+                bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
+                        + CraftConfig.workingWidth )
+        {System.out.println("in if");
+          layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
+          toremove.add(bit3D);
+       // System.out.println("S="+toremove.size());
+        }
+
+   }
+  layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
+   bitsInCurrentLayer.removeAll(toremove);
+}
+System.out.println("out ?");
+
+    meshstrips.add(layerstrips);
+  });
+
+  return meshstrips;
+
+
+
+
+    }
+
+
+
+
+
 }

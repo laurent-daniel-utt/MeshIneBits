@@ -29,11 +29,12 @@
 
 package meshIneBits.gui.view3d.provider;
 
-import java.util.Observable;
-import java.util.Observer;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
+
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Observe {@link Mesh} and

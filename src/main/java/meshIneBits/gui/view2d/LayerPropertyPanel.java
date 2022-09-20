@@ -77,7 +77,9 @@ public class LayerPropertyPanel extends PropertyPanel {
           {LAYER_IRREGULAR_BITS,
               layer.getFlatPavement() == null ? "0"
                   : String.valueOf(layer.getKeysOfIrregularBits()
-                      .size())},
+                      .size())
+          },
+
           {LAYER_LOWER_ALTITUDE, String.valueOf(layer.getLowerAltitude())},
           {LAYER_HIGHER_ALTITUDE, String.valueOf(layer.getHigherAltitude())},
           {LAYER_SLICE_ALTITUDE, String.valueOf(layer.getHorizontalSection()

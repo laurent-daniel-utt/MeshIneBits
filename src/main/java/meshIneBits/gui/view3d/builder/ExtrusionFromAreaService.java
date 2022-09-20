@@ -1,7 +1,5 @@
 package meshIneBits.gui.view3d.builder;
 
-import java.awt.geom.Area;
-import java.util.Vector;
 import meshIneBits.gui.view3d.oldversion.PolygonPointsList;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CustomLogger;
@@ -10,11 +8,16 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 
+import java.awt.geom.Area;
+import java.util.Vector;
+
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
+
 public class ExtrusionFromAreaService {
 
   private static final CustomLogger logger = new CustomLogger(ExtrusionFromAreaService.class);
 
-  private final static ExtrusionFromAreaService instance = new ExtrusionFromAreaService();
+  private  static ExtrusionFromAreaService instance = new ExtrusionFromAreaService();
 
   public static ExtrusionFromAreaService getInstance() {
     return instance;
@@ -60,7 +63,11 @@ public class ExtrusionFromAreaService {
     int[] point;
 
     PShape shape = context.createShape();
+//shape.noStroke();
     shape.beginShape();
+
+   if(WindowStatus==2) shape.fill(0);
+
     // Exterior path
     length = poly.getLength();
     for (int j = 0; j < length + 1; j++) {
@@ -69,6 +76,7 @@ public class ExtrusionFromAreaService {
     }
 
     shape.endShape();
+
     return shape;
   }
 
@@ -77,6 +85,7 @@ public class ExtrusionFromAreaService {
     int length = poly.getLength();
     int[] pointA = poly.getNextPoint();
     int[] pointB = poly.getNextPoint();
+
     for (int j = 0; j < length; j++) {
       side.addChild(getFaceExtrude(context, pointA, pointB, extrudeDepth));
       pointA = pointB;
@@ -87,12 +96,18 @@ public class ExtrusionFromAreaService {
 
   private PShape getFaceExtrude(PApplet context, int[] pointA, int[] pointB, int z) {
     PShape face = context.createShape();
+
+    //face.noStroke();
     face.beginShape();
+
+    if(WindowStatus==2) face.fill(0);
     face.vertex(pointA[0], pointA[1], z);
     face.vertex(pointB[0], pointB[1], z);
     face.vertex(pointB[0], pointB[1], 0);
     face.vertex(pointA[0], pointA[1], 0);
     face.endShape(PConstants.CLOSE);
+
+
     return face;
   }
 

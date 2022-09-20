@@ -30,43 +30,6 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -76,11 +39,14 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.slicer.Slice;
-import meshIneBits.util.CustomLogger;
-import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Polygon;
-import meshIneBits.util.Segment2D;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.util.*;
 
 /**
  * Sketch of slice and layer. Observes the {@link MeshController}.
@@ -616,8 +582,14 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         if (!bit3D.getTwoDistantPointsCS()
             .isEmpty()) {
           for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
+          // System.out.println("innnit");
+            //drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+          }
+          for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
+
             drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
           }
+
         }
       }
     }

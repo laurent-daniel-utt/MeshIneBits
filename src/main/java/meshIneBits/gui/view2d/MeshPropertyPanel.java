@@ -30,10 +30,11 @@
 
 package meshIneBits.gui.view2d;
 
-import java.io.File;
 import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.util.Logger;
+
+import java.io.File;
 
 class MeshPropertyPanel extends PropertyPanel {
 
@@ -45,6 +46,7 @@ class MeshPropertyPanel extends PropertyPanel {
   private static final String MESH_LAYERS = "Number of Layers";
   static final String MESH_STATE = "State";
   static final String MESH_IRREGULARITIES = "Irregularities";
+  static  final String MESH_BITS="Number of Bits";
   private Mesh mesh;
 
   MeshPropertyPanel() {
@@ -68,6 +70,7 @@ class MeshPropertyPanel extends PropertyPanel {
           {MODEL_SKIRT_RADIUS, "UNKNOWN"},
           {MESH_LAYERS, "UNKNOWN"},
           {MESH_STATE, "UNKNOWN"},
+              {MESH_BITS, "UNKNOWN"},
           {MESH_IRREGULARITIES, "UNKNOWN"}
       };
     } else {
@@ -83,6 +86,7 @@ class MeshPropertyPanel extends PropertyPanel {
           {MESH_LAYERS, String.valueOf(mesh.getLayers()
               .size())},
           {MESH_STATE, String.valueOf(mesh.getState())},
+              {MESH_BITS, String.valueOf(mesh.countBits())},
           {MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities())}
       };
     }
@@ -107,5 +111,6 @@ class MeshPropertyPanel extends PropertyPanel {
     // We only need to update irregularities and state
     updateProperty(MESH_STATE, String.valueOf(mesh.getState()));
     updateProperty(MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities()));
+    updateProperty(MESH_BITS,  String.valueOf(mesh.countBits()));
   }
 }

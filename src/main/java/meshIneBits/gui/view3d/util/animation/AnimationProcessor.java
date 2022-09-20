@@ -1,18 +1,29 @@
-package meshIneBits.gui.view3d.animation;
+package meshIneBits.gui.view3d.util.animation;
+
+import meshIneBits.Layer;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.gui.view3d.Visualization3DConfig;
+import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
+import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
+import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.util.CustomLogger;
+import meshIneBits.util.MultiThreadServiceExecutor;
+import processing.core.PShape;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import meshIneBits.gui.view3d.Visualization3DConfig;
-import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
-import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
-import meshIneBits.util.CustomLogger;
-import meshIneBits.util.MultiThreadServiceExecutor;
-import processing.core.PShape;
+
+import static meshIneBits.config.CraftConfig.printerX;
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.*;
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.meshstrips;
+import static meshIneBits.gui.view3d.view.UIPWController.Exportation;
+
 
 public class AnimationProcessor {
 
@@ -29,13 +40,14 @@ public class AnimationProcessor {
   private AnimationMode mode = Visualization3DConfig.defaultAnimationMode;
   private Consumer<Vector<PShape>> callback;
 
-  private double animationSpeed = Visualization3DConfig.speed_coefficient_default;
+  public static double animationSpeed = Visualization3DConfig.speed_coefficient_default;
   private int indexMax;
-
+public static AtomicInteger ind= new AtomicInteger(0);
   private final AtomicBoolean isActivated = new AtomicBoolean(false);
   private final AtomicBoolean pausing = new AtomicBoolean(false);
   private final AtomicInteger index = new AtomicInteger(0);
 
+  public static CountDownLatch exported=new CountDownLatch(1);
   private final List<AnimationIndexIncreasedListener> listeners = new ArrayList<>();
 
   public AnimationProcessor(IAnimationModel3DProvider animationProvider,
@@ -88,11 +100,14 @@ public class AnimationProcessor {
   }
 
   private void startAnimation() {
+
     MultiThreadServiceExecutor.instance.execute(new IndexIncrementTask());
   }
 
-  public void speedUp() {
-    animationSpeed -=
+  public void speedUp(boolean sim) {
+
+
+            animationSpeed -=
         (Visualization3DConfig.speed_coefficient_min - Visualization3DConfig.speed_coefficient_max)
             / Visualization3DConfig.speed_level_number;
     if (animationSpeed < Visualization3DConfig.speed_coefficient_max) {
@@ -128,11 +143,22 @@ public class AnimationProcessor {
 
     @Override
     public void run() {
+      if(Exportation){exported=new CountDownLatch(1);
+        ind.set(0);
+
       try {
         while (isActivated.get()) {
           final AtomicInteger index = AnimationProcessor.this.index;
           listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
           Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+        //  System.out.println("index="+index);
+          //System.out.println("Thread in AniProc="+Thread.currentThread().getName());
+          //ind=index;
+
+          //System.out.println("stuck with ind="+ind.get());
+
+          // System.out.println("");
+//
 //          if (option == AnimationOption.BY_BIT && wsProvider != null) {
 //            PShape finalShape = AnimationProcessor.this.animationProvider.getContext()
 //                .createShape(PConstants.GROUP);
@@ -147,17 +173,112 @@ public class AnimationProcessor {
 //            shapes.add(index.get(),finalShape);
 //          }
           callback.accept(shapes);
+          waitshaping.countDown();
+
           if (pausing.get()) {
             synchronized (AnimationProcessor.this) {
               AnimationProcessor.this.wait();
             }
           }
           Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
+          ind=index;
+          notyet.countDown();
+
+          notyet=new CountDownLatch(1);
+
+          exported.await();
+
           AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
+
+
+
+
+
         }
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+
+
+
+
+
+      }
+    else {int l=0,s=0,size_layer=0,size_strip=0;
+
+
+
+        try {
+          while (isActivated.get()) {
+            final AtomicInteger index = AnimationProcessor.this.index;
+            listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
+
+if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
+            if(index.intValue()==0)Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+            System.out.println("l="+l+" s="+s);
+            System.out.println("sizeLayer="+size_layer+" sizeStrip="+size_strip);
+            if(size_strip>meshstrips.get(l).get(s).getBits().size()-1){
+              Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
+System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()));
+              if(size_layer< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
+                size_strip=0;
+                s++;
+                Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+
+              }
+              else {size_strip=0;
+                size_layer=0;
+                s=0;
+                l++;
+                Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+                Zpos=(float) meshstrips.get(l).get(s).getBits().get(0).getLowerAltitude();
+              }
+            }
+            size_strip++;
+            size_layer++;
+
+}
+
+            Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+
+
+
+
+
+
+
+
+
+
+             callback.accept(shapes);
+
+             //Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+
+            if (pausing.get()) {
+              synchronized (AnimationProcessor.this) {
+                AnimationProcessor.this.wait();
+              }
+            }
+            Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
+            AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
+            //ind=index;
+
+
+
+          }
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+
+
+      }
+
+
+
+
+
+
     }
   }
 

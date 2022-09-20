@@ -1,17 +1,18 @@
 package meshIneBits;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Vector;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.LiftPointCalc;
 import meshIneBits.util.TwoDistantPointsCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Vector;
 
 //TODO define readObject and writeObject for save mesh
 public class SubBit2D implements Serializable {
@@ -24,9 +25,16 @@ public class SubBit2D implements Serializable {
   private Vector2 firstDistantPointCB;
   private Vector2 secondDistantPointCB;
 
+  private Vector2 firstExtremePointCB;
+
+  private Vector2 secondExtremePointCB;
+
   private final AffineTransform transformMatrixToCS;
   private AffineTransform inverseMatrixToCB;
 
+  private Vector2 XminPoint;
+
+  private Vector2 XmaxPoint;
   private final Area areaCB;
   private final Path2D cutPath;
 
@@ -48,7 +56,11 @@ public class SubBit2D implements Serializable {
     this.parentBit = parentBit;
 
     computeDistantPoints();
+
+
+    computeExtremePoints();
     computeLiftPoints();
+    computeXminXmaxPoints(liftPointCB);
   }
 
   public Vector2 getOriginPositionCS() {
@@ -100,6 +112,24 @@ public class SubBit2D implements Serializable {
     }
   }
 
+  private void computeExtremePoints() {
+    Vector<Vector2> points = TwoDistantPointsCalc.instance.getTwoMostDistantPointFromArea(areaCB);
+    if (points.size() == 2) {
+      points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
+      firstExtremePointCB = points.get(0);
+      secondExtremePointCB = points.get(1);
+    }
+  }
+
+  private void computeXminXmaxPoints(Vector2 liftpoint) {
+    Vector<Vector2> points = TwoDistantPointsCalc.instance.getXminXmaxFromArea(areaCB,liftpoint,this);
+    if (points.size() == 2) {
+     //points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
+      XminPoint = points.get(0);
+      XmaxPoint = points.get(1);
+    }
+  }
+
   @SuppressWarnings("unused")
   public Vector<Vector2> getTwoDistantPointsCB() {
     return new Vector<>(Arrays.asList(firstDistantPointCB, secondDistantPointCB));
@@ -113,6 +143,30 @@ public class SubBit2D implements Serializable {
         Arrays.asList(
             firstDistantPointCB.getTransformed(transformMatrixToCS),
             secondDistantPointCB.getTransformed(transformMatrixToCS)));
+  }
+
+
+  public Vector<Vector2> getTwoExtremePointsCS() {
+    if (firstExtremePointCB == null || secondExtremePointCB == null) {
+      return new Vector<>();
+    }
+    return new Vector<>(
+            Arrays.asList(
+                    firstExtremePointCB.getTransformed(transformMatrixToCS),
+                    secondExtremePointCB.getTransformed(transformMatrixToCS)));
+  }
+
+
+
+
+  public Vector<Vector2> getTwoExtremeXPointsCS() {
+    if (XminPoint == null || XmaxPoint == null) {
+      return new Vector<>();
+    }
+    return new Vector<>(
+            Arrays.asList(
+                    XminPoint,
+                    XmaxPoint));
   }
 
   private void computeLiftPoints() {

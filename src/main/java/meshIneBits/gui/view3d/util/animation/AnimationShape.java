@@ -1,9 +1,10 @@
-package meshIneBits.gui.view3d.animation;
+package meshIneBits.gui.view3d.util.animation;
+
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationMode;
+import processing.core.PShape;
 
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationMode;
-import processing.core.PShape;
 
 public class AnimationShape {
 

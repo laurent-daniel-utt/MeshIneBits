@@ -30,34 +30,7 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.Shape;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.stream.Collectors;
-import meshIneBits.Bit2D;
-import meshIneBits.Bit3D;
-import meshIneBits.Layer;
-import meshIneBits.M;
-import meshIneBits.Mesh;
-import meshIneBits.MeshEvents;
-import meshIneBits.NewBit2D;
-import meshIneBits.Pavement;
+import meshIneBits.*;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
@@ -68,25 +41,34 @@ import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.CustomLogger;
-import meshIneBits.util.DetectorTool;
-import meshIneBits.util.ITheardServiceExecutor;
-import meshIneBits.util.Logger;
-import meshIneBits.util.MultiThreadServiceExecutor;
-import meshIneBits.util.OptimizedMesh;
-import meshIneBits.util.SimultaneousOperationsException;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
 import meshIneBits.util.supportUndoRedo.ActionOfUserMoveBit;
 import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
+
+import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
 
 /**
  * Observes the {@link Mesh} and {@link Layer}s. Observed by {@link MeshWindowCore} and {@link
  * ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer,
+public class MeshController extends Observable implements Observer ,
     HandlerRedoUndo.UndoRedoListener {
 
   public static final String SHOW_SLICE = "showSlice";
@@ -198,7 +180,8 @@ public class MeshController extends Observable implements Observer,
    *
    */
   private ITheardServiceExecutor serviceExecutor = MultiThreadServiceExecutor.instance;
-
+public static AtomicBoolean Paved=new AtomicBoolean(false);
+public static CountDownLatch r=new CountDownLatch(1);
   MeshController(MeshWindow meshWindow) {
     this.meshWindow = meshWindow;
   }
@@ -280,6 +263,9 @@ public class MeshController extends Observable implements Observer,
           checkEmptyLayers();
           setChanged();
           notifyObservers(MeshEvents.PAVED_MESH);
+System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowStatus="+WindowStatus);
+          if (WindowStatus==2)r.countDown();
+          Paved.set(true);
           // Notify property panel
           changes.firePropertyChange(MESH_PAVED, null, mesh);
           changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
@@ -560,6 +546,7 @@ public class MeshController extends Observable implements Observer,
     CraftConfigLoader.saveConfig(null);
     serviceExecutor.execute(() -> {
       try {
+
         mesh.pave(patternTemplate);
       } catch (Exception e) {
         e.printStackTrace();

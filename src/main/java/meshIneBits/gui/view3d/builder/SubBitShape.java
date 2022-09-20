@@ -3,7 +3,8 @@ package meshIneBits.gui.view3d.builder;
 import processing.core.PShape;
 
 public class SubBitShape {
-  private final PShape shape;
+  //private final PShape shape;
+  private  PShape shape;
   private int batchId;
   private int layerId;
 

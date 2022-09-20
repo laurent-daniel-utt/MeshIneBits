@@ -30,55 +30,23 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
+import meshIneBits.gui.utilities.*;
+import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.view.BaseVisualization3DView;
+import meshIneBits.util.Logger;
+import meshIneBits.util.SimultaneousOperationsException;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.ColorUIResource;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.ColorUIResource;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.CraftConfigLoader;
-import meshIneBits.gui.utilities.AboutDialogWindow;
-import meshIneBits.gui.utilities.CustomFileChooser;
-import meshIneBits.gui.utilities.IconLoader;
-import meshIneBits.gui.utilities.MeshActionMenu;
-import meshIneBits.gui.utilities.MeshActionToolbar;
-import meshIneBits.gui.utilities.UPPNewBit;
-import meshIneBits.gui.utilities.UPPPaveFill;
-import meshIneBits.gui.utilities.UPPPaveLayer;
-import meshIneBits.gui.utilities.UPPPaveMesh;
-import meshIneBits.gui.utilities.UPPPaveRegion;
-import meshIneBits.gui.utilities.UPPScheduleMesh;
-import meshIneBits.gui.utilities.UPPToolsAI;
-import meshIneBits.gui.utilities.UtilityParametersPanel;
-import meshIneBits.gui.view3d.view.AssemblingProcessView;
-import meshIneBits.gui.view3d.view.BaseVisualization3DView;
-import meshIneBits.gui.view3d.provider.MeshProvider;
-import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
-import meshIneBits.gui.view3d.view.CuttingProcessView;
-import meshIneBits.util.Logger;
-import meshIneBits.util.SimultaneousOperationsException;
 
 public class MeshWindow extends JFrame {
 
@@ -99,7 +67,7 @@ public class MeshWindow extends JFrame {
   private MeshWindowSelector selector;
   private MeshWindowPropertyPanel propertyPanel;
 
-
+private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DView();
   public MeshWindow() throws HeadlessException {
 
     this.setIconImage(IconLoader.get("icon.png", 0, 0)
@@ -470,7 +438,8 @@ public class MeshWindow extends JFrame {
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
-        BaseVisualization3DView::startProcessingModelView);
+
+            baseVisualization3DView::startProcessingModelView);
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(

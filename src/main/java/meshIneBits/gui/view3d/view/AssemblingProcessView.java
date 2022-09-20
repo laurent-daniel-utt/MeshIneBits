@@ -1,17 +1,11 @@
 package meshIneBits.gui.view3d.view;
 
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.START_CUTTING_MACHINE;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.STOP_CUTTING_MACHINE;
-
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import controlP5.Button;
 import controlP5.ControlEvent;
 import controlP5.ControlP5;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.Vector;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Processor.AssemblingMachineProcessor;
 import meshIneBits.gui.view3d.Visualization3DConfig;
@@ -21,6 +15,13 @@ import processing.core.PShape;
 import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Vector;
+
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.START_CUTTING_MACHINE;
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.STOP_CUTTING_MACHINE;
 
 public class AssemblingProcessView extends PApplet {
 

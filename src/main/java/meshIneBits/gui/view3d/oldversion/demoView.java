@@ -33,10 +33,6 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
@@ -46,6 +42,11 @@ import processing.core.PShape;
 import processing.opengl.PJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
+
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 public class demoView extends PApplet implements Observer, SubWindow {
 
@@ -69,7 +70,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
 
   private static void startdemoView() {
     if (currentInstance == null) {
-      PApplet.main("meshIneBits.gui.view3d.oldversion.demoView");
+      PApplet.main(demoView.class.getCanonicalName());
     }
   }
 

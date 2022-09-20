@@ -1,42 +1,25 @@
 package meshIneBits.gui.view3d.view;
 
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ANIMATION;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ANIMATION_SLICER;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.APPLY;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_BATCH;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_BIT;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_LAYER;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.BY_SUB_BIT;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.CENTER_CAMERA;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.EXPORT;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.FULL;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.GRAVITY;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ONE_BY_ONE;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.PAUSE;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_X;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Y;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Z;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.RESET;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_X;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Y;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Z;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.SPEED_DOWN;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.SPEED_UP;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.VIEW_MESH;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.util.CustomLogger;
+import processing.core.PShape;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.IndexExport;
+import static meshIneBits.gui.view3d.view.UIPWAnimation.Animation;
 
 public class UIPWController implements UIPWListener {
 
 
   private final CustomLogger logger = new CustomLogger(UIPWController.class);
   private final AtomicBoolean isAnimating = new AtomicBoolean(false);
+private PShape pp;
 
   private IVisualization3DProcessor processor;
-
-
+public static Boolean Exportation=false;
+private int i=0;
   public UIPWController(IVisualization3DProcessor view) {
     this.processor = view;
   }
@@ -103,26 +86,47 @@ public class UIPWController implements UIPWListener {
         processor.export();
         break;
       case ANIMATION:
+
         isAnimating.set(!isAnimating.get());
-        if (isAnimating.get()) {
+        if (isAnimating.get()) {Animation.getCaptionLabel().setText(STOP);
+
           processor.activateAnimation();
-        } else {
+        } else {Animation.getCaptionLabel().setText(ANIMATION);
           processor.deactivateAnimation();
         }
         break;
       case SPEED_UP:
-        processor.speedUp();
+        processor.speedUp(false);
         break;
       case SPEED_DOWN:
         processor.speedDown();
         break;
       case PAUSE:
+
         processor.pauseAnimation();
         break;
       case ANIMATION_SLICER:
         processor.setAnimationIndex(Math.round((float) value));
         break;
-      default:
+      case EXPORTAll:
+        processor.setDisplayOneByOne(true);
+     //if(i==0)  {i++;
+       System.out.println("Thread Controller ="+Thread.currentThread().getName());
+
+       Exportation=true;
+
+
+      // processor.shapeExport();
+       processor.activateAnimation();
+        IndexExport=0;
+       processor.exportAll();
+        Exportation=false;
+
+   //  }
+
+
+        break;
+        default:
         logger.logERRORMessage("The event invoked is not handled by UserControllerListener object: "
             + this.getClass());
         break;

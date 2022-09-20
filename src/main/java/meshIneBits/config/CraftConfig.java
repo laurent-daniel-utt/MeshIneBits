@@ -30,23 +30,14 @@
 
 package meshIneBits.config;
 
+import meshIneBits.patterntemplates.*;
+import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.AdvancedScheduler;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import meshIneBits.patterntemplates.AI_Pavement;
-import meshIneBits.patterntemplates.BorderPaverPattern;
-import meshIneBits.patterntemplates.ClassicBrickPattern;
-import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
-import meshIneBits.patterntemplates.EconomicPattern;
-import meshIneBits.patterntemplates.GeneticPavement;
-import meshIneBits.patterntemplates.ImprovedBrickPattern;
-import meshIneBits.patterntemplates.ManualPattern;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.patterntemplates.UnitSquarePattern;
-import meshIneBits.scheduler.AScheduler;
-import meshIneBits.scheduler.AdvancedScheduler;
-import meshIneBits.scheduler.BasicScheduler;
 
 /**
  * The CraftConfig class contains the configurable settings for the slicer. Reflection and
@@ -103,6 +94,7 @@ public class CraftConfig {
       minValue = 1.0,
       maxValue = 1000.0,
       defaultValue = 8.0
+
   )
   @BitSetting(
       order = 0
@@ -384,12 +376,12 @@ public class CraftConfig {
   @IntegerSetting(
       title = "Number of bits",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @XMLSetting(
       order = 2
   )
-  public static int nbBits = 50;
+  public static int nbBits = 72;
 
   @IntegerSetting(
       title = "Number of bits on a plate",
@@ -402,15 +394,15 @@ public class CraftConfig {
   @IntegerSetting(
       title = "Number of bits on a Batch",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @PrinterSetting()
-  public static int nbBitesBatch = 50;
+  public  static int nbBitesBatch = 72;
 
   @DoubleSetting(
       title = "Plate width",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @PrinterSetting()
   public static double plateWidth = 50;

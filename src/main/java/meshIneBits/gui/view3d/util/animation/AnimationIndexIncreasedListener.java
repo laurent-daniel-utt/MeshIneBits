@@ -1,4 +1,4 @@
-package meshIneBits.gui.view3d.animation;
+package meshIneBits.gui.view3d.util.animation;
 
 public interface AnimationIndexIncreasedListener {
 

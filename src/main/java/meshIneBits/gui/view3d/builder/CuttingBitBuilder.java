@@ -1,16 +1,17 @@
 package meshIneBits.gui.view3d.builder;
 
-import static processing.core.PConstants.GROUP;
-
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.util.Vector;
 import meshIneBits.NewBit2D;
 import meshIneBits.NewBit3D;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import processing.core.PApplet;
 import processing.core.PShape;
+
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.util.Vector;
+
+import static processing.core.PConstants.GROUP;
 
 public class CuttingBitBuilder {
 

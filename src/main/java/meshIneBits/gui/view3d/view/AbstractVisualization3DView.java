@@ -1,9 +1,10 @@
 package meshIneBits.gui.view3d.view;
 
-import java.util.Vector;
 import processing.core.PApplet;
 import processing.core.PShape;
 import remixlab.proscene.Scene;
+
+import java.util.Vector;
 
 public abstract class AbstractVisualization3DView extends PApplet {
 
@@ -18,4 +19,10 @@ public abstract class AbstractVisualization3DView extends PApplet {
   public abstract void setDisplayShapes(Vector<PShape> displayShapes);
 
   public abstract void export();
+
+  /**
+   * created by Majed
+   */
+  public abstract void exportAll();
+
 }
