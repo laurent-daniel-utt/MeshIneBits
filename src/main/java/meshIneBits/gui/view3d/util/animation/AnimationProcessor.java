@@ -40,6 +40,7 @@ public class AnimationProcessor {
   private AnimationMode mode = Visualization3DConfig.defaultAnimationMode;
   private Consumer<Vector<PShape>> callback;
 
+  public static CountDownLatch movingWorkSpace=new CountDownLatch(1);
   public static double animationSpeed = Visualization3DConfig.speed_coefficient_default;
   private int indexMax;
 public static AtomicInteger ind= new AtomicInteger(0);
@@ -50,6 +51,7 @@ public static AtomicInteger ind= new AtomicInteger(0);
   public static CountDownLatch exported=new CountDownLatch(1);
   private final List<AnimationIndexIncreasedListener> listeners = new ArrayList<>();
 
+   public static float pos;
   public AnimationProcessor(IAnimationModel3DProvider animationProvider,
       IAssemblyWorkingSpaceProvider wsProvider) {
     this.animationProvider = animationProvider;
@@ -190,18 +192,10 @@ public static AtomicInteger ind= new AtomicInteger(0);
 
           AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
 
-
-
-
-
         }
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-
-
-
-
 
       }
     else {int l=0,s=0,size_layer=0,size_strip=0;
@@ -214,23 +208,30 @@ public static AtomicInteger ind= new AtomicInteger(0);
             listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
 
 if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
-            if(index.intValue()==0)Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
-            System.out.println("l="+l+" s="+s);
-            System.out.println("sizeLayer="+size_layer+" sizeStrip="+size_strip);
+            if(index.intValue()==0){pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+              Xpos=pos;
+            }// System.out.println("l="+l+" s="+s);
+            //System.out.println("sizeLayer="+size_layer+" sizeStrip="+size_strip);
             if(size_strip>meshstrips.get(l).get(s).getBits().size()-1){
               Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
-System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()));
+//System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()));
               if(size_layer< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
                 size_strip=0;
                 s++;
-                Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+
+
+
+                // Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
 
               }
               else {size_strip=0;
                 size_layer=0;
                 s=0;
                 l++;
-                Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+
+                //Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
                 Zpos=(float) meshstrips.get(l).get(s).getBits().get(0).getLowerAltitude();
               }
             }
@@ -238,7 +239,7 @@ System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIr
             size_layer++;
 
 }
-
+            if(Xpos!=pos) movingWorkSpace.await();
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
 
 

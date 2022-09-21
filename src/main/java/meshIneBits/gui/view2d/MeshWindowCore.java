@@ -583,12 +583,12 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
             .isEmpty()) {
           for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
           // System.out.println("innnit");
-            //drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
-          }
-          for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
-
             drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
           }
+         // for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
+
+           // drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+          //}
 
         }
       }

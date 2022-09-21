@@ -12,6 +12,7 @@ import processing.core.PShape;
 
 import java.util.*;
 
+import static meshIneBits.config.CraftConfig.nbBitesBatch;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
 
 public class BaseMeshBuilder implements IMeshShapeBuilder {
@@ -19,6 +20,8 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
   public static final CustomLogger logger = new CustomLogger(BaseMeshBuilder.class);
   private final PApplet context;
   private final Mesh mesh;
+
+  private int num=0;
 //private Vector<Strip> layerstrips=new Vector<>();
 private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   public BaseMeshBuilder(PApplet context, Mesh mesh) {
@@ -39,19 +42,9 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
       Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
           mesh.getScheduler().filterBits(layer.sortBits()));
 
-
-
-
-
-
       int layerId = layer.getLayerNumber();
 
       bitsInCurrentLayer.forEach(bit3D -> {
-
-
-
-
-
 
         BitShape bitShape = buildBitShape((NewBit3D) bit3D);
 
@@ -138,15 +131,17 @@ public ArrayList<ArrayList<Strip>> build_strips(){System.out.println("IN  builds
 
   mesh.getLayers().forEach((layer) -> {
 
-    Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
+    List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
             mesh.getScheduler().filterBits(layer.sortBits()));
     ArrayList<Strip> layerstrips=new ArrayList<>();
-    bitsInCurrentLayer=new HashSet<>(bitsInCurrentLayer);
+    //bitsInCurrentLayer=new HashSet<>(bitsInCurrentLayer);
     HashSet<Bit3D> toremove=new HashSet<>();
+Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
 
    // Iterator<Bit3D> itFirst=bitsInCurrentLayer.iterator();
     //layerstrips.add(  new Strip ((NewBit3D)itFirst.next(),layer));
 int size=bitsInCurrentLayer.size();
+
 while(bitsInCurrentLayer.size()>0){
 
   System.out.println("S="+bitsInCurrentLayer.size());
@@ -168,15 +163,22 @@ tofindfirstbit.add(bit);
         //we verify if the bit can fit in the current strip if not we create a new strip
         if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
                 bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
-                        + CraftConfig.workingWidth )
-        {System.out.println("in if");
+                        + CraftConfig.workingWidth && num<nbBitesBatch)
+        {
           layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
           toremove.add(bit3D);
-       // System.out.println("S="+toremove.size());
+       System.out.println("Xmin="+bit3D.getTwoExtremeXPointsCS().get(0).x+" Y="+bit3D.getTwoExtremeXPointsCS().get(0).y);
+          // System.out.println("S="+toremove.size());
+          num++;
+          System.out.println("num="+num+" batchNBB="+nbBitesBatch);
         }
 
+        //System.out.println("num="+num+" batchNBB="+nbBitesBatch);
    }
-  layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
+  if(num==nbBitesBatch) {System.out.println("in if");
+    num=0;
+  }
+   layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
    bitsInCurrentLayer.removeAll(toremove);
 }
 System.out.println("out ?");

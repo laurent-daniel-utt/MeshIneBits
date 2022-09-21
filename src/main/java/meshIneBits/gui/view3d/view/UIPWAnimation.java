@@ -398,7 +398,7 @@ public class UIPWAnimation extends UIParameterWindow implements
         break;
 
         case ANIMATION:
-
+          if(Animation.getCaptionLabel().getText().equals(STOP)) pauseButton.getCaptionLabel().setText(PAUSE);
         pausing = false;
 
         animating = !animating;

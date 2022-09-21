@@ -17,8 +17,9 @@ private Float length= printerY;
 private Layer layer;
     public Strip(Bit3D firstbit,Layer layer){
 this.Xposition=firstbit.getTwoExtremeXPointsCS().get(0).x;
-System.out.println("Xposition="+Xposition);
+System.out.println("Xposition="+Xposition +"YP="+firstbit.getTwoExtremeXPointsCS().get(0).y);
 this.Zposition=firstbit.getLowerAltitude();
+System.out.println("Layer nb"+layer.getLayerNumber());
 //bits.add(firstbit);
 this.layer=layer;
     }

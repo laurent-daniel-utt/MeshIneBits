@@ -22,6 +22,7 @@ public class TwoDistantPointsCalc {
     Vector2 point1 = positionTwoMostDistantPoint.firstElement();
     Vector2 point2 = positionTwoMostDistantPoint.lastElement();
     Rectangle2D rectangle2D = area.getBounds2D();
+
     double startX = rectangle2D.getMinX();
     double startY = rectangle2D.getMinY();
     double endX = rectangle2D.getMaxX();

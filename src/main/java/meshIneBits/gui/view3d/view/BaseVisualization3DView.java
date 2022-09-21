@@ -385,6 +385,7 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
   }
 private void initWorkingSpace(){
   stroke(255, 0, 0);
+  strokeWeight(5);
   noFill();
   rectange=createShape();
   rectange.beginShape();
@@ -872,9 +873,7 @@ if(WindowStatus>=2) drawtest();
 
 
 
-  private void drawAnimationShape() { //System.out.println("XposBF="+Xpos);
-    //  Xpos= (float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
-//Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+  private void drawAnimationShape() {
       if (animationShapes != null) {
       Vector3 v = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
       pushMatrix();
@@ -929,6 +928,13 @@ popMatrix();
 
     shape(rectange);
      popMatrix();
+if(forward())Xpos++;
+if(backward())Xpos--;
+if(Xpos==pos){
+  movingWorkSpace.countDown();
+  movingWorkSpace=new CountDownLatch(1);
+  }
+
      /* rect(-printerX / 2 - CraftConfig.workingWidth - 20,
             -printerY / 2, CraftConfig.workingWidth,
             CraftConfig.printerY);*/
@@ -936,8 +942,34 @@ popMatrix();
   //CraftConfig.workingWidth=300
   //   CraftConfig.printerY=2000.00
   }
+public boolean  forward(){
+    if(Xpos-pos<0){
+      if(Xpos-pos<-1){
+        return true;
+      }
+       else {
+         Xpos=pos;
+      return false;
+       }
+    }
+else {return false;}
 
 
+}
+  public boolean  backward(){
+    if(Xpos-pos>0){
+      if(Xpos-pos>1){
+        return true;
+      }
+      else {
+        Xpos=pos;
+        return false;
+      }
+    }
+    else {return false;}
+
+
+  }
 
     @Override
   public void close() throws Exception {
