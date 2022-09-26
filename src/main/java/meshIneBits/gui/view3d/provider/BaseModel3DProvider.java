@@ -38,7 +38,7 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
    modelShape = IModelShapeBuilder.createInstance(context, model).buildModelShape();
      //FIXME this line below is causing the probs
       meshPavedResult = IMeshShapeBuilder.createInstance(context, mesh).buildMeshShape();
-      meshstrips=IMeshShapeBuilder.createInstance(context, mesh).build_strips();
+    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=IMeshShapeBuilder.createInstance(context, mesh).build_strips();
       wsBuilder = new AssemblyWorkingSpaceBuilder(context);
   }
 

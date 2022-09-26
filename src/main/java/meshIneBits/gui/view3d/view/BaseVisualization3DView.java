@@ -363,13 +363,13 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
       meshShape = processor.getModelProvider().getMeshShape();
     shape = processor.getModelProvider().getModelShape();
       meshShape2=meshShape;
-     meshstrips=processor.getModelProvider().getMeshstrips();
+    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
     int s=0;
-     for(int i=0;i<meshstrips.size();i++)
-     {s=s+meshstrips.get(i).size();
+     //for(int i=0;i<meshstrips.size();i++)
+     //{s=s+meshstrips.get(i).size();
 
-     }
-    System.out.println("we have "+s+" strips");
+     //}
+   // System.out.println("we have "+s+" strips");
      meshShapes.put(0,meshShape);
 
 
@@ -395,8 +395,8 @@ private void initWorkingSpace(){
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
   rectange.endShape(PConstants.CLOSE);
   System.out.println("Or="+(-printerX / 2 - CraftConfig.workingWidth - 20) );
-  System.out.println("Size1="+meshstrips.get(0).get(0).getBits().size());
-  System.out.println("Min1="+(float) meshstrips.get(0).get(0).getBits().get(0).getMinX());
+//  System.out.println("Size1="+meshstrips.get(0).get(0).getBits().size());
+  //System.out.println("Min1="+(float) meshstrips.get(0).get(0).getBits().get(0).getMinX());
 
 
 }

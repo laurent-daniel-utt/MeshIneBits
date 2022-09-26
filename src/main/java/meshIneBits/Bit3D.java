@@ -127,7 +127,7 @@ public class Bit3D implements Serializable, Cloneable {
     origin = bit3D.getOrigin();
     orientation = bit3D.getOrientation();
     rawCutPaths = (Vector<Path2D>) bit3D.getCutPathsCB();
-    computeLiftPoints();
+    //computeLiftPoints();
     //computeTwoPointNearTwoPointMostDistantOnBit();
     lowerAltitude = bit3D.getLowerAltitude();
     higherAltitude = bit3D.getHigherAltitude();

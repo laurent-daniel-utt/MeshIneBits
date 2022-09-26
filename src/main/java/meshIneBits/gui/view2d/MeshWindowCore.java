@@ -30,10 +30,7 @@
 
 package meshIneBits.gui.view2d;
 
-import meshIneBits.Bit2D;
-import meshIneBits.Bit3D;
-import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.*;
 import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.WorkspaceConfig;
@@ -541,12 +538,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       Bit3D bit3D = layer.getBit3D(bitKey);
       Bit2D bit2D = bit3D.getBaseBit();
       // Draw each bits
-
+      NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
+      Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
       // Area
       if (meshController.showingIrregularBits()
-          && bit3D.isIrregular()) {
-        g2d.setColor(WorkspaceConfig.irregularBitColor);
-      } else if (meshController.showingBitNotFull() && !bit2D.isFullLength()) {
+         // && bit3D.isIrregular()
+      )
+
+      {showirregular(bit3D,layer,g2d);
+       // g2d.setColor(WorkspaceConfig.irregularBitColor);
+      }else if (meshController.showingBitNotFull() && !bit2D.isFullLength()) {
         g2d.setColor(WorkspaceConfig.bitNotFullLength);
       } else {
         g2d.setColor(WorkspaceConfig.regularBitColor);
@@ -585,15 +586,51 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
           // System.out.println("innnit");
             drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
           }
-         // for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
-
-           // drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
-          //}
-
         }
+    //    for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
+//g2d.setColor(Color.BLUE);
+         //   drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+  //        }
+
+
       }
     }
+
+
+
+
   }
+
+  private void showirregular(Bit3D bit3D,Layer layer,Graphics2D g2d){
+
+
+
+      Bit2D bit2D = bit3D.getBaseBit();
+      // Draw each bits
+      NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
+      Vector<SubBit2D> SubBits = newBit2D.getSubBits();
+      System.out.println("size subbits="+SubBits.size()+" lift="+bit3D.getLiftPointsCS().toString());
+      for(SubBit2D subBits:SubBits){
+        if( !subBits.isregular()){//System.out.println("lift sub="+subBits.getLiftPointCS());
+          g2d.setColor(WorkspaceConfig.irregularBitColor);
+
+        }
+        else {g2d.setColor(WorkspaceConfig.regularBitColor);
+
+        }
+        System.out.println("lift sub="+subBits.getLiftPointCS());
+        System.out.println("Color="+g2d.getColor());
+        drawModelArea(g2d,subBits.getAreaCS());
+
+
+      }
+
+
+
+
+  }
+
+
 
   private void paintLayerBorder(Graphics2D g2d) {
     g2d.setColor(WorkspaceConfig.layerBorderColor);

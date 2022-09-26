@@ -43,6 +43,10 @@ public class BitPropertyPanel extends PropertyPanel {
   private static final String BATCH_ID = "Batch id";
   private static final String PLATE_ID = "Plate id";
   private static final String BIT_NUMBER = "Bit id";
+
+  private static final String EXTREME_RIGHT="Point extreme droite";
+
+  private static final String EXTREME_LEFT="Point extreme gauche";
   private static Mesh mesh = null;
 
   BitPropertyPanel(Bit3D bit3D) {
@@ -63,6 +67,8 @@ public class BitPropertyPanel extends PropertyPanel {
           {ORIENTATION, "UNKNOWN"},
           {LIFT_POINTS, "UNKNOWN"},
           {IS_IRREGULAR, "UNKNOWN"},
+              {EXTREME_LEFT, "UNKNOWN"},
+              {EXTREME_RIGHT, "UNKNOWN"},
           {PLATE_ID, "UNKNOWN"},
           {BIT_NUMBER, "UNKNOWN"},
           {BATCH_ID, "UNKNOWN"}
@@ -76,6 +82,8 @@ public class BitPropertyPanel extends PropertyPanel {
               .getEquivalentAngle2())},
           {LIFT_POINTS, bit3D.getLiftPointsCS().toString()},
           {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
+              {EXTREME_LEFT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(0).x)},
+              {EXTREME_RIGHT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(1).x)},
           {BIT_NUMBER, String.valueOf(mesh.getScheduler()
               .getBitIndex(bit3D))},
           {PLATE_ID, String.valueOf(mesh.getScheduler()
@@ -90,6 +98,8 @@ public class BitPropertyPanel extends PropertyPanel {
               .getEquivalentAngle2())},
           {LIFT_POINTS, bit3D.getLiftPointsCS().toString()},
           {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
+              {EXTREME_LEFT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(0).x)},
+              {EXTREME_RIGHT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(1).x)},
           {PLATE_ID, "UNKNOWN"},
           {BIT_NUMBER, "UNKNOWN"},
           {BATCH_ID, "UNKNOWN"}

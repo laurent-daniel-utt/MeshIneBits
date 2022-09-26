@@ -246,9 +246,18 @@ public class CraftConfig {
   @AssemblerSetting(
       order = 1
   )
+
+
   public static int errorAccepted = 5;
-
-
+  @DoubleSetting(
+          title = "Precision",
+          description = "the parameter that regulates the precision of 2 distant points,the lesser is the param the higher is the precision",
+          defaultValue = 3
+  )
+  @AssemblerSetting(
+          order = 2
+  )
+  public static double precision = 3;
   //Printer parameter
   @FloatSetting(
       title = "Printer X (mm)",

@@ -5,14 +5,16 @@ import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static meshIneBits.config.CraftConfig.precision;
 
 public class TwoDistantPointsCalc {
 
   public final static TwoDistantPointsCalc instance = new TwoDistantPointsCalc();
 
-  public Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,
+  /*public Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,
       double radius) {
     Vector<Vector2> twoDistantPoints = new Vector<>();
     Vector<Vector2> positionTwoMostDistantPoint = getTwoMostDistantPointFromArea(area);
@@ -83,6 +85,164 @@ public class TwoDistantPointsCalc {
     }
     return twoDistantPoints;
   }
+*/
+
+
+//took about 2min53s with precision =0.5
+//took about 11 sec with precision=1
+    //33 sec classic(donut)
+
+    public  Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,
+                                                                                double radius) {
+    ArrayList<Circle> circles=new ArrayList<Circle>();
+
+
+
+    Double startX=area.getBounds2D().getMinX();
+    Double endX=area.getBounds2D().getMaxX();
+    Double startY=area.getBounds2D().getMinY();
+    Double endY=area.getBounds2D().getMaxY();
+
+
+    for(double i=startX;i<endX;i+=precision){
+      for(double j=startY;j<endY;j=j+precision){
+        circles.add(new Circle(new Vector2(i,j), CraftConfig.suckerDiameter/4));
+
+      }
+
+    }
+    double margin=0;
+    System.out.println("size before="+circles.size());
+    circles= (ArrayList<Circle>) circles.stream().filter(ci -> (area.contains(ci.getCenter().x+ci.getRadius()+margin,ci.getCenter().y) && area.contains(ci.getCenter().x,ci.getCenter().y+ci.getRadius()+margin)
+            && area.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
+            && area.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y))).collect(Collectors.toList());
+
+
+    System.out.println("size after="+circles.size());
+    Vector<Circle> positionTwoMostDistantCercles=new Vector<>();
+    double longestDistance = 0;
+    for (Circle cercle:circles){
+      for (Circle cercle2:circles){
+
+        if (Circle.CircleDistant(cercle, cercle2) > longestDistance) {
+          positionTwoMostDistantCercles.removeAllElements();
+          positionTwoMostDistantCercles.add(cercle);
+          positionTwoMostDistantCercles.add(cercle2);
+          longestDistance = Circle.CircleDistant(cercle, cercle2);
+        }
+
+
+      }
+    }
+ Vector<Vector2> MostTwoDistantPointsInArea=new Vector<>();
+    if (!positionTwoMostDistantCercles.isEmpty()){
+    MostTwoDistantPointsInArea.add(positionTwoMostDistantCercles.firstElement().getCenter());
+    MostTwoDistantPointsInArea.add(positionTwoMostDistantCercles.lastElement().getCenter());
+    }
+    return  MostTwoDistantPointsInArea;
+  }
+
+
+
+//34,62 s classic(donut)
+//
+/*
+    public  Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,double radius) {
+       System.out.println("in the method");
+        ArrayList<Circle> circles=new ArrayList<Circle>();
+
+        Rectangle2D rectangle=area.getBounds2D();
+        double precision=1;
+
+        Double startX=area.getBounds2D().getMinX();
+        Double endX=area.getBounds2D().getMaxX();
+        Double startY=area.getBounds2D().getMinY();
+        Double endY=area.getBounds2D().getMaxY();
+int condition=1;
+        double X1=startX,Y1=startY;
+        double X2=endX-CraftConfig.suckerDiameter/8,Y2=startY;
+        double X3=startX,Y3=startY;
+        double X4=startX,Y4=endY-CraftConfig.suckerDiameter/8;
+while (condition>0){
+
+
+            Rectangle2D fromLeft=new Rectangle2D.Double(X1,Y1,CraftConfig.suckerDiameter/8,rectangle.getHeight());
+            Rectangle2D fromRight=new Rectangle2D.Double(X2,Y2,CraftConfig.suckerDiameter/8,rectangle.getHeight());
+            Rectangle2D fromAbove=new Rectangle2D.Double(X3,Y3,rectangle.getWidth(),CraftConfig.suckerDiameter/8);
+            Rectangle2D fromBelow=new Rectangle2D.Double(X4,Y4,rectangle.getWidth(),CraftConfig.suckerDiameter/8);
+       condition=0;
+    System.out.println("Condition="+condition);
+      System.out.println("X1="+X1+" X2="+X2+" X3="+X3+" X4="+X4);
+       if(!area.intersects(fromLeft)){condition++;
+                X1=X1+fromLeft.getWidth();
+            startX=X1;
+           System.out.println("in1");
+            }
+
+            if(!area.intersects(fromRight)){condition++;
+                X2=X2-fromRight.getWidth();
+            endX=X2;
+                System.out.println("in2");
+            }
+            if(!area.intersects(fromAbove)){condition++;
+                Y3=Y3+fromAbove.getHeight();
+            endY=Y3;
+                System.out.println("in3");
+            }
+            if(!area.intersects(fromBelow)){condition++;
+                Y4=Y4-fromBelow.getHeight();
+            startY=Y4;
+                System.out.println("in4");
+            }
+    System.out.println("X1="+X1+" X2="+X2+" X3="+X3+" X4="+X4);
+    System.out.println("stuck in Condition="+condition);
+        }
+
+        for(double i=startX;i<endX;i+=precision){
+            for(double j=startY;j<endY;j=j+precision){
+                circles.add(new Circle(new Vector2(i,j), CraftConfig.suckerDiameter/4));
+
+            }
+
+        }
+        double margin=0;
+        System.out.println("size before="+circles.size());
+        circles= (ArrayList<Circle>) circles.stream().filter(ci -> (area.contains(ci.getCenter().x+ci.getRadius()+margin,ci.getCenter().y) && area.contains(ci.getCenter().x,ci.getCenter().y+ci.getRadius()+margin)
+                && area.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
+                && area.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y))).collect(Collectors.toList());
+
+
+        System.out.println("size after="+circles.size());
+        Vector<Circle> positionTwoMostDistantCercles=new Vector<>();
+        double longestDistance = 0;
+        for (Circle cercle:circles){
+            for (Circle cercle2:circles){
+
+                if (Circle.CircleDistant(cercle, cercle2) > longestDistance) {
+                    positionTwoMostDistantCercles.removeAllElements();
+                    positionTwoMostDistantCercles.add(cercle);
+                    positionTwoMostDistantCercles.add(cercle2);
+                    longestDistance = Circle.CircleDistant(cercle, cercle2);
+                }
+
+
+            }
+        }
+        Vector<Vector2> MostTwoDistantPointsInArea=new Vector<>();
+        if (!positionTwoMostDistantCercles.isEmpty()){
+            MostTwoDistantPointsInArea.add(positionTwoMostDistantCercles.firstElement().getCenter());
+            MostTwoDistantPointsInArea.add(positionTwoMostDistantCercles.lastElement().getCenter());
+        }
+        return  MostTwoDistantPointsInArea;
+    }
+*/
+
+
+
+
+
+
+
 
   public Vector<Vector2> getTwoMostDistantPointFromArea(Area area) {
 
@@ -114,6 +274,11 @@ public class TwoDistantPointsCalc {
     }
     return positionTwoMostDistantPoint;
   }
+
+
+
+
+
 
 
 

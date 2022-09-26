@@ -55,11 +55,13 @@ public class SubBit2D implements Serializable {
     this.cutPath = cutPath;
     this.parentBit = parentBit;
 
-    computeDistantPoints();
+    //computeDistantPoints();
 
 
-    computeExtremePoints();
+    //computeExtremePoints();
     computeLiftPoints();
+   if(liftPointCB!=null) computeDistantPoints();
+
     computeXminXmaxPoints(liftPointCB);
   }
 
@@ -235,4 +237,11 @@ public class SubBit2D implements Serializable {
   public boolean isValid() {
     return liftPointCB != null;
   }
+public boolean isregular(){
+    if(getLiftPointCS()!=null) {return true;}
+    else {return false;}
+
+}
+
+
 }
