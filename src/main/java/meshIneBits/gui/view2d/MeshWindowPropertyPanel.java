@@ -30,21 +30,15 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
+
+import javax.swing.*;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Collection;
 
 /**
  * Display properties of {@link Mesh}, {@link Layer} and {@link Bit3D}. Observes {@link
@@ -55,6 +49,7 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
   private MeshPropertyPanel meshPropertyPanel = new MeshPropertyPanel();
   private LayerPropertyPanel layerPropertyPanel = new LayerPropertyPanel();
   private BitsPropertyPanel bitsPropertyPanel;
+public static MousePositionPanel MousePropertyPanel=new MousePositionPanel("Mouse Position");
 
   MeshWindowPropertyPanel(MeshController meshController) {
     setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
@@ -67,10 +62,19 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
 
     this.bitsPropertyPanel = new BitsPropertyPanel(meshController.getMesh());
 
+    GridBagConstraints mousePropertyPanelGBC = new GridBagConstraints();
+    mousePropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
+    mousePropertyPanelGBC.gridx = 0;
+    mousePropertyPanelGBC.gridy = 0;
+    mousePropertyPanelGBC.weightx = 1;
+    mousePropertyPanelGBC.weighty = 0;
+    content.add(MousePropertyPanel, mousePropertyPanelGBC);
+
+
     GridBagConstraints meshPropertyPanelGBC = new GridBagConstraints();
     meshPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
     meshPropertyPanelGBC.gridx = 0;
-    meshPropertyPanelGBC.gridy = 0;
+    meshPropertyPanelGBC.gridy = 0+1;
     meshPropertyPanelGBC.weightx = 1;
     meshPropertyPanelGBC.weighty = 0;
     content.add(meshPropertyPanel, meshPropertyPanelGBC);
@@ -78,7 +82,7 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
     GridBagConstraints layerPropertyPanelGBC = new GridBagConstraints();
     layerPropertyPanelGBC.fill = GridBagConstraints.HORIZONTAL;
     layerPropertyPanelGBC.gridx = 0;
-    layerPropertyPanelGBC.gridy = 1;
+    layerPropertyPanelGBC.gridy = 1+1;
     layerPropertyPanelGBC.weightx = 1;
     layerPropertyPanelGBC.weighty = 0;
     content.add(layerPropertyPanel, layerPropertyPanelGBC);
@@ -87,7 +91,7 @@ public class MeshWindowPropertyPanel extends JPanel implements PropertyChangeLis
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.PAGE_START;
     c.gridx = 0;
-    c.gridy = 2;
+    c.gridy = 2+1;
     c.weighty = 1;
     c.weightx = 1;
     content.add(bitsPropertyPanel, c);

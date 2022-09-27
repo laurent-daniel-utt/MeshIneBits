@@ -45,11 +45,13 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 
+import static meshIneBits.gui.view2d.MeshWindowPropertyPanel.MousePropertyPanel;
+
 /**
  * Sketch of slice and layer. Observes the {@link MeshController}.
  */
-class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListener,
-    MouseWheelListener, KeyListener, Observer {
+class MeshWindowCore extends JPanel implements MouseMotionListener,
+        MouseWheelListener, KeyListener,MouseListener, Observer  {
 
   private double viewOffsetX, viewOffsetY;
   private final Map<Bit3D, BitControls> bitMovers = new HashMap<>();
@@ -165,7 +167,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     }
   }
 
-  @Override
+
   public void mouseClicked(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
       Layer layer = meshController.getCurrentLayer();
@@ -227,7 +229,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     meshController.moveSelectedBits(direction);
   }
 
-  @Override
+
   public void mousePressed(MouseEvent e) {
     if (SwingUtilities.isRightMouseButton(e)) {
       rightClickPressed = true;
@@ -244,7 +246,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 //        }
   }
 
-  @Override
+
   public void mouseReleased(MouseEvent e) {
     if (SwingUtilities.isRightMouseButton(e)) {
       rightClickPressed = false;
@@ -264,6 +266,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
   public void mouseExited(MouseEvent e) {
 
   }
+
 
   @Override
   public void mouseDragged(MouseEvent e) {
@@ -290,6 +293,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
     if (meshController.isAddingBits()) {
       repaint();
     }
+   // getPropertiesOf();
+
+    Ellipse2D liftPoint2 = new Ellipse2D.Double(
+            e.getX() ,
+           e.getY() ,
+            1, 1);
+    Shape s2=viewToReal.createTransformedShape(liftPoint2);
+
+    MousePropertyPanel.updateProperties(s2.getBounds2D().getCenterX(),s2.getBounds2D().getCenterY());
+
   }
 
   @Override
@@ -568,6 +581,8 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
       // Lift points
       if (meshController.showingLiftPoints()) {
+        g2d.setColor(WorkspaceConfig.regionColor);
+        drawModelCircle(g2d, 0, 0, (int) CraftConfig.suckerDiameter / 8);
         g2d.setColor(WorkspaceConfig.liftpointColor);
         g2d.setStroke(WorkspaceConfig.liftpointStroke);
         if (!bit3D.getLiftPointsCS()
@@ -601,6 +616,94 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
   }
 
+/*
+  private void paintBits(Graphics2D g2d) {
+    Layer layer = meshController.getCurrentLayer();
+    Vector<SubBit2D> SubBits=new Vector<>();
+    if (layer == null
+            || layer.getFlatPavement() == null) {
+      return;
+    }
+    Vector<Vector2> bitKeys = layer.getBits3dKeys();
+    for (Vector2 bitKey : bitKeys) {
+      Bit3D bit3D = layer.getBit3D(bitKey);
+      NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
+      SubBits .addAll(newBit2D.getSubBits());
+
+
+
+
+    for (SubBit2D subbit2D : SubBits) {
+
+      Bit2D bit2D = bit3D.getBaseBit();
+      // Draw each bits
+     // NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
+      //Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
+      // Area
+      if (meshController.showingIrregularBits()
+         && !subbit2D.isregular()
+      )
+
+      {
+         g2d.setColor(WorkspaceConfig.irregularBitColor);
+      }else if (meshController.showingBitNotFull() && !bit2D.isFullLength()) {
+        g2d.setColor(WorkspaceConfig.bitNotFullLength);
+      } else {
+        if (subbit2D.isregular())g2d.setColor(WorkspaceConfig.regularBitColor);
+      }
+      if (bit2D.isUsedForNN()) {
+        g2d.setColor(WorkspaceConfig.forAI_BitColor);
+      }
+      drawModelArea(g2d, bit2D.getAreaCS());
+
+      // Cut paths
+      Vector<Path2D> cutpaths = bit2D.getCutPathsCS();
+      if (meshController.showingCutPaths()
+              && (cutpaths != null)) {
+        g2d.setColor(WorkspaceConfig.cutpathColor);
+        g2d.setStroke(WorkspaceConfig.cutpathStroke);
+        cutpaths.forEach(path2D -> drawModelPath2D(g2d, path2D));
+      }
+
+      // Lift points
+      if (meshController.showingLiftPoints()) {
+        g2d.setColor(WorkspaceConfig.regionColor);
+        drawModelCircle(g2d, 0, 0, (int) CraftConfig.suckerDiameter / 8);
+        g2d.setColor(WorkspaceConfig.liftpointColor);
+        g2d.setStroke(WorkspaceConfig.liftpointStroke);
+        if (!bit3D.getLiftPointsCS()
+                .isEmpty()) {
+          bit3D.getLiftPointsCS()
+                  .forEach(liftPoint ->
+                          drawModelCircle(g2d,
+                                  liftPoint.x,
+                                  liftPoint.y,
+                                  (int) CraftConfig.suckerDiameter));
+        }
+        g2d.setColor(Color.black);
+        if (!bit3D.getTwoDistantPointsCS()
+                .isEmpty()) {
+          for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
+            // System.out.println("innnit");
+            drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+          }
+        }
+        //    for (Vector2 point : bit3D.getTwoExtremeXPointsCS()) {
+//g2d.setColor(Color.BLUE);
+        //   drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+        //        }
+
+
+      }
+    }
+      SubBits.removeAll(newBit2D.getSubBits());
+    }
+  }*/
+
+
+
+
+
   private void showirregular(Bit3D bit3D,Layer layer,Graphics2D g2d){
 
 
@@ -612,14 +715,20 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
       System.out.println("size subbits="+SubBits.size()+" lift="+bit3D.getLiftPointsCS().toString());
       for(SubBit2D subBits:SubBits){
         if( !subBits.isregular()){//System.out.println("lift sub="+subBits.getLiftPointCS());
-          g2d.setColor(WorkspaceConfig.irregularBitColor);
+
+          g2d.setColor(Color.RED);
+
 
         }
-        else {g2d.setColor(WorkspaceConfig.regularBitColor);
+        else {
+          g2d.setColor(WorkspaceConfig.regularBitColor);
 
         }
         System.out.println("lift sub="+subBits.getLiftPointCS());
         System.out.println("Color="+g2d.getColor());
+        System.out.println("Area="+subBits.getAreaCS().getBounds());
+       // if(subBits.getLiftPointCS()==null){g2d.setColor(Color.cyan);
+         // g2d.fill(subBits.getAreaCS().getBounds());}
         drawModelArea(g2d,subBits.getAreaCS());
 
 
@@ -796,6 +905,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
 
   private void drawModelPath2D(Graphics2D g2d, Path2D path2D) {
     g2d.draw(path2D.createTransformedShape(realToView));
+
   }
 
   private void drawModelArea(Graphics2D g2d, Area area) {
@@ -811,6 +921,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener, MouseListene
         y - (radius >> 1),
         radius, radius);
     g2d.draw(realToView.createTransformedShape(liftPoint));
+
   }
 
   private class TriangleShape extends Path2D.Double {

@@ -142,7 +142,7 @@ public void play(){
 
         processor.onTerminated();
         init3DFrame();
-       // FIXME initProcessor() rend les bits bizzares
+
        WindowStatus=2;
                 noLoop();
                 initProcessor();
