@@ -232,6 +232,10 @@ public class Bit3D implements Serializable, Cloneable {
     }
   }
 
+
+
+
+
   public double getLowerAltitude() {
     return lowerAltitude;
   }

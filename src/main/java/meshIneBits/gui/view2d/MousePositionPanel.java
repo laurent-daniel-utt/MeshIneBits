@@ -15,24 +15,7 @@ private static final String XPOSITION="X";
     }
 
 
-    /*
-        private static String[][] getPropertiesOf(Mesh mesh) {
-            if (mesh == null) {
-                return new String[][]{
-                        {XPOSITION, "UNKNOWN"},
-                        {YPOSITION, "UNKNOWN"}
-                };
-            } else {
-                File modelFile = new File(mesh.getModelFile());
-                Model model = mesh.getModel();
-                return new String[][]{
-                        {XPOSITION, String.valueOf(getPointerInfo().getLocation())},
-                        {YPOSITION, modelFile.getPath()}
-                };
-            }
 
-        }
-    */
     public static String[][]getPropertiesOf(double x,double y){
 
         return new String[][]{

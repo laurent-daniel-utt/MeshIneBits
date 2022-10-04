@@ -43,19 +43,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
 
 /**
  * Build by a {@link PatternTemplate}. Literally a {@link Set} of {@link Bit2D}.
@@ -114,6 +103,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     mapBits = new HashMap<>();
     for (Bit2D bit : bits) {
       addBit(bit);
+
     }
   }
 

@@ -688,6 +688,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
         "Remove chosen bit(s)",
         "DELETE",
         meshController::deleteSelectedBits);
+
     meshActionList.add(deleteBit);
 
     MeshAction restoreBit = new MeshAction(

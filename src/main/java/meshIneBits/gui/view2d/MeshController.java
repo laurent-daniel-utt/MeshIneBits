@@ -92,8 +92,13 @@ public class MeshController extends Observable implements Observer ,
   public static final String BIT_SELECTED = "bitSelected";
   public static final String BITS_SELECTED = "bitsSelected";
   public static final String DELETING_BITS = "deletingBits";
+  public static final String DELETING_SUBBITS="deletingSubBits";
+
+  public static final String SUBBITS_DELETED="deletedSubBits";
   public static final String BITS_DELETED = "deletedBits";
 
+  public static final String SubBIT_UNSELECTED="subBitUnSelected";
+  public static final String SubBIT_SELECTED="subBitSelected";
   // New bit config
   private final DoubleParam newBitsLengthParam = new DoubleParam(
       "newBitLength",
@@ -141,6 +146,9 @@ public class MeshController extends Observable implements Observer ,
   private Mesh mesh;
   private int layerNumber = -1;
   private Set<Vector2> selectedBitKeys = new HashSet<>();
+  private Set<SubBit2D> selectedsubBit = new HashSet<>();
+  private Set<SubBit2D> selectedsubBitMemory = new HashSet<>();
+
   private Layer currentLayer = null;
   private double zoom = 1;
   private boolean showSlice = true;
@@ -238,7 +246,6 @@ public static CountDownLatch r=new CountDownLatch(1);
         case IMPORTING:
           break;
         case IMPORTED:
-          //meshWindow.getView3DWindow().setCurrentMesh(mesh);
           MeshProvider.getInstance()
               .setMesh(mesh);
           break;
@@ -263,7 +270,7 @@ public static CountDownLatch r=new CountDownLatch(1);
           checkEmptyLayers();
           setChanged();
           notifyObservers(MeshEvents.PAVED_MESH);
-System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowStatus="+WindowStatus);
+
           if (WindowStatus==2)r.countDown();
           Paved.set(true);
           // Notify property panel
@@ -329,7 +336,7 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
     }
   }
 
-  private void updateAvailableArea() {
+ /* private void updateAvailableArea() {
     availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
     Pavement pavement = getCurrentLayer().getFlatPavement();
     if (pavement == null) {
@@ -343,6 +350,20 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
                 safeguardSpaceParam.getCurrentValue())
         ));
   }
+*/
+ private void updateAvailableArea() {System.out.println("updated");
+   availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
+   Pavement pavement = getCurrentLayer().getFlatPavement();
+   if (pavement == null) {
+     return; // Empty layer
+   }
+   getCurrentLayer().getSubBits()
+           .forEach(sub -> availableArea.subtract(
+                   AreaTool.expand(
+                          sub.getAreaCS(),safeguardSpaceParam.getCurrentValue())
+           ));
+ }
+
 
   public void setLayer(int layerNum) {
     if (mesh == null) {
@@ -442,7 +463,9 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
         .map(getCurrentLayer()::getBit3D)
         .collect(Collectors.toSet());
   }
-
+  public Set<SubBit2D> getSelectedSubBits() {
+    return selectedsubBit;
+  }
 
   /**
    * Restore a mesh into working space
@@ -568,9 +591,46 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(selectedBitKeys, true);
     selectedBitKeys.clear();
-    getCurrentLayer().rebuild();
+    //TODO verify if putting this rebuild in comment will affect anything
+    //getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
+
+
+
+
+
+
+  public void deleteSelectedSubBits() {System.out.println("Removing");
+    //save action before doing
+
+    //Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
+    //Set<Bit3D> bit3DSet = this.getSelectedBits();
+    //handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+      //      this.getCurrentLayer().getLayerNumber()));
+
+    changes.firePropertyChange(DELETING_SUBBITS, null, getSelectedBits());
+   //getCurrentLayer().removeBits(selectedBitKeys, true);
+    selectedsubBit.forEach(subBit2D -> subBit2D.setRemoved(true));
+
+    selectedsubBitMemory.addAll(selectedsubBit);
+
+   getCurrentLayer().setRemovedSubBits((HashSet<SubBit2D>) selectedsubBitMemory);
+
+    selectedsubBit.clear();
+    //getCurrentLayer().rebuild();
+    setChanged();
+   notifyObservers();
+
+    changes.firePropertyChange(SUBBITS_DELETED, null, getCurrentLayer());
+  }
+
+
+
+
+
+
+
 
   public void deleteBitsByBitsAndKeys(Set<Bit3D> bit3DSet, Set<Vector2> keys) {
     setSelectedBitKeys(keys);
@@ -682,6 +742,18 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
     return null;
   }
 
+  private SubBit2D findSubBitAt(Point2D.Double position){
+  HashSet<SubBit2D>subbits=new HashSet<>(getCurrentLayer().getSubBits());
+         for(SubBit2D sub:subbits){
+           if(sub.getAreaCS().contains(position)){
+             return sub;
+           }
+
+         }
+
+    return null;
+  }
+
   /**
    * Add new bit key to {@link #selectedBitKeys} and remove if already present
    *
@@ -759,12 +831,22 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
       return;
     }
     Pavement flatPavement = getCurrentLayer().getFlatPavement();
-    for (Vector2 key : flatPavement.getBitsKeys()) {
-      if (bulkSelectZone.contains(flatPavement.getBit(key)
+    for (Vector2 key : flatPavement.getBitsKeys()) {NewBit2D bit=(NewBit2D)flatPavement.getBit(key);
+     for(SubBit2D sub:bit.getSubBits()){
+       if (bulkSelectZone.contains(sub
+               .getAreaCS()
+               .getBounds2D()) && !sub.isRemoved()) {
+         selectedBitKeys.add(key);
+       }
+
+     }
+
+
+    /*  if (bulkSelectZone.contains(flatPavement.getBit(key)
           .getAreaCS()
           .getBounds2D())) {
         selectedBitKeys.add(key);
-      }
+      }*/
     }
     clearBulkSelect();
     changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -1141,7 +1223,9 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
    */
   public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
     Vector2 bitKey = findBitAt(clickSpot);
-    if (mesh == null || !mesh.isPaved() || bitKey == null) {
+    SubBit2D sub=findSubBitAt(clickSpot);
+
+    if (mesh == null || !mesh.isPaved() || bitKey == null || sub.isRemoved()) {
       return;
     }
     if (!selectedBitKeys.add(bitKey)) {
@@ -1154,6 +1238,30 @@ System.out.println("Thread in paved="+Thread.currentThread().getName()+" WindowS
     setChanged();
     notifyObservers();
   }
+
+  public void toggleInclusionOfSubBitHaving(Point2D.Double clickSpot) {
+
+    SubBit2D subBit=findSubBitAt(clickSpot);
+    Vector2 bitKey = findBitAt(clickSpot);
+
+
+
+    if (mesh == null || !mesh.isPaved() || subBit == null) {
+      return;
+    }
+    if (selectedsubBit.contains(subBit)) {
+      selectedsubBit.remove(subBit);
+      changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
+    } else {System.out.println("are u even in else ?");
+      selectedsubBit.add(subBit);
+
+      changes.firePropertyChange(SubBIT_SELECTED, null, subBit);
+    }
+    // Notify the core
+    setChanged();
+    notifyObservers();
+  }
+
 
   /**
    * Call to back to step previous

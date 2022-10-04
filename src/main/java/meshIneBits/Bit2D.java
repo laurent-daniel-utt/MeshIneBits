@@ -30,24 +30,21 @@
 
 package meshIneBits;
 
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Vector;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
+import java.awt.geom.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is build with multiple
@@ -255,6 +252,10 @@ public class Bit2D implements Cloneable, Serializable {
     transformedArea.transform(transfoMatrixCS);
     return transformedArea;
   }
+
+
+
+
 
   /**
    * @return clone of all surfaces making this bit transformed by

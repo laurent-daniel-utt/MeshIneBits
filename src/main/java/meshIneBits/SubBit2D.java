@@ -38,6 +38,8 @@ public class SubBit2D implements Serializable {
   private final Area areaCB;
   private final Path2D cutPath;
 
+  private boolean removed=false;
+
   public SubBit2D(
       @NotNull Vector2 originPositionCS,
       @NotNull Vector2 orientationCS,
@@ -87,6 +89,13 @@ public class SubBit2D implements Serializable {
     return areaCS;
   }
 
+  public boolean isRemoved() {
+    return removed;
+  }
+ public void setRemoved(boolean b){
+    this.removed=b;
+
+ }
   @SuppressWarnings("unused")
   public Path2D getCutPathCB() {
     return cutPath;

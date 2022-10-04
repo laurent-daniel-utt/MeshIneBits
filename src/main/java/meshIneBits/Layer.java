@@ -73,6 +73,7 @@ public class Layer extends Observable implements Serializable {
   private double lowerAltitude;
   private double higherAltitude;
 
+   private HashSet<SubBit2D>removedSubBits=new HashSet<>();
 
   //    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
@@ -175,6 +176,19 @@ public class Layer extends Observable implements Serializable {
   }
 
 
+  public HashSet<SubBit2D>getRemovedSubBits(){
+
+    return removedSubBits;
+  }
+  public void addRemovedSubBit(SubBit2D sub){
+    removedSubBits.add(sub);
+
+  }
+  public void  setRemovedSubBits(HashSet<SubBit2D> set){
+    removedSubBits=new HashSet<>(set);
+
+  }
+
   /**
    * Rebuild the whole layer. To be called after overall changes made on this {@link Layer}
    */
@@ -210,7 +224,7 @@ public class Layer extends Observable implements Serializable {
    *
    * @since 0.3
    */
-  private void extrudeBitsTo3D() {
+  private void extrudeBitsTo3D() {System.out.println("rebuilt");
 
     mapBits3D = flatPavement.getBitsKeys()
         .parallelStream()
@@ -335,6 +349,18 @@ public class Layer extends Observable implements Serializable {
         .collect(Collectors.toCollection(Vector::new));
   }
 
+
+  public Vector<SubBit2D> getSubBits() {
+    Vector<SubBit2D> keySet = new Vector<>();
+    if (mapBits3D == null) {
+      return keySet;
+    }
+    return mapBits3D.values()
+            .stream()
+            .map(Bit3D::getSubBits)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(Vector::new));
+  }
 
   /**
    * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of {@link Bit2D} and decide
@@ -531,6 +557,7 @@ public class Layer extends Observable implements Serializable {
    */
   public void removeBit(Vector2 key, boolean b) {
     Bit3D oldBit = getBit3D(key);
+
     flatPavement.removeBit(key);
     mapBits3D.remove(key);
     irregularBits.remove(key);
