@@ -258,6 +258,18 @@ public class Layer extends Observable implements Serializable {
     }
     return new Vector<>(mapBits3D.keySet());
   }
+  public Vector2 getKey(Bit2D bit){
+    for (Vector2 key : flatPavement.getBitsKeys()) {
+      if (flatPavement.getBit(key)==bit){
+
+        return key;
+      }
+
+  }
+  return null;
+  }
+
+
 
   public int getBitsNb(){
     if (mapBits3D == null) {return 0; }
@@ -572,6 +584,24 @@ public class Layer extends Observable implements Serializable {
       ));
     }
   }
+  public void removeSubBit(Vector2 key,SubBit2D sub, boolean b) {
+    Bit3D oldBit = getBit3D(key);
+
+    flatPavement.removeSubBit(key, sub);
+   // mapBits3D.remove(key);
+   // irregularBits.remove(key);
+    if (b) {
+      setChanged();
+      notifyObservers(new M(
+              M.LAYER_REMOVED_BIT,
+              M.map(
+                      M.OLD_BIT,
+                      oldBit
+              )
+      ));
+    }
+  }
+
 
   /**
    * Remove multiple bits

@@ -146,6 +146,8 @@ public class MeshController extends Observable implements Observer ,
   private Mesh mesh;
   private int layerNumber = -1;
   private Set<Vector2> selectedBitKeys = new HashSet<>();
+  private Set<Vector2> selectedBitKeysOfSubbit = new HashSet<>();
+
   private Set<SubBit2D> selectedsubBit = new HashSet<>();
   private Set<SubBit2D> selectedsubBitMemory = new HashSet<>();
 
@@ -463,6 +465,11 @@ public static CountDownLatch r=new CountDownLatch(1);
         .map(getCurrentLayer()::getBit3D)
         .collect(Collectors.toSet());
   }
+  public Set<Bit3D> getSelectedBitsforSubBits() {
+    return selectedBitKeysOfSubbit.stream()
+            .map(getCurrentLayer()::getBit3D)
+            .collect(Collectors.toSet());
+  }
   public Set<SubBit2D> getSelectedSubBits() {
     return selectedsubBit;
   }
@@ -592,7 +599,7 @@ public static CountDownLatch r=new CountDownLatch(1);
     getCurrentLayer().removeBits(selectedBitKeys, true);
     selectedBitKeys.clear();
     //TODO verify if putting this rebuild in comment will affect anything
-    //getCurrentLayer().rebuild();
+   // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
 
@@ -604,19 +611,22 @@ public static CountDownLatch r=new CountDownLatch(1);
   public void deleteSelectedSubBits() {System.out.println("Removing");
     //save action before doing
 
-    //Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
-    //Set<Bit3D> bit3DSet = this.getSelectedBits();
-    //handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
-      //      this.getCurrentLayer().getLayerNumber()));
 
+
+    Set<Vector2> previousKeys = new HashSet<>(this.selectedBitKeysOfSubbit);
+    Set<Bit3D> bit3DSet = this.getSelectedBitsforSubBits();
+
+    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+            this.getCurrentLayer().getLayerNumber()));
     changes.firePropertyChange(DELETING_SUBBITS, null, getSelectedBits());
-   //getCurrentLayer().removeBits(selectedBitKeys, true);
+
     selectedsubBit.forEach(subBit2D -> subBit2D.setRemoved(true));
 
     selectedsubBitMemory.addAll(selectedsubBit);
 
    getCurrentLayer().setRemovedSubBits((HashSet<SubBit2D>) selectedsubBitMemory);
-
+selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLayer().getKey(subBit2D.getParentBit()),subBit2D,true));
+    selectedBitKeysOfSubbit.clear();
     selectedsubBit.clear();
     //getCurrentLayer().rebuild();
     setChanged();
@@ -1224,6 +1234,10 @@ public static CountDownLatch r=new CountDownLatch(1);
   public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
     Vector2 bitKey = findBitAt(clickSpot);
     SubBit2D sub=findSubBitAt(clickSpot);
+    Bit3D bit=getCurrentLayer().getBit3D(bitKey);
+    //System.out.println("The size="+bit.getSubBits().size());
+    //NewBit2D newBit2D = ((NewBit3D) bit).getBaseBit();
+    //newBit2D.removeSubbit(sub);
 
     if (mesh == null || !mesh.isPaved() || bitKey == null || sub.isRemoved()) {
       return;
@@ -1250,9 +1264,11 @@ public static CountDownLatch r=new CountDownLatch(1);
       return;
     }
     if (selectedsubBit.contains(subBit)) {
+       selectedBitKeysOfSubbit .remove(bitKey);
       selectedsubBit.remove(subBit);
       changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
     } else {System.out.println("are u even in else ?");
+      selectedBitKeysOfSubbit.add(bitKey);
       selectedsubBit.add(subBit);
 
       changes.firePropertyChange(SubBIT_SELECTED, null, subBit);

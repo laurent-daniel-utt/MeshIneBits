@@ -1,14 +1,15 @@
 package meshIneBits;
 
+import meshIneBits.SubBit2D.SubBitBuilder;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.util.Vector2;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import meshIneBits.SubBit2D.SubBitBuilder;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.util.Vector2;
-import org.jetbrains.annotations.NotNull;
 
 public class NewBit2D extends Bit2D {
 
@@ -102,7 +103,12 @@ public class NewBit2D extends Bit2D {
     return new Vector<>(subBits);
 
   }
+public void removeSubbit(SubBit2D sub){
+    subBits.remove(sub);
 
+
+
+}
   public Vector<SubBit2D> getValidSubBits() {
     return subBits.stream()
         .filter(SubBit2D::isValid)
