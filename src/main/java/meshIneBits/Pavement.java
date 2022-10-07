@@ -200,6 +200,21 @@ public class Pavement extends Observable implements Cloneable, Serializable {
 //        return bitToMove;
   }
 
+  public Vector2 rotateBit(Vector2 key, Vector2 orientation) {
+    Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
+    System.out.println(key.toString());
+
+
+    removeBit(key);
+    return addBit(new NewBit2D(
+            bitToMove.getOriginCS(),
+            orientation,
+            bitToMove.getLength(),
+            bitToMove.getWidth()));
+
+  }
+
+
   /**
    * Unregister a {@link Bit2D}
    *

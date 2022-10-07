@@ -117,6 +117,12 @@ public class MeshController extends Observable implements Observer ,
       "Bit orientation",
       "Angle of bits in respect to that of layer",
       -180.0, 180.0, 0.0, 0.01);
+  private final DoubleParam bitsrotater = new DoubleParam(
+          "newBitsOrientation",
+          "SelectedBits orientation",
+          "Angle of Rotatedbits in respect to that of layer",
+          -180.0, 180.0, 0.0, 0.01);
+
   private final DoubleParam safeguardSpaceParam = new DoubleParam(
       "safeguardSpace",
       "Space around bit",
@@ -207,6 +213,7 @@ public static CountDownLatch r=new CountDownLatch(1);
   public Mesh getMesh() {
     return mesh;
   }
+
 
   public void setMesh(Mesh mesh) {
     this.mesh = mesh;
@@ -353,7 +360,7 @@ public static CountDownLatch r=new CountDownLatch(1);
         ));
   }
 */
- private void updateAvailableArea() {System.out.println("updated");
+ private void updateAvailableArea() {
    availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
    Pavement pavement = getCurrentLayer().getFlatPavement();
    if (pavement == null) {
@@ -599,7 +606,7 @@ public static CountDownLatch r=new CountDownLatch(1);
     getCurrentLayer().removeBits(selectedBitKeys, true);
     selectedBitKeys.clear();
     //TODO verify if putting this rebuild in comment will affect anything
-   // getCurrentLayer().rebuild();
+    //getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
 
@@ -653,8 +660,19 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
 
   public void incrementBitsOrientationParamBy(double v) {
     newBitsOrientationParam.incrementBy(v, true);
+
     setChanged();
     notifyObservers();
+  }
+
+  public void incrementSelectedBitsOrientationParamBy(double v) {
+    bitsrotater.incrementBy(v, true);
+
+    setChanged();
+    notifyObservers();
+
+
+
   }
 
   public Layer getCurrentLayer() {
@@ -677,6 +695,9 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
     return a;
   }
 
+
+
+
   private void calcBitFullLengthOrNormal(Area a) {
     fullLength = (Bit2D.checkSectionHoldingToCut(
         new Vector2(currentPoint.getX(), currentPoint.getY()),
@@ -686,7 +707,7 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
   /**
    * @param position in {@link Mesh}'s coordinate system
    */
-  public void addNewBitAt(Point2D.Double position) {
+  public void addNewBitAt(Point2D.Double position,boolean rotating) {
     if (mesh == null
         || getCurrentLayer().getFlatPavement() == null
         || position == null
@@ -699,8 +720,11 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
         && prohibitAddingIrregularBitParam.getCurrentValue()) {
       return;
     }
-    Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
-    Vector2 origin = new Vector2(position.x, position.y);
+    Vector2 lOrientation;
+    if(!rotating){  lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());}
+
+   else { lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
+   Vector2 origin = new Vector2(position.x, position.y);
     //save origin of new bit
     Set<Vector2> resultKey = new HashSet<>();
     resultKey.add(origin);
@@ -725,6 +749,7 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
     }
     this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey, this.getSelectedBits(),
         getCurrentLayer().getLayerNumber()));
+  selectedBitKeys.clear();
   }
 
   public void addBit3Ds(Collection<Bit3D> bits3d) {
@@ -804,6 +829,11 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
 
   public DoubleParam getNewBitsOrientationParam() {
     return newBitsOrientationParam;
+  }
+
+  public  DoubleParam getBitsrotater(){
+
+    return  bitsrotater;
   }
 
   public DoubleParam getSafeguardSpaceParam() {
@@ -1226,6 +1256,9 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
             getCurrentLayer().getLayerNumber()));
   }
 
+
+
+
   /**
    * Add new bit key to {@link #selectedBitKeys} and remove if already present
    *
@@ -1234,7 +1267,7 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
   public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
     Vector2 bitKey = findBitAt(clickSpot);
     SubBit2D sub=findSubBitAt(clickSpot);
-    Bit3D bit=getCurrentLayer().getBit3D(bitKey);
+
     //System.out.println("The size="+bit.getSubBits().size());
     //NewBit2D newBit2D = ((NewBit3D) bit).getBaseBit();
     //newBit2D.removeSubbit(sub);

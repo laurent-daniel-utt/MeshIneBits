@@ -50,7 +50,7 @@ import static meshIneBits.gui.view2d.MeshWindowPropertyPanel.MousePropertyPanel;
 /**
  * Sketch of slice and layer. Observes the {@link MeshController}.
  */
-class MeshWindowCore extends JPanel implements MouseMotionListener,
+public class MeshWindowCore extends JPanel implements MouseMotionListener,
         MouseWheelListener, KeyListener,MouseListener, Observer  {
 
   private double viewOffsetX, viewOffsetY;
@@ -60,14 +60,17 @@ class MeshWindowCore extends JPanel implements MouseMotionListener,
   private double defaultZoom = 1;
   private double drawScale = 1;
   private boolean onControl;
-  private AffineTransform realToView;
-  private AffineTransform viewToReal;
-  private MeshController meshController;
+  public static AffineTransform realToView;
+ public static AffineTransform viewToReal;
+  public static MeshController meshController;
 
   private boolean controlPressed=false;
   private boolean onShift;
 
   private CustomLogger logger = new CustomLogger(this.getClass());
+  private boolean rotating;
+
+  private Bit3D rotatedBit;
 
   MeshWindowCore(MeshController meshController) {
 
@@ -166,6 +169,16 @@ class MeshWindowCore extends JPanel implements MouseMotionListener,
 //        if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)){
 //            meshController.redo();
 //        }
+  if(e.getKeyCode()==KeyEvent.VK_ESCAPE && rotating){
+    rotating=false;
+
+
+Point2D.Double position=new Point2D.Double(rotatedBit.getOrigin().x,rotatedBit.getOrigin().y);
+meshController.addNewBitAt(position,true);
+
+  }
+
+
    if (e.getKeyCode()==KeyEvent.VK_CONTROL)controlPressed=true;
     onControl = e.isControlDown();
 //        meshController.setAddingBits(e.isShiftDown());
@@ -200,7 +213,7 @@ class MeshWindowCore extends JPanel implements MouseMotionListener,
 
       if (layer.isPaved()) {
         if (meshController.isAddingBits()) {
-          meshController.addNewBitAt(clickSpot);
+          meshController.addNewBitAt(clickSpot,false);
           return;
         }
 
@@ -233,6 +246,11 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
     }
 
   }
+
+
+
+
+
 
   private void onClickedBitControl(int id) {
     Vector2 direction = null;
@@ -377,15 +395,31 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
         }
       } else {
         // Rotate the bit preview
-        if (meshController.isAddingBits()) {
+        if (meshController.isAddingBits() ) {
           meshController.incrementBitsOrientationParamBy(notches * WorkspaceConfig.rotationSpeed);
         }
       }
-    } else {
+    } else if(rightClickPressed) {
       // Navigate through layers when right click pressed
       meshController.setLayer(meshController.getLayerNumber() + e.getWheelRotation());
     }
-  }
+   if(!meshController.getSelectedBits().isEmpty() && controlPressed) {
+if (meshController.getSelectedBits().size()==1){
+Iterator<Bit3D>it=meshController.getSelectedBits().iterator();
+  //meshController.getCurrentLayer().removeBit(it.next(),true);
+  rotatedBit=it.next();
+  meshController.deleteSelectedBits();
+  rotating=true;
+    double notches = e.getPreciseWheelRotation();
+
+  meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.rotationSpeed);
+}
+    }
+if(rotating) { double notches = e.getPreciseWheelRotation();
+
+     meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.rotationSpeed);
+   }
+}
 
   @Override
   public void update(Observable o, Object arg) {
@@ -470,6 +504,10 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
       // Draw the preview of adding bits
       if (meshController.isAddingBits()) {
         paintBitPreview(g2d);
+      }
+      if(rotating){
+
+        paintBitPreviewRotation(g2d,rotatedBit.getOrigin());
       }
 
       if (meshController.isBulkSelecting()) {
@@ -881,6 +919,74 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
       g2d.fill(availableBitArea);
     }
   }
+
+
+
+
+  private void paintBitPreviewRotation(Graphics2D g2d, Vector2 origin) {
+    // Bit boundary
+    Rectangle2D.Double r = new Rectangle2D.Double(
+            -CraftConfig.lengthFull / 2,
+            -CraftConfig.bitWidth / 2,
+            meshController.getNewBitsLengthParam()
+                    .getCurrentValue(),
+            meshController.getNewBitsWidthParam()
+                    .getCurrentValue());
+    // Current position of cursor
+    Point2D.Double currentSpot = new Point2D.Double(origin.x, origin.y); // In view
+    //viewToReal.transform(currentSpot, currentSpot); // In real
+    meshController.setCurrentPoint(currentSpot);
+    // Transform into current view
+    AffineTransform originToCurrentSpot = new AffineTransform();
+    originToCurrentSpot.translate(currentSpot.x, currentSpot.y);
+    Vector2 lOrientation = Vector2.getEquivalentVector(
+            meshController.getBitsrotater()
+                    .getCurrentValue());
+    originToCurrentSpot.rotate(lOrientation.x, lOrientation.y);
+
+    Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
+    Shape bitPreviewInView = realToView.createTransformedShape(bitPreviewInReal);
+    Area sectionHolding = new Area(
+            new Rectangle2D.Double(CraftConfig.lengthFull / 2 - CraftConfig.sectionHoldingToCut
+                    , -CraftConfig.bitWidth / 2
+                    , CraftConfig.sectionHoldingToCut
+                    , CraftConfig.bitWidth));
+    sectionHolding.transform(originToCurrentSpot);
+    sectionHolding.transform(realToView);
+
+    Area availableBitArea = meshController.getAvailableBitAreaFrom(bitPreviewInReal); // in real pos
+    boolean irregular = DetectorTool.checkIrregular(availableBitArea);
+    // Fit into view
+    availableBitArea.transform(realToView);
+    // Change color based on irregularity
+    if (!irregular) {
+      if (!meshController.isFullLength()) {
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fill(sectionHolding);
+      }
+      // Draw border
+      g2d.setColor(WorkspaceConfig.bitPreviewBorderColor);
+      g2d.setStroke(WorkspaceConfig.bitPreviewBorderStroke);
+      g2d.draw(bitPreviewInView);
+      // Draw internal area
+      g2d.setColor(WorkspaceConfig.bitPreviewColor);
+      g2d.fill(availableBitArea);
+
+
+    } else {
+      // Draw border
+      g2d.setColor(WorkspaceConfig.irregularBitPreviewBorderColor);
+      g2d.setStroke(WorkspaceConfig.irregularBitPreviewBorderStroke);
+      g2d.draw(bitPreviewInView);
+      // Draw internal area
+      g2d.setColor(WorkspaceConfig.irregularBitPreviewColor);
+      g2d.fill(availableBitArea);
+    }
+  }
+
+
+
+
 
   private void drawModelPath2D(Graphics2D g2d, Path2D path2D) {
     g2d.draw(path2D.createTransformedShape(realToView));

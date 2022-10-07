@@ -327,7 +327,10 @@ public class Bit2D implements Cloneable, Serializable {
   public Vector2 getOrientation() {
     return orientation;
   }
+public void setOrientation(Vector2 orientation){
+    this.orientation=orientation;
 
+}
   /**
    * @return the origin in the {@link Mesh} coordinate system
    */

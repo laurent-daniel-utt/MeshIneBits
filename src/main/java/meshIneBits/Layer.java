@@ -524,6 +524,7 @@ public class Layer extends Observable implements Serializable {
     for (Vector2 pos : new HashSet<>(newPositions)) {
       Bit2D bit2D = flatPavement.getBit(pos);
       Area a = getInteriorArea(bit2D);
+
       if (a == null) {
         flatPavement.removeBit(pos);
         newPositions.remove(pos);
@@ -548,6 +549,8 @@ public class Layer extends Observable implements Serializable {
 
     return newPositions;
   }
+
+
 
   /**
    * @param key bit origin in 2D plan
