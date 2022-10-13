@@ -592,6 +592,11 @@ public static CountDownLatch r=new CountDownLatch(1);
 //        mesh.pave(patternTemplate);
   }
 
+
+
+  public PropertyChangeSupport getChanges(){
+    return changes;
+  }
   public void deleteSelectedBits() {
     //save action before doing
     if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
@@ -605,8 +610,9 @@ public static CountDownLatch r=new CountDownLatch(1);
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(selectedBitKeys, true);
     selectedBitKeys.clear();
+
     //TODO verify if putting this rebuild in comment will affect anything
-    //getCurrentLayer().rebuild();
+   // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
 
@@ -670,9 +676,10 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
 
     setChanged();
     notifyObservers();
-
-
-
+  }
+  public void updateCore(){
+    setChanged();
+    notifyObservers();
   }
 
   public Layer getCurrentLayer() {
@@ -707,7 +714,7 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
   /**
    * @param position in {@link Mesh}'s coordinate system
    */
-  public void addNewBitAt(Point2D.Double position,boolean rotating) {
+  public void addNewBitAt(Point2D.Double position,boolean rotating,Vector2 orientation,Vector2 neworigin) {
     if (mesh == null
         || getCurrentLayer().getFlatPavement() == null
         || position == null
@@ -721,10 +728,13 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
       return;
     }
     Vector2 lOrientation;
-    if(!rotating){  lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());}
+    if(!rotating && neworigin==null){  lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());}
 
-   else { lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
-   Vector2 origin = new Vector2(position.x, position.y);
+   else if(rotating){ lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
+   else { lOrientation=orientation;}
+    Vector2 origin;
+    origin= new Vector2(position.x, position.y);
+
     //save origin of new bit
     Set<Vector2> resultKey = new HashSet<>();
     resultKey.add(origin);
@@ -1242,19 +1252,39 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
   }
 
   public void moveSelectedBits(Vector2 direction) {
-    // Save before doing
+   /* // Save before doing
     Set<Bit3D> cloned = getSelectedBits();
     Set<Vector2> previousSelectedBits = new HashSet<>(this.getSelectedBitKeys());
     //move bits
-    setSelectedBitKeys(getCurrentLayer().moveBits(getSelectedBits(), direction));
-    Set<Bit3D> bits3D = this.getSelectedBits();
+   */
+ Iterator<Bit3D> it=getSelectedBits().iterator();
+    Bit3D bitToMove=it.next();
+     getCurrentLayer().moveBit(bitToMove, direction);
+
+    double distance = 0;
+    if (direction.x == 0) {// up or down
+      distance = CraftConfig.bitWidth / 2;
+    } else if (direction.y == 0) {// left or right
+      distance = CraftConfig.lengthFull / 2;
+    }
+Bit2D bitToMove2D=bitToMove.getBaseBit();
+
+    Vector2 translationInMesh =
+            direction.rotate(bitToMove2D.getOrientation())
+                    .normal()
+                    .mul(distance);
+    Vector2 newOrigin = bitToMove2D.getOriginCS()
+            .add(translationInMesh);
+
+
+  /*  Set<Bit3D> bits3D = this.getSelectedBits();
     //Save after moved
     Set<Vector2> resultKeys = new HashSet<>(getSelectedBitKeys());
     //create new ActionMoveBit for save action
     this.handlerRedoUndo.addActionBit(
         new ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys, bits3D,
             getCurrentLayer().getLayerNumber()));
-  }
+*/  }
 
 
 

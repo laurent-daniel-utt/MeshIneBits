@@ -62,16 +62,24 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   private boolean onControl;
   public static AffineTransform realToView;
  public static AffineTransform viewToReal;
-  public static MeshController meshController;
+
+ public static MeshController meshController;
+public static final String RESTORED="restored";
 
   private boolean controlPressed=false;
   private boolean onShift;
 
   private CustomLogger logger = new CustomLogger(this.getClass());
   private boolean rotating;
-
+  private boolean Moving;
   private Bit3D rotatedBit;
 
+   private Vector2 newOrigin=null;
+  private Bit3D movedBit;
+
+
+
+  private Vector2 translationInMesh;
   MeshWindowCore(MeshController meshController) {
 
     this.meshController = meshController;
@@ -121,7 +129,8 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
       @Override
       public void actionPerformed(ActionEvent e) {
         meshController.deleteSelectedBits();
-     // meshController.deleteSelectedSubBits();
+
+        // meshController.deleteSelectedSubBits();
       }
     });
     getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ACCEPT");
@@ -136,6 +145,7 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
       @Override
       public void actionPerformed(ActionEvent e) {
         meshController.undo();
+        meshController.getChanges().firePropertyChange(RESTORED, null, meshController.getCurrentLayer());
       }
     });
 
@@ -161,6 +171,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
   }
 
+  public Vector2 getNewOrigin(){
+    return  newOrigin;
+  }
+
   @Override
   public void keyPressed(KeyEvent e) {
 //        if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
@@ -171,13 +185,16 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 //        }
   if(e.getKeyCode()==KeyEvent.VK_ESCAPE && rotating){
     rotating=false;
-
-
 Point2D.Double position=new Point2D.Double(rotatedBit.getOrigin().x,rotatedBit.getOrigin().y);
-meshController.addNewBitAt(position,true);
-
+meshController.addNewBitAt(position,true,null,null);
+newOrigin=null;
   }
-
+    if(e.getKeyCode()==KeyEvent.VK_ESCAPE && Moving){
+      Moving=false;
+      Point2D.Double position=new Point2D.Double(newOrigin.x,newOrigin.y);
+      meshController.addNewBitAt(position,false,movedBit.getBaseBit().getOrientation(),newOrigin);
+newOrigin=null;
+    }
 
    if (e.getKeyCode()==KeyEvent.VK_CONTROL)controlPressed=true;
     onControl = e.isControlDown();
@@ -213,7 +230,7 @@ meshController.addNewBitAt(position,true);
 
       if (layer.isPaved()) {
         if (meshController.isAddingBits()) {
-          meshController.addNewBitAt(clickSpot,false);
+          meshController.addNewBitAt(clickSpot,false,null,null);
           return;
         }
 
@@ -259,19 +276,76 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
     switch (id) {
       case 0: // Top direction
         direction = new Vector2(0, -1);
+
         break;
       case 1: // Left direction
         direction = new Vector2(1, 0);
+
         break;
       case 2: // Bottom direction
         direction = new Vector2(0, 1);
+
         break;
       case 3: // Right direction
         direction = new Vector2(-1, 0);
+
         break;
     }
     // Move all selected bits
-    meshController.moveSelectedBits(direction);
+
+    if(meshController.getSelectedBits().size()==1 && !Moving) {
+     Iterator<Bit3D> it=meshController.getSelectedBits().iterator();
+      movedBit=it.next();
+meshController.deleteSelectedBits();
+      Moving=true;
+     double distance = 0;
+     if (direction.x == 0) {// up or down
+       distance = CraftConfig.widthmover;
+     } else if (direction.y == 0) {// left or right
+       distance = CraftConfig.lengthmover;
+     }
+     Bit2D bitToMove2D=movedBit.getBaseBit();
+
+      translationInMesh =
+             direction.rotate(bitToMove2D.getOrientation())
+                     .normal()
+                     .mul(distance);
+      double angle=Math.toRadians(movedBit.getBaseBit().getOrientation().getEquivalentAngle2());
+
+
+      newOrigin = bitToMove2D.getOriginCS()
+             .add(translationInMesh);
+      System.out.println("new origin="+newOrigin);
+      //movedBit.getBaseBit().setOriginCS(newOrigin);
+meshController.updateCore();
+
+
+     }
+    else if(Moving==true && meshController.getSelectedBits().isEmpty()) {
+
+      double distance = 0;
+      if (direction.x == 0) {// up or down
+        distance = CraftConfig.widthmover;
+      } else if (direction.y == 0) {// left or right
+        distance = CraftConfig.lengthmover;
+      }
+      Bit2D bitToMove2D=movedBit.getBaseBit();
+
+       translationInMesh =
+              direction.rotate(bitToMove2D.getOrientation())
+                      .normal()
+                      .mul(distance);
+
+
+
+      newOrigin=newOrigin.add(translationInMesh);
+      System.out.println("new origin in Moving="+newOrigin);
+     // movedBit.getBaseBit().setOriginCS(newOrigin);
+      meshController.updateCore();
+
+    }
+
+
   }
 
 
@@ -408,6 +482,7 @@ if (meshController.getSelectedBits().size()==1){
 Iterator<Bit3D>it=meshController.getSelectedBits().iterator();
   //meshController.getCurrentLayer().removeBit(it.next(),true);
   rotatedBit=it.next();
+  System.out.println("Not In ?");
   meshController.deleteSelectedBits();
   rotating=true;
     double notches = e.getPreciseWheelRotation();
@@ -415,9 +490,12 @@ Iterator<Bit3D>it=meshController.getSelectedBits().iterator();
   meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.rotationSpeed);
 }
     }
-if(rotating) { double notches = e.getPreciseWheelRotation();
+if(rotating || Moving) { double notches = e.getPreciseWheelRotation();
+rotating=true;
+  if(Moving) rotatedBit=movedBit;
+Moving=false;
 
-     meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.rotationSpeed);
+meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.rotationSpeed);
    }
 }
 
@@ -480,7 +558,7 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
       // Draw the controls of the selected bit
       bitMovers.clear();
       if (!meshController.getSelectedBitKeys()
-          .isEmpty()) {
+          .isEmpty() && !Moving ) {System.out.println("notempty="+meshController.getSelectedBitKeys().size());
         meshController.getSelectedBits()
             .forEach(bit -> {
 
@@ -490,6 +568,13 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
                     }
             );
       }
+
+      if ( Moving && !rotating) {
+                          paintBitControls(movedBit, g2d,null);
+      }
+
+
+
 
       if (!meshController.getSelectedSubBits()
               .isEmpty()) {
@@ -507,8 +592,14 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
       }
       if(rotating){
 
-        paintBitPreviewRotation(g2d,rotatedBit.getOrigin());
+        if(newOrigin==null && rotatedBit!=null){
+          paintBitPreviewRotation(g2d,rotatedBit.getOrigin());}
+      else if (newOrigin!=null && rotatedBit!=null){  paintBitPreviewRotation(g2d,newOrigin);}
       }
+      if (Moving){
+        paintBitPreviewMoving(g2d,newOrigin,movedBit.getBaseBit());
+      }
+
 
       if (meshController.isBulkSelecting()) {
         paintBulkSelectZone(g2d);
@@ -985,7 +1076,67 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
   }
 
 
+  private void paintBitPreviewMoving(Graphics2D g2d,Vector2 newOrigin,Bit2D oldBit) {
+    // Bit boundary
+    Rectangle2D.Double r = new Rectangle2D.Double(
+            -CraftConfig.lengthFull / 2,
+            -CraftConfig.bitWidth / 2,
+            meshController.getNewBitsLengthParam()
+                    .getCurrentValue(),
+            meshController.getNewBitsWidthParam()
+                    .getCurrentValue());
+    // Current position of cursor
+    Point2D.Double currentSpot = new Point2D.Double(newOrigin.x, newOrigin.y); // In view
+   // viewToReal.transform(currentSpot, currentSpot); // In real
+    meshController.setCurrentPoint(currentSpot);
 
+    // Transform into current view
+    AffineTransform originToCurrentSpot = new AffineTransform();
+  // originToCurrentSpot=oldBit.getTransfoMatrixToCS();
+     originToCurrentSpot.translate(currentSpot.x, currentSpot.y);
+    Vector2 lOrientation = oldBit.getOrientation();
+    originToCurrentSpot.rotate(lOrientation.x, lOrientation.y);
+
+    Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
+
+    Shape bitPreviewInView = realToView.createTransformedShape(bitPreviewInReal);
+    Area sectionHolding = new Area(
+            new Rectangle2D.Double(CraftConfig.lengthFull / 2 - CraftConfig.sectionHoldingToCut
+                    , -CraftConfig.bitWidth / 2
+                    , CraftConfig.sectionHoldingToCut
+                    , CraftConfig.bitWidth));
+    sectionHolding.transform(originToCurrentSpot);
+    sectionHolding.transform(realToView);
+
+    Area availableBitArea = meshController.getAvailableBitAreaFrom(bitPreviewInReal); // in real pos
+    boolean irregular = DetectorTool.checkIrregular(availableBitArea);
+    // Fit into view
+    availableBitArea.transform(realToView);
+    // Change color based on irregularity
+    if (!irregular) {
+      if (!meshController.isFullLength()) {
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fill(sectionHolding);
+      }
+      // Draw border
+      g2d.setColor(WorkspaceConfig.bitPreviewBorderColor);
+      g2d.setStroke(WorkspaceConfig.bitPreviewBorderStroke);
+      g2d.draw(bitPreviewInView);
+      // Draw internal area
+      g2d.setColor(WorkspaceConfig.bitPreviewColor);
+      g2d.fill(availableBitArea);
+
+
+    } else {
+      // Draw border
+      g2d.setColor(WorkspaceConfig.irregularBitPreviewBorderColor);
+      g2d.setStroke(WorkspaceConfig.irregularBitPreviewBorderStroke);
+      g2d.draw(bitPreviewInView);
+      // Draw internal area
+      g2d.setColor(WorkspaceConfig.irregularBitPreviewColor);
+      g2d.fill(availableBitArea);
+    }
+  }
 
 
   private void drawModelPath2D(Graphics2D g2d, Path2D path2D) {
@@ -1030,30 +1181,58 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
           new Point2D.Double(7, 10));
 
       int padding = WorkspaceConfig.paddingBitControl; // Space between bit and arrows
-
-      Area overlapBit = new Area(
+        Area overlapBit;
+        Vector2 lOrientationr=null ;
+      if(!Moving) {overlapBit = new Area(
           new Rectangle2D.Double(
               -CraftConfig.lengthFull / 2,
               -CraftConfig.bitWidth / 2,
               CraftConfig.lengthFull,
               CraftConfig.bitWidth));
-      overlapBit.transform(bit.getBaseBit()
-          .getTransfoMatrixToCS());
+       overlapBit.transform(bit.getBaseBit()
+          .getTransfoMatrixToCS());}
 
+else {
+        Rectangle2D.Double r = new Rectangle2D.Double(
+                -CraftConfig.lengthFull / 2,
+                -CraftConfig.bitWidth / 2,
+                meshController.getNewBitsLengthParam()
+                        .getCurrentValue(),
+                meshController.getNewBitsWidthParam()
+                        .getCurrentValue());
+        Point2D.Double currentSpot = new Point2D.Double(newOrigin.x, newOrigin.y); // In view
+        // viewToReal.transform(currentSpot, currentSpot); // In real
+        meshController.setCurrentPoint(currentSpot);
+
+        // Transform into current view
+        AffineTransform originToCurrentSpot = new AffineTransform();
+        // originToCurrentSpot=oldBit.getTransfoMatrixToCS();
+        originToCurrentSpot.translate(currentSpot.x, currentSpot.y);
+        Vector2 lOrientation = movedBit.getBaseBit().getOrientation();
+        originToCurrentSpot.rotate(lOrientation.x, lOrientation.y);
+
+        Shape bitPreviewInReal = originToCurrentSpot.createTransformedShape(r);
+      overlapBit=new Area(bitPreviewInReal);
+lOrientationr= movedBit.getBaseBit().getOrientation();
+}
+
+//padding=15
       Vector<Area> arrows = new Vector<>();
       AffineTransform affTrans;
 
       Area topArrow = new Area(triangleShape);
       affTrans = new AffineTransform();
       affTrans.translate(0, -padding - (CraftConfig.bitWidth / 2));
-      affTrans.rotate(0, 0);
+
+     affTrans.rotate(0, 0);
       topArrow.transform(affTrans);
       arrows.add(topArrow);
       this.add(topArrow);
 
       Area leftArrow = new Area(triangleShape);
       affTrans = new AffineTransform();
-      affTrans.translate(padding + (CraftConfig.lengthFull / 2), 0);
+         affTrans.translate(padding + (CraftConfig.lengthFull / 2), 0);
+
       affTrans.rotate(0, 1);
       leftArrow.transform(affTrans);
       arrows.add(leftArrow);
@@ -1061,7 +1240,8 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
 
       Area bottomArrow = new Area(triangleShape);
       affTrans = new AffineTransform();
-      affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
+         affTrans.translate(0, padding + (CraftConfig.bitWidth / 2));
+
       affTrans.rotate(-1, 0);
       bottomArrow.transform(affTrans);
       arrows.add(bottomArrow);
@@ -1069,15 +1249,19 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
 
       Area rightArrow = new Area(triangleShape);
       affTrans = new AffineTransform();
-      affTrans.translate(-padding - (CraftConfig.lengthFull / 2), 0);
-      affTrans.rotate(0, -1);
+         affTrans.translate(-padding - (CraftConfig.lengthFull / 2), 0);
+
+        affTrans.rotate(0, -1);
       rightArrow.transform(affTrans);
       arrows.add(rightArrow);
       this.add(rightArrow);
 
+        Bit2D newBit=null;
+     if (Moving) newBit = new NewBit2D(newOrigin, lOrientationr, meshController.getNewBitsLengthParam().getCurrentValue(), meshController.getNewBitsWidthParam().getCurrentValue());
+
       g2d.setColor(WorkspaceConfig.bitControlColor);
-      affTrans = bit.getBaseBit()
-          .getTransfoMatrixToCS();
+     if(!Moving) affTrans = bit.getBaseBit().getTransfoMatrixToCS();
+          else { affTrans = newBit.getTransfoMatrixToCS();  }
       for (Area area : arrows) {
         area.transform(affTrans);
         area.transform(realToView);
@@ -1090,28 +1274,10 @@ if(rotating) { double notches = e.getPreciseWheelRotation();
 
       overlapBit.transform(realToView);
       g2d.draw(overlapBit);
-
       g2d.setColor(new Color(0, 114, 255, 50));
-     // g2d.setColor(new Color(255, 0, 255, 50));
       g2d.fill(overlapBit);
     }
-    else {
-
-       /* Area overlapBit = new Area(
-                subBit.getAreaCS().getBounds2D());
-        overlapBit.transform(subBit.getParentBit()
-                .getTransfoMatrixToCS());
-
-
-        g2d.setStroke(new BasicStroke(0.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-        g2d.setColor(new Color(150, 100, 200));
-
-        overlapBit.transform(realToView);
-        g2d.draw(overlapBit);
-
-       // g2d.setColor(new Color(0, 114, 255, 50));
-         g2d.setColor(new Color(255, 0, 255, 50));
-        g2d.fill(overlapBit);*/
+    else { //to mark subbits when selected
         g2d.setColor(new Color(255, 0, 255, 250));
         drawModelArea(g2d,subBit.getAreaCS());
 

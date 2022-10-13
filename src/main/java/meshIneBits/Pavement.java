@@ -199,7 +199,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
         bitToMove.getWidth()));
 //        return bitToMove;
   }
-
+/*
   public Vector2 rotateBit(Vector2 key, Vector2 orientation) {
     Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
     System.out.println(key.toString());
@@ -212,7 +212,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
             bitToMove.getLength(),
             bitToMove.getWidth()));
 
-  }
+  }*/
 
 
   /**

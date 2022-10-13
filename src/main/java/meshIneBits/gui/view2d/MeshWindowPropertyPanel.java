@@ -145,6 +145,11 @@ public static MousePositionPanel MousePropertyPanel=new MousePositionPanel("Mous
         layerPropertyPanel.updateProperties(val);
         meshPropertyPanel.updateMeshProperties();
         break;
+      case MeshWindowCore.RESTORED:
+        meshPropertyPanel.updateMeshProperties();
+        layerPropertyPanel.updateProperties(val);
+        break;
+
     }
     revalidate();
   }

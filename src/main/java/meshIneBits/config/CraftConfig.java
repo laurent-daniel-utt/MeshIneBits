@@ -259,6 +259,27 @@ public class CraftConfig {
   )
   public static double precision = 3;
   //Printer parameter
+
+  @DoubleSetting(
+          title = "Lengthmover",
+          description = "the moving distance of a bit in length direction",
+          defaultValue =80
+  )
+  @BitSetting(
+          order = 3
+  )
+  public static double lengthmover = 80;
+
+  @DoubleSetting(
+          title = "Widthmover",
+          description = "the moving distance of a bit in width direction",
+          defaultValue =23/2
+  )
+  @BitSetting(
+          order = 4
+  )
+  public static double widthmover = 23/2;
+
   @FloatSetting(
       title = "Printer X (mm)",
       description = "Length of printer",

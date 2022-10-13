@@ -337,6 +337,10 @@ public void setOrientation(Vector2 orientation){
   public Vector2 getOriginCS() {
     return origin;
   }
+  public void setOriginCS(Vector2 origin) {
+
+    this.origin=origin;
+  }
 
   /**
    * @return the center of the rectangle boundary of this bit, not necessarily the {@link #origin}.
@@ -405,7 +409,17 @@ public void setOrientation(Vector2 orientation){
       inverseTransfoMatrixCB = AffineTransform.getScaleInstance(1, 1); // Fallback
     }
   }
+public  void callMinusSetTransfoMatrix(){
+  transfoMatrixCS.translate(-origin.x,- origin.y);
+  transfoMatrixCS.rotate(-orientation.x,- orientation.y);
 
+
+}
+  public  void callSetTransfoMatrix(){
+
+    setTransfoMatrix();
+
+  }
   /**
    * Given an area cut from a zone, construct the surface of this bit
    *

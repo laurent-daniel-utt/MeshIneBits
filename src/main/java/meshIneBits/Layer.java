@@ -475,6 +475,10 @@ public class Layer extends Observable implements Serializable {
       distance = CraftConfig.lengthFull / 2;
     }
     Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
+
+
+
+    /*
     rebuild(newCoordinate);
     setChanged();
     notifyObservers(new M(
@@ -485,7 +489,7 @@ public class Layer extends Observable implements Serializable {
             M.NEW_BIT,
             getBit3D(newCoordinate)
         )
-    ));
+    ));*/
     return newCoordinate;
   }
 
@@ -496,7 +500,7 @@ public class Layer extends Observable implements Serializable {
    * @param direction chosen way
    * @return list of new origins' position
    */
-  public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
+ public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
     // Calculate travel distance
     double distance = 0;
     if (direction.x == 0) {// up or down
@@ -510,6 +514,10 @@ public class Layer extends Observable implements Serializable {
     Set<Vector2> newPositions = bits.stream()
         .map(bit -> flatPavement.moveBit(bit.getOrigin(), direction, finalDistance))
         .collect(Collectors.toSet());
+
+
+
+
 
     // Remove old bits
     removeBits(
