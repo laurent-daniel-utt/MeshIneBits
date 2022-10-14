@@ -29,13 +29,6 @@
 
 package meshIneBits.util.supportExportFile;
 
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
@@ -47,6 +40,14 @@ import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
 import org.w3c.dom.Element;
+
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * This class provide list of function to support writing {@link Mesh} to XML file. Use {@link
@@ -380,8 +381,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       positionSubBit.appendChild(xInMesh);
       positionSubBit.appendChild(yInMesh);
       subBit.appendChild(positionSubBit);
-
-      //Two distant point of SubBit
+System.out.println("index="+i);
+if (listTwoPoints.isEmpty())System.out.println("empty");
+//Two distant point of SubBit
       if (listTwoPoints.get(i)
           .size() >= 2) {
         for (int j = 0; j < 2; j++) {

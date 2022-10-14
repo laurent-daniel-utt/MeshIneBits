@@ -185,7 +185,9 @@ public static final String RESTORED="restored";
 //        }
   if(e.getKeyCode()==KeyEvent.VK_ESCAPE && rotating){
     rotating=false;
-Point2D.Double position=new Point2D.Double(rotatedBit.getOrigin().x,rotatedBit.getOrigin().y);
+    Point2D.Double position;
+if(newOrigin==null)position=new Point2D.Double(rotatedBit.getOrigin().x,rotatedBit.getOrigin().y);
+else {position=new Point2D.Double(newOrigin.x,newOrigin.y);}
 meshController.addNewBitAt(position,true,null,null);
 newOrigin=null;
   }

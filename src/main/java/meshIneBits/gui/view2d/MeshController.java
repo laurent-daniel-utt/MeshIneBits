@@ -127,7 +127,8 @@ public class MeshController extends Observable implements Observer ,
       "safeguardSpace",
       "Space around bit",
       "In order to keep bits not overlapping or grazing each other",
-      1.0, 10.0, 3.0, 0.01);
+      1.0, 10.0, CraftConfig.safeguardSpaceParam, 0.01);
+
   private final BooleanParam autocropParam = new BooleanParam(
       "autocrop",
       "Auto crop",
@@ -369,7 +370,7 @@ public static CountDownLatch r=new CountDownLatch(1);
    getCurrentLayer().getSubBits()
            .forEach(sub -> availableArea.subtract(
                    AreaTool.expand(
-                          sub.getAreaCS(),safeguardSpaceParam.getCurrentValue())
+                          sub.getAreaCS(),CraftConfig.safeguardSpaceParam)
            ));
  }
 

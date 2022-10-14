@@ -280,6 +280,18 @@ public class CraftConfig {
   )
   public static double widthmover = 23/2;
 
+  @DoubleSetting(
+          title = "safeguardSpace",
+          description = "In order to keep bits not overlapping or grazing each other",
+          minValue = 1,
+          defaultValue =3
+  )
+  @BitSetting(
+          order = 5
+  )
+  public static double safeguardSpaceParam = 3;
+
+
   @FloatSetting(
       title = "Printer X (mm)",
       description = "Length of printer",

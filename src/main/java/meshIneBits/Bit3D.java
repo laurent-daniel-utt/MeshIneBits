@@ -32,6 +32,7 @@ package meshIneBits;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
+import meshIneBits.util.TwoDistantPointsCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -221,8 +222,9 @@ public class Bit3D implements Serializable, Cloneable {
 
   public void computeTwoPointNearTwoPointMostDistantOnBit() {
     for (Area area : bit2dToExtrude.getAreasCB()) {
-      Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
-          area, CraftConfig.suckerDiameter / 4);
+      //Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
+        //  area, CraftConfig.suckerDiameter / 4);
+      Vector<Vector2> listPoint= TwoDistantPointsCalc.instance.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area, CraftConfig.suckerDiameter / 4);
       Vector<Vector2> TwoExtremePoints=AreaTool.getTwoMostDistantPointFromArea(area);
       if (listPoint != null) {
         listTwoDistantPoints.add(listPoint);
@@ -315,7 +317,7 @@ public class Bit3D implements Serializable, Cloneable {
 
   public void prepareBitToExport() {
 //        Bit3D bit3D = this;
-//        bit3D.computeTwoPointNearTwoPointMostDistantOnBit();
+       this.computeTwoPointNearTwoPointMostDistantOnBit();
     calcAngles();
     if (reverseInCut) {
       this.inverse();
