@@ -231,9 +231,14 @@ newOrigin=null;
       }
 
       if (layer.isPaved()) {
-        if (meshController.isAddingBits()) {
+        if (meshController.isAddingBits() && !meshController.manipulating ) {
           meshController.addNewBitAt(clickSpot,false,null,null);
           return;
+        } else if (meshController.isAddingBits() && meshController.manipulating) {
+          meshController.addNewBitAt(clickSpot,false,null,null);
+          meshController.manipulating=false;
+          meshController.setAddingBits(false);
+        return;
         }
 
         // Look if we hit a bit control (arrows)
@@ -263,6 +268,8 @@ meshController.toggleInclusionOfSubBitHaving(clickSpot);
      }
 
     }
+
+
 
   }
 

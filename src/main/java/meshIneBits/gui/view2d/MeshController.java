@@ -81,6 +81,8 @@ public class MeshController extends Observable implements Observer ,
   public static final String SELECTING_REGION = "selectingRegion";
   public static final String SETTING_LAYER = "settingLayer";
 
+  public static final String MANIPULATNG_BIT   = "manipulateBit";
+
   public static final String MESH_SLICED = "meshSliced";
   public static final String MESH_OPENED = "meshOpened";
   public static final String LAYER_CHOSEN = "layerChosen";
@@ -94,6 +96,7 @@ public class MeshController extends Observable implements Observer ,
   public static final String DELETING_BITS = "deletingBits";
   public static final String DELETING_SUBBITS="deletingSubBits";
 
+  public boolean manipulating=false;
   public static final String SUBBITS_DELETED="deletedSubBits";
   public static final String BITS_DELETED = "deletedBits";
 
@@ -167,6 +170,8 @@ public class MeshController extends Observable implements Observer ,
   private boolean showIrregularBits = false;
   private boolean addingBits = false;
   private boolean showBitNotFull = false;
+
+  public static MeshController thecontroller=null;
   /**
    * In {@link Mesh}'s coordinate system
    */
@@ -201,6 +206,7 @@ public static AtomicBoolean Paved=new AtomicBoolean(false);
 public static CountDownLatch r=new CountDownLatch(1);
   MeshController(MeshWindow meshWindow) {
     this.meshWindow = meshWindow;
+  thecontroller=this;
   }
 
   public boolean isFullLength() {
@@ -361,7 +367,11 @@ public static CountDownLatch r=new CountDownLatch(1);
         ));
   }
 */
- private void updateAvailableArea() {
+
+  public void callupdate(){
+    updateAvailableArea();
+  }
+ private  void updateAvailableArea() {
    availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
    Pavement pavement = getCurrentLayer().getFlatPavement();
    if (pavement == null) {
@@ -1116,6 +1126,14 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
       case ADDING_BITS:
         setAddingBits(!isAddingBits());
         break;
+        case MANIPULATNG_BIT:
+          manipulating=!manipulating;
+          if(!selectedBitKeys.isEmpty() && selectedBitKeys.size()==1 && manipulating){
+            deleteSelectedBits();
+            setAddingBits(!isAddingBits());
+          }
+        else if(!manipulating)setAddingBits(false);
+          break;
       case SELECTING_REGION:
         setSelectingRegion(!isSelectingRegion());
         break;

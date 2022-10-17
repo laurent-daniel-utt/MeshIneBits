@@ -732,6 +732,9 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     };
     meshActionList.add(newBit);
 
+
+
+
     MeshToggleAction toggleShowSlice = new MeshToggleAction(
         "toggleShowSlice",
         "Show/Hide Layer Border",
@@ -796,6 +799,20 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
         MeshController.SHOW_PREVIOUS_LAYER
     );
     meshActionList.add(togglePreviousLayer);
+
+
+    MeshToggleAction manipulateBit = new MeshToggleAction(
+            "manipulateBit",
+            "manipulate bit",
+           // "bit-new.png",
+            "manipulate_Bit.png",
+            "manipulate the selected bit",
+            "shift 7",
+            meshController,
+            MeshController.MANIPULATNG_BIT
+    );
+    meshActionList.add(manipulateBit);
+
 
     MeshAction scheduleMesh = new MeshAction(
         "scheduleMesh",
@@ -874,7 +891,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     toolBar.addToggleButton(toggleLiftPoint);
     toolBar.addToggleButton(toggleBitFullLength);
     toolBar.addToggleButton(togglePreviousLayer);
-
+    toolBar.addToggleButton(manipulateBit);
     /* UtilitiesBox */
     utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));
     utilitiesBox.setFloatable(false);
