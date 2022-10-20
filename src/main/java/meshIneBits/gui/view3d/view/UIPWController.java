@@ -110,14 +110,8 @@ private int i=0;
         break;
       case EXPORTAll:
         processor.setDisplayOneByOne(true);
-     //if(i==0)  {i++;
-       System.out.println("Thread Controller ="+Thread.currentThread().getName());
-
-       Exportation=true;
-
-
-      // processor.shapeExport();
-       processor.activateAnimation();
+        Exportation=true;
+        processor.activateAnimation();
         IndexExport=0;
        processor.exportAll();
         Exportation=false;

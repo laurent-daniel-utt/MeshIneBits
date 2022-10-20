@@ -25,10 +25,6 @@ public class SubBit2D implements Serializable {
   private Vector2 firstDistantPointCB;
   private Vector2 secondDistantPointCB;
 
-  private Vector2 firstExtremePointCB;
-
-  private Vector2 secondExtremePointCB;
-
   private final AffineTransform transformMatrixToCS;
   private AffineTransform inverseMatrixToCB;
 
@@ -57,14 +53,12 @@ public class SubBit2D implements Serializable {
     this.cutPath = cutPath;
     this.parentBit = parentBit;
 
-    //computeDistantPoints();
 
 
-    //computeExtremePoints();
     computeLiftPoints();
    if(liftPointCB!=null) computeDistantPoints();
 
-    computeXminXmaxPoints(liftPointCB);
+    computeXminXmaxPoints();
   }
 
   public Vector2 getOriginPositionCS() {
@@ -114,8 +108,8 @@ public class SubBit2D implements Serializable {
 
 
   private void computeDistantPoints() {
-    Vector<Vector2> points = TwoDistantPointsCalc.instance.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
-        areaCB, CraftConfig.suckerDiameter / 4);
+    Vector<Vector2> points = TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(
+        areaCB);
     if (points.size() == 2) {
       points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
       firstDistantPointCB = points.get(0);
@@ -123,21 +117,15 @@ public class SubBit2D implements Serializable {
     }
   }
 
-  private void computeExtremePoints() {
-    Vector<Vector2> points = TwoDistantPointsCalc.instance.getTwoMostDistantPointFromArea(areaCB);
+    /**
+     * compute the max and min x point of the subbit (the 2 extrimist points to right and to left)
+     */
+  private void computeXminXmaxPoints() {
+    Vector<Vector2> points = TwoDistantPointsCalc.instance.getXminXmaxFromArea(areaCB, this);
     if (points.size() == 2) {
-      points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
-      firstExtremePointCB = points.get(0);
-      secondExtremePointCB = points.get(1);
-    }
-  }
 
-  private void computeXminXmaxPoints(Vector2 liftpoint) {
-    Vector<Vector2> points = TwoDistantPointsCalc.instance.getXminXmaxFromArea(areaCB,liftpoint,this);
-    if (points.size() == 2) {
-     //points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
-      XminPoint = points.get(0);
-      XmaxPoint = points.get(1);
+      XminPoint = points.get(0);//extreme point to left
+      XmaxPoint = points.get(1);//extreme point to right
     }
   }
 
@@ -157,19 +145,9 @@ public class SubBit2D implements Serializable {
   }
 
 
-  public Vector<Vector2> getTwoExtremePointsCS() {
-    if (firstExtremePointCB == null || secondExtremePointCB == null) {
-      return new Vector<>();
-    }
-    return new Vector<>(
-            Arrays.asList(
-                    firstExtremePointCB.getTransformed(transformMatrixToCS),
-                    secondExtremePointCB.getTransformed(transformMatrixToCS)));
-  }
-
-
-
-
+    /**
+     * returns the max and min x point of the subbit (the 2 extrimist points to right and to left)
+     */
   public Vector<Vector2> getTwoExtremeXPointsCS() {
     if (XminPoint == null || XmaxPoint == null) {
       return new Vector<>();

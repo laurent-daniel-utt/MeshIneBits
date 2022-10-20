@@ -369,7 +369,7 @@ public static CountDownLatch r=new CountDownLatch(1);
 */
 
   public void callupdate(){
-    updateAvailableArea();
+    if(availableArea!=null)updateAvailableArea();
   }
  private  void updateAvailableArea() {
    availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
@@ -1127,12 +1127,26 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
         setAddingBits(!isAddingBits());
         break;
         case MANIPULATNG_BIT:
-          manipulating=!manipulating;
-          if(!selectedBitKeys.isEmpty() && selectedBitKeys.size()==1 && manipulating){
+
+          if(selectedBitKeys.size()==1){manipulating=true;
             deleteSelectedBits();
-            setAddingBits(!isAddingBits());
+            setAddingBits(true);
           }
-        else if(!manipulating)setAddingBits(false);
+         else {if(!manipulating)Logger.error("you have to select a bit");
+           manipulating=false;
+            setAddingBits(false);
+        if(selectedBitKeys.size()>1)Logger.error("you have to select only one bit");
+         Thread t=new Thread(() -> {
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          Logger.updateStatus(null);
+        });
+        t.start();
+         }
+
           break;
       case SELECTING_REGION:
         setSelectingRegion(!isSelectingRegion());

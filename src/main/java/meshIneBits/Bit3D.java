@@ -167,6 +167,7 @@ public class Bit3D implements Serializable, Cloneable {
     return liftPointsCS;
   }
 
+
   public List<Vector2> getLiftPointsCB() {
     return liftPointsCB;
   }
@@ -215,16 +216,13 @@ public class Bit3D implements Serializable, Cloneable {
         ']';
   }
 
-  public boolean isCutable() {
-    return this.getLiftPointsCB()
-        .size() > 0;
-  }
+
 
   public void computeTwoPointNearTwoPointMostDistantOnBit() {
     for (Area area : bit2dToExtrude.getAreasCB()) {
       //Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
         //  area, CraftConfig.suckerDiameter / 4);
-      Vector<Vector2> listPoint= TwoDistantPointsCalc.instance.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(area, CraftConfig.suckerDiameter / 4);
+      Vector<Vector2> listPoint= TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(area);
       Vector<Vector2> TwoExtremePoints=AreaTool.getTwoMostDistantPointFromArea(area);
       if (listPoint != null) {
         listTwoDistantPoints.add(listPoint);
@@ -251,9 +249,7 @@ public class Bit3D implements Serializable, Cloneable {
 //    return new Bit3D(this);
 //  }
 
-  public LinkedList<Vector<Path2D>> getRawCutPathsSeparate() {
-    return rawCutPathsSeparate;
-  }
+
 
   /**
    * Return list of distant points in {@link Mesh} coordinate.

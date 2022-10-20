@@ -74,7 +74,11 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
       return new AnimationShape(new Vector<>());
     }
     if (paint) {
-      paintPattern.paintAnimation(meshPavedResult, option);
+      try {
+        paintPattern.paintAnimation(meshPavedResult, option);
+      }catch ( IndexOutOfBoundsException e){
+        e.printStackTrace();
+      }
     }
     switch (option) {
       case BY_BIT:

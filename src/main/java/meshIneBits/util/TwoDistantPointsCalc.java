@@ -92,9 +92,19 @@ public class TwoDistantPointsCalc {
 //took about 11 sec with precision=1
     //33 sec classic(donut)
 
-    public  Vector<Vector2> defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(Area area,
-                                                                                double radius) {
-    ArrayList<Circle> circles=new ArrayList<Circle>();
+  /**
+   *
+   * @param area  la surface
+   * on crée un tapi de cercle sur tout le rectangle qui cerne la surface rentré en param (list des cercles), ensuite on
+   * filtre les cercles en prenant que celles qui sont à l'intérieur de la surface,ensuite on calcule les 2 cercles les plus
+   * distants parmi la liste des cercles restantes après filtrage.
+   * @precision c'est le paramètre qui détermine les pas de tapiage,exemple:precision=1=>chaque 1mm on va créer une nouvelle
+   * cercle horizontalement et verticalement
+   * @return un vecteur(collection) contenant les 2 points les plus distants
+   *
+   */
+    public  Vector<Vector2> defineTwoMostDistantPointsInArea(Area area) {
+    ArrayList<Circle> circles= new ArrayList<>();
 
 
 
@@ -103,7 +113,7 @@ public class TwoDistantPointsCalc {
     Double startY=area.getBounds2D().getMinY();
     Double endY=area.getBounds2D().getMaxY();
 
-
+//création de la tapi des cercles
     for(double i=startX;i<endX;i+=precision){
       for(double j=startY;j<endY;j=j+precision){
         circles.add(new Circle(new Vector2(i,j), CraftConfig.suckerDiameter/4));
@@ -112,13 +122,13 @@ public class TwoDistantPointsCalc {
 
     }
     double margin=0;
-
+//filtrage des cercles
     circles= (ArrayList<Circle>) circles.stream().filter(ci -> (area.contains(ci.getCenter().x+ci.getRadius()+margin,ci.getCenter().y) && area.contains(ci.getCenter().x,ci.getCenter().y+ci.getRadius()+margin)
             && area.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
             && area.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y))).collect(Collectors.toList());
 
 
-
+//calcul des distances entre les cercles pour identifier les 2 cercles les plus distants
     Vector<Circle> positionTwoMostDistantCercles=new Vector<>();
     double longestDistance = 0;
     for (Circle cercle:circles){
@@ -276,14 +286,14 @@ while (condition>0){
   }
 
 
+  /**
+   *
+   * @param area la surface du subbit
+   * @param bit le subbit
+   * @return les 2 points les plus extremes vers la gauche et vers la droite
+   */
 
-
-
-
-
-
-
-  public synchronized Vector<Vector2> getXminXmaxFromArea(Area area, Vector2 liftpoint, SubBit2D bit) {
+  public synchronized Vector<Vector2> getXminXmaxFromArea(Area area, SubBit2D bit) {
 
 
     HashMap<Double,Vector2> AllPoints = new HashMap<Double,Vector2>();

@@ -7,6 +7,7 @@ import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
+import meshIneBits.util.Logger;
 import meshIneBits.util.MultiThreadServiceExecutor;
 import processing.core.PShape;
 
@@ -76,7 +77,13 @@ public static AtomicInteger ind= new AtomicInteger(0);
     animationSpeed = Visualization3DConfig.speed_coefficient_default;
     callback = listener;
     initAnimationShape();
-    startAnimation();
+   try { startAnimation();}
+   catch (IndexOutOfBoundsException e){
+    e.printStackTrace();
+
+    Logger.error("Refresh the 3d Interface");
+   }
+  Zpos=0;
   }
 
   private void initIndex() {
@@ -94,6 +101,7 @@ public static AtomicInteger ind= new AtomicInteger(0);
   public void deactivate() {
     isActivated.set(false);
     pausing.set(false);
+
   }
 
   public synchronized void pause() {
@@ -101,10 +109,14 @@ public static AtomicInteger ind= new AtomicInteger(0);
     notifyAll();
   }
 
-  private void startAnimation() {
+  private void startAnimation() throws IndexOutOfBoundsException  {
 
     MultiThreadServiceExecutor.instance.execute(new IndexIncrementTask());
+  throw new IndexOutOfBoundsException("Refresh the 3d interface by clicking on it");
   }
+
+
+
 
   public void speedUp(boolean sim) {
 
@@ -141,10 +153,13 @@ public static AtomicInteger ind= new AtomicInteger(0);
   }
 
   @SuppressWarnings("all")
-  public class IndexIncrementTask implements Runnable {
+  public class IndexIncrementTask  implements Runnable  {
 
     @Override
     public void run() {
+      /**
+       * exportation part of the method
+       */
       if(Exportation){exported=new CountDownLatch(1);
         ind.set(0);
 
@@ -153,27 +168,7 @@ public static AtomicInteger ind= new AtomicInteger(0);
           final AtomicInteger index = AnimationProcessor.this.index;
           listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
           Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
-        //  System.out.println("index="+index);
-          //System.out.println("Thread in AniProc="+Thread.currentThread().getName());
-          //ind=index;
 
-          //System.out.println("stuck with ind="+ind.get());
-
-          // System.out.println("");
-//
-//          if (option == AnimationOption.BY_BIT && wsProvider != null) {
-//            PShape finalShape = AnimationProcessor.this.animationProvider.getContext()
-//                .createShape(PConstants.GROUP);
-//            PShape currentShape = shapes.get(index.get());
-//            double positionX = PShapeUtil.getInstance().getMinShapeInFrameCoordinate(currentShape).x;
-//            finalShape.addChild(currentShape);
-//            PShape ws = wsProvider.getAssemblyWorkingSpace();
-//            ws.translate((float)positionX,0);
-//
-//            finalShape.addChild(ws);
-//            shapes.remove(index);
-//            shapes.add(index.get(),finalShape);
-//          }
           callback.accept(shapes);
           waitshaping.countDown();
 
@@ -198,7 +193,13 @@ public static AtomicInteger ind= new AtomicInteger(0);
       }
 
       }
-    else {int l=0,s=0,size_layer=0,size_strip=0;
+/**
+ * animation part of the method
+ * (exportation and animation share the same basics since exportation exports every single shape displayed by the animation
+ * functionnalities on the interface)
+ */
+
+      else {int currentlayer=0,currentStrip=0,currentlayer_size=0,size_currentstrip=0;
 
 
 
@@ -208,53 +209,53 @@ public static AtomicInteger ind= new AtomicInteger(0);
             listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
 
 if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
+  /**
+   * initialisation of the position
+   */
             if(index.intValue()==0){pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
               Xpos=pos;
-            }// System.out.println("l="+l+" s="+s);
-            //System.out.println("sizeLayer="+size_layer+" sizeStrip="+size_strip);
-            if(size_strip>meshstrips.get(l).get(s).getBits().size()-1){
-              Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
-//System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()));
-              if(size_layer< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
-                size_strip=0;
-                s++;
-                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
-
-
-
-                // Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+            }
+  /**
+   *when the size of the current stripe at the current moment equals the total size of the current stripe
+   */
+            if(size_currentstrip>meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1){
+              Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+              /**
+               * if we still in the same layer we move to the next stripe of the same layer
+               */
+              if(currentlayer_size< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
+                size_currentstrip=0;
+                currentStrip++;
+                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
 
               }
-              else {size_strip=0;
-                size_layer=0;
-                s=0;
-                l++;
-                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
+              /**
+               * when the size of the current layer at the current moment equals the total size of the current layer we move
+               * to the next layer and start a new collection of stripes,because stripes are created per layer
+               */
 
-                //Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(l).get(s).getBits().get(0).getMinX();
-                Zpos=(float) meshstrips.get(l).get(s).getBits().get(0).getLowerAltitude();
+              else {size_currentstrip=0;
+                currentlayer_size=0;
+                currentStrip=0;
+                currentlayer++;
+                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                 Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
               }
             }
-            size_strip++;
-            size_layer++;
+  size_currentstrip++;
+            currentlayer_size++;
 
 }
+            /**
+             * Xpos is modified in Class (BaseVisualization3DView)to create an animation effect for the working space(deposing machine)
+             * we pause the animation waiting for the working space to reach its destination
+             */
             if(Xpos!=pos) movingWorkSpace.await();
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
 
 
 
-
-
-
-
-
-
-
              callback.accept(shapes);
-
-             //Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
-
             if (pausing.get()) {
               synchronized (AnimationProcessor.this) {
                 AnimationProcessor.this.wait();
@@ -262,17 +263,11 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
             }
             Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
             AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
-            //ind=index;
-
-
 
           }
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-
-
-
       }
 
 

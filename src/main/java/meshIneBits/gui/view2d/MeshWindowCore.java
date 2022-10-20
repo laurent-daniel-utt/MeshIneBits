@@ -427,9 +427,9 @@ meshController.updateCore();
             e.getX() ,
            e.getY() ,
             1, 1);
-    Shape s2=viewToReal.createTransformedShape(liftPoint2);
+   if(viewToReal!=null) {Shape s2=viewToReal.createTransformedShape(liftPoint2);
 
-    MousePropertyPanel.updateProperties(s2.getBounds2D().getCenterX(),s2.getBounds2D().getCenterY());
+    MousePropertyPanel.updateProperties(s2.getBounds2D().getCenterX(),s2.getBounds2D().getCenterY());}
 
   }
 

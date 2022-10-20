@@ -19,7 +19,7 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
 
   private  Color colorS=color1;
   @Override
-  public void paintAnimation(PavedMeshBuilderResult pavedMesh, AnimationOption animationOption) {
+  public void paintAnimation(PavedMeshBuilderResult pavedMesh, AnimationOption animationOption) throws IndexOutOfBoundsException {
     Vector<BitShape> bitShapes = pavedMesh.getBitShapes();
     if (bitShapes == null || bitShapes.size() == 0) {
       return;
@@ -80,6 +80,7 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
         }
         break;
     }
+    throw new IndexOutOfBoundsException("you have to refresh the 3d interface");
   }
 
   @Override

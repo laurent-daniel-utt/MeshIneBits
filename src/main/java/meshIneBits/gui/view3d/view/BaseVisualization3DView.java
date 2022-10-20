@@ -110,7 +110,6 @@ public void play(){
     return;
   }
   WindowStatus=1;
-  System.out.println("canonical name="+BaseVisualization3DView.class.getCanonicalName()+" Thread="+Thread.currentThread().getName());
   PApplet.main(BaseVisualization3DView.class.getCanonicalName());
 
 
@@ -150,7 +149,7 @@ public void play(){
                 meshShapes.put(1,processor.getModelProvider().getMeshShape());
                 frame.setShape(shape);
 
-                System.out.println("depthR="+shape.getChild(1).getDepth());
+
                 uipwAnimation.closeWindow();
                 uipwView.closeWindow();
                 uipwController.close();
@@ -160,31 +159,29 @@ public void play(){
                 runSketch(new String[]{"--display=1", "Projector"}, uipwView);
                 runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
                 // initDisplayParameterWindows();
-        Xpos=0;
+        //pos=(-printerX / 2 - CraftConfig.workingWidth - 20);
+        pos=0;
         Zpos=0;
+        //Xpos=(-printerX / 2 - CraftConfig.workingWidth - 20);
+        Xpos=0;
         initWorkingSpace();
-
-
+processor.deactivateAnimation();
+        if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
                 loop();
-                System.out.println("where");
-
-         // c'est cette ligne qui permet de changer le meshShape mais c'est aussi qui rend les bits bizzares
-        //shape = processor.getModelProvider().getModelShape();//with this line the mesh disappear then pop up red
-
-
-          //meshShapes.put(1, processor.getModelProvider().getMeshShape());
-
-
-
-        //meshShape=processor.getModelProvider().getMeshShape();
+Thread t=new Thread(new Runnable() {
+  @Override
+  public void run() {
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    Logger.updateStatus("");
+  }
+});t.start();
+        Logger.updateStatus("3d interface Refreshed");
 
       }
-
-       if(action==MouseEvent.MOVE){  // System.out.println("Moved");
-          // Xpos+=10;
-           //Ypos+=10;
-       }
-
 
       handleMethods("mouseEvent", new Object[] { event });
 
@@ -384,7 +381,8 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
 
   }
 private void initWorkingSpace(){
-  stroke(255, 0, 0);
+  rectange=null;
+    stroke(255, 0, 0);
   strokeWeight(5);
   noFill();
   rectange=createShape();
@@ -394,7 +392,7 @@ private void initWorkingSpace(){
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printerY,0);
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
   rectange.endShape(PConstants.CLOSE);
-  System.out.println("Or="+(-printerX / 2 - CraftConfig.workingWidth - 20) );
+
 //  System.out.println("Size1="+meshstrips.get(0).get(0).getBits().size());
   //System.out.println("Min1="+(float) meshstrips.get(0).get(0).getBits().get(0).getMinX());
 
@@ -476,7 +474,7 @@ private void initWorkingSpace(){
 //    createButtons(cp5);
   }
 
-  private void initProcessor() {System.out.println("CurrentMesh="+MeshProvider.getInstance().getCurrentMesh());
+  private void initProcessor() {
 
       processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
             this);
@@ -559,7 +557,7 @@ private void initWorkingSpace(){
   @Override
   public void
   setDisplayShapes(Vector<PShape> displayShapes) {
-    animationShapes = displayShapes;
+        animationShapes = displayShapes;
   }
 
   @Override
@@ -587,8 +585,6 @@ private void initWorkingSpace(){
   @Override
   public synchronized void draw() {
 
-//System.out.println("drawing");
-
     background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
     lights();
     ambientLight(
@@ -604,8 +600,6 @@ private void initWorkingSpace(){
          displayShape();
         endExport();
 
-
-
   }
 
   @Override
@@ -617,7 +611,7 @@ private void initWorkingSpace(){
     if (isExporting) {
       isExporting = false;
       endRaw();
-    System.out.println("exporting ended");
+
       stillExporting.countDown();
 
     }
@@ -643,31 +637,27 @@ private void initWorkingSpace(){
           break;
         case ANIMATION_VIEW:
           if(option== AnimationProcessor.AnimationOption.BY_LAYER)
-          {exportFileName.append("Layer/layer")
+          {exportFileName.append("Layers/layer")
                   .append("-")
                   .append(IndexExport)
-                  //.append("-Animation")
                   .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_BIT)
-          {exportFileName.append("Bit/bit")
+          {exportFileName.append("Bits/bit")
                   .append("-")
                   .append(IndexExport)
-                 // .append("-Animation")
                   .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
-          {exportFileName.append("Sub_Bit/subBit")
+          {exportFileName.append("Sub_Bits/subBit")
                   .append("-")
                   .append(IndexExport)
-                 // .append("-Animation")
                   .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_BATCH)
-          {exportFileName.append("Batch/lot")
+          {exportFileName.append("Batches/lot")
                   .append("-")
                   .append(IndexExport)
-                  //.append("-Animation")
                   .append(".obj");
           }
 
@@ -679,54 +669,18 @@ private void initWorkingSpace(){
       logger.logDEBUGMessage("Exporting " + exportFileName);
 
       beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER, exportFileName.toString());
-      System.out.println("after Raw");
+
       IndexExport++;
     }
   }
-/*
-  public void exportAll() {
-System.out.println("thread="+Thread.currentThread().getName());
-  int l=0;
-   // System.out.println("ExpInd="+ExpInd.get());
-    animationSpeed=0.3;
-    System.out.println("Speed="+animationSpeed);
 
-    processor.pauseAnimation();
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    processor.pauseAnimation();
-    while (ExpInd.get()<animationShapes.size()){//processor.pauseAnimation();
-      //System.out.println("SIZE="+animationShapes.size()+" EXpInd="+ExpInd.get());
-      //System.out.println("expInd="+ExpInd.get()+" ind="+ind.get());
-
-      if(ExpInd.get()==ind.get()) { System.out.println("in expo ?");
-    processor.export();
-        //System.out.println("ExpindInIF="+ExpInd);
-    ExpInd.set(ExpInd.get()+1);
-        //processor.pauseAnimation();
-
-      }
-      if(ExpInd.get()==animationShapes.size())
-      {
-        try {
-          Thread.sleep(1500);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-        processor.deactivateAnimation();
-
-      }
-
-}
-    System.out.println("ExpindFinal="+ExpInd);
-    processor.deactivateAnimation();
-
-  }
-
-*/
+  /**
+   * exports all shapes as 3d obj files when EXPORTSIM button is cicked.
+   * the option is automatically put on ONE BY ONE because we need each ob by itself.
+   * We only have to precise the type of objects to export(SubBits,Layer,Batch...)
+   * exportAll method rely on export() method of EXPORT BUTTON that export the current displayed shape, in exportAll we
+   * just display then export each shape one by one
+   */
   public void exportAll(){ExpInd.set(0);
     try {
 
@@ -734,7 +688,7 @@ System.out.println("thread="+Thread.currentThread().getName());
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    //System.out.println("SIZE="+animationShapes.size());
+
 
     animationSpeed=0.001;
 
@@ -744,7 +698,7 @@ System.out.println("thread="+Thread.currentThread().getName());
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-      System.out.println("ExpInd="+ExpInd.get()+" ind="+ind.get());
+
 
 if(ExpInd.get()==ind.get()){
   processor.export();
@@ -757,7 +711,7 @@ if(ExpInd.get()==ind.get()){
   ExpInd.set(ExpInd.get()+1);
 
  exported.countDown();
- System.out.println("exported freedB");
+
    exported=new CountDownLatch(1);
 
  }
@@ -770,44 +724,6 @@ if(ExpInd.get()==ind.get()){
     waitshaping=new CountDownLatch(1);
     notyet=new CountDownLatch(1);
   }
-
-
-
-
-
-
-
-
-/*
-  public void exportAll2(String fileName, PShape s){
-Thread t=new Thread(new Runnable() {
-  @Override
-  public void run() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("what da heck");
-    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileName), Charset.forName("UTF-8"),
-            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-      try {
-        writer.write(s.toString());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-  }
-});
-t.start();
-  //animationShapes.forEach(this::shape);
-
-}*/
-
-
-
-
-
-
 
 
 
@@ -827,10 +743,7 @@ if(WindowStatus>=2) drawtest();
       case ANIMATION_VIEW:
         drawAnimationShape();
         break;
-      //case MODIFYED_VIEW:
 
-
-        //break;
         default:
         throw new IllegalStateException(
                 "Unexpected value: " + processor.getDisplayState().getState());
@@ -879,13 +792,13 @@ if(WindowStatus>=2) drawtest();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
 
-      //animationShapes.forEach(this::shape);
-for(int i=0;i<animationShapes.size();i++) {
+      animationShapes.forEach(this::shape);
+/*for(int i=0;i<animationShapes.size();i++) {
 
 shape(animationShapes.get(i));
 
 
-}
+}*/
 
 popMatrix();
 //Xpos++;

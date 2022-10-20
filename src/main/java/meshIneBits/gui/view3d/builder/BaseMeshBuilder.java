@@ -30,18 +30,19 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   }
 
   @Override
-  public PavedMeshBuilderResult buildMeshShape() {System.out.println("IN constructor buildMeshShape");
+  public PavedMeshBuilderResult buildMeshShape() {
     //TODO mesh has to be scheduled before build the shape of mesh.
-    if (!mesh.isPaved()) {System.out.println("IN if buildMeshShape");
+    if (!mesh.isPaved()) {
       return new PavedMeshBuilderResult(null, null);
     }
     Vector<BitShape> bitShapes = new Vector<>();
     PShape meshShape = context.createShape(PConstants.GROUP);
     mesh.getLayers().forEach((layer) -> {
       //TODO temporary code, need to be clean after!!!
-      Collection<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
+      List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
           mesh.getScheduler().filterBits(layer.sortBits()));
 
+      //Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getXliftpoint ).thenComparing(Bit3D::getYliftpoint));
       int layerId = layer.getLayerNumber();
 
       bitsInCurrentLayer.forEach(bit3D -> {
@@ -121,10 +122,10 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
 
   }
 
-public ArrayList<ArrayList<Strip>> build_strips(){System.out.println("IN  buildstrips");
+public ArrayList<ArrayList<Strip>> build_strips(){
 
 
-  if (!mesh.isPaved()) {System.out.println("IN if buildstrips");
+  if (!mesh.isPaved()) {
     return null;
   }
 
@@ -134,20 +135,17 @@ public ArrayList<ArrayList<Strip>> build_strips(){System.out.println("IN  builds
     List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
             mesh.getScheduler().filterBits(layer.sortBits()));
     ArrayList<Strip> layerstrips=new ArrayList<>();
-    //bitsInCurrentLayer=new HashSet<>(bitsInCurrentLayer);
+
     HashSet<Bit3D> toremove=new HashSet<>();
 Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
 
-   // Iterator<Bit3D> itFirst=bitsInCurrentLayer.iterator();
-    //layerstrips.add(  new Strip ((NewBit3D)itFirst.next(),layer));
+
 int size=bitsInCurrentLayer.size();
 
 while(bitsInCurrentLayer.size()>0){
 
-  System.out.println("S="+bitsInCurrentLayer.size());
-  System.out.println("size="+size);
-// loop to find the extremist bit to left
 
+// loop to find the extremist bit to left
   TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
 
 
@@ -167,21 +165,21 @@ tofindfirstbit.add(bit);
         {
           layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
           toremove.add(bit3D);
-       System.out.println("Xmin="+bit3D.getTwoExtremeXPointsCS().get(0).x+" Y="+bit3D.getTwoExtremeXPointsCS().get(0).y);
-          // System.out.println("S="+toremove.size());
+
+
           num++;
-          System.out.println("num="+num+" batchNBB="+nbBitesBatch);
+
         }
 
-        //System.out.println("num="+num+" batchNBB="+nbBitesBatch);
+
    }
-  if(num==nbBitesBatch) {System.out.println("in if");
+  if(num==nbBitesBatch) {
     num=0;
   }
    layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
    bitsInCurrentLayer.removeAll(toremove);
 }
-System.out.println("out ?");
+
 
     meshstrips.add(layerstrips);
   });

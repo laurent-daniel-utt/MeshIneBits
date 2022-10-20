@@ -31,15 +31,7 @@ public class NewBit3D extends Bit3D {
   }
 
 
-  public Vector<Vector2> getTwoExtremePointsCS() {
-    return getBaseBit()
-            .getSubBits()
-            .stream()
-            .map(SubBit2D::getTwoExtremePointsCS)
-            .flatMap(Collection::stream)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toCollection(Vector::new));
-  }
+
 
 
   public Vector<Vector2> getTwoExtremeXPointsCS() {
