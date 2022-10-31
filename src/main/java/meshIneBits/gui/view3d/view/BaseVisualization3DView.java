@@ -25,7 +25,6 @@ import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
-import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
@@ -36,7 +35,6 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static meshIneBits.gui.utilities.UPPPaveMesh.button;
 import static meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor.option;
 import static meshIneBits.gui.view3d.util.animation.AnimationProcessor.*;
 import static remixlab.bias.BogusEvent.CTRL;
@@ -66,24 +64,16 @@ private AtomicInteger ExpInd=new AtomicInteger(0);
  private com.jogamp.newt.opengl.GLWindow win;
   private final DecimalFormat df;
   public static int IndexExport = 0;
-  //private  int IndexExport = 0;
-//private float Xpos=-printerX / 2 - CraftConfig.workingWidth - 20,Ypos=-printerY / 2,Zpos=0;
+
 
 public static float Xpos=0,Ypos=0,Zpos=0;
     public static ArrayList<ArrayList<Strip>> meshstrips;
   private boolean isExporting = false;
-  // false=closed/true=opened
-  public static int WindowStatus=0;
-  private int it=0;
-public static Thread thread;
-private ActionListener ev;
-private ActionListener refListener;
-private PShape meshShape2=new PShape();
-private MouseListener refMouseListener;
-
+  public static int WindowStatus=0;// false=closed/true=opened
 private PShape rectange;
-  //private MouseEvent event;
+
 private CountDownLatch stillExporting=new CountDownLatch(1);
+
   public BaseVisualization3DView(){
 
   }
@@ -145,7 +135,7 @@ public void play(){
        WindowStatus=2;
                 noLoop();
                 initProcessor();
-                //meshShapes.put(1, meshShape2);
+
                 meshShapes.put(1,processor.getModelProvider().getMeshShape());
                 frame.setShape(shape);
 
@@ -168,16 +158,13 @@ public void play(){
 processor.deactivateAnimation();
         if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
                 loop();
-Thread t=new Thread(new Runnable() {
-  @Override
-  public void run() {
-    try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    Logger.updateStatus("");
+Thread t=new Thread(() -> {
+  try {
+    Thread.sleep(3000);
+  } catch (InterruptedException e) {
+    throw new RuntimeException(e);
   }
+  Logger.updateStatus("");
 });t.start();
         Logger.updateStatus("3d interface Refreshed");
 
@@ -319,8 +306,9 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
 
     win.addWindowListener(new WindowAdapter() {
       public void windowDestroyed(WindowEvent e) { WindowStatus=0;
-       // System.out.println(" WindowStatus"+ WindowStatus);
-        button.removeActionListener( ev);
+      Logger.updateStatus("");
+
+
         processor.onTerminated();
         uipwAnimation.closeWindow();
         uipwView.closeWindow();
@@ -359,7 +347,7 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
     initProcessor();
       meshShape = processor.getModelProvider().getMeshShape();
     shape = processor.getModelProvider().getModelShape();
-      meshShape2=meshShape;
+
     if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
     int s=0;
      //for(int i=0;i<meshstrips.size();i++)
@@ -833,7 +821,7 @@ popMatrix();
     scene.pg().popStyle();
   }
 
-  private void drawWorkingSpace() {
+  private  void drawWorkingSpace() {
 
     pushMatrix();
     translate(Xpos,Ypos,Zpos);
@@ -841,12 +829,15 @@ popMatrix();
 
     shape(rectange);
      popMatrix();
-if(forward())Xpos++;
+
+if(!getpausing()){
+    if(forward())Xpos++;
 if(backward())Xpos--;
 if(Xpos==pos){
   movingWorkSpace.countDown();
   movingWorkSpace=new CountDownLatch(1);
   }
+}
 
      /* rect(-printerX / 2 - CraftConfig.workingWidth - 20,
             -printerY / 2, CraftConfig.workingWidth,

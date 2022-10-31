@@ -54,11 +54,13 @@ public interface IVisualization3DProcessor {
 
   DisplayState getDisplayState();
 
-  void speedUp(boolean b);
+  void speedUp();
 
   void speedDown();
 
   void setAnimationIndex(int i);
+
+   void incrementIndex();
 
   void setAnimationBySubBit(boolean value);
 
@@ -66,5 +68,7 @@ public interface IVisualization3DProcessor {
    * created by Majed
    */
   void exportAll();
+
+  void decrementIndex();
 }
 

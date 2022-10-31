@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 import static meshIneBits.config.CraftConfig.printerX;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.*;
-import static meshIneBits.gui.view3d.view.BaseVisualization3DView.meshstrips;
 import static meshIneBits.gui.view3d.view.UIPWController.Exportation;
 
 
@@ -46,12 +45,13 @@ public class AnimationProcessor {
   private int indexMax;
 public static AtomicInteger ind= new AtomicInteger(0);
   private final AtomicBoolean isActivated = new AtomicBoolean(false);
-  private final AtomicBoolean pausing = new AtomicBoolean(false);
+  private static final AtomicBoolean pausing = new AtomicBoolean(false);
   private final AtomicInteger index = new AtomicInteger(0);
 
   public static CountDownLatch exported=new CountDownLatch(1);
   private final List<AnimationIndexIncreasedListener> listeners = new ArrayList<>();
 
+  private  int currentlayer=0,currentStrip=0,currentlayer_size=0,size_currentstrip=0;
    public static float pos;
   public AnimationProcessor(IAnimationModel3DProvider animationProvider,
       IAssemblyWorkingSpaceProvider wsProvider) {
@@ -79,9 +79,11 @@ public static AtomicInteger ind= new AtomicInteger(0);
     initAnimationShape();
    try { startAnimation();}
    catch (IndexOutOfBoundsException e){
-    e.printStackTrace();
+     Logger.error("Refresh the 3d Interface");
+     e=new IndexOutOfBoundsException("Refresh the 3d Interface");
+     //e.printStackTrace();
 
-    Logger.error("Refresh the 3d Interface");
+
    }
   Zpos=0;
   }
@@ -107,18 +109,21 @@ public static AtomicInteger ind= new AtomicInteger(0);
   public synchronized void pause() {
     pausing.set(!pausing.get());
     notifyAll();
-  }
 
-  private void startAnimation() throws IndexOutOfBoundsException  {
+  }
+public static boolean getpausing(){
+    return pausing.get();
+}
+  private void startAnimation()  {
 
     MultiThreadServiceExecutor.instance.execute(new IndexIncrementTask());
-  throw new IndexOutOfBoundsException("Refresh the 3d interface by clicking on it");
+  //throw new IndexOutOfBoundsException("Refresh the 3d interface by clicking on it");
   }
 
 
 
 
-  public void speedUp(boolean sim) {
+  public void speedUp() {
 
 
             animationSpeed -=
@@ -199,7 +204,7 @@ public static AtomicInteger ind= new AtomicInteger(0);
  * functionnalities on the interface)
  */
 
-      else {int currentlayer=0,currentStrip=0,currentlayer_size=0,size_currentstrip=0;
+      else { currentlayer=0;currentStrip=0;currentlayer_size=0;size_currentstrip=0;
 
 
 
@@ -226,7 +231,8 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
               if(currentlayer_size< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
                 size_currentstrip=0;
                 currentStrip++;
-                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                 System.out.println("currentlayer="+currentlayer+" currentStrip="+currentStrip);
+                pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
 
               }
               /**
@@ -238,6 +244,11 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
                 currentlayer_size=0;
                 currentStrip=0;
                 currentlayer++;
+                layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
+                  currentlayer++;
+                  layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                }
                  pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
                  Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
               }
@@ -251,16 +262,16 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
              * we pause the animation waiting for the working space to reach its destination
              */
             if(Xpos!=pos) movingWorkSpace.await();
+
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
-
-
-
              callback.accept(shapes);
             if (pausing.get()) {
               synchronized (AnimationProcessor.this) {
                 AnimationProcessor.this.wait();
+
               }
             }
+
             Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
             AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
 
@@ -278,8 +289,55 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
     }
   }
 
+
+  private void adjusting_workingspace_position(){
+    boolean layerchanged=false;
+    Layer layer;
+    currentlayer_size--;
+    size_currentstrip--;
+    if(currentlayer_size==0) {
+    currentlayer--;
+
+    layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
+        currentlayer--;
+        layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      }
+    if(currentlayer<=0) currentlayer=0;
+       layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      currentlayer_size=layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size();
+      currentStrip=meshstrips.get(currentlayer).size()-1;
+      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1;
+      layerchanged=true;
+    }
+
+
+    if(size_currentstrip<0 && !layerchanged ){
+      currentStrip--;
+      if(currentStrip<=0)currentStrip=0;
+      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1;
+    }
+System.out.println("currentStrip="+currentStrip);
+    System.out.println("size_currentstrip="+size_currentstrip);
+    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
+  }
+
+
+
   public void close(){
     pausing.set(false);
     isActivated.set(false);
+  }
+public void incrementIndex(){
+  AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
+  Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+  callback.accept(shapes);
+  }
+  public void decrementIndex(){
+    AnimationProcessor.this.index.set(index.get() == 0 ? 0 : index.get() - 1);
+    Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+    callback.accept(shapes);
+    if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT )adjusting_workingspace_position();
   }
 }

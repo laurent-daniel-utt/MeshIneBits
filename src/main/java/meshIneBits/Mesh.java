@@ -61,7 +61,7 @@ public class Mesh extends Observable implements Observer, Serializable {
   private MeshEvents state;
   private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
   private String modelFile;
-
+  private ArrayList<ArrayList<Strip>> stripes=new ArrayList<>();
   /**
    * Set the new mesh to ready
    */
@@ -110,6 +110,15 @@ public class Mesh extends Observable implements Observer, Serializable {
     Logger.updateStatus("Model from " + filepath + " imported. Ready to slice");
     // Signal to update
     setState(MeshEvents.IMPORTED);
+  }
+public ArrayList<ArrayList<Strip>> getStripes(){
+
+    return stripes;
+}
+
+  public void setStripes(ArrayList<ArrayList<Strip>> stripes) {
+    if(!this.stripes.isEmpty()) this.stripes.clear();
+    this.stripes = new ArrayList<>(stripes);
   }
 
   /**

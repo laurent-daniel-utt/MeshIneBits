@@ -632,7 +632,7 @@ public static CountDownLatch r=new CountDownLatch(1);
 
 
 
-  public void deleteSelectedSubBits() {System.out.println("Removing");
+  public void deleteSelectedSubBits() {
     //save action before doing
 
 

@@ -26,6 +26,9 @@ public class UIPWAnimation extends UIParameterWindow implements
   private Slider sliderAnimation;
   private Button speedUpButton;
   private Button speedDownButton;
+
+  private Button next;
+  private Button previous;
   private Button pauseButton;
 
   private boolean pausing = false;
@@ -186,6 +189,23 @@ public class UIPWAnimation extends UIParameterWindow implements
         .setFont(font);
     speedDownButton.getCaptionLabel()
         .setText("<<");
+
+    next = getControl().addButton(NEXT)
+            .setVisible(true)
+            .setSize(30, 30)
+            .setColorLabel(255)
+            .setFont(font);
+    next.getCaptionLabel()
+            .setText(">");
+
+    previous = getControl().addButton(PREVIOUS)
+            .setVisible(true)
+            .setSize(30, 30)
+            .setColorLabel(255)
+            .setFont(font);
+    previous.getCaptionLabel()
+            .setText("<");
+
     pauseButton = getControl().addButton(PAUSE)
         .setVisible(true)
         .setSize(50, 30)
@@ -245,6 +265,27 @@ public class UIPWAnimation extends UIParameterWindow implements
             .setMargin(1, 0, 0, 5);
 
 
+    Textarea NextStepTooltipTextare = getControl()
+            .addTextarea("tooltNext")
+            .setText("Next")
+            .setSize(145, 18)
+            .setColorBackground(color(220))
+            .setColor(color(50)).setFont(tooltipFont).setLineHeight(12).hide()
+            .hideScrollbar();
+    SpeedUpTooltipTextare.getValueLabel()
+            .getStyle()
+            .setMargin(1, 0, 0, 5);
+
+    Textarea PreviousStepTooltipTextare = getControl()
+            .addTextarea("tooltPrevious")
+            .setText("Previous")
+            .setSize(145, 18)
+            .setColorBackground(color(220))
+            .setColor(color(50)).setFont(tooltipFont).setLineHeight(12).hide()
+            .hideScrollbar();
+    SpeedUpTooltipTextare.getValueLabel()
+            .getStyle()
+            .setMargin(1, 0, 0, 5);
 
     Textarea bitTooltipTextarea = getControl()
         .addTextarea("tooltipBits")
@@ -306,11 +347,13 @@ public class UIPWAnimation extends UIParameterWindow implements
     Tooltip<Textarea, Button> exportTooltip = new Tooltip<>(exportTooltipTextare, export);
     Tooltip<Textarea, Button> SpeedUpTooltip = new Tooltip<>(SpeedUpTooltipTextare, speedUpButton);
     Tooltip<Textarea, Button> SpeedDownTooltip = new Tooltip<>(SpeedDownTooltipTextare, speedDownButton);
+    Tooltip<Textarea, Button> NextTooltip = new Tooltip<>(NextStepTooltipTextare, next);
+    Tooltip<Textarea, Button> PreviousTooltip = new Tooltip<>(PreviousStepTooltipTextare, previous);
     Tooltip<Textarea, Button> exportAllTooltip = new Tooltip<>(exportAllTooltipTextare, exportAll);
 
     tooltipsToShow.addAll(
         Arrays.asList(batchTooltip, bitTooltip, layerTooltip, currentTooltip, fullTooltip,
-            exportTooltip,SpeedUpTooltip,SpeedDownTooltip,exportAllTooltip));
+            exportTooltip,SpeedUpTooltip,SpeedDownTooltip,NextTooltip,PreviousTooltip,exportAllTooltip));
 
     initComponentPosition();
   }
@@ -330,7 +373,9 @@ public class UIPWAnimation extends UIParameterWindow implements
     toggleFull.setPosition(0.7f * width, 0.4f * height);
     speedDownButton.setPosition(0.09f * width, 0.51f * height);
     speedUpButton.setPosition(0.45f * width, 0.51f * height);
-    pauseButton.setPosition(0.24f * width, 0.51f * height);
+   previous.setPosition(0.6f * width,0.51f * height);
+   next.setPosition(0.75f* width,0.51f * height);
+   pauseButton.setPosition(0.24f * width, 0.51f * height);
 
     sliderAnimation.setPosition(0.09f * width, 0.47f * height);
     export.setPosition(0.09f * width, 0.55f * height);
@@ -412,10 +457,12 @@ public class UIPWAnimation extends UIParameterWindow implements
           getListener().onActionListener(this, theEvent.getName(), theEvent.getValue());
         }
         break;
-      case EXPORTAll:
-      case EXPORT:
-      case SPEED_DOWN:
-      case SPEED_UP:
+        case NEXT:
+        case PREVIOUS:
+        case EXPORTAll:
+        case EXPORT:
+        case SPEED_DOWN:
+        case SPEED_UP:
         if (getListener() != null) {
           getListener().onActionListener(this, theEvent.getName(), theEvent.getValue());
         }

@@ -28,6 +28,8 @@ public class GraphicElementLabel {
   public static final String PLAY = "Play";
   public static final String SPEED_UP = "Speed up";
   public static final String SPEED_DOWN = "Speed down";
+  public static final String NEXT = "Next";
+  public static final String PREVIOUS = "Previous";
   public static final String ANIMATION_SLICER = "ASLICER";
   public static final String START_CUTTING_MACHINE = "Start cutting machine";
   public static final String STOP_CUTTING_MACHINE = "Stop cutting machine";

@@ -21,21 +21,22 @@ import java.util.function.Consumer;
 
 public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
 
-  private final AbstractVisualization3DView view3D;
+  private  final AbstractVisualization3DView view3D;
  // private final IModel3DProvider modelProvider;
  private  IModel3DProvider modelProvider;
 //private static IModel3DProvider modelProvider;
   // private final AnimationProcessor animation;
  private  AnimationProcessor animation;
-  private final OperationModel modelView;
+  private  final OperationModel modelView;
  // private final DisplayState state;
  private  DisplayState state;
   public static AnimationOption option;
   //  private MultiThreadServiceExecutor executor = MultiThreadServiceExecutor.instance;
 
   public BaseVisualization3DProcessor(Mesh mesh, AbstractVisualization3DView view3D) {
-    this.view3D = view3D;
+   this.view3D = view3D;
     modelView = new OperationModel(mesh.getModel(), view3D.getFrame());
+
    //FIXME this line below is causing odd behaviours for the bits when refreshing
             modelProvider = IModel3DProvider.createDefaultInstance(view3D, mesh.getModel(), mesh);
 
@@ -258,8 +259,8 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   }
 
   @Override
-  public void speedUp(boolean b) {
-    animation.speedUp(false);
+  public void speedUp() {
+    animation.speedUp();
   }
 
   @Override
@@ -275,4 +276,14 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationIndex(int i) {
     animation.setAnimationIndex(i);
   }
+    @Override
+ public void incrementIndex(){
+
+      animation.incrementIndex();
+ }
+    @Override
+    public void decrementIndex(){
+
+        animation.decrementIndex();
+    }
 }

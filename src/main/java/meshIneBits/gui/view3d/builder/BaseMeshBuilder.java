@@ -123,7 +123,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   }
 
 public ArrayList<ArrayList<Strip>> build_strips(){
-
+if(!meshstrips.isEmpty())meshstrips.clear();
 
   if (!mesh.isPaved()) {
     return null;
@@ -157,7 +157,6 @@ tofindfirstbit.add(bit);
   layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
 
    for(Bit3D bit3D:bitsInCurrentLayer){
-
         //we verify if the bit can fit in the current strip if not we create a new strip
         if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
                 bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
@@ -179,9 +178,9 @@ tofindfirstbit.add(bit);
    layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
    bitsInCurrentLayer.removeAll(toremove);
 }
-
-
     meshstrips.add(layerstrips);
+
+
   });
 
   return meshstrips;

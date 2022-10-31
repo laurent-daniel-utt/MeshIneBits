@@ -1,12 +1,14 @@
 package meshIneBits.gui.view3d.view;
 
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
 import processing.core.PShape;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
+import static meshIneBits.gui.view3d.util.animation.AnimationProcessor.getpausing;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.IndexExport;
 import static meshIneBits.gui.view3d.view.UIPWAnimation.Animation;
 
@@ -96,7 +98,7 @@ private int i=0;
         }
         break;
       case SPEED_UP:
-        processor.speedUp(false);
+        processor.speedUp();
         break;
       case SPEED_DOWN:
         processor.speedDown();
@@ -109,16 +111,23 @@ private int i=0;
         processor.setAnimationIndex(Math.round((float) value));
         break;
       case EXPORTAll:
+       if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
         processor.setDisplayOneByOne(true);
         Exportation=true;
         processor.activateAnimation();
         IndexExport=0;
        processor.exportAll();
-        Exportation=false;
-
-   //  }
-
-
+        Exportation=false;}
+        break;
+      case NEXT:
+      if(isAnimating.get() && getpausing()){
+        processor.incrementIndex();
+      }
+        break;
+      case PREVIOUS:
+        if(isAnimating.get() && getpausing()){
+          processor.decrementIndex();
+        }
         break;
         default:
         logger.logERRORMessage("The event invoked is not handled by UserControllerListener object: "

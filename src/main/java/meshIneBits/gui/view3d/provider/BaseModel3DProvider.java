@@ -8,6 +8,7 @@ import meshIneBits.gui.view3d.util.AlternatingColorPaintPattern;
 import meshIneBits.gui.view3d.util.IPaintShapePattern;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.util.animation.AnimationShape;
+import meshIneBits.util.Logger;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
@@ -77,7 +78,9 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
       try {
         paintPattern.paintAnimation(meshPavedResult, option);
       }catch ( IndexOutOfBoundsException e){
-        e.printStackTrace();
+        Logger.error("Refresh the 3d Interface");
+        e=new IndexOutOfBoundsException("Refresh the 3d Interface");
+       // e.printStackTrace();
       }
     }
     switch (option) {
