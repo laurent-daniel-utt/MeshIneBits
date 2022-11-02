@@ -1,5 +1,7 @@
 package meshIneBits.opcuaHelper;
 
+import io.netty.channel.ConnectTimeoutException;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -9,7 +11,9 @@ public abstract class BitSLickrMachineAdapter implements IClientHelper {
   private CompletableFuture<ICustomResponse> future;
 
   public BitSLickrMachineAdapter(){
-    clientRunner=new ClientRunner(this);
+   System.out.println("in BitSLickrMachineAdapter constructor");
+     clientRunner=new ClientRunner(this);
+
   }
 
   protected ROBOT robot;

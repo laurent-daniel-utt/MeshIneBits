@@ -17,8 +17,9 @@ public class DepositingMachineProcessor implements UIPWListener {
       void callback( String messageError, String[] currentBitData,boolean continueButtonLock, String[] currentAxesPositions);
   }
 
-  private final DepositingMachineCommander commander;
-  private final DepositingProcessCallback callback;
+  private /*final*/ DepositingMachineCommander commander;
+
+  private/* final*/ DepositingProcessCallback callback;
   private final DecimalFormat df;
 
   {
@@ -29,9 +30,9 @@ public class DepositingMachineProcessor implements UIPWListener {
 
   public DepositingMachineProcessor(DepositingProcessCallback callback) {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
-    commander = new DepositingMachineCommander(mesh);
+    commander= new DepositingMachineCommander(mesh);
     this.callback = callback;
-    MultiThreadServiceExecutor.instance.execute(new DepositingMachineProcessor.SubscriptionTask());
+   MultiThreadServiceExecutor.instance.execute(new DepositingMachineProcessor.SubscriptionTask());
   }
 
   private void startDepose() {

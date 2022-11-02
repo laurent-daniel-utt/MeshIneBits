@@ -9,9 +9,13 @@ public class DepositingMachineCommander {
 
     private final CustomLogger logger = new CustomLogger(this.getClass());
     private final Mesh mesh;
-    private DepositingMachineOPCUAHelper helper =new DepositingMachineOPCUAHelper();
+    //private final DepositingMachineOPCUAHelper helper=new DepositingMachineOPCUAHelper();
+    private  DepositingMachineOPCUAHelper helper;
 
     public DepositingMachineCommander(Mesh mesh) {
+        System.out.println("in DepositingMachineCommander constructor");
+        helper =new DepositingMachineOPCUAHelper();
+
         this.mesh = mesh;
     }
 
@@ -105,8 +109,10 @@ public class DepositingMachineCommander {
                 throw new Exception(
                         "Value returned must be String type, Type of obj actual: " + res.getTypeValue());
             }
+
             return res.getValue().toString();
         }
+
     }
     public boolean getLockContinueButton() throws Exception {
         ICustomResponse res = helper.getLockContinueButton();

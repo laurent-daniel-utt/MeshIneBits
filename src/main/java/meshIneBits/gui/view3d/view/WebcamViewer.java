@@ -64,7 +64,7 @@ public class WebcamViewer extends JFrame implements Runnable, WebcamListener, Wi
 		}
 		if(webcams.size()==1) webcam=webcams.get(0);
 		else webcam=webcams.get(1);// if more than one webcam is detected, we choose the second one ---- normally it is our case
-
+System.out.println("webcams:"+webcams.size());
 		if (webcam == null) {
 			System.out.println("No webcams found...");
 			System.exit(1);

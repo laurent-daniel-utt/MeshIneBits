@@ -26,6 +26,7 @@ public class BaseWriteNode implements IWriteNode {
       throws Exception {
     client.connect().get();
     String machineId = client.getConfig().getEndpoint().getEndpointUrl();
+    System.out.println("machineId:"+machineId);
     NodeId nodeId = MeshIneBitNodeId.getMIBNodeIdByID(machineId, nodeIdString);
 
     Objects.requireNonNull(nodeId, () -> {

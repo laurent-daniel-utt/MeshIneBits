@@ -86,6 +86,7 @@ public class DepositingProcessView extends UIParameterWindow {
     super.setup();
     processor = new DepositingMachineProcessor(this::updateInfos);
     setUIControllerListener(processor);
+
   }
 
   @Override
@@ -315,7 +316,7 @@ public class DepositingProcessView extends UIParameterWindow {
             .setFont(text_font_default);
 
     initComponentPositions();
-    showWebCamera();
+   // showWebCamera();
   }
 
   public void showWebCamera(){
@@ -479,6 +480,8 @@ public class DepositingProcessView extends UIParameterWindow {
     setContinueButton(continueButtonLock);
     updateCurrentAxesPositions(AxesPositions);
   }
+
+
 
 }
 
