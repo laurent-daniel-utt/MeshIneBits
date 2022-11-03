@@ -290,16 +290,16 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
   }
 
 
-  private void adjusting_workingspace_position(){
+  private void adjusting_workingspace_position_previous(){
     boolean layerchanged=false;
     Layer layer;
     currentlayer_size--;
     size_currentstrip--;
     if(currentlayer_size==0) {
     currentlayer--;
-
+    if(currentlayer<0) return;
     layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
-      while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
+      while  (((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0) &&currentlayer>=0 )  {
         currentlayer--;
         layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       }
@@ -307,15 +307,15 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
        layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       currentlayer_size=layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size();
       currentStrip=meshstrips.get(currentlayer).size()-1;
-      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1;
+      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size();
       layerchanged=true;
     }
 
 
-    if(size_currentstrip<0 && !layerchanged ){
+    if(size_currentstrip==0 && !layerchanged ){
       currentStrip--;
-      if(currentStrip<=0)currentStrip=0;
-      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1;
+      if(currentStrip<0)currentStrip=0;
+      size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size();
     }
 System.out.println("currentStrip="+currentStrip);
     System.out.println("size_currentstrip="+size_currentstrip);
@@ -323,7 +323,41 @@ System.out.println("currentStrip="+currentStrip);
     Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
   }
 
+  private void adjusting_workingspace_position_next(){
+    boolean layerchanged=false;
+    int number_of_layers=MeshProvider.getInstance().getCurrentMesh().getLayers().size();
+    Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+    currentlayer_size++;
+    size_currentstrip++;
 
+    if(currentlayer_size==layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()) {
+      currentlayer++;
+      if(currentlayer>=number_of_layers) return;
+      layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      while  (((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0) &&currentlayer<number_of_layers )  {
+        currentlayer++;
+        layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      }
+      if(currentlayer>=number_of_layers) currentlayer=number_of_layers-1;
+      //layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      currentlayer_size=0;
+      currentStrip=0;
+      size_currentstrip=0;
+      layerchanged=true;
+    }
+
+
+    if(size_currentstrip>=meshstrips.get(currentlayer).get(currentStrip).getBits().size() && !layerchanged ){
+      currentStrip++;
+      if(currentStrip>=meshstrips.get(currentlayer).size())currentStrip=meshstrips.get(currentlayer).size()-1;
+      size_currentstrip=0;
+    }
+    System.out.println("layerchanged:"+layerchanged);
+    System.out.println("currentStrip="+currentStrip);
+    System.out.println("size_currentstrip="+size_currentstrip);
+    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
+  }
 
   public void close(){
     pausing.set(false);
@@ -331,13 +365,28 @@ System.out.println("currentStrip="+currentStrip);
   }
 public void incrementIndex(){
   AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
+  final AtomicInteger index = AnimationProcessor.this.index;
+  listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
   Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
   callback.accept(shapes);
+  try {
+    if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT )adjusting_workingspace_position_next();
+    pos=Xpos;
+  }catch (IndexOutOfBoundsException e){
+    e.printStackTrace();
+  }
   }
   public void decrementIndex(){
     AnimationProcessor.this.index.set(index.get() == 0 ? 0 : index.get() - 1);
+    final AtomicInteger index = AnimationProcessor.this.index;
+    listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
     Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
     callback.accept(shapes);
-    if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT )adjusting_workingspace_position();
+    try {
+      if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT )adjusting_workingspace_position_previous();
+      pos=Xpos;
+    }catch (IndexOutOfBoundsException e){
+      e.printStackTrace();
+    }
   }
 }
