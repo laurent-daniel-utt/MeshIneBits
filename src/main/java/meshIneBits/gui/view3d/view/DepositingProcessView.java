@@ -316,7 +316,7 @@ public class DepositingProcessView extends UIParameterWindow {
             .setFont(text_font_default);
 
     initComponentPositions();
-   // showWebCamera();
+    showWebCamera();
   }
 
   public void showWebCamera(){
