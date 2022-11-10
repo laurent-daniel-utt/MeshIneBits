@@ -1,18 +1,19 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.concurrent.ExecutionException;
 import meshIneBits.util.CustomLogger;
+
+import java.util.concurrent.ExecutionException;
 
 public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
   private static final CustomLogger logger = new CustomLogger(CuttingMachineOPCUAHelper.class);
 
-  public final String startNodeId = "startNode";
+  public final String startNodeId = "|var|CPX-E-CEC-M1-PN.Application.GVL.START";
   public final String pauseNodeId = "pauseNode";
   public final String cuttingButNodeId = "cuttingNodeId";
   public final String cuttingPathId = "cuttingPathId";
 
-  @Override
+
   public ICustomResponse startMachine() {
     try {
       return writeVariableNode(startNodeId, "Boolean", true);
@@ -21,7 +22,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse stopMachine() {
     try {
       return writeVariableNode(startNodeId, "Boolean", false);
@@ -30,7 +31,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse getMachineState() {
     try {
       return readVariableNode(startNodeId);
@@ -39,7 +40,7 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
     }
   }
 
-  @Override
+
   public ICustomResponse pauseMachine() {
     try {
       return writeVariableNode(pauseNodeId, "String", "");
@@ -66,6 +67,6 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
 
   @Override
   public String getEndpointUrl() {
-    return BitSLickrHelperConfig.cutting_machine_url;
+    return BitSLicRHelperConfig.cutting_machine_url;
   }
 }

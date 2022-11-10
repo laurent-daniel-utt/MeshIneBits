@@ -1,19 +1,16 @@
 package meshIneBits.opcuaHelper;
 
-import static meshIneBits.opcuaHelper.CustomStatusCode.STATUS_BAD;
-import static meshIneBits.opcuaHelper.CustomStatusCode.STATUS_GOOD;
-import static meshIneBits.opcuaHelper.CustomStatusCode.STATUS_SECURITY_ERROR;
-import static meshIneBits.opcuaHelper.CustomStatusCode.STATUS_UNCERTAIN;
-import static meshIneBits.opcuaHelper.CustomStatusCode.STATUS_UNKNOWN;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import meshIneBits.opcuaHelper.BaseCustomResponse.BaseCustomResponseBuilder;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import static meshIneBits.opcuaHelper.CustomStatusCode.*;
 
 public class BaseWriteNode implements IWriteNode {
 
@@ -22,11 +19,14 @@ public class BaseWriteNode implements IWriteNode {
   }
 
   @Override
-  public ICustomResponse writeNode(OpcUaClient client, String nodeIdString, String typeValue,
-      Object value)
+  public ICustomResponse writeNode(OpcUaClient client,
+                                   Object nodeIdString,
+                                   String typeValue,
+                                    Object value)
       throws Exception {
     client.connect().get();
     String machineId = client.getConfig().getEndpoint().getEndpointUrl();
+    System.out.println("machineId:"+machineId);
     NodeId nodeId = MeshIneBitNodeId.getMIBNodeIdByID(machineId, nodeIdString);
 
     Objects.requireNonNull(nodeId, () -> {
@@ -39,13 +39,14 @@ public class BaseWriteNode implements IWriteNode {
     CompletableFuture<StatusCode> future = client.writeValue(nodeId, dv);
 
     StatusCode statusCode = future.get();
+
     return buildStatusCode(nodeIdString, typeValue, statusCode);
   }
 
   private ICustomResponse buildStatusCode(
-      String nodeIdString,
-      String typeValue,
-      StatusCode statusCode) {
+          Object nodeIdString,
+          String typeValue,
+          StatusCode statusCode) {
 
     BaseCustomResponseBuilder builder = new BaseCustomResponseBuilder()
         .setMessage(statusCode.toString())

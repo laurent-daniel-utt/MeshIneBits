@@ -9,9 +9,9 @@ public class BaseCustomResponse implements ICustomResponse {
   private final String message;
   private final Object value;
   private final String typeValue;
-  private final String nodeId;
+  private final Object nodeId;
 
-  private BaseCustomResponse(String nodeId, long statusCode, String message, Object value, String typeValue) {
+  private BaseCustomResponse(Object nodeId, long statusCode, String message, Object value, String typeValue) {
     this.statusCode = statusCode;
     this.message = message;
     this.value = value;
@@ -40,7 +40,7 @@ public class BaseCustomResponse implements ICustomResponse {
   }
 
   @Override
-  public String getNodeId() {
+  public Object getNodeId() {
     return nodeId;
   }
 
@@ -50,7 +50,7 @@ public class BaseCustomResponse implements ICustomResponse {
     private String message;
     private Object value;
     private String typeValue;
-    private String nodeId;
+    private Object nodeId;
 
     public BaseCustomResponseBuilder setStatusCode(long statusCode) {
       this.statusCode = statusCode;
@@ -72,7 +72,7 @@ public class BaseCustomResponse implements ICustomResponse {
       return this;
     }
 
-    public BaseCustomResponseBuilder setNodeId(String nodeId) {
+    public BaseCustomResponseBuilder setNodeId(Object nodeId) {
       this.nodeId = nodeId;
       return this;
     }

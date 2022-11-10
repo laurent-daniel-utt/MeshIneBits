@@ -72,11 +72,8 @@ import meshIneBits.gui.utilities.UPPPaveRegion;
 import meshIneBits.gui.utilities.UPPScheduleMesh;
 import meshIneBits.gui.utilities.UPPToolsAI;
 import meshIneBits.gui.utilities.UtilityParametersPanel;
-import meshIneBits.gui.view3d.view.AssemblingProcessView;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.gui.view3d.provider.MeshProvider;
-import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
-import meshIneBits.gui.view3d.view.CuttingProcessView;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
 

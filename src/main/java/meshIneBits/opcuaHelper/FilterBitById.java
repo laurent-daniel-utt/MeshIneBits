@@ -1,12 +1,13 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit3D;
 import meshIneBits.scheduler.AdvancedScheduler;
 import meshIneBits.util.Vector2;
+
+import java.util.Vector;
 
 public class FilterBitById {
   public NewBit3D filterBitById(Mesh mesh, int bitId){
