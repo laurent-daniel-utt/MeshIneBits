@@ -44,6 +44,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static meshIneBits.config.CraftConfig.precision;
+
 /**
  * A bit 3D is the equivalent of a real wood bit. The 3D shape is determined by extrusion of a
  * {@link Bit2D}
@@ -117,7 +119,7 @@ public class Bit3D implements Serializable, Cloneable {
     orientation = baseBit.getOrientation();
     rawCutPaths = baseBit.getCutPathsCB();
     reverseInCut = baseBit.getInverseInCut();
-    computeLiftPoints();// why it was in comment
+    computeLiftPoints();
    // computeTwoPointNearTwoPointMostDistantOnBit();//why it was in comment
     lowerAltitude = layer.getLowerAltitude();
     higherAltitude = layer.getHigherAltitude();
@@ -222,7 +224,7 @@ public class Bit3D implements Serializable, Cloneable {
     for (Area area : bit2dToExtrude.getAreasCB()) {
       //Vector<Vector2> listPoint = AreaTool.defineTwoPointNearTwoMostDistantPointsInAreaWithRadius(
         //  area, CraftConfig.suckerDiameter / 4);
-      Vector<Vector2> listPoint= TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(area);
+      Vector<Vector2> listPoint= TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(area,null,precision);
       Vector<Vector2> TwoExtremePoints=AreaTool.getTwoMostDistantPointFromArea(area);
       if (listPoint != null) {
         listTwoDistantPoints.add(listPoint);

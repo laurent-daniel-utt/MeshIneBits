@@ -111,7 +111,7 @@ public class CraftConfig {
   @BitSetting(
       order = 1
   )
-  public static double bitWidth = 23.0;
+  public static double bitWidth = 24.0;
 
   @DoubleSetting(
       title = "Bit full length  (mm)",

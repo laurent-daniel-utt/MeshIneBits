@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
 
+import static meshIneBits.config.CraftConfig.precision;
+
 //TODO define readObject and writeObject for save mesh
 public class SubBit2D implements Serializable {
 
@@ -56,7 +58,7 @@ public class SubBit2D implements Serializable {
 
 
     computeLiftPoints();
-   if(liftPointCB!=null) computeDistantPoints();
+   if(liftPointCB!=null) computeDistantPoints(getLiftPointCB());
 
     computeXminXmaxPoints();
   }
@@ -107,9 +109,9 @@ public class SubBit2D implements Serializable {
   }
 
 
-  private void computeDistantPoints() {
+  private void computeDistantPoints(Vector2 liftPointCB) {
     Vector<Vector2> points = TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(
-        areaCB);
+        areaCB,liftPointCB,precision);
     if (points.size() == 2) {
       points.sort((a, b) -> (int) (a.x == b.x ? a.y - b.y : a.x - b.x));
       firstDistantPointCB = points.get(0);

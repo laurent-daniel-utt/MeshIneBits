@@ -38,19 +38,26 @@ import java.util.Vector;
 public class PolygonPointsList {
 
   private Vector<int[]> points;
+  private Vector<double[]> pointsforArea;
   private int curPosition = -1;
 
   /**
    * @param points to be inserted
    * @throws Exception when not enough points to build polygon
    */
+
   public PolygonPointsList(Vector<int[]> points) throws Exception {
     if (points.size() < 3) {
       throw new Exception("Not enough points to build a polygon !");
     }
     this.points = points;
   }
-
+  public PolygonPointsList(Vector<double[]> points,boolean Area) throws Exception {
+    if (points.size() < 3) {
+      throw new Exception("Not enough points to build a polygon !");
+    }
+    this.pointsforArea = points;
+  }
   /**
    * @return the next point in the list
    */
@@ -63,9 +70,21 @@ public class PolygonPointsList {
     return points.get(curPosition);
   }
 
+  public double[] getNextPointforArea() {
+    if (curPosition < pointsforArea.size() - 1) {
+      curPosition++;
+    } else {
+      curPosition = 0;
+    }
+    return pointsforArea.get(curPosition);
+  }
+
   /**
    * @return Number of points in the list
    */
+  public int getLengthForArea() {
+    return pointsforArea.size();
+  }
   public int getLength() {
     return points.size();
   }

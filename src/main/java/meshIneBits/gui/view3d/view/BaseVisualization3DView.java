@@ -71,7 +71,7 @@ public static float Xpos=0,Ypos=0,Zpos=0;
   private boolean isExporting = false;
   public static int WindowStatus=0;// false=closed/true=opened
 private PShape rectange;
-
+ private int num_batch=0;
 private CountDownLatch stillExporting=new CountDownLatch(1);
 
   public BaseVisualization3DView(){
@@ -631,10 +631,18 @@ private void initWorkingSpace(){
                   .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_BIT)
-          {exportFileName.append("Bits/bit")
+          {
+            if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
+            /*exportFileName.append("Bits/bit")
                   .append("-")
                   .append(IndexExport)
-                  .append(".obj");
+                  .append(".obj");*/
+            exportFileName.append("Bits/lot")
+                    .append("-"+num_batch)
+                    .append("/")
+                    .append(IndexExport)
+                    .append("_"+num_batch)
+                    .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
           {exportFileName.append("Sub_Bits/subBit")

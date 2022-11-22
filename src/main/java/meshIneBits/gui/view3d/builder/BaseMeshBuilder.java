@@ -116,79 +116,55 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
    if(WindowStatus==2){
     shapeBit.getShape().setStrokeWeight(1);
     //shapeBit.getShape().setStroke(-199999980);
-    shapeBit.getShape().setStroke(-999999999);
+  //  shapeBit.getShape().setStroke(-999999999);
    }
     return shapeBit;
 
   }
 
-public ArrayList<ArrayList<Strip>> build_strips(){
-if(!meshstrips.isEmpty())meshstrips.clear();
-
-  if (!mesh.isPaved()) {
-    return null;
-  }
-
-
-  mesh.getLayers().forEach((layer) -> {
-
-    List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
-            mesh.getScheduler().filterBits(layer.sortBits()));
-    ArrayList<Strip> layerstrips=new ArrayList<>();
-
-    HashSet<Bit3D> toremove=new HashSet<>();
-Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
-
-
-int size=bitsInCurrentLayer.size();
-
-while(bitsInCurrentLayer.size()>0){
-
-
-// loop to find the extremist bit to left
-  TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
-
-
-  for (Bit3D bit:bitsInCurrentLayer){
-tofindfirstbit.add(bit);
-  }
-
-  Iterator<Bit3D>itfirst=tofindfirstbit.iterator();
-  layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
-
-   for(Bit3D bit3D:bitsInCurrentLayer){
-        //we verify if the bit can fit in the current strip if not we create a new strip
-        if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
-                bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
-                        + CraftConfig.workingWidth && num<nbBitesBatch)
-        {
-          layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
-          toremove.add(bit3D);
-
-
-          num++;
-
-        }
-
-
-   }
-  if(num==nbBitesBatch) {
-    num=0;
-  }
-   layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
-   bitsInCurrentLayer.removeAll(toremove);
-}
-    meshstrips.add(layerstrips);
-
-
-  });
-
-  return meshstrips;
-
-
-
-
+  public ArrayList<ArrayList<Strip>> build_strips(){
+    if(!meshstrips.isEmpty())meshstrips.clear();
+    if (!mesh.isPaved()) {
+      return null;
     }
+    mesh.getLayers().forEach((layer) -> {
+      List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
+              mesh.getScheduler().filterBits(layer.sortBits()));
+      ArrayList<Strip> layerstrips=new ArrayList<>();
+
+      HashSet<Bit3D> toremove=new HashSet<>();
+      Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
+
+      while(bitsInCurrentLayer.size()>0){
+// loop to find the extremist bit to left
+        TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
+        for (Bit3D bit:bitsInCurrentLayer){
+          tofindfirstbit.add(bit);
+        }
+        Iterator<Bit3D>itfirst=tofindfirstbit.iterator();
+        layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
+
+        for(Bit3D bit3D:bitsInCurrentLayer){
+          //we verify if the bit can fit in the current strip if not we create a new strip
+          if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
+                  bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
+                          + CraftConfig.workingWidth && num<nbBitesBatch)
+          {
+            layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
+            toremove.add(bit3D);
+            num++;
+          }
+        }
+        if(num==nbBitesBatch) {
+          num=0;
+        }
+        layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
+        bitsInCurrentLayer.removeAll(toremove);
+      }
+      meshstrips.add(layerstrips);
+    });
+    return meshstrips;
+  }
 
 
 

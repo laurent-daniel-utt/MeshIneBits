@@ -351,10 +351,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
       //LiftPoint's position in Bit coordinate system
       Element xInBit = createElement(MeshTagXML.COORDINATE_X,
-          Double.toString(bit3D.getLiftPointsCB()
+          Double.toString(bit3D.getLiftPointsCS()
               .get(i).x));
       Element yInBit = createElement(MeshTagXML.COORDINATE_Y,
-          Double.toString(bit3D.getLiftPointsCB()
+          Double.toString(bit3D.getLiftPointsCS()
               .get(i).y));
       liftPoint.appendChild(xInBit);
       liftPoint.appendChild(yInBit);

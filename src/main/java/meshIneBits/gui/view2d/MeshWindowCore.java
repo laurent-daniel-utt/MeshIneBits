@@ -428,7 +428,6 @@ meshController.updateCore();
            e.getY() ,
             1, 1);
    if(viewToReal!=null) {Shape s2=viewToReal.createTransformedShape(liftPoint2);
-
     MousePropertyPanel.updateProperties(s2.getBounds2D().getCenterX(),s2.getBounds2D().getCenterY());}
 
   }
@@ -780,8 +779,6 @@ meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.r
 
       // Lift points
       if (meshController.showingLiftPoints()) {
-        g2d.setColor(WorkspaceConfig.regionColor);
-        drawModelCircle(g2d, 0, 0, (int) CraftConfig.suckerDiameter / 8);
         g2d.setColor(WorkspaceConfig.liftpointColor);
         g2d.setStroke(WorkspaceConfig.liftpointStroke);
         if (!bit3D.getLiftPointsCS()

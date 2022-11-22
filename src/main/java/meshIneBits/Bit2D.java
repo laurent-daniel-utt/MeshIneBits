@@ -415,11 +415,7 @@ public  void callMinusSetTransfoMatrix(){
 
 
 }
-  public  void callSetTransfoMatrix(){
 
-    setTransfoMatrix();
-
-  }
   /**
    * Given an area cut from a zone, construct the surface of this bit
    *
