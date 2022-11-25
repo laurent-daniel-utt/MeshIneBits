@@ -164,6 +164,9 @@ public class Bit3D implements Serializable, Cloneable {
   public List<Path2D> getCutPathsCB() {
     return rawCutPaths;
   }
+  public void setRawCutPaths( Vector<Path2D> paths){
+    this.rawCutPaths=paths;
+  }
 
   public List<Vector2> getLiftPointsCS() {
     return liftPointsCS;

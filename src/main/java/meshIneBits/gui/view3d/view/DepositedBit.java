@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class DepositedBit extends PApplet {
    // private int id=42;
-   private int id=6;
+   private int id=25;
     private PShape bitShape;
     private Scene scene;
     private CustomInteractiveFrame frame;

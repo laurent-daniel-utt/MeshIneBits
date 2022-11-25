@@ -522,6 +522,7 @@ meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.r
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     Mesh mesh = meshController.getMesh();
+
     if (mesh == null) {
       return;
     }
@@ -549,10 +550,11 @@ meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.r
     viewToReal = calculateAffineTransformViewToReal();
 
     Graphics2D g2d = (Graphics2D) g;
-
+    RenderingHints rh=new RenderingHints(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d.setRenderingHints(rh);
     // If current layer is only sliced (not paved yet), draw the slice
     if (!meshController.getCurrentLayer()
-        .isPaved()) {
+            .isPaved()) {
       paintLayerBorder(g2d);
     } else {
       // Draw the border of layer
@@ -566,62 +568,46 @@ meshController.incrementSelectedBitsOrientationParamBy(notches*WorkspaceConfig.r
       // Draw the controls of the selected bit
       bitMovers.clear();
       if (!meshController.getSelectedBitKeys()
-          .isEmpty() && !Moving ) {System.out.println("notempty="+meshController.getSelectedBitKeys().size());
+              .isEmpty() && !Moving ) {
         meshController.getSelectedBits()
-            .forEach(bit -> {
-
-
-                        paintBitControls(bit, g2d,null);
-
-                    }
-            );
+                .forEach(bit -> {
+                          paintBitControls(bit, g2d,null); });
       }
-
       if ( Moving && !rotating) {
-                          paintBitControls(movedBit, g2d,null);
+        paintBitControls(movedBit, g2d,null);
       }
-
-
-
-
       if (!meshController.getSelectedSubBits()
               .isEmpty()) {
         meshController.getSelectedSubBits()
                 .forEach(subbit -> {
-                        if(!subbit.isRemoved()) {
-                          paintBitControls(null, g2d,subbit);}
-      });
+                  if(!subbit.isRemoved()) {
+                    paintBitControls(null, g2d,subbit);}
+                });
       }
-
-
       // Draw the preview of adding bits
       if (meshController.isAddingBits()) {
         paintBitPreview(g2d);
       }
       if(rotating){
-
         if(newOrigin==null && rotatedBit!=null){
           paintBitPreviewRotation(g2d,rotatedBit.getOrigin());}
-      else if (newOrigin!=null && rotatedBit!=null){  paintBitPreviewRotation(g2d,newOrigin);}
+        else if (newOrigin!=null && rotatedBit!=null){  paintBitPreviewRotation(g2d,newOrigin);}
       }
       if (Moving){
         paintBitPreviewMoving(g2d,newOrigin,movedBit.getBaseBit());
       }
-
-
       if (meshController.isBulkSelecting()) {
         paintBulkSelectZone(g2d);
       }
-        if (meshController.AI_NeedPaint) {
-                AIpaintForDebug(g2d);
-            }
+      if (meshController.AI_NeedPaint) {
+        AIpaintForDebug(g2d);
+      }
     }
     // Draw selected region
     if (meshController.isSelectingRegion()
-        || meshController.hasSelectedRegion()) {
+            || meshController.hasSelectedRegion()) {
       paintSelectedRegion(g2d);
     }
-
     // Draw previous layer
     if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
       paintPreviousLayer(g2d);

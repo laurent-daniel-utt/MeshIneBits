@@ -516,9 +516,6 @@ public class Layer extends Observable implements Serializable {
         .collect(Collectors.toSet());
 
 
-
-
-
     // Remove old bits
     removeBits(
         bits.stream()

@@ -436,6 +436,10 @@ public  void callMinusSetTransfoMatrix(){
 
   }
 
+  public void setAreas(Vector<Area> areas) {
+    this.areas = areas;
+  }
+
   private static void removeSectionHolding(Bit2D bit, Area bitArea) {
     Vector<Area> sections = getTwoSectionHolding(bit.origin, bit.orientation, -CraftConfig.incertitude);
     bitArea.subtract(sections.lastElement());

@@ -226,6 +226,9 @@ public class SubBit2D implements Serializable {
   public boolean isValid() {
     return liftPointCB != null;
   }
+    public boolean isInValid() {
+        return liftPointCB == null;
+    }
 public boolean isregular(){
     if(getLiftPointCS()!=null) {return true;}
     else {return false;}

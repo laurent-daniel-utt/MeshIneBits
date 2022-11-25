@@ -32,15 +32,15 @@ package meshIneBits.util.supportExportFile;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
+import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.MeshTagXML;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.util.InterfaceXmlTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
-import meshIneBits.util.Vector3;
+import meshIneBits.util.*;
 import org.w3c.dom.Element;
 
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.nio.file.Path;
@@ -301,6 +301,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
     prepareBitToExport(bit3D);
+
+    rebuildBit3d(bit3D);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
@@ -310,6 +312,19 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     //sub bit of bit
     writeSubBitElementToBit(elementBit, bit3D);
     return elementBit;
+  }
+
+  private void rebuildBit3d(Bit3D bit){
+
+    NewBit2D newbit=(NewBit2D)bit.getBaseBit();
+    Vector<SubBit2D> subs=newbit.getValidSubBits();
+    Vector<Area> areas=new Vector<>();
+    for (SubBit2D sub:subs){
+
+   areas.add(sub.getAreaCB());
+    }
+    bit.getBaseBit().setAreas(areas);
+    bit.setRawCutPaths(CutPathCalc.instance.calcCutPathFrom(bit.getBaseBit()));
   }
 
   /**

@@ -114,6 +114,12 @@ public void removeSubbit(SubBit2D sub){
         .filter(SubBit2D::isValid)
         .collect(Collectors.toCollection(Vector::new));
   }
+  public Vector<SubBit2D> getInValidSubBits() {
+    return subBits.stream()
+            .filter(SubBit2D::isInValid)
+            .collect(Collectors.toCollection(Vector::new));
+  }
+
 
   @SuppressWarnings("unused")
   public boolean isValid() {
