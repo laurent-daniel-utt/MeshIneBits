@@ -1,15 +1,11 @@
 package meshIneBits.opcuaHelper;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import org.slf4j.LoggerFactory;
+
+import java.net.*;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
-
-import org.slf4j.LoggerFactory;
 
 import static com.google.common.collect.Sets.newHashSet;
 
