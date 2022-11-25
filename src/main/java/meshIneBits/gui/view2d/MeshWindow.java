@@ -48,6 +48,42 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
 
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.ColorUIResource;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.CraftConfigLoader;
+import meshIneBits.gui.utilities.AboutDialogWindow;
+import meshIneBits.gui.utilities.CustomFileChooser;
+import meshIneBits.gui.utilities.IconLoader;
+import meshIneBits.gui.utilities.MeshActionMenu;
+import meshIneBits.gui.utilities.MeshActionToolbar;
+import meshIneBits.gui.utilities.UPPNewBit;
+import meshIneBits.gui.utilities.UPPPaveFill;
+import meshIneBits.gui.utilities.UPPPaveLayer;
+import meshIneBits.gui.utilities.UPPPaveMesh;
+import meshIneBits.gui.utilities.UPPPaveRegion;
+import meshIneBits.gui.utilities.UPPScheduleMesh;
+import meshIneBits.gui.utilities.UPPToolsAI;
+import meshIneBits.gui.utilities.UtilityParametersPanel;
+import meshIneBits.gui.view3d.view.BaseVisualization3DView;
+import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.util.Logger;
+import meshIneBits.util.SimultaneousOperationsException;
+
+
 public class MeshWindow extends JFrame {
 
   private final GridBagConstraints selectorGBC;

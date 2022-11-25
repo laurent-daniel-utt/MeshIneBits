@@ -1,9 +1,10 @@
 package meshIneBits.opcuaHelper;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import meshIneBits.opcuaHelper.BaseCustomResponse.BaseCustomResponseBuilder;
 import meshIneBits.util.MultiThreadServiceExecutor;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CuttingMachineSimulator extends CuttingMachineOPCUAHelper {
 

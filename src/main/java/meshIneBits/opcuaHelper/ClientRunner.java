@@ -1,6 +1,12 @@
 package meshIneBits.opcuaHelper;
 
-import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
+import io.netty.channel.ConnectTimeoutException;
+import meshIneBits.util.CustomLogger;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -8,12 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Security;
 import java.util.concurrent.CompletableFuture;
-import meshIneBits.util.CustomLogger;
-import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
-import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
 
 public class ClientRunner {
 
@@ -24,9 +26,17 @@ public class ClientRunner {
   private final CustomLogger logger = new CustomLogger(getClass());
   private final IClientHelper clientAction;
   private DefaultTrustListManager trustListManager;
+  private OpcUaClient client;
 
   public ClientRunner(IClientHelper clientAction) {
+    System.out.println("in ClientRunner constructor");
     this.clientAction = clientAction;
+    try {
+      client = createClient();
+
+    } catch (Exception e   ) {
+      e.printStackTrace();
+    }
   }
 
   private OpcUaClient createClient() throws Exception {
@@ -55,8 +65,8 @@ public class ClientRunner {
             .findFirst(),
         configBuilder ->
             configBuilder
-                .setApplicationName(LocalizedText.english(BitSLickrHelperConfig.APPLICATION_NAME))
-                .setApplicationUri(BitSLickrHelperConfig.APPLICATION_URI)
+                .setApplicationName(LocalizedText.english(BitSLicRHelperConfig.APPLICATION_NAME))
+                .setApplicationUri(BitSLicRHelperConfig.APPLICATION_URI)
                 .setKeyPair(loader.getClientKeyPair())
                 .setCertificate(loader.getClientCertificate())
                 .setCertificateChain(loader.getClientCertificateChain())
@@ -69,7 +79,8 @@ public class ClientRunner {
 
   public void runAction(IClientAction clientAction, CompletableFuture<ICustomResponse> future) {
     try {
-      OpcUaClient client = createClient();
+      //client = createClient();
+
       clientAction.run(client,future);
 
     } catch (Throwable t) {
