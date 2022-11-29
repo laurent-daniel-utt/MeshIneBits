@@ -3,8 +3,10 @@ package meshIneBits.opcuaHelper;
 
 import meshIneBits.util.CustomLogger;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class RobotCommander {
 
@@ -13,8 +15,8 @@ public class RobotCommander {
     private RobotOPCUAHelper robotOPCUAHelper;
 
 
-    public RobotCommander(ROBOT robot) {//robot = manip ou decoupe
-                                        //pour savoir quel robot on utilise
+    public RobotCommander(ROBOT robot)  {//robot = manip ou decoupe
+        //pour savoir quel robot on utilise
         this.robotOPCUAHelper=new RobotOPCUAHelper(robot);
     }
 
@@ -72,8 +74,13 @@ public class RobotCommander {
 
 
     public static void main(String[] args){
-        RobotCommander robotManip=new RobotCommander(ROBOT.MANIP);
-        RobotCommander robotDecoup=new RobotCommander(ROBOT.DECOUPE);
+        try {
+           // RobotCommander robotManip=new RobotCommander(ROBOT.MANIP);
+            RobotCommander robotDecoup=new RobotCommander(ROBOT.DECOUPE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 /*
 
         try {

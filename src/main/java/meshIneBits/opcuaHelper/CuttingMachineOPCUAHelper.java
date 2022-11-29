@@ -13,6 +13,14 @@ public class CuttingMachineOPCUAHelper extends BitSLickrMachineAdapter {
   public final String cuttingButNodeId = "cuttingNodeId";
   public final String cuttingPathId = "cuttingPathId";
 
+  public CuttingMachineOPCUAHelper()  {
+    super();
+  }
+
+  public CuttingMachineOPCUAHelper(ROBOT robot) throws Exception {
+    super(robot);
+  }
+
 
   public ICustomResponse startMachine() {
     try {

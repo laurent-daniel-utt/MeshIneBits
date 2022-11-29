@@ -30,7 +30,6 @@ public class DomParser {
 
 
     public static ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> parseXml(int batch_num){
-        numbatch=batch_num;
         // this list reprensts all the nodes of <cutting> +no-cutting cases
         ArrayList<Pair<Boolean, Node>> cutting=new ArrayList<>();
         // this list reprensts all the nodes of <cut-paths> +no-cutting cases

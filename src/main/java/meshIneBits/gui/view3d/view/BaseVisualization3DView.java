@@ -119,78 +119,78 @@ public void play(){
 
 
 
-    protected void handleMouseEvent(MouseEvent event) {
+  protected void handleMouseEvent(MouseEvent event) {
 
-      final int action = event.getAction();
-      if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
-
-
-
-          //background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
-         //init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);//this line is making the window stuck
-
-        processor.onTerminated();
-        init3DFrame();
-
-       WindowStatus=2;
-                noLoop();
-                initProcessor();
-
-                meshShapes.put(1,processor.getModelProvider().getMeshShape());
-                frame.setShape(shape);
+    final int action = event.getAction();
+    if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
 
 
-                uipwAnimation.closeWindow();
-                uipwView.closeWindow();
-                uipwController.close();
-                initControlComponent();
-                initParameterWindow();
-                initModelChangesListener((ModelChangesListener) uipwView);
-                runSketch(new String[]{"--display=1", "Projector"}, uipwView);
-                runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
-                // initDisplayParameterWindows();
-        //pos=(-printerX / 2 - CraftConfig.workingWidth - 20);
-        pos=0;
-        Zpos=0;
-        //Xpos=(-printerX / 2 - CraftConfig.workingWidth - 20);
-        Xpos=0;
-        initWorkingSpace();
-processor.deactivateAnimation();
-        if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
-                loop();
-Thread t=new Thread(() -> {
-  try {
-    Thread.sleep(3000);
-  } catch (InterruptedException e) {
-    throw new RuntimeException(e);
-  }
-  Logger.updateStatus("");
-});t.start();
-        Logger.updateStatus("3d interface Refreshed");
 
-      }
+      //background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
+      //init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);//this line is making the window stuck
 
-      handleMethods("mouseEvent", new Object[] { event });
+      processor.onTerminated();
+      init3DFrame();
 
-      switch (action) {
+      WindowStatus=2;
+      noLoop();
+      initProcessor();
+
+      meshShapes.put(1,processor.getModelProvider().getMeshShape());
+      frame.setShape(shape);
 
 
-         case MouseEvent.CLICK:
-          mouseClicked(event);
-           break;
-        case MouseEvent.ENTER:
-          mouseEntered(event);
-          break;
-        case MouseEvent.EXIT:
-          mouseExited(event);
-          break;
-          case MouseEvent.MOVE:
-              mouseMoved(event);
-              break;
-      }
-
+      uipwAnimation.closeWindow();
+      uipwView.closeWindow();
+      uipwController.close();
+      initControlComponent();
+      initParameterWindow();
+      initModelChangesListener((ModelChangesListener) uipwView);
+      runSketch(new String[]{"--display=1", "Projector"}, uipwView);
+      runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
+      // initDisplayParameterWindows();
+      //pos=(-printerX / 2 - CraftConfig.workingWidth - 20);
+      pos=0;
+      Zpos=0;
+      //Xpos=(-printerX / 2 - CraftConfig.workingWidth - 20);
+      Xpos=0;
+      initWorkingSpace();
+      processor.deactivateAnimation();
+      if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
+      loop();
+      Thread t=new Thread(() -> {
+        try {
+          Thread.sleep(3000);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        Logger.updateStatus("");
+      });t.start();
+      Logger.updateStatus("3d interface Refreshed");
 
     }
+
+    handleMethods("mouseEvent", new Object[] { event });
+
+    switch (action) {
+
+
+      case MouseEvent.CLICK:
+        mouseClicked(event);
+        break;
+      case MouseEvent.ENTER:
+        mouseEntered(event);
+        break;
+      case MouseEvent.EXIT:
+        mouseExited(event);
+        break;
+      case MouseEvent.MOVE:
+        mouseMoved(event);
+        break;
+    }
+
+
+  }
 
 
 
@@ -677,9 +677,9 @@ private void initWorkingSpace(){
    * exportAll method rely on export() method of EXPORT BUTTON that export the current displayed shape, in exportAll we
    * just display then export each shape one by one
    */
-  public void exportAll(){ExpInd.set(0);
+  public void exportAll(){
+    ExpInd.set(0);
     try {
-
       waitshaping.await();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
@@ -696,25 +696,25 @@ private void initWorkingSpace(){
       }
 
 
-if(ExpInd.get()==ind.get()){
-  processor.export();
-  try {
-    stillExporting.await();
-  } catch (InterruptedException e) {
-    throw new RuntimeException(e);
-  }
-  stillExporting=new CountDownLatch(1);
-  ExpInd.set(ExpInd.get()+1);
+      if(ExpInd.get()==ind.get()){
+        processor.export();
+        try {
+          stillExporting.await();
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        stillExporting=new CountDownLatch(1);
+        ExpInd.set(ExpInd.get()+1);
 
- exported.countDown();
+        exported.countDown();
 
-   exported=new CountDownLatch(1);
+        exported=new CountDownLatch(1);
 
- }
+      }
 
 
-}
-   exported.countDown();
+    }
+    exported.countDown();
     processor.deactivateAnimation();
     stillExporting=new CountDownLatch(1);
     waitshaping=new CountDownLatch(1);

@@ -1,7 +1,6 @@
 package meshIneBits.gui.view3d.Processor;
 
 import meshIneBits.Mesh;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
 import meshIneBits.opcuaHelper.DepositingMachineCommander;
@@ -10,6 +9,8 @@ import meshIneBits.util.MultiThreadServiceExecutor;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 
 public class DepositingMachineProcessor implements UIPWListener {
 
@@ -28,7 +29,7 @@ public class DepositingMachineProcessor implements UIPWListener {
     df.setRoundingMode(RoundingMode.CEILING);
   }
 
-  public DepositingMachineProcessor(DepositingProcessCallback callback) {
+  public DepositingMachineProcessor(DepositingProcessCallback callback)  {
     Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
     commander= new DepositingMachineCommander(mesh);
     this.callback = callback;

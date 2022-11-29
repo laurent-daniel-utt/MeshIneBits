@@ -20,9 +20,6 @@ public abstract class AbstractVisualization3DView extends PApplet {
 
   public abstract void export();
 
-  /**
-   * created by Majed
-   */
   public abstract void exportAll();
 
 }

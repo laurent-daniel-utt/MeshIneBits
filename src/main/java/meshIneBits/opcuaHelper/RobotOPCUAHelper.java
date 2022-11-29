@@ -16,13 +16,10 @@ public class RobotOPCUAHelper extends BitSLickrMachineAdapter {
     public final short robotHoldingRegisters = 304;
     public final String robotCommand = "305";
 
-    public RobotOPCUAHelper(ROBOT robot){
+    public RobotOPCUAHelper(ROBOT robot)  {
         super(robot);
     }
 
-    public RobotOPCUAHelper(){
-        super();
-    }
 
     public ICustomResponse getHoldingRegisters(){
         try {
