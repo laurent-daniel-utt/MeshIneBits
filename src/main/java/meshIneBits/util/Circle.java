@@ -1,5 +1,8 @@
 package meshIneBits.util;
 
+/**
+ * a class representing a circle
+ */
 public class Circle {
     private Vector2 center;
     private double radius;
