@@ -13,7 +13,8 @@ import java.util.Vector;
 public class Reconstitute  {
     private ArrayList<ArrayList<Pair<FallType, Path2D.Double>>>cutpaths;
     private ArrayList<Area>fallenAreas=new ArrayList<>();
-
+    private static int currentDecoupBatchNum=0;
+    private static int currentDeposeBatchNum=0;
     public static final CustomLogger logger = new CustomLogger(Reconstitute.class);
     Area subBitArea=new Area();
     ArrayList<Area>remainings=new ArrayList<Area>();
@@ -23,12 +24,17 @@ public class Reconstitute  {
     private ArrayList<Pair<FallType,ArrayList<Path2D.Double>>>sub_paths=new ArrayList<>();
     private ArrayList<Pair<FallType, Path2D.Double>> Node_cutpath=new ArrayList<>();
 
+    public static void setCurrentDecoupBatchNum(int currentDecoupBatchNumI) {
+        currentDecoupBatchNum = currentDecoupBatchNumI;
+    }
 
+    public static void setCurrentDeposeBatchNum(int currentDeposeBatchNumI) {
+        currentDeposeBatchNum = currentDeposeBatchNumI;
+    }
 
-
-    public  Area recreateArea(ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> cutpaths,int id){
+    public  Area recreateArea(ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> cutpaths, int id, boolean isDecoup){
         this.cutpaths=cutpaths;
-        setNode_cutpath(id);
+        setNode_cutpath(id, isDecoup);
         build_subpaths();
         subBitArea=reconstruct();
         return subBitArea;
@@ -38,8 +44,9 @@ public static Reconstitute getInstance(){
         return new Reconstitute();
 }
 
-       public void setNode_cutpath(int id){
-        id=id-CraftConfig.nbBitesBatch*DomParser.getBatch_num();
+       public void setNode_cutpath(int id,boolean isDecoup){
+       if(isDecoup) id=id-CraftConfig.nbBitesBatch*currentDecoupBatchNum;
+       else id=id-CraftConfig.nbBitesBatch*currentDeposeBatchNum;
         Node_cutpath=cutpaths.get(id);
        }
 

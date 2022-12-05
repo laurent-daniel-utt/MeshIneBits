@@ -8,24 +8,28 @@ import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.builder.ExtrusionFromAreaService;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.supportImportFile.DomParser;
 import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
+import processing.awt.PSurfaceAWT;
+import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
-public class DepositedBit extends UIParameterWindow implements DepositingProcessView.IdUpdated {
+public class DepositedBit extends PApplet implements DepositingProcessView.IdUpdated {
    // private int id=42;
    private int id=0;
     private PShape bitShape;
-    private Scene scene;
+    private Scene sceneD;
     private CustomInteractiveFrame frame;
     private ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> cutpaths;
     private com.jogamp.newt.opengl.GLWindow win;
@@ -38,6 +42,7 @@ public class DepositedBit extends UIParameterWindow implements DepositingProcess
     private int scale;
     private DepositingProcessView mainInterface;
  private String title;
+    private boolean exited = false;
 
 public DepositedBit(DepositingProcessView maininterface,String title,int width,int height,int posx,int posy,int scale ){
     this.width=width;
@@ -66,30 +71,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         size(width, height, P3D);
     }
 
-    @Override
-    public void onOpen() {
 
-    }
-
-    @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    protected void generateButton() {
-
-    }
-
-    @Override
-    protected void updateButton() {
-
-    }
-
-    @Override
-    public void controlEvent(ControlEvent theEvent) {
-
-    }
 
     public void setup(){
         configWindow(title,posx, posy);
@@ -97,7 +79,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         surface.setAlwaysOnTop(true);
 
         cutpaths = DomParser.parseXml(0);
-        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
 
@@ -115,7 +97,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         limit2.vertex((float) CraftConfig.lengthFull+2,(float) CraftConfig.bitWidth,(float) 0.001);
         limit2.endShape(PConstants.CLOSE);
 }
-
+/*
     @Override
     public void mouseClicked(MouseEvent event) {
 
@@ -123,23 +105,26 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         if(id% CraftConfig.nbBitesBatch==0){System.out.println("changing batch:");
             cutpaths = DomParser.parseXml(DomParser.getBatch_num()+1);}
         System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
-        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-    }
+    }*/
 
     public void updateShape(int newId){
-
+        System.out.println("updating");
         if(id!=newId){
             id=newId;
             if(id% CraftConfig.nbBitesBatch==0){
                 System.out.println("changing batch:");
-                cutpaths = DomParser.parseXml(id/CraftConfig.nbBitesBatch);}
+                int batch_num=id/CraftConfig.nbBitesBatch;
+                cutpaths = DomParser.parseXml(batch_num);
+                Reconstitute.setCurrentDeposeBatchNum(batch_num);
+            }
             System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
-            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
             bitShape = ExtrusionFromAreaService.getInstance()
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-     }
+        }
     }
 
     @Override
@@ -163,7 +148,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
     private void setCloseOperation() {
 
         //Removing close listeners
-        win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
+        win = (com.jogamp.newt.opengl.GLWindow) this.surface.getNative();
         for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
             win.removeWindowListener(wl);
         }
@@ -171,7 +156,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         win.addWindowListener(new WindowAdapter() {
             public void windowDestroyed(WindowEvent e) {
               //  System.exit(0);
-           closeWindow();
+           exit();
             }
         });
         win.addWindowListener(new WindowAdapter() {
@@ -185,14 +170,28 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
     }
 
     private void init3DScene(Vec eyePosition, float radius) {
-        scene = new Scene(this);
-        scene.eye().setPosition(eyePosition);
-        scene.eye().lookAt(scene.eye().sceneCenter());
-        scene.setRadius(radius);
-        scene.showAll();
-        scene.disableKeyboardAgent();
-        scene.toggleGridVisualHint();
+        sceneD = new Scene(DepositedBit.this);
+        sceneD.eye().setPosition(eyePosition);
+        sceneD.eye().lookAt(sceneD.eye().sceneCenter());
+        sceneD.setRadius(radius);
+        sceneD.showAll();
+        sceneD.disableKeyboardAgent();
+        sceneD.toggleGridVisualHint();
 
+    }
+
+    @Override
+    public void exit() {
+        if (!exited) {
+            super.exit();
+            exited = true;
+        }
+    }
+    @Override
+    public void exitActual() {
+        PSurfaceAWT.SmoothCanvas surf = (PSurfaceAWT.SmoothCanvas) this.getSurface().getNative();
+        Frame frame = surf.getFrame();
+        frame.dispose();
     }
 
     private void configWindow(String title, int locationX, int locationY) {

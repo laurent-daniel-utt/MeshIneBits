@@ -8,21 +8,26 @@ import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.builder.ExtrusionFromAreaService;
+import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.opcuaHelper.RobotCommander;
+import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.supportImportFile.DomParser;
 import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
+import processing.awt.PSurfaceAWT;
+import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
-public class CuttedBit extends UIParameterWindow {
+public class CuttedBit extends PApplet {
     // private int id=42;
     private int id=0;
     private PShape bitShape;
@@ -39,6 +44,7 @@ public class CuttedBit extends UIParameterWindow {
     private int scale;
     private String title;
     private RobotCommander robotCommander;
+    private boolean exited = false;
     public CuttedBit(String title, RobotCommander robotCommander,int width,int height,int posx,int posy,int scale){
         this.title=title;
         this.robotCommander=robotCommander;
@@ -64,30 +70,7 @@ public class CuttedBit extends UIParameterWindow {
         size(width, height, P3D);
     }
 
-    @Override
-    public void onOpen() {
 
-    }
-
-    @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    protected void generateButton() {
-
-    }
-
-    @Override
-    protected void updateButton() {
-
-    }
-
-    @Override
-    public void controlEvent(ControlEvent theEvent) {
-
-    }
     public void setup(){
 
         configWindow(title,posx, posy);
@@ -95,7 +78,7 @@ public class CuttedBit extends UIParameterWindow {
         surface.setAlwaysOnTop(true);
 
         cutpaths = DomParser.parseXml(0);
-        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
 
@@ -112,8 +95,9 @@ public class CuttedBit extends UIParameterWindow {
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,(float) 0.001);
         limit2.endShape(PConstants.CLOSE);
+        MultiThreadServiceExecutor.instance.execute(new CuttedBit.CheckRegister());
     }
-
+/*
     @Override
     public void mouseClicked(MouseEvent event) {
 
@@ -121,14 +105,13 @@ public class CuttedBit extends UIParameterWindow {
         if(id% CraftConfig.nbBitesBatch==0){System.out.println("changing batch:");
             cutpaths = DomParser.parseXml(DomParser.getBatch_num()+1);}
         System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
-        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+        Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-    }
+    }*/
 
     @Override
     public void draw() {
-        UpdateId();
         lights();
         background(200,200,200);
         pushMatrix();
@@ -145,22 +128,25 @@ public class CuttedBit extends UIParameterWindow {
     }
     public void UpdateId(){
         try {
-            if(id!=robotCommander.getHoldingRegisters()[3]){
-            updateShape(robotCommander.getHoldingRegisters()[3]);
+            if(id!=robotCommander.getHoldingRegisters()[2]){
+            updateShape(robotCommander.getHoldingRegisters()[2]);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
     public void updateShape(int newId){
-
+        System.out.println("updating");
         if(id!=newId){
             id=newId;
             if(id% CraftConfig.nbBitesBatch==0){
                 System.out.println("changing batch:");
-                cutpaths = DomParser.parseXml(id/CraftConfig.nbBitesBatch);}
+                int batch_num=id/CraftConfig.nbBitesBatch;
+                cutpaths = DomParser.parseXml(batch_num);
+            Reconstitute.setCurrentDecoupBatchNum(batch_num);
+            }
             System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
-            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id);
+            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
             bitShape = ExtrusionFromAreaService.getInstance()
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
         }
@@ -168,14 +154,14 @@ public class CuttedBit extends UIParameterWindow {
 
     private void setCloseOperation() {
         //Removing close listeners
-        win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
+        win = (com.jogamp.newt.opengl.GLWindow) this.surface.getNative();
         for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
             win.removeWindowListener(wl);
         }
         win.setDefaultCloseOperation(WindowClosingProtocol.WindowClosingMode.DISPOSE_ON_CLOSE);
         win.addWindowListener(new WindowAdapter() {
             public void windowDestroyed(WindowEvent e) {
-                closeWindow();
+                exit();
             }
         });
         win.addWindowListener(new WindowAdapter() {
@@ -188,8 +174,8 @@ public class CuttedBit extends UIParameterWindow {
     }
 
     private void init3DScene(Vec eyePosition, float radius) {
-        scene = new Scene(this);
-        scene.eye().setPosition(eyePosition);
+        scene = new Scene(CuttedBit.this);
+      //  scene.eye().setPosition(eyePosition);
         scene.eye().lookAt(scene.eye().sceneCenter());
         scene.setRadius(radius);
         scene.showAll();
@@ -198,11 +184,44 @@ public class CuttedBit extends UIParameterWindow {
 
     }
 
+    public int getAbsoluteCuttedId() {
+        return id;
+    }
+
+    @Override
+    public void exit() {
+        if (!exited) {
+            super.exit();
+            exited = true;
+        }
+    }
+    @Override
+    public void exitActual() {
+        PSurfaceAWT.SmoothCanvas surf = (PSurfaceAWT.SmoothCanvas) this.getSurface().getNative();
+        Frame frame = surf.getFrame();
+        frame.dispose();
+    }
+
     private void configWindow(String title, int locationX, int locationY) {
         this.surface.setResizable(true);
         this.surface.setTitle(title);
         this.surface.setLocation(locationX, locationY);
         setCloseOperation();
         // refresh();
+    }
+
+    public class CheckRegister implements Runnable{
+
+        @Override
+        public void run() {
+            while (!exited){
+                UpdateId();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
