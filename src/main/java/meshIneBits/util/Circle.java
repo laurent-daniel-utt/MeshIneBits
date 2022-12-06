@@ -1,8 +1,5 @@
 package meshIneBits.util;
 
-/**
- * a class representing a circle
- */
 public class Circle {
     private Vector2 center;
     private double radius;
@@ -15,11 +12,6 @@ public class Circle {
         this.radius=radius;
     }
 
-    /**
-     * @param c1 circle1
-     * @param c2 circle2
-     * @return distance between 2 circles
-     */
     public static double CircleDistant(Circle c1,Circle c2){
       return   Vector2.dist(c1.center,c2.center);
 
