@@ -95,7 +95,7 @@ public class TwoDistantPointsCalc {
   /**
    *
    * @param area  la surface
-   * on crée un tapi de cercle sur tout le rectangle qui cerne la surface rentré en param (list des cercles), ensuite on
+   * on crée un tapi de cercle(list des cercles) sur tout le rectangle qui cerne la surface rentrée en param, ensuite on
    * filtre les cercles en prenant que celles qui sont à l'intérieur de la surface,ensuite on calcule les 2 cercles les plus
    * distants parmi la liste des cercles restantes après filtrage.
    * @precision c'est le paramètre qui détermine les pas de tapiage,exemple:precision=1=>chaque 1mm on va créer une nouvelle
@@ -118,9 +118,7 @@ public class TwoDistantPointsCalc {
     for(double i=startX;i<endX;i+=prec){
       for(double j=startY;j<endY;j=j+prec){
         circles.add(new Circle(new Vector2(i,j), CraftConfig.suckerDiameter/4));
-
       }
-
     }
     double margin=0;
 /**on prend les cercles qui sont à l'intérieure de la surface de subbit*/
@@ -153,8 +151,6 @@ public class TwoDistantPointsCalc {
           positionTwoMostDistantCercles.add(cercle2);
           longestDistance = Circle.CircleDistant(cercle, cercle2);
         }
-
-
       }
     }
  Vector<Vector2> MostTwoDistantPointsInArea=new Vector<>();
@@ -165,13 +161,21 @@ public class TwoDistantPointsCalc {
     return  MostTwoDistantPointsInArea;
   }
 
+  /**
+   * method used to create cercles such as the center of the cercle is the position(which is not the default case in java)
+   * @param x x coordinate of the cercle
+   * @param y y coordinate of the cercle
+   * @param width
+   * @param height
+   * @return ellipse created at the position precised in the input
+   */
+
   private Ellipse2D getEllipseFromCenter(double x, double y, double width, double height)
   {
     double newX = x - width / 2;
     double newY = y - height / 2;
 
     Ellipse2D ellipse = new Ellipse2D.Double(newX, newY, width, height);
-
     return ellipse;
   }
 
@@ -316,7 +320,6 @@ while (condition>0){
 
   public synchronized Vector<Vector2> getXminXmaxFromArea(Area area, SubBit2D bit) {
 
-
     HashMap<Double,Vector2> AllPoints = new HashMap<Double,Vector2>();
     Vector<Vector2> TwoPoints = new Vector<>();
 
@@ -330,7 +333,6 @@ while (condition>0){
       Vector2 v1 = new Vector2(coord1[0], coord1[1]);
       v1=v1.getTransformed(bit.getParentBit().getTransfoMatrixToCS());
       AllPoints.put(v1.x,v1);
-      //System.out.println("v1="+v1.getTransformed(bit.getParentBit().getTransfoMatrixToCS()));
     }
     Set<Double> s=  AllPoints.keySet();
     Vector<Double> list=new Vector<>();
@@ -338,13 +340,17 @@ while (condition>0){
     while (its.hasNext()){
       Double d= its.next();
       list.add(d);
-
     }
     Collections.sort(list);
     TwoPoints.add(AllPoints.get(list.firstElement()));
     TwoPoints.add(AllPoints.get(list.lastElement()));
     return TwoPoints;
   }
+
+  /**
+   * @param path
+   * @return all the points of the path
+   */
 
 public ArrayList<Vector2> getPointsFromPath(Path2D path){
 

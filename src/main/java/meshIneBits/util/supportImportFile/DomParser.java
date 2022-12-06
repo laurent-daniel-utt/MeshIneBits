@@ -15,7 +15,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.geom.Path2D;
 import java.io.IOException;
 import java.util.ArrayList;
-
+/**
+ * A class representing the Parser that allows us to read batches
+ * each batch is read only one time and all its information that we need is stocked in "cutpaths"
+ */
 public class DomParser {
     public static final CustomLogger logger = new CustomLogger(DomParser.class);
     private static int bit_id;
@@ -28,7 +31,15 @@ public class DomParser {
 
 
 
-
+    /**
+     *
+     * @param batch_num the batch number of the batch we're going to read
+     * @return list of list of pair,each case is a list of pair of fallType and its path
+     * example:cutpaths.get(2)==>the third <cut-paths></cut-paths> Node.
+     * cutpaths.get(2).get(2).getKey()==>the fall Type of the third FallType element of the third <cut-paths></cut-paths> Node
+     * cutpaths.get(2).get(2).getValue()==>the path of the third FallType element of the third <cut-paths></cut-paths> Node
+     * see Majed_Documents>Reading XML for more understanding
+     */
     public static ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> parseXml(int batch_num){
         // this list reprensts all the nodes of <cutting> +no-cutting cases
         ArrayList<Pair<Boolean, Node>> cutting=new ArrayList<>();
@@ -157,8 +168,14 @@ public class DomParser {
 
 
 
-
-
+    /**
+     * values like 11.98(Y coordinate) for example or -79.995(X coordinate) or -80.00(X coordinate) should be adjusted because
+     * if the cut path starts or ends exactly on the edge or slightly before, the program wouldn't be able to correctly do the cut
+     * @param value the value to adjust
+     * @return adjusted value
+     * example:11.98-->12.02, -80-->-80.04
+     * voir Majed_Documents>Repère_Bit.png pour mieux comprendre
+     */
     private static double adjustValue(double value){
         double mlength=(Math.signum(value)*CraftConfig.lengthFull-Math.signum(value)*CraftConfig.incertitude)/2;
         double mwidth=(Math.signum(value)*CraftConfig.bitWidth-Math.signum(value)*CraftConfig.incertitude)/2;
@@ -169,6 +186,4 @@ public class DomParser {
         }
         return   value;
     }
-
-
 }

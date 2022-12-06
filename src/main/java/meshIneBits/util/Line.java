@@ -1,9 +1,16 @@
 package meshIneBits.util;
-
+/**
+ * A Class representing a line in 2D
+ */
 public class Line  {
    private Vector2 point1;
     private Vector2 point2;
     //y=ax+b
+    /**
+     * the 2 points that create the line
+     * @param point1
+     * @param point2
+     */
     public Line(Vector2 point1,Vector2 point2){
         this.point1=point1;
         this.point2=point2;
@@ -15,7 +22,12 @@ public class Line  {
     public Vector2 getPoint2(){
         return point2;
     }
-
+    /**
+     *
+     * @param lineA
+     * @param lineB
+     * @return the point of intersection between 2 lines
+     */
         public static Vector2 getIntersection(Line lineA, Line lineB)
         {
             final double x1 = lineA.getPoint1().x;

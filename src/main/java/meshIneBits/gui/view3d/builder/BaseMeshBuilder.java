@@ -40,41 +40,30 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
     mesh.getLayers().forEach((layer) -> {
       //TODO temporary code, need to be clean after!!!
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
-          mesh.getScheduler().filterBits(layer.sortBits()));
-
-      //Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getXliftpoint ).thenComparing(Bit3D::getYliftpoint));
+              mesh.getScheduler().filterBits(layer.sortBits()));
       int layerId = layer.getLayerNumber();
-
       bitsInCurrentLayer.forEach(bit3D -> {
-
         BitShape bitShape = buildBitShape((NewBit3D) bit3D);
-
         updateBitShapeLocation(bit3D, bitShape);
-
         bitShape.setLayerId(layerId);
         NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
         Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
         for (int i = 0; i < validSubBits.size(); i++) {
           int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(
-              validSubBits.get(i));
+                  validSubBits.get(i));
           //System.out.println("batchId="+batchId);
           if (batchId != -1) {
             bitShape.getSubBitShapes()
-                .get(i)
-                .setLayerId(layerId)
-                .setBatchId(batchId);
+                    .get(i)
+                    .setLayerId(layerId)
+                    .setBatchId(batchId);
           }
         }
-
-
-
 
         meshShape.addChild(bitShape.getShape());
         bitShapes.add(bitShape);
       });
-
     });
-
     return new PavedMeshBuilderResult(meshShape, bitShapes);
   }
 
@@ -109,18 +98,24 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
           .buildShapeFromArea(context, subBit2D.getAreaCB(), Visualization3DConfig.BIT_THICKNESS);
       SubBitShape subBitShape = new SubBitShape(shape);
       shapeBit.addSubBit(subBitShape);
-
     });
-
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
    if(WindowStatus==2){
     shapeBit.getShape().setStrokeWeight(1);
-    //shapeBit.getShape().setStroke(-199999980);
-  //  shapeBit.getShape().setStroke(-999999999);
    }
     return shapeBit;
-
   }
+
+  /**
+   * the method that creates Stripes.
+   * we iterate through the whole mesh, Layer per Layer,we place the first Stripe of a Layer on the bit which has
+   * the extremist point to left,then we see what bits can fit in this stripe and we put them in,then we move on to the next Stripe
+   * of the layer(again this new Stripe starts with the extremist bit to left from remaining bits of the layer), and so on until
+   * each bit of te layer has been added to a Stripe, once a Layer is done we move to the next Layer and so on until every single
+   * bit of the mesh is added to a stripe.
+   * @return List of Stripes per Layer(each case is a list of stripes in a Layer)
+   * example:meshstrips[3]==>List of Stripes of the 4th Layer
+   */
 
   public ArrayList<ArrayList<Strip>> build_strips(){
     if(!meshstrips.isEmpty())meshstrips.clear();
@@ -131,34 +126,41 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
               mesh.getScheduler().filterBits(layer.sortBits()));
       ArrayList<Strip> layerstrips=new ArrayList<>();
-
       HashSet<Bit3D> toremove=new HashSet<>();
+      /**we sort bits by the extremist point to left*/
       Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
-
+      /**while we still have bits in the layer that were not added to a stripe*/
       while(bitsInCurrentLayer.size()>0){
-// loop to find the extremist bit to left
+        /** loop to find the extremist bit to left,when creating a new stripe we need to find the extremist bit to left(of the
+         remaining bits in the current layer)so we start the stripe at this bit */
         TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
         for (Bit3D bit:bitsInCurrentLayer){
           tofindfirstbit.add(bit);
         }
+        /**creating a new Stripe at its first bit*/
         Iterator<Bit3D>itfirst=tofindfirstbit.iterator();
         layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
-
+        /**loop through bits of the current layer*/
         for(Bit3D bit3D:bitsInCurrentLayer){
-          //we verify if the bit can fit in the current strip if not we create a new strip
+          /**we verify if the bit can fit in the current stripe if not we create a new stripe*/
           if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
                   bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
                           + CraftConfig.workingWidth && num<nbBitesBatch)
           {
             layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
+            /**we stock the added bits so we can remove them later from the layer so we dont add the same bits multiple times*/
             toremove.add(bit3D);
+            /**we increment the number of added bits*/
             num++;
           }
         }
+        /**if the number of added bits=number of bits per batch ==>batch is over so we need to reload the deposing machine so
+         we need to create a new Stripe even if only 1 bit is remaining in the layer*/
         if(num==nbBitesBatch) {
           num=0;
         }
         layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
+        /**removing added bits*/
         bitsInCurrentLayer.removeAll(toremove);
       }
       meshstrips.add(layerstrips);

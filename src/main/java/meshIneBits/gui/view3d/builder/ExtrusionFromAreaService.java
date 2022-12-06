@@ -167,6 +167,7 @@ System.out.println("A0:"+pointA[0]+" A1:"+ pointA[1]);
   private PShape getFaceExtrude(PApplet context, double[] pointA, double[] pointB, double z) {
     PShape face = context.createShape();
     face.beginShape();
+    /**if-else to fill the faces with right colors used for (CuttedBit and DepositedBit) interfaces */
     if((Math.abs(pointA[0])>=CraftConfig.lengthFull/2 && Math.abs(pointB[0])>=CraftConfig.lengthFull/2)
             || pointA[1]+pointB[1]>=CraftConfig.bitWidth || pointA[1]+pointB[1]<=-CraftConfig.bitWidth ) {
       face.fill(255,250,150);
