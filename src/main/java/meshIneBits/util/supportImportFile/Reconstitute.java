@@ -37,6 +37,7 @@ public class Reconstitute  {
         setNode_cutpath(id, isDecoup);
         build_subpaths();
         subBitArea=reconstruct();
+        System.out.println("2");
         return subBitArea;
     }
 
