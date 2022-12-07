@@ -3,12 +3,12 @@ package meshIneBits.gui.view3d.view;
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-import controlP5.ControlEvent;
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.builder.ExtrusionFromAreaService;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.util.LiftPointCalc;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.supportImportFile.DomParser;
 import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
@@ -16,7 +16,6 @@ import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
-import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
@@ -26,8 +25,8 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 public class DepositedBit extends PApplet implements DepositingProcessView.IdUpdated {
-   // private int id=42;
-   private int id=0;
+    private int id=57;
+  // private int id=57;
     private PShape bitShape;
     private Scene sceneD;
     private CustomInteractiveFrame frame;
@@ -41,8 +40,12 @@ public class DepositedBit extends PApplet implements DepositingProcessView.IdUpd
     private int posy;
     private int scale;
     private DepositingProcessView mainInterface;
- private String title;
+    private String title;
     private boolean exited = false;
+    private float theta=0;
+    private double rotationSpeed=0.2;
+    private Vector2 liftpoint;
+    private Vector2 newOrigin;
 
 public DepositedBit(DepositingProcessView maininterface,String title,int width,int height,int posx,int posy,int scale ){
     this.width=width;
@@ -82,7 +85,8 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-
+       liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+      newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
         limit1=createShape();
         limit1.beginShape();
         limit1.vertex((float) CraftConfig.lengthFull,0,0);
@@ -96,6 +100,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         limit2.vertex((float) CraftConfig.lengthFull+2,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull+2,(float) CraftConfig.bitWidth,(float) 0.001);
         limit2.endShape(PConstants.CLOSE);
+
 }
 /*
     @Override
@@ -110,40 +115,36 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
     }*/
 
-    public void updateShape(int newId){
-        System.out.println("updating");
-        if(id!=newId){
-            id=newId;
-            if(id% CraftConfig.nbBitesBatch==0){
-                System.out.println("changing batch:");
-                int batch_num=id/CraftConfig.nbBitesBatch;
-                cutpaths = DomParser.parseXml(batch_num);
-                Reconstitute.setCurrentDeposeBatchNum(batch_num);
-            }
-            System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
-            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
-            bitShape = ExtrusionFromAreaService.getInstance()
-                    .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-        }
-    }
+
 
     @Override
     public void draw() {
         lights();
         background(200,200,200);
+
+        translate((float) (newOrigin.x*scale), (float) (newOrigin.y*scale),0);
         pushMatrix();
-        //translate(Visualization3DConfig.V3D_WINDOW_WIDTH/2,Visualization3DConfig.V3D_WINDOW_HEIGHT/2,0);
+        theta= (float) (theta+rotationSpeed);
+        rotateX((float)  Math.toRadians(theta));
+        rotateY((float)  Math.toRadians(theta));
+        rotateZ((float)  Math.toRadians(theta));
         translate((float)CraftConfig.lengthFull/2*scale,(float)CraftConfig.bitWidth/2*scale,0);
+        translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(bitShape);
         popMatrix();
+
         pushMatrix();
+        translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(limit1);
         shape(limit2);
         popMatrix();
 
+
+
     }
+
 
     private void setCloseOperation() {
 
@@ -175,7 +176,6 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         sceneD.eye().lookAt(sceneD.eye().sceneCenter());
         sceneD.setRadius(radius);
         sceneD.showAll();
-        sceneD.disableKeyboardAgent();
         sceneD.toggleGridVisualHint();
 
     }
@@ -201,6 +201,24 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         setCloseOperation();
     }
 
+
+
+    public void updateShape(int newId){
+        System.out.println("updating");
+        if(id!=newId){
+            id=newId;
+            if(id% CraftConfig.nbBitesBatch==0){
+                System.out.println("changing batch:");
+                int batch_num=id/CraftConfig.nbBitesBatch;
+                cutpaths = DomParser.parseXml(batch_num);
+                Reconstitute.setCurrentDeposeBatchNum(batch_num);
+            }
+            System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
+            Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
+            bitShape = ExtrusionFromAreaService.getInstance()
+                    .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
+        }
+    }
 
     @Override
     public void idUpdated(int newId) {

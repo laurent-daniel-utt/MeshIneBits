@@ -3,14 +3,14 @@ package meshIneBits.gui.view3d.view;
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-import controlP5.ControlEvent;
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.builder.ExtrusionFromAreaService;
-import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.opcuaHelper.RobotCommander;
+import meshIneBits.util.LiftPointCalc;
 import meshIneBits.util.MultiThreadServiceExecutor;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.supportImportFile.DomParser;
 import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
@@ -18,7 +18,6 @@ import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
-import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
@@ -44,6 +43,10 @@ public class CuttedBit extends PApplet {
     private int scale;
     private String title;
     private RobotCommander robotCommander;
+    private float theta=0;
+    private double rotationSpeed=0.2;
+    private Vector2 liftpoint;
+    private Vector2 newOrigin;
     private boolean exited = false;
     public CuttedBit(String title, RobotCommander robotCommander,int width,int height,int posx,int posy,int scale){
         this.title=title;
@@ -81,6 +84,8 @@ public class CuttedBit extends PApplet {
         Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
+        liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+        newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
 
         limit1=createShape();
         limit1.beginShape();
@@ -114,13 +119,21 @@ public class CuttedBit extends PApplet {
     public void draw() {
         lights();
         background(200,200,200);
+
+        translate((float) (newOrigin.x*scale), (float) (newOrigin.y*scale),0);
         pushMatrix();
-        //translate(Visualization3DConfig.V3D_WINDOW_WIDTH/2,Visualization3DConfig.V3D_WINDOW_HEIGHT/2,0);
+        theta= (float) (theta+rotationSpeed);
+        rotateX((float)  Math.toRadians(theta));
+        rotateY((float)  Math.toRadians(theta));
+        rotateZ((float)  Math.toRadians(theta));
         translate((float)CraftConfig.lengthFull/2*scale,(float)CraftConfig.bitWidth/2*scale,0);
+        translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(bitShape);
         popMatrix();
+
         pushMatrix();
+        translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(limit1);
         shape(limit2);
@@ -175,11 +188,10 @@ public class CuttedBit extends PApplet {
 
     private void init3DScene(Vec eyePosition, float radius) {
         scene = new Scene(CuttedBit.this);
-      //  scene.eye().setPosition(eyePosition);
+        scene.eye().setPosition(new Vec(0, 1, 1));
         scene.eye().lookAt(scene.eye().sceneCenter());
         scene.setRadius(radius);
         scene.showAll();
-        scene.disableKeyboardAgent();
         scene.toggleGridVisualHint();
 
     }

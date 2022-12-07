@@ -98,10 +98,10 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
 
    // depositedBitInterface=new DepositedBit(this,"Deposited Bit",436, 329, width/4 +280,40,18);
     //depositedBitInterface=new DepositedBit(this,"Deposited Bit",440, 329, width/4 +80,15,18);
-    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320, 329, width/4 +80+120,15,18);
+    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320, 329, width/4 +80+120,15,16);
     runSketch(new String[]{"--display=1", "Projector"},depositedBitInterface);
     robotDecoup=new RobotCommander(ROBOT.DECOUPE);
-    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,320, 329,0, 15,18);
+    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,320, 329,0, 15,16);
     runSketch(new String[]{"--display=1", "Projector"},cuttedBitInterface);
 
     processor = new DepositingMachineProcessor(this::updateInfos);
@@ -348,7 +348,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
             .setFont(text_font_default);
 
     initComponentPositions();
-    showWebCamera();
+    //showWebCamera();
   }
 
   public void showWebCamera(){
