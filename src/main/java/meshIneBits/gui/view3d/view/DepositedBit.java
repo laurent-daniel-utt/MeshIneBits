@@ -85,8 +85,8 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-       liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
-      newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
+        liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+        newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
         limit1=createShape();
         limit1.beginShape();
         limit1.vertex((float) CraftConfig.lengthFull,0,0);
@@ -217,6 +217,8 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
             Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
             bitShape = ExtrusionFromAreaService.getInstance()
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
+            liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+            newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
         }
     }
 

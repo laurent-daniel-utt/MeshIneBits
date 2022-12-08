@@ -162,6 +162,8 @@ public class CuttedBit extends PApplet {
             Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
             bitShape = ExtrusionFromAreaService.getInstance()
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
+            liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+            newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
         }
     }
 

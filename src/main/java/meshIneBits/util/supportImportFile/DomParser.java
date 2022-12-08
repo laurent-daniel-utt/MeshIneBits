@@ -52,7 +52,7 @@ public class DomParser {
             DocumentBuilder builder=factory.newDocumentBuilder();
             String num=String.valueOf(batch_num);
            // String file="\\Exported\\Classic_Pattern_Donut\\batch "+num+".xml";
-            String file="\\batch "+num+".xml";
+            String file="\\Batch "+num+".xml";
             String path=System.getProperty("user.dir");
             System.getProperty("user.dir");
             logger.logDEBUGMessage("file:"+path+file);
