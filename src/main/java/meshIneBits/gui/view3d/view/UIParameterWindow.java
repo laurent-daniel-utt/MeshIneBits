@@ -82,7 +82,7 @@ public abstract class UIParameterWindow extends PApplet {
         Visualization3DConfig.UIPW_BACKGROUND.getRed(),
         Visualization3DConfig.UIPW_BACKGROUND.getGreen(),
         Visualization3DConfig.UIPW_BACKGROUND.getBlue());
-    noStroke();
+    //noStroke();
     updateButton();
   }
 

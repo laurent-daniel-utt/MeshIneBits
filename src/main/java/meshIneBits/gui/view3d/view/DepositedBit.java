@@ -32,8 +32,8 @@ public class DepositedBit extends PApplet implements DepositingProcessView.IdUpd
     private CustomInteractiveFrame frame;
     private ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> cutpaths;
     private com.jogamp.newt.opengl.GLWindow win;
-    private PShape limit1;
-    private PShape limit2;
+  //  private PShape limit1;
+    //private PShape limit2;
     private int width;
     private int height;
     private int posx;
@@ -87,7 +87,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
         liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
         newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
-        limit1=createShape();
+       /* limit1=createShape();
         limit1.beginShape();
         limit1.vertex((float) CraftConfig.lengthFull,0,0);
         limit1.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth+2,0);
@@ -99,7 +99,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         limit2.vertex(0,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull+2,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull+2,(float) CraftConfig.bitWidth,(float) 0.001);
-        limit2.endShape(PConstants.CLOSE);
+        limit2.endShape(PConstants.CLOSE);*/
 
 }
 /*
@@ -134,12 +134,12 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         shape(bitShape);
         popMatrix();
 
-        pushMatrix();
+       /* pushMatrix();
         translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(limit1);
         shape(limit2);
-        popMatrix();
+        popMatrix();*/
 
 
 
@@ -177,7 +177,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         sceneD.setRadius(radius);
         sceneD.showAll();
         sceneD.toggleGridVisualHint();
-
+        sceneD.toggleAxesVisualHint();
     }
 
     @Override
@@ -219,6 +219,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
             liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
             newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
+            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
         }
     }
 

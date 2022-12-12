@@ -68,7 +68,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
   private DepositedBit depositedBitInterface;
   private CuttedBit cuttedBitInterface;
   RobotCommander robotDecoup;
-  private Textlabel[] currentCuttedBitData;
+
 
   private DepositingMachineProcessor processor;
 
@@ -98,10 +98,10 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
 
    // depositedBitInterface=new DepositedBit(this,"Deposited Bit",436, 329, width/4 +280,40,18);
     //depositedBitInterface=new DepositedBit(this,"Deposited Bit",440, 329, width/4 +80,15,18);
-    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320, 329, width/4 +80+120,15,16);
+    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320+60, 329, width/4 +80+120-55,15,16);
     runSketch(new String[]{"--display=1", "Projector"},depositedBitInterface);
     robotDecoup=new RobotCommander(ROBOT.DECOUPE);
-    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,320, 329,0, 15,16);
+    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,380, 329,0, 15,16);
     runSketch(new String[]{"--display=1", "Projector"},cuttedBitInterface);
 
     processor = new DepositingMachineProcessor(this::updateInfos);
@@ -232,15 +232,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
               .setFont(createFont("arial bold", sizeFont));
 
     }
-    currentCuttedBitData = new Textlabel[3];
-    for (int i=0;i<3;i++){
-      currentCuttedBitData[i] =getControl()
-              .addTextlabel("CURRENT_BIT_DATA_CUTTING_MACHINE "+i)
-              .setText("current cutted bit data")
-              .setColor(bit_data_color.getRGB())
-              .setFont(createFont("arial bold", sizeFont));
 
-    }
 
     currentAxesPositions = new Textlabel[7];
     currentAxesPositions[0] =getControl()
@@ -373,9 +365,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
     for (int i=0;i<11;i++){
       currentBitData[i].setPosition(width-width/5,0.06f*height+i*0.025f*height);
     }
-    for (int i=0;i<3;i++){
-      currentCuttedBitData[i].setPosition(330,0.06f*height+i*0.025f*height);
-    }
+
     // axes positions
     currentAxesPositions[0].setPosition(width-width*3/10,0.42f*height);
     for (int i=0;i<3;i++){
@@ -470,7 +460,6 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
       homingAxisSubZButton.hide();
       homingAxisThetaButton.hide();
     }
-
   }
 
   public void setMessageError(String messageErr){
@@ -488,9 +477,6 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
     currentBitData[8].setText("Refline_vu : "+data[7]);
     currentBitData[9].setText("Refline_rot : "+data[8]);
     currentBitData[10].setText("Theta : "+data[9]);
-    currentCuttedBitData[0].setText("id : "+cuttedBitInterface.getAbsoluteCuttedId());
-    currentCuttedBitData[1].setText("batch : "+(int)Math.ceil(cuttedBitInterface.getAbsoluteCuttedId()/ CraftConfig.nbBitesBatch));
-    currentCuttedBitData[2].setText("id in batch : "+cuttedBitInterface.getAbsoluteCuttedId()% CraftConfig.nbBitesBatch);
   }
 
   public void updateCurrentAxesPositions(String[] data){

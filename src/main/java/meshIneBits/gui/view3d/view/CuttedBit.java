@@ -3,6 +3,8 @@ package meshIneBits.gui.view3d.view;
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
+import controlP5.ControlEvent;
+import controlP5.Textlabel;
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
@@ -26,6 +28,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
+
+
 public class CuttedBit extends PApplet {
     // private int id=42;
     private int id=0;
@@ -34,8 +38,8 @@ public class CuttedBit extends PApplet {
     private CustomInteractiveFrame frame;
     private ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> cutpaths;
     private com.jogamp.newt.opengl.GLWindow win;
-    private PShape limit1;
-    private PShape limit2;
+    //private PShape limit1;
+    //private PShape limit2;
     private int width;
     private int height;
     private int posx;
@@ -48,6 +52,9 @@ public class CuttedBit extends PApplet {
     private Vector2 liftpoint;
     private Vector2 newOrigin;
     private boolean exited = false;
+    private Textlabel[] currentCuttedBitData;
+    private static final Color bit_data_color = new Color(254, 254, 254);
+
     public CuttedBit(String title, RobotCommander robotCommander,int width,int height,int posx,int posy,int scale){
         this.title=title;
         this.robotCommander=robotCommander;
@@ -74,6 +81,7 @@ public class CuttedBit extends PApplet {
     }
 
 
+
     public void setup(){
 
         configWindow(title,posx, posy);
@@ -87,7 +95,7 @@ public class CuttedBit extends PApplet {
         liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
         newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
 
-        limit1=createShape();
+      /*  limit1=createShape();
         limit1.beginShape();
         limit1.vertex((float) CraftConfig.lengthFull,0,0);
         limit1.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.lengthFull,0);
@@ -99,8 +107,9 @@ public class CuttedBit extends PApplet {
         limit2.vertex(0,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,(float) 0.001);
-        limit2.endShape(PConstants.CLOSE);
+        limit2.endShape(PConstants.CLOSE);*/
         MultiThreadServiceExecutor.instance.execute(new CuttedBit.CheckRegister());
+
     }
 /*
     @Override
@@ -131,13 +140,13 @@ public class CuttedBit extends PApplet {
         scale(scale);
         shape(bitShape);
         popMatrix();
-
+/*
         pushMatrix();
         translate(-(float) (newOrigin.x*scale), -(float) (newOrigin.y*scale),0);
         scale(scale);
         shape(limit1);
         shape(limit2);
-        popMatrix();
+        popMatrix();*/
     }
     public void UpdateId(){
         try {
@@ -152,6 +161,8 @@ public class CuttedBit extends PApplet {
         System.out.println("updating");
         if(id!=newId){
             id=newId;
+            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
+
             if(id% CraftConfig.nbBitesBatch==0){
                 System.out.println("changing batch:");
                 int batch_num=id/CraftConfig.nbBitesBatch;
@@ -195,7 +206,7 @@ public class CuttedBit extends PApplet {
         scene.setRadius(radius);
         scene.showAll();
         scene.toggleGridVisualHint();
-
+        scene.toggleAxesVisualHint();
     }
 
     public int getAbsoluteCuttedId() {
