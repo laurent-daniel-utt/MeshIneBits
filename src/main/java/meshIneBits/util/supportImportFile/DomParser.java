@@ -9,10 +9,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.geom.Path2D;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 /**
@@ -24,7 +26,8 @@ public class DomParser {
     private static int bit_id;
     private static int numbatch=0;
     private static boolean Batch_Normal=true;
-
+    private static String path;
+    private static int instance=0;
     public static int getBatch_num() {
         return numbatch;
     }
@@ -40,7 +43,7 @@ public class DomParser {
      * cutpaths.get(2).get(2).getValue()==>the path of the third FallType element of the third <cut-paths></cut-paths> Node
      * see Majed_Documents>Reading XML for more understanding
      */
-    public static ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> parseXml(int batch_num){
+    public static ArrayList<ArrayList<Pair<FallType, Path2D.Double>>> parseXml(int batch_num){instance++;
         // this list reprensts all the nodes of <cutting> +no-cutting cases
         ArrayList<Pair<Boolean, Node>> cutting=new ArrayList<>();
         // this list reprensts all the nodes of <cut-paths> +no-cutting cases
@@ -51,10 +54,14 @@ public class DomParser {
         try {
             DocumentBuilder builder=factory.newDocumentBuilder();
             String num=String.valueOf(batch_num);
-           // String file="\\Exported\\Classic_Pattern_Donut\\batch "+num+".xml";
             String file="\\Batch "+num+".xml";
+            /*
             String path=System.getProperty("user.dir");
-            System.getProperty("user.dir");
+          //  System.getProperty("user.dir");*/
+           /*if(instance==1){
+               chooseDir();
+           }*/
+
             logger.logDEBUGMessage("file:"+path+file);
             Document doc= builder.parse(path+file);
             NodeList bitlist=doc.getElementsByTagName("bit");
@@ -186,4 +193,17 @@ public class DomParser {
         }
         return   value;
     }
+
+
+    public static void chooseDir(){
+        JFileChooser jf=new JFileChooser();
+        jf.setDialogTitle("choose a directory");
+        jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jf.showOpenDialog(null);
+        File f=jf.getSelectedFile();
+        path=f.getAbsolutePath();
+
+    }
+
+
 }

@@ -16,6 +16,7 @@ import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
+import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.Scene;
 
@@ -102,18 +103,15 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         limit2.endShape(PConstants.CLOSE);*/
 
 }
-/*
     @Override
     public void mouseClicked(MouseEvent event) {
-
-        id=id+1;
-        if(id% CraftConfig.nbBitesBatch==0){System.out.println("changing batch:");
-            cutpaths = DomParser.parseXml(DomParser.getBatch_num()+1);}
-        System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
         Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,false);
         bitShape = ExtrusionFromAreaService.getInstance()
                 .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
-    }*/
+        liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
+        newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
+
+    }
 
 
 

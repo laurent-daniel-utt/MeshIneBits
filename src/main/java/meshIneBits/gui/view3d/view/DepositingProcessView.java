@@ -8,6 +8,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Processor.DepositingMachineProcessor;
 import meshIneBits.opcuaHelper.ROBOT;
 import meshIneBits.opcuaHelper.RobotCommander;
+import meshIneBits.util.supportImportFile.DomParser;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -98,10 +99,11 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
 
    // depositedBitInterface=new DepositedBit(this,"Deposited Bit",436, 329, width/4 +280,40,18);
     //depositedBitInterface=new DepositedBit(this,"Deposited Bit",440, 329, width/4 +80,15,18);
-    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320+60, 329, width/4 +80+120-55,15,16);
+    DomParser.chooseDir();
+    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320+60+20, 329, width/4 +80+120-58+20,15,16);
     runSketch(new String[]{"--display=1", "Projector"},depositedBitInterface);
     robotDecoup=new RobotCommander(ROBOT.DECOUPE);
-    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,380, 329,0, 15,16);
+    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,380+20, 329,0, 15,16);
     runSketch(new String[]{"--display=1", "Projector"},cuttedBitInterface);
 
     processor = new DepositingMachineProcessor(this::updateInfos);
@@ -363,7 +365,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
 
     // bit data
     for (int i=0;i<11;i++){
-      currentBitData[i].setPosition(width-width/5,0.06f*height+i*0.025f*height);
+      currentBitData[i].setPosition(width-width/5+50,0.06f*height+i*0.025f*height);
     }
 
     // axes positions
