@@ -863,7 +863,7 @@ public ArrayList<ArrayList<Strip>> getStripes(){
   private class RegionPaver extends Observable implements Runnable {
 
     private final Layer layer;
-    private final Area region;
+    private final transient Area region;
     private final PatternTemplate patternTemplate;
 
     RegionPaver(Layer layer, Area region, PatternTemplate patternTemplate) {

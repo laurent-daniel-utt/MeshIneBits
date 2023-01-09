@@ -33,7 +33,7 @@ public class SubBit2D implements Serializable {
   private Vector2 XminPoint;
 
   private Vector2 XmaxPoint;
-  private final Area areaCB;
+  private final transient Area areaCB;
   private final Path2D cutPath;
 
   private boolean removed=false;
