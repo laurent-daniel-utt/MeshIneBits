@@ -342,7 +342,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
             .setFont(text_font_default);
 
     initComponentPositions();
-    //showWebCamera();
+    showWebCamera();
   }
 
   public void showWebCamera(){

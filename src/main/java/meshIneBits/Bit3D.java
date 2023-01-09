@@ -120,7 +120,7 @@ public class Bit3D implements Serializable, Cloneable {
     rawCutPaths = baseBit.getCutPathsCB();
     reverseInCut = baseBit.getInverseInCut();
     computeLiftPoints();
-   // computeTwoPointNearTwoPointMostDistantOnBit();//why it was in comment
+    computeTwoPointNearTwoPointMostDistantOnBit();//why it was in comment
     lowerAltitude = layer.getLowerAltitude();
     higherAltitude = layer.getHigherAltitude();
   }
@@ -284,8 +284,6 @@ public class Bit3D implements Serializable, Cloneable {
   }
 
   public double getMinX(){
-
-
     return getTwoExtremeXPointsCS().get(0).x;
   }
 

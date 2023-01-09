@@ -117,6 +117,7 @@ public class MeshExport extends PGraphics {
           "for the location of the output file.");
     }
     filenameSimple = file.getName();
+    System.out.println(file.getAbsolutePath());
     int dotPos = filenameSimple.lastIndexOf(".");
     if (dotPos > -1) {
       filenameSimple = filenameSimple.substring(0, dotPos);

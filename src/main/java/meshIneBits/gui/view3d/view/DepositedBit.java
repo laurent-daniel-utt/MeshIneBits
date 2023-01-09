@@ -202,7 +202,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
 
 
     public void updateShape(int newId){
-        System.out.println("updating");
+        System.out.println("updating dep");
         if(id!=newId){
             id=newId;
             if(id% CraftConfig.nbBitesBatch==0){

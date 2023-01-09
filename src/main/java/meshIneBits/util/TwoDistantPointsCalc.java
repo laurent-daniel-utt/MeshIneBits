@@ -131,12 +131,9 @@ public class TwoDistantPointsCalc {
      /**on prend les cercles qui sont à l'extérieur de la lift point, si non le système visuel risque de confondre le data
         matrix et le point d'orientation*/
       if(liftpoint!=null){
-      Ellipse2D liftpointCercle=getEllipseFromCenter(liftpoint.x,liftpoint.y,CraftConfig.suckerDiameter,CraftConfig.suckerDiameter);
-      Area liftpointArea=new Area(liftpointCercle);
-      circles= (ArrayList<Circle>) circles.stream().filter(ci -> (  (!liftpointArea.contains(ci.getCenter().x+ci.getRadius()+margin,ci.getCenter().y)
-              && !liftpointArea.contains(ci.getCenter().x,ci.getCenter().y+ci.getRadius()+margin)
-              && !liftpointArea.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
-              && !liftpointArea.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y)) )).collect(Collectors.toList());
+      Vector2 liftpointCenter=new Vector2(liftpoint.x-CraftConfig.suckerDiameter,liftpoint.y-CraftConfig.suckerDiameter);
+      double minimumDistance=CraftConfig.suckerDiameter/2+CraftConfig.suckerDiameter/4;
+      circles= (ArrayList<Circle>) circles.stream().filter(ci -> (Vector2.dist(liftpointCenter,ci.getCenter())>=minimumDistance  )).collect(Collectors.toList());
     }
 
 /**calcul des distances entre les cercles pour identifier les 2 cercles les plus distants*/
@@ -161,23 +158,6 @@ public class TwoDistantPointsCalc {
     return  MostTwoDistantPointsInArea;
   }
 
-  /**
-   * method used to create cercles such as the center of the cercle is the position(which is not the default case in java)
-   * @param x x coordinate of the cercle
-   * @param y y coordinate of the cercle
-   * @param width
-   * @param height
-   * @return ellipse created at the position precised in the input
-   */
-
-  private Ellipse2D getEllipseFromCenter(double x, double y, double width, double height)
-  {
-    double newX = x - width / 2;
-    double newY = y - height / 2;
-
-    Ellipse2D ellipse = new Ellipse2D.Double(newX, newY, width, height);
-    return ellipse;
-  }
 
 //34,62 s classic(donut)
 //

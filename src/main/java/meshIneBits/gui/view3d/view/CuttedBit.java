@@ -157,7 +157,7 @@ public class CuttedBit extends PApplet {
         }
     }
     public void updateShape(int newId){
-        System.out.println("updating");
+        System.out.println("updating cut");
         if(id!=newId){
             id=newId;
             surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
@@ -237,7 +237,7 @@ public class CuttedBit extends PApplet {
     public class CheckRegister implements Runnable{
 
         @Override
-        public void run() {
+        public void run() {System.out.println("executer");
             while (!exited){
                 UpdateId();
                 try {

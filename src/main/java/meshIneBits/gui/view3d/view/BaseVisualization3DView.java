@@ -25,7 +25,9 @@ import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
+import javax.swing.*;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -48,31 +50,32 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   public static UIPWController uipwController;
   public static IVisualization3DProcessor processor;
   private ModelChangesListener mcListener;
-public static CountDownLatch waitshaping=new CountDownLatch(1);
+  public static CountDownLatch waitshaping=new CountDownLatch(1);
   private CustomInteractiveFrame frame;
   private Scene scene;
   private ControlP5 cp5;
-public static CountDownLatch notyet=new CountDownLatch(1);
+  public static CountDownLatch notyet=new CountDownLatch(1);
   private float printerX;
   private float printerY;
   private float printerZ;
-private AtomicInteger ExpInd=new AtomicInteger(0);
+  private AtomicInteger ExpInd=new AtomicInteger(0);
   private PShape shape;
   private HashMap<Integer,PShape> meshShapes=new HashMap<Integer,PShape>();
   private PShape meshShape;
   private Vector<PShape> animationShapes;
- private com.jogamp.newt.opengl.GLWindow win;
+  private com.jogamp.newt.opengl.GLWindow win;
   private final DecimalFormat df;
   public static int IndexExport = 0;
+  private  int pathchoice = 0;
 
-
-public static float Xpos=0,Ypos=0,Zpos=0;
-    public static ArrayList<ArrayList<Strip>> meshstrips;
+  public static float Xpos=0,Ypos=0,Zpos=0;
+  public static ArrayList<ArrayList<Strip>> meshstrips;
   private boolean isExporting = false;
   public static int WindowStatus=0;// false=closed/true=opened
-private PShape rectange;
- private int num_batch=0;
-private CountDownLatch stillExporting=new CountDownLatch(1);
+  private PShape rectange;
+  private int num_batch=0;
+  private CountDownLatch stillExporting=new CountDownLatch(1);
+  private String path="";
 
   public BaseVisualization3DView(){
 
@@ -124,21 +127,13 @@ public void play(){
     final int action = event.getAction();
     if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
 
-
-
-      //background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
-      //init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);//this line is making the window stuck
-
       processor.onTerminated();
       init3DFrame();
-
       WindowStatus=2;
       noLoop();
       initProcessor();
-
       meshShapes.put(1,processor.getModelProvider().getMeshShape());
       frame.setShape(shape);
-
 
       uipwAnimation.closeWindow();
       uipwView.closeWindow();
@@ -148,11 +143,9 @@ public void play(){
       initModelChangesListener((ModelChangesListener) uipwView);
       runSketch(new String[]{"--display=1", "Projector"}, uipwView);
       runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
-      // initDisplayParameterWindows();
-      //pos=(-printerX / 2 - CraftConfig.workingWidth - 20);
+
       pos=0;
       Zpos=0;
-      //Xpos=(-printerX / 2 - CraftConfig.workingWidth - 20);
       Xpos=0;
       initWorkingSpace();
       processor.deactivateAnimation();
@@ -189,7 +182,6 @@ public void play(){
         break;
     }
 
-
   }
 
 
@@ -199,100 +191,7 @@ public void play(){
 
 
 
-/*
 
-  public synchronized void refresh(){
-
-    refListener= new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if(WindowStatus>0) {WindowStatus=2;
-          // scene.dispose();
-          noLoop();
-
-          System.out.println("Noloop");
-System.out.println("Thread in ref="+Thread.currentThread().getName());
-
-              try {
-                r.await();
-                System.out.println("lqslqlqslq");
-                r=new CountDownLatch(1);
-              } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-              }
-              //initWorkspace();// create the box of work space and centre the axes and the model
-              // init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
-              //init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
-              processor.onTerminated();
-              init3DFrame();
-              initProcessor();// c'est cette ligne qui permet change le meshShape
-              shape = processor.getModelProvider().getModelShape();//with this line the mesh disappear then pop up red
-              meshShapes.put(1, processor.getModelProvider().getMeshShape());
-              frame.setShape(shape);
-
-
-              uipwAnimation.closeWindow();
-              uipwView.closeWindow();
-              uipwController.close();
-              initControlComponent();
-              initParameterWindow();
-              initModelChangesListener((ModelChangesListener) uipwView);
-              initDisplayParameterWindows();
-
-              loop();
-
-              System.out.println("meshShapes1  in refresh="+meshShapes.get(1)+"Its size="+processor.getModelProvider().getMeshShape().getChildren().length);
-
-
-
-        }
-      }
-    };
-
-  button.addActionListener(refListener);
-}
-
-*/
-  // TODO uncomment the line that remove the ActioneListener at(l.288) if u want this method below to work
-
- /*
-  public synchronized void refresh(){
-
-     ev=new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if(WindowStatus>0) {WindowStatus=2;
-
-//exit();
-          // win.destroy();
-          Thread t=new Thread(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                System.out.println("waiting");
-                r.await();
-                System.out.println("done waiting");
-              } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-              }
-              exit();
-              win.destroy();
-
-              startProcessingModelView();
-              r=new CountDownLatch(1);
-
-            }
-          });t.start();
-//setCloseOperation();
-        }
-      }
-    };
-
-
-
-    button.addActionListener(ev);
-  }
-*/
   private void setCloseOperation() {
 
 
@@ -334,7 +233,6 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
   }
 
   public void setup() {
-    System.out.println("Thread in setUp="+Thread.currentThread().getName());
     configWindow(
             Visualization3DConfig.VISUALIZATION_3D_WINDOW_TITLE,
             Visualization3DConfig.V3D_WINDOW_LOCATION_X,
@@ -349,15 +247,7 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
     shape = processor.getModelProvider().getModelShape();
 
     if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
-    int s=0;
-     //for(int i=0;i<meshstrips.size();i++)
-     //{s=s+meshstrips.get(i).size();
-
-     //}
-   // System.out.println("we have "+s+" strips");
      meshShapes.put(0,meshShape);
-
-
     frame.setShape(shape);
 
     initControlComponent();
@@ -365,7 +255,6 @@ System.out.println("Thread in ref="+Thread.currentThread().getName());
     initModelChangesListener((ModelChangesListener) uipwView);
     initDisplayParameterWindows();
     initWorkingSpace();
-
 
   }
 private void initWorkingSpace(){
@@ -380,10 +269,6 @@ private void initWorkingSpace(){
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printerY,0);
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
   rectange.endShape(PConstants.CLOSE);
-
-//  System.out.println("Size1="+meshstrips.get(0).get(0).getBits().size());
-  //System.out.println("Min1="+(float) meshstrips.get(0).get(0).getBits().get(0).getMinX());
-
 
 }
 
@@ -426,8 +311,6 @@ private void initWorkingSpace(){
     if (key == '\uFFFF') {
       updatePositionChangesOnModel();
     }
-
-
   }
 
   private void initModelChangesListener(ModelChangesListener listener) {
@@ -607,6 +490,11 @@ private void initWorkingSpace(){
 
   private void startExport() {
     if (isExporting) {
+      if(pathchoice==0){
+        path=chooseDir();
+        pathchoice=1;
+      }
+
       String modelName = MeshProvider.getInstance().getModel().getModelName();
       StringBuilder exportFileName = new StringBuilder();
       switch (processor.getDisplayState().getState()) {
@@ -633,10 +521,6 @@ private void initWorkingSpace(){
           else if(option== AnimationProcessor.AnimationOption.BY_BIT)
           {
             if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
-            /*exportFileName.append("Bits/bit")
-                  .append("-")
-                  .append(IndexExport)
-                  .append(".obj");*/
             exportFileName.append("Bits/lot")
                     .append("-"+num_batch)
                     .append("/")
@@ -645,10 +529,14 @@ private void initWorkingSpace(){
                     .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
-          {exportFileName.append("Sub_Bits/subBit")
-                  .append("-")
-                  .append(IndexExport)
-                  .append(".obj");
+          {
+            if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
+            exportFileName.append("SubBits/lot")
+                    .append("-"+num_batch)
+                    .append("/")
+                    .append(IndexExport)
+                    .append("_"+num_batch)
+                    .append(".obj");
           }
           else if(option== AnimationProcessor.AnimationOption.BY_BATCH)
           {exportFileName.append("Batches/lot")
@@ -656,18 +544,26 @@ private void initWorkingSpace(){
                   .append(IndexExport)
                   .append(".obj");
           }
-
           break;
         default:
           throw new IllegalStateException(
                   "Unexpected value: " + processor.getDisplayState().getState());
       }
       logger.logDEBUGMessage("Exporting " + exportFileName);
-
-      beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER, exportFileName.toString());
-
-      IndexExport++;
+      beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER,path+"\\"+ exportFileName.toString());
+    IndexExport++;
     }
+  }
+
+
+
+  private String  chooseDir(){
+    JFileChooser jf=new JFileChooser();
+    jf.setDialogTitle("choose a directory");
+    jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    jf.showOpenDialog(null);
+    File f=jf.getSelectedFile();
+    return f.getAbsolutePath();
   }
 
   /**
@@ -684,18 +580,13 @@ private void initWorkingSpace(){
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-
-
     animationSpeed=0.001;
-
     while(ExpInd.get() < animationShapes.size()){
       try {
         notyet.await();
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-
-
       if(ExpInd.get()==ind.get()){
         processor.export();
         try {
@@ -705,20 +596,16 @@ private void initWorkingSpace(){
         }
         stillExporting=new CountDownLatch(1);
         ExpInd.set(ExpInd.get()+1);
-
         exported.countDown();
-
         exported=new CountDownLatch(1);
-
       }
-
-
     }
     exported.countDown();
     processor.deactivateAnimation();
     stillExporting=new CountDownLatch(1);
     waitshaping=new CountDownLatch(1);
     notyet=new CountDownLatch(1);
+    pathchoice=0;
   }
 
 
@@ -787,22 +674,8 @@ if(WindowStatus>=2) drawtest();
       Vector3 v = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
-
       animationShapes.forEach(this::shape);
-/*for(int i=0;i<animationShapes.size();i++) {
-
-shape(animationShapes.get(i));
-
-
-}*/
-
 popMatrix();
-//Xpos++;
-     //   if(option== AnimationOption.BY_BIT){
-
-       // }
-
-
     }
   }
 
