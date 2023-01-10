@@ -39,10 +39,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
+import java.awt.geom.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -74,6 +71,7 @@ public class Layer extends Observable implements Serializable {
   private double higherAltitude;
 
    private HashSet<SubBit2D>removedSubBits=new HashSet<>();
+  private HashSet<Point2D.Double>removedPositions=new HashSet<>();
 
   //    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
@@ -126,6 +124,8 @@ public class Layer extends Observable implements Serializable {
     oos.writeBoolean(paved);
     oos.writeDouble(lowerAltitude);
     oos.writeDouble(higherAltitude);
+    oos.writeObject(removedSubBits);
+    oos.writeObject(removedPositions);
   }
 
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
@@ -141,6 +141,8 @@ public class Layer extends Observable implements Serializable {
     this.paved = ois.readBoolean();
     this.lowerAltitude = ois.readDouble();
     this.higherAltitude = ois.readDouble();
+    this.removedSubBits= (HashSet<SubBit2D>) ois.readObject();
+    this.removedPositions= (HashSet<Point2D.Double>) ois.readObject();
   }
 
   public static class SerializeArea {
@@ -177,8 +179,10 @@ public class Layer extends Observable implements Serializable {
 
 
   public HashSet<SubBit2D>getRemovedSubBits(){
-
     return removedSubBits;
+  }
+  public HashSet<Point2D.Double> getRemovedSubBitsPositions(){
+    return removedPositions;
   }
   public void addRemovedSubBit(SubBit2D sub){
     removedSubBits.add(sub);
@@ -186,9 +190,10 @@ public class Layer extends Observable implements Serializable {
   }
   public void  setRemovedSubBits(HashSet<SubBit2D> set){
     removedSubBits=new HashSet<>(set);
-
   }
-
+  public void setRemovedSubBitsPositions(HashSet<Point2D.Double> set){
+    removedPositions=new HashSet<>(set);
+  }
   /**
    * Rebuild the whole layer. To be called after overall changes made on this {@link Layer}
    */
@@ -594,7 +599,6 @@ public class Layer extends Observable implements Serializable {
   }
   public void removeSubBit(Vector2 key,SubBit2D sub, boolean b) {
     Bit3D oldBit = getBit3D(key);
-
     flatPavement.removeSubBit(key, sub);
    // mapBits3D.remove(key);
    // irregularBits.remove(key);

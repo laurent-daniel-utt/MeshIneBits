@@ -2,6 +2,7 @@ package meshIneBits;
 
 import meshIneBits.config.CraftConfig;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static meshIneBits.config.CraftConfig.printerX;
@@ -12,7 +13,7 @@ import static meshIneBits.config.CraftConfig.printerY;
  *le nombre des bits qu'on peut mettre dedans et à quelle layer cette stripe appartien puisqu'on crée les stripes par layer
  * c.à.d chaque layer peut contenir plusieurs strip ou minimmum 1 et chaque stripe peut contenir plusieurs bits ou minimmum 1
  */
-public class Strip {
+public class Strip implements Serializable {
 private double Xposition=-printerX / 2 - CraftConfig.workingWidth - 20;
 
 private double Zposition;

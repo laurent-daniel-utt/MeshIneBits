@@ -170,8 +170,9 @@ public class MeshController extends Observable implements Observer ,
   private boolean showIrregularBits = false;
   private boolean addingBits = false;
   private boolean showBitNotFull = false;
-
   public static MeshController thecontroller=null;
+
+
   /**
    * In {@link Mesh}'s coordinate system
    */
@@ -634,32 +635,30 @@ public static CountDownLatch r=new CountDownLatch(1);
 
   public void deleteSelectedSubBits() {
     //save action before doing
-
-
-
     Set<Vector2> previousKeys = new HashSet<>(this.selectedBitKeysOfSubbit);
     Set<Bit3D> bit3DSet = this.getSelectedBitsforSubBits();
 
     handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
             this.getCurrentLayer().getLayerNumber()));
     changes.firePropertyChange(DELETING_SUBBITS, null, getSelectedBits());
-
     selectedsubBit.forEach(subBit2D -> subBit2D.setRemoved(true));
-
     selectedsubBitMemory.addAll(selectedsubBit);
-
-   getCurrentLayer().setRemovedSubBits((HashSet<SubBit2D>) selectedsubBitMemory);
-selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLayer().getKey(subBit2D.getParentBit()),subBit2D,true));
+    getCurrentLayer().setRemovedSubBits((HashSet<SubBit2D>) selectedsubBitMemory);
+    selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLayer().getKey(subBit2D.getParentBit()),subBit2D,true));
     selectedBitKeysOfSubbit.clear();
     selectedsubBit.clear();
     //getCurrentLayer().rebuild();
     setChanged();
-   notifyObservers();
-
+    notifyObservers();
     changes.firePropertyChange(SUBBITS_DELETED, null, getCurrentLayer());
   }
 
-
+private boolean contained(Point2D.Double po, Set<SubBit2D> selectedsubBit){
+    for(SubBit2D sub:selectedsubBit){
+      if(sub.getAreaCS().contains(po)) return true;
+    }
+return false;
+  }
 
 
 
@@ -791,9 +790,10 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
     for (Vector2 key : flatPavement.getBitsKeys()) {
       if (flatPavement.getBit(key)
           .getAreaCS()
-          .contains(position)) {
+          .contains(position)) {System.out.println("found");
         return key;
-      }
+      }else {System.out.println("not found__ Area:"+flatPavement.getBit(key)
+              .getAreaCS().getBounds2D());}
     }
     return null;
   }
@@ -804,9 +804,7 @@ selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLaye
            if(sub.getAreaCS().contains(position)){
              return sub;
            }
-
          }
-
     return null;
   }
 
@@ -1330,12 +1328,7 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
   public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
     Vector2 bitKey = findBitAt(clickSpot);
     SubBit2D sub=findSubBitAt(clickSpot);
-
-    //System.out.println("The size="+bit.getSubBits().size());
-    //NewBit2D newBit2D = ((NewBit3D) bit).getBaseBit();
-    //newBit2D.removeSubbit(sub);
-
-    if (mesh == null || !mesh.isPaved() || bitKey == null || sub.isRemoved()) {
+    if (mesh == null || !mesh.isPaved() || bitKey == null || sub==null) {
       return;
     }
     if (!selectedBitKeys.add(bitKey)) {
@@ -1350,12 +1343,8 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
   }
 
   public void toggleInclusionOfSubBitHaving(Point2D.Double clickSpot) {
-
     SubBit2D subBit=findSubBitAt(clickSpot);
     Vector2 bitKey = findBitAt(clickSpot);
-
-
-
     if (mesh == null || !mesh.isPaved() || subBit == null) {
       return;
     }
@@ -1363,10 +1352,9 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
        selectedBitKeysOfSubbit .remove(bitKey);
       selectedsubBit.remove(subBit);
       changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
-    } else {System.out.println("are u even in else ?");
+    } else {
       selectedBitKeysOfSubbit.add(bitKey);
       selectedsubBit.add(subBit);
-
       changes.firePropertyChange(SubBIT_SELECTED, null, subBit);
     }
     // Notify the core

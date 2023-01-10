@@ -62,6 +62,8 @@ public class Mesh extends Observable implements Observer, Serializable {
   private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
   private String modelFile;
   private ArrayList<ArrayList<Strip>> stripes=new ArrayList<>();
+
+
   /**
    * Set the new mesh to ready
    */
@@ -154,8 +156,8 @@ public ArrayList<ArrayList<Strip>> getStripes(){
    *                   yet
    */
   public void pave(PatternTemplate template) throws Exception {
+    getLayers().forEach(layer -> layer.getRemovedSubBitsPositions().clear());
     pavementSafetyCheck();
-
     setState(MeshEvents.PAVING_MESH);
     // MeshEvents.PAVED_MESH will be sent in update() after receiving
     // enough signals from layers

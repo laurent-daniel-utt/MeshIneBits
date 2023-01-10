@@ -7,35 +7,40 @@ import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 
 import static meshIneBits.config.CraftConfig.precision;
+import static meshIneBits.gui.view2d.MeshController.thecontroller;
 
 //TODO define readObject and writeObject for save mesh
 public class SubBit2D implements Serializable {
 
-  private final Bit2D parentBit;
-  private final Vector2 originPositionCS;
-  private final Vector2 orientationCS;
+  private Bit2D parentBit;
+  private Vector2 originPositionCS;
+  private Vector2 orientationCS;
   private Vector2 liftPointCB;
 
   private Vector2 firstDistantPointCB;
   private Vector2 secondDistantPointCB;
 
-  private final AffineTransform transformMatrixToCS;
+  private AffineTransform transformMatrixToCS;
   private AffineTransform inverseMatrixToCB;
 
   private Vector2 XminPoint;
 
   private Vector2 XmaxPoint;
-  private final transient Area areaCB;
-  private final Path2D cutPath;
-
+  private transient Area areaCB;
+  private Path2D cutPath;
   private boolean removed=false;
 
   public SubBit2D(
@@ -54,14 +59,22 @@ public class SubBit2D implements Serializable {
     this.areaCB = area;
     this.cutPath = cutPath;
     this.parentBit = parentBit;
-
-
-
     computeLiftPoints();
    if(liftPointCB!=null) computeDistantPoints(getLiftPointCB());
-
     computeXminXmaxPoints();
   }
+
+  public static boolean compareSubs(SubBit2D sub1,SubBit2D sub2){
+      ArrayList<Vector2> points1=new ArrayList<>();
+      ArrayList<Vector2> points2=new ArrayList<>();
+      points1.addAll(TwoDistantPointsCalc.instance.getPointsFromPath(sub1.cutPath));
+      points2.addAll(TwoDistantPointsCalc.instance.getPointsFromPath(sub2.cutPath));
+  for(int i=0;i<points1.size();i++){
+      if (Math.abs(points1.get(i).x - points2.get(i).x)>0.0005 || Math.abs(points1.get(i).y - points2.get(i).y)>0.0005) return false;
+  }
+ return true;
+  }
+
 
   public Vector2 getOriginPositionCS() {
     return originPositionCS;
@@ -223,17 +236,51 @@ public class SubBit2D implements Serializable {
     }
   }
 
-  public boolean isValid() {
-    return liftPointCB != null;
-  }
+    public boolean isValid() {
+        return liftPointCB != null;
+    }
     public boolean isInValid() {
         return liftPointCB == null;
     }
-public boolean isregular(){
-    if(getLiftPointCS()!=null) {return true;}
-    else {return false;}
+    public boolean isregular(){
+        if(getLiftPointCS()!=null) {return true;}
+        else {return false;}
+    }
 
-}
 
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeObject(parentBit);
+        oos.writeObject(originPositionCS);
+        oos.writeObject(orientationCS);
+        oos.writeObject(liftPointCB);
+        oos.writeObject(firstDistantPointCB);
+        oos.writeObject(secondDistantPointCB);
+        oos.writeObject(transformMatrixToCS);
+        oos.writeObject(inverseMatrixToCB);
+        oos.writeObject(XminPoint);
+        oos.writeObject(XmaxPoint);
+        oos.writeObject(cutPath);
+        oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
+                .createTransformedShape(this.getAreaCB()));
+        oos.writeBoolean(removed);
+    }
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.parentBit= (Bit2D) ois.readObject();
+        this.originPositionCS= (Vector2) ois.readObject();
+        this.orientationCS= (Vector2) ois.readObject();
+        this.liftPointCB= (Vector2) ois.readObject();
+        this.firstDistantPointCB= (Vector2) ois.readObject();
+        this.secondDistantPointCB= (Vector2) ois.readObject();
+        this.transformMatrixToCS= (AffineTransform) ois.readObject();
+        this.inverseMatrixToCB= (AffineTransform) ois.readObject();
+        this.XminPoint= (Vector2) ois.readObject();
+        this.XmaxPoint= (Vector2) ois.readObject();
+        this.cutPath= (Path2D) ois.readObject();
 
+        Shape s = (Shape) ois.readObject();
+        this.areaCB=new Area(s);
+        this.removed=ois.readBoolean();
+        thecontroller.updateCore();
+        // this.updateBoundaries(new Area(s));
+    }
 }

@@ -8,12 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class NewBit2D extends Bit2D {
-
-  private final Vector<SubBit2D> subBits = new Vector<>();
+  private Vector<SubBit2D> subBits = new Vector<>();
+  private Area areaSent;
 
   public NewBit2D(Vector2 origin, Vector2 orientation) {
     this(origin, orientation, CraftConfig.lengthFull, CraftConfig.bitWidth);
@@ -105,10 +108,9 @@ public class NewBit2D extends Bit2D {
   }
 public void removeSubbit(SubBit2D sub){
     subBits.remove(sub);
-
-
-
 }
+
+
   public Vector<SubBit2D> getValidSubBits() {
     return subBits.stream()
         .filter(SubBit2D::isValid)
@@ -171,4 +173,23 @@ public void removeSubbit(SubBit2D sub){
   public void calcCutPath() {
     super.calcCutPath();
   }
+
+
+
+
+  private void writeObject(ObjectOutputStream oos) throws IOException {
+   oos.writeObject(subBits);
+  }
+
+
+  private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    this.subBits= (Vector<SubBit2D>) ois.readObject();
+
+    System.out.println("sbbits size:"+subBits.size());
+    //updateBoundaries(areaSent);
+  }
+
+public void sendArea(Area a){
+    this.areaSent=a;
+}
 }

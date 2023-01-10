@@ -225,7 +225,6 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   }
 
   public void removeSubBit(Vector2 key,SubBit2D sub){
-
     NewBit2D bit =(NewBit2D)mapBits.get(key);
     bit.removeSubbit(sub);
   }

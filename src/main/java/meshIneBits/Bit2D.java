@@ -522,6 +522,12 @@ public  void callMinusSetTransfoMatrix(){
     // Special writing for areas
     oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
         .createTransformedShape(this.getAreaCS()));
+  Vector<Shape> shapesfromareas=new Vector<>();
+  for(Area a:areas){
+    shapesfromareas.add(AffineTransform.getTranslateInstance(0, 0)
+            .createTransformedShape(a));
+  }
+  oos.writeObject(shapesfromareas);
   }
 
   /**
@@ -540,10 +546,16 @@ public  void callMinusSetTransfoMatrix(){
     this.transfoMatrixCS = (AffineTransform) ois.readObject();
     this.inverseTransfoMatrixCB = (AffineTransform) ois.readObject();
     this.areas = new Vector<>();
-    this.checkFullLength = ois.readBoolean();
     this.inverseInCut = ois.readBoolean();
+    this.checkFullLength = ois.readBoolean();
     Shape s = (Shape) ois.readObject();
-    this.updateBoundaries(new Area(s));
+    NewBit2D newbit= (NewBit2D) this;
+    newbit.sendArea(new Area(s));
+   Vector<Shape> shapes= (Vector<Shape>) ois.readObject();
+   for(Shape shape:shapes){
+     areas.add(new Area(shape));
+   }
+    // this.updateBoundaries(new Area(s));
   }
 
   public AffineTransform getTransfoMatrixToCS() {
