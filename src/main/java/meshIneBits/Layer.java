@@ -609,6 +609,9 @@ public class Layer extends Observable implements Serializable {
       ));
     }
   }
+  public void removeSubbits(Set<SubBit2D> subs){
+    subs.forEach(sub->removeSubBit(getKey(sub.getParentBit()),sub,true));
+  }
 
   public void addSubBit(Bit2D parent,SubBit2D sub) {System.out.println("adding sub in layer");
   //  Bit3D oldBit = getBit3D(key);

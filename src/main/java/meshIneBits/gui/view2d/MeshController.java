@@ -478,7 +478,18 @@ public static CountDownLatch r=new CountDownLatch(1);
     setChanged();
     notifyObservers();
   }
-
+  public void setSelectedSubBit(Set<SubBit2D> newSelectedSubs) {
+    selectedsubBit.clear();
+    if (newSelectedSubs != null) {
+      selectedsubBit.addAll(newSelectedSubs);
+      selectedsubBit.removeIf(Objects::isNull);
+    }
+    // Notify property panel
+    //changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
+    // Notify the core to repaint
+    setChanged();
+    notifyObservers();
+  }
   public Set<Bit3D> getSelectedBits() {
     return selectedBitKeys.stream()
         .map(getCurrentLayer()::getBit3D)
@@ -663,6 +674,11 @@ private boolean contained(Point2D.Double po, Set<SubBit2D> selectedsubBit){
 return false;
   }
 
+public void deleteSubbits(Set<SubBit2D> subs){
+    getCurrentLayer().removeSubbits(subs);
+  selectedsubBitMemory.addAll(subs);
+  getCurrentLayer().getRemovedSubBits().addAll(subs);
+  }
 
 
 
