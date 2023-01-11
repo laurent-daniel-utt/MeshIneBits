@@ -200,14 +200,10 @@ public class Layer extends Observable implements Serializable {
   public void rebuild() {
 
     flatPavement.computeBits(horizontalArea);
-
     extrudeBitsTo3D();
-
     findKeysOfIrregularBits();
-
     setChanged();
     notifyObservers(new M(
-
         M.LAYER_REBUILT,
         M.map(
             M.REBUILT_LAYER,
@@ -614,7 +610,13 @@ public class Layer extends Observable implements Serializable {
     }
   }
 
+  public void addSubBit(Bit2D parent,SubBit2D sub) {System.out.println("adding sub in layer");
+  //  Bit3D oldBit = getBit3D(key);
+    flatPavement.addSubBit(parent, sub);
+    // mapBits3D.remove(key);
+    // irregularBits.remove(key);
 
+  }
   /**
    * Remove multiple bits
    *

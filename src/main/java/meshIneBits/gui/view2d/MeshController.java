@@ -616,7 +616,7 @@ public static CountDownLatch r=new CountDownLatch(1);
     }
     Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
     Set<Bit3D> bit3DSet = this.getSelectedBits();
-    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(null,bit3DSet, previousKeys, null, null,
         this.getCurrentLayer().getLayerNumber()));
 
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
@@ -638,7 +638,10 @@ public static CountDownLatch r=new CountDownLatch(1);
     Set<Vector2> previousKeys = new HashSet<>(this.selectedBitKeysOfSubbit);
     Set<Bit3D> bit3DSet = this.getSelectedBitsforSubBits();
 
-    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+   // handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+     //       this.getCurrentLayer().getLayerNumber()));
+
+    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(selectedsubBit,null, null, null, null,
             this.getCurrentLayer().getLayerNumber()));
     changes.firePropertyChange(DELETING_SUBBITS, null, getSelectedBits());
     selectedsubBit.forEach(subBit2D -> subBit2D.setRemoved(true));
@@ -670,7 +673,8 @@ return false;
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(getSelectedBitKeys(), true);
     selectedBitKeys.clear();
-    getCurrentLayer().rebuild();
+    //TODO verify if putting this rebuild in comment will affect anything
+    // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
 
@@ -780,7 +784,17 @@ return false;
     }
   }
 
-
+  public void addSubBit3Ds(Collection<SubBit2D> subs) {
+    for (SubBit2D sub : subs) {System.out.println("adding subs in controller");
+      sub.setRemoved(false);
+      getCurrentLayer().addSubBit(sub.getParentBit(), sub);
+    HashSet<SubBit2D> newRemovedsubs=new HashSet<>();
+    }
+    selectedsubBitMemory.removeAll(subs);
+    System.out.println("size before:"+getCurrentLayer().getRemovedSubBits().size());
+    getCurrentLayer().getRemovedSubBits().removeAll(subs);
+    System.out.println("size after:"+getCurrentLayer().getRemovedSubBits().size());
+  }
   /**
    * @param position in {@link Mesh} coordinate system
    * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
@@ -801,7 +815,7 @@ return false;
   private SubBit2D findSubBitAt(Point2D.Double position){
   HashSet<SubBit2D>subbits=new HashSet<>(getCurrentLayer().getSubBits());
          for(SubBit2D sub:subbits){
-           if(sub.getAreaCS().contains(position)){
+           if(sub.getAreaCS().contains(position)){System.out.println(" found sub:");
              return sub;
            }
          }
@@ -1124,28 +1138,27 @@ return false;
       case ADDING_BITS:
         setAddingBits(!isAddingBits());
         break;
-        case MANIPULATNG_BIT:
-
-          if(selectedBitKeys.size()==1){manipulating=true;
-            deleteSelectedBits();
-            setAddingBits(true);
-          }
-         else {if(!manipulating)Logger.error("you have to select a bit");
-           manipulating=false;
-            setAddingBits(false);
-        if(selectedBitKeys.size()>1)Logger.error("you have to select only one bit");
-         Thread t=new Thread(() -> {
-          try {
-            Thread.sleep(3000);
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-          }
-          Logger.updateStatus(null);
-        });
-        t.start();
-         }
-
-          break;
+      case MANIPULATNG_BIT:
+        if(selectedBitKeys.size()==1){
+          manipulating=true;
+          deleteSelectedBits();
+          setAddingBits(true);
+        }
+        else {if(!manipulating)Logger.error("you have to select a bit");
+          manipulating=false;
+          setAddingBits(false);
+          if(selectedBitKeys.size()>1)Logger.error("you have to select only one bit");
+          Thread t=new Thread(() -> {
+            try {
+              Thread.sleep(3000);
+            } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+            }
+            Logger.updateStatus(null);
+          });
+          t.start();
+        }
+        break;
       case SELECTING_REGION:
         setSelectingRegion(!isSelectingRegion());
         break;
@@ -1348,11 +1361,11 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     if (mesh == null || !mesh.isPaved() || subBit == null) {
       return;
     }
-    if (selectedsubBit.contains(subBit)) {
+    if (selectedsubBit.contains(subBit)) {System.out.println("unselcting sub");
        selectedBitKeysOfSubbit .remove(bitKey);
       selectedsubBit.remove(subBit);
       changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
-    } else {
+    } else {System.out.println("selcting sub");
       selectedBitKeysOfSubbit.add(bitKey);
       selectedsubBit.add(subBit);
       changes.firePropertyChange(SubBIT_SELECTED, null, subBit);
@@ -1396,6 +1409,8 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     resetMesh();
     layerNumber = -1;
     selectedBitKeys.clear();
+    selectedsubBit.clear();
+    selectedsubBitMemory.clear();
     zoom = 1;
     showSlice = true;
     showLiftPoints = false;

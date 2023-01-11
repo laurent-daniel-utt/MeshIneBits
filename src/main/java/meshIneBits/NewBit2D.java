@@ -86,7 +86,6 @@ public class NewBit2D extends Bit2D {
           .build();
       subBits.add(subBit2D);
     }
-
     subBits.sort((sub1, sub2) -> {
       Vector2 lift1 = sub1.getLiftPointCB();
       Vector2 lift2 = sub2.getLiftPointCB();
@@ -109,7 +108,10 @@ public class NewBit2D extends Bit2D {
 public void removeSubbit(SubBit2D sub){
     subBits.remove(sub);
 }
-
+  public void addSubbit(SubBit2D sub){
+    System.out.println("adding sub in NewBit2D");
+    subBits.add(sub);
+  }
 
   public Vector<SubBit2D> getValidSubBits() {
     return subBits.stream()
@@ -134,6 +136,7 @@ public void removeSubbit(SubBit2D sub){
     super.updateBoundaries(transformedArea);
     calcCutPath();
     buildSubBits(getAreasCB(), getCutPathsCB());
+  //Thread.dumpStack();
   }
 
   @Override

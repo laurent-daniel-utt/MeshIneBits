@@ -228,7 +228,11 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     NewBit2D bit =(NewBit2D)mapBits.get(key);
     bit.removeSubbit(sub);
   }
-
+  public void addSubBit(Bit2D parent,SubBit2D sub){
+    System.out.println("adding sub in pavement");
+    NewBit2D bit =(NewBit2D)parent;
+    bit.addSubbit(sub);
+  }
   /**
    * Get all stocked {@link Bit2D}s
    *
