@@ -667,12 +667,7 @@ public static CountDownLatch r=new CountDownLatch(1);
     changes.firePropertyChange(SUBBITS_DELETED, null, getCurrentLayer());
   }
 
-private boolean contained(Point2D.Double po, Set<SubBit2D> selectedsubBit){
-    for(SubBit2D sub:selectedsubBit){
-      if(sub.getAreaCS().contains(po)) return true;
-    }
-return false;
-  }
+
 
 public void deleteSubbits(Set<SubBit2D> subs){
     getCurrentLayer().removeSubbits(subs);
@@ -1317,7 +1312,7 @@ public void deleteSubbits(Set<SubBit2D> subs){
     Set<Vector2> previousSelectedBits = new HashSet<>(this.getSelectedBitKeys());
     //move bits
    */
- Iterator<Bit3D> it=getSelectedBits().iterator();
+ /*Iterator<Bit3D> it=getSelectedBits().iterator();
     Bit3D bitToMove=it.next();
      getCurrentLayer().moveBit(bitToMove, direction);
 
@@ -1334,7 +1329,7 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
                     .normal()
                     .mul(distance);
     Vector2 newOrigin = bitToMove2D.getOriginCS()
-            .add(translationInMesh);
+            .add(translationInMesh);*/
 
 
   /*  Set<Bit3D> bits3D = this.getSelectedBits();

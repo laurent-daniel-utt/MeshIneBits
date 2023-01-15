@@ -314,7 +314,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     return elementBit;
   }
 
- /**removes irregular sbbits for the case when a bit is divided in multiple subbits some are regulars and some are irregulars */
+ /**removes irregular sbbits for the case when a bit is divided to multiple subbits some are regulars and some are irregulars */
   private void rebuildBit3d(Bit3D bit){
 
     NewBit2D newbit=(NewBit2D)bit.getBaseBit();

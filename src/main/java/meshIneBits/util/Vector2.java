@@ -30,12 +30,13 @@
 
 package meshIneBits.util;
 
+import meshIneBits.config.CraftConfig;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Vector;
-import meshIneBits.config.CraftConfig;
 
 /**
  * Vector2 represent a point in a 2D space
@@ -246,7 +247,37 @@ public class Vector2 implements Serializable {
         double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
         double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
         return AB - Math.pow(10, -CraftConfig.errorAccepted)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
+    //return AB - Math.pow(10, -2.5)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -2.5);
   }
+
+/*
+  public boolean isOnSegment(Segment2D segment) {
+    double x1 = segment.start.x;
+    double y1 = segment.start.y;
+    double x2 = segment.end.x;
+    double y2 = segment.end.y;
+    Vector2 point1=new Vector2(x1,y1);
+    Vector2 point2=new Vector2(x2,y2);
+    Segment2D BA=new Segment2D(point1,this);
+    Segment2D BC=new Segment2D(point2,this);
+    Segment2D AC=new Segment2D(point2,point1);
+    double c=BA.getLength();
+    double a=BC.getLength();
+    double b=AC.getLength();
+    double cosinusAlpha= (a*a+c*c-b*b)/(2*a*c);
+    if(a==0 || c==0) return true;
+    boolean b1=false;
+    boolean b2=false;
+    double somme=a+c;
+   double Alpha= Math.toDegrees(Math.acos(cosinusAlpha));
+
+   System.out.println("Alpha="+Alpha);
+   if ( Alpha<=180 && Alpha>= 179 )b1= true;// true-->no cutlines §§ flase--> cutlines
+    if(Math.abs(somme-b)>=0.001) b2=true;
+    System.out.println("b1:"+b1+" b2:"+b2);
+    if(b1) return  true;
+    else return false;
+  }*/
 
   /**
    * Return the vector multiplied by a double

@@ -210,7 +210,6 @@ public static Reconstitute getInstance(){
             subpath.moveTo(points_initial.get(0).x,points_initial.get(0).y);
             subpath.lineTo(points_initial.get(1).x,points_initial.get(1).y);
             subpath.lineTo(points_initial.get(2).x,points_initial.get(2).y);
-            System.out.println("ADJUSTED");
         }
 
         remainingArea.subtract(new Area(subpath));
@@ -280,7 +279,7 @@ public static Reconstitute getInstance(){
      * see Majed_Documents>Reconstitue>Creating_Area.docx
      */
     private boolean areaAddedtoFallen(ArrayList<Vector2> points,boolean opp){
-        if (opp){System.out.println("in addedtoFallen if");
+        if (opp){
             Vector2 pointFromHoldingZOne=new Vector2(CraftConfig.lengthFull/2-5,0);
             Line lineEndings=new Line(points.get(0),points.get(points.size()-1));
             Line lineFromHoldingzone=new Line(points.get(1),pointFromHoldingZOne);
@@ -289,7 +288,6 @@ public static Reconstitute getInstance(){
                 return true;}
         }
         else{
-            System.out.println("in addedtoFallen else");
             double x1=points.get(0).x;
             double x2=points.get(points.size()-1).x;
             double y1=points.get(0).y;
