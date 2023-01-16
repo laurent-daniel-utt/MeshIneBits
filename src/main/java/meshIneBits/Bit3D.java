@@ -319,7 +319,7 @@ public class Bit3D implements Serializable, Cloneable {
        this.computeTwoPointNearTwoPointMostDistantOnBit();
     calcAngles();
     if (reverseInCut) {
-      this.inverse();
+    //  this.inverse();
     }
 
   }

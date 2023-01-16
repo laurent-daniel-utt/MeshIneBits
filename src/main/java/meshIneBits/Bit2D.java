@@ -387,6 +387,9 @@ public void setOrientation(Vector2 orientation){
     return cutPaths;
   }
 
+  public void setCutPaths(Vector<Path2D> cutPaths) {
+    this.cutPaths = cutPaths;
+  }
 
   /**
    * @return vertical side

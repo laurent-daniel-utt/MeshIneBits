@@ -233,7 +233,6 @@ public class Layer extends Observable implements Serializable {
             key -> new NewBit3D((NewBit2D) flatPavement.getBit(key), this),
             (u, v) -> u, // Preserve the first
             ConcurrentHashMap::new));
-
   }
 
   /**
@@ -247,10 +246,8 @@ public class Layer extends Observable implements Serializable {
       mapBits3D.put(key, bit3D);
       if (bit3D.isIrregular()) {
         irregularBits.add(key);
-
       }
     }
-
   }
 
   public Vector<Vector2> getBits3dKeys() {
@@ -684,7 +681,6 @@ public class Layer extends Observable implements Serializable {
    */
   public void startPaver() {
     this.flatPavement = this.patternTemplate.pave(this);
-
     paved = true;
     rebuild();
 

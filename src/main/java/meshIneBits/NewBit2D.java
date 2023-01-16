@@ -2,6 +2,7 @@ package meshIneBits;
 
 import meshIneBits.SubBit2D.SubBitBuilder;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
@@ -107,7 +108,21 @@ public class NewBit2D extends Bit2D {
   }
 public void removeSubbit(SubBit2D sub){
     subBits.remove(sub);
-}
+    rebuildBit2d(this);
+  }
+
+
+  private void rebuildBit2d(Bit2D bit){
+
+    NewBit2D newbit=(NewBit2D)bit;
+    Vector<SubBit2D> subs=newbit.getValidSubBits();
+    Vector<Area> areas=new Vector<>();
+    for (SubBit2D sub:subs){
+      areas.add(sub.getAreaCB());
+    }
+    bit.setAreas(areas);
+    bit.setCutPaths(CutPathCalc.instance.calcCutPathFrom(bit));
+  }
   public void addSubbit(SubBit2D sub){
     System.out.println("adding sub in NewBit2D");
     subBits.add(sub);
