@@ -30,23 +30,14 @@
 
 package meshIneBits.config;
 
+import meshIneBits.patterntemplates.*;
+import meshIneBits.scheduler.AScheduler;
+import meshIneBits.scheduler.AdvancedScheduler;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import meshIneBits.patterntemplates.AI_Pavement;
-import meshIneBits.patterntemplates.BorderPaverPattern;
-import meshIneBits.patterntemplates.ClassicBrickPattern;
-import meshIneBits.patterntemplates.DiagonalHerringbonePattern;
-import meshIneBits.patterntemplates.EconomicPattern;
-import meshIneBits.patterntemplates.GeneticPavement;
-import meshIneBits.patterntemplates.ImprovedBrickPattern;
-import meshIneBits.patterntemplates.ManualPattern;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.patterntemplates.UnitSquarePattern;
-import meshIneBits.scheduler.AScheduler;
-import meshIneBits.scheduler.AdvancedScheduler;
-import meshIneBits.scheduler.BasicScheduler;
 
 /**
  * The CraftConfig class contains the configurable settings for the slicer. Reflection and
@@ -103,6 +94,7 @@ public class CraftConfig {
       minValue = 1.0,
       maxValue = 1000.0,
       defaultValue = 8.0
+
   )
   @BitSetting(
       order = 0
@@ -119,7 +111,7 @@ public class CraftConfig {
   @BitSetting(
       order = 1
   )
-  public static double bitWidth = 23.0;
+  public static double bitWidth = 24.0;
 
   @DoubleSetting(
       title = "Bit full length  (mm)",
@@ -254,10 +246,52 @@ public class CraftConfig {
   @AssemblerSetting(
       order = 1
   )
+
+
   public static int errorAccepted = 5;
-
-
+  @DoubleSetting(
+          title = "Precision",
+          description = "the parameter that regulates the precision of 2 distant points,the lesser is the param the higher is the precision",
+          defaultValue = 3
+  )
+  @AssemblerSetting(
+          order = 2
+  )
+  public static double precision = 3;
   //Printer parameter
+
+  @DoubleSetting(
+          title = "Lengthmover",
+          description = "the moving distance of a bit in length direction",
+          defaultValue =80
+  )
+  @BitSetting(
+          order = 3
+  )
+  public static double lengthmover = 80;
+
+  @DoubleSetting(
+          title = "Widthmover",
+          description = "the moving distance of a bit in width direction",
+          defaultValue =23/2
+  )
+  @BitSetting(
+          order = 4
+  )
+  public static double widthmover = 23/2;
+
+  @DoubleSetting(
+          title = "safeguardSpace",
+          description = "In order to keep bits not overlapping or grazing each other",
+          minValue = 1,
+          defaultValue =3
+  )
+  @BitSetting(
+          order = 5
+  )
+  public static double safeguardSpaceParam = 3;
+
+
   @FloatSetting(
       title = "Printer X (mm)",
       description = "Length of printer",
@@ -384,12 +418,12 @@ public class CraftConfig {
   @IntegerSetting(
       title = "Number of bits",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @XMLSetting(
       order = 2
   )
-  public static int nbBits = 50;
+  public static int nbBits = 72;
 
   @IntegerSetting(
       title = "Number of bits on a plate",
@@ -402,15 +436,15 @@ public class CraftConfig {
   @IntegerSetting(
       title = "Number of bits on a Batch",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @PrinterSetting()
-  public static int nbBitesBatch = 50;
+  public  static int nbBitesBatch = 72;
 
   @DoubleSetting(
       title = "Plate width",
       minValue = 1,
-      defaultValue = 50
+      defaultValue = 72
   )
   @PrinterSetting()
   public static double plateWidth = 50;

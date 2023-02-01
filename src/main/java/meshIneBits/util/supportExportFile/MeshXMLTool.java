@@ -29,6 +29,18 @@
 
 package meshIneBits.util.supportExportFile;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import meshIneBits.Bit3D;
+import meshIneBits.Mesh;
+import meshIneBits.NewBit2D;
+import meshIneBits.SubBit2D;
+import meshIneBits.config.CraftConfig;
+import meshIneBits.config.MeshTagXML;
+import meshIneBits.scheduler.AScheduler;
+import meshIneBits.util.*;
+import org.w3c.dom.Element;
+
+import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.nio.file.Path;
@@ -36,17 +48,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
-import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.MeshTagXML;
-import meshIneBits.scheduler.AScheduler;
-import meshIneBits.util.InterfaceXmlTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
-import meshIneBits.util.Vector3;
-import org.w3c.dom.Element;
 
 /**
  * This class provide list of function to support writing {@link Mesh} to XML file. Use {@link
@@ -299,6 +300,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element cut = bit3D.getCutPathsCB()
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
+    rebuildBit3d(bit3D);
     prepareBitToExport(bit3D);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
@@ -309,6 +311,20 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     //sub bit of bit
     writeSubBitElementToBit(elementBit, bit3D);
     return elementBit;
+  }
+
+ /**removes irregular sbbits for the case when a bit is divided to multiple subbits some are regulars and some are irregulars */
+  private void rebuildBit3d(Bit3D bit){
+
+    NewBit2D newbit=(NewBit2D)bit.getBaseBit();
+    Vector<SubBit2D> subs=newbit.getValidSubBits();
+    Vector<Area> areas=new Vector<>();
+    for (SubBit2D sub:subs){
+
+   areas.add(sub.getAreaCB());
+    }
+    bit.getBaseBit().setAreas(areas);
+    bit.setRawCutPaths(CutPathCalc.instance.calcCutPathFrom(bit.getBaseBit()));
   }
 
   /**
@@ -350,10 +366,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
       //LiftPoint's position in Bit coordinate system
       Element xInBit = createElement(MeshTagXML.COORDINATE_X,
-          Double.toString(bit3D.getLiftPointsCB()
+          Double.toString(bit3D.getLiftPointsCS()
               .get(i).x));
       Element yInBit = createElement(MeshTagXML.COORDINATE_Y,
-          Double.toString(bit3D.getLiftPointsCB()
+          Double.toString(bit3D.getLiftPointsCS()
               .get(i).y));
       liftPoint.appendChild(xInBit);
       liftPoint.appendChild(yInBit);
@@ -380,8 +396,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       positionSubBit.appendChild(xInMesh);
       positionSubBit.appendChild(yInMesh);
       subBit.appendChild(positionSubBit);
-
-      //Two distant point of SubBit
+//Two distant point of SubBit
       if (listTwoPoints.get(i)
           .size() >= 2) {
         for (int j = 0; j < 2; j++) {

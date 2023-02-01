@@ -7,7 +7,16 @@ import meshIneBits.util.CustomLogger;
 public class CuttingMachineCommander {
 
   private final CustomLogger logger = new CustomLogger(this.getClass());
-  private final CuttingMachineOPCUAHelper helper = new CuttingMachineSimulator();
+  private final CuttingMachineOPCUAHelper helper;
+
+  {
+    try {
+      helper = new CuttingMachineSimulator();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private final Mesh mesh;
 
   public CuttingMachineCommander(Mesh mesh) {

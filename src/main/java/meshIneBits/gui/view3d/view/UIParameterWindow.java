@@ -2,13 +2,14 @@ package meshIneBits.gui.view3d.view;
 
 import controlP5.ControlEvent;
 import controlP5.ControlP5;
-import java.awt.Frame;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.util.CustomLogger;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
+
+import java.awt.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class UIParameterWindow extends PApplet {
 
@@ -81,7 +82,7 @@ public abstract class UIParameterWindow extends PApplet {
         Visualization3DConfig.UIPW_BACKGROUND.getRed(),
         Visualization3DConfig.UIPW_BACKGROUND.getGreen(),
         Visualization3DConfig.UIPW_BACKGROUND.getBlue());
-    noStroke();
+    //noStroke();
     updateButton();
   }
 

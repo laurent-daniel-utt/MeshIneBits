@@ -30,24 +30,21 @@
 
 package meshIneBits;
 
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Vector;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
+import java.awt.geom.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * Bit2D represent a bit in 2D : boundaries and cut path. A {@link Bit3D} is build with multiple
@@ -256,6 +253,10 @@ public class Bit2D implements Cloneable, Serializable {
     return transformedArea;
   }
 
+
+
+
+
   /**
    * @return clone of all surfaces making this bit transformed by
    * <tt>transforMatrix</tt>
@@ -326,12 +327,19 @@ public class Bit2D implements Cloneable, Serializable {
   public Vector2 getOrientation() {
     return orientation;
   }
+public void setOrientation(Vector2 orientation){
+    this.orientation=orientation;
 
+}
   /**
    * @return the origin in the {@link Mesh} coordinate system
    */
   public Vector2 getOriginCS() {
     return origin;
+  }
+  public void setOriginCS(Vector2 origin) {
+
+    this.origin=origin;
   }
 
   /**
@@ -379,6 +387,9 @@ public class Bit2D implements Cloneable, Serializable {
     return cutPaths;
   }
 
+  public void setCutPaths(Vector<Path2D> cutPaths) {
+    this.cutPaths = cutPaths;
+  }
 
   /**
    * @return vertical side
@@ -401,6 +412,12 @@ public class Bit2D implements Cloneable, Serializable {
       inverseTransfoMatrixCB = AffineTransform.getScaleInstance(1, 1); // Fallback
     }
   }
+public  void callMinusSetTransfoMatrix(){
+  transfoMatrixCS.translate(-origin.x,- origin.y);
+  transfoMatrixCS.rotate(-orientation.x,- orientation.y);
+
+
+}
 
   /**
    * Given an area cut from a zone, construct the surface of this bit
@@ -420,6 +437,10 @@ public class Bit2D implements Cloneable, Serializable {
     Vector<Area> listAreas = AreaTool.segregateArea(newArea);
     areas.addAll(listAreas != null ? listAreas : new Vector<>());
 
+  }
+
+  public void setAreas(Vector<Area> areas) {
+    this.areas = areas;
   }
 
   private static void removeSectionHolding(Bit2D bit, Area bitArea) {
@@ -504,6 +525,12 @@ public class Bit2D implements Cloneable, Serializable {
     // Special writing for areas
     oos.writeObject(AffineTransform.getTranslateInstance(0, 0)
         .createTransformedShape(this.getAreaCS()));
+  Vector<Shape> shapesfromareas=new Vector<>();
+  for(Area a:areas){
+    shapesfromareas.add(AffineTransform.getTranslateInstance(0, 0)
+            .createTransformedShape(a));
+  }
+  oos.writeObject(shapesfromareas);
   }
 
   /**
@@ -522,10 +549,16 @@ public class Bit2D implements Cloneable, Serializable {
     this.transfoMatrixCS = (AffineTransform) ois.readObject();
     this.inverseTransfoMatrixCB = (AffineTransform) ois.readObject();
     this.areas = new Vector<>();
-    this.checkFullLength = ois.readBoolean();
     this.inverseInCut = ois.readBoolean();
+    this.checkFullLength = ois.readBoolean();
     Shape s = (Shape) ois.readObject();
-    this.updateBoundaries(new Area(s));
+    NewBit2D newbit= (NewBit2D) this;
+    newbit.sendArea(new Area(s));
+   Vector<Shape> shapes= (Vector<Shape>) ois.readObject();
+   for(Shape shape:shapes){
+     areas.add(new Area(shape));
+   }
+    // this.updateBoundaries(new Area(s));
   }
 
   public AffineTransform getTransfoMatrixToCS() {

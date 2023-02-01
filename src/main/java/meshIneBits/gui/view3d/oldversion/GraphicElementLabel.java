@@ -15,6 +15,7 @@ public class GraphicElementLabel {
   public static final String GRAVITY = "Apply gravity";
   public static final String CENTER_CAMERA = "Center camera";
   public static final String ANIMATION = "ANIMATION";
+  public static final String STOP = "STOP";
   public static final String BY_SUB_BIT = "By subBit";
   public static final String BY_BIT = "By bit";
   public static final String BY_LAYER = "By layer";
@@ -22,9 +23,13 @@ public class GraphicElementLabel {
   public static final String ONE_BY_ONE = "One by one";
   public static final String FULL = "Full";
   public static final String EXPORT = "Export";
+  public static final String EXPORTAll = "ExportSim";
   public static final String PAUSE = "Pause";
+  public static final String PLAY = "Play";
   public static final String SPEED_UP = "Speed up";
   public static final String SPEED_DOWN = "Speed down";
+  public static final String NEXT = "Next";
+  public static final String PREVIOUS = "Previous";
   public static final String ANIMATION_SLICER = "ASLICER";
   public static final String START_CUTTING_MACHINE = "Start cutting machine";
   public static final String STOP_CUTTING_MACHINE = "Stop cutting machine";

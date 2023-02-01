@@ -121,7 +121,6 @@ public class AI_Pavement extends PatternTemplate {
 
     @Override
     public Pavement pave(Layer layer, Area area) {
-        System.out.println("Pave layer & area with AI... Not implemented yet.");
         return null;
     }
 
@@ -178,13 +177,9 @@ public class AI_Pavement extends PatternTemplate {
      * Pave the whole mesh with AI.
      */
     public @NotNull Collection<Bit2D> startNNPavement(@NotNull Slice slice) throws Exception {
-        System.out.println("PAVING SLICE " + slice.getAltitude());
         Vector<Bit2D> bits = new Vector<>();
-
         Vector<Vector<Vector2>> bounds = GeneralTools.getBoundsAndRearrange(slice);
-
         NNExploitation nnExploitation = new NNExploitation();
-
         for (Vector<Vector2> bound : bounds) {
             Vector2 veryFirstStartPoint = bound.get(0);
             Vector2 startPoint = bound.get(0);

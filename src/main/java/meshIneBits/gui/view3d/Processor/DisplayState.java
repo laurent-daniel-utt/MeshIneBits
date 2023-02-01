@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DisplayState {
 
-  public enum State {PAVED_VIEW, MODEL_VIEW, ANIMATION_VIEW}
+  public enum State {PAVED_VIEW, MODEL_VIEW, ANIMATION_VIEW,MODIFYED_VIEW}
 
   interface OnStateChangedListener {
 

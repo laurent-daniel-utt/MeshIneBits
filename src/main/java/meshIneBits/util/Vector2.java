@@ -30,12 +30,13 @@
 
 package meshIneBits.util;
 
+import meshIneBits.config.CraftConfig;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Vector;
-import meshIneBits.config.CraftConfig;
 
 /**
  * Vector2 represent a point in a 2D space
@@ -245,8 +246,11 @@ public class Vector2 implements Serializable {
         double AB = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
         double AP = Math.sqrt(((x - x1) * (x - x1)) + ((y - y1) * (y - y1)));
         double PB = Math.sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
-        return AB - Math.pow(10, -CraftConfig.errorAccepted)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
+        //return AB - Math.pow(10, -CraftConfig.errorAccepted)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -CraftConfig.errorAccepted);
+       return AB - Math.pow(10, -2.5)<= (AP + PB) && (AP + PB) <= AB + Math.pow(10, -2.5);
   }
+
+
 
   /**
    * Return the vector multiplied by a double

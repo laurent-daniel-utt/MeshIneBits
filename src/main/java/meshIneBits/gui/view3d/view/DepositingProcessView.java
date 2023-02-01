@@ -1,8 +1,14 @@
 package meshIneBits.gui.view3d.view;
 
-import controlP5.*;
 import controlP5.Button;
+import controlP5.CheckBox;
+import controlP5.ControlEvent;
+import controlP5.Textlabel;
+import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Processor.DepositingMachineProcessor;
+import meshIneBits.opcuaHelper.ROBOT;
+import meshIneBits.opcuaHelper.RobotCommander;
+import meshIneBits.util.supportImportFile.DomParser;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -11,10 +17,12 @@ import processing.core.PShape;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 
-public class DepositingProcessView extends UIParameterWindow {
+public class DepositingProcessView extends UIParameterWindow implements MouseListener {
 
   public static final String cutting_machine_icon = "resources/cutting-machine-icon.png";
   public static final String depositing_machine_photo = "resources/depositing-machine-photo.png";
@@ -58,6 +66,10 @@ public class DepositingProcessView extends UIParameterWindow {
   private Button homingAxisSubXButton;
   private Button homingAxisSubZButton;
   private Button homingAxisThetaButton;
+  private DepositedBit depositedBitInterface;
+  private CuttedBit cuttedBitInterface;
+  RobotCommander robotDecoup;
+
 
   private DepositingMachineProcessor processor;
 
@@ -76,16 +88,28 @@ public class DepositingProcessView extends UIParameterWindow {
 
   @Override
   public void setup() {
+
     PSurfaceAWT.SmoothCanvas smoothCanvas = (PSurfaceAWT.SmoothCanvas)surface.getNative();
     // I used JFrame to add the Exit_On_CLOSe option because I didn't find it in this library!.......
     JFrame jframe = (JFrame) smoothCanvas.getFrame();
     jframe.setSize(SCREEN_SIZE.width/2+10, SCREEN_SIZE.height);
     jframe.setLocation(0,0);
     jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
     super.setup();
+
+   // depositedBitInterface=new DepositedBit(this,"Deposited Bit",436, 329, width/4 +280,40,18);
+    //depositedBitInterface=new DepositedBit(this,"Deposited Bit",440, 329, width/4 +80,15,18);
+    DomParser.chooseDir();
+    depositedBitInterface=new DepositedBit(this,"Deposited Bit",320+60+20, 329, width/4 +80+120-58+20,15,16);
+    runSketch(new String[]{"--display=1", "Projector"},depositedBitInterface);
+    robotDecoup=new RobotCommander(ROBOT.DECOUPE);
+    cuttedBitInterface=new CuttedBit("Cutted Bit",robotDecoup,380+20, 329,0, 15,16);
+    runSketch(new String[]{"--display=1", "Projector"},cuttedBitInterface);
+
     processor = new DepositingMachineProcessor(this::updateInfos);
     setUIControllerListener(processor);
+    //CPXE machine de depose 192.168.10.20:4840
+
 
   }
 
@@ -106,11 +130,11 @@ public class DepositingProcessView extends UIParameterWindow {
     rect2Background = createShape(RECT, (float) 1.15*width / 4, 0, width - (float) 1.15*width / 4, height);
     rect2Background.setFill(rect2_color.getRGB());
 
-    icon = loadImage(cutting_machine_icon);
+    /*icon = loadImage(cutting_machine_icon);
     icon.resize(width / 7, width / 7);
 
     machinePhoto = loadImage(depositing_machine_photo);
-    machinePhoto.resize(436, 329);
+    machinePhoto.resize(436, 329);*/
 
     int component_label_color = 255;
     int sizeFont = 15;
@@ -119,7 +143,7 @@ public class DepositingProcessView extends UIParameterWindow {
     startButton = getControl().
         addButton(START_DEPOSITING_MACHINE)
         .setLabel("Start")
-        .setSize(width / 4 , 50)
+        .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
         .setColorLabel(component_label_color)
         .setColorBackground(button_color.getRGB())
         .setColorForeground(button_color_on_mouse.getRGB())
@@ -127,7 +151,7 @@ public class DepositingProcessView extends UIParameterWindow {
     stopButton = getControl().
         addButton(STOP_DEPOSITING_MACHINE)
         .setLabel("Stop")
-          .setSize(width / 4 , 50)
+          .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
         .setColorLabel(component_label_color)
         .setColorBackground(button_color.getRGB())
         .setColorForeground(button_color_on_mouse.getRGB())
@@ -135,7 +159,7 @@ public class DepositingProcessView extends UIParameterWindow {
     pauseButton = getControl().
             addButton(PAUSE_DEPOSITING_MACHINE)
             .setLabel("Pause")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -143,7 +167,7 @@ public class DepositingProcessView extends UIParameterWindow {
     continueButton = getControl().
             addButton(CONTINUE_DEPOSITING_MACHINE)
             .setLabel("Continue")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -151,7 +175,7 @@ public class DepositingProcessView extends UIParameterWindow {
     resetButton = getControl().
             addButton(RESET_DEPOSITING_MACHINE)
             .setLabel("Reset")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -159,7 +183,7 @@ public class DepositingProcessView extends UIParameterWindow {
     continueAfterEStopButton = getControl().
             addButton(CONTINUE_AFTER_E_STOP_DEPOSITING_MACHINE)
             .setLabel("Continue After E Stop")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -167,7 +191,7 @@ public class DepositingProcessView extends UIParameterWindow {
     continueAfterTurnOffButton = getControl().
             addButton(CONTINUE_AFTER_TURN_OFF_DEPOSITING_MACHINE)
             .setLabel("Continue After turn off")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -191,7 +215,7 @@ public class DepositingProcessView extends UIParameterWindow {
     acknowledgeErrorButton = getControl().
             addButton(ACKNOWLEDGE_ERROR_DEPOSITING_MACHINE)
             .setLabel("Acknowledge error")
-            .setSize(width / 4 , 50)
+            .setSize((int) (width / 4 - 2 * 0.01f * width), 50)
             .setColorLabel(component_label_color)
             .setColorBackground(button_color.getRGB())
             .setColorForeground(button_color_on_mouse.getRGB())
@@ -210,6 +234,8 @@ public class DepositingProcessView extends UIParameterWindow {
               .setFont(createFont("arial bold", sizeFont));
 
     }
+
+
     currentAxesPositions = new Textlabel[7];
     currentAxesPositions[0] =getControl()
             .addTextlabel("CURRENT_AXES_POSITIONS_DEPOSITING_MACHINE ")
@@ -325,13 +351,13 @@ public class DepositingProcessView extends UIParameterWindow {
 
   private void initComponentPositions() {
 
-    startButton.setPosition(0.0175f*width,0.3f*height);
-    pauseButton.setPosition(0.0175f*width,0.37f*height);
-    continueButton.setPosition(0.0175f*width,0.44f*height);
-    stopButton.setPosition(0.0175f*width,0.51f*height);
-    resetButton.setPosition(0.0175f*width,0.58f*height);
-    continueAfterEStopButton.setPosition(0.0175f*width,0.65f*height);
-    continueAfterTurnOffButton.setPosition(0.0175f*width,0.72f*height);
+    startButton.setPosition(0.0175f*width,0.35f*height);
+    pauseButton.setPosition(0.0175f*width,0.42f*height);
+    continueButton.setPosition(0.0175f*width,0.49f*height);
+    stopButton.setPosition(0.0175f*width,0.56f*height);
+    resetButton.setPosition(0.0175f*width,0.63f*height);
+    continueAfterEStopButton.setPosition(0.0175f*width,0.70f*height);
+    continueAfterTurnOffButton.setPosition(0.0175f*width,0.77f*height);
 
 
     messageError.setPosition(0.31f * width, 0.38f * height);
@@ -339,7 +365,7 @@ public class DepositingProcessView extends UIParameterWindow {
 
     // bit data
     for (int i=0;i<11;i++){
-      currentBitData[i].setPosition(width-width/5,0.06f*height+i*0.025f*height);
+      currentBitData[i].setPosition(width-width/5+50,0.06f*height+i*0.025f*height);
     }
 
     // axes positions
@@ -405,8 +431,8 @@ public class DepositingProcessView extends UIParameterWindow {
     initComponentPositions();
     shape(rect1Background);
     shape(rect2Background);
-    image(icon, 50, 75);
-    image(machinePhoto, (float) width / 4 + 60, 40);
+   // image(icon, 50, 75);
+    //image(machinePhoto, (float) width / 4 + 60, 40);
 
     if (dev_mode_CB.getState(0)) {
       resetPowerAxesButton.show();
@@ -436,7 +462,6 @@ public class DepositingProcessView extends UIParameterWindow {
       homingAxisSubZButton.hide();
       homingAxisThetaButton.hide();
     }
-
   }
 
   public void setMessageError(String messageErr){
@@ -479,9 +504,37 @@ public class DepositingProcessView extends UIParameterWindow {
     updateCurrentBitData(bitsdata);
     setContinueButton(continueButtonLock);
     updateCurrentAxesPositions(AxesPositions);
+    depositedBitInterface.idUpdated(Integer.valueOf(bitsdata[0]));
   }
 
+  @Override
+  public void mouseClicked(MouseEvent e) {
+    depositedBitInterface.redraw();
+  }
 
+  @Override
+  public void mousePressed(MouseEvent e) {
+
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+
+  }
+
+  @Override
+  public void mouseEntered(MouseEvent e) {
+
+  }
+
+  @Override
+  public void mouseExited(MouseEvent e) {
+
+  }
+
+  public interface IdUpdated{
+    void idUpdated(int newId);
+  }
 
 }
 

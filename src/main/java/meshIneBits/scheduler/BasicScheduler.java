@@ -30,19 +30,20 @@
 
 package meshIneBits.scheduler;
 
-import java.util.Objects;
-import java.util.Vector;
 import javafx.util.Pair;
-import meshIneBits.Bit3D;
-import meshIneBits.Layer;
-import meshIneBits.Mesh;
-import meshIneBits.SubBit2D;
+import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
+import java.util.*;
+
+import static meshIneBits.config.CraftConfig.nbBitesBatch;
+
 public class BasicScheduler extends AScheduler {
 
+  private  ArrayList<ArrayList<Strip>> strips=new ArrayList<>();
+  private int num=0;
   public BasicScheduler() {
   }
 
@@ -86,7 +87,6 @@ public class BasicScheduler extends AScheduler {
 
   @Override
   public boolean schedule() {
-    System.out.println("Basic scheduler schedule");
     Logger.setProgress(0, this.mesh.getLayers()
         .size());
     double xMin;
@@ -108,8 +108,6 @@ public class BasicScheduler extends AScheduler {
           .size());
       i++;
     }
-    System.out.println("Basic scheduler end scheduling");
-
     int nbIrrefularBits = 0;
     for (Layer curLayer : this.mesh.getLayers()) {
       nbIrrefularBits += curLayer.getIrregularBits()
@@ -117,6 +115,10 @@ public class BasicScheduler extends AScheduler {
     }
 
     System.out.println("Number of Irregular bits in the Mesh: " + nbIrrefularBits);
+
+    mesh.setStripes(build_scheduleStrips());
+
+
     return true;
   }
 
@@ -185,6 +187,77 @@ public class BasicScheduler extends AScheduler {
     });
     return keySet;
   }
+
+
+
+
+  public ArrayList<ArrayList<Strip>> build_scheduleStrips(){
+if(!strips.isEmpty())strips.clear();
+    if (!mesh.isPaved()) {
+      return null;
+    }
+    mesh.getLayers().forEach((layer) -> {
+
+      List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
+              mesh.getScheduler().filterBits(layer.sortBits()));
+      ArrayList<Strip> layerstrips=new ArrayList<>();
+      HashSet<Bit3D> toremove=new HashSet<>();
+      Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
+
+
+      int size=bitsInCurrentLayer.size();
+
+      while(bitsInCurrentLayer.size()>0){
+
+
+// loop to find the extremist bit to left
+        TreeSet<Bit3D>tofindfirstbit=new TreeSet<>(Comparator.comparing(Bit3D::getMinX ));
+
+
+        for (Bit3D bit:bitsInCurrentLayer){
+          tofindfirstbit.add(bit);
+        }
+
+        Iterator<Bit3D>itfirst=tofindfirstbit.iterator();
+        layerstrips.add(  new Strip ((NewBit3D)itfirst.next(),layer));
+
+        for(Bit3D bit3D:bitsInCurrentLayer){
+
+          //we verify if the bit can fit in the current strip if not we create a new strip
+          if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
+                  bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
+                          + CraftConfig.workingWidth && num<nbBitesBatch)
+          {
+            layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
+            toremove.add(bit3D);
+
+
+            num++;
+
+          }
+
+
+        }
+        if(num==nbBitesBatch) {
+          num=0;
+        }
+        layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
+        bitsInCurrentLayer.removeAll(toremove);
+      }
+
+
+     if(!layerstrips.isEmpty()) {
+       strips.add(layerstrips);}
+    });
+System.out.println("Stripes number: "+strips.stream().mapToInt(ArrayList::size).sum());
+    return strips;
+
+  }
+
+
+
+
+
 
   public String toString() {
     return "Basic";

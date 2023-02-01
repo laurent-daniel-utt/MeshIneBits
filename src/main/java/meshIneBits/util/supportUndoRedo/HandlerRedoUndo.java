@@ -30,8 +30,9 @@
 package meshIneBits.util.supportUndoRedo;
 
 
-import java.util.Stack;
 import meshIneBits.gui.view2d.MeshController;
+
+import java.util.Stack;
 
 /**
  *
@@ -72,7 +73,7 @@ public class HandlerRedoUndo {
   }
 
   /**
-   * Class that create the action did by user
+   * Class that create the action done by user
    */
 
   public void addActionBit(ActionOfUser actionMoveBit) {

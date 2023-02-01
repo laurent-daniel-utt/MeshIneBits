@@ -30,15 +30,6 @@
 
 package meshIneBits.util.supportExportFile;
 
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.io.File;
-import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -48,6 +39,16 @@ import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
+
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.io.File;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * this XML tool isn't recommended to use
@@ -233,11 +234,8 @@ public class XmlTool2 {
       int endIndex = scheduler.filterBits(layer.sortBits())
           .size();
       System.out.println(startIndex + "-" + endIndex);
-      System.out.println("size of sortedBit" + scheduler.getSortedBits()
-          .size());
       List<Pair<Bit3D, Vector2>> Bits3DKeys = scheduler.getSortedBits()
           .subList(startIndex, startIndex + endIndex);
-      System.out.println("size of Bits3Dkeys: " + Bits3DKeys.size());
       Vector3 modelTranslation = part.getModel()
           .getPos();
       writer.println("	<layer>");

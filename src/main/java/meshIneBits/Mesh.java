@@ -30,22 +30,6 @@
 
 package meshIneBits;
 
-import java.awt.geom.Area;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
@@ -56,6 +40,11 @@ import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
+
+import java.awt.geom.Area;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This object is the equivalent of the piece which will be printed
@@ -72,6 +61,8 @@ public class Mesh extends Observable implements Observer, Serializable {
   private MeshEvents state;
   private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
   private String modelFile;
+  private ArrayList<ArrayList<Strip>> stripes=new ArrayList<>();
+
 
   /**
    * Set the new mesh to ready
@@ -80,7 +71,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     setState(MeshEvents.READY);
     this.scheduler.setMesh(this);
   }
-
+  public Object clone()throws CloneNotSupportedException{
+    return super.clone();
+  }
   public static Mesh open(File file) throws IOException, ClassNotFoundException {
     Logger.message("open starts");
     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -120,6 +113,15 @@ public class Mesh extends Observable implements Observer, Serializable {
     // Signal to update
     setState(MeshEvents.IMPORTED);
   }
+public ArrayList<ArrayList<Strip>> getStripes(){
+
+    return stripes;
+}
+
+  public void setStripes(ArrayList<ArrayList<Strip>> stripes) {
+    if(!this.stripes.isEmpty()) this.stripes.clear();
+    this.stripes = new ArrayList<>(stripes);
+  }
 
   /**
    * Start slicing the registered model and generating layers
@@ -154,8 +156,8 @@ public class Mesh extends Observable implements Observer, Serializable {
    *                   yet
    */
   public void pave(PatternTemplate template) throws Exception {
+    getLayers().forEach(layer -> layer.getRemovedSubBitsPositions().clear());
     pavementSafetyCheck();
-
     setState(MeshEvents.PAVING_MESH);
     // MeshEvents.PAVED_MESH will be sent in update() after receiving
     // enough signals from layers
@@ -179,8 +181,9 @@ public class Mesh extends Observable implements Observer, Serializable {
     if (state.isWorking()) {
       throw new SimultaneousOperationsException(this);
     }
-    if (!isSliced()) {
+    if (!isSliced()) {Logger.updateStatus("make sure the Mesh is Sliced");
       throw new Exception("The mesh cannot be paved until it is sliced");
+
     }
   }
 
@@ -217,7 +220,7 @@ public class Mesh extends Observable implements Observer, Serializable {
   /**
    * @return <tt>true</tt> if all {@link Layer} is paved
    */
-  public boolean isPaved() {
+  public  boolean isPaved() {
     if (state.getCode() >= MeshEvents.PAVED_MESH.getCode()) {
       return true;
     } else {
@@ -269,7 +272,6 @@ public class Mesh extends Observable implements Observer, Serializable {
    */
   public void export(File file) throws Exception {
     exportationSafetyCheck();
-
     setState(MeshEvents.EXPORTING);
     MeshXMLExporter meshXMLExporter = new MeshXMLExporter(file);
 //        Thread t = new Thread(meshXMLExporter);
@@ -541,7 +543,11 @@ public class Mesh extends Observable implements Observer, Serializable {
             .size())
         .sum();
   }
-
+  public int countBits() {
+    return layers.stream()
+            .mapToInt(layer -> layer.getBitsNb())
+            .sum();
+  }
   /**
    * In charge of paving layers sequentially
    */
@@ -574,12 +580,17 @@ public class Mesh extends Observable implements Observer, Serializable {
       for (int i = 0; i < jobsize; i++) {
         layers.get(i)
             .setPatternTemplate(patternTemplate);
+
         layers.get(i)
             .startPaver();
+
         Logger.setProgress(i + 1, jobsize);
+
       }
       Logger.updateStatus(layers.size() + " layers have been paved");
     }
+
+
   }
 
   /**
@@ -628,7 +639,15 @@ public class Mesh extends Observable implements Observer, Serializable {
         // Notify
         setChanged();
         notifyObservers(MeshEvents.PAVED_MESH);
+      /*if(WindowStatus==true) {
+        processor.onTerminated();
+        uipwAnimation.closeWindow();
+        uipwView.closeWindow();
+        uipwController.close();
+
+      }*/
       }
+
     }
   }
 
@@ -846,7 +865,7 @@ public class Mesh extends Observable implements Observer, Serializable {
   private class RegionPaver extends Observable implements Runnable {
 
     private final Layer layer;
-    private final Area region;
+    private final transient Area region;
     private final PatternTemplate patternTemplate;
 
     RegionPaver(Layer layer, Area region, PatternTemplate patternTemplate) {

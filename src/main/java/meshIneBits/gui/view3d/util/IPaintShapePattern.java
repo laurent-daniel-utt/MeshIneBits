@@ -1,10 +1,11 @@
 package meshIneBits.gui.view3d.util;
 
-import java.util.Vector;
-import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
 import meshIneBits.gui.view3d.Visualization3DConfig;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.builder.BitShape;
+import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
+
+import java.util.Vector;
 
 public interface IPaintShapePattern {
 

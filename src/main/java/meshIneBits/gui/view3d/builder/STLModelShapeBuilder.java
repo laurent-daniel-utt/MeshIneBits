@@ -1,6 +1,5 @@
 package meshIneBits.gui.view3d.builder;
 
-import java.util.Vector;
 import meshIneBits.Model;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.util.Triangle;
@@ -9,8 +8,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 
-public class STLModelShapeBuilder implements IModelShapeBuilder {
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
+public class STLModelShapeBuilder extends PApplet implements IModelShapeBuilder {
+public static CountDownLatch shaping=new CountDownLatch(1);
   public static STLModelShapeBuilder createInstance(PApplet pApplet, Model model) {
     return new STLModelShapeBuilder(pApplet, model);
   }
@@ -26,8 +28,10 @@ public class STLModelShapeBuilder implements IModelShapeBuilder {
   @Override
   public PShape buildModelShape() {
     PShape modelShape = context.createShape(PConstants.GROUP);
+
     Vector<Triangle> triangles = stlModel.getTriangles();
     for (Triangle triangle : triangles) {
+
       PShape shape = buildShapeFromTriangle(triangle);
       modelShape.addChild(shape);
     }
@@ -35,6 +39,7 @@ public class STLModelShapeBuilder implements IModelShapeBuilder {
   }
 
   private PShape buildShapeFromTriangle(Triangle triangle) {
+
     PShape face = context.createShape();
     face.setFill(context.color(
         Visualization3DConfig.MODEL_COLOR.getRed(),
@@ -42,6 +47,7 @@ public class STLModelShapeBuilder implements IModelShapeBuilder {
         Visualization3DConfig.MODEL_COLOR.getBlue()));
     face.beginShape();
     face.noStroke();
+
     for (Vector3 p : triangle.point) {
       face.vertex((float) p.x, (float) p.y, (float) p.z);
     }

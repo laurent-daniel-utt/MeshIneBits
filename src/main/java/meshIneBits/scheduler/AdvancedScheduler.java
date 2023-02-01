@@ -1,12 +1,14 @@
 package meshIneBits.scheduler;
 
-import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.NewBit2D;
 import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CustomLogger;
+
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class AdvancedScheduler extends BasicScheduler {
 
@@ -16,7 +18,8 @@ public class AdvancedScheduler extends BasicScheduler {
   @Override
   public boolean schedule() {
     boolean b = super.schedule();
-    try {
+    try { if(!subBit2Ds.isEmpty())subBit2Ds.clear();
+
       sortedBits.forEach(bit -> {
         //TODO sort subBit here
 //        ((NewBit2D) bit.getKey().getBaseBit())
@@ -29,13 +32,20 @@ public class AdvancedScheduler extends BasicScheduler {
 //              return 0;
 //            });
         subBit2Ds.addAll(((NewBit2D) bit.getKey().getBaseBit()).getValidSubBits());
+
       });
 
     } catch (ClassCastException e) {
       e.printStackTrace();
       logger.logDEBUGMessage("AdvancedScheduler is only used with newBit3D and newBit2D!");
     }
+
+    int sum= mesh.getStripes().stream().mapToInt(ArrayList::size).sum();
+
+
     logger.logDEBUGMessage("Number of subBit: " + subBit2Ds.size());
+    logger.logDEBUGMessage("Number of Stripes: "+sum );
+
     return b;
   }
 
@@ -59,7 +69,8 @@ public class AdvancedScheduler extends BasicScheduler {
       return 0;
     }
     int index = this.getIndexOfSubBit(subBit2D);
-    return index > 0 ? index / CraftConfig.nbBitesBatch : -1;
+    return index > 0 ? (index / CraftConfig.nbBitesBatch) : -1;
+   // return index > 0 ? (index / 72) : -1;
   }
 
   public int getSubBitPlate(SubBit2D subBit2D) {
@@ -79,6 +90,9 @@ public class AdvancedScheduler extends BasicScheduler {
         .get()
         .getKey();
   }
+
+
+
 
 
 }

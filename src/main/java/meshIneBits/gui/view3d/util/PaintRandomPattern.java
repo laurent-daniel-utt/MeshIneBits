@@ -1,12 +1,13 @@
 package meshIneBits.gui.view3d.util;
 
-import java.awt.Color;
+import meshIneBits.gui.view3d.builder.BitShape;
+import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
+import meshIneBits.gui.view3d.builder.SubBitShape;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
+
+import java.awt.*;
 import java.util.Random;
 import java.util.Vector;
-import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
-import meshIneBits.gui.view3d.builder.BitShape;
-import meshIneBits.gui.view3d.builder.SubBitShape;
 
 @SuppressWarnings("unused")
 public class PaintRandomPattern implements IPaintShapePattern {

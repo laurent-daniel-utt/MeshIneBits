@@ -30,19 +30,11 @@
 
 package meshIneBits.util;
 
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Vector;
-import java.util.stream.Collectors;
 import meshIneBits.config.CraftConfig;
+
+import java.awt.geom.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AreaTool {
 
@@ -493,7 +485,7 @@ public class AreaTool {
     Vector<double[]> areaPoints = new Vector<>();
 
     double[] coords = new double[6];
-    int polygonCount = 0;
+   int polygonCount = 0;
 
     for (PathIterator pi = area.getPathIterator(null); !pi.isDone(); pi.next()) {
       // The type will be SEG_LINETO, SEG_MOVETO, or SEG_CLOSE

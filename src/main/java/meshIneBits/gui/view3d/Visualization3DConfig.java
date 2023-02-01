@@ -1,13 +1,11 @@
 package meshIneBits.gui.view3d;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationMode;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationMode;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 import remixlab.dandelion.geom.Vec;
+
+import java.awt.*;
 
 public class Visualization3DConfig {
 
@@ -20,6 +18,7 @@ public class Visualization3DConfig {
   public static final int V3D_WINDOW_LOCATION_X = SCREEN_SIZE.width / 5;
   public static final int V3D_WINDOW_LOCATION_Y = 0;
   public static final Vec V3D_EYE_POSITION = new Vec(0, 1, 1);
+
   public static final int V3D_RADIUS = 2500;
   public static final int V3D_FRAMERATE = 60;
   public static final Color V3D_BACKGROUND = new Color(150, 150, 150);
@@ -54,6 +53,7 @@ public class Visualization3DConfig {
   //Shape config
   public static final Color MODEL_COLOR = new Color(219, 100, 50);
   public static final Color MESH_COLOR = new Color(112, 66, 20);
+
   public static final Color CUTTING_BIT_COLOR = new Color(49, 51, 48);
   public static final Color CUTTING_BIT_STOKE = new Color(231, 231, 18);
   public static final Color CUT_PATH_COLOR = new Color(218, 0, 0);

@@ -1,18 +1,23 @@
 package meshIneBits;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.util.Vector;
-import java.util.stream.Collectors;
 import meshIneBits.SubBit2D.SubBitBuilder;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.util.CutPathCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
-public class NewBit2D extends Bit2D {
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
-  private final Vector<SubBit2D> subBits = new Vector<>();
+public class NewBit2D extends Bit2D {
+  private Vector<SubBit2D> subBits = new Vector<>();
+  private Area areaSent;
 
   public NewBit2D(Vector2 origin, Vector2 orientation) {
     this(origin, orientation, CraftConfig.lengthFull, CraftConfig.bitWidth);
@@ -82,7 +87,6 @@ public class NewBit2D extends Bit2D {
           .build();
       subBits.add(subBit2D);
     }
-
     subBits.sort((sub1, sub2) -> {
       Vector2 lift1 = sub1.getLiftPointCB();
       Vector2 lift2 = sub2.getLiftPointCB();
@@ -102,12 +106,38 @@ public class NewBit2D extends Bit2D {
     return new Vector<>(subBits);
 
   }
+public void removeSubbit(SubBit2D sub){
+    subBits.remove(sub);
+    rebuildBit2d(this);
+  }
+
+
+  private void rebuildBit2d(Bit2D bit){
+
+    NewBit2D newbit=(NewBit2D)bit;
+    Vector<SubBit2D> subs=newbit.getValidSubBits();
+    Vector<Area> areas=new Vector<>();
+    for (SubBit2D sub:subs){
+      areas.add(sub.getAreaCB());
+    }
+    bit.setAreas(areas);
+    bit.setCutPaths(CutPathCalc.instance.calcCutPathFrom(bit));
+  }
+  public void addSubbit(SubBit2D sub){
+    subBits.add(sub);
+  }
 
   public Vector<SubBit2D> getValidSubBits() {
     return subBits.stream()
         .filter(SubBit2D::isValid)
         .collect(Collectors.toCollection(Vector::new));
   }
+  public Vector<SubBit2D> getInValidSubBits() {
+    return subBits.stream()
+            .filter(SubBit2D::isInValid)
+            .collect(Collectors.toCollection(Vector::new));
+  }
+
 
   @SuppressWarnings("unused")
   public boolean isValid() {
@@ -120,6 +150,7 @@ public class NewBit2D extends Bit2D {
     super.updateBoundaries(transformedArea);
     calcCutPath();
     buildSubBits(getAreasCB(), getCutPathsCB());
+  //Thread.dumpStack();
   }
 
   @Override
@@ -159,4 +190,21 @@ public class NewBit2D extends Bit2D {
   public void calcCutPath() {
     super.calcCutPath();
   }
+
+
+
+
+  private void writeObject(ObjectOutputStream oos) throws IOException {
+   oos.writeObject(subBits);
+  }
+
+
+  private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    this.subBits= (Vector<SubBit2D>) ois.readObject();
+    //updateBoundaries(areaSent);
+  }
+
+public void sendArea(Area a){
+    this.areaSent=a;
+}
 }

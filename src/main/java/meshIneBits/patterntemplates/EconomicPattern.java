@@ -30,17 +30,6 @@
 
 package meshIneBits.patterntemplates;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Vector;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;
@@ -51,6 +40,13 @@ import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.DetectorTool;
 import meshIneBits.util.Vector2;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.util.*;
 
 /**
  * A pattern which tries optimization not by displacing paved bits but rather right from the phase
@@ -178,6 +174,7 @@ public class EconomicPattern extends PatternTemplate {
           essay = false;
           break;
         }
+
       }
       if (essay) {
         // If we find at least one fill
@@ -188,6 +185,7 @@ public class EconomicPattern extends PatternTemplate {
         overallPavement.clear();
       }
     }
+
     // Recreate the base pavement for this layer
     if (!overallPavement.isEmpty()) {
       layersRotations.put(layerNumber, thisLayerRotation);

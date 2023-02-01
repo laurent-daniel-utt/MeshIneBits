@@ -43,19 +43,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import meshIneBits.config.patternParameter.DoubleParam;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
 
 /**
  * Build by a {@link PatternTemplate}. Literally a {@link Set} of {@link Bit2D}.
@@ -114,6 +103,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     mapBits = new HashMap<>();
     for (Bit2D bit : bits) {
       addBit(bit);
+
     }
   }
 
@@ -193,14 +183,12 @@ public class Pavement extends Observable implements Cloneable, Serializable {
    */
   public Vector2 moveBit(Vector2 key, Vector2 direction, double distance) {
     Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
-    System.out.println(key.toString());
     Vector2 translationInMesh =
         direction.rotate(bitToMove.getOrientation())
             .normal()
             .mul(distance);
     Vector2 newOrigin = bitToMove.getOriginCS()
         .add(translationInMesh);
-    System.out.println(newOrigin.toString());
     removeBit(key);
     return addBit(new NewBit2D(
         newOrigin,
@@ -209,6 +197,21 @@ public class Pavement extends Observable implements Cloneable, Serializable {
         bitToMove.getWidth()));
 //        return bitToMove;
   }
+/*
+  public Vector2 rotateBit(Vector2 key, Vector2 orientation) {
+    Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
+    System.out.println(key.toString());
+
+
+    removeBit(key);
+    return addBit(new NewBit2D(
+            bitToMove.getOriginCS(),
+            orientation,
+            bitToMove.getLength(),
+            bitToMove.getWidth()));
+
+  }*/
+
 
   /**
    * Unregister a {@link Bit2D}
@@ -219,6 +222,14 @@ public class Pavement extends Observable implements Cloneable, Serializable {
     mapBits.remove(key);
   }
 
+  public void removeSubBit(Vector2 key,SubBit2D sub){
+    NewBit2D bit =(NewBit2D)mapBits.get(key);
+    bit.removeSubbit(sub);
+  }
+  public void addSubBit(Bit2D parent,SubBit2D sub){
+    NewBit2D bit =(NewBit2D)parent;
+    bit.addSubbit(sub);
+  }
   /**
    * Get all stocked {@link Bit2D}s
    *

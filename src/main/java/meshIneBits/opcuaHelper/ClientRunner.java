@@ -1,6 +1,5 @@
 package meshIneBits.opcuaHelper;
 
-import io.netty.channel.ConnectTimeoutException;
 import meshIneBits.util.CustomLogger;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -28,8 +27,7 @@ public class ClientRunner {
   private DefaultTrustListManager trustListManager;
   private OpcUaClient client;
 
-  public ClientRunner(IClientHelper clientAction) {
-    System.out.println("in ClientRunner constructor");
+  public ClientRunner(IClientHelper clientAction)  {
     this.clientAction = clientAction;
     try {
       client = createClient();

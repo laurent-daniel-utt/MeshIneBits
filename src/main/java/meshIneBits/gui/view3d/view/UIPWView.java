@@ -1,29 +1,15 @@
 package meshIneBits.gui.view3d.view;
 
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.APPLY;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.CENTER_CAMERA;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.GRAVITY;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_X;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Y;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.POSITION_Z;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.RESET;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_X;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Y;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.ROTATION_Z;
-import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.VIEW_MESH;
-
-import controlP5.Button;
-import controlP5.ControlEvent;
-import controlP5.Textarea;
-import controlP5.Textfield;
-import controlP5.Textlabel;
-import controlP5.Toggle;
-import java.util.ArrayList;
-import java.util.Arrays;
+import controlP5.*;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
 import processing.core.PApplet;
 import processing.core.PFont;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 
 public class UIPWView extends UIParameterWindow implements
     ProcessingModelView.ModelChangesListener {

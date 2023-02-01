@@ -30,31 +30,18 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.GridLayout;
-import java.awt.HeadlessException;
-import java.awt.Window;
-import java.lang.reflect.Field;
-import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.config.CraftConfigLoader;
-import meshIneBits.config.DoubleSetting;
-import meshIneBits.config.FloatSetting;
-import meshIneBits.config.IntegerSetting;
+import meshIneBits.config.*;
 import meshIneBits.gui.utilities.IconLoader;
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
 
-class MeshSettingsWindow extends JFrame {
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.util.List;
+
+import static meshIneBits.gui.view2d.MeshController.thecontroller;
+
+class MeshSettingsWindow extends JFrame  {
 
   private final TabContentPanel bitSettingsPanel;
   private final TabContentPanel slicerSettingsPanel;
@@ -100,8 +87,10 @@ class MeshSettingsWindow extends JFrame {
     okButton.addActionListener(e -> {
       JComponent comp = (JComponent) e.getSource();
       CraftConfigLoader.saveConfig(null);
+      if(thecontroller!=null)thecontroller.callupdate();
       Window win = SwingUtilities.getWindowAncestor(comp);
       win.dispose();
+
     });
     dummy.add(okButton);
 

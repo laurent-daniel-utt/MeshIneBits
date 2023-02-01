@@ -60,6 +60,15 @@ public interface IVisualization3DProcessor {
 
   void setAnimationIndex(int i);
 
+   void incrementIndex();
+
   void setAnimationBySubBit(boolean value);
+
+  /**
+   * created by Majed
+   */
+  void exportAll();
+
+  void decrementIndex();
 }
 

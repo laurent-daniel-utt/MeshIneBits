@@ -1,11 +1,12 @@
 package meshIneBits;
 
+import meshIneBits.util.Vector2;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import meshIneBits.util.Vector2;
 
 public class NewBit3D extends Bit3D {
 
@@ -28,6 +29,21 @@ public class NewBit3D extends Bit3D {
         .filter(Objects::nonNull)
         .collect(Collectors.toCollection(Vector::new));
   }
+
+
+
+
+
+  public Vector<Vector2> getTwoExtremeXPointsCS() {
+    return getBaseBit()
+            .getSubBits()
+            .stream()
+            .map(SubBit2D::getTwoExtremeXPointsCS)
+            .flatMap(Collection::stream)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(Vector::new));
+  }
+
 
   @Override
   public List<Vector2> getLiftPointsCS() {

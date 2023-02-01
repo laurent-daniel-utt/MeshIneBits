@@ -8,6 +8,7 @@ plugins {
 
 // Define the entry point
 mainClassName = 'meshIneBits.MeshIneBitsMain'
+//mainClassName = 'meshIneBits.util.supportImportFile.DomParser'
 applicationName = 'MeshIneBits'
 def actualVersion = '0.6.0'
 

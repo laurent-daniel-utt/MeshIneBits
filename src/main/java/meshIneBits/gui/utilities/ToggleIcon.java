@@ -30,15 +30,17 @@
 
 package meshIneBits.gui.utilities;
 
+import meshIneBits.gui.view2d.MeshAction;
+import meshIneBits.gui.view2d.MeshToggleAction;
+
+import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.BorderFactory;
-import javax.swing.JToggleButton;
-import javax.swing.border.Border;
-import meshIneBits.gui.view2d.MeshAction;
-import meshIneBits.gui.view2d.MeshToggleAction;
+
+
 
 public class ToggleIcon extends JToggleButton implements PropertyChangeListener {
 

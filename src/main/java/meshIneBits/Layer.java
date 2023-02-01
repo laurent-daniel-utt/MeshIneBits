@@ -39,11 +39,7 @@ import meshIneBits.util.AreaTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
+import java.awt.geom.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -52,14 +48,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
-import meshIneBits.config.CraftConfig;
-import meshIneBits.patterntemplates.ManualPattern;
-import meshIneBits.patterntemplates.PatternTemplate;
-import meshIneBits.slicer.Slice;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.Logger;
-import meshIneBits.util.Vector2;
 
 
 /**
@@ -82,6 +70,8 @@ public class Layer extends Observable implements Serializable {
   private double lowerAltitude;
   private double higherAltitude;
 
+   private HashSet<SubBit2D>removedSubBits=new HashSet<>();
+  private HashSet<Point2D.Double>removedPositions=new HashSet<>();
 
   //    public static class AreaSerializable extends Area implements Serializable{
 //        private static final long serialVersionUID = -3627137348463415558L;
@@ -134,6 +124,8 @@ public class Layer extends Observable implements Serializable {
     oos.writeBoolean(paved);
     oos.writeDouble(lowerAltitude);
     oos.writeDouble(higherAltitude);
+    oos.writeObject(removedSubBits);
+    oos.writeObject(removedPositions);
   }
 
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
@@ -149,6 +141,8 @@ public class Layer extends Observable implements Serializable {
     this.paved = ois.readBoolean();
     this.lowerAltitude = ois.readDouble();
     this.higherAltitude = ois.readDouble();
+    this.removedSubBits= (HashSet<SubBit2D>) ois.readObject();
+    this.removedPositions= (HashSet<Point2D.Double>) ois.readObject();
   }
 
   public static class SerializeArea {
@@ -184,10 +178,27 @@ public class Layer extends Observable implements Serializable {
   }
 
 
+  public HashSet<SubBit2D>getRemovedSubBits(){
+    return removedSubBits;
+  }
+  public HashSet<Point2D.Double> getRemovedSubBitsPositions(){
+    return removedPositions;
+  }
+  public void addRemovedSubBit(SubBit2D sub){
+    removedSubBits.add(sub);
+
+  }
+  public void  setRemovedSubBits(HashSet<SubBit2D> set){
+    removedSubBits=new HashSet<>(set);
+  }
+  public void setRemovedSubBitsPositions(HashSet<Point2D.Double> set){
+    removedPositions=new HashSet<>(set);
+  }
   /**
    * Rebuild the whole layer. To be called after overall changes made on this {@link Layer}
    */
   public void rebuild() {
+
     flatPavement.computeBits(horizontalArea);
     extrudeBitsTo3D();
     findKeysOfIrregularBits();
@@ -215,6 +226,7 @@ public class Layer extends Observable implements Serializable {
    * @since 0.3
    */
   private void extrudeBitsTo3D() {
+
     mapBits3D = flatPavement.getBitsKeys()
         .parallelStream()
         .collect(Collectors.toConcurrentMap(key -> key,
@@ -244,7 +256,29 @@ public class Layer extends Observable implements Serializable {
     }
     return new Vector<>(mapBits3D.keySet());
   }
+  public Vector2 getKey(Bit2D bit){
+    for (Vector2 key : flatPavement.getBitsKeys()) {
+      if (flatPavement.getBit(key)==bit){
 
+        return key;
+      }
+
+  }
+  return null;
+  }
+
+
+
+  public int getBitsNb(){
+    if (mapBits3D == null) {return 0; }
+    else {
+
+
+      return mapBits3D.size();
+    }
+
+
+  }
   /**
    * Construct new empty layer. No {@link PatternTemplate}, no {@link Pavement}
    *
@@ -283,6 +317,8 @@ public class Layer extends Observable implements Serializable {
         }
       }
     }
+
+
     keySet.sort((v1, v2) -> {
       if (Double.compare(v1.getValue().y, v2.getValue().y) == 0) {
         return Double.compare(v1.getValue().x, v2.getValue().x);
@@ -290,6 +326,7 @@ public class Layer extends Observable implements Serializable {
         return Double.compare(v1.getValue().y, v2.getValue().y);
       }
     });
+
     return keySet;
 //    return mapBits3D.values().stream().sorted((bit1, bit2) -> {
 //      Vector2 v1 = bit1.getOrigin();
@@ -322,6 +359,18 @@ public class Layer extends Observable implements Serializable {
         .collect(Collectors.toCollection(Vector::new));
   }
 
+
+  public Vector<SubBit2D> getSubBits() {
+    Vector<SubBit2D> keySet = new Vector<>();
+    if (mapBits3D == null) {
+      return keySet;
+    }
+    return mapBits3D.values()
+            .stream()
+            .map(Bit3D::getSubBits)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(Vector::new));
+  }
 
   /**
    * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of {@link Bit2D} and decide
@@ -424,6 +473,10 @@ public class Layer extends Observable implements Serializable {
       distance = CraftConfig.lengthFull / 2;
     }
     Vector2 newCoordinate = flatPavement.moveBit(bit3D.getOrigin(), direction, distance);
+
+
+
+    /*
     rebuild(newCoordinate);
     setChanged();
     notifyObservers(new M(
@@ -434,7 +487,7 @@ public class Layer extends Observable implements Serializable {
             M.NEW_BIT,
             getBit3D(newCoordinate)
         )
-    ));
+    ));*/
     return newCoordinate;
   }
 
@@ -445,7 +498,7 @@ public class Layer extends Observable implements Serializable {
    * @param direction chosen way
    * @return list of new origins' position
    */
-  public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
+ public Set<Vector2> moveBits(Set<Bit3D> bits, Vector2 direction) {
     // Calculate travel distance
     double distance = 0;
     if (direction.x == 0) {// up or down
@@ -460,6 +513,7 @@ public class Layer extends Observable implements Serializable {
         .map(bit -> flatPavement.moveBit(bit.getOrigin(), direction, finalDistance))
         .collect(Collectors.toSet());
 
+
     // Remove old bits
     removeBits(
         bits.stream()
@@ -473,6 +527,7 @@ public class Layer extends Observable implements Serializable {
     for (Vector2 pos : new HashSet<>(newPositions)) {
       Bit2D bit2D = flatPavement.getBit(pos);
       Area a = getInteriorArea(bit2D);
+
       if (a == null) {
         flatPavement.removeBit(pos);
         newPositions.remove(pos);
@@ -498,6 +553,8 @@ public class Layer extends Observable implements Serializable {
     return newPositions;
   }
 
+
+
   /**
    * @param key bit origin in 2D plan
    * @return extruded version of bit 2D
@@ -518,6 +575,7 @@ public class Layer extends Observable implements Serializable {
    */
   public void removeBit(Vector2 key, boolean b) {
     Bit3D oldBit = getBit3D(key);
+
     flatPavement.removeBit(key);
     mapBits3D.remove(key);
     irregularBits.remove(key);
@@ -532,7 +590,33 @@ public class Layer extends Observable implements Serializable {
       ));
     }
   }
+  public void removeSubBit(Vector2 key,SubBit2D sub, boolean b) {
+    Bit3D oldBit = getBit3D(key);
+    flatPavement.removeSubBit(key, sub);
+   // mapBits3D.remove(key);
+   // irregularBits.remove(key);
+    if (b) {
+      setChanged();
+      notifyObservers(new M(
+              M.LAYER_REMOVED_BIT,
+              M.map(
+                      M.OLD_BIT,
+                      oldBit
+              )
+      ));
+    }
+  }
+  public void removeSubbits(Set<SubBit2D> subs){
+    subs.forEach(sub->removeSubBit(getKey(sub.getParentBit()),sub,true));
+  }
 
+  public void addSubBit(Bit2D parent,SubBit2D sub) {
+  //  Bit3D oldBit = getBit3D(key);
+    flatPavement.addSubBit(parent, sub);
+    // mapBits3D.remove(key);
+    // irregularBits.remove(key);
+
+  }
   /**
    * Remove multiple bits
    *

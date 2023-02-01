@@ -11,6 +11,13 @@ public class CuttingMachineSimulator extends CuttingMachineOPCUAHelper {
   private MultiThreadServiceExecutor executor = MultiThreadServiceExecutor.instance;
   private CuttingIncreaseTask task = new CuttingIncreaseTask();
 
+  public CuttingMachineSimulator() throws Exception {
+  }
+
+  public CuttingMachineSimulator(ROBOT robot) throws Exception {
+    super(robot);
+  }
+
   @Override
   public ICustomResponse startMachine() {
     task.activate(true);

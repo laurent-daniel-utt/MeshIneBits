@@ -1,36 +1,44 @@
 package meshIneBits.gui.view3d.Processor;
 
-import java.util.Vector;
-import java.util.function.Consumer;
 import meshIneBits.Mesh;
 import meshIneBits.gui.view3d.Processor.DisplayState.State;
 import meshIneBits.gui.view3d.Visualization3DConfig;
-import meshIneBits.gui.view3d.animation.AnimationProcessor;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationMode;
-import meshIneBits.gui.view3d.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.IModel3DProvider;
 import meshIneBits.gui.view3d.util.ModelRotationUtil;
 import meshIneBits.gui.view3d.util.ModelScaleUtil;
 import meshIneBits.gui.view3d.util.ModelTranslationUtil;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationMode;
+import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.view.AbstractVisualization3DView;
 import processing.core.PShape;
 import remixlab.dandelion.geom.Vec;
 
+import java.util.Vector;
+import java.util.function.Consumer;
+
 public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
 
-  private final AbstractVisualization3DView view3D;
-  private final IModel3DProvider modelProvider;
-  private final AnimationProcessor animation;
-  private final OperationModel modelView;
-  private final DisplayState state;
+  private  final AbstractVisualization3DView view3D;
+ // private final IModel3DProvider modelProvider;
+ private  IModel3DProvider modelProvider;
+//private static IModel3DProvider modelProvider;
+  // private final AnimationProcessor animation;
+ private  AnimationProcessor animation;
+  private  final OperationModel modelView;
+ // private final DisplayState state;
+ private  DisplayState state;
+  public static AnimationOption option;
   //  private MultiThreadServiceExecutor executor = MultiThreadServiceExecutor.instance;
 
   public BaseVisualization3DProcessor(Mesh mesh, AbstractVisualization3DView view3D) {
-    this.view3D = view3D;
+   this.view3D = view3D;
     modelView = new OperationModel(mesh.getModel(), view3D.getFrame());
-    modelProvider = IModel3DProvider.createDefaultInstance(view3D, mesh.getModel(), mesh);
+
+   //FIXME this line below is causing odd behaviours for the bits when refreshing
+            modelProvider = IModel3DProvider.createDefaultInstance(view3D, mesh.getModel(), mesh);
 
     if (modelProvider instanceof IAssemblyWorkingSpaceProvider
         && modelProvider instanceof IAnimationModel3DProvider) {
@@ -43,6 +51,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
 
     state = new DisplayState();
     initState(mesh);
+
   }
 
   private void initState(Mesh mesh) {
@@ -146,6 +155,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationBySubBit(boolean boo) {
     if (boo) {
       animation.setAnimationOption(AnimationOption.BY_SUB_BIT);
+    option=AnimationOption.BY_SUB_BIT;
     }
   }
 
@@ -153,6 +163,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationByBit(boolean boo) {
     if (boo) {
       animation.setAnimationOption(AnimationOption.BY_BIT);
+      option=AnimationOption.BY_BIT;
     }
   }
 
@@ -160,6 +171,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationByBatch(boolean boo) {
     if (boo) {
       animation.setAnimationOption(AnimationOption.BY_BATCH);
+      option=AnimationOption.BY_BATCH;
     }
 
   }
@@ -168,6 +180,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationByLayer(boolean boo) {
     if (boo) {
       animation.setAnimationOption(AnimationOption.BY_LAYER);
+    option=AnimationOption.BY_LAYER;
     }
   }
 
@@ -187,15 +200,25 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
 
   @Override
   public void export() {
+
     view3D.export();
+
+
   }
 
+  /**
+   * Export obj files for the simulation
+   */
+  public void exportAll() {
+    view3D.exportAll();
+  }
   @Override
   public void activateAnimation() {
     state.setState(State.ANIMATION_VIEW);
     //TODO update index of slider
     Consumer<Vector<PShape>> c = view3D::setDisplayShapes;
     animation.activate(c);
+
   }
 
   @Override
@@ -250,4 +273,14 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public void setAnimationIndex(int i) {
     animation.setAnimationIndex(i);
   }
+    @Override
+ public void incrementIndex(){
+
+      animation.incrementIndex();
+ }
+    @Override
+    public void decrementIndex(){
+
+        animation.decrementIndex();
+    }
 }

@@ -29,26 +29,12 @@
 
 package meshIneBits.gui.view3d.oldversion;
 
-import static remixlab.bias.BogusEvent.CTRL;
-import static remixlab.proscene.MouseAgent.LEFT_CLICK_ID;
-import static remixlab.proscene.MouseAgent.RIGHT_CLICK_ID;
-import static remixlab.proscene.MouseAgent.WHEEL_ID;
-
 import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import controlP5.ControlP5;
 import controlP5.Textlabel;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.lang.reflect.InvocationTargetException;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
@@ -56,12 +42,8 @@ import meshIneBits.Mesh;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
-import meshIneBits.gui.view3d.animation.AnimationIndexIncreasedListener;
-import meshIneBits.gui.view3d.view.UIPWAnimation;
-import meshIneBits.gui.view3d.view.UIPWController;
-import meshIneBits.gui.view3d.view.UIPWListener;
-import meshIneBits.gui.view3d.view.UIPWView;
-import meshIneBits.gui.view3d.view.UIParameterWindow;
+import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
+import meshIneBits.gui.view3d.view.*;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
@@ -74,6 +56,18 @@ import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
+
+import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
+
+import static remixlab.bias.BogusEvent.CTRL;
+import static remixlab.proscene.MouseAgent.*;
 
 
 /**

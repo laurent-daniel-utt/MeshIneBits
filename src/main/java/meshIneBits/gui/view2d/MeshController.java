@@ -30,34 +30,7 @@
 
 package meshIneBits.gui.view2d;
 
-import java.awt.Shape;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.stream.Collectors;
-import meshIneBits.Bit2D;
-import meshIneBits.Bit3D;
-import meshIneBits.Layer;
-import meshIneBits.M;
-import meshIneBits.Mesh;
-import meshIneBits.MeshEvents;
-import meshIneBits.NewBit2D;
-import meshIneBits.Pavement;
+import meshIneBits.*;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.debug.drawDebug;
 import meshIneBits.config.CraftConfig;
@@ -68,25 +41,34 @@ import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
-import meshIneBits.util.AreaTool;
-import meshIneBits.util.CustomLogger;
-import meshIneBits.util.DetectorTool;
-import meshIneBits.util.ITheardServiceExecutor;
-import meshIneBits.util.Logger;
-import meshIneBits.util.MultiThreadServiceExecutor;
-import meshIneBits.util.OptimizedMesh;
-import meshIneBits.util.SimultaneousOperationsException;
-import meshIneBits.util.Vector2;
+import meshIneBits.util.*;
 import meshIneBits.util.supportUndoRedo.ActionOfUserMoveBit;
 import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
+
+import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
 
 /**
  * Observes the {@link Mesh} and {@link Layer}s. Observed by {@link MeshWindowCore} and {@link
  * ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer,
+public class MeshController extends Observable implements Observer ,
     HandlerRedoUndo.UndoRedoListener {
 
   public static final String SHOW_SLICE = "showSlice";
@@ -99,6 +81,8 @@ public class MeshController extends Observable implements Observer,
   public static final String SELECTING_REGION = "selectingRegion";
   public static final String SETTING_LAYER = "settingLayer";
 
+  public static final String MANIPULATNG_BIT   = "manipulateBit";
+
   public static final String MESH_SLICED = "meshSliced";
   public static final String MESH_OPENED = "meshOpened";
   public static final String LAYER_CHOSEN = "layerChosen";
@@ -110,8 +94,14 @@ public class MeshController extends Observable implements Observer,
   public static final String BIT_SELECTED = "bitSelected";
   public static final String BITS_SELECTED = "bitsSelected";
   public static final String DELETING_BITS = "deletingBits";
+  public static final String DELETING_SUBBITS="deletingSubBits";
+
+  public boolean manipulating=false;
+  public static final String SUBBITS_DELETED="deletedSubBits";
   public static final String BITS_DELETED = "deletedBits";
 
+  public static final String SubBIT_UNSELECTED="subBitUnSelected";
+  public static final String SubBIT_SELECTED="subBitSelected";
   // New bit config
   private final DoubleParam newBitsLengthParam = new DoubleParam(
       "newBitLength",
@@ -130,11 +120,24 @@ public class MeshController extends Observable implements Observer,
       "Bit orientation",
       "Angle of bits in respect to that of layer",
       -180.0, 180.0, 0.0, 0.01);
+  private final DoubleParam bitsrotater = new DoubleParam(
+          "newBitsOrientation",
+          "SelectedBits orientation",
+          "Angle of Rotatedbits in respect to that of layer",
+          -180.0, 180.0, 0.0, 0.01);
+
+  private final DoubleParam bitsInverser = new DoubleParam(
+          "bit inverser",
+          "bitInversion",
+          "inversing reversed bits",
+          -180.0, 180.0, 0.0, 0.01);
+
   private final DoubleParam safeguardSpaceParam = new DoubleParam(
       "safeguardSpace",
       "Space around bit",
       "In order to keep bits not overlapping or grazing each other",
-      1.0, 10.0, 3.0, 0.01);
+      1.0, 10.0, CraftConfig.safeguardSpaceParam, 0.01);
+
   private final BooleanParam autocropParam = new BooleanParam(
       "autocrop",
       "Auto crop",
@@ -159,6 +162,11 @@ public class MeshController extends Observable implements Observer,
   private Mesh mesh;
   private int layerNumber = -1;
   private Set<Vector2> selectedBitKeys = new HashSet<>();
+  private Set<Vector2> selectedBitKeysOfSubbit = new HashSet<>();
+
+  private Set<SubBit2D> selectedsubBit = new HashSet<>();
+  private Set<SubBit2D> selectedsubBitMemory = new HashSet<>();
+
   private Layer currentLayer = null;
   private double zoom = 1;
   private boolean showSlice = true;
@@ -168,6 +176,9 @@ public class MeshController extends Observable implements Observer,
   private boolean showIrregularBits = false;
   private boolean addingBits = false;
   private boolean showBitNotFull = false;
+  public static MeshController thecontroller=null;
+
+
   /**
    * In {@link Mesh}'s coordinate system
    */
@@ -198,9 +209,11 @@ public class MeshController extends Observable implements Observer,
    *
    */
   private ITheardServiceExecutor serviceExecutor = MultiThreadServiceExecutor.instance;
-
+public static AtomicBoolean Paved=new AtomicBoolean(false);
+public static CountDownLatch r=new CountDownLatch(1);
   MeshController(MeshWindow meshWindow) {
     this.meshWindow = meshWindow;
+  thecontroller=this;
   }
 
   public boolean isFullLength() {
@@ -214,6 +227,7 @@ public class MeshController extends Observable implements Observer,
   public Mesh getMesh() {
     return mesh;
   }
+
 
   public void setMesh(Mesh mesh) {
     this.mesh = mesh;
@@ -255,7 +269,6 @@ public class MeshController extends Observable implements Observer,
         case IMPORTING:
           break;
         case IMPORTED:
-          //meshWindow.getView3DWindow().setCurrentMesh(mesh);
           MeshProvider.getInstance()
               .setMesh(mesh);
           break;
@@ -280,6 +293,9 @@ public class MeshController extends Observable implements Observer,
           checkEmptyLayers();
           setChanged();
           notifyObservers(MeshEvents.PAVED_MESH);
+
+          if (WindowStatus==2)r.countDown();
+          Paved.set(true);
           // Notify property panel
           changes.firePropertyChange(MESH_PAVED, null, mesh);
           changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
@@ -343,7 +359,7 @@ public class MeshController extends Observable implements Observer,
     }
   }
 
-  private void updateAvailableArea() {
+ /* private void updateAvailableArea() {
     availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
     Pavement pavement = getCurrentLayer().getFlatPavement();
     if (pavement == null) {
@@ -357,6 +373,24 @@ public class MeshController extends Observable implements Observer,
                 safeguardSpaceParam.getCurrentValue())
         ));
   }
+*/
+
+  public void callupdate(){
+    if(availableArea!=null)updateAvailableArea();
+  }
+ private  void updateAvailableArea() {
+   availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
+   Pavement pavement = getCurrentLayer().getFlatPavement();
+   if (pavement == null) {
+     return; // Empty layer
+   }
+   getCurrentLayer().getSubBits()
+           .forEach(sub -> availableArea.subtract(
+                   AreaTool.expand(
+                          sub.getAreaCS(),CraftConfig.safeguardSpaceParam)
+           ));
+ }
+
 
   public void setLayer(int layerNum) {
     if (mesh == null) {
@@ -450,13 +484,31 @@ public class MeshController extends Observable implements Observer,
     setChanged();
     notifyObservers();
   }
-
+  public void setSelectedSubBit(Set<SubBit2D> newSelectedSubs) {
+    selectedsubBit.clear();
+    if (newSelectedSubs != null) {
+      selectedsubBit.addAll(newSelectedSubs);
+      selectedsubBit.removeIf(Objects::isNull);
+    }
+    // Notify property panel
+    //changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
+    // Notify the core to repaint
+    setChanged();
+    notifyObservers();
+  }
   public Set<Bit3D> getSelectedBits() {
     return selectedBitKeys.stream()
         .map(getCurrentLayer()::getBit3D)
         .collect(Collectors.toSet());
   }
-
+  public Set<Bit3D> getSelectedBitsforSubBits() {
+    return selectedBitKeysOfSubbit.stream()
+            .map(getCurrentLayer()::getBit3D)
+            .collect(Collectors.toSet());
+  }
+  public Set<SubBit2D> getSelectedSubBits() {
+    return selectedsubBit;
+  }
 
   /**
    * Restore a mesh into working space
@@ -560,6 +612,7 @@ public class MeshController extends Observable implements Observer,
     CraftConfigLoader.saveConfig(null);
     serviceExecutor.execute(() -> {
       try {
+
         mesh.pave(patternTemplate);
       } catch (Exception e) {
         e.printStackTrace();
@@ -568,6 +621,11 @@ public class MeshController extends Observable implements Observer,
 //        mesh.pave(patternTemplate);
   }
 
+
+
+  public PropertyChangeSupport getChanges(){
+    return changes;
+  }
   public void deleteSelectedBits() {
     //save action before doing
     if (Acquisition.isStoringNewBits()) { //if AI is storing new examples bits, we send the bit to it
@@ -575,27 +633,91 @@ public class MeshController extends Observable implements Observer,
     }
     Set<Vector2> previousKeys = new HashSet<>(this.getSelectedBitKeys());
     Set<Bit3D> bit3DSet = this.getSelectedBits();
-    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(null,bit3DSet, previousKeys, null, null,
         this.getCurrentLayer().getLayerNumber()));
 
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(selectedBitKeys, true);
     selectedBitKeys.clear();
-    getCurrentLayer().rebuild();
+
+    //TODO verify if putting this rebuild in comment will affect anything
+   // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
+
+
+
+
+
+
+  public void deleteSelectedSubBits() {
+    //save action before doing
+    Set<Vector2> previousKeys = new HashSet<>(this.selectedBitKeysOfSubbit);
+    Set<Bit3D> bit3DSet = this.getSelectedBitsforSubBits();
+
+   // handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(bit3DSet, previousKeys, null, null,
+     //       this.getCurrentLayer().getLayerNumber()));
+
+    handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(selectedsubBit,null, null, null, null,
+            this.getCurrentLayer().getLayerNumber()));
+    changes.firePropertyChange(DELETING_SUBBITS, null, getSelectedBits());
+    selectedsubBit.forEach(subBit2D -> subBit2D.setRemoved(true));
+    selectedsubBitMemory.addAll(selectedsubBit);
+    getCurrentLayer().setRemovedSubBits((HashSet<SubBit2D>) selectedsubBitMemory);
+    selectedsubBit.forEach(subBit2D -> getCurrentLayer().removeSubBit(getCurrentLayer().getKey(subBit2D.getParentBit()),subBit2D,true));
+    selectedBitKeysOfSubbit.clear();
+    selectedsubBit.clear();
+    //getCurrentLayer().rebuild();
+    setChanged();
+    notifyObservers();
+    changes.firePropertyChange(SUBBITS_DELETED, null, getCurrentLayer());
+  }
+
+
+
+public void deleteSubbits(Set<SubBit2D> subs){
+    getCurrentLayer().removeSubbits(subs);
+  selectedsubBitMemory.addAll(subs);
+  getCurrentLayer().getRemovedSubBits().addAll(subs);
+  }
+
+
+
+
 
   public void deleteBitsByBitsAndKeys(Set<Bit3D> bit3DSet, Set<Vector2> keys) {
     setSelectedBitKeys(keys);
     changes.firePropertyChange(DELETING_BITS, null, getSelectedBits());
     getCurrentLayer().removeBits(getSelectedBitKeys(), true);
     selectedBitKeys.clear();
-    getCurrentLayer().rebuild();
+    //TODO verify if putting this rebuild in comment will affect anything
+    // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
+  }
+  public void deleteBitsByKeys( Set<Vector2> keys) {
+    getCurrentLayer().removeBits(keys, true);
+    keys.clear();
   }
 
   public void incrementBitsOrientationParamBy(double v) {
     newBitsOrientationParam.incrementBy(v, true);
+    setChanged();
+    notifyObservers();
+  }
+
+  public void incrementSelectedBitsOrientationParamBy(double v) {
+    bitsrotater.incrementBy(v, true);
+    setChanged();
+    notifyObservers();
+  }
+  public void inverserIncrementation(double v) {
+    bitsInverser.incrementBy(v, true);
+    setChanged();
+    notifyObservers();
+  }
+
+
+  public void updateCore(){
     setChanged();
     notifyObservers();
   }
@@ -620,16 +742,28 @@ public class MeshController extends Observable implements Observer,
     return a;
   }
 
+
+
+
   private void calcBitFullLengthOrNormal(Area a) {
     fullLength = (Bit2D.checkSectionHoldingToCut(
         new Vector2(currentPoint.getX(), currentPoint.getY()),
         Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue()), a));
   }
 
+  public DoubleParam getBitsInverser() {
+    return bitsInverser;
+  }
+
   /**
+   * this method is used in 4 cases to add a new bit, with manual pattern, when rotating a bit, when moving a bit and when manipulating
+   * a bit (using the manipulating button), all these four functionalities use the same algorithm but with few differences.
    * @param position in {@link Mesh}'s coordinate system
+   * @param neworigin the new origin of the moved bit (using the blue arrows)
+   * @param orientation the new orientation of the rotating bit (using ctrl+mouse wheel)
+   * @param rotating true when we rotated a bit (ctrl+mouse wheel), false if not
    */
-  public void addNewBitAt(Point2D.Double position) {
+  public void addNewBitAt(Point2D.Double position,boolean rotating,Vector2 orientation,Vector2 neworigin) {
     if (mesh == null
         || getCurrentLayer().getFlatPavement() == null
         || position == null
@@ -642,8 +776,15 @@ public class MeshController extends Observable implements Observer,
         && prohibitAddingIrregularBitParam.getCurrentValue()) {
       return;
     }
-    Vector2 lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());
-    Vector2 origin = new Vector2(position.x, position.y);
+    Vector2 lOrientation;
+    // when this method is used by the manual pattern
+    if(!rotating && neworigin==null){  lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());}
+   // when this method is used to add a bit after rotating a bit
+    else if(rotating){ lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
+   // when this method is used after moving a bit
+    else { lOrientation=orientation;}
+    Vector2 origin;
+    origin= new Vector2(position.x, position.y);
     //save origin of new bit
     Set<Vector2> resultKey = new HashSet<>();
     resultKey.add(origin);
@@ -668,7 +809,11 @@ public class MeshController extends Observable implements Observer,
     }
     this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey, this.getSelectedBits(),
         getCurrentLayer().getLayerNumber()));
+    selectedBitKeys.clear();
   }
+
+
+
 
   public void addBit3Ds(Collection<Bit3D> bits3d) {
     for (Bit3D bit3d : bits3d) {
@@ -678,7 +823,15 @@ public class MeshController extends Observable implements Observer,
     }
   }
 
-
+  public void addSubBit3Ds(Collection<SubBit2D> subs) {
+    for (SubBit2D sub : subs) {
+      sub.setRemoved(false);
+      getCurrentLayer().addSubBit(sub.getParentBit(), sub);
+    HashSet<SubBit2D> newRemovedsubs=new HashSet<>();
+    }
+    selectedsubBitMemory.removeAll(subs);
+    getCurrentLayer().getRemovedSubBits().removeAll(subs);
+  }
   /**
    * @param position in {@link Mesh} coordinate system
    * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
@@ -692,6 +845,16 @@ public class MeshController extends Observable implements Observer,
         return key;
       }
     }
+    return null;
+  }
+
+  private SubBit2D findSubBitAt(Point2D.Double position){
+  HashSet<SubBit2D>subbits=new HashSet<>(getCurrentLayer().getSubBits());
+         for(SubBit2D sub:subbits){
+           if(sub.getAreaCS().contains(position)){
+             return sub;
+           }
+         }
     return null;
   }
 
@@ -737,6 +900,11 @@ public class MeshController extends Observable implements Observer,
     return newBitsOrientationParam;
   }
 
+  public  DoubleParam getBitsrotater(){
+
+    return  bitsrotater;
+  }
+
   public DoubleParam getSafeguardSpaceParam() {
     return safeguardSpaceParam;
   }
@@ -772,12 +940,22 @@ public class MeshController extends Observable implements Observer,
       return;
     }
     Pavement flatPavement = getCurrentLayer().getFlatPavement();
-    for (Vector2 key : flatPavement.getBitsKeys()) {
-      if (bulkSelectZone.contains(flatPavement.getBit(key)
+    for (Vector2 key : flatPavement.getBitsKeys()) {NewBit2D bit=(NewBit2D)flatPavement.getBit(key);
+     for(SubBit2D sub:bit.getSubBits()){
+       if (bulkSelectZone.contains(sub
+               .getAreaCS()
+               .getBounds2D()) && !sub.isRemoved()) {
+         selectedBitKeys.add(key);
+       }
+
+     }
+
+
+    /*  if (bulkSelectZone.contains(flatPavement.getBit(key)
           .getAreaCS()
           .getBounds2D())) {
         selectedBitKeys.add(key);
-      }
+      }*/
     }
     clearBulkSelect();
     changes.firePropertyChange(BITS_SELECTED, null, getSelectedBits());
@@ -996,6 +1174,27 @@ public class MeshController extends Observable implements Observer,
       case ADDING_BITS:
         setAddingBits(!isAddingBits());
         break;
+      case MANIPULATNG_BIT:
+        if(selectedBitKeys.size()==1){
+          manipulating=true;
+          deleteSelectedBits();
+          setAddingBits(true);
+        }
+        else {if(!manipulating)Logger.error("you have to select a bit");
+          manipulating=false;
+          setAddingBits(false);
+          if(selectedBitKeys.size()>1)Logger.error("you have to select only one bit");
+          Thread t=new Thread(() -> {
+            try {
+              Thread.sleep(3000);
+            } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+            }
+            Logger.updateStatus(null);
+          });
+          t.start();
+        }
+        break;
       case SELECTING_REGION:
         setSelectingRegion(!isSelectingRegion());
         break;
@@ -1133,19 +1332,42 @@ public class MeshController extends Observable implements Observer,
   }
 
   public void moveSelectedBits(Vector2 direction) {
-    // Save before doing
+   /* // Save before doing
     Set<Bit3D> cloned = getSelectedBits();
     Set<Vector2> previousSelectedBits = new HashSet<>(this.getSelectedBitKeys());
     //move bits
-    setSelectedBitKeys(getCurrentLayer().moveBits(getSelectedBits(), direction));
-    Set<Bit3D> bits3D = this.getSelectedBits();
+   */
+ /*Iterator<Bit3D> it=getSelectedBits().iterator();
+    Bit3D bitToMove=it.next();
+     getCurrentLayer().moveBit(bitToMove, direction);
+
+    double distance = 0;
+    if (direction.x == 0) {// up or down
+      distance = CraftConfig.bitWidth / 2;
+    } else if (direction.y == 0) {// left or right
+      distance = CraftConfig.lengthFull / 2;
+    }
+Bit2D bitToMove2D=bitToMove.getBaseBit();
+
+    Vector2 translationInMesh =
+            direction.rotate(bitToMove2D.getOrientation())
+                    .normal()
+                    .mul(distance);
+    Vector2 newOrigin = bitToMove2D.getOriginCS()
+            .add(translationInMesh);*/
+
+
+  /*  Set<Bit3D> bits3D = this.getSelectedBits();
     //Save after moved
     Set<Vector2> resultKeys = new HashSet<>(getSelectedBitKeys());
     //create new ActionMoveBit for save action
     this.handlerRedoUndo.addActionBit(
         new ActionOfUserMoveBit(cloned, previousSelectedBits, resultKeys, bits3D,
             getCurrentLayer().getLayerNumber()));
-  }
+*/  }
+
+
+
 
   /**
    * Add new bit key to {@link #selectedBitKeys} and remove if already present
@@ -1154,7 +1376,8 @@ public class MeshController extends Observable implements Observer,
    */
   public void toggleInclusionOfBitHaving(Point2D.Double clickSpot) {
     Vector2 bitKey = findBitAt(clickSpot);
-    if (mesh == null || !mesh.isPaved() || bitKey == null) {
+    SubBit2D sub=findSubBitAt(clickSpot);
+    if (mesh == null || !mesh.isPaved() || bitKey == null || sub==null) {
       return;
     }
     if (!selectedBitKeys.add(bitKey)) {
@@ -1167,6 +1390,27 @@ public class MeshController extends Observable implements Observer,
     setChanged();
     notifyObservers();
   }
+
+  public void toggleInclusionOfSubBitHaving(Point2D.Double clickSpot) {
+    SubBit2D subBit=findSubBitAt(clickSpot);
+    Vector2 bitKey = findBitAt(clickSpot);
+    if (mesh == null || !mesh.isPaved() || subBit == null) {
+      return;
+    }
+    if (selectedsubBit.contains(subBit)) {
+       selectedBitKeysOfSubbit .remove(bitKey);
+      selectedsubBit.remove(subBit);
+      changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
+    } else {
+      selectedBitKeysOfSubbit.add(bitKey);
+      selectedsubBit.add(subBit);
+      changes.firePropertyChange(SubBIT_SELECTED, null, subBit);
+    }
+    // Notify the core
+    setChanged();
+    notifyObservers();
+  }
+
 
   /**
    * Call to back to step previous
@@ -1201,6 +1445,8 @@ public class MeshController extends Observable implements Observer,
     resetMesh();
     layerNumber = -1;
     selectedBitKeys.clear();
+    selectedsubBit.clear();
+    selectedsubBitMemory.clear();
     zoom = 1;
     showSlice = true;
     showLiftPoints = false;

@@ -31,6 +31,7 @@
 package meshIneBits.util.supportUndoRedo;
 
 import meshIneBits.Bit3D;
+import meshIneBits.SubBit2D;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.gui.view2d.MeshController;
 import meshIneBits.util.Vector2;
@@ -52,9 +53,14 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
     private Set<Bit3D> currentSelectedBits;
     private int layerNum;
     private Set<Vector2> previousSelectedBits =new HashSet<>();
+    private Set<SubBit2D> previousStateSubs ;
 
 
-    public ActionOfUserMoveBit(Set<Bit3D> previousState, Set<Vector2> previousSelectedBits, Set<Vector2> resultKeys, Set<Bit3D> currentSelectedBits, int layerNumber) {
+    public ActionOfUserMoveBit(Set<SubBit2D> previousStateSubs, Set<Bit3D> previousState, Set<Vector2> previousSelectedBits, Set<Vector2> resultKeys, Set<Bit3D> currentSelectedBits, int layerNumber) {
+
+        if(previousStateSubs!=null){
+            this.previousStateSubs = new HashSet<>(previousStateSubs);
+        }
         if(previousState!=null){
             this.previousState = new HashSet<>(previousState);
         }
@@ -70,7 +76,7 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
         this.layerNum=layerNumber;
     }
     public ActionOfUserMoveBit(Set<Vector2> resultKeys, Set<Bit3D> currentSelectedBits, int layerNum){
-        this(null,null,resultKeys,currentSelectedBits,layerNum);
+        this(null,null,null,resultKeys,currentSelectedBits,layerNum);
     }
 
     public Collection<Vector2> getResultKeys() {
@@ -96,6 +102,13 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
             meshController.addBit3Ds(this.previousState);
             meshController.setSelectedBitKeys(this.previousSelectedBits);
         }
+        if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
+            //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
+            meshController.addSubBit3Ds(this.previousStateSubs);
+            //meshController.setSelectedSubBit(this.previousStateSubs);
+        }
+
+
     }
 
     @Override
@@ -114,5 +127,12 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
             meshController.addBit3Ds(this.currentSelectedBits);
             meshController.setSelectedBitKeys(this.resultKeys);
         }
+
+        if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
+            //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
+            meshController.deleteSubbits(this.previousStateSubs);
+            //meshController.setSelectedBitKeys(this.previousSelectedBits);
+        }
+
     }
 }
