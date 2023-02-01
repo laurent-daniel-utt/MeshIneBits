@@ -28,7 +28,6 @@ public class ClientRunner {
   private OpcUaClient client;
 
   public ClientRunner(IClientHelper clientAction)  {
-    System.out.println("in ClientRunner constructor");
     this.clientAction = clientAction;
     try {
       client = createClient();

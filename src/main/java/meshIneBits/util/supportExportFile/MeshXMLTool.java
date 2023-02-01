@@ -300,9 +300,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element cut = bit3D.getCutPathsCB()
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
-    prepareBitToExport(bit3D);
-
     rebuildBit3d(bit3D);
+    prepareBitToExport(bit3D);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
@@ -397,8 +396,6 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       positionSubBit.appendChild(xInMesh);
       positionSubBit.appendChild(yInMesh);
       subBit.appendChild(positionSubBit);
-System.out.println("index="+i);
-if (listTwoPoints.isEmpty())System.out.println("empty");
 //Two distant point of SubBit
       if (listTwoPoints.get(i)
           .size() >= 2) {

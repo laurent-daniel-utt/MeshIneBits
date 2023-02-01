@@ -131,7 +131,7 @@ public abstract class XMLDocument<T> {
         List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
         int nbBatch = (listAllBit3D.size() / CraftConfig.nbBitesBatch) + 1;
         // Generate the xml for each Batch.
-        for (int i = 0; i < nbBatch; i++) {System.out.println("in ?");
+        for (int i = 0; i < nbBatch; i++) {
           this.document = DocumentBuilderFactory.newInstance()
               .newDocumentBuilder()
               .newDocument();

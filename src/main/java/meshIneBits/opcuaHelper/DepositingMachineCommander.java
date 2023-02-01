@@ -13,7 +13,6 @@ public class DepositingMachineCommander {
     private  DepositingMachineOPCUAHelper helper;
 
     public DepositingMachineCommander(Mesh mesh)  {
-        System.out.println("in DepositingMachineCommander constructor");
            helper =new DepositingMachineOPCUAHelper();
         this.mesh = mesh;
     }

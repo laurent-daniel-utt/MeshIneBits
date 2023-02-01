@@ -87,7 +87,6 @@ public class BasicScheduler extends AScheduler {
 
   @Override
   public boolean schedule() {
-    System.out.println("Basic scheduler schedule");
     Logger.setProgress(0, this.mesh.getLayers()
         .size());
     double xMin;
@@ -109,8 +108,6 @@ public class BasicScheduler extends AScheduler {
           .size());
       i++;
     }
-    System.out.println("Basic scheduler end scheduling");
-
     int nbIrrefularBits = 0;
     for (Layer curLayer : this.mesh.getLayers()) {
       nbIrrefularBits += curLayer.getIrregularBits()
@@ -196,18 +193,14 @@ public class BasicScheduler extends AScheduler {
 
   public ArrayList<ArrayList<Strip>> build_scheduleStrips(){
 if(!strips.isEmpty())strips.clear();
-System.out.println(strips.size());
     if (!mesh.isPaved()) {
       return null;
     }
-
-
     mesh.getLayers().forEach((layer) -> {
 
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
               mesh.getScheduler().filterBits(layer.sortBits()));
       ArrayList<Strip> layerstrips=new ArrayList<>();
-System.out.println("bitsInCurrentLayer="+bitsInCurrentLayer.size());
       HashSet<Bit3D> toremove=new HashSet<>();
       Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));
 
@@ -253,11 +246,10 @@ System.out.println("bitsInCurrentLayer="+bitsInCurrentLayer.size());
       }
 
 
-     if(!layerstrips.isEmpty()) {System.out.println("layerstrip="+layerstrips.size());
-       System.out.println("index="+layer.getLayerNumber());
+     if(!layerstrips.isEmpty()) {
        strips.add(layerstrips);}
     });
-System.out.println("Somme="+strips.stream().mapToInt(ArrayList::size).sum());
+System.out.println("Stripes number: "+strips.stream().mapToInt(ArrayList::size).sum());
     return strips;
 
   }

@@ -51,7 +51,6 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
         for (int i = 0; i < validSubBits.size(); i++) {
           int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(
                   validSubBits.get(i));
-          //System.out.println("batchId="+batchId);
           if (batchId != -1) {
             bitShape.getSubBitShapes()
                     .get(i)

@@ -225,7 +225,7 @@ public class Layer extends Observable implements Serializable {
    *
    * @since 0.3
    */
-  private void extrudeBitsTo3D() {System.out.println("rebuilt");
+  private void extrudeBitsTo3D() {
 
     mapBits3D = flatPavement.getBitsKeys()
         .parallelStream()
@@ -610,7 +610,7 @@ public class Layer extends Observable implements Serializable {
     subs.forEach(sub->removeSubBit(getKey(sub.getParentBit()),sub,true));
   }
 
-  public void addSubBit(Bit2D parent,SubBit2D sub) {System.out.println("adding sub in layer");
+  public void addSubBit(Bit2D parent,SubBit2D sub) {
   //  Bit3D oldBit = getBit3D(key);
     flatPavement.addSubBit(parent, sub);
     // mapBits3D.remove(key);

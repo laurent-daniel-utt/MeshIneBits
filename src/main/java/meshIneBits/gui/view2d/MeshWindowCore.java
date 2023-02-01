@@ -269,8 +269,6 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
     }
 
-
-
   }
 
 
@@ -324,14 +322,12 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
       newOrigin = bitToMove2D.getOriginCS()
               .add(translationInMesh);
-      System.out.println("new origin="+newOrigin);
       //movedBit.getBaseBit().setOriginCS(newOrigin);
       meshController.updateCore();
 
 
     }
     else if(Moving==true && meshController.getSelectedBits().isEmpty()) {
-
       double distance = 0;
       if (direction.x == 0) {// up or down
         distance = CraftConfig.widthmover;
@@ -345,15 +341,11 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
                       .normal()
                       .mul(distance);
 
-
-
       newOrigin=newOrigin.add(translationInMesh);
-      System.out.println("new origin in Moving="+newOrigin);
       // movedBit.getBaseBit().setOriginCS(newOrigin);
       meshController.updateCore();
 
     }
-
 
   }
 
@@ -490,7 +482,6 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         Iterator<Bit3D>it=meshController.getSelectedBits().iterator();
         //meshController.getCurrentLayer().removeBit(it.next(),true);
         rotatedBit=it.next();
-        System.out.println("Not In ?");
         meshController.deleteSelectedBits();
         rotating=true;
         double notches = e.getPreciseWheelRotation();
@@ -737,24 +728,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
       if (bit2D.isUsedForNN()) {
         g2d.setColor(WorkspaceConfig.forAI_BitColor);
       }
-      //Area a=newBit2D.getAreaCS();
       if(!meshController.showingIrregularBits()) {
         newBit2D.getSubBits().forEach(subBit2D ->{
-        //  if(!layer.getRemovedSubBits().contains(subBit2D)){//System.out.println("sub="+subBit2D);
             drawModelArea(g2d, subBit2D.getAreaCS());}
-      //  }
         );
-        /* for(SubBit2D sub:newBit2D.getSubBits())
-         {System.out.println("in:"+sub.isRemoved());
-           if(sub.isRemoved()){
-
-             System.out.println("areaBef="+a.getBounds());
-           a.subtract(sub.getAreaCS());
-             System.out.println("areaAf="+a.getBounds());
-           }
-
-         }
-         drawModelArea(g2d, a);*/
       }
 
       // Cut paths
@@ -783,7 +760,6 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         if (!bit3D.getTwoDistantPointsCS()
                 .isEmpty()) {
           for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
-            // System.out.println("innnit");
             drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
           }
         }
@@ -799,10 +775,8 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
   private void showirregular(Bit3D bit3D,Layer layer,Graphics2D g2d){
     Bit2D bit2D = bit3D.getBaseBit();
-    // Draw each bits
     NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
     Vector<SubBit2D> SubBits = newBit2D.getSubBits();
-    System.out.println("size subbits="+SubBits.size()+" lift="+bit3D.getLiftPointsCS().toString());
     for(SubBit2D subBits:SubBits){
       if( !subBits.isregular()){
         g2d.setColor(Color.RED);
@@ -917,6 +891,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
     bitMovers.put(bit, new BitControls(bit, g2d,subbit));
   }
 
+  /**
+   * This method is used the show the preview of the bit when using the manual pattern to add bits
+   * @param g2d
+   */
   private void paintBitPreview(Graphics2D g2d) {
     // Bit boundary
     Rectangle2D.Double r = new Rectangle2D.Double(
@@ -979,7 +957,16 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   }
 
 
-
+  /**
+   * A method merging the manual bit adding algorithm with bit (already created) rotating algorithm, that shows the preview of bit
+   * while being rotated (rotation preview state)
+   * @param g2d
+   * @param origin the origin of the rotated bit
+   *  similarly to the moving bit algorithm, once a bit is rotated, its actually suppressed and what is shown is only its preview
+   *  with the new orientation, and only by pressing on escape a new bit would be added similar to the one shown in the preview.
+   *  note: when a bit is in the rotation preview state, it can not be moved and the arrows would disappear,but when it's in
+   *  the moving preview state, it can be rotated
+   */
 
   private void paintBitPreviewRotation(Graphics2D g2d, Vector2 origin) {
     // Bit boundary
@@ -1042,7 +1029,17 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
     }
   }
 
-
+  /**
+   * A method merging the manual bit adding algorithm with bit (already created) moving algorithm,that shows the preview of bit
+   *   while being moved (moving preview state)
+   * @param g2d
+   * @param newOrigin the new origin of the bit after moving the bit
+   * @param oldBit the old bit before the moving, this object is used to retain the old orientation since moving doesnt affect the orientation
+   * so we need to keep the same orientation.
+   * note: once a bit is moved by clicking on one of the arrows the bit is actually suppressed, and what is shown is only the preview
+   * of the bit in the new position, and only by pressing on the escape button a new bit would be added at the new position as the bit
+   * shown in the preview
+   */
   private void paintBitPreviewMoving(Graphics2D g2d,Vector2 newOrigin,Bit2D oldBit) {
     // Bit boundary
     Rectangle2D.Double r = new Rectangle2D.Double(
@@ -1108,12 +1105,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
   private void drawModelPath2D(Graphics2D g2d, Path2D path2D) {
     g2d.draw(path2D.createTransformedShape(realToView));
-
   }
 
   private void drawModelArea(Graphics2D g2d, Area area) {
     area.transform(realToView);
-
     g2d.fill(area);
     g2d.draw(area);
   }
@@ -1129,7 +1124,6 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   }
 
   private class TriangleShape extends Path2D.Double {
-
     private TriangleShape(Point2D... points) {
       moveTo(points[0].getX(), points[0].getY());
       lineTo(points[1].getX(), points[1].getY());
@@ -1139,7 +1133,6 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   }
 
   private class BitControls extends Vector<Area> {
-
     BitControls(Bit3D bit, Graphics2D g2d,SubBit2D subBit) {
       // Defining the shape of the arrows
       if(subBit==null){

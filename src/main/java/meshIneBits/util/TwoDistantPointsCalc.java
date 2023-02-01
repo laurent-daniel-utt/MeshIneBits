@@ -4,7 +4,6 @@ import meshIneBits.SubBit2D;
 import meshIneBits.config.CraftConfig;
 
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.*;
@@ -94,11 +93,11 @@ public class TwoDistantPointsCalc {
 
   /**
    *
-   * @param area  la surface
+   * @param area  la surface du subbit
    * on crée un tapi de cercle(list des cercles) sur tout le rectangle qui cerne la surface rentrée en param, ensuite on
    * filtre les cercles en prenant que celles qui sont à l'intérieur de la surface,ensuite on calcule les 2 cercles les plus
    * distants parmi la liste des cercles restantes après filtrage.
-   * @precision c'est le paramètre qui détermine les pas de tapiage,exemple:precision=1=>chaque 1mm on va créer une nouvelle
+   * @precision c'est le paramètre qui détermine les pas de tapissage,exemple:precision=1=>chaque 1mm on va créer une nouvelle
    * cercle horizontalement et verticalement
    * @return un vecteur(collection) contenant les 2 points les plus distants
    */
@@ -113,7 +112,6 @@ public class TwoDistantPointsCalc {
     double enoughSpace=prec+CraftConfig.suckerDiameter/2+small_margin+CraftConfig.suckerDiameter+small_margin+prec+CraftConfig.suckerDiameter/2;
     /**this if increase the precision when the area is small */
     if(area.getBounds2D().getWidth()*area.getBounds2D().getHeight()<enoughSpace*enoughSpace)prec=1;
-    System.out.println("prec="+prec);
     //création de la tapi des cercles
     for(double i=startX;i<endX;i+=prec){
       for(double j=startY;j<endY;j=j+prec){
@@ -127,7 +125,6 @@ public class TwoDistantPointsCalc {
             && area.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
             && area.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y))).collect(Collectors.toList());
 
-      if(liftpoint==null)System.out.println("Null");
      /**on prend les cercles qui sont à l'extérieur de la lift point, si non le système visuel risque de confondre le data
         matrix et le point d'orientation*/
       if(liftpoint!=null){

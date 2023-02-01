@@ -3,7 +3,6 @@ package meshIneBits.gui.view3d.view;
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-import controlP5.ControlEvent;
 import controlP5.Textlabel;
 import javafx.util.Pair;
 import meshIneBits.config.CraftConfig;
@@ -18,7 +17,6 @@ import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
@@ -157,18 +155,15 @@ public class CuttedBit extends PApplet {
         }
     }
     public void updateShape(int newId){
-        System.out.println("updating cut");
         if(id!=newId){
             id=newId;
             surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
 
             if(id% CraftConfig.nbBitesBatch==0){
-                System.out.println("changing batch:");
                 int batch_num=id/CraftConfig.nbBitesBatch;
                 cutpaths = DomParser.parseXml(batch_num);
             Reconstitute.setCurrentDecoupBatchNum(batch_num);
             }
-            System.out.println("id_bit:"+id+" num_batch:"+DomParser.getBatch_num());
             Area bitArea= Reconstitute.getInstance().recreateArea(cutpaths,id,true);
             bitShape = ExtrusionFromAreaService.getInstance()
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
@@ -237,7 +232,7 @@ public class CuttedBit extends PApplet {
     public class CheckRegister implements Runnable{
 
         @Override
-        public void run() {System.out.println("executer");
+        public void run() {
             while (!exited){
                 UpdateId();
                 try {

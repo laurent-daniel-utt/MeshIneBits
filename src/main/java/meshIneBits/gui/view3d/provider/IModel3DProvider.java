@@ -13,7 +13,6 @@ import java.util.Vector;
 public interface IModel3DProvider {
 
   static IModel3DProvider createDefaultInstance(PApplet context, Model model, Mesh mesh){
-   System.out.println("Context="+context+" Model="+model+" Mesh="+mesh);
 
     return new BaseModel3DProvider(context,model,mesh);
   }

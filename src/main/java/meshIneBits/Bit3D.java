@@ -29,6 +29,7 @@
 
 package meshIneBits;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
@@ -36,10 +37,7 @@ import meshIneBits.util.TwoDistantPointsCalc;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -153,12 +151,10 @@ public class Bit3D implements Serializable, Cloneable {
         liftPointsCB.add(liftPoint);
         liftPointsCS.add(liftPoint.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()));
 
-        //System.out.println("liftPointsCS="+liftPointsCS.toString());
       } else {
         irregular = true;
       }
     }
-    //System.out.println("liftPointsCS="+liftPointsCS.toString());
   }
 
   public List<Path2D> getCutPathsCB() {
@@ -268,12 +264,6 @@ public class Bit3D implements Serializable, Cloneable {
     return listPoints;
   }
 
-  public Vector<Vector2> getTwoExtremePointsCS() {
-    Vector<Vector2> listPoints = new Vector<>();
-    listTwoDistantPoints.forEach(list -> list.forEach(
-            ele -> listPoints.add(ele.getTransformed(bit2dToExtrude.getTransfoMatrixToCS()))));
-    return listPoints;
-  }
 
 
   public Vector<Vector2> getTwoExtremeXPointsCS() {
@@ -319,15 +309,48 @@ public class Bit3D implements Serializable, Cloneable {
        this.computeTwoPointNearTwoPointMostDistantOnBit();
     calcAngles();
     if (reverseInCut) {
-    //  this.inverse();
+     this.inverse();
     }
 
   }
 
   private void inverse() {
     inverseCutPath();
+  /*  Vector<Path2D> paths=new Vector<>(getCutPathsCB());
+    rawCutPaths.clear();
+    for(Path2D cutpath:paths){
+    rawCutPaths.add(inverseAxeXInCutPaths(cutpath));
+   }*/
     inverseLiftPoint();
     inverseDistantPoints();
+  }
+
+  /**
+   *it does the same job as inverseCutPath() but differently
+   * @param cutpath
+   * @return
+   */
+  public Path2D inverseAxeXInCutPaths(Path2D cutpath){
+    Path2D newCutpath=new Path2D.Double();
+    for (PathIterator pi = cutpath.getPathIterator(null); !pi.isDone(); pi.next()) {
+      double[] coords = new double[2];
+      int type = pi.currentSegment(coords);
+
+      double x =coords[0];
+      double y =coords[1];
+      switch (type) {
+        case PathIterator.SEG_MOVETO:
+          newCutpath.moveTo(-x,y);
+          break;
+        case PathIterator.SEG_LINETO:
+          newCutpath.lineTo(-x,y);
+          break;
+        default:
+          throw new ValueException("Type of point isn't defined: " + type);
+      }
+    }
+    newCutpath.closePath();
+    return newCutpath;
   }
 
   private void inverseLiftPoint() {

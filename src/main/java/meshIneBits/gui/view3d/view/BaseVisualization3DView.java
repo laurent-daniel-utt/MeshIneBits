@@ -70,6 +70,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
   public static float Xpos=0,Ypos=0,Zpos=0;
   public static ArrayList<ArrayList<Strip>> meshstrips;
+
   private boolean isExporting = false;
   public static int WindowStatus=0;// false=closed/true=opened
   private PShape rectange;
@@ -110,18 +111,16 @@ public void play(){
 
 
 
-  public void settings() {System.out.println("in settings");
+  public void settings() {
     size(Visualization3DConfig.V3D_WINDOW_WIDTH, Visualization3DConfig.V3D_WINDOW_HEIGHT, P3D);
-
-      PJOGL.setIcon("resources/icon.png");
-
+    PJOGL.setIcon("resources/icon.png");
   }
 
 
-
-
-
-
+  /**
+   * Event handler to refresh the 3D interface when clicking inside it
+   * @param event
+   */
   protected void handleMouseEvent(MouseEvent event) {
 
     final int action = event.getAction();
@@ -296,7 +295,7 @@ private void initWorkingSpace(){
   }
 
   private void updateSizeChangesOnModel() {
-    if (mcListener != null) { System.out.println("depth="+df.format(shape.getDepth() ));
+    if (mcListener != null) {
       mcListener.onSizeChange(Double.parseDouble(df.format(frame.scaling())),
               Double.parseDouble(df.format(shape.getDepth() * frame.scaling()).replace(",", ".")),
               Double.parseDouble(df.format(shape.getWidth() * frame.scaling()).replace(",", ".")),
@@ -556,7 +555,10 @@ private void initWorkingSpace(){
   }
 
 
-
+  /**
+   * Method to choose a directory for the exported 3d objects
+   * @return the path of the chosen directory
+   */
   private String  chooseDir(){
     JFileChooser jf=new JFileChooser();
     jf.setDialogTitle("choose a directory");
@@ -567,11 +569,11 @@ private void initWorkingSpace(){
   }
 
   /**
-   * exports all shapes as 3d obj files when EXPORTSIM button is cicked.
-   * the option is automatically put on ONE BY ONE because we need each ob by itself.
+   * exports all shapes as 3d obj files when EXPORTSIM button is clicked.
+   * the option is automatically put on ONE BY ONE because we need each object by itself.
    * We only have to precise the type of objects to export(SubBits,Layer,Batch...)
-   * exportAll method rely on export() method of EXPORT BUTTON that export the current displayed shape, in exportAll we
-   * just display then export each shape one by one
+   * exportAll method rely on export() method of EXPORT BUTTON that exports the current displayed shape, in exportAll we
+   * display then export each shape one by one
    */
   public void exportAll(){
     ExpInd.set(0);
@@ -614,20 +616,16 @@ private void initWorkingSpace(){
   private synchronized void displayShape() {
     switch (processor.getDisplayState().getState()) {
       case MODEL_VIEW:
-
         scene.drawFrames();
-
         break;
       case PAVED_VIEW:
-
         if(WindowStatus==1) drawMesh();
-if(WindowStatus>=2) drawtest();
+        if(WindowStatus>=2) drawtest();
         break;
       case ANIMATION_VIEW:
         drawAnimationShape();
         break;
-
-        default:
+      default:
         throw new IllegalStateException(
                 "Unexpected value: " + processor.getDisplayState().getState());
     }
@@ -636,12 +634,9 @@ if(WindowStatus>=2) drawtest();
   private void drawMesh() {//System.out.println("drawingMesh ?");
     if (meshShape != null) {
       Vector3 v = MeshProvider.getInstance().getModel().getPos();
-
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
-
       shape(meshShape);
-
       popMatrix();
     }
   }
@@ -649,13 +644,10 @@ if(WindowStatus>=2) drawtest();
 
 
   private void drawtest(){
-   // System.out.println("drawingTest ?");
     if (meshShapes.get(1) != null) {
       Vector3 v = MeshProvider.getInstance().getModel().getPos();
-
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
-
       shape(meshShapes.get(1));
      /*
         for (int i=0;i<meshShapes.get(1).getChildren().length-meshShapes.get(1).getChildren().length+3;i++){
@@ -778,7 +770,6 @@ else {return false;}
 
   @Override
   public void mouseEntered(java.awt.event.MouseEvent e) {
-System.out.println("u in");
   }
 
   @Override

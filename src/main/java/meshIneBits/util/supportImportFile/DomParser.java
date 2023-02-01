@@ -55,12 +55,6 @@ public class DomParser {
             DocumentBuilder builder=factory.newDocumentBuilder();
             String num=String.valueOf(batch_num);
             String file="\\Batch "+num+".xml";
-            /*
-            String path=System.getProperty("user.dir");
-          //  System.getProperty("user.dir");*/
-           /*if(instance==1){
-               chooseDir();
-           }*/
 
             logger.logDEBUGMessage("file:"+path+file);
             Document doc= builder.parse(path+file);
@@ -103,9 +97,7 @@ public class DomParser {
                                     if(! pathcut_by_FallType.getPathIterator(null).isDone()) {
                                         pathcut_by_FallType.closePath();
                                         paths_by_FallType.add(new Pair<>(type,pathcut_by_FallType));
-                                    }/*else {paths_by_FallType.add(new Pair<>(type,pathcut_by_FallType));
-                                        paths_by_FallType=new ArrayList<>();
-                                    }*/
+                                    }
                                      pathcut_by_FallType=new Path2D.Double();
                                     String type_str=((Element) childes.item(ch)).getTextContent();
 
@@ -113,7 +105,6 @@ public class DomParser {
                                     else {type=FallType.Subbit;}
                                     //case of Drop
                                     if (ch==childes.getLength()-2) {System.out.println("Drop");
-                                       // paths_by_FallType.add(new Pair<>(type,pathcut_by_FallType));
                                         pathcut_by_FallType=new Path2D.Double();
                                     type=FallType.Sub_Drop;
                                     }
@@ -126,17 +117,17 @@ public class DomParser {
                                     //to make sure the cutting will be done we adjust a bit the positions
                                     // because sometimes the PathIterator doesnt see it
                                     x= adjustValue(x);
-                                    if(x>=CraftConfig.lengthFull/2)Batch_Normal=false;
+                                    if(x>=CraftConfig.lengthFull/2-CraftConfig.sectionHoldingToCut)Batch_Normal=false;
                                     y=  adjustValue(y);
                                     pathcut_by_FallType.moveTo(x,y);
                                 } else if (((Element) childes.item(ch)).getTagName().equals("cut-to")) {
                                     NodeList xy=   childes.item(ch).getChildNodes();
                                     Double x=  Double.valueOf( ((Element)xy.item(0)).getTextContent()) ;
                                     Double y=  Double.valueOf( ((Element)xy.item(1)).getTextContent()) ;
-                                    //to make sure the cutting will be done we adjust a bit the positions
+                                    //to make sure the cutting will be done, we adjust a little the positions
                                     x= adjustValue(x);
                                     y= adjustValue(y);
-                                if(x>=CraftConfig.lengthFull/2)Batch_Normal=false;
+                                if(x>=CraftConfig.lengthFull/2-CraftConfig.sectionHoldingToCut)Batch_Normal=false;
                                     pathcut_by_FallType.lineTo(x,y);
 
                                 }
@@ -163,9 +154,9 @@ public class DomParser {
         } catch (SAXException e) {
             e.printStackTrace();
         }
-        System.out.println("Somme="+cutpaths.stream().mapToInt(ArrayList::size).sum());
+        System.out.println("Somme:"+cutpaths.stream().mapToInt(ArrayList::size).sum());
         if(Batch_Normal)logger.logDEBUGMessage("Values in Batch seems good");
-        else logger.logDEBUGMessage("Values in Batch doesn't seem good, x in cut-path Node can't be 80 because it's the" +
+        else logger.logDEBUGMessage("Values in Batch doesn't seem good, x in cut-path Node can't be over 70 because it's the" +
                 " holding area ");
         return cutpaths;
     }

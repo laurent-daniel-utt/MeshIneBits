@@ -46,7 +46,6 @@ public class UIPWAnimation extends UIParameterWindow implements
     surface.setLocation(
         Visualization3DConfig.UIPW_ANIMATION.x,
         Visualization3DConfig.UIPW_ANIMATION.y);
-    System.out.println(width + " - " + height);
   }
 
   @Override

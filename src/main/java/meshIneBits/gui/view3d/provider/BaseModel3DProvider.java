@@ -45,7 +45,7 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
 
   @Override
   public PShape getMeshShape() {
-    if (paint) {System.out.println("in paint "+getClass().getCanonicalName());
+    if (paint) {
       paintPattern.paintMesh(meshPavedResult);
     }
     return meshPavedResult.getMeshShape();

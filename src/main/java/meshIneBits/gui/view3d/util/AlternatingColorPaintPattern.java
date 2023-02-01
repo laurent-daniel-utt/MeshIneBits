@@ -52,7 +52,6 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
 
           if(size_strip>meshstrips.get(l).get(s).getBits().size()-1){
             Layer layer= MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
-//System.out.println("layer_Capa:"+(layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()));
             if(size_layer< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
               size_strip=0;
               s++;

@@ -124,7 +124,6 @@ public void removeSubbit(SubBit2D sub){
     bit.setCutPaths(CutPathCalc.instance.calcCutPathFrom(bit));
   }
   public void addSubbit(SubBit2D sub){
-    System.out.println("adding sub in NewBit2D");
     subBits.add(sub);
   }
 
@@ -202,8 +201,6 @@ public void removeSubbit(SubBit2D sub){
 
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     this.subBits= (Vector<SubBit2D>) ois.readObject();
-
-    System.out.println("sbbits size:"+subBits.size());
     //updateBoundaries(areaSent);
   }
 

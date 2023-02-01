@@ -164,12 +164,12 @@ public ArrayList<ArrayList<Strip>> getStripes(){
     Logger.updateStatus("Ready to generate bits");
     template.ready(this);
     // New worker
-    if (template.isInterdependent()) { System.out.println("Interdepenent?");
+    if (template.isInterdependent()) {
       SequentialPavingWorker sequentialPavingWorker = new SequentialPavingWorker(template);
       sequentialPavingWorker.addObserver(this);
 //            (new Thread(sequentialPavingWorker)).start();
       sequentialPavingWorker.run();
-    } else { System.out.println("Worker Master?");
+    } else {
       PavingWorkerMaster pavingWorkerMaster = new PavingWorkerMaster(template);
       pavingWorkerMaster.addObserver(this);
 //            (new Thread(pavingWorkerMaster)).start();

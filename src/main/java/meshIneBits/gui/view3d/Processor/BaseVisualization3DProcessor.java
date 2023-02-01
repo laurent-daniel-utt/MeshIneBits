@@ -207,17 +207,14 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   }
 
   /**
-   * Created by Majed
+   * Export obj files for the simulation
    */
   public void exportAll() {
     view3D.exportAll();
-    //System.out.println("exportedAll");
-
   }
   @Override
   public void activateAnimation() {
     state.setState(State.ANIMATION_VIEW);
-    System.out.println("how many times called");
     //TODO update index of slider
     Consumer<Vector<PShape>> c = view3D::setDisplayShapes;
     animation.activate(c);

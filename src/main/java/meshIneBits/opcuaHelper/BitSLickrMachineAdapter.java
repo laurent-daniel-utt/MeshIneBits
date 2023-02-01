@@ -9,7 +9,6 @@ public abstract class BitSLickrMachineAdapter implements IClientHelper {
   private CompletableFuture<ICustomResponse> future;
 
   public BitSLickrMachineAdapter()  {
-   System.out.println("in BitSLickrMachineAdapter constructor");
      clientRunner=new ClientRunner(this);
 
   }

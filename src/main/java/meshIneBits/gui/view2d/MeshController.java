@@ -126,6 +126,12 @@ public class MeshController extends Observable implements Observer ,
           "Angle of Rotatedbits in respect to that of layer",
           -180.0, 180.0, 0.0, 0.01);
 
+  private final DoubleParam bitsInverser = new DoubleParam(
+          "bit inverser",
+          "bitInversion",
+          "inversing reversed bits",
+          -180.0, 180.0, 0.0, 0.01);
+
   private final DoubleParam safeguardSpaceParam = new DoubleParam(
       "safeguardSpace",
       "Space around bit",
@@ -688,20 +694,29 @@ public void deleteSubbits(Set<SubBit2D> subs){
     // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
   }
+  public void deleteBitsByKeys( Set<Vector2> keys) {
+    getCurrentLayer().removeBits(keys, true);
+    keys.clear();
+  }
 
   public void incrementBitsOrientationParamBy(double v) {
     newBitsOrientationParam.incrementBy(v, true);
-
     setChanged();
     notifyObservers();
   }
 
   public void incrementSelectedBitsOrientationParamBy(double v) {
     bitsrotater.incrementBy(v, true);
-
     setChanged();
     notifyObservers();
   }
+  public void inverserIncrementation(double v) {
+    bitsInverser.incrementBy(v, true);
+    setChanged();
+    notifyObservers();
+  }
+
+
   public void updateCore(){
     setChanged();
     notifyObservers();
@@ -736,8 +751,17 @@ public void deleteSubbits(Set<SubBit2D> subs){
         Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue()), a));
   }
 
+  public DoubleParam getBitsInverser() {
+    return bitsInverser;
+  }
+
   /**
+   * this method is used in 4 cases to add a new bit, with manual pattern, when rotating a bit, when moving a bit and when manipulating
+   * a bit (using the manipulating button), all these four functionalities use the same algorithm but with few differences.
    * @param position in {@link Mesh}'s coordinate system
+   * @param neworigin the new origin of the moved bit (using the blue arrows)
+   * @param orientation the new orientation of the rotating bit (using ctrl+mouse wheel)
+   * @param rotating true when we rotated a bit (ctrl+mouse wheel), false if not
    */
   public void addNewBitAt(Point2D.Double position,boolean rotating,Vector2 orientation,Vector2 neworigin) {
     if (mesh == null
@@ -753,13 +777,14 @@ public void deleteSubbits(Set<SubBit2D> subs){
       return;
     }
     Vector2 lOrientation;
+    // when this method is used by the manual pattern
     if(!rotating && neworigin==null){  lOrientation = Vector2.getEquivalentVector(newBitsOrientationParam.getCurrentValue());}
-
-   else if(rotating){ lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
-   else { lOrientation=orientation;}
+   // when this method is used to add a bit after rotating a bit
+    else if(rotating){ lOrientation = Vector2.getEquivalentVector(bitsrotater.getCurrentValue()); }
+   // when this method is used after moving a bit
+    else { lOrientation=orientation;}
     Vector2 origin;
     origin= new Vector2(position.x, position.y);
-
     //save origin of new bit
     Set<Vector2> resultKey = new HashSet<>();
     resultKey.add(origin);
@@ -784,8 +809,11 @@ public void deleteSubbits(Set<SubBit2D> subs){
     }
     this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey, this.getSelectedBits(),
         getCurrentLayer().getLayerNumber()));
-  selectedBitKeys.clear();
+    selectedBitKeys.clear();
   }
+
+
+
 
   public void addBit3Ds(Collection<Bit3D> bits3d) {
     for (Bit3D bit3d : bits3d) {
@@ -796,15 +824,13 @@ public void deleteSubbits(Set<SubBit2D> subs){
   }
 
   public void addSubBit3Ds(Collection<SubBit2D> subs) {
-    for (SubBit2D sub : subs) {System.out.println("adding subs in controller");
+    for (SubBit2D sub : subs) {
       sub.setRemoved(false);
       getCurrentLayer().addSubBit(sub.getParentBit(), sub);
     HashSet<SubBit2D> newRemovedsubs=new HashSet<>();
     }
     selectedsubBitMemory.removeAll(subs);
-    System.out.println("size before:"+getCurrentLayer().getRemovedSubBits().size());
     getCurrentLayer().getRemovedSubBits().removeAll(subs);
-    System.out.println("size after:"+getCurrentLayer().getRemovedSubBits().size());
   }
   /**
    * @param position in {@link Mesh} coordinate system
@@ -815,10 +841,9 @@ public void deleteSubbits(Set<SubBit2D> subs){
     for (Vector2 key : flatPavement.getBitsKeys()) {
       if (flatPavement.getBit(key)
           .getAreaCS()
-          .contains(position)) {System.out.println("found");
+          .contains(position)) {
         return key;
-      }else {System.out.println("not found__ Area:"+flatPavement.getBit(key)
-              .getAreaCS().getBounds2D());}
+      }
     }
     return null;
   }
@@ -826,7 +851,7 @@ public void deleteSubbits(Set<SubBit2D> subs){
   private SubBit2D findSubBitAt(Point2D.Double position){
   HashSet<SubBit2D>subbits=new HashSet<>(getCurrentLayer().getSubBits());
          for(SubBit2D sub:subbits){
-           if(sub.getAreaCS().contains(position)){System.out.println(" found sub:");
+           if(sub.getAreaCS().contains(position)){
              return sub;
            }
          }
@@ -1372,11 +1397,11 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     if (mesh == null || !mesh.isPaved() || subBit == null) {
       return;
     }
-    if (selectedsubBit.contains(subBit)) {System.out.println("unselcting sub");
+    if (selectedsubBit.contains(subBit)) {
        selectedBitKeysOfSubbit .remove(bitKey);
       selectedsubBit.remove(subBit);
       changes.firePropertyChange(SubBIT_UNSELECTED, null, subBit);
-    } else {System.out.println("selcting sub");
+    } else {
       selectedBitKeysOfSubbit.add(bitKey);
       selectedsubBit.add(subBit);
       changes.firePropertyChange(SubBIT_SELECTED, null, subBit);

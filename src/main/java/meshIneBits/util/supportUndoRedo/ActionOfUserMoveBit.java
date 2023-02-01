@@ -103,7 +103,6 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
             meshController.setSelectedBitKeys(this.previousSelectedBits);
         }
         if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
-          System.out.println("in it runUndo");
             //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
             meshController.addSubBit3Ds(this.previousStateSubs);
             //meshController.setSelectedSubBit(this.previousStateSubs);
@@ -130,7 +129,6 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
         }
 
         if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
-            System.out.println("in it runRedo");
             //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
             meshController.deleteSubbits(this.previousStateSubs);
             //meshController.setSelectedBitKeys(this.previousSelectedBits);

@@ -111,13 +111,13 @@ private int i=0;
         processor.setAnimationIndex(Math.round((float) value));
         break;
       case EXPORTAll:
-       if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
-        processor.setDisplayOneByOne(true);
-        Exportation=true;
-        processor.activateAnimation();
-        IndexExport=0;
-       processor.exportAll();
-        Exportation=false;}
+        if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
+          processor.setDisplayOneByOne(true);
+          Exportation=true;
+          processor.activateAnimation();
+          IndexExport=0;
+          processor.exportAll();
+          Exportation=false;}
         break;
       case NEXT:
       if(isAnimating.get() && getpausing()){
