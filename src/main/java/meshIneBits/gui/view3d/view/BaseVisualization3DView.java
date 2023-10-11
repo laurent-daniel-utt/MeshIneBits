@@ -240,19 +240,24 @@ public void play(){
     initWorkspace();// create the box of work space and centre the axes and the model
     init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
     init3DFrame();
-
+    System.out.println("0");
     initProcessor();
+    System.out.println("0.25");
       meshShape = processor.getModelProvider().getMeshShape();
     shape = processor.getModelProvider().getModelShape();
-
+    System.out.println("0.5");
     if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
      meshShapes.put(0,meshShape);
     frame.setShape(shape);
 
     initControlComponent();
+    System.out.println("1");
     initParameterWindow();
+    System.out.println("2");
     initModelChangesListener((ModelChangesListener) uipwView);
+    System.out.println("3");
     initDisplayParameterWindows();
+    System.out.println("4");
     initWorkingSpace();
 
   }
