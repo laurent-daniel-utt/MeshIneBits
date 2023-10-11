@@ -68,6 +68,10 @@ dependencies {
 
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+
+    // Java FX
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: '19.0.2'
+    implementation group: 'org.openjfx', name: 'javafx-fxml', version: '19.0.2'
 }
 
 eclipse {

@@ -29,7 +29,6 @@
 
 package meshIneBits.util.supportExportFile;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit2D;
@@ -458,7 +457,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           parentTag = createElement(MeshTagXML.CUT_TO_POSITION);
           break;
         default:
-          throw new ValueException("Type of point isn't defined: " + type);
+          throw new RuntimeException("Type of point isn't defined: " + type);
 
       }
       parentTag.appendChild(x);

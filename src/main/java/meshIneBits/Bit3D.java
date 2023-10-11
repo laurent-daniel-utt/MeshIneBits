@@ -29,7 +29,7 @@
 
 package meshIneBits;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
@@ -346,7 +346,7 @@ public class Bit3D implements Serializable, Cloneable {
           newCutpath.lineTo(-x,y);
           break;
         default:
-          throw new ValueException("Type of point isn't defined: " + type);
+          throw new RuntimeException("Type of point isn't defined: " + type);
       }
     }
     newCutpath.closePath();
