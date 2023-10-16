@@ -37,7 +37,7 @@ import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.util.Logger;
 import meshIneBits.util.SimultaneousOperationsException;
-
+import meshIneBits.webUI.WebLauncher;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
@@ -443,6 +443,16 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
 
             baseVisualization3DView::startProcessingModelView);
     meshActionList.add(view3D);
+
+    MeshAction view3DBrowser = new MeshAction(
+            "view3DBrowser",
+            "3D View Browser",
+            "view-3D.png",
+            "Open the 3D view of mesh",
+            "alt 4",
+            WebLauncher::start
+            );
+    meshActionList.add(view3DBrowser);
 
     MeshAction sliceMesh = new MeshAction(
         "sliceMesh",
@@ -886,6 +896,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     toolBar.add(configure);
     toolBar.addSeparator();
     toolBar.add(view3D);
+    toolBar.add(view3DBrowser);
     toolBar.addSeparator();
     toolBar.addToggleButton(toggleShowSlice);
     toolBar.addToggleButton(toggleIrregularBit);
