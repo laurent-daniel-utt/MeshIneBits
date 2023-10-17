@@ -1,12 +1,16 @@
 package meshIneBits.webUI;
+import org.springframework.boot.SpringApplication;
+
 import java.awt.Desktop;
 import java.io.Console;
 import java.net.URI;
 
 public class WebLauncher {
     public static void main() throws Exception {
+        SpringApp app = new SpringApp();
+        app.main(new String[0]);
         // Determine the URL of your web app
-        String webAppUrl = "http://localhost:8080/your-web-app";
+        String webAppUrl = "http://localhost:8080/";
 
         // Open the web app URL in the user's default browser
         Desktop desktop = Desktop.getDesktop();
