@@ -72,9 +72,8 @@ transformControls.addEventListener('dragging-changed', function (event) {
     orbitControls.enabled = !event.value
 })
 
-transformControls.addEventListener('dragging-changed', function (event) {
-    orbitControls.enabled = !event.value
-})
+window.addEventListener('mouseup', onMouseUp);
+
 
 window.addEventListener('keydown', function (event) {
     switch (event.key) {
@@ -111,8 +110,8 @@ function render() {
     renderer.render(scene, camera)
 }
 
-function onMeshMoved(event) {
-
+function onMouseUp(event) {
+    console.log("onMouseUp");
     // Define the data to be sent as query parameters
     const data = {
         x: mesh.position.x,
