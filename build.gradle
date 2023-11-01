@@ -4,8 +4,6 @@ plugins {
     id "eclipse"
     id "idea"
     id "com.github.johnrengelman.shadow" version "7.1.1"
-    id 'org.springframework.boot' version '2.7.16'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
 // Define the entry point
@@ -74,11 +72,6 @@ dependencies {
     // Java FX
     implementation group: 'org.openjfx', name: 'javafx-controls', version: '19.0.2'
     implementation group: 'org.openjfx', name: 'javafx-fxml', version: '19.0.2'
-
-    // Spring pour le web browsing
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 eclipse {
@@ -121,6 +114,7 @@ jar {
         attributes ('Main-Class': mainClassName)
     }
 }
+
 
 shadowJar {
     setArchivesBaseName(applicationName)
