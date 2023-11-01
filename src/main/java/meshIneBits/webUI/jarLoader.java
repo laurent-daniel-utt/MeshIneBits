@@ -5,15 +5,19 @@ import java.io.IOException;
 public class jarLoader {
     public static void main(String[] args) {
         try {
-            // Specify the JAR file you want to execute
-            String jarFilePath = "server/build/libs/server.jar";
+            // Replace with the actual path to your JAR file
+            String jarPath = "server/build/libs/server.jar";
 
-            // Use ProcessBuilder to run the JAR file
-            ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar", jarFilePath);
+            // Command to run the JAR file in a visible terminal
+            String cmdCommand = "cmd /c start cmd /k java -jar " + jarPath;
 
-            // Start the process
-            Process process = processBuilder.start();
-        } catch (IOException e) {
+            // Start the command in a new terminal window
+            Process process = Runtime.getRuntime().exec(cmdCommand);
+
+            // Wait for the process to exit
+            int exitCode = process.waitFor();
+            System.out.println("Terminal process exited with code " + exitCode);
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
