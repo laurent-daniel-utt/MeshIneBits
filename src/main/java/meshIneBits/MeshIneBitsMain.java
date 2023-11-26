@@ -51,8 +51,6 @@ class MeshIneBitsMain {
     // Load the configuration
     CraftConfigLoader.loadConfig(null);
 
-    // Load the graphical interface
-    new MeshWindow();
   }
 }
 

@@ -13,6 +13,8 @@ public class WebLauncher {
         // Open the web app URL in the user's default browser
         Desktop desktop = Desktop.getDesktop();
         desktop.browse(new URI(webAppUrl));
+
+        WebClient.main(new String[0]);
     }
 
     public static void start() {

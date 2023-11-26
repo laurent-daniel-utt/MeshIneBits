@@ -11,6 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 @RestController
 public class STLController {
 
@@ -49,6 +56,37 @@ public class STLController {
         } else {
             // Handle the case where the file doesn't exist or is not readable.
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/upload-stl")
+    public String uploadSTLFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return "Please select a file to upload.";
+        }
+
+        try {
+            // Define the upload directory path where you want to save the STL file
+            String uploadDir = "classpath:uploadedModels/";
+            String fileName = file.getOriginalFilename();
+            String filePath = uploadDir + fileName;
+
+            // Create the directory if it doesn't exist
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Save the file to the server
+            File stlFile = new File(filePath);
+            file.transferTo(stlFile);
+
+            // You can do further processing here if needed
+            // For example, you might want to validate the file or store its metadata in a database.
+
+            return "File uploaded successfully.";
+        } catch (IOException e) {
+            return "File upload failed: " + e.getMessage();
         }
     }
 

@@ -18,4 +18,3 @@ public class WebApp {
 		return "index";
 	}
 }
-
