@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.

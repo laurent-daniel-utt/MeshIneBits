@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -30,7 +30,7 @@
 package meshIneBits.util.supportUndoRedo;
 
 
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 
 import java.util.Stack;
 
@@ -52,9 +52,9 @@ public class HandlerRedoUndo {
 
   public interface ActionOfUser {
 
-    void runUndo(MeshController meshController);
+    void runUndo(ProjectController projectController);
 
-    void runRedo(MeshController meshController);
+    void runRedo(ProjectController projectController);
   }
 
   public interface UndoRedoListener {
@@ -85,25 +85,25 @@ public class HandlerRedoUndo {
   }
 
   /**
-   * call by MeshController, for redoing the previous actions
+   * call by ProjectController, for redoing the previous actions
    */
-  public void undo(MeshController meshController) {
+  public void undo(ProjectController projectController) {
     if (previousActionOfUserBits.size() != 0) {
       ActionOfUser lastAction = previousActionOfUserBits.pop();
       afterActionOfUserBits.add(lastAction);
-//            lastAction.runUndo(meshController);
+//            lastAction.runUndo(projectController);
       listener.onUndoListener(lastAction);
     }
   }
 
   /**
-   * call by MeshController, for redoing the following actions
+   * call by ProjectController, for redoing the following actions
    */
-  public void redo(MeshController meshController) {
+  public void redo(ProjectController projectController) {
     if (afterActionOfUserBits.size() != 0) {
       ActionOfUser lastAction = afterActionOfUserBits.pop();
       previousActionOfUserBits.add(lastAction);
-//            lastAction.runRedo(meshController);
+//            lastAction.runRedo(projectController);
       listener.onRedoListener(lastAction);
     }
   }

@@ -17,7 +17,7 @@ public class ModelTranslationUtil {
   public ModelTranslationUtil translateModel(OperationModel modelView, float transX, float transY, float transZ) {
     modelView.translateFrame(transX, transY, transZ);
     ModelInWorkspaceChecker checker = new ModelInWorkspaceChecker();
-    ModelInWorkspaceChecker.WorkspaceCheckerResponse res = checker.checkInWorkspace(
+    WorkspaceCheckerResponse res = checker.checkInWorkspace(
         modelView.getFrame().getMinShapeInFrameCoordinate(),
         modelView.getFrame().getMaxShapeInFrameCoordinate());
     if (!res.isInWorkspace()) {

@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -31,15 +31,15 @@ package meshIneBits.gui.view3d.oldversion;
 
 import java.util.Observable;
 import java.util.Observer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Model;
 
 /**
- * Observe {@link Mesh} and
+ * Observe {@link Project} and
  */
  class ControllerView3D extends Observable implements Observer {
 
-  private Mesh mesh;
+  private Project project;
 
   private static ControllerView3D instance;
   private Model model;
@@ -58,20 +58,20 @@ import meshIneBits.Model;
   private ControllerView3D() {
   }
 
-  public Mesh getCurrentMesh() {
-    return mesh;
+  public Project getCurrentMesh() {
+    return project;
   }
 
   /**
-   * @param mesh <tt>null</tt> to delete the current mesh
+   * @param project <tt>null</tt> to delete the current project
    */
-  public void setMesh(Mesh mesh) {
-    if (mesh != null) {
-      this.mesh = mesh;
-      mesh.addObserver(this);
-      model = mesh.getModel();
+  public void setMesh(Project project) {
+    if (project != null) {
+      this.project = project;
+      project.addObserver(this);
+      model = project.getModel();
     } else {
-      this.mesh = null;
+      this.project = null;
     }
 
     setChanged();
@@ -80,7 +80,7 @@ import meshIneBits.Model;
 
   @Override
   public void update(Observable o, Object arg) {
-    //if(MeshEvents.PAVED_MESH.equals(arg)){
+    //if(ProjectEvents.PAVED_MESH.equals(arg)){
     setChanged();
     notifyObservers();
     //}
@@ -88,7 +88,7 @@ import meshIneBits.Model;
 
   int getCurrentLayerNumber() {
     // TODO Implement toolbox in 3D view
-    return mesh.getLayers()
+    return project.getLayers()
         .size() - 1;
   }
 

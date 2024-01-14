@@ -19,28 +19,28 @@ public class BaseMeshBuilder implements IMeshShapeBuilder {
 
   public static final CustomLogger logger = new CustomLogger(BaseMeshBuilder.class);
   private final PApplet context;
-  private final Mesh mesh;
+  private final Project project;
 
   private int num=0;
 //private Vector<Strip> layerstrips=new Vector<>();
 private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
-  public BaseMeshBuilder(PApplet context, Mesh mesh) {
+  public BaseMeshBuilder(PApplet context, Project project) {
     this.context = context;
-    this.mesh = mesh;
+    this.project = project;
   }
 
   @Override
   public PavedMeshBuilderResult buildMeshShape() {
-    //TODO mesh has to be scheduled before build the shape of mesh.
-    if (!mesh.isPaved()) {
+    //TODO project has to be scheduled before build the shape of project.
+    if (!project.isPaved()) {
       return new PavedMeshBuilderResult(null, null);
     }
     Vector<BitShape> bitShapes = new Vector<>();
     PShape meshShape = context.createShape(PConstants.GROUP);
-    mesh.getLayers().forEach((layer) -> {
+    project.getLayers().forEach((layer) -> {
       //TODO temporary code, need to be clean after!!!
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
-              mesh.getScheduler().filterBits(layer.sortBits()));
+              project.getScheduler().filterBits(layer.sortBits()));
       int layerId = layer.getLayerNumber();
       bitsInCurrentLayer.forEach(bit3D -> {
         BitShape bitShape = buildBitShape((NewBit3D) bit3D);
@@ -49,7 +49,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
         NewBit2D newBit2D = ((NewBit3D) bit3D).getBaseBit();
         Vector<SubBit2D> validSubBits = newBit2D.getValidSubBits();
         for (int i = 0; i < validSubBits.size(); i++) {
-          int batchId = ((AdvancedScheduler) mesh.getScheduler()).getSubBitBatch(
+          int batchId = ((AdvancedScheduler) project.getScheduler()).getSubBitBatch(
                   validSubBits.get(i));
           if (batchId != -1) {
             bitShape.getSubBitShapes()
@@ -107,23 +107,23 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
 
   /**
    * the method that creates Stripes.
-   * we iterate through the whole mesh, Layer per Layer,we place the first Stripe of a Layer on the bit which has
+   * we iterate through the whole project, Layer per Layer,we place the first Stripe of a Layer on the bit which has
    * the extremist point to left,then we see what bits can fit in this stripe and we put them in,then we move on to the next Stripe
    * of the layer(again this new Stripe starts with the extremist bit to left from remaining bits of the layer), and so on until
    * each bit of te layer has been added to a Stripe, once a Layer is done we move to the next Layer and so on until every single
-   * bit of the mesh is added to a stripe.
+   * bit of the project is added to a stripe.
    * @return List of Stripes per Layer(each case is a list of stripes in a Layer)
    * example:meshstrips[3]==>List of Stripes of the 4th Layer
    */
 
   public ArrayList<ArrayList<Strip>> build_strips(){
     if(!meshstrips.isEmpty())meshstrips.clear();
-    if (!mesh.isPaved()) {
+    if (!project.isPaved()) {
       return null;
     }
-    mesh.getLayers().forEach((layer) -> {
+    project.getLayers().forEach((layer) -> {
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
-              mesh.getScheduler().filterBits(layer.sortBits()));
+              project.getScheduler().filterBits(layer.sortBits()));
       ArrayList<Strip> layerstrips=new ArrayList<>();
       HashSet<Bit3D> toremove=new HashSet<>();
       /**we sort bits by the extremist point to left*/

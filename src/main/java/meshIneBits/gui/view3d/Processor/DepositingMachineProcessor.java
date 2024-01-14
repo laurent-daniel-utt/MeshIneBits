@@ -1,7 +1,7 @@
 package meshIneBits.gui.view3d.Processor;
 
-import meshIneBits.Mesh;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.Project;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
 import meshIneBits.opcuaHelper.DepositingMachineCommander;
 import meshIneBits.util.MultiThreadServiceExecutor;
@@ -30,10 +30,10 @@ public class DepositingMachineProcessor implements UIPWListener {
   }
 
   public DepositingMachineProcessor(DepositingProcessCallback callback)  {
-    Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
-    commander= new DepositingMachineCommander(mesh);
+    Project project = ProjectProvider.getInstance().getCurrentMesh();
+    commander= new DepositingMachineCommander(project);
     this.callback = callback;
-   MultiThreadServiceExecutor.instance.execute(new DepositingMachineProcessor.SubscriptionTask());
+   MultiThreadServiceExecutor.instance.execute(new SubscriptionTask());
   }
 
   private void startDepose() {

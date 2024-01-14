@@ -3,12 +3,12 @@ package meshIneBits.gui.view3d.Processor;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.NewBit3D;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.GraphicElementLabel;
 import meshIneBits.gui.view3d.provider.CuttingBitShapeProvider;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.gui.view3d.view.UIPWListener;
 import meshIneBits.opcuaHelper.CuttingMachineCommander;
 import meshIneBits.util.CustomLogger;
@@ -38,9 +38,9 @@ public class CuttingMachineProcessor implements UIPWListener {
   }
 
   public CuttingMachineProcessor(PApplet context, BitInCuttingProcessCallback callback) {
-    Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
-    commander = new CuttingMachineCommander(mesh);
-    provider = new CuttingBitShapeProvider(context, mesh);
+    Project project = ProjectProvider.getInstance().getCurrentMesh();
+    commander = new CuttingMachineCommander(project);
+    provider = new CuttingBitShapeProvider(context, project);
     initMachineState();
     this.callback = callback;
   }
@@ -97,11 +97,11 @@ public class CuttingMachineProcessor implements UIPWListener {
       try {
         while (inProcess.get()) {
           NewBit3D bit3D = commander.getCuttingBit();
-          Mesh mesh = MeshProvider.getInstance().getCurrentMesh();
+          Project project = ProjectProvider.getInstance().getCurrentMesh();
           callback.callback(
               provider.getCuttingBitShapeByBit(bit3D).getShape(),
-              Integer.toString(mesh.getScheduler().getBitIndex(bit3D)),
-              Integer.toString(mesh.getScheduler().getLayerContainBit(bit3D).getLayerNumber()),
+              Integer.toString(project.getScheduler().getBitIndex(bit3D)),
+              Integer.toString(project.getScheduler().getLayerContainBit(bit3D).getLayerNumber()),
               Integer.toString(bit3D.getSubBits().size()),
               df.format(bit3D.getOrigin().x) + ", " + df.format(bit3D.getOrigin().y));
           Thread.sleep(Visualization3DConfig.REFRESH_TIME);

@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -41,7 +41,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 
 class BitsPropertyPanel extends JPanel {
 
@@ -55,10 +55,10 @@ class BitsPropertyPanel extends JPanel {
       TitledBorder.TOP);
   private static final String TITLE_PREFIX = "Selected bits: ";
   private GridBagLayout gbc = new GridBagLayout();
-  private Mesh mesh;
+  private Project project;
 
 
-  BitsPropertyPanel(Mesh m) {
+  BitsPropertyPanel(Project m) {
     setBorder(titledBorder);
     this.setLayout(gbc);
     defaultGBC.fill = GridBagConstraints.HORIZONTAL;
@@ -67,7 +67,7 @@ class BitsPropertyPanel extends JPanel {
     defaultGBC.gridx = 0;
     defaultGBC.gridy = 1000;
     this.setOpaque(false);
-    this.mesh = m;
+    this.project = m;
   }
 
   void selectBits(Collection<Bit3D> newBit3Ds) {
@@ -99,7 +99,7 @@ class BitsPropertyPanel extends JPanel {
 
   void selectBit(Bit3D bit3D) {
     bit3Ds.addFirst(bit3D);
-    BitPropertyPanel bitPropertyPanel = new BitPropertyPanel(bit3D, mesh);
+    BitPropertyPanel bitPropertyPanel = new BitPropertyPanel(bit3D, project);
     bitPropertyPanelsMap.put(bit3D, bitPropertyPanel);
     // Add into layout
     if (defaultGBC.gridy == 0) {

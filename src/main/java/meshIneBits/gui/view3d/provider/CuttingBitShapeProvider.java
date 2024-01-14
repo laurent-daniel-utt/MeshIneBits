@@ -2,7 +2,7 @@ package meshIneBits.gui.view3d.provider;
 
 import java.util.HashMap;
 import java.util.Map;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.NewBit3D;
 import meshIneBits.gui.view3d.builder.CuttingBitBuilder;
 import meshIneBits.gui.view3d.builder.CuttingBitShape;
@@ -11,20 +11,20 @@ import processing.core.PApplet;
 public class CuttingBitShapeProvider {
 
   private final CuttingBitBuilder builder;
-  private final Mesh mesh;
+  private final Project project;
   private final Map<NewBit3D, CuttingBitShape> shapeMap = new HashMap<>();
 
-  public CuttingBitShapeProvider(PApplet context, Mesh mesh) {
+  public CuttingBitShapeProvider(PApplet context, Project project) {
     this.builder = new CuttingBitBuilder(context);
-    this.mesh = mesh;
-    initializeShapeMap(mesh);
+    this.project = project;
+    initializeShapeMap(project);
   }
 
-  private void initializeShapeMap(Mesh mesh) {
-    if (mesh == null) {
+  private void initializeShapeMap(Project project) {
+    if (project == null) {
       return;
     }
-    mesh.getScheduler().getSortedBits().forEach(pair -> {
+    project.getScheduler().getSortedBits().forEach(pair -> {
       NewBit3D bit3D = (NewBit3D) pair.getKey();
       shapeMap.put(bit3D, buildCuttingBitShape(bit3D));
     });
@@ -39,7 +39,7 @@ public class CuttingBitShapeProvider {
   }
 
   public CuttingBitShape getCuttingBitShapeById(int bitId) {
-    return shapeMap.get(mesh.getScheduler().getSortedBits().get(bitId).getKey());
+    return shapeMap.get(project.getScheduler().getSortedBits().get(bitId).getKey());
   }
 
 

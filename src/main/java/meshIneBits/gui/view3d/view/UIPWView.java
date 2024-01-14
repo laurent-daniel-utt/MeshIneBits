@@ -244,7 +244,7 @@ public class UIPWView extends UIParameterWindow implements
     shortcut = getControl()
         .addTextarea("shortcut")
         .setText(
-            "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
+            "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Project is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Project is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
         .setColor(component_label_color)
         .setFont(text_font_default)
         .hideScrollbar();

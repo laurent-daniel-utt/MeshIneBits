@@ -1,6 +1,6 @@
 package meshIneBits.gui.view3d.Processor;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.gui.view3d.Processor.DisplayState.State;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
@@ -33,12 +33,12 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   public static AnimationOption option;
   //  private MultiThreadServiceExecutor executor = MultiThreadServiceExecutor.instance;
 
-  public BaseVisualization3DProcessor(Mesh mesh, AbstractVisualization3DView view3D) {
+  public BaseVisualization3DProcessor(Project project, AbstractVisualization3DView view3D) {
    this.view3D = view3D;
-    modelView = new OperationModel(mesh.getModel(), view3D.getFrame());
+    modelView = new OperationModel(project.getModel(), view3D.getFrame());
 
    //FIXME this line below is causing odd behaviours for the bits when refreshing
-            modelProvider = IModel3DProvider.createDefaultInstance(view3D, mesh.getModel(), mesh);
+            modelProvider = IModel3DProvider.createDefaultInstance(view3D, project.getModel(), project);
 
     if (modelProvider instanceof IAssemblyWorkingSpaceProvider
         && modelProvider instanceof IAnimationModel3DProvider) {
@@ -50,12 +50,12 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
     }
 
     state = new DisplayState();
-    initState(mesh);
+    initState(project);
 
   }
 
-  private void initState(Mesh mesh) {
-    state.setState(mesh.isPaved() ? State.PAVED_VIEW : State.MODEL_VIEW);
+  private void initState(Project project) {
+    state.setState(project.isPaved() ? State.PAVED_VIEW : State.MODEL_VIEW);
   }
 
   @Override

@@ -32,7 +32,7 @@ public class ModelRotationUtil {
 
   public void applyRotate(OperationModel modelView) {
     ModelInWorkspaceChecker checker = new ModelInWorkspaceChecker();
-    ModelInWorkspaceChecker.WorkspaceCheckerResponse res = checker.checkInWorkspace(
+    WorkspaceCheckerResponse res = checker.checkInWorkspace(
         modelView.getFrame().getMinShapeInFrameCoordinate(),
         modelView.getFrame().getMaxShapeInFrameCoordinate());
     if (!res.isInWorkspace()) {

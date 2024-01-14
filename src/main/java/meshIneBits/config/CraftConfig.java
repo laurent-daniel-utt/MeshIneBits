@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -30,6 +30,7 @@
 
 package meshIneBits.config;
 
+import meshIneBits.Project;
 import meshIneBits.patterntemplates.*;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.scheduler.AdvancedScheduler;
@@ -230,11 +231,11 @@ public class CraftConfig {
   public static String lastPatternConfigFile = "";
 
   /**
-   * Save the directory of last opened {@link meshIneBits.Mesh}
+   * Save the directory of last opened {@link Project}
    */
   @StringSetting(
-      title = "Last Mesh",
-      description = "Path of the last opened Mesh"
+      title = "Last Project",
+      description = "Path of the last opened Project"
   )
   public static String lastMesh = "";
 

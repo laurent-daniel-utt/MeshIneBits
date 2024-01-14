@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -49,10 +49,10 @@ import java.util.stream.Collectors;
 /**
  * Build by a {@link PatternTemplate}. Literally a {@link Set} of {@link Bit2D}.
  */
-public class Pavement extends Observable implements Cloneable, Serializable {
+public class  Pavement extends Observable implements Cloneable, Serializable {
 
   /**
-   * The key is the origin of {@link Bit2D} in {@link Mesh} coordinate system.
+   * The key is the origin of {@link Bit2D} in {@link Project} coordinate system.
    */
   private Map<Vector2, Bit2D> mapBits;
 
@@ -95,7 +95,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   /**
    * Construct pavement out of bits and chosen rotation
    *
-   * @param bits in {@link Mesh} coordinate system
+   * @param bits in {@link Project} coordinate system
    */
 
   public Pavement(Collection<Bit2D> bits) {
@@ -109,8 +109,8 @@ public class Pavement extends Observable implements Cloneable, Serializable {
 
 
   /**
-   * @param bit in {@link Mesh} coordinate system
-   * @return the origin of inserted bit in {@link Mesh} coordinate system
+   * @param bit in {@link Project} coordinate system
+   * @return the origin of inserted bit in {@link Project} coordinate system
    */
   public Vector2 addBit(Bit2D bit) {
     Vector2 origin = bit.getOriginCS();
@@ -142,7 +142,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
    * Removes the {@link Bit2D} that are outside the boundaries of the {@link Slice} and cut at right
    * shape the ones that intercepts the boundaries.
    *
-   * @param slice boundary in {@link Mesh} coordinate system
+   * @param slice boundary in {@link Project} coordinate system
    * @see #computeBits(Area)
    */
   public void computeBits(Slice slice) {
@@ -155,8 +155,8 @@ public class Pavement extends Observable implements Cloneable, Serializable {
 
 
   /**
-   * @param key in {@link Mesh} coordinate system
-   * @return {@link Bit2D} in {@link Mesh} coordinate system
+   * @param key in {@link Project} coordinate system
+   * @return {@link Bit2D} in {@link Project} coordinate system
    */
   public Bit2D getBit(Vector2 key) {
     return mapBits.get(key);
@@ -166,7 +166,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
    * Retrieve all {@link Bit2D} origins. A new {@link Set} will be created to preserve {@link
    * #mapBits}
    *
-   * @return a {@link Set} in {@link Mesh} coordinate system
+   * @return a {@link Set} in {@link Project} coordinate system
    */
   public Set<Vector2> getBitsKeys() {
     return new HashSet<>(mapBits.keySet());
@@ -176,13 +176,13 @@ public class Pavement extends Observable implements Cloneable, Serializable {
    * Move the chosen bit in the wanted direction. Note: not exactly "moving", but rather "removing"
    * then "adding" new one with same size
    *
-   * @param key       in {@link Mesh} coordinate system
+   * @param key       in {@link Project} coordinate system
    * @param direction in the local coordinate system of the {@link Bit2D}
    * @param distance  the distance of displacement
-   * @return the key of the newly added bit in {@link Mesh} coordinate system
+   * @return the key of the newly added bit in {@link Project} coordinate system
    */
   public Vector2 moveBit(Vector2 key, Vector2 direction, double distance) {
-    Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
+    Bit2D bitToMove = mapBits.get(key); // in Project coordinate system
     Vector2 translationInMesh =
         direction.rotate(bitToMove.getOrientation())
             .normal()
@@ -199,7 +199,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   }
 /*
   public Vector2 rotateBit(Vector2 key, Vector2 orientation) {
-    Bit2D bitToMove = mapBits.get(key); // in Mesh coordinate system
+    Bit2D bitToMove = mapBits.get(key); // in Project coordinate system
     System.out.println(key.toString());
 
 
@@ -216,7 +216,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   /**
    * Unregister a {@link Bit2D}
    *
-   * @param key origin of bit in {@link Mesh} coordinate system
+   * @param key origin of bit in {@link Project} coordinate system
    */
   public void removeBit(Vector2 key) {
     mapBits.remove(key);
@@ -233,7 +233,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   /**
    * Get all stocked {@link Bit2D}s
    *
-   * @return whole schema in {@link Mesh} coordinate system
+   * @return whole schema in {@link Project} coordinate system
    */
   public Set<Bit2D> getBits() {
     return getBitsKeys().stream()
@@ -253,7 +253,7 @@ public class Pavement extends Observable implements Cloneable, Serializable {
   /**
    * Recompute surfaces of {@link Bit2D}s
    *
-   * @param areaSlider in {@link Mesh} coordinate system
+   * @param areaSlider in {@link Project} coordinate system
    * @see #computeBits(Slice)
    */
   public void computeBits(Area areaSlider) {

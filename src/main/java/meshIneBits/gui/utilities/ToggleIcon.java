@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -30,8 +30,8 @@
 
 package meshIneBits.gui.utilities;
 
-import meshIneBits.gui.view2d.MeshAction;
-import meshIneBits.gui.view2d.MeshToggleAction;
+import meshIneBits.gui.view2d.ProjectAction;
+import meshIneBits.gui.view2d.ProjectToggleAction;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -48,7 +48,7 @@ public class ToggleIcon extends JToggleButton implements PropertyChangeListener 
   private final Border offBorder = BorderFactory.createRaisedBevelBorder();
   private String bindProperty;
 
-  ToggleIcon(MeshToggleAction meshToggleAction) {
+  ToggleIcon(ProjectToggleAction meshToggleAction) {
     super(meshToggleAction);
     bindProperty = meshToggleAction.getBindProperty();
 
@@ -74,11 +74,11 @@ public class ToggleIcon extends JToggleButton implements PropertyChangeListener 
     });
   }
 
-  public ToggleIcon(MeshAction meshAction) {
-    super(meshAction);
+  public ToggleIcon(ProjectAction projectAction) {
+    super(projectAction);
     bindProperty = "";
     setHideActionText(true);
-    setToolTipText(meshAction.getToolTipText());
+    setToolTipText(projectAction.getToolTipText());
     setContentAreaFilled(false);
     setFocusPainted(false);
 

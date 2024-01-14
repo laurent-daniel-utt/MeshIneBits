@@ -2,7 +2,7 @@ package meshIneBits.opcuaHelper;
 
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.NewBit3D;
 import meshIneBits.scheduler.AdvancedScheduler;
 import meshIneBits.util.Vector2;
@@ -10,8 +10,8 @@ import meshIneBits.util.Vector2;
 import java.util.Vector;
 
 public class FilterBitById {
-  public NewBit3D filterBitById(Mesh mesh, int bitId){
-    AdvancedScheduler scheduler = (AdvancedScheduler) mesh.getScheduler();
+  public NewBit3D filterBitById(Project project, int bitId){
+    AdvancedScheduler scheduler = (AdvancedScheduler) project.getScheduler();
     Vector<Pair<Bit3D, Vector2>> bitSorted = scheduler.getSortedBits();
     if (bitId >= bitSorted.size()) {
       return null;

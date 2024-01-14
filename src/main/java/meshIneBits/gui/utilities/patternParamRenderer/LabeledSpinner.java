@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -204,7 +204,7 @@ public class LabeledSpinner extends Renderer implements PropertyChangeListener {
 
     FixedWidthSpinner(SpinnerModel model) {
       super(model);
-      ((JSpinner.DefaultEditor) this.getEditor()).getTextField()
+      ((DefaultEditor) this.getEditor()).getTextField()
           .setColumns(MAX_CHAR_WIDTH);
     }
   }

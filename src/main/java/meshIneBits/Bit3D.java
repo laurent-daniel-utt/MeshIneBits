@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -57,11 +57,11 @@ public class Bit3D implements Serializable, Cloneable {
   private Vector<Path2D> rawCutPaths;
   private LinkedList<Vector<Path2D>> rawCutPathsSeparate;
   /**
-   * In {@link Mesh} coordinate system
+   * In {@link Project} coordinate system
    */
   private Vector2 origin;
   /**
-   * In {@link Mesh} coordinate system
+   * In {@link Project} coordinate system
    */
   private Vector2 orientation;
   private Bit2D bit2dToExtrude;
@@ -70,7 +70,7 @@ public class Bit3D implements Serializable, Cloneable {
    */
   private Vector<Vector2> liftPointsCB = new Vector<>();
   /**
-   * In {@link Mesh} coordinate system
+   * In {@link Project} coordinate system
    */
   private Vector<Vector2> liftPointsCS = new Vector<>();
   /**
@@ -253,9 +253,9 @@ public class Bit3D implements Serializable, Cloneable {
 
 
   /**
-   * Return list of distant points in {@link Mesh} coordinate.
+   * Return list of distant points in {@link Project} coordinate.
    *
-   * @return list of distant points in {@link Mesh} coordinate
+   * @return list of distant points in {@link Project} coordinate
    */
   public Vector<Vector2> getTwoDistantPointsCS() {
     Vector<Vector2> listPoints = new Vector<>();

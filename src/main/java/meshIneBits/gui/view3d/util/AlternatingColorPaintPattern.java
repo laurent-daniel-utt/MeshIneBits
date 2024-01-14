@@ -4,7 +4,7 @@ import meshIneBits.Layer;
 import meshIneBits.gui.view3d.builder.BitShape;
 import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
 import meshIneBits.gui.view3d.builder.SubBitShape;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 
 import java.awt.*;
@@ -51,7 +51,7 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
         for (BitShape bitShape : bitShapes) {
 
           if(size_strip>meshstrips.get(l).get(s).getBits().size()-1){
-            Layer layer= MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
+            Layer layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(l);
             if(size_layer< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
               size_strip=0;
               s++;
@@ -62,10 +62,10 @@ public class AlternatingColorPaintPattern implements IPaintShapePattern {
               size_layer=0;
               s=0;
               l++;
-              layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
+              layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(l);
               while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
                 l++;
-                layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(l);
+                layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(l);
               }
 
               if(l%2!=0)colorS=color2;

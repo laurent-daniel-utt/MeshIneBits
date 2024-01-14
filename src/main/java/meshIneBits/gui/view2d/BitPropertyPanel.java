@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -31,7 +31,7 @@
 package meshIneBits.gui.view2d;
 
 import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.util.Logger;
 
 public class BitPropertyPanel extends PropertyPanel {
@@ -47,16 +47,16 @@ public class BitPropertyPanel extends PropertyPanel {
   private static final String EXTREME_RIGHT="Point extreme droite";
 
   private static final String EXTREME_LEFT="Point extreme gauche";
-  private static Mesh mesh = null;
+  private static Project project = null;
 
   BitPropertyPanel(Bit3D bit3D) {
     super("Bit3D@" + bit3D.hashCode());
     initTable(getPropertiesOf(bit3D));
   }
 
-  BitPropertyPanel(Bit3D bit3D, Mesh m) {
+  BitPropertyPanel(Bit3D bit3D, Project m) {
     super("Bit3D@" + bit3D.hashCode());
-    mesh = m;
+    project = m;
     initTable(getPropertiesOf(bit3D));
   }
 
@@ -73,7 +73,7 @@ public class BitPropertyPanel extends PropertyPanel {
           {BIT_NUMBER, "UNKNOWN"},
           {BATCH_ID, "UNKNOWN"}
       };
-    } else if (mesh.getScheduler() != null && !mesh.getScheduler()
+    } else if (project.getScheduler() != null && !project.getScheduler()
         .getSortedBits()
         .isEmpty()) {
       return new String[][]{
@@ -84,11 +84,11 @@ public class BitPropertyPanel extends PropertyPanel {
           {IS_IRREGULAR, String.valueOf(bit3D.isIrregular())},
               {EXTREME_LEFT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(0).x)},
               {EXTREME_RIGHT, String.valueOf(bit3D.getTwoExtremeXPointsCS().get(1).x)},
-          {BIT_NUMBER, String.valueOf(mesh.getScheduler()
+          {BIT_NUMBER, String.valueOf(project.getScheduler()
               .getBitIndex(bit3D))},
-          {PLATE_ID, String.valueOf(mesh.getScheduler()
+          {PLATE_ID, String.valueOf(project.getScheduler()
               .getBitPlate(bit3D))},
-          {BATCH_ID, String.valueOf(mesh.getScheduler()
+          {BATCH_ID, String.valueOf(project.getScheduler()
               .getBitBatch(bit3D))}
       };
     } else {

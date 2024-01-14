@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
@@ -56,15 +56,15 @@ public class ActionOfUserScaleBit implements HandlerRedoUndo.ActionOfUser {
   }
 
   @Override
-  public void runUndo(MeshController meshController) {
-    meshController.setSelectedBitKeys(new HashSet<>(this.keyMapLengthWidth.keySet()));
-    if (meshController.getSelectedBitKeys()
+  public void runUndo(ProjectController projectController) {
+    projectController.setSelectedBitKeys(new HashSet<>(this.keyMapLengthWidth.keySet()));
+    if (projectController.getSelectedBitKeys()
         .isEmpty()) {
       Logger.warning("There is no bit selected");
     } else {
-      meshController.setSelectedBitKeys(meshController.getSelectedBits()
+      projectController.setSelectedBitKeys(projectController.getSelectedBits()
           .stream()
-          .map(bit -> meshController.getCurrentLayer()
+          .map(bit -> projectController.getCurrentLayer()
               .scaleBit(bit,
                   (this.keyMapLengthWidth.get(bit.getOrigin())[0] / CraftConfig.lengthFull) * 100,
                   (this.keyMapLengthWidth.get(bit.getOrigin())[1] / CraftConfig.bitWidth) * 100))
@@ -73,15 +73,15 @@ public class ActionOfUserScaleBit implements HandlerRedoUndo.ActionOfUser {
   }
 
   @Override
-  public void runRedo(MeshController meshController) {
-    meshController.setSelectedBitKeys(new HashSet<>(this.keyMapLengthWidth.keySet()));
-    if (meshController.getSelectedBitKeys()
+  public void runRedo(ProjectController projectController) {
+    projectController.setSelectedBitKeys(new HashSet<>(this.keyMapLengthWidth.keySet()));
+    if (projectController.getSelectedBitKeys()
         .isEmpty()) {
       Logger.warning("There is no bit selected");
     } else {
-      meshController.setSelectedBitKeys(meshController.getSelectedBits()
+      projectController.setSelectedBitKeys(projectController.getSelectedBits()
           .stream()
-          .map(bit -> meshController.getCurrentLayer()
+          .map(bit -> projectController.getCurrentLayer()
               .scaleBit(bit, setPercentageLength, setPercentageWidth))
           .collect(Collectors.toSet()));
     }

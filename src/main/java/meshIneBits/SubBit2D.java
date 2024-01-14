@@ -1,5 +1,6 @@
 package meshIneBits;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.LiftPointCalc;
 import meshIneBits.util.TwoDistantPointsCalc;
@@ -20,9 +21,9 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import static meshIneBits.config.CraftConfig.precision;
-import static meshIneBits.gui.view2d.MeshController.thecontroller;
+import static meshIneBits.gui.view2d.ProjectController.thecontroller;
 
-//TODO define readObject and writeObject for save mesh
+//TODO define readObject and writeObject for save project
 public class SubBit2D implements Serializable {
 
   private Bit2D parentBit;
@@ -43,6 +44,7 @@ public class SubBit2D implements Serializable {
   private Path2D cutPath;
   private boolean removed=false;
 
+  @JsonIgnore
   public SubBit2D(
       @NotNull Vector2 originPositionCS,
       @NotNull Vector2 orientationCS,
@@ -60,21 +62,21 @@ public class SubBit2D implements Serializable {
     this.cutPath = cutPath;
     this.parentBit = parentBit;
     computeLiftPoints();
-   if(liftPointCB!=null) computeDistantPoints(getLiftPointCB());
+    if(liftPointCB!=null) computeDistantPoints(getLiftPointCB());
     computeXminXmaxPoints();
   }
 
+  @JsonIgnore
   public static boolean compareSubs(SubBit2D sub1,SubBit2D sub2){
       ArrayList<Vector2> points1=new ArrayList<>();
       ArrayList<Vector2> points2=new ArrayList<>();
       points1.addAll(TwoDistantPointsCalc.instance.getPointsFromPath(sub1.cutPath));
       points2.addAll(TwoDistantPointsCalc.instance.getPointsFromPath(sub2.cutPath));
-  for(int i=0;i<points1.size();i++){
-      if (Math.abs(points1.get(i).x - points2.get(i).x)>0.0005 || Math.abs(points1.get(i).y - points2.get(i).y)>0.0005) return false;
+      for(int i=0;i<points1.size();i++){
+          if (Math.abs(points1.get(i).x - points2.get(i).x)>0.0005 || Math.abs(points1.get(i).y - points2.get(i).y)>0.0005) return false;
+      }
+      return true;
   }
- return true;
-  }
-
 
   public Vector2 getOriginPositionCS() {
     return originPositionCS;
@@ -83,15 +85,15 @@ public class SubBit2D implements Serializable {
   public Vector2 getOrientationCS() {
     return orientationCS;
   }
-
+  @JsonIgnore
   public Bit2D getParentBit() {
     return parentBit;
   }
-
+  @JsonIgnore
   public Area getAreaCB() {
     return areaCB;
   }
-
+  @JsonIgnore
   public Area getAreaCS() {
     Area areaCS = (Area) areaCB.clone();
     areaCS.transform(transformMatrixToCS);
@@ -101,11 +103,13 @@ public class SubBit2D implements Serializable {
   public boolean isRemoved() {
     return removed;
   }
- public void setRemoved(boolean b){
+  @JsonIgnore
+  public void setRemoved(boolean b){
     this.removed=b;
 
  }
   @SuppressWarnings("unused")
+  @JsonIgnore
   public Path2D getCutPathCB() {
     return cutPath;
   }
@@ -122,6 +126,7 @@ public class SubBit2D implements Serializable {
   }
 
 
+  @JsonIgnore
   private void computeDistantPoints(Vector2 liftPointCB) {
     Vector<Vector2> points = TwoDistantPointsCalc.instance.defineTwoMostDistantPointsInArea(
         areaCB,liftPointCB,precision);
@@ -135,6 +140,7 @@ public class SubBit2D implements Serializable {
     /**
      * compute the max and min x point of the subbit (the 2 extrimist points to right and to left)
      */
+  @JsonIgnore
   private void computeXminXmaxPoints() {
     Vector<Vector2> points = TwoDistantPointsCalc.instance.getXminXmaxFromArea(areaCB, this);
     if (points.size() == 2) {
@@ -145,10 +151,11 @@ public class SubBit2D implements Serializable {
   }
 
   @SuppressWarnings("unused")
+  @JsonIgnore
   public Vector<Vector2> getTwoDistantPointsCB() {
     return new Vector<>(Arrays.asList(firstDistantPointCB, secondDistantPointCB));
   }
-
+  @JsonIgnore
   public Vector<Vector2> getTwoDistantPointsCS() {
     if (firstDistantPointCB == null || secondDistantPointCB == null) {
       return new Vector<>();
@@ -163,6 +170,7 @@ public class SubBit2D implements Serializable {
     /**
      * returns the max and min x point of the subbit (the 2 extrimist points to right and to left)
      */
+    @JsonIgnore
   public Vector<Vector2> getTwoExtremeXPointsCS() {
     if (XminPoint == null || XmaxPoint == null) {
       return new Vector<>();
@@ -172,7 +180,7 @@ public class SubBit2D implements Serializable {
                     XminPoint,
                     XmaxPoint));
   }
-
+    @JsonIgnore
   private void computeLiftPoints() {
     liftPointCB = LiftPointCalc.instance.getLiftPoint(areaCB, CraftConfig.suckerDiameter / 2);
   }

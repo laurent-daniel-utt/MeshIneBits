@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -33,7 +33,7 @@ package meshIneBits.util.supportUndoRedo;
 import meshIneBits.Bit3D;
 import meshIneBits.SubBit2D;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 import meshIneBits.util.Vector2;
 
 import java.util.Collection;
@@ -88,50 +88,50 @@ public class ActionOfUserMoveBit implements HandlerRedoUndo.ActionOfUser {
     }
 
     @Override
-    public void runUndo(MeshController meshController) {
-        meshController.setLayer(this.layerNum);
+    public void runUndo(ProjectController projectController) {
+        projectController.setLayer(this.layerNum);
         // Remove the latest bits with registered result keys
         if(this.currentSelectedBits!=null&&this.resultKeys!=null) {
-            meshController.deleteBitsByBitsAndKeys(this.currentSelectedBits, this.resultKeys);
+            projectController.deleteBitsByBitsAndKeys(this.currentSelectedBits, this.resultKeys);
             Acquisition.RemoveLatestExamples(currentSelectedBits.size()); //deepLearning
         }
         // Restore deleted bits
         // By adding the previous state
         if(this.previousState!=null&&this.previousState.size()!=0){
             Acquisition.RestoreDeletedExamples(previousState); //deepLearning
-            meshController.addBit3Ds(this.previousState);
-            meshController.setSelectedBitKeys(this.previousSelectedBits);
+            projectController.addBit3Ds(this.previousState);
+            projectController.setSelectedBitKeys(this.previousSelectedBits);
         }
         if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
             //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
-            meshController.addSubBit3Ds(this.previousStateSubs);
-            //meshController.setSelectedSubBit(this.previousStateSubs);
+            projectController.addSubBit3Ds(this.previousStateSubs);
+            //projectController.setSelectedSubBit(this.previousStateSubs);
         }
 
 
     }
 
     @Override
-    public void runRedo(MeshController meshController) {
-        meshController.setLayer(this.layerNum);
+    public void runRedo(ProjectController projectController) {
+        projectController.setLayer(this.layerNum);
         // Remove the latest bits with registered result keys
-        meshController.setSelectedBitKeys(this.previousSelectedBits);
+        projectController.setSelectedBitKeys(this.previousSelectedBits);
         if (this.previousState != null && this.previousState.size() != 0) {
-            meshController.deleteBitsByBitsAndKeys(this.previousState, this.previousSelectedBits);
+            projectController.deleteBitsByBitsAndKeys(this.previousState, this.previousSelectedBits);
             Acquisition.RemoveLatestExamples(currentSelectedBits.size()); //deepLearning
         }
         // Restore deleted bits
         // By adding the previous state
         if (this.currentSelectedBits != null) {
             Acquisition.RestoreDeletedExamples(currentSelectedBits); //deepLearning
-            meshController.addBit3Ds(this.currentSelectedBits);
-            meshController.setSelectedBitKeys(this.resultKeys);
+            projectController.addBit3Ds(this.currentSelectedBits);
+            projectController.setSelectedBitKeys(this.resultKeys);
         }
 
         if(this.previousStateSubs!=null&&this.previousStateSubs.size()!=0){
             //  Acquisition.RestoreDeletedExamples(previousState); //deepLearning
-            meshController.deleteSubbits(this.previousStateSubs);
-            //meshController.setSelectedBitKeys(this.previousSelectedBits);
+            projectController.deleteSubbits(this.previousStateSubs);
+            //projectController.setSelectedBitKeys(this.previousSelectedBits);
         }
 
     }

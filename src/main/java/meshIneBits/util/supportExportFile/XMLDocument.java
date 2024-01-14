@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -30,7 +30,7 @@
 package meshIneBits.util.supportExportFile;
 
 import meshIneBits.Bit3D;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.Logger;
@@ -125,9 +125,9 @@ public abstract class XMLDocument<T> {
         throw new NullPointerException(obj.getClass()
             .getName() + " can't be null");
       }
-      if (obj.getClass() == Mesh.class) {
+      if (obj.getClass() == Project.class) {
         // try to get the number of batch.
-        AScheduler scheduler = ((Mesh) obj).getScheduler();
+        AScheduler scheduler = ((Project) obj).getScheduler();
         List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
         int nbBatch = (listAllBit3D.size() / CraftConfig.nbBitesBatch) + 1;
         // Generate the xml for each Batch.

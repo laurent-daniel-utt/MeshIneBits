@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -43,7 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.artificialIntelligence.NNTraining;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 
 public class UPPToolsAI extends UtilityParametersPanel {
 
@@ -51,7 +51,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
   private final static String TEXT_TOGGLE_TRUE = "Recording new inputs..";
     private final JPanel parametersPanel;
 
-  public UPPToolsAI(MeshController meshController) {
+  public UPPToolsAI(ProjectController projectController) {
         super("AI-Tools");
         // Init components
         parametersPanel = new JPanel();
@@ -77,7 +77,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
                 }
 
             } catch (Exception e1) {
-                meshController.handleException(e1);
+                projectController.handleException(e1);
             }
 
 
@@ -89,7 +89,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
       try {
         Acquisition.deleteLastPlacedBit();
       } catch (Exception _e1) {
-        meshController.handleException(_e1);
+        projectController.handleException(_e1);
       }
     });
 
@@ -107,7 +107,7 @@ public class UPPToolsAI extends UtilityParametersPanel {
           Acquisition.stopStoringBits();
         }
       } catch (Exception e1) {
-        meshController.handleException(e1);
+        projectController.handleException(e1);
       }
     });
 

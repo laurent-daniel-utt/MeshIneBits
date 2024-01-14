@@ -1,6 +1,6 @@
 package meshIneBits.gui.view3d.provider;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Model;
 import meshIneBits.Strip;
 import meshIneBits.gui.view3d.builder.*;
@@ -29,17 +29,17 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
   private final IPaintShapePattern paintPattern = new AlternatingColorPaintPattern();
   private boolean paint = true;
 
-  public BaseModel3DProvider(PApplet pApplet, Model model, Mesh mesh) {
+  public BaseModel3DProvider(PApplet pApplet, Model model, Project project) {
     //TODO testing with STLModel
     this.context = pApplet;
-    setup(model, mesh);
+    setup(model, project);
   }
 
-  private void setup(Model model, Mesh mesh) {
+  private void setup(Model model, Project project) {
    modelShape = IModelShapeBuilder.createInstance(context, model).buildModelShape();
      //FIXME this line below is causing the probs
-      meshPavedResult = IMeshShapeBuilder.createInstance(context, mesh).buildMeshShape();
-    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=IMeshShapeBuilder.createInstance(context, mesh).build_strips();
+      meshPavedResult = IMeshShapeBuilder.createInstance(context, project).buildMeshShape();
+    if(ProjectProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=IMeshShapeBuilder.createInstance(context, project).build_strips();
       wsBuilder = new AssemblyWorkingSpaceBuilder(context);
   }
 

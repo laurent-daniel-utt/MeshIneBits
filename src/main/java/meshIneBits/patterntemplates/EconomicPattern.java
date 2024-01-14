@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -32,7 +32,7 @@ package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleListParam;
@@ -44,7 +44,6 @@ import meshIneBits.util.Vector2;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.util.*;
 
@@ -211,7 +210,7 @@ public class EconomicPattern extends PatternTemplate {
   private Vector<Bit2D> fillZone(Area zone) {
     Vector<Bit2D> zonePavement = new Vector<>();
     // The rectangle enclosing the area
-    Rectangle2D.Double zoneOuterRect = (Double) zone.getBounds2D();
+    Double zoneOuterRect = (Double) zone.getBounds2D();
     for (double trialHeightOffset : trialHeightOffsets) {
       // System.out.println("Zone: W " + zone.getBounds2D().getWidth() + "
       // H " + zone.getBounds2D().getHeight()
@@ -496,7 +495,7 @@ public class EconomicPattern extends PatternTemplate {
   private AffineTransform centering(Area area) {
     AffineTransform tx = new AffineTransform();
     tx.setToIdentity();
-    Rectangle2D.Double rect = (Double) area.getBounds2D();
+    Double rect = (Double) area.getBounds2D();
     double centerX = rect.x + rect.width / 2, centerY = rect.y + rect.height / 2;
     tx.translate(-centerX, -centerY);
     return tx;
@@ -550,7 +549,7 @@ public class EconomicPattern extends PatternTemplate {
   @Override
   public String getHowToUse() {
     return "This pattern does not always return a result "
-        + "because once it can not fill a separated zone of the mesh, "
+        + "because once it can not fill a separated zone of the project, "
         + "that whole layer will end up failed.";
   }
 
@@ -558,7 +557,7 @@ public class EconomicPattern extends PatternTemplate {
    * This does nothing in particular.
    */
   @Override
-  public boolean ready(Mesh mesh) {
+  public boolean ready(Project project) {
     return true;
   }
 

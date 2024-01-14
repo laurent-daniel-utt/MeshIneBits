@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -31,16 +31,16 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.gui.utilities.patternParamRenderer.LabeledSpinner;
-import meshIneBits.gui.view2d.MeshAction;
-import meshIneBits.gui.view2d.MeshController;
-import meshIneBits.gui.view2d.MeshToggleAction;
+import meshIneBits.gui.view2d.ProjectAction;
+import meshIneBits.gui.view2d.ProjectController;
+import meshIneBits.gui.view2d.ProjectToggleAction;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class UPPNewBit extends UtilityParametersPanel {
 
-  public UPPNewBit(MeshController meshController) {
+  public UPPNewBit(ProjectController projectController) {
     super("Add new bit");
     setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
@@ -54,34 +54,34 @@ public class UPPNewBit extends UtilityParametersPanel {
     c.gridy = 0;
     c.gridx = -1;
 
-    MeshToggleAction toggleAddingBits = new MeshToggleAction(
+    ProjectToggleAction toggleAddingBits = new ProjectToggleAction(
         "addBits",
         "Toggle select positions",
         "selection-tool.png",
         "Enable/Disable bit adding mode",
         "",
-        meshController,
-        MeshController.ADDING_BITS
+            projectController,
+        ProjectController.ADDING_BITS
     );
     ToggleIcon addingBitsBtn = new ToggleIcon(toggleAddingBits);
     c.gridx++;
     add(addingBitsBtn, c);
 
     LabeledSpinner newBitsOrientationSpinner = new LabeledSpinner(
-        meshController.getNewBitsOrientationParam());
+        projectController.getNewBitsOrientationParam());
     c.gridx++;
     add(newBitsOrientationSpinner, c);
 
     c.gridx++;
-    add(meshController.getSafeguardSpaceParam()
+    add(projectController.getSafeguardSpaceParam()
         .getRenderer(), c);
 
     c.gridx++;
-    add(meshController.getAutocropParam()
+    add(projectController.getAutocropParam()
         .getRenderer(), c);
 
     c.gridx++;
-    add(meshController.getProhibitAddingIrregularBitParam()
+    add(projectController.getProhibitAddingIrregularBitParam()
         .getRenderer(), c);
 
     JLabel bitLabel = new JLabel("Bit types: ");
@@ -90,49 +90,49 @@ public class UPPNewBit extends UtilityParametersPanel {
 
     ButtonGroup bitTypes = new ButtonGroup();
 
-    ToggleIcon fullbit = new ToggleIcon(new MeshAction(
+    ToggleIcon fullbit = new ToggleIcon(new ProjectAction(
         "addFullBit",
         "Add a full bit",
         "bit-restore.png",
         "New bit to add will have full width and height",
         "",
-        () -> meshController.setNewBitSize(100, 100)
+        () -> projectController.setNewBitSize(100, 100)
     ));
     c.gridx++;
     add(fullbit, c);
     bitTypes.add(fullbit);
 
-    ToggleIcon halfwidthbit = new ToggleIcon(new MeshAction(
+    ToggleIcon halfwidthbit = new ToggleIcon(new ProjectAction(
         "addHalfWidthBit",
         "Add a bit with half width",
         "bit-half-width.png",
         "New bit to add will have half width and full length",
         "",
-        () -> meshController.setNewBitSize(100, 50)
+        () -> projectController.setNewBitSize(100, 50)
     ));
     c.gridx++;
     add(halfwidthbit, c);
     bitTypes.add(halfwidthbit);
 
-    ToggleIcon halflengthbit = new ToggleIcon(new MeshAction(
+    ToggleIcon halflengthbit = new ToggleIcon(new ProjectAction(
         "addHalfLengthBit",
         "Add a bit with half length",
         "bit-half-length.png",
         "New bit to add will have half length and full width",
         "",
-        () -> meshController.setNewBitSize(50, 100)
+        () -> projectController.setNewBitSize(50, 100)
     ));
     c.gridx++;
     add(halflengthbit, c);
     bitTypes.add(halflengthbit);
 
-    ToggleIcon quartbit = new ToggleIcon(new MeshAction(
+    ToggleIcon quartbit = new ToggleIcon(new ProjectAction(
         "addQuartBit",
         "Add a quart of bit",
         "bit-quart.png",
         "New bit to add will have half length and half width",
         "",
-        () -> meshController.setNewBitSize(50, 50)
+        () -> projectController.setNewBitSize(50, 50)
     ));
     c.gridx++;
     add(quartbit, c);

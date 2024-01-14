@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -34,7 +34,7 @@ import java.io.Serializable;
 import meshIneBits.util.Shape2D;
 
 /**
- * A slice is the projection of the boundaries of the mesh on a plane.
+ * A slice is the projection of the boundaries of the project on a plane.
  * <br><img src="./doc-files/slice.png" alt="">
  *
  * @see Shape2D

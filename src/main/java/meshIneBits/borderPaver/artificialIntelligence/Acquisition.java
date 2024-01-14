@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -35,7 +35,7 @@ import meshIneBits.Bit3D;
 import meshIneBits.borderPaver.util.GeneralTools;
 import meshIneBits.borderPaver.util.Section;
 import meshIneBits.borderPaver.util.SectionTransformer;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 import meshIneBits.patterntemplates.AI_Pavement;
 import meshIneBits.slicer.Slice;
 import meshIneBits.util.Vector2;
@@ -57,10 +57,10 @@ public class Acquisition {
     private static boolean isStoringNewBits = false;
     private static HashMap<Bit2D, Vector<Vector2>> bit2DVectorHashMap;
     private static Vector<Bit2D> storedExamplesBits;//useful to delete lasts placed bit
-    private static MeshController meshController;
+    private static ProjectController projectController;
 
-    public static void setMeshController(MeshController meshController) {
-        Acquisition.meshController = meshController;
+    public static void setMeshController(ProjectController projectController) {
+        Acquisition.projectController = projectController;
     }
 
     /**
@@ -106,7 +106,7 @@ public class Acquisition {
             throw new Exception("Example not added !");
         }
 
-        Section sectionPoints = getCurrentLayerBitAssociatedPoints(bit, meshController.getCurrentLayer().getHorizontalSection());
+        Section sectionPoints = getCurrentLayerBitAssociatedPoints(bit, projectController.getCurrentLayer().getHorizontalSection());
         bit2DVectorHashMap.put(bit,
                                sectionPoints.getPoints());
         storedExamplesBits.add(bit);
@@ -130,7 +130,7 @@ public class Acquisition {
     }
 
     public static Slice getCurrentSlice() {
-        return meshController.getCurrentLayer().getHorizontalSection();
+        return projectController.getCurrentLayer().getHorizontalSection();
     }
 
     /**

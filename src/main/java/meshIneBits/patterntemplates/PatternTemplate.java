@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -34,7 +34,7 @@ import java.awt.geom.Area;
 import java.io.Serializable;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Pavement;
 import meshIneBits.config.PatternConfig;
 
@@ -89,16 +89,16 @@ public abstract class PatternTemplate implements Serializable, Cloneable {
   /**
    * Calculate private parameters, after slicing and before generating bits.
    *
-   * @param mesh the current part in workplace
+   * @param project the current part in workplace
    * @return <tt>false</tt> if the preparation fails
    */
-  public abstract boolean ready(Mesh mesh);
+  public abstract boolean ready(Project project);
 
   /**
    * Construct the layer based on this pattern. This constructor is similar to make cake: apply a
    * mould onto flour.
    *
-   * @param layer target to fill {@link meshIneBits.Bit2D} in
+   * @param layer target to fill {@link Bit2D} in
    * @return schema to fill the given surface
    * @since 0.3
    */

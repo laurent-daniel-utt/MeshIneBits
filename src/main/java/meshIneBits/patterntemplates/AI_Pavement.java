@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -32,7 +32,7 @@ package meshIneBits.patterntemplates;
 
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Pavement;
 import meshIneBits.borderPaver.artificialIntelligence.Acquisition;
 import meshIneBits.borderPaver.artificialIntelligence.NNExploitation;
@@ -103,7 +103,7 @@ public class AI_Pavement extends PatternTemplate {
     }
 
     @Override
-    public boolean ready(Mesh mesh) {
+    public boolean ready(Project project) {
         return true;
     }
 
@@ -174,7 +174,7 @@ public class AI_Pavement extends PatternTemplate {
 
 
     /**
-     * Pave the whole mesh with AI.
+     * Pave the whole project with AI.
      */
     public @NotNull Collection<Bit2D> startNNPavement(@NotNull Slice slice) throws Exception {
         Vector<Bit2D> bits = new Vector<>();

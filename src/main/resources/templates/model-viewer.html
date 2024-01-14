@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Model viewer</title>
+
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "/three/build/three.module.js",
+                "OrbitControls": "/three/examples/jsm/controls/OrbitControls.js",
+                "STLLoader" : "/three/examples/jsm/loaders/STLLoader.js",
+                "DragControls" : "/three/examples/jsm/controls/DragControls.js",
+                "TransformControls" : "/three/examples/jsm/controls/TransformControls.js"
+            }
+        }
+    </script>
+    <script type="module" src="/stl_uploader.js"></script>
+</head>
+
+
+<body>
+<input type="file" id="stlFileInput" accept=".stl">
+<button onclick="uploadFile()">Upload STL File</button>
+
+<button onclick="sliceModel()">Slice the mesh</button>
+
+<div id="stl-container"></div>
+<script type="module" src="/model_viewer.js">
+
+</script>
+
+</body>
+</html>

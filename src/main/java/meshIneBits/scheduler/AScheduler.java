@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -40,15 +40,15 @@ import java.util.Vector;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
-import meshIneBits.MeshEvents;
+import meshIneBits.Project;
+import meshIneBits.ProjectEvents;
 import meshIneBits.SubBit2D;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 
 public abstract class AScheduler extends Observable implements Serializable, Runnable {
 
-  protected Mesh mesh = null;
+  protected Project project = null;
   protected Vector<Pair<Bit3D, Vector2>> sortedBits = new Vector<>();
   protected Map<Bit3D, Layer> bit_layer_map = new HashMap<>();
   //    protected Vector<Bit3D> firstLayerBits = new Vector<>();
@@ -57,14 +57,14 @@ public abstract class AScheduler extends Observable implements Serializable, Run
   AScheduler() {
   }
 
-  AScheduler(Mesh m) {
+  AScheduler(Project m) {
     super();
     addObserver(m);
-    mesh = m;
+    project = m;
   }
 
-  public void setMesh(Mesh m) {
-    this.mesh = m;
+  public void setMesh(Project m) {
+    this.project = m;
   }
 
   /**
@@ -114,11 +114,11 @@ public abstract class AScheduler extends Observable implements Serializable, Run
   public abstract boolean schedule();
 
   public void run() {
-    notifyObservers(MeshEvents.SCHEDULING);
+    notifyObservers(ProjectEvents.SCHEDULING);
     Logger.updateStatus("Starting bits cut & place scheduling operation.");
     schedule();
     Logger.updateStatus("Bits cut & place scheduling is over.");
-    notifyObservers(MeshEvents.SCHEDULED);
+    notifyObservers(ProjectEvents.SCHEDULED);
   }
 
   public static List<Bit3D> getSetBit3DsSortedFrom(Vector<Pair<Bit3D, Vector2>> arg) {

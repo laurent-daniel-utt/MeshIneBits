@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Model viewer</title>
+
+    <script type="module" src="/stl_uploader.js"></script>
+
+
+</head>
+<body>
+
+
+<input type="file" id="stlFileInput" accept=".stl">
+<button onclick="uploadFile()">Upload STL File</button>
+
+<button onclick="sliceModel()">Slice the current charged model</button>
+
+<a href="/model-viewer?name=Blob.stl">Blob</a>
+<a href="/model-viewer?name=gear.stl">gear</a>
+<a href="/model-viewer?name=moon.stl">moon</a>
+
+</body>
+</html>

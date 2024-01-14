@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -38,17 +38,15 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 
 public class UPPPaveLayer extends UtilityParametersPanel  {
-    public UPPPaveLayer(MeshController meshController) {
+    public UPPPaveLayer(ProjectController projectController) {
         super("Pave Layer");
         // Init components
         JPanel parametersPanel = new JPanel();
@@ -64,7 +62,7 @@ public class UPPPaveLayer extends UtilityParametersPanel  {
     //shortcut for layer paving : Alt+Shift+P
         Action buttonAction = new AbstractAction("Start") {
       @Override public void actionPerformed(ActionEvent evt) {
-        startLayerPavement(meshController, patternComboBox);
+        startLayerPavement(projectController, patternComboBox);
             }
         };
 
@@ -75,7 +73,7 @@ public class UPPPaveLayer extends UtilityParametersPanel  {
                 KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.SHIFT_DOWN_MASK+InputEvent.ALT_DOWN_MASK), key);
         startButton.getActionMap().put(key, buttonAction);
 
-    startButton.addActionListener(e -> startLayerPavement(meshController, patternComboBox));
+    startButton.addActionListener(e -> startLayerPavement(projectController, patternComboBox));
 
     // Layout
     setLayout(new GridBagLayout());
@@ -106,11 +104,11 @@ public class UPPPaveLayer extends UtilityParametersPanel  {
 
   }
 
-    private void startLayerPavement(MeshController meshController, PatternComboBox patternComboBox) {
+    private void startLayerPavement(ProjectController projectController, PatternComboBox patternComboBox) {
         try {
-            meshController.paveLayer(patternComboBox.getCurrentChoice());
+            projectController.paveLayer(patternComboBox.getCurrentChoice());
         } catch (Exception e1) {
-            meshController.handleException(e1);
+            projectController.handleException(e1);
         }
     }
 }

@@ -1,129 +1,141 @@
 plugins {
-    id "java"
-    id "application"
-    id "eclipse"
-    id "idea"
-    id "com.github.johnrengelman.shadow" version "7.1.1"
+	id "java"
+	id "application"
 
+	id "eclipse"
+	id "idea"
+	id "com.github.johnrengelman.shadow" version "7.1.1"
 
+	id 'org.springframework.boot' version '2.7.18'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
 // Define the entry point
-mainClassName = 'meshIneBits.MeshIneBitsMain'
+mainClassName = 'meshIneBits.MeshIneBitsWebMain'
 //mainClassName = 'meshIneBits.util.supportImportFile.DomParser'
 applicationName = 'MeshIneBits'
 def actualVersion = '0.6.0'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use 'jcenter' for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
-    mavenCentral()
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
+	// Use 'jcenter' for resolving your dependencies.
+	// You can declare any Maven/Ivy/file repository here.
+	jcenter()
+	mavenCentral()
+	maven {
+		url "https://oss.sonatype.org/content/repositories/snapshots"
+	}
 }
 
 sourceCompatibility = 1.8
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-    implementation "com.github.sarxos:webcam-capture:0.3.12"
+	implementation 'ch.qos.logback:logback-core:1.1.3'
 
-    implementation "org.eclipse.milo:sdk-client:0.6.3"
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    implementation 'org.jetbrains:annotations:19.0.0'
-    implementation "org.nd4j:nd4j-native-platform:1.0.0-beta6"
-    implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-beta6"
-    implementation "ch.qos.logback:logback-classic:1.0.11"
-    implementation "org.deeplearning4j:deeplearning4j-ui:1.0.0-beta6"
-    implementation "org.datavec:datavec-local:1.0.0-beta6"
+	implementation "com.github.sarxos:webcam-capture:0.3.12"
 
-    implementation 'org.processing:core:3.3.7'
-    implementation 'org.jogamp.jogl:jogl-all:2.3.2'
-    implementation 'org.jogamp.gluegen:gluegen-rt:2.3.2'
-    testImplementation 'org.json:json:20180130'
-    implementation files('libs/proscene.jar', 'libs/controlP5.jar', 'libs/commons-math3-3.3.jar')
-                    //    'libs/bridj-0.7.0.jar', 'libs/slf4j-api-1.7.2.jar', 'libs/webcam-capture-0.3.12.jar')
+	implementation "org.eclipse.milo:sdk-client:0.6.3"
 
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6hf"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-i586"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-amd64"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-i586"
+	implementation 'org.jetbrains:annotations:19.0.0'
+	implementation "org.nd4j:nd4j-native-platform:1.0.0-beta6"
+	implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-beta6"
+	implementation "ch.qos.logback:logback-classic:1.1.3"
+	implementation "org.deeplearning4j:deeplearning4j-ui:1.0.0-beta6"
+	implementation "org.datavec:datavec-local:1.0.0-beta6"
 
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-amd64"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
+	implementation 'org.processing:core:3.3.7'
+	implementation 'org.jogamp.jogl:jogl-all:2.3.2'
+	implementation 'org.jogamp.gluegen:gluegen-rt:2.3.2'
+	testImplementation 'org.json:json:20180130'
+	implementation files('libs/proscene.jar', 'libs/controlP5.jar', 'libs/commons-math3-3.3.jar')
+	//    'libs/bridj-0.7.0.jar', 'libs/slf4j-api-1.7.2.jar', 'libs/webcam-capture-0.3.12.jar')
 
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.1.0',
-            'org.junit.jupiter:junit-jupiter-params:5.1.0')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.1.0',
-            'org.junit.platform:junit-platform-launcher:1.1.0')
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-amd64"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-armv6hf"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-linux-i586"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-amd64"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-windows-i586"
 
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-amd64"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-armv6hf"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-linux-i586"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-amd64"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-windows-i586"
 
-    // Java FX
-    implementation group: 'org.openjfx', name: 'javafx-controls', version: '19.0.2'
-    implementation group: 'org.openjfx', name: 'javafx-fxml', version: '19.0.2'
+	testImplementation('org.junit.jupiter:junit-jupiter-api:5.1.0',
+			'org.junit.jupiter:junit-jupiter-params:5.1.0')
+	testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.1.0',
+			'org.junit.platform:junit-platform-launcher:1.1.0')
 
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+
+	// Java FX
+	implementation group: 'org.openjfx', name: 'javafx-controls', version: '19.0.2'
+	implementation group: 'org.openjfx', name: 'javafx-fxml', version: '19.0.2'
+
+	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+
+	//Serialization
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+
 }
 
 eclipse {
-    project.natures 'org.eclipse.buildship.core.gradleprojectnature'
-    classpath {
-        file {
-            defaultOutputDir = file("bin/main")
-            whenMerged {
-                //change output folder for tests
-                def testSource = entries.find { it.path == 'src/test/java' }
-                testSource.output = "bin/test"
+	project.natures 'org.eclipse.buildship.core.gradleprojectnature'
+	classpath {
+		file {
+			defaultOutputDir = file("bin/main")
+			whenMerged {
+				//change output folder for tests
+				def testSource = entries.find { it.path == 'src/test/java' }
+				testSource.output = "bin/test"
 
-                // Remove local ref for libs
-                // entries.removeAll { it.kind == "lib" }
-            }
-            containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
-        }
-    }
+				// Remove local ref for libs
+				// entries.removeAll { it.kind == "lib" }
+			}
+			containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
+		}
+	}
 }
 
 tasks.idea.dependsOn(cleanIdea)
 
 idea {
-    module {
-        [".gradle", ".idea", "data", "doc", "out"].each {
-            excludeDirs += file(it)
-        }
-        iml {
-            beforeMerged { module ->
-                module.excludeFolders.clear()
-            }
-        }
-    }
+	module {
+		[".gradle", ".idea", "data", "doc", "out"].each {
+			excludeDirs += file(it)
+		}
+		iml {
+			beforeMerged { module ->
+				module.excludeFolders.clear()
+			}
+		}
+	}
 }
 
 jar {
-    setArchivesBaseName(applicationName)
-    version(actualVersion)
-    manifest {
-        attributes ('Main-Class': mainClassName)
-    }
+	setArchivesBaseName(applicationName)
+	version(actualVersion)
+	manifest {
+		attributes ('Main-Class': mainClassName)
+	}
 }
 
 
 shadowJar {
-    setArchivesBaseName(applicationName)
-    classifier(null)
-    appendix(null)
-    version(actualVersion)
-    zip64 = true
+//	setArchivesBaseName(applicationName)
+//	classifier(null)
+//	appendix(null)
+//	version(actualVersion)
+	zip64 = true
 }

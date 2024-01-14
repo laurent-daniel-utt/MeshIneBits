@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -30,12 +30,12 @@
 
 package meshIneBits.util;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 
 public class SimultaneousOperationsException extends Exception {
 
-  public SimultaneousOperationsException(Mesh mesh) {
-    super("The mesh is undergoing an other task. " + mesh.getState()
+  public SimultaneousOperationsException(Project project) {
+    super("The project is undergoing an other task. " + project.getState()
         + ". Please wait until that task is done.");
   }
 }

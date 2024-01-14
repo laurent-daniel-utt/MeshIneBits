@@ -1,7 +1,7 @@
 package meshIneBits.gui.view3d.view;
 
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.util.CustomLogger;
 import processing.core.PShape;
 
@@ -111,7 +111,7 @@ private int i=0;
         processor.setAnimationIndex(Math.round((float) value));
         break;
       case EXPORTAll:
-        if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
+        if (ProjectProvider.getInstance().getCurrentMesh().isPaved()){
           processor.setDisplayOneByOne(true);
           Exportation=true;
           processor.activateAnimation();

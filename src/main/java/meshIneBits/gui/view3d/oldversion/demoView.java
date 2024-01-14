@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -34,7 +34,7 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
 import javafx.util.Pair;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
 import processing.core.PApplet;
@@ -162,7 +162,7 @@ public class demoView extends PApplet implements Observer, SubWindow {
     try {
 //            builder.buildBits(shapeMap);
     } catch (Exception e) {
-      println("Mesh not generated yet");
+      println("Project not generated yet");
     }
     setCloseOperation();
     cp5 = new ControlP5(this);
@@ -305,8 +305,8 @@ public class demoView extends PApplet implements Observer, SubWindow {
   }
 
   @Override
-  public void setCurrentMesh(Mesh mesh) {
-    controllerView3D.setMesh(mesh);
+  public void setCurrentMesh(Project project) {
+    controllerView3D.setMesh(project);
   }
 
   private void setVisible(boolean b) {

@@ -40,7 +40,7 @@ public class AdvancedScheduler extends BasicScheduler {
       logger.logDEBUGMessage("AdvancedScheduler is only used with newBit3D and newBit2D!");
     }
 
-    int sum= mesh.getStripes().stream().mapToInt(ArrayList::size).sum();
+    int sum= project.getStripes().stream().mapToInt(ArrayList::size).sum();
 
 
     logger.logDEBUGMessage("Number of subBit: " + subBit2Ds.size());

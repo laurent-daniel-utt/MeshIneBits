@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -47,7 +47,7 @@ public class BasicScheduler extends AScheduler {
   public BasicScheduler() {
   }
 
-  public BasicScheduler(Mesh m) {
+  public BasicScheduler(Project m) {
     super(m);
   }
 
@@ -87,14 +87,14 @@ public class BasicScheduler extends AScheduler {
 
   @Override
   public boolean schedule() {
-    Logger.setProgress(0, this.mesh.getLayers()
+    Logger.setProgress(0, this.project.getLayers()
         .size());
     double xMin;
     this.sortedBits.clear();
-    Logger.message("Size of layer " + this.mesh.getLayers()
+    Logger.message("Size of layer " + this.project.getLayers()
         .size());
     int i = 0;
-    for (Layer curLayer : this.mesh.getLayers()) {
+    for (Layer curLayer : this.project.getLayers()) {
       Vector<Pair<Bit3D, Vector2>> bits = curLayer.sortBits();
       bits = this.filterBits(bits);
       if (bits.size() > 0) {
@@ -104,19 +104,19 @@ public class BasicScheduler extends AScheduler {
         }
         this.firstLayerBits.put(i, bits.firstElement().getKey());
       }
-      Logger.setProgress(curLayer.getLayerNumber() + 1, this.mesh.getLayers()
+      Logger.setProgress(curLayer.getLayerNumber() + 1, this.project.getLayers()
           .size());
       i++;
     }
     int nbIrrefularBits = 0;
-    for (Layer curLayer : this.mesh.getLayers()) {
+    for (Layer curLayer : this.project.getLayers()) {
       nbIrrefularBits += curLayer.getIrregularBits()
           .size();
     }
 
-    System.out.println("Number of Irregular bits in the Mesh: " + nbIrrefularBits);
+    System.out.println("Number of Irregular bits in the Project: " + nbIrrefularBits);
 
-    mesh.setStripes(build_scheduleStrips());
+    project.setStripes(build_scheduleStrips());
 
 
     return true;
@@ -139,10 +139,10 @@ public class BasicScheduler extends AScheduler {
       double xInterval = CraftConfig.workingWidth;
       subBits.sort((v1, v2) -> {
         int v1XColumn = (int) (v1.getLiftPointCB().x +
-            mesh.getModel()
+            project.getModel()
                 .getPos().x + xMin) / (int) xInterval;
         int v2XColumn =
-            (int) (v2.getLiftPointCB().x + mesh.getModel()
+            (int) (v2.getLiftPointCB().x + project.getModel()
                 .getPos().x + xMin) / (int) xInterval;
 
         return v1XColumn - v2XColumn;
@@ -167,10 +167,10 @@ public class BasicScheduler extends AScheduler {
     double xInterval = CraftConfig.workingWidth;
     keySet.sort((v1, v2) -> {
       int v1XColumn =
-          (int) (v1.getValue().x + mesh.getModel()
+          (int) (v1.getValue().x + project.getModel()
               .getPos().x + offsetX) / (int) xInterval;
       int v2XColumn =
-          (int) (v2.getValue().x + mesh.getModel()
+          (int) (v2.getValue().x + project.getModel()
               .getPos().x + offsetX) / (int) xInterval;
 
       if (v1XColumn == v2XColumn) {
@@ -193,13 +193,13 @@ public class BasicScheduler extends AScheduler {
 
   public ArrayList<ArrayList<Strip>> build_scheduleStrips(){
 if(!strips.isEmpty())strips.clear();
-    if (!mesh.isPaved()) {
+    if (!project.isPaved()) {
       return null;
     }
-    mesh.getLayers().forEach((layer) -> {
+    project.getLayers().forEach((layer) -> {
 
       List<Bit3D> bitsInCurrentLayer = AScheduler.getSetBit3DsSortedFrom(
-              mesh.getScheduler().filterBits(layer.sortBits()));
+              project.getScheduler().filterBits(layer.sortBits()));
       ArrayList<Strip> layerstrips=new ArrayList<>();
       HashSet<Bit3D> toremove=new HashSet<>();
       Collections.sort(bitsInCurrentLayer,Comparator.comparing(Bit3D::getMinX));

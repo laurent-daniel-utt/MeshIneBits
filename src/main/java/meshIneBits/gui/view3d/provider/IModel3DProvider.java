@@ -1,6 +1,6 @@
 package meshIneBits.gui.view3d.provider;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Model;
 import meshIneBits.Strip;
 import meshIneBits.gui.view3d.builder.BitShape;
@@ -12,9 +12,9 @@ import java.util.Vector;
 
 public interface IModel3DProvider {
 
-  static IModel3DProvider createDefaultInstance(PApplet context, Model model, Mesh mesh){
+  static IModel3DProvider createDefaultInstance(PApplet context, Model model, Project project){
 
-    return new BaseModel3DProvider(context,model,mesh);
+    return new BaseModel3DProvider(context,model, project);
   }
 
   PShape getMeshShape();

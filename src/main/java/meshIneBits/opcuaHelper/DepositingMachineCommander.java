@@ -2,24 +2,24 @@
 package meshIneBits.opcuaHelper;
 
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.util.CustomLogger;
 
 public class DepositingMachineCommander {
 
     private final CustomLogger logger = new CustomLogger(this.getClass());
-    private final Mesh mesh;
+    private final Project project;
     //private final DepositingMachineOPCUAHelper helper=new DepositingMachineOPCUAHelper();
     private  DepositingMachineOPCUAHelper helper;
 
-    public DepositingMachineCommander(Mesh mesh)  {
+    public DepositingMachineCommander(Project project)  {
            helper =new DepositingMachineOPCUAHelper();
-        this.mesh = mesh;
+        this.project = project;
     }
 
     public DepositingMachineCommander() {
 
-        mesh = null;
+        project = null;
     }
 
     public void startDepose() throws Exception {

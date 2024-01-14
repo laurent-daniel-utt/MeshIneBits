@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -42,6 +42,7 @@ import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Model;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.AreaTool;
@@ -154,7 +155,7 @@ class Builder extends PApplet implements Observer {
   }
 
   /**
-   * Assign PShape from the paved {@link meshIneBits.Mesh}, get from {@link ControllerView3D} to the
+   * Assign PShape from the paved {@link Project}, get from {@link ControllerView3D} to the
    * two lists in parameter. It's used in {@link #buildMeshPaved }
    *
    * @param shapeMapByLayer the {@Vector list} contains {@link PShape} of each Layer by its
@@ -291,13 +292,13 @@ class Builder extends PApplet implements Observer {
 
 
   /**
-   * Assign PShape from the paved {@link meshIneBits.Mesh}, get from {@link ControllerView3D} to the
-   * two lists in parameter and return whole {@link PShape} of the paved Mesh
+   * Assign PShape from the paved {@link Project}, get from {@link ControllerView3D} to the
+   * two lists in parameter and return whole {@link PShape} of the paved Project
    *
    * @param shapeMapByLayer the {@Vector list} contains {@link PShape} of each Layer by its
    *                        position
    * @param shapeMapByBits  the {@Vector list} contains {@link PShape} of each Bit by its position
-   * @return {@link PShape} of the paved Mesh
+   * @return {@link PShape} of the paved Project
    */
   public PShape buildMeshPaved(Vector<Pair<Layer, PShape>> shapeMapByLayer,
       Vector<Pair<Bit3D, PShape>> shapeMapByBits) {

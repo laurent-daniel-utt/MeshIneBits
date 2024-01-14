@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -200,6 +200,7 @@ public class Layer extends Observable implements Serializable {
   public void rebuild() {
 
     flatPavement.computeBits(horizontalArea);
+
     extrudeBitsTo3D();
     findKeysOfIrregularBits();
     setChanged();
@@ -233,6 +234,7 @@ public class Layer extends Observable implements Serializable {
             key -> new NewBit3D((NewBit2D) flatPavement.getBit(key), this),
             (u, v) -> u, // Preserve the first
             ConcurrentHashMap::new));
+
   }
 
   /**
@@ -283,7 +285,7 @@ public class Layer extends Observable implements Serializable {
    * Construct new empty layer. No {@link PatternTemplate}, no {@link Pavement}
    *
    * @param layerNumber       index of layer
-   * @param horizontalSection projection of mesh onto layer's altitude
+   * @param horizontalSection projection of project onto layer's altitude
    */
   public Layer(int layerNumber, Slice horizontalSection) {
     this.layerNumber = layerNumber;
@@ -376,9 +378,9 @@ public class Layer extends Observable implements Serializable {
    * Add a {@link Bit2D} to the {@link #flatPavement}. Recalculate area of {@link Bit2D} and decide
    * to add into {@link #flatPavement} if it is inside border
    *
-   * @param bit expressed in {@link Mesh} coordinate system
+   * @param bit expressed in {@link Project} coordinate system
    * @param b   <tt>true</tt> to notify observers
-   * @return the origin of the newly inserted bit in {@link Mesh} coordinate system.
+   * @return the origin of the newly inserted bit in {@link Project} coordinate system.
    * <tt>null</tt> if out of bound
    */
   public Vector2 addBit(Bit2D bit, boolean b) {

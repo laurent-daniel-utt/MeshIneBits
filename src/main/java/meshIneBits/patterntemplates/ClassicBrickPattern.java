@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -35,11 +35,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import meshIneBits.Bit2D;
-import meshIneBits.Layer;
-import meshIneBits.Mesh;
-import meshIneBits.NewBit2D;
-import meshIneBits.Pavement;
+
+import meshIneBits.*;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.util.AreaTool;
@@ -177,7 +175,7 @@ public class ClassicBrickPattern extends PatternTemplate {
   }
 
   @Override
-  public boolean ready(Mesh mesh) {
+  public boolean ready(Project project) {
     return true;
   }
 

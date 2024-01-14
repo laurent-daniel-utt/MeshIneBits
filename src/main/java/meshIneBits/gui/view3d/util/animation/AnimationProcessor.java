@@ -5,7 +5,7 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.MultiThreadServiceExecutor;
@@ -224,7 +224,7 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
    *when the size of the current stripe at the current moment equals the total size of the current stripe
    */
             if(size_currentstrip>meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1){
-              Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+              Layer layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
               /**
                * if we still in the same layer we move to the next stripe of the same layer
                */
@@ -244,10 +244,10 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
                 currentlayer_size=0;
                 currentStrip=0;
                 currentlayer++;
-                layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
                   currentlayer++;
-                  layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                  layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 }
                  pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
                  Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
@@ -298,13 +298,13 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
     if(currentlayer_size==0) {
     currentlayer--;
     if(currentlayer<0) return;
-    layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+    layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       while  (((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0) &&currentlayer>=0 )  {
         currentlayer--;
-        layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+        layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       }
     if(currentlayer<=0) currentlayer=0;
-       layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+       layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       currentlayer_size=layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size();
       currentStrip=meshstrips.get(currentlayer).size()-1;
       size_currentstrip=meshstrips.get(currentlayer).get(currentStrip).getBits().size();
@@ -325,21 +325,21 @@ System.out.println("currentStrip="+currentStrip);
 
   private void adjusting_workingspace_position_next(){
     boolean layerchanged=false;
-    int number_of_layers=MeshProvider.getInstance().getCurrentMesh().getLayers().size();
-    Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+    int number_of_layers= ProjectProvider.getInstance().getCurrentMesh().getLayers().size();
+    Layer layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
     currentlayer_size++;
     size_currentstrip++;
 
     if(currentlayer_size==layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size()) {
       currentlayer++;
       if(currentlayer>=number_of_layers) return;
-      layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       while  (((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0) &&currentlayer<number_of_layers )  {
         currentlayer++;
-        layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+        layer= ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       }
       if(currentlayer>=number_of_layers) currentlayer=number_of_layers-1;
-      //layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+      //layer=ProjectProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
       currentlayer_size=0;
       currentStrip=0;
       size_currentstrip=0;

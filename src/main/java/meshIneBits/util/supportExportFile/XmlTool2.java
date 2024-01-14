@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -33,7 +33,7 @@ package meshIneBits.util.supportExportFile;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.Logger;
@@ -58,7 +58,7 @@ import java.util.Vector;
 @Deprecated
 public class XmlTool2 {
 
-  private Mesh part;
+  private Project part;
   private PrintWriter writer;
   private Path mFilePath;
   private double effectiveWidth;
@@ -66,7 +66,7 @@ public class XmlTool2 {
   private int remainingBits;
   private double currentPos;
 
-  public XmlTool2(Mesh part, Path filePath) {
+  public XmlTool2(Project part, Path filePath) {
     this.part = part;
     this.mFilePath = setFilePathToXML(filePath);
     getPrinterParameters();

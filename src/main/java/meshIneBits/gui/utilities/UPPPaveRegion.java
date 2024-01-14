@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -39,26 +39,26 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view2d.MeshController;
-import meshIneBits.gui.view2d.MeshToggleAction;
+import meshIneBits.gui.view2d.ProjectController;
+import meshIneBits.gui.view2d.ProjectToggleAction;
 
 public class UPPPaveRegion extends UtilityParametersPanel {
 
-  public UPPPaveRegion(MeshController meshController) {
+  public UPPPaveRegion(ProjectController projectController) {
     super("Pave Region");
     // Init components
     JPanel parametersPanel = new JPanel();
     parametersPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
     parametersPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-    MeshToggleAction toggleSelectingRegion = new MeshToggleAction(
+    ProjectToggleAction toggleSelectingRegion = new ProjectToggleAction(
         "selectRegion",
         "Select Region",
         "region-select.png",
         "Select a region to pave. Press ENTER to close the region",
         "",
-        meshController,
-        MeshController.SELECTING_REGION
+            projectController,
+        ProjectController.SELECTING_REGION
     );
     ToggleIcon regionSelectTool = new ToggleIcon(toggleSelectingRegion);
 
@@ -70,9 +70,9 @@ public class UPPPaveRegion extends UtilityParametersPanel {
     JButton startButton = new JButton("Pave");
     startButton.addActionListener(e -> {
       try {
-        meshController.paveSelectedRegion(patternComboBox.getCurrentChoice());
+        projectController.paveSelectedRegion(patternComboBox.getCurrentChoice());
       } catch (Exception e1) {
-        meshController.handleException(e1);
+        projectController.handleException(e1);
       }
     });
 

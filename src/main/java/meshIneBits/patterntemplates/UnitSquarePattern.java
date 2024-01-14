@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -32,7 +32,6 @@ package meshIneBits.patterntemplates;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import meshIneBits.Bit2D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.NewBit2D;
 import meshIneBits.Pavement;
 import meshIneBits.config.CraftConfig;
@@ -97,12 +96,12 @@ public class UnitSquarePattern extends PatternTemplate {
   private double unitWidth;
 
   /**
-   * Maximum length of a {@link meshIneBits.patterntemplates.UnitSquarePattern.UnitMatrix.Polyomino
+   * Maximum length of a {@link UnitMatrix.Polyomino
    * Polyomino} if it lies horizontally
    */
   private double maxPLength;
   /**
-   * Maximum width of a {@link meshIneBits.patterntemplates.UnitSquarePattern.UnitMatrix.Polyomino
+   * Maximum width of a {@link UnitMatrix.Polyomino
    * Polyomino} if it lies horizontally
    */
   private double maxPWidth;
@@ -150,7 +149,7 @@ public class UnitSquarePattern extends PatternTemplate {
    * @return <tt>true</tt>
    */
   @Override
-  public boolean ready(Mesh mesh) {
+  public boolean ready(Project project) {
     // Reduce the logger's verbalism
     LOGGER.setLevel(Level.OFF);
     for (Handler handler : LOGGER.getHandlers()) {
@@ -160,7 +159,7 @@ public class UnitSquarePattern extends PatternTemplate {
   }
 
   /**
-   * @param layer target to fill {@link meshIneBits.Bit2D} in
+   * @param layer target to fill {@link Bit2D} in
    * @return empty pavement if algorithm fails
    */
   @Override
@@ -571,7 +570,7 @@ public class UnitSquarePattern extends PatternTemplate {
     UnitMatrix(Area area) {
       LOGGER.fine("Init a matrix for " + area);
       this.area = area;
-      Rectangle2D.Double outerRect = (Double) this.area.getBounds2D();
+      Double outerRect = (Double) this.area.getBounds2D();
       int numOfColumns = (int) Math.ceil(outerRect.getWidth() / unitLength);
       int numOfLines = (int) Math.ceil(outerRect.getHeight() / unitWidth);
       matrixU = new UnitSquare[numOfLines][numOfColumns];
@@ -688,7 +687,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
     /**
      * A candidate is a puzzle to try as trigger of concatenation in {@link #dfsTry()}. It has to be
-     * either a {@link UnitMatrix.Polyomino} or {@link UnitState#ACCEPTED ACCEPTED} {@link
+     * either a {@link Polyomino} or {@link UnitState#ACCEPTED ACCEPTED} {@link
      * UnitSquare}.
      */
     private List<Puzzle> candidates;
@@ -701,7 +700,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
     /**
      * Graph of direct contacts between non {@link UnitState#IGNORED} {@link UnitSquare}s and {@link
-     * UnitMatrix.Polyomino}s
+     * Polyomino}s
      */
     private ConnectivityGraph neighbors;
 
@@ -927,7 +926,7 @@ public class UnitSquarePattern extends PatternTemplate {
     /**
      * Register a puzzle into tracking matrix
      *
-     * @param puzzle if a {@link UnitMatrix.Polyomino}, each corresponding tile in {@link #matrixP}
+     * @param puzzle if a {@link Polyomino}, each corresponding tile in {@link #matrixP}
      *               will be it. If a {@link UnitSquare}, the corresponding tile will be
      *               <tt>null</tt>
      */
@@ -1084,7 +1083,7 @@ public class UnitSquarePattern extends PatternTemplate {
      *
      * @author Quoc Nhat Han TRAN
      */
-    private class UnitSquare extends Rectangle2D.Double implements Puzzle {
+    private class UnitSquare extends Double implements Puzzle {
 
       /**
        *
@@ -1150,7 +1149,7 @@ public class UnitSquarePattern extends PatternTemplate {
 
       /**
        * Given a zone in which we place this unit, calculate how much space it holds. This method
-       * should be called at least once before converting {@link UnitMatrix.Polyomino} into {@link
+       * should be called at least once before converting {@link Polyomino} into {@link
        * Bit2D}
        *
        * @param zone a part of slice's area
@@ -1324,7 +1323,7 @@ public class UnitSquarePattern extends PatternTemplate {
         if (state == UnitState.IGNORED) {
           return new Area();
         }
-        Rectangle2D.Double r = (Double) super.clone();
+        Double r = (Double) super.clone();
         // Reduce border
         // Top
         if (_i > 0
@@ -1357,7 +1356,7 @@ public class UnitSquarePattern extends PatternTemplate {
         a.intersect(new Area(r));
         // Whittle corners
         // Reset r
-        r = new Rectangle2D.Double();
+        r = new Double();
         // Top-right
         if (_i > 0 && _j + 1 < matrixP[_i].length
             && matrixP[_i - 1][_j + 1] != null
@@ -1589,7 +1588,7 @@ public class UnitSquarePattern extends PatternTemplate {
       }
 
       Comparator<Area> boundary = ((Area a1, Area a2) -> {
-        Rectangle2D.Double b1 = (Double) a1.getBounds2D(),
+        Double b1 = (Double) a1.getBounds2D(),
             b2 = (Double) a2.getBounds2D();
         double s = b1.width * b1.height - b2.width * b2.height;
         if (s > 0) {
@@ -1643,7 +1642,7 @@ public class UnitSquarePattern extends PatternTemplate {
         // Top-left / Top-right / Bottom-left / Bottom-right
         boolean top = false, left = false, bottom = false, right = false;
 
-        Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
+        Double boundary = (Double) rawArea.getBounds2D();
         for (UnitSquare unit : this) {
           if (unit.state == UnitState.ACCEPTED) {
             if (unit.getMinY() == boundary.getMinY()) {
@@ -1706,7 +1705,7 @@ public class UnitSquarePattern extends PatternTemplate {
         }
 
         Vector2 origin;
-        Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
+        Double boundary = (Double) rawArea.getBounds2D();
         switch (floatpos) {
           case "top-left":
             origin = new Vector2(boundary.getMinX() + h / 2 + SAFETY_MARGIN,
@@ -1755,8 +1754,8 @@ public class UnitSquarePattern extends PatternTemplate {
        * @return a rectangular area smaller than boundary
        */
       private Area getLimArea(String floatingPosition, Vector2 bitOrientation) {
-        Rectangle2D.Double boundary = (Double) rawArea.getBounds2D();
-        Rectangle2D.Double lim = (Double) boundary.clone();
+        Double boundary = (Double) rawArea.getBounds2D();
+        Double lim = (Double) boundary.clone();
 
         // Determine the float position of bit
         String[] pos = floatingPosition.split("-");
@@ -1915,7 +1914,7 @@ public class UnitSquarePattern extends PatternTemplate {
     }
 
     /**
-     * All direct links between {@link UnitSquare}s and {@link UnitMatrix.Polyomino}s
+     * All direct links between {@link UnitSquare}s and {@link Polyomino}s
      *
      * @author Quoc Nhat Han TRAN
      */

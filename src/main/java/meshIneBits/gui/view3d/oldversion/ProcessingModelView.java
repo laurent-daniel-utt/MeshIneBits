@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -38,7 +38,7 @@ import controlP5.Textlabel;
 import javafx.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;
@@ -186,7 +186,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void setCloseOperation() {
     //Removing close listeners
-    com.jogamp.newt.opengl.GLWindow win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
+    GLWindow win = (GLWindow) surface.getNative();
     for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
       win.removeWindowListener(wl);
     }
@@ -612,7 +612,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
     shortcut = cp5.addTextlabel("shortcut")
         .setText(
-            "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
+            "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Project is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Project is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
         .setColor(255)
         .setFont(createFont("arial bold", 15));
 
@@ -1284,9 +1284,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   }
 
   @Override
-  public void setCurrentMesh(Mesh mesh) {
-    controllerView3D.setMesh(mesh);
-    model = mesh.getModel();
+  public void setCurrentMesh(Project project) {
+    controllerView3D.setMesh(project);
+    model = project.getModel();
     controllerView3D.setModel(model);
   }
 

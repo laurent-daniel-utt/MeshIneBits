@@ -1,6 +1,6 @@
 package meshIneBits.opcuaHelper;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.NewBit3D;
 import meshIneBits.util.CustomLogger;
 
@@ -17,10 +17,10 @@ public class CuttingMachineCommander {
     }
   }
 
-  private final Mesh mesh;
+  private final Project project;
 
-  public CuttingMachineCommander(Mesh mesh) {
-    this.mesh = mesh;
+  public CuttingMachineCommander(Project project) {
+    this.project = project;
   }
 
   public void startMachine() throws Exception {
@@ -49,11 +49,11 @@ public class CuttingMachineCommander {
       logger.logERRORMessage(res.getMessage());
       throw new Exception("Error of sending request to server :" + helper.getEndpointUrl());
     } else {
-      NewBit3D bit3D = new FilterBitById().filterBitById(mesh, (int) res.getValue());
+      NewBit3D bit3D = new FilterBitById().filterBitById(project, (int) res.getValue());
       if (bit3D != null) {
         return bit3D;
       } else {
-        throw new Exception("Bit not found in Mesh");
+        throw new Exception("Bit not found in Project");
       }
     }
   }

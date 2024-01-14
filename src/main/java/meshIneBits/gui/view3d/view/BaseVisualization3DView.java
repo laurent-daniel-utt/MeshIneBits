@@ -10,9 +10,8 @@ import meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView.ModelChangesListener;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
-import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
@@ -98,9 +97,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
 public void play(){
 
-  if (!MeshProvider.getInstance().isAvailable()) {
-    logger.logERRORMessage("Model and Mesh are not available!");
-    Logger.updateStatus("Model and Mesh are not available!");
+  if (!ProjectProvider.getInstance().isAvailable()) {
+    logger.logERRORMessage("Model and Project are not available!");
+    Logger.updateStatus("Model and Project are not available!");
     return;
   }
   WindowStatus=1;
@@ -148,7 +147,7 @@ public void play(){
       Xpos=0;
       initWorkingSpace();
       processor.deactivateAnimation();
-      if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
+      if(ProjectProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
       loop();
       Thread t=new Thread(() -> {
         try {
@@ -246,7 +245,7 @@ public void play(){
       meshShape = processor.getModelProvider().getMeshShape();
     shape = processor.getModelProvider().getModelShape();
     System.out.println("0.5");
-    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
+    if(ProjectProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
      meshShapes.put(0,meshShape);
     frame.setShape(shape);
 
@@ -351,7 +350,7 @@ private void initWorkingSpace(){
 
   private void initProcessor() {
 
-      processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
+      processor = new BaseVisualization3DProcessor(ProjectProvider.getInstance().getCurrentMesh(),
             this);
   }
 
@@ -363,9 +362,9 @@ private void initWorkingSpace(){
     frame = new CustomInteractiveFrame(scene);
     //set position of frame in scene
     frame.translate(
-            (float) MeshProvider.getInstance().getModel().getPos().x,
-            (float) MeshProvider.getInstance().getModel().getPos().y,
-            (float) MeshProvider.getInstance().getModel().getPos().z);
+            (float) ProjectProvider.getInstance().getModel().getPos().x,
+            (float) ProjectProvider.getInstance().getModel().getPos().y,
+            (float) ProjectProvider.getInstance().getModel().getPos().z);
     customFrameBindings(frame);
   }
 
@@ -375,7 +374,7 @@ private void initWorkingSpace(){
     frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
     frame.setGrabsInputThreshold(scene.radius() / 3);
     frame.setRotationSensitivity(3);
-    if (!MeshProvider.getInstance().getCurrentMesh()
+    if (!ProjectProvider.getInstance().getCurrentMesh()
             .isSliced()) {
       frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
       frame.setMotionBinding(WHEEL_ID,
@@ -499,7 +498,7 @@ private void initWorkingSpace(){
         pathchoice=1;
       }
 
-      String modelName = MeshProvider.getInstance().getModel().getModelName();
+      String modelName = ProjectProvider.getInstance().getModel().getModelName();
       StringBuilder exportFileName = new StringBuilder();
       switch (processor.getDisplayState().getState()) {
         case MODEL_VIEW:
@@ -516,13 +515,13 @@ private void initWorkingSpace(){
                   .append(".obj");
           break;
         case ANIMATION_VIEW:
-          if(option== AnimationProcessor.AnimationOption.BY_LAYER)
+          if(option== AnimationOption.BY_LAYER)
           {exportFileName.append("Layers/layer")
                   .append("-")
                   .append(IndexExport)
                   .append(".obj");
           }
-          else if(option== AnimationProcessor.AnimationOption.BY_BIT)
+          else if(option== AnimationOption.BY_BIT)
           {
             if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
             exportFileName.append("Bits/lot")
@@ -532,7 +531,7 @@ private void initWorkingSpace(){
                     .append("_"+num_batch)
                     .append(".obj");
           }
-          else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
+          else if(option== AnimationOption.BY_SUB_BIT)
           {
             if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
             exportFileName.append("SubBits/lot")
@@ -542,7 +541,7 @@ private void initWorkingSpace(){
                     .append("_"+num_batch)
                     .append(".obj");
           }
-          else if(option== AnimationProcessor.AnimationOption.BY_BATCH)
+          else if(option== AnimationOption.BY_BATCH)
           {exportFileName.append("Batches/lot")
                   .append("-")
                   .append(IndexExport)
@@ -638,7 +637,7 @@ private void initWorkingSpace(){
 
   private void drawMesh() {//System.out.println("drawingMesh ?");
     if (meshShape != null) {
-      Vector3 v = MeshProvider.getInstance().getModel().getPos();
+      Vector3 v = ProjectProvider.getInstance().getModel().getPos();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
       shape(meshShape);
@@ -650,7 +649,7 @@ private void initWorkingSpace(){
 
   private void drawtest(){
     if (meshShapes.get(1) != null) {
-      Vector3 v = MeshProvider.getInstance().getModel().getPos();
+      Vector3 v = ProjectProvider.getInstance().getModel().getPos();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
       shape(meshShapes.get(1));
@@ -668,7 +667,7 @@ private void initWorkingSpace(){
 
   private void drawAnimationShape() {
       if (animationShapes != null) {
-      Vector3 v = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
+      Vector3 v = ProjectProvider.getInstance().getCurrentMesh().getModel().getPos();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
       animationShapes.forEach(this::shape);

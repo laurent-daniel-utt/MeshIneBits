@@ -107,7 +107,7 @@ public class CuttedBit extends PApplet {
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,0);
         limit2.vertex((float) CraftConfig.lengthFull,(float) CraftConfig.bitWidth,(float) 0.001);
         limit2.endShape(PConstants.CLOSE);*/
-        MultiThreadServiceExecutor.instance.execute(new CuttedBit.CheckRegister());
+        MultiThreadServiceExecutor.instance.execute(new CheckRegister());
 
     }
 

@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2021 DANIEL Laurent.
@@ -44,7 +44,7 @@ import remixlab.dandelion.geom.Vec;
 
 
 /**
- * A model is the full set of triangle of the existing 3D mesh to pattern. Model is created from a
+ * A model is the full set of triangle of the existing 3D project to pattern. Model is created from a
  * <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL file</a>.
  */
 public class Model implements Serializable {
@@ -89,7 +89,7 @@ public class Model implements Serializable {
   }
 
   /**
-   * Find the centre of the mesh and translate triangle so the centre is the origin of the basis. To
+   * Find the centre of the project and translate triangle so the centre is the origin of the basis. To
    * find the centre, it search the distance between maximum and minimum of X and Y and divide it by
    * two. The centre is always placed at the lower Z.
    * <br><img src="./doc-files/center.png" alt="">

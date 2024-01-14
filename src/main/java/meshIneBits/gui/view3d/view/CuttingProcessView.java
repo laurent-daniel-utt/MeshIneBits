@@ -14,7 +14,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import meshIneBits.gui.view3d.Processor.CuttingMachineProcessor;
-import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.provider.ProjectProvider;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
@@ -41,7 +41,7 @@ public class CuttingProcessView extends UIParameterWindow {
   }
 
   public static void startProcessingModelView() {
-    if (!MeshProvider.getInstance().isAvailable()) {
+    if (!ProjectProvider.getInstance().isAvailable()) {
       return;
     }
     PApplet.main(CuttingProcessView.class.getCanonicalName());

@@ -1,13 +1,13 @@
 package meshIneBits.opcuaHelper;
 
-import meshIneBits.Mesh;
+import meshIneBits.Project;
 import meshIneBits.SubBit2D;
 import meshIneBits.scheduler.AdvancedScheduler;
 
 public class FilterSubBitById {
 
-  public SubBit2D filterSubBitById(Mesh mesh, int subBit) {
-    AdvancedScheduler scheduler = (AdvancedScheduler) mesh.getScheduler();
+  public SubBit2D filterSubBitById(Project project, int subBit) {
+    AdvancedScheduler scheduler = (AdvancedScheduler) project.getScheduler();
     return scheduler.getSubBitByIndex(subBit);
   }
 }

@@ -9,7 +9,7 @@ public class GraphicElementLabel {
   public static final String POSITION_Y = "POSITION Y";
   public static final String POSITION_Z = "POSITION Z";
   public static final String VIEW_MODEL = "View Model";
-  public static final String VIEW_MESH = "View Mesh";
+  public static final String VIEW_MESH = "View Project";
   public static final String RESET = "Reset";
   public static final String APPLY = "Apply change";
   public static final String GRAVITY = "Apply gravity";

@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -35,7 +35,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
-import meshIneBits.gui.view2d.MeshAction;
+import meshIneBits.gui.view2d.ProjectAction;
 
 public class ButtonIcon extends JButton {
 
@@ -74,20 +74,20 @@ public class ButtonIcon extends JButton {
     }
   }
 
-  public ButtonIcon(MeshAction meshAction) {
-    super(meshAction);
+  public ButtonIcon(ProjectAction projectAction) {
+    super(projectAction);
     setHideActionText(true);
-    setToolTipText(meshAction.getToolTipText());
+    setToolTipText(projectAction.getToolTipText());
     setContentAreaFilled(true);
     setBorder(new EmptyBorder(3, 3, 3, 3));
     addMouseListener(new MouseAdapter() {
       @Override
-      public void mouseEntered(java.awt.event.MouseEvent evt) {
+      public void mouseEntered(MouseEvent evt) {
         setContentAreaFilled(true);
       }
 
       @Override
-      public void mouseExited(java.awt.event.MouseEvent evt) {
+      public void mouseExited(MouseEvent evt) {
         setContentAreaFilled(false);
       }
     });

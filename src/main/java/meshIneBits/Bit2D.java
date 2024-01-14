@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -30,6 +30,7 @@
 
 package meshIneBits;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
@@ -55,19 +56,25 @@ import java.util.Vector;
  *
  * @see Bit3D
  */
+
 public class Bit2D implements Cloneable, Serializable {
 
   /**
-   * In the {@link Mesh} coordinate system
+   * In the {@link Project} coordinate system
    */
   private Vector2 orientation;
   /**
-   * In the {@link Mesh} coordinate system
+   * In the {@link Project} coordinate system
    */
+
   private Vector2 origin;
+
   private double length;
+
   private double width;
+
   private AffineTransform transfoMatrixCS = new AffineTransform();
+
   private AffineTransform inverseTransfoMatrixCB = new AffineTransform();
   /**
    * In {@link Bit2D} coordinate system
@@ -91,11 +98,12 @@ public class Bit2D implements Cloneable, Serializable {
 
   /**
    * A new full bit with <tt>origin</tt> and <tt>orientation</tt> in the coordinate system of {@link
-   * Mesh}
+   * Project}
    *
    * @param origin      the center of bit's outer bound
    * @param orientation the rotation of bit
    */
+  @JsonIgnore
   public Bit2D(Vector2 origin, Vector2 orientation) {
     this.origin = origin;
     this.orientation = orientation;
@@ -106,6 +114,7 @@ public class Bit2D implements Cloneable, Serializable {
     buildBoundaries();
   }
 
+  @JsonIgnore
   public Bit2D(double boundaryCenterX,
       double boundaryCenterY,
       double length,
@@ -125,7 +134,7 @@ public class Bit2D implements Cloneable, Serializable {
                 -CraftConfig.lengthFull / 2 + length / 2,
                 -CraftConfig.bitWidth / 2 + width / 2
             )
-                // Rotate into Mesh coordinate system
+                // Rotate into Project coordinate system
                 .rotate(orientation)
         );
 
@@ -142,6 +151,7 @@ public class Bit2D implements Cloneable, Serializable {
    * @param length      length of the bit
    * @param width       width of the bit
    */
+  @JsonIgnore
   public Bit2D(Vector2 origin, Vector2 orientation, double length, double width) {
     this.origin = origin;
     this.orientation = orientation;
@@ -218,6 +228,7 @@ public class Bit2D implements Cloneable, Serializable {
    * (- {@link CraftConfig#lengthFull bitLength} / 2, - {@link CraftConfig#bitWidth bitWidth} / 2 ).
    * The bit's boundary is a rectangle.
    */
+  @JsonIgnore
   private void buildBoundaries() {
     Rectangle2D.Double r = new Rectangle2D.Double(
         -CraftConfig.lengthFull / 2,
@@ -234,6 +245,7 @@ public class Bit2D implements Cloneable, Serializable {
 
   @SuppressWarnings("MethodDoesntCallSuperMethod")
   @Override
+  @JsonIgnore
   public Bit2D clone() {
     return new Bit2D(origin, orientation, length, width, (AffineTransform) transfoMatrixCS.clone(),
         (AffineTransform) inverseTransfoMatrixCB.clone(), getClonedCutPathsCB(),
@@ -241,9 +253,10 @@ public class Bit2D implements Cloneable, Serializable {
   }
 
   /**
-   * @return the union of all cloned surfaces making this {@link Bit2D}. Expressed in {@link Mesh}
+   * @return the union of all cloned surfaces making this {@link Bit2D}. Expressed in {@link Project}
    * coordinate system
    */
+  @JsonIgnore
   public Area getAreaCS() {
     Area transformedArea = new Area();
     for (Area a : areas) {
@@ -262,6 +275,7 @@ public class Bit2D implements Cloneable, Serializable {
    * <tt>transforMatrix</tt>
    */
   @SuppressWarnings("unused")
+  @JsonIgnore
   public Vector<Area> getAreasCS() {
     Vector<Area> result = new Vector<>();
     for (Area a : areas) {
@@ -275,6 +289,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return clone of raw areas
    */
+  @JsonIgnore
   private Vector<Area> getClonedAreasCB() {
     Vector<Area> clonedAreas = new Vector<>();
     for (Area a : areas) {
@@ -286,6 +301,7 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return clone of raw cut paths
    */
+  @JsonIgnore
   private Vector<Path2D> getClonedCutPathsCB() {
     if (cutPaths != null) {
       Vector<Path2D> clonedCutPaths = new Vector<>();
@@ -299,9 +315,10 @@ public class Bit2D implements Cloneable, Serializable {
   }
 
   /**
-   * @return clone of cut paths (after transforming into coordinates system of {@link Mesh})
+   * @return clone of cut paths (after transforming into coordinates system of {@link Project})
    */
   @SuppressWarnings("unused")
+  @JsonIgnore
   public Vector<Path2D> getCutPathsCS() {
     if (this.cutPaths == null) {
       return null;
@@ -317,26 +334,33 @@ public class Bit2D implements Cloneable, Serializable {
   /**
    * @return horizontal side
    */
+  @JsonIgnore
   public double getLength() {
     return length;
   }
 
   /**
-   * @return orientation in {@link Mesh} coordinate system
+   * @return orientation in {@link Project} coordinate system
    */
+  @JsonIgnore
   public Vector2 getOrientation() {
     return orientation;
   }
+
+  @JsonIgnore
 public void setOrientation(Vector2 orientation){
     this.orientation=orientation;
 
 }
   /**
-   * @return the origin in the {@link Mesh} coordinate system
+   * @return the origin in the {@link Project} coordinate system
    */
+  @JsonIgnore
   public Vector2 getOriginCS() {
     return origin;
   }
+
+  @JsonIgnore
   public void setOriginCS(Vector2 origin) {
 
     this.origin=origin;
@@ -353,7 +377,7 @@ public void setOrientation(Vector2 orientation){
             CraftConfig.lengthFull / 2 - length / 2,
             CraftConfig.bitWidth / 2 - width / 2
         )
-            // Rotate into Mesh coordinate system
+            // Rotate into Project coordinate system
             .rotate(orientation)
     );
   }
@@ -363,6 +387,7 @@ public void setOrientation(Vector2 orientation){
    *
    * @return the union of raw (non intersected) areas
    */
+  @JsonIgnore
   public Area getAreaCB() {
     Area area = new Area();
     for (Area a : areas) {
@@ -374,6 +399,7 @@ public void setOrientation(Vector2 orientation){
   /**
    * @return set of raw areas of this bit (not transformed)
    */
+  @JsonIgnore
   public Vector<Area> getAreasCB() {
     return areas;
   }
@@ -383,10 +409,12 @@ public void setOrientation(Vector2 orientation){
    *
    * @return raw cut paths
    */
+  @JsonIgnore
   public Vector<Path2D> getCutPathsCB() {
     return cutPaths;
   }
 
+  @JsonIgnore
   public void setCutPaths(Vector<Path2D> cutPaths) {
     this.cutPaths = cutPaths;
   }
@@ -394,6 +422,7 @@ public void setOrientation(Vector2 orientation){
   /**
    * @return vertical side
    */
+
   public double getWidth() {
     return width;
   }
@@ -401,6 +430,7 @@ public void setOrientation(Vector2 orientation){
   /**
    * Set up the matrix transformation from {@link Bit2D} coordinate system into {@link Pavement}
    */
+  @JsonIgnore
   private void setTransfoMatrix() {
 
     transfoMatrixCS.translate(origin.x, origin.y);
@@ -412,6 +442,7 @@ public void setOrientation(Vector2 orientation){
       inverseTransfoMatrixCB = AffineTransform.getScaleInstance(1, 1); // Fallback
     }
   }
+  @JsonIgnore
 public  void callMinusSetTransfoMatrix(){
   transfoMatrixCS.translate(-origin.x,- origin.y);
   transfoMatrixCS.rotate(-orientation.x,- orientation.y);
@@ -424,6 +455,7 @@ public  void callMinusSetTransfoMatrix(){
    *
    * @param transformedArea a bit of surface in real
    */
+  @JsonIgnore
   public void updateBoundaries(@NotNull Area transformedArea) {
     areas.clear();
     Area newArea = (Area) transformedArea.clone();
@@ -443,6 +475,7 @@ public  void callMinusSetTransfoMatrix(){
     this.areas = areas;
   }
 
+  @JsonIgnore
   private static void removeSectionHolding(Bit2D bit, Area bitArea) {
     Vector<Area> sections = getTwoSectionHolding(bit.origin, bit.orientation, -CraftConfig.incertitude);
     bitArea.subtract(sections.lastElement());
@@ -454,6 +487,7 @@ public  void callMinusSetTransfoMatrix(){
    * @param newPercentageLength 100 means retain 100% of normal bit's length
    * @param newPercentageWidth  100 means retain 100% of normal bit's width
    */
+  @JsonIgnore
   public void resize(double newPercentageLength, double newPercentageWidth) {
     length = CraftConfig.lengthFull * newPercentageLength / 100;
     width = CraftConfig.bitWidth * newPercentageWidth / 100;
@@ -462,6 +496,7 @@ public  void callMinusSetTransfoMatrix(){
   }
 
   @Override
+  @JsonIgnore
   public String toString() {
     Rectangle2D bound = this.getAreaCS()
         .getBounds2D();
@@ -484,6 +519,7 @@ public  void callMinusSetTransfoMatrix(){
    * @return a new {@link Bit2D} with same geometric of initial one transformed by
    * <tt>transformation</tt>
    */
+  @JsonIgnore
   public Bit2D createTransformedBit(AffineTransform transformation) {
     Vector2 newOrigin = origin.getTransformed(transformation)
         .getRounded(),
@@ -501,6 +537,7 @@ public  void callMinusSetTransfoMatrix(){
   /**
    * Reset cut paths and recalculate them after defining area
    */
+  @JsonIgnore
   public void calcCutPath() {
     this.cutPaths = CutPathCalc.instance.calcCutPathFrom(this);
   }
@@ -511,6 +548,7 @@ public  void callMinusSetTransfoMatrix(){
    * @param oos stream of writing
    * @throws IOException if error of writing
    */
+  @JsonIgnore
   private void writeObject(ObjectOutputStream oos) throws IOException {
     // Write normal fields
     oos.writeObject(origin);
@@ -539,6 +577,7 @@ public  void callMinusSetTransfoMatrix(){
    * @param ois stream of reading
    * @throws IOException if error of reading or mismatching class
    */
+  @JsonIgnore
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     this.origin = (Vector2) ois.readObject();
     this.orientation = (Vector2) ois.readObject();
@@ -565,20 +604,21 @@ public  void callMinusSetTransfoMatrix(){
     return transfoMatrixCS;
   }
 
-
   public AffineTransform getInverseTransfoMatrixToCB() {
     return inverseTransfoMatrixCB;
   }
+
 
   public boolean getInverseInCut() {
     return inverseInCut;
   }
 
-
+  @JsonIgnore
   public void setCheckFullLength(Boolean checkFullLength) {
     this.checkFullLength = checkFullLength;
   }
 
+  @JsonIgnore
   public Boolean isFullLength() {
     return checkFullLength;
   }
@@ -589,6 +629,7 @@ public  void callMinusSetTransfoMatrix(){
    *
    * @return
    */
+  @JsonIgnore
   public boolean checkSectionHoldingToCut() {
     Area bitArea = new Area();
     for (Area area : areas) {
@@ -601,6 +642,7 @@ public  void callMinusSetTransfoMatrix(){
   /**
    * Return two section hold to cut of bit without the cut paths
    */
+  @JsonIgnore
   public static Vector<Area> getTwoSectionHolding(Vector2 position, Vector2 orientation,
       double incertitude) {
 
@@ -628,6 +670,7 @@ public  void callMinusSetTransfoMatrix(){
    * @param incertitude
    * @return
    */
+  @JsonIgnore
   public static Vector<Rectangle2D> getTwoSideOfBit(double incertitude) {
     Rectangle2D leftArea = new Rectangle2D.Double(-CraftConfig.lengthFull / 2 + incertitude
         , -CraftConfig.bitWidth / 2 + incertitude
@@ -653,6 +696,7 @@ public  void callMinusSetTransfoMatrix(){
    * @param bitArea     Area of {@link Bit2D}, before calculate
    * @return true for full length,
    */
+  @JsonIgnore
   public static boolean checkSectionHoldingToCut(Vector2 position, Vector2 orientation,
       Area bitArea) {
     Area area = (Area) bitArea.clone();
@@ -673,7 +717,7 @@ public  void callMinusSetTransfoMatrix(){
     }
 
   }
-
+  @JsonIgnore
   public static boolean checkInverseBit(Bit2D bit2D, Area bitArea) {
     Area newBitArea = (Area) bitArea.clone();
     if (!bit2D.isFullLength()) {
@@ -685,11 +729,12 @@ public  void callMinusSetTransfoMatrix(){
     return !newBitArea.contains(twoSide.lastElement()) && newBitArea.intersects(
         twoSide.lastElement());
   }
-
+  @JsonIgnore
   public boolean isUsedForNN() {
     return usedForNN;
   }
 
+  @JsonIgnore
   public void setUsedForNN(boolean usedForNN) {
     this.usedForNN = usedForNN;
   }

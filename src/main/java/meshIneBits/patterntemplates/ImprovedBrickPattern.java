@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -39,11 +39,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import meshIneBits.Bit2D;
-import meshIneBits.Layer;
-import meshIneBits.Mesh;
-import meshIneBits.NewBit2D;
-import meshIneBits.Pavement;
+
+import meshIneBits.*;
+import meshIneBits.Project;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.config.patternParameter.DoubleParam;
 import meshIneBits.slicer.Slice;
@@ -462,7 +460,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
           initialCenter = bitToReduce.getCenter();
       Vector2 centrifugalVector = Vector2.Tools.getCentrifugalVector(
           bitToPush.getCenter(),
-          localDirectionToPush.rotate(initialOrientation), // in Mesh coordinate system
+          localDirectionToPush.rotate(initialOrientation), // in Project coordinate system
           bitToReduce.getCenter());
       if (bitToReduce.getLength() == CraftConfig.lengthFull
           && bitToReduce.getWidth() == CraftConfig.bitWidth)
@@ -769,9 +767,9 @@ public class ImprovedBrickPattern extends PatternTemplate {
   }
 
   @Override
-  public boolean ready(Mesh mesh) {
+  public boolean ready(Project project) {
     // Setting the skirtRadius and starting/ending points
-    double skirtRadius = mesh.getSkirtRadius();
+    double skirtRadius = project.getSkirtRadius();
     double maxiSide = Math.max(CraftConfig.lengthFull, CraftConfig.bitWidth);
     this.patternStart = new Vector2(-skirtRadius - maxiSide, -skirtRadius - maxiSide);
     this.patternEnd = new Vector2(skirtRadius + maxiSide, skirtRadius + maxiSide);
@@ -781,12 +779,12 @@ public class ImprovedBrickPattern extends PatternTemplate {
   /**
    * This builder will decide itself the origin, base on upper left corner
    *
-   * @param boundaryCenterX in {@link Mesh} coordinate system
-   * @param boundaryCenterY in {@link Mesh} coordinate system
+   * @param boundaryCenterX in {@link Project} coordinate system
+   * @param boundaryCenterY in {@link Project} coordinate system
    * @param length          of boundary
    * @param width           of boundary
-   * @param orientationX    in {@link Mesh} coordinate system
-   * @param orientationY    in {@link Mesh} coordinate system
+   * @param orientationX    in {@link Project} coordinate system
+   * @param orientationY    in {@link Project} coordinate system
    */
   private Bit2D buildBit2D(
       double boundaryCenterX,
@@ -803,7 +801,7 @@ public class ImprovedBrickPattern extends PatternTemplate {
                 -CraftConfig.lengthFull / 2 + length / 2,
                 -CraftConfig.bitWidth / 2 + width / 2
             )
-                // Rotate into Mesh coordinate system
+                // Rotate into Project coordinate system
                 .rotate(orientation)
         );
     return new NewBit2D(origin, orientation, length, width);

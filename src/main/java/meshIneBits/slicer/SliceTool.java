@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -32,8 +32,8 @@ package meshIneBits.slicer;
 
 import java.util.Observable;
 import java.util.Vector;
-import meshIneBits.Mesh;
-import meshIneBits.MeshEvents;
+import meshIneBits.Project;
+import meshIneBits.ProjectEvents;
 import meshIneBits.Model;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;
@@ -50,7 +50,7 @@ import meshIneBits.util.Vector3;
  * Triangle#project2D(double)}, which returns a {@link Segment2D} (class representing in a plane
  * since it admits only Coordinates in x and y). Each segment is then recorded in the {@link Slice}
  * object. At the end of {@link #sliceModel()} we get a collection of slices composed of segments
- * that form the outline of the mesh.
+ * that form the outline of the project.
  */
 public class SliceTool extends Observable implements Runnable {
 
@@ -58,13 +58,13 @@ public class SliceTool extends Observable implements Runnable {
   private Vector<Slice> slices = new Vector<>();
 
   /**
-   * SliceTool register itself to a {@link Mesh}, which is updated when the slicing is finished.
+   * SliceTool register itself to a {@link Project}, which is updated when the slicing is finished.
    *
-   * @param mesh {@link Mesh} that will collect the slices when slicing is finished.
+   * @param project {@link Project} that will collect the slices when slicing is finished.
    */
-  public SliceTool(Mesh mesh) {
-    addObserver(mesh);
-    this.model = mesh.getModel();
+  public SliceTool(Project project) {
+    addObserver(project);
+    this.model = project.getModel();
   }
 
   /**
@@ -79,7 +79,7 @@ public class SliceTool extends Observable implements Runnable {
    */
   @Override
   public void run() {
-    Logger.updateStatus("Slicing mesh");
+    Logger.updateStatus("Slicing project");
     Vector3 modelMax = model.getMax();
     double sliceDistance = CraftConfig.bitThickness + CraftConfig.layersOffset;
     double firstSliceHeight =
@@ -138,9 +138,9 @@ public class SliceTool extends Observable implements Runnable {
           .optimize();
     }
 
-    Logger.updateStatus("Mesh sliced");
+    Logger.updateStatus("Project sliced");
     setChanged();
-    notifyObservers(MeshEvents.SLICED);
+    notifyObservers(ProjectEvents.SLICED);
   }
 
   /**

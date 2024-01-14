@@ -1,5 +1,5 @@
 /*
- * MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
+ * MeshIneBits is a Java software to disintegrate a 3d project (model in .stl)
  * into a network of standard parts (called "Bits").
  *
  * Copyright (C) 2016-2022 DANIEL Laurent.
@@ -31,7 +31,7 @@
 package meshIneBits.gui.utilities;
 
 import meshIneBits.config.CraftConfig;
-import meshIneBits.gui.view2d.MeshController;
+import meshIneBits.gui.view2d.ProjectController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +39,7 @@ import java.util.Arrays;
 
 public class UPPPaveFill extends UtilityParametersPanel {
 //public StartButton startButton;
-  public UPPPaveFill(MeshController meshController) {
+  public UPPPaveFill(ProjectController projectController) {
     super("Pave Fill");
     // Init components
     JPanel parametersPanel = new JPanel();
@@ -55,9 +55,9 @@ public class UPPPaveFill extends UtilityParametersPanel {
      JButton startButton = new JButton("Start");
     startButton.addActionListener(e -> {
       try {
-        meshController.paveFill(patternComboBox.getCurrentChoice());
+        projectController.paveFill(patternComboBox.getCurrentChoice());
       } catch (Exception e1) {
-        meshController.handleException(e1);
+        projectController.handleException(e1);
       }
     });
 
