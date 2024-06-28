@@ -4,6 +4,8 @@ import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
+import javafx.util.Pair;
+import meshIneBits.Bit3D;
 import meshIneBits.Strip;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor;
@@ -15,15 +17,19 @@ import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
+import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import processing.opengl.PJOGL;
+import remixlab.dandelion.geom.Quat;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
+
+
 
 import javax.swing.*;
 import java.awt.event.MouseListener;
@@ -35,6 +41,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor.option;
@@ -553,8 +561,8 @@ private void initWorkingSpace(){
       beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER,path+"\\"+ exportFileName.toString());
     IndexExport++;
     }
-  }
 
+  }
 
 
   private String  chooseDir(){
@@ -599,6 +607,7 @@ private void initWorkingSpace(){
         exported.countDown();
         exported=new CountDownLatch(1);
       }
+
     }
     exported.countDown();
     processor.deactivateAnimation();
@@ -611,11 +620,149 @@ private void initWorkingSpace(){
 
 
 
+  private ExecutorService service;
+  private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+
+  private void increaseLayerIndex() {
+    executorService.submit(() -> {
+      try {
+        Thread.sleep(lastFrames);
+      } catch (InterruptedException e) {
+        System.out.println("Thread shutdown");
+      }
+      this.IndexExport = (this.IndexExport + 1) % this.currentShapeMap.size();
+
+      // Change the position of scene.eye() when exporting
+      if (isExporting){
+        changeEyePosition();
+        record=true;
+        switch (option){
+          case BY_BIT:
+            if (!firstExport){
+              counterBits++;
+            }
+            if(counterBits>=CraftConfig.nbBitesBatch){
+              counterBits=0;
+              counterBatch++;
+              firstExport=true;
+            }
+            firstExport=false;
+            break;
+          case BY_BATCH:
+            if (!firstExport){
+              counterBatch++;
+            }
+            firstExport=false;
+        }
+      }
+    });
+  }
+
+  /**
+   * Change the eye position and orientation.
+   * To use only when exporting to OBJ
+   * used in increaseLayerIndex()
+   * TODO Change the function after being able to have an animation by sub-bit to be able to export by sub-bit
+   */
+
+
+
+  private void changeEyePosition() {
+    //when export bits one by one, the eyes have to be in the bits at the lift point or at the cednter of the bits when there is several lift Point
+    if (option== AnimationProcessor.AnimationOption.BY_BIT) {
+      if (this.IndexExport != 0) {
+        //get the bit's informations
+        Bit3D bit = shapeMapByBits.get(this.IndexExport - 1)
+                .getKey();
+        float bitOrientation =
+                (float) bit.getOrientation()
+                        .getEquivalentAngle() * (float) Math.PI / 180;
+        float x = 0;
+        float y = 0;
+        float z = (float) (bit.getHigherAltitude() + bit.getLowerAltitude()) / 2;
+
+        if (bit.getLiftPointsCS()
+                .size() > 1) {
+          // the eye will be at the center of a normal bit.
+          x = (float) CraftConfig.lengthFull / 2;
+          y = (float) CraftConfig.bitWidth / 2;
+        } else {
+          // the eye will at the lift point of the bit
+          x = (float) bit.getLiftPointsCS()
+                  .get(0).x;
+          y = (float) bit.getLiftPointsCS()
+                  .get(0).y;
+        }
+
+        fixPositionCamera(x, y, z);
+        fixAngleCamera(scene.eye()
+                .position()
+                .x(), scene.eye()
+                .position()
+                .y(), printerZ);
+        scene.eye()
+                .setOrientation(new Quat(0, 0, bitOrientation + (float) Math.PI / 2));
+      }
+    } else {
+      fixPositionCamera(0, 0, printerZ);
+      fixAngleCamera(0, 0, 0);
+    }
+  }
+
+  private void fixPositionCamera(float x,float y, float z) {
+    scene.eye().setPosition(new Vec(x, y, z));
+  }
+  private void fixAngleCamera(float x,float y, float z){
+    scene.eye().lookAt(new Vec(x,y,z));
+  }
+  private Vector<Pair<Bit3D, PShape>> shapeMapByBits = new Vector<>();
+  private boolean firstExport = true;
+  private int counterBits = 0;
+  private int counterBatch = 0;
+
+  public void keyPressed() {
+    if (key == 's' || key == 'S') {
+      record = true;
+      counterBits++;
+    }
+  }
+  private boolean record = false;
+  private int lastFrames = 500;
+  private final int frameMin = 10;
+  private Vector<PShape> currentShapeMap;
+
+  @SuppressWarnings("unused")
+  public void animationSpeedUp() {
+//        fpsRatioSpeed += 0.5;
+    int value = lastFrames / 2;
+    lastFrames = Math.max(value, frameMin);
+    System.out.println(lastFrames);
+
+  }
+
+  @SuppressWarnings("unused")
+  public void animationSpeedDown() {
+//        fpsRatioSpeed -= 0.5;
+    lastFrames = lastFrames * 2;
+    System.out.println(lastFrames);
+
+  }
+
+
+
+
+
+
+
+
+
   private synchronized void displayShape() {
     switch (processor.getDisplayState().getState()) {
       case MODEL_VIEW:
 
         scene.drawFrames();
+
 
         break;
       case PAVED_VIEW:
@@ -625,6 +772,7 @@ if(WindowStatus>=2) drawtest();
         break;
       case ANIMATION_VIEW:
         drawAnimationShape();
+
         break;
 
         default:

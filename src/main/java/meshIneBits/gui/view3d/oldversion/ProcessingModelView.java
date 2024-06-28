@@ -118,7 +118,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private PShape shape;
   private PShape shapeMeshPaved;
   private Vector<Pair<Layer, PShape>> shapeMapByLayer = new Vector<>();
-  private Vector<Pair<Bit3D, PShape>> shapeMapByBits = new Vector<>();
+  public Vector<Pair<Bit3D, PShape>> shapeMapByBits = new Vector<>();
   private Scene scene;
   private InteractiveFrame frame;
   private ControlP5 cp5;
