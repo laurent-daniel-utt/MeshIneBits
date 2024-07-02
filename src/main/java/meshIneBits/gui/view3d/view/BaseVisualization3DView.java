@@ -520,6 +520,9 @@ private void initWorkingSpace(){
                   .append(".obj");
           break;
         case ANIMATION_VIEW:
+         if (option== AnimationProcessor.AnimationOption.BY_BIT) {
+           changeEyePosition();
+         }
           if(option== AnimationProcessor.AnimationOption.BY_LAYER)
           {exportFileName.append("Layers/layer")
                   .append("-")
@@ -535,6 +538,7 @@ private void initWorkingSpace(){
                     .append(IndexExport)
                     .append("_"+num_batch)
                     .append(".obj");
+
           }
           else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
           {
@@ -545,17 +549,20 @@ private void initWorkingSpace(){
                     .append(IndexExport)
                     .append("_"+num_batch)
                     .append(".obj");
+
           }
           else if(option== AnimationProcessor.AnimationOption.BY_BATCH)
           {exportFileName.append("Batches/lot")
                   .append("-")
                   .append(IndexExport)
                   .append(".obj");
+
           }
           break;
         default:
           throw new IllegalStateException(
                   "Unexpected value: " + processor.getDisplayState().getState());
+
       }
       logger.logDEBUGMessage("Exporting " + exportFileName);
       beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER,path+"\\"+ exportFileName.toString());
@@ -563,6 +570,7 @@ private void initWorkingSpace(){
     }
 
   }
+
 
 
   private String  chooseDir(){
@@ -582,13 +590,14 @@ private void initWorkingSpace(){
    * just display then export each shape one by one
    */
   public void exportAll(){
+
     ExpInd.set(0);
     try {
       waitshaping.await();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    animationSpeed=0.001;
+    animationSpeed=0.005;
     while(ExpInd.get() < animationShapes.size()){
       try {
         notyet.await();
@@ -615,49 +624,9 @@ private void initWorkingSpace(){
     waitshaping=new CountDownLatch(1);
     notyet=new CountDownLatch(1);
     pathchoice=0;
+
   }
 
-
-
-
-  private ExecutorService service;
-  private ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-
-  private void increaseLayerIndex() {
-    executorService.submit(() -> {
-      try {
-        Thread.sleep(lastFrames);
-      } catch (InterruptedException e) {
-        System.out.println("Thread shutdown");
-      }
-      this.IndexExport = (this.IndexExport + 1) % this.currentShapeMap.size();
-
-      // Change the position of scene.eye() when exporting
-      if (isExporting){
-        changeEyePosition();
-        record=true;
-        switch (option){
-          case BY_BIT:
-            if (!firstExport){
-              counterBits++;
-            }
-            if(counterBits>=CraftConfig.nbBitesBatch){
-              counterBits=0;
-              counterBatch++;
-              firstExport=true;
-            }
-            firstExport=false;
-            break;
-          case BY_BATCH:
-            if (!firstExport){
-              counterBatch++;
-            }
-            firstExport=false;
-        }
-      }
-    });
-  }
 
   /**
    * Change the eye position and orientation.
@@ -666,32 +635,29 @@ private void initWorkingSpace(){
    * TODO Change the function after being able to have an animation by sub-bit to be able to export by sub-bit
    */
 
-
-
   private void changeEyePosition() {
-    //when export bits one by one, the eyes have to be in the bits at the lift point or at the cednter of the bits when there is several lift Point
+    //when export bits one by one, the eyes have to be in the bits at the lift point or at the center of the bits when there is several lift Point
     if (option== AnimationProcessor.AnimationOption.BY_BIT) {
-      if (this.IndexExport != 0) {
+      if (option== AnimationProcessor.AnimationOption.BY_BIT) {
         //get the bit's informations
-        Bit3D bit = shapeMapByBits.get(this.IndexExport - 1)
-                .getKey();
+        Bit3D bit3D = shapeMapByBits.get(this.IndexExport - 1).getKey();
         float bitOrientation =
-                (float) bit.getOrientation()
+                (float) bit3D.getOrientation()
                         .getEquivalentAngle() * (float) Math.PI / 180;
         float x = 0;
         float y = 0;
-        float z = (float) (bit.getHigherAltitude() + bit.getLowerAltitude()) / 2;
+        float z = (float) (bit3D.getHigherAltitude() + bit3D.getLowerAltitude()) / 2;
 
-        if (bit.getLiftPointsCS()
+        if (bit3D.getLiftPointsCS()
                 .size() > 1) {
           // the eye will be at the center of a normal bit.
           x = (float) CraftConfig.lengthFull / 2;
           y = (float) CraftConfig.bitWidth / 2;
         } else {
           // the eye will at the lift point of the bit
-          x = (float) bit.getLiftPointsCS()
+          x = (float) bit3D.getLiftPointsCS()
                   .get(0).x;
-          y = (float) bit.getLiftPointsCS()
+          y = (float) bit3D.getLiftPointsCS()
                   .get(0).y;
         }
 

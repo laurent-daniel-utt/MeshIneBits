@@ -45,6 +45,7 @@ import meshIneBits.gui.SubWindow;
 import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.view.*;
 import meshIneBits.util.CustomLogger;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Vector2;
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
@@ -76,8 +77,8 @@ import static remixlab.proscene.MouseAgent.*;
  * 3D view + GUI Use Builder to creates Meshes
  */
 public class ProcessingModelView extends PApplet implements Observer, SubWindow,
-    IVisualization3DProcessor,
-    AnimationIndexIncreasedListener {
+        IVisualization3DProcessor,
+        AnimationIndexIncreasedListener {
 
 
   public interface ModelChangesListener {
@@ -167,7 +168,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   public static void startProcessingModelView() {
     if (!ControllerView3D.getInstance()
-        .isAvailable()) {
+            .isAvailable()) {
       return;
     }
     if (currentInstance == null) {
@@ -176,10 +177,22 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   }
 
 
+  @Override
+  public void toggle() {
+    if (model == null) {
+      Logger.error("No model has been loaded.");
+      return;
+    }
+    isToggled = true;
+    ProcessingModelView.startProcessingModelView();
+    // Keep opening
+  }
+  private boolean isToggled = false;
+
   public void settings() {
     currentInstance = this;
     Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
+            .getScreenSize();
     size(screenSize.width * 3 / 5, screenSize.height, P3D);
     PJOGL.setIcon("resources/icon.png");
   }
@@ -228,7 +241,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
    */
   public void setup() {
     Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
+            .getScreenSize();
 
     configWindow("MeshIneBits - Model view", (int) (screenSize.getWidth() / 5), 0);
     initWorkspace();
@@ -243,21 +256,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void displayParameterWindows() {
     Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
+            .getScreenSize();
     if (uipwView == null || uipwAnimation == null) {
       logger.logWARNMessage("Parameter window should be initialized, call initParameterWindow");
       return;
     }
     String[] args = {"--location=0,0", "Foo"};
     runSketch(new String[]{"--display=1",
-        "--location=0,0", "--width=" + screenSize.width / 5,
-        "--height=" + (screenSize.height - 100),
-        "Projector"}, uipwView);
+            "--location=0,0", "--width=" + screenSize.width / 5,
+            "--height=" + (screenSize.height - 100),
+            "Projector"}, uipwView);
 
     runSketch(new String[]{"--display=1",
-        "--location=0,0", "--width=" + screenSize.width / 5,
-        "--height=" + (screenSize.height - 100),
-        "Projector"}, uipwAnimation);
+            "--location=0,0", "--width=" + screenSize.width / 5,
+            "--height=" + (screenSize.height - 100),
+            "Projector"}, uipwAnimation);
 
     updateSizeChangesOnModel();
     updatePositionChangesOnModel();
@@ -269,30 +282,30 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void initParameterWindow() {
     Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
+            .getScreenSize();
 //    uipwController = new UIPWController(this, controllerView3D.getCurrentMesh());
     uipwView = buildControllerWindow(UIPWView.class,
-        uipwController,
-        "View Configuration",
-        screenSize.width / 5,
-        screenSize.height - 100);
+            uipwController,
+            "View Configuration",
+            screenSize.width / 5,
+            screenSize.height - 100);
     uipwAnimation = buildControllerWindow(UIPWAnimation.class,
-        uipwController,
-        "View Animation",
-        screenSize.width / 5,
-        screenSize.height - 100);
+            uipwController,
+            "View Animation",
+            screenSize.width / 5,
+            screenSize.height - 100);
 //    uipwController.setAnimationIndexListener(this, (AnimationIndexIncreasedListener) uipwAnimation);
 
   }
 
   private <T extends UIParameterWindow> T buildControllerWindow(Class<T> c, UIPWListener listener,
-      String title, int width, int height) {
+                                                                String title, int width, int height) {
     UIParameterWindow.WindowBuilder windowBuilder = new UIParameterWindow.WindowBuilder();
     try {
       T obj = windowBuilder.setTitle(title)
-          .setListener(listener)
-          .setSize(width, height)
-          .build(c);
+              .setListener(listener)
+              .setSize(width, height)
+              .build(c);
       return obj;
     } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
       e.printStackTrace();
@@ -323,17 +336,17 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void init3DFrame() {
     if (scene == null
-        || shape == null
-        || controllerView3D == null
-        || controllerView3D.getModel() == null) {
+            || shape == null
+            || controllerView3D == null
+            || controllerView3D.getModel() == null) {
       return;
     }
     frame = new InteractiveFrame(scene, shape);
     //set position of frame in scene
     frame.translate(
-        (float) controllerView3D.getModel().getPos().x,
-        (float) controllerView3D.getModel().getPos().y,
-        (float) controllerView3D.getModel().getPos().z);
+            (float) controllerView3D.getModel().getPos().x,
+            (float) controllerView3D.getModel().getPos().y,
+            (float) controllerView3D.getModel().getPos().z);
     customFrameBindings(frame);
     //move frame to position (x,y,0)
     applyGravity();
@@ -396,20 +409,20 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private void updatePositionChangesOnModel() {
     if (mcListener != null) {
       mcListener.onPositionChange(Double.parseDouble(df.format(frame.position()
-              .x())),
-          Double.parseDouble(df.format(frame.position()
-              .y())),
-          Double.parseDouble(df.format(frame.position()
-              .z())));
+                      .x())),
+              Double.parseDouble(df.format(frame.position()
+                      .y())),
+              Double.parseDouble(df.format(frame.position()
+                      .z())));
     }
   }
 
   private void updateSizeChangesOnModel() {
     if (mcListener != null) {
       mcListener.onSizeChange(Double.parseDouble(df.format(frame.scaling())),
-          Double.parseDouble(df.format(shape.getDepth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getWidth() * frame.scaling())),
-          Double.parseDouble(df.format(shape.getHeight() * frame.scaling())));
+              Double.parseDouble(df.format(shape.getDepth() * frame.scaling())),
+              Double.parseDouble(df.format(shape.getWidth() * frame.scaling())),
+              Double.parseDouble(df.format(shape.getHeight() * frame.scaling())));
     }
 
   }
@@ -429,10 +442,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     frame.setGrabsInputThreshold(scene.radius() / 3);
     frame.setRotationSensitivity(3);
     if (!controllerView3D.getCurrentMesh()
-        .isSliced()) {
+            .isSliced()) {
       frame.setMotionBinding(CTRL, LEFT_CLICK_ID, "rotate");
       frame.setMotionBinding(WHEEL_ID,
-          scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
+              scene.is3D() ? (frame.isEyeFrame() ? "translateZ" : "scale") : "scale");
     }
     frame.setMotionBinding(CTRL, RIGHT_CLICK_ID, "translate");
   }
@@ -459,11 +472,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
             switch (animationWays) {
               case ANIMATION_FULL:
                 beginRaw("nervoussystem.obj.OBJExport",
-                    model.getModelName() + "_" + "layer_Evolution_" + counterBits + ".obj");
+                        model.getModelName() + "_" + "layer_Evolution_" + counterBits + ".obj");
                 break;
               case ANIMATION_CURRENT:
                 beginRaw("nervoussystem.obj.OBJExport",
-                    model.getModelName() + "_" + "Current_layer_" + counterBits + ".obj");
+                        model.getModelName() + "_" + "Current_layer_" + counterBits + ".obj");
                 break;
             }
             break;
@@ -471,11 +484,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
             switch (animationWays) {
               case ANIMATION_FULL:
                 beginRaw("nervoussystem.obj.OBJExport",
-                    model.getModelName() + "_" + "bits_Evolution_" + counterBits + ".obj");
+                        model.getModelName() + "_" + "bits_Evolution_" + counterBits + ".obj");
                 break;
               case ANIMATION_CURRENT:
                 beginRaw("nervoussystem.obj.OBJExport",
-                    counterBatch + "/" + counterBits + "_" + counterBatch + ".obj");
+                        counterBatch + "/" + counterBits + "_" + counterBatch + ".obj");
                 break;
             }
             break;
@@ -483,7 +496,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
             switch (animationWays) {
               case ANIMATION_FULL:
                 beginRaw("nervoussystem.obj.OBJExport",
-                    model.getModelName() + "_" + "Batch_Evolution_" + counterBits + ".obj");
+                        model.getModelName() + "_" + "Batch_Evolution_" + counterBits + ".obj");
                 break;
               case ANIMATION_CURRENT:
                 beginRaw("nervoussystem.obj.OBJExport", "Final_" + counterBatch + ".obj");
@@ -549,7 +562,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void drawBits() {
     Vector3 v = controllerView3D.getModel()
-        .getPos();
+            .getPos();
     pushMatrix();
     translate((float) v.x, (float) v.y, (float) v.z);
     shape(shapeMeshPaved);
@@ -569,10 +582,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     box(printerX, printerY, printerZ);
     popMatrix();
     scene.pg()
-        .pushStyle();
+            .pushStyle();
     stroke(80);
     scene.pg()
-        .beginShape(LINES);
+            .beginShape(LINES);
 //        stroke(255, 255, 0);
     for (int i = -(int) printerX / 2; i <= printerX / 2; i += 100) {
       vertex(i, printerY / 2, 0);
@@ -583,16 +596,16 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       vertex(-printerX / 2, i, 0);
     }
     scene.pg()
-        .endShape();
+            .endShape();
     scene.pg()
-        .popStyle();
+            .popStyle();
 
   }
 
   private void drawWorkingSpace() {
     stroke(255, 0, 0);
     rect(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2, CraftConfig.workingWidth,
-        CraftConfig.printerY);
+            CraftConfig.printerY);
   }
 
   /*
@@ -611,18 +624,18 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     modelPosition = createModelinPringtingSpace(cp5);
 
     shortcut = cp5.addTextlabel("shortcut")
-        .setText(
-            "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
-        .setColor(255)
-        .setFont(createFont("arial bold", 15));
+            .setText(
+                    "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
+            .setColor(255)
+            .setFont(createFont("arial bold", 15));
 
     slicingWarning = cp5.addTextlabel("slicingWarning")
-        .setText("The Model is Sliced \n You can't rotate \n You can't scale")
-        .setColor(255)
-        .setFont(createFont("arial bold", 20))
-        .hide();
+            .setText("The Model is Sliced \n You can't rotate \n You can't scale")
+            .setColor(255)
+            .setFont(createFont("arial bold", 20))
+            .hide();
     if (controllerView3D.getCurrentMesh()
-        .isSliced()) {
+            .isSliced()) {
       slicingWarning.show();
     }
 
@@ -642,27 +655,27 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private Textlabel createModelinPringtingSpace(ControlP5 cp5) {
     return cp5.addTextlabel("model position")
-        .setText("Model Position in \n Printing Space ")
-        .setColor(255)
-        .setFont(createFont("arial bold", 20));
+            .setText("Model Position in \n Printing Space ")
+            .setColor(255)
+            .setFont(createFont("arial bold", 20));
   }
 
   private Textlabel createModelSizeText(ControlP5 cp5) {
     return cp5.addTextlabel("model size")
-        .setText(
-            "Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(
-                shape.getHeight()) + "\n Width : " + df.format(shape.getWidth()) + "\n Scale : "
-                + df.format(frame.scaling()))
-        .setColor(255)
-        .setFont(createFont("arial bold", 15));
+            .setText(
+                    "Model Size :\n Depth:" + df.format(shape.getDepth()) + "\n Height :" + df.format(
+                            shape.getHeight()) + "\n Width : " + df.format(shape.getWidth()) + "\n Scale : "
+                            + df.format(frame.scaling()))
+            .setColor(255)
+            .setFont(createFont("arial bold", 15));
   }
 
   private Textlabel createModelPositionText(ControlP5 cp5) {
     return cp5.addTextlabel("label")
-        .setText("Current Position : (0,0,0)")
-        .setSize(80, 40)
-        .setColor(255)
-        .setFont(createFont("arial bold", 15));
+            .setText("Current Position : (0,0,0)")
+            .setSize(80, 40)
+            .setColor(255)
+            .setFont(createFont("arial bold", 15));
   }
 
   private void updateButtons() {
@@ -671,11 +684,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     modelSize.setPosition(win.getWidth() - 150, 10);
     txt.setPosition(win.getWidth() - 150, win.getHeight() - 80);
     txt.setText(
-        "Current position :\n" + " x : " + df.format(frame.position()
-            .x()) + "\n y : " + df.format(
-            frame.position()
-                .y()) + "\n z : " + df.format(frame.position()
-            .z()));
+            "Current position :\n" + " x : " + df.format(frame.position()
+                    .x()) + "\n y : " + df.format(
+                    frame.position()
+                            .y()) + "\n z : " + df.format(frame.position()
+                    .z()));
     slicingWarning.setPosition(win.getWidth() - 450, 10);
     shortcut.setPosition(30, win.getHeight() - 120);
 
@@ -816,7 +829,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
    */
   private void rotateShape(float angleX, float angleY, float angleZ) {
     if (!controllerView3D.getCurrentMesh()
-        .isSliced()) {
+            .isSliced()) {
       applied = false;
       Quat r = new Quat();
       float angXRad = (float) Math.toRadians(angleX);
@@ -874,10 +887,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < 3; j++) {
         Vec vertex = new Vec(shape.getChild(i)
-            .getVertex(j).x, shape.getChild(i)
-            .getVertex(j).y,
-            shape.getChild(i)
-                .getVertex(j).z);
+                .getVertex(j).x, shape.getChild(i)
+                .getVertex(j).y,
+                shape.getChild(i)
+                        .getVertex(j).z);
         Vec v = frame.inverseCoordinatesOf(vertex);
         if (minx > v.x()) {
           minx = v.x();
@@ -905,10 +918,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < 3; j++) {
         Vec vertex = new Vec(shape.getChild(i)
-            .getVertex(j).x, shape.getChild(i)
-            .getVertex(j).y,
-            shape.getChild(i)
-                .getVertex(j).z);
+                .getVertex(j).x, shape.getChild(i)
+                .getVertex(j).y,
+                shape.getChild(i)
+                        .getVertex(j).z);
         Vec v = frame.inverseCoordinatesOf(vertex);
         if (maxx < v.x()) {
           maxx = v.x();
@@ -934,8 +947,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void applyTranslation() {
     model.setPos(new Vector3(frame.position()
-        .x(), frame.position()
-        .y(), 0));
+            .x(), frame.position()
+            .y(), 0));
     model.move(new Vector3(0, 0, -model.getMin().z));
 
 
@@ -999,11 +1012,11 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
    */
   private void resetModel() {
     model.rotate(frame.rotation()
-        .inverse());
+            .inverse());
     model.setPos(new Vector3(0, 0, 0));
     frame.setPosition(new Vec(0, 0, 0));
     frame.rotate(frame.rotation()
-        .inverse());
+            .inverse());
     applyGravity();
     updatePositionChangesOnModel();
     updateSizeChangesOnModel();
@@ -1014,10 +1027,10 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
    */
   public void centerCamera() {
     scene.eye()
-        .setPosition(new Vec(frame.position()
-            .x(), 3000, 3000));
+            .setPosition(new Vec(frame.position()
+                    .x(), 3000, 3000));
     scene.eye()
-        .lookAt(frame.position());
+            .lookAt(frame.position());
   }
 
   @Override
@@ -1048,12 +1061,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private void fixPositionCamera(float x, float y, float z) {
     scene.eye()
-        .setPosition(new Vec(x, y, z));
+            .setPosition(new Vec(x, y, z));
   }
 
   private void fixAngleCamera(float x, float y, float z) {
     scene.eye()
-        .lookAt(new Vec(x, y, z));
+            .lookAt(new Vec(x, y, z));
   }
 
   /**
@@ -1132,9 +1145,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       model.applyScale(frame.scaling());
       scale = frame.scaling();
       modelSize.setText(
-          "Model Size :\n Depth:" + df.format(shape.getDepth() * scale) + "\n Height :" + df.format(
-              shape.getHeight() * scale) + "\n Width : " + df.format(shape.getWidth() * scale)
-              + "\n Scale : " + df.format(scale));
+              "Model Size :\n Depth:" + df.format(shape.getDepth() * scale) + "\n Height :" + df.format(
+                      shape.getHeight() * scale) + "\n Width : " + df.format(shape.getWidth() * scale)
+                      + "\n Scale : " + df.format(scale));
     }
     if (frame.scaling() != 1) {
       shape.setFill(color(205, 92, 92));
@@ -1196,7 +1209,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
           if (lastIndexWorkingspace != 0) {
             for (int i = 0; i < lastIndexWorkingspace - 1; i++) {
               currentShapeMap.get(listIndexWorkingSpace.get(i))
-                  .setVisible(false);
+                      .setVisible(false);
             }
           }
         }
@@ -1209,8 +1222,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       }
     }
     Vector3 v = controllerView3D.getCurrentMesh()
-        .getModel()
-        .getPos();
+            .getModel()
+            .getPos();
     pushMatrix();
     translate((float) v.x, (float) v.y, (float) v.z);
     for (PShape aShapeMap : currentShapeMap) {
@@ -1234,35 +1247,35 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       if (this.index != 0) {
         //get the bit's informations
         Bit3D bit = shapeMapByBits.get(this.index - 1)
-            .getKey();
+                .getKey();
         float bitOrientation =
-            (float) bit.getOrientation()
-                .getEquivalentAngle() * (float) Math.PI / 180;
+                (float) bit.getOrientation()
+                        .getEquivalentAngle() * (float) Math.PI / 180;
         float x = 0;
         float y = 0;
         float z = (float) (bit.getHigherAltitude() + bit.getLowerAltitude()) / 2;
 
         if (bit.getLiftPointsCS()
-            .size() > 1) {
+                .size() > 1) {
           // the eye will be at the center of a normal bit.
           x = (float) CraftConfig.lengthFull / 2;
           y = (float) CraftConfig.bitWidth / 2;
         } else {
           // the eye will at the lift point of the bit
           x = (float) bit.getLiftPointsCS()
-              .get(0).x;
+                  .get(0).x;
           y = (float) bit.getLiftPointsCS()
-              .get(0).y;
+                  .get(0).y;
         }
 
         fixPositionCamera(x, y, z);
         fixAngleCamera(scene.eye()
-            .position()
-            .x(), scene.eye()
-            .position()
-            .y(), printerZ);
+                .position()
+                .x(), scene.eye()
+                .position()
+                .y(), printerZ);
         scene.eye()
-            .setOrientation(new Quat(0, 0, bitOrientation + (float) Math.PI / 2));
+                .setOrientation(new Quat(0, 0, bitOrientation + (float) Math.PI / 2));
       }
     } else {
       fixPositionCamera(0, 0, printerZ);
@@ -1278,10 +1291,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 //        logger.logDEBUGMessage("update called");
   }
 
-  @Override
-  public void toggle() {
-
-  }
 
   @Override
   public void setCurrentMesh(Mesh mesh) {
@@ -1298,7 +1307,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   @Override
   public void setAnimationByBit(boolean boo) {
     if (boo && controllerView3D.getCurrentMesh()
-        .isPaved()) {
+            .isPaved()) {
       animationType = ANIMATION_BITS;
       index = 0;
 
@@ -1325,18 +1334,18 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
           workingSpacePosition = minXDistancePoint - safetySpace;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                    CraftConfig.workingWidth, CraftConfig.printerY));
             listIndexWorkingSpace.add(0);
           }
 
         }
         if (Math.round(minXDistancePoint - safetySpace) <= workingSpacePosition
-            || Math.round(maxXDistancePoint + safetySpace) >= (workingSpacePosition
-            + CraftConfig.workingWidth)) {
+                || Math.round(maxXDistancePoint + safetySpace) >= (workingSpacePosition
+                + CraftConfig.workingWidth)) {
           workingSpacePosition = minXDistancePoint - safetySpace;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                    CraftConfig.workingWidth, CraftConfig.printerY));
             listIndexWorkingSpace.add(current.size() - 1);
           }
 
@@ -1344,7 +1353,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
         current.add(ele.getValue());
       });
       current.add(shapeMapByBits.get(shapeMapByBits.size() - 1)
-          .getValue());
+              .getValue());
       currentShapeMap = current;
 //      uipwController.setAnimationRange(currentShapeMap.size());
     }
@@ -1353,14 +1362,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   @Override
   public void setAnimationByBatch(boolean boo) {
     if (boo && controllerView3D.getCurrentMesh()
-        .isPaved()) {
+            .isPaved()) {
       index = 0;
       animationType = ANIMATION_BATCHES;
       Vector<PShape> current = new Vector<>();
       int numberOfBatches = controllerView3D.getCurrentMesh()
-          .getScheduler()
-          .getBitBatch(shapeMapByBits.get(shapeMapByBits.size() - 1)
-              .getKey());
+              .getScheduler()
+              .getBitBatch(shapeMapByBits.get(shapeMapByBits.size() - 1)
+                      .getKey());
       for (int i = 0; i <= numberOfBatches; i++) {
         current.add(builder.getBatchPShapeForm(shapeMapByBits, i));
       }
@@ -1373,7 +1382,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   @Override
   public void setAnimationByLayer(boolean boo) {
     if (boo && controllerView3D.getCurrentMesh()
-        .isPaved()) {
+            .isPaved()) {
       index = 0;
       animationType = ANIMATION_LAYERS;
       Vector<PShape> current = new Vector<>();
@@ -1382,7 +1391,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
         current.add(ele.getValue());
       });
       current.add(shapeMapByLayer.get(shapeMapByLayer.size() - 1)
-          .getValue());
+              .getValue());
       currentShapeMap = current;
 //      uipwController.setAnimationRange(currentShapeMap.size());
     }
