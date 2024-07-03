@@ -17,7 +17,7 @@ import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
-import meshIneBits.util.MultiThreadServiceExecutor;
+
 import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -41,8 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor.option;
@@ -635,29 +634,30 @@ private void initWorkingSpace(){
    * TODO Change the function after being able to have an animation by sub-bit to be able to export by sub-bit
    */
 
+
   private void changeEyePosition() {
     //when export bits one by one, the eyes have to be in the bits at the lift point or at the center of the bits when there is several lift Point
     if (option== AnimationProcessor.AnimationOption.BY_BIT) {
-      if (option== AnimationProcessor.AnimationOption.BY_BIT) {
+      if (option== AnimationOption.BY_BIT) {
         //get the bit's informations
-        Bit3D bit3D = shapeMapByBits.get(this.IndexExport - 1).getKey();
+        Bit3D Bit3D = shapeMapByBits.get(this.IndexExport).getKey();
         float bitOrientation =
-                (float) bit3D.getOrientation()
+                (float) Bit3D.getOrientation()
                         .getEquivalentAngle() * (float) Math.PI / 180;
         float x = 0;
         float y = 0;
-        float z = (float) (bit3D.getHigherAltitude() + bit3D.getLowerAltitude()) / 2;
+        float z = (float) (Bit3D.getHigherAltitude() + Bit3D.getLowerAltitude()) / 2;
 
-        if (bit3D.getLiftPointsCS()
+        if (Bit3D.getLiftPointsCS()
                 .size() > 1) {
           // the eye will be at the center of a normal bit.
           x = (float) CraftConfig.lengthFull / 2;
           y = (float) CraftConfig.bitWidth / 2;
         } else {
           // the eye will at the lift point of the bit
-          x = (float) bit3D.getLiftPointsCS()
+          x = (float) Bit3D.getLiftPointsCS()
                   .get(0).x;
-          y = (float) bit3D.getLiftPointsCS()
+          y = (float) Bit3D.getLiftPointsCS()
                   .get(0).y;
         }
 
@@ -683,6 +683,7 @@ private void initWorkingSpace(){
     scene.eye().lookAt(new Vec(x,y,z));
   }
   private Vector<Pair<Bit3D, PShape>> shapeMapByBits = new Vector<>();
+
   private boolean firstExport = true;
   private int counterBits = 0;
   private int counterBatch = 0;

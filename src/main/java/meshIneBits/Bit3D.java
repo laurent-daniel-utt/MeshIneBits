@@ -315,7 +315,7 @@ public class Bit3D implements Serializable, Cloneable {
   }
 
   public void prepareBitToExport() {
-//        Bit3D bit3D = this;
+        Bit3D bit3D = this;
        this.computeTwoPointNearTwoPointMostDistantOnBit();
     calcAngles();
     if (reverseInCut) {
