@@ -137,6 +137,67 @@ public class CraftConfig {
   )
   public static double lengthNormal = 150.0;
 
+  /**
+   * When true, the sub-bit that contains the DataMatrix anchor (see below) is always treated as the
+   * main piece for XML export; the other sub-bit is the fall (chute), regardless of area or volume.
+   * The webcam / vision stack may read this code physically; here we only use configured coordinates
+   * in the bit coordinate system (CB).
+   */
+  public static boolean useDataMatrixAnchorForFallRule = true;
+
+  /**
+   * X coordinate of the DataMatrix reference point (center or origin of the printed code) in {@link
+   * meshIneBits.Bit2D} coordinate system (CB): same frame as cut paths — see {@code Bit2D} javadoc
+   * (upper-left style convention with length along X).
+   */
+  @DoubleSetting(
+      title = "DataMatrix anchor X in bit CB (mm)",
+      description = "X in bit coordinate system (mm). Typical: near the end that keeps traceability after cut.",
+      minValue = -1000.0,
+      maxValue = 1000.0,
+      defaultValue = -70.0
+  )
+  @BitSetting(
+      order = 15
+  )
+  public static double dataMatrixAnchorX_CB = -70.0;
+
+  @DoubleSetting(
+      title = "DataMatrix anchor Y in bit CB (mm)",
+      description = "Y in bit coordinate system (mm).",
+      minValue = -1000.0,
+      maxValue = 1000.0,
+      defaultValue = 0.0
+  )
+  @BitSetting(
+      order = 16
+  )
+  public static double dataMatrixAnchorY_CB = 0.0;
+
+  @DoubleSetting(
+      title = "Holding point X in bit CB (mm)",
+      description = "X of the theoretical gripper holding point in bit coordinate system (CB).",
+      minValue = -1000.0,
+      maxValue = 1000.0,
+      defaultValue = -70.0
+  )
+  @BitSetting(
+      order = 17
+  )
+  public static double holdingPointX_CB = -70.0;
+
+  @DoubleSetting(
+      title = "Holding point Y in bit CB (mm)",
+      description = "Y of the theoretical gripper holding point in bit coordinate system (CB).",
+      minValue = -1000.0,
+      maxValue = 1000.0,
+      defaultValue = 0.0
+  )
+  @BitSetting(
+      order = 18
+  )
+  public static double holdingPointY_CB = 0.0;
+
   @DoubleSetting(
       title = "section holding to cut (mm)",
       description = "section holding to cut",

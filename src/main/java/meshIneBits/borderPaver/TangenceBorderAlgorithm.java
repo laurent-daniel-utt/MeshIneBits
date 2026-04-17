@@ -77,8 +77,9 @@ public class TangenceBorderAlgorithm {
             //computes the position of the bottom-left edge of the bit
             Vector2 bottomLeftEdge = getProjStartPoint(startPoint, segment);
 
-            //si la distance entre le point projeté (coinHautGauche) et le startPoint est inférieure à la largeur du bit, on a un bit possible
-            //il faut également que l'on soit du bon côté de la section.
+            // If the distance between the projected point (top-left corner) and startPoint is lower
+            // than the bit width, we have a possible bit placement.
+            // We must also be on the correct side of the section.
 
             if (convexType != CONVEX_TYPE_UNDEFINED && Vector2.dist(bottomLeftEdge, startPoint) < CraftConfig.bitWidth + MARGIN_EXT - MinWidth) {
                 Segment2D offsetSegment = new Segment2D(

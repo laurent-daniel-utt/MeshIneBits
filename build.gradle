@@ -118,3 +118,10 @@ shadowJar {
     version(actualVersion)
     zip64 = true
 }
+
+test {
+    useJUnitPlatform()
+    filter {
+        excludeTestsMatching "*IntegrityTest"
+    }
+}

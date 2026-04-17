@@ -13,7 +13,7 @@ public class MeshIneBitNodeId {
   public static final NodeId node2 = new NodeId(3, "node2");
 
 
-// nodes machine de depose
+// depositing machine nodes
   @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
   public static final NodeId start_depose = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.visu.start_button");
   @NodeIdentifier(BitSLicRHelperConfig.depose_machine_url)
@@ -92,7 +92,7 @@ public class MeshIneBitNodeId {
   public static final NodeId homing_axis_theta = new NodeId(4, "|var|CPX-E-CEC-M1-PN.Application.visu.homing_theta_button");
 
 
-// nodes robot manip
+// handling robot nodes
   @NodeIdentifier(BitSLicRHelperConfig.robot_manip_url)
   public static final NodeId manipDiscreteInput = new NodeId(1,  301);
   @NodeIdentifier(BitSLicRHelperConfig.robot_manip_url)
@@ -104,7 +104,7 @@ public class MeshIneBitNodeId {
   @NodeIdentifier(BitSLicRHelperConfig.robot_manip_url)
   public static final NodeId manipCommand = new NodeId(1,305);
 
-  // nodes robot decoupe
+  // cutting robot nodes
   @NodeIdentifier(BitSLicRHelperConfig.robot_decoupe_url)
   public static final NodeId decoupeDiscreteInput = new NodeId(1,  301);
   @NodeIdentifier(BitSLicRHelperConfig.robot_decoupe_url)

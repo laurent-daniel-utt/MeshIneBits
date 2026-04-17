@@ -46,7 +46,7 @@ public class AreaTool {
    */
 
 
-  static Vector2 compute2DPolygonCentroid(Area area) {
+  public static Vector2 compute2DPolygonCentroid(Area area) {
 
     Vector<Segment2D> segments = getLargestPolygon(area);
     if (segments == null) {

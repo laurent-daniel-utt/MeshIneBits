@@ -15,8 +15,8 @@ public class RobotCommander {
     private RobotOPCUAHelper robotOPCUAHelper;
 
 
-    public RobotCommander(ROBOT robot)  {//robot = manip ou decoupe
-        //pour savoir quel robot on utilise
+    public RobotCommander(ROBOT robot)  {// robot = manip or cutting robot
+        // identify which robot is being used
         this.robotOPCUAHelper=new RobotOPCUAHelper(robot);
     }
 
@@ -28,7 +28,7 @@ public class RobotCommander {
                     "Error of sending request to server :" + robotOPCUAHelper.getEndpointUrl() + ", status code: "
                             + res.getStatusCode());
         } else {
-            String s=Arrays.toString((Object[]) res.getValue());//lire les valeurs sous forme String=[0, 0, ...]
+            String s=Arrays.toString((Object[]) res.getValue());// read values as String = [0, 0, ...]
             return stringToShort(s);
         }
     }
@@ -60,9 +60,9 @@ public class RobotCommander {
         short[] res=new short[16384];
 
         StringBuilder ss=new StringBuilder(s);
-        ss.deleteCharAt(0);//supprimer [
-        ss.deleteCharAt(ss.length()-1);//supprimer ]
-        s=ss.toString();//---> s=0, 0, ..., 0
+        ss.deleteCharAt(0);// remove [
+        ss.deleteCharAt(ss.length()-1);// remove ]
+        s=ss.toString();// ---> s=0, 0, ..., 0
 
         String[] arr=s.split(", ");
         for (int i=0;i<arr.length;i++){
@@ -88,35 +88,35 @@ public class RobotCommander {
             //int i=0;
             while(true){
 
-                    while (robotDecoup.getHoldingRegisters()[2]!=1){//wait R[3] = 1 --> fin de programme 1 de robot Decoupe
-                    }                                               // R[3] variable de robot decoupe
+                    while (robotDecoup.getHoldingRegisters()[2]!=1){// wait R[3] = 1 --> end of cutting robot program 1
+                    }                                               // R[3] variable of cutting robot
         //            map= new HashMap<>();
         //            map.put(1, (short) 0);
         //            robotDecoup.setHoldingRegisters(map);
 
                     map= new HashMap<>();
                     map.put(3, (short) 1);
-                    robotManip.setHoldingRegisters(map);//R[3] de robot manip = 1
-                      while (robotManip.getHoldingRegisters()[2]!=0){// wait R[3] = 0 --> fin de programme 1 de robot manip
-                      }                                               // R[3] variable de robot manip
+                    robotManip.setHoldingRegisters(map);// R[3] of handling robot = 1
+                      while (robotManip.getHoldingRegisters()[2]!=0){// wait R[3] = 0 --> end of handling robot program 1
+                      }                                               // R[3] variable of handling robot
 
         //            while (robotManip.getHoldingRegisters()[2]!=0){
         //            }
                     map= new HashMap<>();
                     map.put(3, (short) 0);
-                    robotDecoup.setHoldingRegisters(map);//R[3] de robot decoupe = 0
+                    robotDecoup.setHoldingRegisters(map);// R[3] of cutting robot = 0
 
-                    while (robotDecoup.getHoldingRegisters()[2]!=2){//wait R[3] = 2 --> fin de programme 2 de robot Decoupe
-                    }                                               // R[3] variable de robot decoupe
+                    while (robotDecoup.getHoldingRegisters()[2]!=2){// wait R[3] = 2 --> end of cutting robot program 2
+                    }                                               // R[3] variable of cutting robot
                     map= new HashMap<>();
                     map.put(3, (short) 2);
-                    robotManip.setHoldingRegisters(map);//R[3] de robot manip = 2
+                    robotManip.setHoldingRegisters(map);// R[3] of handling robot = 2
 
-                    while (robotManip.getHoldingRegisters()[2]!=0){// wait R[3] = 0 --> fin de programme 2 de robot manip
-                    }                                              // R[3] variable de robot manip
+                    while (robotManip.getHoldingRegisters()[2]!=0){// wait R[3] = 0 --> end of handling robot program 2
+                    }                                              // R[3] variable of handling robot
                     map= new HashMap<>();
                     map.put(3, (short) 0);
-                    robotDecoup.setHoldingRegisters(map);//R[3] de robot decoupe = 0
+                    robotDecoup.setHoldingRegisters(map);// R[3] of cutting robot = 0
         //            map= new HashMap<>();
         //            map.put(0, (short) 0);
         //            robotManip.setHoldingRegisters(map);
