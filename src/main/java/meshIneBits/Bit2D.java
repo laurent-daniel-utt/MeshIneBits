@@ -33,6 +33,7 @@ package meshIneBits;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.AreaTool;
 import meshIneBits.util.CutPathCalc;
+import meshIneBits.util.Logger;
 import meshIneBits.util.Segment2D;
 import meshIneBits.util.Vector2;
 import org.jetbrains.annotations.NotNull;
@@ -86,6 +87,19 @@ public class Bit2D implements Cloneable, Serializable {
 
   private Boolean inverseInCut = false;
 
+  /**
+   * When non-null, {@link meshIneBits.Bit3D#isHoldedInCUt()} uses this instead of the holding-zone
+   * heuristic so XML export marks the last cut path segment as chute ({@code true}) or main sub-bit
+   * ({@code false}). Set when {@link CraftConfig#useDataMatrixAnchorForFallRule} reorders a 2-piece
+   * cut so the fall piece path is last for export.
+   */
+  private transient Boolean explicitChuteOnLastExportPath = null;
+
+  /**
+   * Index of the cut path that bounds the fall (non DataMatrix) sub-polygon, after
+   * {@link #applyDataMatrixFallOrderingIfNeeded()}; -1 if unused.
+   */
+  private transient int fallCutPathIndex = -1;
 
   private Boolean checkFullLength = true;
 
@@ -426,6 +440,9 @@ public  void callMinusSetTransfoMatrix(){
    */
   public void updateBoundaries(@NotNull Area transformedArea) {
     areas.clear();
+    explicitChuteOnLastExportPath = null;
+    fallCutPathIndex = -1;
+    inverseInCut = false;
     Area newArea = (Area) transformedArea.clone();
     if (!checkSectionHoldingToCut(origin, orientation, newArea)) {
       removeSectionHolding(this, newArea);
@@ -502,7 +519,295 @@ public  void callMinusSetTransfoMatrix(){
    * Reset cut paths and recalculate them after defining area
    */
   public void calcCutPath() {
+    explicitChuteOnLastExportPath = null;
+    fallCutPathIndex = -1;
     this.cutPaths = CutPathCalc.instance.calcCutPathFrom(this);
+    applyDataMatrixFallOrderingIfNeeded();
+  }
+
+  /**
+   * After a geometric cut into two sub-polygons, put the fall (non DataMatrix) piece's cut path last
+   * and pair {@link #areas} indices with {@link #cutPaths} so {@link NewBit2D#buildSubBits} stays
+   * consistent.
+   */
+  private void applyDataMatrixFallOrderingIfNeeded() {
+    if (!CraftConfig.useDataMatrixAnchorForFallRule || areas.size() != 2 || cutPaths.size() != 2) {
+      return;
+    }
+    Vector2 anchor = new Vector2(CraftConfig.dataMatrixAnchorX_CB, CraftConfig.dataMatrixAnchorY_CB);
+    int dmIdx = indexOfAreaContainingAnchor(areas, anchor);
+    if (dmIdx < 0) {
+      dmIdx = resolveAnchorWhenOnCutBoundary(areas, anchor);
+      if (dmIdx < 0) {
+        Logger.error(
+            "DataMatrix fall rule: anchor not in any sub-piece and could not resolve from boundary; "
+                + "check dataMatrixAnchorX_CB / dataMatrixAnchorY_CB.");
+        return;
+      }
+      Logger.message(
+          "DataMatrix fall rule: anchor on cut line; resolved using ray toward sub-piece centroid.");
+    }
+    int fallAreaIdx = 1 - dmIdx;
+    int fallPathIdx = cutPathIndexForArea(areas.get(fallAreaIdx), cutPaths);
+    int last = cutPaths.size() - 1;
+    if (fallPathIdx != last) {
+      swap(areas, fallPathIdx, last);
+      swap(cutPaths, fallPathIdx, last);
+    }
+    fallCutPathIndex = last;
+    explicitChuteOnLastExportPath = Boolean.TRUE;
+  }
+
+  public HoldingSafetyStatus checkHoldingSafety() {
+    if (!CraftConfig.useDataMatrixAnchorForFallRule || areas.size() != 2) {
+      return HoldingSafetyStatus.notApplicable();
+    }
+    Vector2 dataMatrixAnchor = new Vector2(CraftConfig.dataMatrixAnchorX_CB, CraftConfig.dataMatrixAnchorY_CB);
+    int dmIdx = indexOfAreaContainingAnchor(areas, dataMatrixAnchor);
+    if (dmIdx < 0) {
+      dmIdx = resolveAnchorWhenOnCutBoundary(areas, dataMatrixAnchor);
+      if (dmIdx < 0) {
+        return HoldingSafetyStatus.invalid("DataMatrix anchor introuvable dans les sous-bits.", -1, -1);
+      }
+    }
+    Vector2 holdingPoint = new Vector2(CraftConfig.holdingPointX_CB, CraftConfig.holdingPointY_CB);
+    int holdIdx = indexOfAreaContainingAnchor(areas, holdingPoint);
+    if (holdIdx < 0) {
+      holdIdx = resolveAnchorWhenOnCutBoundary(areas, holdingPoint);
+      if (holdIdx < 0) {
+        return HoldingSafetyStatus.invalid("Point de prehension introuvable dans les sous-bits.", dmIdx, -1);
+      }
+    }
+    if (dmIdx != holdIdx) {
+      return HoldingSafetyStatus.invalid(
+          "Conflit de prehension: la pince ne maintient pas le sous-bit du DataMatrix.", dmIdx, holdIdx);
+    }
+    return HoldingSafetyStatus.safe(dmIdx, holdIdx);
+  }
+
+  public static final class HoldingSafetyStatus {
+    private final boolean safe;
+    private final boolean applicable;
+    private final String reason;
+    private final int dataMatrixAreaIdx;
+    private final int holdingAreaIdx;
+
+    private HoldingSafetyStatus(boolean safe, boolean applicable, String reason, int dataMatrixAreaIdx,
+        int holdingAreaIdx) {
+      this.safe = safe;
+      this.applicable = applicable;
+      this.reason = reason;
+      this.dataMatrixAreaIdx = dataMatrixAreaIdx;
+      this.holdingAreaIdx = holdingAreaIdx;
+    }
+
+    public static HoldingSafetyStatus notApplicable() {
+      return new HoldingSafetyStatus(true, false, null, -1, -1);
+    }
+
+    public static HoldingSafetyStatus safe(int dataMatrixAreaIdx, int holdingAreaIdx) {
+      return new HoldingSafetyStatus(true, true, null, dataMatrixAreaIdx, holdingAreaIdx);
+    }
+
+    public static HoldingSafetyStatus invalid(String reason, int dataMatrixAreaIdx, int holdingAreaIdx) {
+      return new HoldingSafetyStatus(false, true, reason, dataMatrixAreaIdx, holdingAreaIdx);
+    }
+
+    public boolean isSafe() {
+      return safe;
+    }
+
+    public boolean isApplicable() {
+      return applicable;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public int getDataMatrixAreaIdx() {
+      return dataMatrixAreaIdx;
+    }
+
+    public int getHoldingAreaIdx() {
+      return holdingAreaIdx;
+    }
+  }
+
+  private static <T> void swap(Vector<T> v, int i, int j) {
+    T t = v.get(i);
+    v.set(i, v.get(j));
+    v.set(j, t);
+  }
+
+  private static int indexOfAreaContainingAnchor(Vector<Area> pieceAreas, Vector2 p) {
+    if (pieceAreas == null || p == null) {
+      return -1;
+    }
+    for (int i = 0; i < pieceAreas.size(); i++) {
+      if (pieceAreas.get(i).contains(p.x, p.y)) {
+        return i;
+      }
+    }
+    double[] nudges = {0, 0.05, -0.05, 0.1, -0.1, 0.2, -0.2};
+    for (double d : nudges) {
+      for (int i = 0; i < pieceAreas.size(); i++) {
+        if (pieceAreas.get(i).contains(p.x + d, p.y + d)) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * When the anchor lies exactly on the cut (neither {@link Area#contains} is true), step from the
+   * anchor toward each sub-piece centroid until a point inside that piece is found.
+   */
+  private static int resolveAnchorWhenOnCutBoundary(Vector<Area> pieceAreas, Vector2 anchor) {
+    for (int i = 0; i < pieceAreas.size(); i++) {
+      Vector2 c = AreaTool.compute2DPolygonCentroid(pieceAreas.get(i));
+      if (c == null) {
+        Rectangle2D b = pieceAreas.get(i).getBounds2D();
+        c = new Vector2(b.getCenterX(), b.getCenterY());
+      }
+      Vector2 dir = c.sub(anchor);
+      double len = Math.hypot(dir.x, dir.y);
+      if (len < 1e-9) {
+        continue;
+      }
+      dir = dir.mul(1.0 / len);
+      for (double scale : new double[]{0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0}) {
+        Vector2 p = anchor.add(dir.mul(scale));
+        if (pieceAreas.get(i).contains(p.x, p.y)) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  private static Vector2 centroidOfCutPath(Path2D path) {
+    Vector2 c = AreaTool.compute2DPolygonCentroid(new Area(path));
+    if (c != null) {
+      return c;
+    }
+    Rectangle2D r = path.getBounds2D();
+    return new Vector2(r.getCenterX(), r.getCenterY());
+  }
+
+  /**
+   * Associates a sub-piece with its boundary cut path by sampling the path: inward nudges from
+   * segment midpoints toward the piece centroid are counted; ties fall back to centroid–centroid
+   * distance (no role in which piece is the fall — that only uses the DataMatrix anchor).
+   */
+  private static int cutPathIndexForArea(Area piece, Vector<Path2D> paths) {
+    Vector2 cPiece = AreaTool.compute2DPolygonCentroid(piece);
+    if (cPiece == null) {
+      Rectangle2D b = piece.getBounds2D();
+      cPiece = new Vector2(b.getCenterX(), b.getCenterY());
+    }
+    int n = paths.size();
+    int[] scores = new int[n];
+    int bestScore = -1;
+    for (int i = 0; i < n; i++) {
+      scores[i] = inwardSampleCountTowardCentroid(piece, paths.get(i), cPiece);
+      if (scores[i] > bestScore) {
+        bestScore = scores[i];
+      }
+    }
+    if (bestScore <= 0) {
+      return bestCutPathIndexForAreaCentroidFallback(piece, paths);
+    }
+    int tieCount = 0;
+    for (int i = 0; i < n; i++) {
+      if (scores[i] == bestScore) {
+        tieCount++;
+      }
+    }
+    if (tieCount == 1) {
+      for (int i = 0; i < n; i++) {
+        if (scores[i] == bestScore) {
+          return i;
+        }
+      }
+    }
+    int best = 0;
+    double bestD = Double.MAX_VALUE;
+    for (int i = 0; i < n; i++) {
+      if (scores[i] != bestScore) {
+        continue;
+      }
+      Vector2 cp = centroidOfCutPath(paths.get(i));
+      double d = Vector2.dist2(cPiece, cp);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  private static int inwardSampleCountTowardCentroid(Area piece, Path2D path, Vector2 pieceCentroid) {
+    int count = 0;
+    PathIterator pi = path.getPathIterator(null);
+    double[] coords = new double[6];
+    double mx = 0;
+    double my = 0;
+    while (!pi.isDone()) {
+      int type = pi.currentSegment(coords);
+      if (type == PathIterator.SEG_MOVETO) {
+        mx = coords[0];
+        my = coords[1];
+      } else if (type == PathIterator.SEG_LINETO) {
+        double x = coords[0];
+        double y = coords[1];
+        Vector2 mid = new Vector2((mx + x) / 2.0, (my + y) / 2.0);
+        Vector2 dir = pieceCentroid.sub(mid);
+        double len = Math.hypot(dir.x, dir.y);
+        if (len >= 1e-9) {
+          dir = dir.mul(1.0 / len);
+          for (double eps : new double[]{0.02, 0.05, 0.1, 0.2}) {
+            Vector2 p = mid.add(dir.mul(eps));
+            if (piece.contains(p.x, p.y)) {
+              count++;
+              break;
+            }
+          }
+        }
+        mx = x;
+        my = y;
+      }
+      pi.next();
+    }
+    return count;
+  }
+
+  private static int bestCutPathIndexForAreaCentroidFallback(Area piece, Vector<Path2D> paths) {
+    Vector2 cPiece = AreaTool.compute2DPolygonCentroid(piece);
+    if (cPiece == null) {
+      Rectangle2D b = piece.getBounds2D();
+      cPiece = new Vector2(b.getCenterX(), b.getCenterY());
+    }
+    int best = 0;
+    double bestD = Double.MAX_VALUE;
+    for (int i = 0; i < paths.size(); i++) {
+      Vector2 cp = centroidOfCutPath(paths.get(i));
+      double d = Vector2.dist2(cPiece, cp);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  public Boolean getExplicitChuteOnLastExportPath() {
+    return explicitChuteOnLastExportPath;
+  }
+
+  public int getFallCutPathIndex() {
+    return fallCutPathIndex;
   }
 
   /**

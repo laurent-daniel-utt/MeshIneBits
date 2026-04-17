@@ -55,7 +55,11 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
   }
 
   private void initState(Mesh mesh) {
-    state.setState(mesh.isPaved() ? State.PAVED_VIEW : State.MODEL_VIEW);
+    // Keep a deterministic default for the 3D UI toggle logic.
+    // The "View Mesh" toggle is created unchecked by default, so the initial
+    // display state must be MODEL_VIEW to avoid inverted behavior when reopening
+    // 3D on an already paved mesh.
+    state.setState(State.MODEL_VIEW);
   }
 
   @Override

@@ -13,6 +13,9 @@
 *.ear
 *.nar
 hs_err_pid*
+replay_pid*.log
+hotspot_pid*.log
+*_javap.txt
 
 ##############################
 ## Maven

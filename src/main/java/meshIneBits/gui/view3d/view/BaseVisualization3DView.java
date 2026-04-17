@@ -11,7 +11,6 @@ import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView.ModelChangesListener;
 import meshIneBits.gui.view3d.provider.MeshProvider;
-import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
@@ -45,8 +44,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
   private static final CustomLogger logger = new CustomLogger(BaseVisualization3DView.class);
 
-  public static UIParameterWindow uipwAnimation;
-  public static UIParameterWindow uipwView;
+  // In-Game UI (overlay): no top-level Processing windows for configuration/animation.
+  private UIPWViewSidePanel viewPanel;
+  private UIPWAnimationSidePanel animationPanel;
   public static UIPWController uipwController;
   public static IVisualization3DProcessor processor;
   private ModelChangesListener mcListener;
@@ -82,7 +82,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
   }
 
-  private int i=0;
+  // legacy field removed (local animation index not used in overlay mode)
   {
 
     df = new DecimalFormat("#.##");
@@ -112,7 +112,10 @@ public void play(){
 
 
   public void settings() {
-    size(Visualization3DConfig.V3D_WINDOW_WIDTH, Visualization3DConfig.V3D_WINDOW_HEIGHT, P3D);
+    // One single host window: left config panel + 3D canvas + right animation panel
+    int hostWidth = Visualization3DConfig.V3D_WINDOW_WIDTH
+        + 2 * Visualization3DConfig.UIP_WINDOW_WIDTH;
+    size(hostWidth, Visualization3DConfig.V3D_WINDOW_HEIGHT, P3D);
     PJOGL.setIcon("resources/icon.png");
   }
 
@@ -126,40 +129,45 @@ public void play(){
     final int action = event.getAction();
     if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
 
-      processor.onTerminated();
-      init3DFrame();
-      WindowStatus=2;
-      noLoop();
-      initProcessor();
-      meshShapes.put(1,processor.getModelProvider().getMeshShape());
-      frame.setShape(shape);
+      // In overlay mode, UI panels are drawn inside the same PApplet as the 3D canvas.
+      // Avoid running the expensive refresh logic when the user clicks inside side panels.
+      boolean isClickInSidePanel =
+          event.getX() < Visualization3DConfig.UIP_WINDOW_WIDTH
+              || event.getX() > Visualization3DConfig.UIP_WINDOW_WIDTH + Visualization3DConfig.V3D_WINDOW_WIDTH;
 
-      uipwAnimation.closeWindow();
-      uipwView.closeWindow();
-      uipwController.close();
-      initControlComponent();
-      initParameterWindow();
-      initModelChangesListener((ModelChangesListener) uipwView);
-      runSketch(new String[]{"--display=1", "Projector"}, uipwView);
-      runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
+      if (!isClickInSidePanel) {
+        processor.onTerminated();
+        init3DFrame();
+        WindowStatus=2;
+        noLoop();
+        initProcessor();
+        meshShapes.put(1,processor.getModelProvider().getMeshShape());
+        frame.setShape(shape);
 
-      pos=0;
-      Zpos=0;
-      Xpos=0;
-      initWorkingSpace();
-      processor.deactivateAnimation();
-      if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
-      loop();
-      Thread t=new Thread(() -> {
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+        if (uipwController != null) {
+          uipwController.close();
         }
-        Logger.updateStatus("");
-      });t.start();
-      Logger.updateStatus("3d interface Refreshed");
+        initControlComponent();
+        initParameterWindow();
+        initModelChangesListener(viewPanel);
 
+        pos=0;
+        Zpos=0;
+        Xpos=0;
+        initWorkingSpace();
+        processor.deactivateAnimation();
+        if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
+        loop();
+        Thread t=new Thread(() -> {
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          Logger.updateStatus("");
+        });t.start();
+        Logger.updateStatus("3d interface Refreshed");
+      }
     }
 
     handleMethods("mouseEvent", new Object[] { event });
@@ -208,9 +216,9 @@ public void play(){
 
 
         processor.onTerminated();
-        uipwAnimation.closeWindow();
-        uipwView.closeWindow();
-        uipwController.close();
+        if (uipwController != null) {
+          uipwController.close();
+        }
       }
     });
     win.addWindowListener(new WindowAdapter() {
@@ -234,8 +242,8 @@ public void play(){
   public void setup() {
     configWindow(
             Visualization3DConfig.VISUALIZATION_3D_WINDOW_TITLE,
-            Visualization3DConfig.V3D_WINDOW_LOCATION_X,
-            Visualization3DConfig.V3D_WINDOW_LOCATION_Y);
+            0,
+            0);
 
     initWorkspace();// create the box of work space and centre the axes and the model
     init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
@@ -251,7 +259,7 @@ public void play(){
 
     initControlComponent();
     initParameterWindow();
-    initModelChangesListener((ModelChangesListener) uipwView);
+    initModelChangesListener(viewPanel);
     initDisplayParameterWindows();
     initWorkingSpace();
 
@@ -272,13 +280,7 @@ private void initWorkingSpace(){
 }
 
   private void initDisplayParameterWindows() {
-    if (uipwView == null || uipwAnimation == null) {
-      logger.logWARNMessage("Parameter window should be initialized, call initParameterWindow");
-      return;
-    }
-    runSketch(new String[]{"--display=1", "Projector"}, uipwView);
-    runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
-
+    // Overlay mode: the side panels are drawn inside this host PApplet.
     updateSizeChangesOnModel();
     updatePositionChangesOnModel();
   }
@@ -319,21 +321,28 @@ private void initWorkingSpace(){
   private void initParameterWindow() {
 
     uipwController = new UIPWController(processor);
-    uipwView = buildControllerWindow(UIPWView.class,
-            uipwController,
-            "View Configuration",
-            Visualization3DConfig.UIP_WINDOW_WIDTH,
-            Visualization3DConfig.UIP_WINDOW_HEIGHT);
-    uipwAnimation = buildControllerWindow(UIPWAnimation.class,
-            uipwController,
-            "View Animation",
-            Visualization3DConfig.UIP_WINDOW_WIDTH,
-            Visualization3DConfig.UIP_WINDOW_HEIGHT);
+    // Build the overlay side-panels: WEST (view configuration) and EAST (animation).
+    viewPanel = new UIPWViewSidePanel(
+        this,
+        cp5,
+        uipwController,
+        Visualization3DConfig.UIP_WINDOW_WIDTH,
+        Visualization3DConfig.UIP_WINDOW_HEIGHT,
+        0,
+        0);
 
-    if (processor instanceof BaseVisualization3DProcessor && uipwAnimation != null) {
+    animationPanel = new UIPWAnimationSidePanel(
+        this,
+        cp5,
+        uipwController,
+        Visualization3DConfig.UIP_WINDOW_WIDTH,
+        Visualization3DConfig.UIP_WINDOW_HEIGHT,
+        Visualization3DConfig.UIP_WINDOW_WIDTH + Visualization3DConfig.V3D_WINDOW_WIDTH,
+        0);
+
+    if (processor instanceof BaseVisualization3DProcessor) {
       ((BaseVisualization3DProcessor) processor).getAnimationProcessor()
-              .addOnIndexIncreasedListener((AnimationIndexIncreasedListener) uipwAnimation);
-
+          .addOnIndexIncreasedListener(animationPanel);
     }
 
   }
@@ -368,7 +377,9 @@ private void initWorkingSpace(){
     frame.removeBindings();
     frame.setHighlightingMode(InteractiveFrame.HighlightingMode.NONE);
     frame.setPickingPrecision(InteractiveFrame.PickingPrecision.ADAPTIVE);
-    frame.setGrabsInputThreshold(scene.radius() / 3);
+    // Force camera interactions to stay active over the model:
+    // with non-zero threshold, the object frame may grab events around the mesh center.
+    frame.setGrabsInputThreshold(0f);
     frame.setRotationSensitivity(3);
     if (!MeshProvider.getInstance().getCurrentMesh()
             .isSliced()) {
@@ -455,21 +466,48 @@ private void initWorkingSpace(){
   @Override
   public synchronized void draw() {
 
+    // --- 3D SCENE RENDERING ---
     background(Visualization3DConfig.V3D_BACKGROUND.getRGB());
     lights();
     ambientLight(
-            Visualization3DConfig.V3D_AMBIENT_LIGHT.getRed(),
-            Visualization3DConfig.V3D_AMBIENT_LIGHT.getGreen(),
-            Visualization3DConfig.V3D_AMBIENT_LIGHT.getBlue());
+        Visualization3DConfig.V3D_AMBIENT_LIGHT.getRed(),
+        Visualization3DConfig.V3D_AMBIENT_LIGHT.getGreen(),
+        Visualization3DConfig.V3D_AMBIENT_LIGHT.getBlue());
+
     drawWorkspace();
     drawWorkingSpace();
 
+    startExport();
+    displayShape();
+    endExport();
 
+    // --- 2D HUD / UI OVERLAY (ControlP5) ---
+    // Disable depth test and reset the camera to draw in pure 2D screen space.
+    hint(PConstants.DISABLE_DEPTH_TEST);
+    camera();      // default camera (2D in screen coordinates)
+    noLights();    // prevent 3D lighting from affecting the HUD
 
-          startExport();
-         displayShape();
-        endExport();
+    if (viewPanel != null) {
+      viewPanel.update();
+    }
+    if (animationPanel != null) {
+      animationPanel.update();
+    }
+    if (cp5 != null) {
+      cp5.draw();
+    }
 
+    // Re-enable depth test so the next 3D frames remain consistent.
+    hint(PConstants.ENABLE_DEPTH_TEST);
+  }
+
+  public void controlEvent(controlP5.ControlEvent theEvent) {
+    if (viewPanel != null) {
+      viewPanel.onControlEvent(theEvent);
+    }
+    if (animationPanel != null) {
+      animationPanel.onControlEvent(theEvent);
+    }
   }
 
   @Override

@@ -30,6 +30,7 @@
 package meshIneBits.util.supportExportFile;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit2D;
@@ -292,15 +293,16 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
     Element elementBit = createElement(MeshTagXML.BIT);
     //bit's ID element
-    Element bitId = createElement(MeshTagXML.BIT_ID,
-        Integer.toString(mMesh.getScheduler()
-            .getBitIndex(bit3D)));
+    int bitIndex = mMesh.getScheduler()
+        .getBitIndex(bit3D);
+    Element bitId = createElement(MeshTagXML.BIT_ID, Integer.toString(bitIndex));
     elementBit.appendChild(bitId);
     //Cut bit element
     Element cut = bit3D.getCutPathsCB()
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
     rebuildBit3d(bit3D);
+    enforceHoldingSafetyBeforeExport(bit3D, bitIndex);
     prepareBitToExport(bit3D);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
@@ -324,7 +326,8 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
    areas.add(sub.getAreaCB());
     }
     bit.getBaseBit().setAreas(areas);
-    bit.setRawCutPaths(CutPathCalc.instance.calcCutPathFrom(bit.getBaseBit()));
+    bit.getBaseBit().calcCutPath();
+    bit.setRawCutPaths(new Vector<>(bit.getBaseBit().getCutPathsCB()));
   }
 
   /**
@@ -478,6 +481,25 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
   private void prepareBitToExport(Bit3D bit3D) {
     bit3D.prepareBitToExport();
     currentBit = bit3D;
+  }
+
+  private void enforceHoldingSafetyBeforeExport(Bit3D bit3D, int bitId) {
+    Bit2D.HoldingSafetyStatus safety = bit3D.getBaseBit().checkHoldingSafety();
+    throwIfUnsafeHolding(safety, bitId);
+  }
+
+  static void throwIfUnsafeHolding(Bit2D.HoldingSafetyStatus safety, int bitId) {
+    if (safety.isSafe() || !safety.isApplicable()) {
+      return;
+    }
+    String dangerMessage = "DANGER EXPORT : Conflit de prehension. "
+        + "La pince maintient la chute pour le Bit ID [" + bitId + "].";
+    String diagnostic = " dmIdx=" + safety.getDataMatrixAreaIdx()
+        + ", holdIdx=" + safety.getHoldingAreaIdx()
+        + ", reason=" + safety.getReason();
+    String fullMessage = dangerMessage + diagnostic;
+    Logger.error(fullMessage);
+    Logger.warning(fullMessage);
   }
 
 

@@ -108,7 +108,7 @@ public class DepositingProcessView extends UIParameterWindow implements MouseLis
 
     processor = new DepositingMachineProcessor(this::updateInfos);
     setUIControllerListener(processor);
-    //CPXE machine de depose 192.168.10.20:4840
+    // CPXE depositing machine 192.168.10.20:4840
 
 
   }

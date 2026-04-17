@@ -172,7 +172,7 @@ public class DomParser {
      * @param value the value to adjust
      * @return adjusted value
      * example:11.98-->12.02, -80-->-80.04
-     * voir Majed_Documents>Repère_Bit.png pour mieux comprendre
+     * see Majed_Documents>Repere_Bit.png for a clearer reference
      */
     private static double adjustValue(double value){
         double mlength=(Math.signum(value)*CraftConfig.lengthFull-Math.signum(value)*CraftConfig.incertitude)/2;

@@ -67,11 +67,11 @@ public static Reconstitute getInstance(){
             FallType type = pair.getKey();
             if (pair.getKey() == FallType.Subbit || pair.getKey() == FallType.Chute) {
                 decompose(pair.getValue()).forEach(sub_paths -> {
-                    /**on créer une liste,chaque case de la liste est l'ensemble des points d'un subpath*/
+                    /**create a list where each entry contains all points of one subpath*/
                     points_of_subpath.add(TwoDistantPointsCalc.instance.getPointsFromPath(sub_paths));
                 });
                 System.out.println("points_of_subpath size:" + points_of_subpath.size());
-                /**on créer une liste,chaque case de la liste est un pair de fallType(key) et la décompositon du path du fallType*/
+                /**create a list where each entry is a pair of fallType (key) and the decomposition of its path*/
                 clone = (ArrayList<ArrayList<Vector2>>) points_of_subpath.clone();
                 sub_paths_points.add(new Pair<>(type, clone));
                 sub_paths.add(new Pair<>(type, decompose(pair.getValue())));
@@ -108,10 +108,10 @@ public static Reconstitute getInstance(){
             for (ArrayList<Vector2> points : listOfPoints) {
                 int indexofFallPair = sub_paths_points.indexOf(fallTypeArrayListPointsPair);
                 int indexOfSubPath = listOfPoints.indexOf(points);
-                /** si le premier et dernier point de découpe sont sur la meme ligne du bit*/
+                /** if the first and last cut points are on the same side of the bit */
                 if ( samePlacement(points.get(0),points.get(points.size() - 1))  ) {System.out.println("in same placement");
                     Area fallenArea=new Area(sub_paths.get(indexofFallPair).getValue().get(indexOfSubPath));
-                    /**si ces points sont les derniers dans le falltype c.à.d la decoupe par ce fallType est finit*/
+                    /**if these points are the last ones for this fallType, i.e. the cut for this fallType is complete*/
                     if (listOfPoints.indexOf(points) == listOfPoints.size() - 1) {
                         if (type == FallType.Subbit) {
                             returnedArea = fallenArea;
@@ -120,28 +120,28 @@ public static Reconstitute getInstance(){
                         } else if (type==FallType.Chute) {
                             remainingArea=updateArea(remainingArea,fallenArea);
                         }
-                    }/**s'il y a des chutes au milieu de découpe, avant que la découpe soit finit
+                    }/**if there are fall pieces in the middle of the cut, before the cut is complete
                      */
                     else {remainingArea=updateArea(remainingArea,fallenArea);
                     }
-                    /** si le premier et dernier point de découpe sont sur des lignes parallèles (opposite sides of the bit)*/
+                    /** if the first and last cut points are on parallel sides (opposite sides of the bit) */
                 } else if (oppositePlacement(points.get(0),points.get(points.size()-1))) {System.out.println("in opp placement");
                     Area fallenArea= calculateFallenArea((Area) remainingArea.clone(),sub_paths.get(indexofFallPair).getValue().get(indexOfSubPath),true);
                     remainingArea.subtract(fallenArea);
                     Area a= (Area) remainingArea.clone();
                     remainings.add(a);
-                    /**si ces points sont les derniers dans le falltype c.à.d la decoupe par ce fallType est finit*/
+                    /**if these points are the last ones for this fallType, i.e. the cut for this fallType is complete*/
                     if (listOfPoints.indexOf(points) == listOfPoints.size() - 1) {
 
                         if (type == FallType.Subbit) {
                             returnedArea = fallenArea;
                             return returnedArea;
                         }
-                    }/**si le premier et le dernier point sont sur les extrémités perpendiculaire (longueur et largeur)*/
+                    }/**if the first and last points are on perpendicular edges (length and width)*/
                 }else {System.out.println("in 3d case placement");
                     Area fallenArea= calculateFallenArea((Area) remainingArea.clone(),sub_paths.get(indexofFallPair).getValue().get(indexOfSubPath),false);
                     remainingArea=updateArea(remainingArea,fallenArea);
-                    /**si ces points sont les derniers dans le falltype c.à.d la decoupe par ce fallType est finit*/
+                    /**if these points are the last ones for this fallType, i.e. the cut for this fallType is complete*/
                     if (listOfPoints.indexOf(points) == listOfPoints.size() - 1) {
 
                         if (type == FallType.Subbit) {
@@ -213,13 +213,13 @@ public static Reconstitute getInstance(){
         }
 
         remainingArea.subtract(new Area(subpath));
-        //normalement doit etre de taille 2
+        // should normally be of size 2
         Vector<Area> areas= AreaTool.segregateArea(remainingArea);
 
         for(Area area:areas){
-            /** l'area qui tombe est celui qui n'est pas tenu par le robot de découpe et donc qui ne contient aucun point
-             de la zone tenu par le robot le -5 c'est just pour etre sur qu'on est dans la zone on peut le modifier par
-             d'autre valeur tant qu'on sort pas de la Holding zone
+            /** the falling area is the one not held by the cutting robot, therefore the one containing no point
+             from the robot holding zone; -5 is just a safety offset to stay inside that zone and can be replaced
+             by another value as long as it remains inside the holding zone
              */
             if(!area.contains(CraftConfig.lengthFull/2-5,CraftConfig.bitWidth/2-5)&& !area.isEmpty()){
                 fallenArea=area;

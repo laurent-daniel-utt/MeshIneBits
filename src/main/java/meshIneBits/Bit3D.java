@@ -311,7 +311,21 @@ public class Bit3D implements Serializable, Cloneable {
     if (reverseInCut) {
      this.inverse();
     }
+    repositionFallCutPathLastAfterExportTransforms();
+  }
 
+  /**
+   * {@link #inverseCutPath()} reverses cut-path order; for a 2-piece DataMatrix-driven cut the fall
+   * path must stay last so {@link meshIneBits.util.supportExportFile.MeshXMLTool} tags chute vs main
+   * correctly.
+   */
+  private void repositionFallCutPathLastAfterExportTransforms() {
+    if (bit2dToExtrude.getFallCutPathIndex() < 0 || rawCutPaths.size() != 2) {
+      return;
+    }
+    if (reverseInCut) {
+      Collections.swap(rawCutPaths, 0, 1);
+    }
   }
 
   private void inverse() {
@@ -403,6 +417,10 @@ public class Bit3D implements Serializable, Cloneable {
   }
 
   public boolean isHoldedInCUt() {
+    Boolean explicit = bit2dToExtrude.getExplicitChuteOnLastExportPath();
+    if (explicit != null) {
+      return explicit;
+    }
     Area bitArea = this.getRawArea();
     Vector<Rectangle2D> twoSide = Bit2D.getTwoSideOfBit(CraftConfig.incertitude);
     return reverseInCut ? bitArea.contains(twoSide.firstElement())

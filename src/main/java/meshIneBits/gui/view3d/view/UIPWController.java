@@ -90,10 +90,19 @@ private int i=0;
       case ANIMATION:
 
         isAnimating.set(!isAnimating.get());
-        if (isAnimating.get()) {Animation.getCaptionLabel().setText(STOP);
-
+        if (isAnimating.get()) {
+          if (callbackObj instanceof UIPWAnimationSidePanel) {
+            ((UIPWAnimationSidePanel) callbackObj).update();
+          } else if (Animation != null) {
+            Animation.getCaptionLabel().setText(STOP);
+          }
           processor.activateAnimation();
-        } else {Animation.getCaptionLabel().setText(ANIMATION);
+        } else {
+          if (callbackObj instanceof UIPWAnimationSidePanel) {
+            ((UIPWAnimationSidePanel) callbackObj).update();
+          } else if (Animation != null) {
+            Animation.getCaptionLabel().setText(ANIMATION);
+          }
           processor.deactivateAnimation();
         }
         break;

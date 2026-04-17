@@ -93,13 +93,13 @@ public class TwoDistantPointsCalc {
 
   /**
    *
-   * @param area  la surface du subbit
-   * on crée un tapi de cercle(list des cercles) sur tout le rectangle qui cerne la surface rentrée en param, ensuite on
-   * filtre les cercles en prenant que celles qui sont à l'intérieur de la surface,ensuite on calcule les 2 cercles les plus
-   * distants parmi la liste des cercles restantes après filtrage.
-   * @precision c'est le paramètre qui détermine les pas de tapissage,exemple:precision=1=>chaque 1mm on va créer une nouvelle
-   * cercle horizontalement et verticalement
-   * @return un vecteur(collection) contenant les 2 points les plus distants
+   * @param area the sub-bit surface
+   * A circle grid (list of circles) is created over the whole bounding rectangle of the input surface.
+   * Then circles outside the surface are filtered out, and the two most distant circles are computed
+   * from the remaining circle list.
+   * @precision this parameter controls the grid step; example: precision=1 means a new circle is created
+   * every 1 mm horizontally and vertically
+   * @return a vector (collection) containing the two most distant points
    */
     public  Vector<Vector2> defineTwoMostDistantPointsInArea(Area area,Vector2 liftpoint,double prec) {
     ArrayList<Circle> circles= new ArrayList<>();
@@ -112,28 +112,28 @@ public class TwoDistantPointsCalc {
     double enoughSpace=prec+CraftConfig.suckerDiameter/2+small_margin+CraftConfig.suckerDiameter+small_margin+prec+CraftConfig.suckerDiameter/2;
     /**this if increase the precision when the area is small */
     if(area.getBounds2D().getWidth()*area.getBounds2D().getHeight()<enoughSpace*enoughSpace)prec=1;
-    //création de la tapi des cercles
+    // create the circle grid
     for(double i=startX;i<endX;i+=prec){
       for(double j=startY;j<endY;j=j+prec){
         circles.add(new Circle(new Vector2(i,j), CraftConfig.suckerDiameter/4));
       }
     }
     double margin=0;
-/**on prend les cercles qui sont à l'intérieure de la surface de subbit*/
+/**keep circles that are inside the sub-bit surface*/
     circles= (ArrayList<Circle>) circles.stream().filter(ci -> (area.contains(ci.getCenter().x+ci.getRadius()+margin,ci.getCenter().y)
             && area.contains(ci.getCenter().x,ci.getCenter().y+ci.getRadius()+margin)
             && area.contains(ci.getCenter().x,ci.getCenter().y-ci.getRadius()-margin)
             && area.contains(ci.getCenter().x-ci.getRadius()-margin,ci.getCenter().y))).collect(Collectors.toList());
 
-     /**on prend les cercles qui sont à l'extérieur de la lift point, si non le système visuel risque de confondre le data
-        matrix et le point d'orientation*/
+     /**keep circles outside the lift point area, otherwise the visual system may confuse the data
+        matrix and the orientation point*/
       if(liftpoint!=null){
       Vector2 liftpointCenter=new Vector2(liftpoint.x-CraftConfig.suckerDiameter,liftpoint.y-CraftConfig.suckerDiameter);
       double minimumDistance=CraftConfig.suckerDiameter/2+CraftConfig.suckerDiameter/4;
       circles= (ArrayList<Circle>) circles.stream().filter(ci -> (Vector2.dist(liftpointCenter,ci.getCenter())>=minimumDistance  )).collect(Collectors.toList());
     }
 
-/**calcul des distances entre les cercles pour identifier les 2 cercles les plus distants*/
+/**compute distances between circles to identify the two most distant ones*/
     Vector<Circle> positionTwoMostDistantCercles=new Vector<>();
     double longestDistance = 0;
     for (Circle cercle:circles){
@@ -290,9 +290,9 @@ while (condition>0){
 
   /**
    *
-   * @param area la surface du subbit
-   * @param bit le subbit
-   * @return les 2 points les plus extremes vers la gauche et vers la droite
+   * @param area the sub-bit surface
+   * @param bit the sub-bit
+   * @return the two most extreme points toward the left and right
    */
 
   public synchronized Vector<Vector2> getXminXmaxFromArea(Area area, SubBit2D bit) {
