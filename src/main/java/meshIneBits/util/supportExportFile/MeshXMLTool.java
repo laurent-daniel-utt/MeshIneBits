@@ -30,6 +30,7 @@
 package meshIneBits.util.supportExportFile;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import meshIneBits.Bit2D;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit2D;
@@ -292,16 +293,22 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     }
     Element elementBit = createElement(MeshTagXML.BIT);
     //bit's ID element
-    Element bitId = createElement(MeshTagXML.BIT_ID,
-        Integer.toString(mMesh.getScheduler()
-            .getBitIndex(bit3D)));
+    int bitIndex = mMesh.getScheduler()
+        .getBitIndex(bit3D);
+    Element bitId = createElement(MeshTagXML.BIT_ID, Integer.toString(bitIndex));
     elementBit.appendChild(bitId);
     //Cut bit element
     Element cut = bit3D.getCutPathsCB()
         .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
         : createElement(MeshTagXML.CUT_BIT);
     rebuildBit3d(bit3D);
+    enforceHoldingSafetyBeforeExport(bit3D, bitIndex);
+    Vector<Path2D> stableCutPathsForExport = clonePathVector(bit3D.getCutPathsCB());
     prepareBitToExport(bit3D);
+    // Bit3D.prepareBitToExport() may apply a 180deg inversion for reverse-in-cut cases.
+    // Our export cut-path is already extracted in the target CS frame from SubBit geometry,
+    // so we restore the stable version to avoid mirrored (-x,-y) trajectories in XML.
+    bit3D.setRawCutPaths(stableCutPathsForExport);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
@@ -319,12 +326,183 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     NewBit2D newbit=(NewBit2D)bit.getBaseBit();
     Vector<SubBit2D> subs=newbit.getValidSubBits();
     Vector<Area> areas=new Vector<>();
+    Vector<Path2D> cutPathsFromValidSubBits = new Vector<>();
     for (SubBit2D sub:subs){
 
-   areas.add(sub.getAreaCB());
+      areas.add(sub.getAreaCB());
+      Path2D topContourPath = extractTopCutPath(sub);
+      if (topContourPath != null) {
+        cutPathsFromValidSubBits.add(topContourPath);
+      }
     }
     bit.getBaseBit().setAreas(areas);
-    bit.setRawCutPaths(CutPathCalc.instance.calcCutPathFrom(bit.getBaseBit()));
+    bit.getBaseBit().calcCutPath();
+    if (!cutPathsFromValidSubBits.isEmpty()) {
+      // Export must follow kept/valid sub-bit contours, not generic recomputed block separators.
+      bit.setRawCutPaths(cutPathsFromValidSubBits);
+    } else {
+      bit.setRawCutPaths(new Vector<>(bit.getBaseBit().getCutPathsCB()));
+    }
+  }
+
+  private Vector<Path2D> clonePathVector(List<Path2D> paths) {
+    Vector<Path2D> cloned = new Vector<>();
+    if (paths == null) {
+      return cloned;
+    }
+    for (Path2D path : paths) {
+      cloned.add((Path2D) path.clone());
+    }
+    return cloned;
+  }
+
+  /**
+   * Extracts the business cut trajectory from one kept SubBit:
+   * left extreme -> upper contour vertices -> right extreme.
+   * Coordinates are produced in CS by reading the SubBit area in CS.
+   */
+  private Path2D extractTopCutPath(SubBit2D subBit) {
+    if (subBit == null) {
+      return null;
+    }
+    Vector<Vector<Vector2>> polygons = extractPolygonsFromArea(subBit.getAreaCS());
+    if (polygons.isEmpty()) {
+      return null;
+    }
+
+    Vector2 bestLeft = null;
+    Vector2 bestRight = null;
+    Vector<Vector2> bestChain = null;
+
+    for (Vector<Vector2> polygon : polygons) {
+      Vector<Vector2> cleanPolygon = normalizePolygon(polygon);
+      if (cleanPolygon.size() < 3) {
+        continue;
+      }
+      int leftIndex = indexOfExtremeX(cleanPolygon, true);
+      int rightIndex = indexOfExtremeX(cleanPolygon, false);
+      if (leftIndex == rightIndex) {
+        continue;
+      }
+      Vector<Vector2> forward = buildChain(cleanPolygon, leftIndex, rightIndex, 1);
+      Vector<Vector2> backward = buildChain(cleanPolygon, leftIndex, rightIndex, -1);
+      Vector<Vector2> topChain = chooseUpperChain(forward, backward);
+      if (topChain.size() < 2) {
+        continue;
+      }
+
+      Vector2 left = topChain.firstElement();
+      Vector2 right = topChain.lastElement();
+      if (bestChain == null
+          || left.x < bestLeft.x
+          || (Math.abs(left.x - bestLeft.x) < 1e-9 && right.x > bestRight.x)) {
+        bestChain = topChain;
+        bestLeft = left;
+        bestRight = right;
+      }
+    }
+
+    if (bestChain == null || bestChain.size() < 2) {
+      return null;
+    }
+
+    Path2D path = new Path2D.Double();
+    path.moveTo(bestChain.get(0).x, bestChain.get(0).y);
+    for (int i = 1; i < bestChain.size(); i++) {
+      path.lineTo(bestChain.get(i).x, bestChain.get(i).y);
+    }
+    return path;
+  }
+
+  private Vector<Vector<Vector2>> extractPolygonsFromArea(Area area) {
+    Vector<Vector<Vector2>> polygons = new Vector<>();
+    if (area == null) {
+      return polygons;
+    }
+    Vector<Vector2> currentPolygon = new Vector<>();
+    for (PathIterator pi = area.getPathIterator(null); !pi.isDone(); pi.next()) {
+      double[] coords = new double[6];
+      int type = pi.currentSegment(coords);
+      if (type == PathIterator.SEG_MOVETO) {
+        if (!currentPolygon.isEmpty()) {
+          polygons.add(currentPolygon);
+          currentPolygon = new Vector<>();
+        }
+        currentPolygon.add(new Vector2(coords[0], coords[1]));
+      } else if (type == PathIterator.SEG_LINETO) {
+        currentPolygon.add(new Vector2(coords[0], coords[1]));
+      } else if (type == PathIterator.SEG_CLOSE) {
+        if (!currentPolygon.isEmpty()) {
+          polygons.add(currentPolygon);
+          currentPolygon = new Vector<>();
+        }
+      }
+    }
+    if (!currentPolygon.isEmpty()) {
+      polygons.add(currentPolygon);
+    }
+    return polygons;
+  }
+
+  private Vector<Vector2> normalizePolygon(Vector<Vector2> polygon) {
+    Vector<Vector2> normalized = new Vector<>();
+    for (Vector2 point : polygon) {
+      if (normalized.isEmpty() || !samePoint(normalized.lastElement(), point)) {
+        normalized.add(point);
+      }
+    }
+    if (normalized.size() > 1 && samePoint(normalized.firstElement(), normalized.lastElement())) {
+      normalized.remove(normalized.size() - 1);
+    }
+    return normalized;
+  }
+
+  private int indexOfExtremeX(Vector<Vector2> polygon, boolean left) {
+    int idx = 0;
+    for (int i = 1; i < polygon.size(); i++) {
+      Vector2 current = polygon.get(i);
+      Vector2 best = polygon.get(idx);
+      if (left) {
+        if (current.x < best.x || (Math.abs(current.x - best.x) < 1e-9 && current.y < best.y)) {
+          idx = i;
+        }
+      } else {
+        if (current.x > best.x || (Math.abs(current.x - best.x) < 1e-9 && current.y < best.y)) {
+          idx = i;
+        }
+      }
+    }
+    return idx;
+  }
+
+  private Vector<Vector2> buildChain(Vector<Vector2> polygon, int start, int end, int step) {
+    Vector<Vector2> chain = new Vector<>();
+    int n = polygon.size();
+    int idx = start;
+    chain.add(polygon.get(idx));
+    while (idx != end) {
+      idx = (idx + step + n) % n;
+      chain.add(polygon.get(idx));
+    }
+    return chain;
+  }
+
+  private Vector<Vector2> chooseUpperChain(Vector<Vector2> chainA, Vector<Vector2> chainB) {
+    double maxYA = chainA.stream().mapToDouble(p -> p.y).max().orElse(Double.NEGATIVE_INFINITY);
+    double maxYB = chainB.stream().mapToDouble(p -> p.y).max().orElse(Double.NEGATIVE_INFINITY);
+    if (maxYA > maxYB + 1e-9) {
+      return chainA;
+    }
+    if (maxYB > maxYA + 1e-9) {
+      return chainB;
+    }
+    double avgYA = chainA.stream().mapToDouble(p -> p.y).average().orElse(Double.NEGATIVE_INFINITY);
+    double avgYB = chainB.stream().mapToDouble(p -> p.y).average().orElse(Double.NEGATIVE_INFINITY);
+    return avgYA >= avgYB ? chainA : chainB;
+  }
+
+  private boolean samePoint(Vector2 a, Vector2 b) {
+    return Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9;
   }
 
   /**
@@ -337,10 +515,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     if (mMesh == null) {
       throw new NullPointerException("Mesh object hasn't be declared yet");
     }
-//        Vector<Vector2> listTwoPoints = bit3D.getListTwoDistantPoints();
-    Vector<Vector<Vector2>> listTwoPoints = bit3D.getListTwoDistantPoints();
-    for (int i = 0; i < bit3D.getLiftPointsCB()
-        .size(); i++) {
+    Vector<SubBit2D> validSubBits = ((NewBit2D) bit3D.getBaseBit()).getValidSubBits();
+    int subBitCount = Math.min(validSubBits.size(), bit3D.getLiftPointsCS().size());
+    for (int i = 0; i < subBitCount; i++) {
+      SubBit2D currentSubBit = validSubBits.get(i);
       //Subit element i
       Element subBit = createElement(MeshTagXML.SUB_BIT);
 
@@ -365,12 +543,14 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       //subBit's lift point
       Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
       //LiftPoint's position in Bit coordinate system
+      Vector2 liftPointCS = currentSubBit.getLiftPointCS();
+      if (liftPointCS == null) {
+        liftPointCS = bit3D.getLiftPointsCS().get(i);
+      }
       Element xInBit = createElement(MeshTagXML.COORDINATE_X,
-          Double.toString(bit3D.getLiftPointsCS()
-              .get(i).x));
+          Double.toString(liftPointCS.x));
       Element yInBit = createElement(MeshTagXML.COORDINATE_Y,
-          Double.toString(bit3D.getLiftPointsCS()
-              .get(i).y));
+          Double.toString(liftPointCS.y));
       liftPoint.appendChild(xInBit);
       liftPoint.appendChild(yInBit);
       subBit.appendChild(liftPoint);
@@ -383,13 +563,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
       //LiftPoint's position in Mesh coordinate system
       Element positionSubBit = createElement(MeshTagXML.POSITION_MESH_COORDINATE);
-      double xInPrinterRef = bit3D.getLiftPointsCS()
-          .get(i).x;
-      double yInPrinterRef = bit3D.getLiftPointsCS()
-          .get(i).y;
+      double xInPrinterRef = liftPointCS.x;
+      double yInPrinterRef = liftPointCS.y;
       double xInSubXRef = xInPrinterRef + CraftConfig.printerX / 2 + CraftConfig.xPrintingSpace
           - workingPlacePosition;
-      double yInMachineRef = yInPrinterRef + CraftConfig.printerY / 2 + CraftConfig.yEmptySpace;
+      // Keep Y in machine working frame (no global half-printer recentering),
+      // otherwise exported pos-in-layer Y gets an artificial ~+1000 offset.
+      double yInMachineRef = yInPrinterRef + CraftConfig.yEmptySpace;
 
       Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(xInSubXRef));
       Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(yInMachineRef));
@@ -397,11 +577,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       positionSubBit.appendChild(yInMesh);
       subBit.appendChild(positionSubBit);
 //Two distant point of SubBit
-      if (listTwoPoints.get(i)
-          .size() >= 2) {
+      Vector<Vector2> extremePoints = currentSubBit.getTwoExtremeXPointsCS();
+      if (extremePoints.size() >= 2) {
         for (int j = 0; j < 2; j++) {
-          Vector2 point = listTwoPoints.get(i)
-              .get(j);
+          Vector2 point = extremePoints.get(j);
           Element pointElement = createElement(MeshTagXML.POINT);
           Element pointIdElement = createElement(MeshTagXML.POINT_ID, Integer.toString(j));
           pointElement.appendChild(pointIdElement);
@@ -478,6 +657,25 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
   private void prepareBitToExport(Bit3D bit3D) {
     bit3D.prepareBitToExport();
     currentBit = bit3D;
+  }
+
+  private void enforceHoldingSafetyBeforeExport(Bit3D bit3D, int bitId) {
+    Bit2D.HoldingSafetyStatus safety = bit3D.getBaseBit().checkHoldingSafety();
+    throwIfUnsafeHolding(safety, bitId);
+  }
+
+  static void throwIfUnsafeHolding(Bit2D.HoldingSafetyStatus safety, int bitId) {
+    if (safety.isSafe() || !safety.isApplicable()) {
+      return;
+    }
+    String dangerMessage = "DANGER EXPORT : Conflit de prehension. "
+        + "La pince maintient la chute pour le Bit ID [" + bitId + "].";
+    String diagnostic = " dmIdx=" + safety.getDataMatrixAreaIdx()
+        + ", holdIdx=" + safety.getHoldingAreaIdx()
+        + ", reason=" + safety.getReason();
+    String fullMessage = dangerMessage + diagnostic;
+    Logger.error(fullMessage);
+    Logger.warning(fullMessage);
   }
 
 
