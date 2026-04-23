@@ -622,7 +622,7 @@ public ArrayList<ArrayList<Strip>> getStripes(){
 
     @Override
     public void run() {
-      Logger.updateStatus("Paving mesh parallelly with " + originalPatternTemplate.getCommonName());
+      Logger.updateStatus("Paving mesh parallel with " + originalPatternTemplate.getCommonName());
       jobsMap.forEach((layer, pavingWorkerSlave)
           -> MultiThreadServiceExecutor.instance.execute(pavingWorkerSlave));
     }

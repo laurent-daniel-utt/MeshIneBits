@@ -4,9 +4,11 @@ import meshIneBits.config.CraftConfig;
 import meshIneBits.util.LiftPointCalc;
 import meshIneBits.util.TwoDistantPointsCalc;
 import meshIneBits.util.Vector2;
+import meshIneBits.util.supportExportFile.MeshXMLTool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.xml.bind.Element;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -283,4 +285,10 @@ public class SubBit2D implements Serializable {
         thecontroller.updateCore();
         // this.updateBoundaries(new Area(s));
     }
-}
+    //public SubBit2D(Element subBitElement, Bit2D parentBit) {
+
+      //  Vector2 gripCenter = MeshXMLTool.readGripCenter(subBitElement);
+        //this.liftPointCB = gripCenter;
+    //}
+    }
+
