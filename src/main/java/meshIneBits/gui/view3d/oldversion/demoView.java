@@ -33,7 +33,7 @@ import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.Mesh;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.SubWindow;

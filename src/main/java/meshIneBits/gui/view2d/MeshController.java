@@ -42,6 +42,7 @@ import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.patterntemplates.PatternTemplate;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.util.*;
+import meshIneBits.util.exceptions.SimultaneousOperationsException;
 import meshIneBits.util.supportUndoRedo.ActionOfUserMoveBit;
 import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;

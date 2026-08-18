@@ -36,7 +36,7 @@ import meshIneBits.gui.utilities.*;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.util.Logger;
-import meshIneBits.util.SimultaneousOperationsException;
+import meshIneBits.util.exceptions.SimultaneousOperationsException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;

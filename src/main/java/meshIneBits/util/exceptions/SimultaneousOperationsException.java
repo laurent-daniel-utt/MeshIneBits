@@ -28,7 +28,7 @@
  *
  */
 
-package meshIneBits.util;
+package meshIneBits.util.exceptions;
 
 import meshIneBits.Mesh;
 

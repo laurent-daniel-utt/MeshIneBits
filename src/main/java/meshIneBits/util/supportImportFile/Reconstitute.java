@@ -1,6 +1,6 @@
 package meshIneBits.util.supportImportFile;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.*;
 

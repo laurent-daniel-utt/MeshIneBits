@@ -1,6 +1,6 @@
 package meshIneBits.util.supportImportFile;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.CustomLogger;
 import org.w3c.dom.Document;
@@ -31,6 +31,8 @@ public class DomParser {
     public static int getBatch_num() {
         return numbatch;
     }
+
+    public Pair testPair = new Pair("Test", "testValue");
 
 
 
