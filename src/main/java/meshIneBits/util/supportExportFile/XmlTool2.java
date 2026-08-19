@@ -30,7 +30,7 @@
 
 package meshIneBits.util.supportExportFile;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;

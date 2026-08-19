@@ -29,7 +29,7 @@
 
 package meshIneBits.util.supportExportFile;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import meshIneBits.util.exceptions.ValueException;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit2D;

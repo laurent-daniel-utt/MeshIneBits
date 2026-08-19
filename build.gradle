@@ -3,27 +3,84 @@ plugins {
     id "application"
     id "eclipse"
     id "idea"
-    id "com.github.johnrengelman.shadow" version "7.1.1"
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
-// Define the entry point
-mainClassName = 'meshIneBits.MeshIneBitsMain'
-//mainClassName = 'meshIneBits.util.supportImportFile.DomParser'
-applicationName = 'MeshIneBits'
+
+
+application {
+    // Define the entry point
+    mainClass = 'meshIneBits.MeshIneBitsMain'
+    //mainClassName = 'meshIneBits.util.supportImportFile.DomParser'
+    applicationName = 'MeshIneBits'
+}
+
 def actualVersion = '0.6.0'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
     mavenCentral()
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
 }
 
-sourceCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+eclipse {
+    project.natures 'org.eclipse.buildship.core.gradleprojectnature'
+    classpath {
+        file {
+            defaultOutputDir = file("bin/main")
+            whenMerged {
+                //change output folder for tests
+                def testSource = entries.find { it.path == 'src/test/java' }
+                testSource.output = "bin/test"
+
+                // Remove local ref for libs
+                // entries.removeAll { it.kind == "lib" }
+            }
+            containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
+        }
+    }
+}
+
+tasks.idea.dependsOn(cleanIdea)
+
+idea {
+    module {
+        [".gradle", ".idea", "data", "doc", "out"].each {
+            excludeDirs += file(it)
+        }
+        iml {
+            beforeMerged { module ->
+                module.excludeFolders.clear()
+            }
+        }
+    }
+}
+
+jar {
+    archiveBaseName = application.applicationName
+    version(actualVersion)
+    manifest {
+        attributes ('Main-Class': application.mainClass)
+    }
+}
+
+shadowJar {
+    archiveBaseName = application.applicationName
+    archiveClassifier = null
+    archiveAppendix = null
+    archiveVersion = actualVersion
+    zip64 = true
+}
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
@@ -70,51 +127,3 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
 }
 
-eclipse {
-    project.natures 'org.eclipse.buildship.core.gradleprojectnature'
-    classpath {
-        file {
-            defaultOutputDir = file("bin/main")
-            whenMerged {
-                //change output folder for tests
-                def testSource = entries.find { it.path == 'src/test/java' }
-                testSource.output = "bin/test"
-
-                // Remove local ref for libs
-                // entries.removeAll { it.kind == "lib" }
-            }
-            containers 'org.eclipse.jdt.junit.JUNIT_CONTAINER/5', 'org.eclipse.buildship.core.gradleclasspathcontainer'
-        }
-    }
-}
-
-tasks.idea.dependsOn(cleanIdea)
-
-idea {
-    module {
-        [".gradle", ".idea", "data", "doc", "out"].each {
-            excludeDirs += file(it)
-        }
-        iml {
-            beforeMerged { module ->
-                module.excludeFolders.clear()
-            }
-        }
-    }
-}
-
-jar {
-    setArchivesBaseName(applicationName)
-    version(actualVersion)
-    manifest {
-        attributes ('Main-Class': mainClassName)
-    }
-}
-
-shadowJar {
-    setArchivesBaseName(applicationName)
-    classifier(null)
-    appendix(null)
-    version(actualVersion)
-    zip64 = true
-}

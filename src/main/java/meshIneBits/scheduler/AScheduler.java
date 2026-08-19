@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Vector;
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;

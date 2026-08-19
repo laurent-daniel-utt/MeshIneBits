@@ -38,7 +38,7 @@ import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.Segment2D;
-import meshIneBits.util.SimultaneousOperationsException;
+import meshIneBits.util.exceptions.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
 
 import java.awt.geom.Area;

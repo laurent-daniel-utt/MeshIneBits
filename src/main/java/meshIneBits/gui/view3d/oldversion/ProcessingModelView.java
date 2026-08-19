@@ -35,7 +35,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import controlP5.ControlP5;
 import controlP5.Textlabel;
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Layer;
 import meshIneBits.Mesh;

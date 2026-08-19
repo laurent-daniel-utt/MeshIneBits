@@ -1,6 +1,6 @@
 package meshIneBits.opcuaHelper;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.Bit3D;
 import meshIneBits.Mesh;
 import meshIneBits.NewBit3D;

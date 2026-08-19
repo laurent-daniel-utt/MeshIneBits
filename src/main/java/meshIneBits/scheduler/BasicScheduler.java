@@ -30,7 +30,7 @@
 
 package meshIneBits.scheduler;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.*;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.util.Logger;

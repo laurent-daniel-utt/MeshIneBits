@@ -30,7 +30,7 @@
 
 package meshIneBits;
 
-import javafx.util.Pair;
+import meshIneBits.util.Pair;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.patterntemplates.ManualPattern;
 import meshIneBits.patterntemplates.PatternTemplate;
