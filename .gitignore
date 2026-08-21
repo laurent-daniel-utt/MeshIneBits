@@ -43,11 +43,13 @@ gradle-app.setting
 ## IntelliJ
 ##############################
 out/
-.idea/
+.idea/*
 .idea_modules/
 *.iml
 *.ipr
 *.iws
+!.idea/copyright
+!.idea/scopes
 
 ##############################
 ## Eclipse
