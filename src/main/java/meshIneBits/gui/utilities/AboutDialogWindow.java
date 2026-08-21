@@ -2,7 +2,7 @@
  -  MeshIneBits is a Java software to disintegrate a 3d mesh (model in .stl)
  -  into a network of standard parts (called "Bits").
  -
- -  Copyright (C) 2016-2026 DANIEL Laurent.
+ -  Copyright (C) 2015-2026 DANIEL Laurent.
  -  Copyright (C) 2015 Cédric Siourakhan
  -  Copyright (C) 2016 Gabriel Magny
  -  Copyright (C) 2016  CASSARD Thibault & GOUJU Nicolas.
@@ -18,6 +18,7 @@
  -  Copyright (C) 2022 Mhamad Atlab
  -  Copyright (C) 2022 Majed Hlaihel
  -  Copyright (C) 2026 Aymeric Sirejol
+ -  Copyright (C) 2026 Hugo BENOIT
  -
  -  This program is free software: you can redistribute it and/or modify
  -  it under the terms of the GNU General Public License as published by
@@ -81,7 +82,7 @@ public class AboutDialogWindow extends JDialog {
 
 
 
-        JLabel copyrightLabel0 = new JLabel("Copyright (C) 2016-2022 DANIEL Laurent.");
+        JLabel copyrightLabel0 = new JLabel("Copyright (C) 2016-2026 DANIEL Laurent.");
         copyrightLabel0.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel1 = new JLabel("Copyright (C) 2016 CASSARD Thibault & GOUJU Nicolas.");
         copyrightLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -113,6 +114,8 @@ public class AboutDialogWindow extends JDialog {
         copyrightLabel14.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel copyrightLabel15 = new JLabel("Copyright (C) 2026 Aymeric Sirejol");
         copyrightLabel15.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel copyrightLabel16 = new JLabel("Copyright (C) 2026 Hugo BENOIT");
+        copyrightLabel16.setAlignmentX(Component.CENTER_ALIGNMENT);
 
     JButton helpFileBtn = new JButton("Open help file (PDF format)");
     helpFileBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -135,6 +138,7 @@ public class AboutDialogWindow extends JDialog {
     jp.add(copyrightLabel13);
     jp.add(copyrightLabel14);
     jp.add(copyrightLabel15);
+    jp.add(copyrightLabel16);
     jp.add(new JLabel(" "));
     jp.add(helpFileBtn);
     this.getContentPane()
