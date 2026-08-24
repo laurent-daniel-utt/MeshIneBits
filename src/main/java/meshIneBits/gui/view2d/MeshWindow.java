@@ -43,6 +43,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -69,8 +72,14 @@ public class MeshWindow extends JFrame {
   private MeshWindowSelector selector;
   private MeshWindowPropertyPanel propertyPanel;
 
+  //PropertyChangeSupport to communicate with 3D window
+  private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
 private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DView();
   public MeshWindow() throws HeadlessException {
+
+    //Passes a reference to meshWindow to the 3D view in order to add any new instances of the 3D view as listeners on the 2D view.
+    this.baseVisualization3DView.setMeshWindow(this);
 
     this.setIconImage(IconLoader.get("icon.png", 0, 0)
         .getImage());
@@ -184,7 +193,6 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     add(new StatusBar(), c);
 
     setVisible(true);
-
   }
 
   private void newFile() {
@@ -283,6 +291,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
   private void closeProject() {
     MeshProvider.closeInstance();
     meshController.resetAll();
+    pcs.firePropertyChange(new PropertyChangeEvent(this, "CLOSE_PROJECT",null,null));
     this.reset();
     System.out .println("close project");
   }
@@ -308,11 +317,11 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
             switch (answer) {
               case JOptionPane.YES_OPTION:
                 save();
-                MeshProvider.closeInstance();
+                closeProject();
                 newFile();
                 return;
               case JOptionPane.NO_OPTION:
-                MeshProvider.closeInstance();
+                closeProject();
                 newFile();
                 return;
               case JOptionPane.CLOSED_OPTION:
@@ -337,9 +346,11 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
             switch (answer) {
               case JOptionPane.YES_OPTION:
                 save();
+                closeProject();
                 openFile();
                 return;
               case JOptionPane.NO_OPTION:
+                closeProject();
                 openFile();
                 return;
               case JOptionPane.CLOSED_OPTION:
@@ -442,6 +453,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
         "alt 3",
 
             baseVisualization3DView::startProcessingModelView);
+
     meshActionList.add(view3D);
 
     MeshAction sliceMesh = new MeshAction(
@@ -973,7 +985,13 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     this.repaint();
   }
 
+  public void addPropertyChangeListener(PropertyChangeListener listener) {
+    this.pcs.addPropertyChangeListener(listener);
+  }
 
+  public void removePropertyChangeListener(PropertyChangeListener listener) {
+    this.pcs.removePropertyChangeListener(listener);
+  }
 
 
 }
