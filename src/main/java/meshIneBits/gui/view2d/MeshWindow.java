@@ -451,8 +451,11 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
         "view-3D.png",
         "Open the 3D view of mesh",
         "alt 3",
+            () -> {
+          pcs.firePropertyChange(new PropertyChangeEvent(this, "CLOSE_PROJECT",null,null));
+          baseVisualization3DView.startProcessingModelView();
 
-            baseVisualization3DView::startProcessingModelView);
+            });
 
     meshActionList.add(view3D);
 
