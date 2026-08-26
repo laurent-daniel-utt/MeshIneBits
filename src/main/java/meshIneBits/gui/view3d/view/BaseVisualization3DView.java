@@ -714,8 +714,12 @@ popMatrix();
      popMatrix();
 
 if(!getpausing()){
-    if(forward())Xpos++;
-if(backward())Xpos--;
+    float step = getWorkingSpaceMoveStep();
+    if (Xpos < pos) {
+      Xpos = Math.min(Xpos + step, pos);
+    } else if (Xpos > pos) {
+      Xpos = Math.max(Xpos - step, pos);
+    }
 if(Xpos==pos){
   movingWorkSpace.countDown();
   movingWorkSpace=new CountDownLatch(1);
@@ -729,33 +733,16 @@ if(Xpos==pos){
   //CraftConfig.workingWidth=300
   //   CraftConfig.printerY=2000.00
   }
-public boolean  forward(){
-    if(Xpos-pos<0){
-      if(Xpos-pos<-1){
-        return true;
-      }
-       else {
-         Xpos=pos;
-      return false;
-       }
-    }
-else {return false;}
 
-
-}
-  public boolean  backward(){
-    if(Xpos-pos>0){
-      if(Xpos-pos>1){
-        return true;
-      }
-      else {
-        Xpos=pos;
-        return false;
-      }
-    }
-    else {return false;}
-
-
+  /**
+   * Movement step of the red working-space rectangle, scaled with {@link AnimationProcessor#animationSpeed}.
+   * Halving animationSpeed (bits placed 2x faster) doubles the rectangle's travel speed.
+   */
+  private float getWorkingSpaceMoveStep() {
+    double speed = animationSpeed <= 0
+        ? Visualization3DConfig.speed_coefficient_max
+        : animationSpeed;
+    return (float) (Visualization3DConfig.speed_coefficient_default / speed);
   }
 
     @Override
