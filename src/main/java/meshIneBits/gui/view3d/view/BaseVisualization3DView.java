@@ -6,6 +6,7 @@ import com.jogamp.newt.event.WindowEvent;
 import controlP5.ControlP5;
 import meshIneBits.Strip;
 import meshIneBits.config.CraftConfig;
+import meshIneBits.gui.view2d.MeshWindow;
 import meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.Visualization3DConfig;
@@ -16,17 +17,19 @@ import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PShape;
+import processing.core.*;
 import processing.event.MouseEvent;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PJOGL;
+import processing.opengl.PSurfaceJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
 import javax.swing.*;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
@@ -41,9 +44,12 @@ import static meshIneBits.gui.view3d.Processor.BaseVisualization3DProcessor.opti
 import static meshIneBits.gui.view3d.util.animation.AnimationProcessor.*;
 import static remixlab.bias.BogusEvent.CTRL;
 import static remixlab.proscene.MouseAgent.*;
-public class BaseVisualization3DView extends AbstractVisualization3DView implements AutoCloseable,MouseListener {
+public class BaseVisualization3DView extends AbstractVisualization3DView implements AutoCloseable,MouseListener, PropertyChangeListener {
 
   private static final CustomLogger logger = new CustomLogger(BaseVisualization3DView.class);
+
+  //In order to listen to meshWindow, a reference has to be passed. See @setup in the last lines.
+  public static MeshWindow meshWindow;
 
   public static UIParameterWindow uipwAnimation;
   public static UIParameterWindow uipwView;
@@ -95,6 +101,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
   }
 
+  public void setMeshWindow(MeshWindow meshWindow){
+    BaseVisualization3DView.meshWindow = meshWindow;
+  }
 
 public void play(){
 
@@ -203,14 +212,10 @@ public void play(){
 
 
     win.addWindowListener(new WindowAdapter() {
-      public void windowDestroyed(WindowEvent e) { WindowStatus=0;
-      Logger.updateStatus("");
-
-
-        processor.onTerminated();
-        uipwAnimation.closeWindow();
-        uipwView.closeWindow();
-        uipwController.close();
+      public void windowDestroyed(WindowEvent e) {
+        WindowStatus=0;
+        Logger.updateStatus("");
+        closeEntire3DView();
       }
     });
     win.addWindowListener(new WindowAdapter() {
@@ -255,6 +260,11 @@ public void play(){
     initDisplayParameterWindows();
     initWorkingSpace();
 
+    // The registering has to be made in this way because BaseVisualization3DView creates a new instance of
+    // the class each time a BaseVisualization3DView is opened and meshWindow has to reference to this new instance.
+    meshWindow.addPropertyChangeListener(this);
+
+    //System.out.println(this.toString());
   }
 private void initWorkingSpace(){
   rectange=null;
@@ -750,7 +760,6 @@ else {return false;}
 
     @Override
   public void close() throws Exception {
-
   }
 
   @Override
@@ -774,6 +783,44 @@ else {return false;}
 
   @Override
   public void mouseExited(java.awt.event.MouseEvent e) {
+
+  }
+
+  /**
+   * Currently allows communications between the 2D view and the 3D view.
+   *
+   * @param evt A PropertyChangeEvent object describing the event source
+   *          and the property that has changed.
+   */
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    switch (evt.getPropertyName()){
+      case "CLOSE_PROJECT" :
+        this.closeEntire3DView();
+        break;
+    }
+  }
+
+  /**
+   * Ends the current shown instance of the 3D view
+   *
+   * Stops listening to MeshWindow.
+   * Terminates every side windows like they would be when the cross is clicked.
+   * Terminates the current displayed 3D view and close its window.
+   */
+  private void closeEntire3DView(){
+    BaseVisualization3DView.meshWindow.removePropertyChangeListener(this);
+    processor.onTerminated();
+    uipwAnimation.closeWindow();
+    uipwView.closeWindow();
+    uipwController.close();
+    //Should get rid of the PApplet objects
+    this.dispose();
+    if(WindowStatus!=0){
+      //Necessary, otherwise the window will stay opened (although completely disabled)
+      this.win.destroy();
+      WindowStatus=0;
+    }
 
   }
 }
