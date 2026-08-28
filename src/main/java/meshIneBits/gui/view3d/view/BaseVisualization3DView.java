@@ -841,6 +841,8 @@ if(Xpos==pos){
     uipwController.close();
     initControlComponent();
     initParameterWindow();
+
+
     initModelChangesListener((ModelChangesListener) uipwView);
     runSketch(new String[]{"--display=1", "Projector"}, uipwView);
     runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
@@ -862,6 +864,8 @@ if(Xpos==pos){
       Logger.updateStatus("");
     });t.start();
      */
+
+    meshWindow.toFront();
     Logger.updateStatus("3d interface Refreshed");
   }
 
