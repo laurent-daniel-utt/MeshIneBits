@@ -3,6 +3,7 @@ package meshIneBits.gui.view3d.view;
 import com.jogamp.nativewindow.WindowClosingProtocol;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
+import controlP5.ControlEvent;
 import controlP5.ControlP5;
 import meshIneBits.Strip;
 import meshIneBits.config.CraftConfig;
@@ -12,16 +13,13 @@ import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView.ModelChangesListener;
 import meshIneBits.gui.view3d.provider.MeshProvider;
-import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.Vector3;
 import processing.core.*;
 import processing.event.MouseEvent;
-import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PJOGL;
-import processing.opengl.PSurfaceJOGL;
 import remixlab.dandelion.geom.Vec;
 import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
@@ -31,7 +29,6 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -51,15 +48,16 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   //In order to listen to meshWindow, a reference has to be passed. See @setup in the last lines.
   public static MeshWindow meshWindow;
 
-  public static UIParameterWindow uipwAnimation;
-  public static UIParameterWindow uipwView;
+  public static UIPWAnimation uipwAnimation;
+  public static UIPWView uipwView;
   public static UIPWController uipwController;
   public static IVisualization3DProcessor processor;
   private ModelChangesListener mcListener;
   public static CountDownLatch waitshaping=new CountDownLatch(1);
   private CustomInteractiveFrame frame;
   private Scene scene;
-  private ControlP5 cp5;
+  private ControlP5 cp5View;
+  private ControlP5 cp5Animation;
   public static CountDownLatch notyet=new CountDownLatch(1);
   private float printerX;
   private float printerY;
@@ -83,6 +81,8 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   private int num_batch=0;
   private CountDownLatch stillExporting=new CountDownLatch(1);
   private String path="";
+  private int lastLayoutW = -1;
+  private int lastLayoutH = -1;
 
   public BaseVisualization3DView(){
 
@@ -122,6 +122,7 @@ public void play(){
 
   public void settings() {
     size(Visualization3DConfig.V3D_WINDOW_WIDTH, Visualization3DConfig.V3D_WINDOW_HEIGHT, P3D);
+    smooth(8);
     PJOGL.setIcon("resources/icon.png");
   }
 
@@ -131,10 +132,9 @@ public void play(){
    * @param event
    */
   protected void handleMouseEvent(MouseEvent event) {
-
     final int action = event.getAction();
-    if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
 
+    if (action == MouseEvent.CLICK && !isOverSidePanel(event.getX())) {
       processor.onTerminated();
       init3DFrame();
       WindowStatus=2;
@@ -143,14 +143,10 @@ public void play(){
       meshShapes.put(1,processor.getModelProvider().getMeshShape());
       frame.setShape(shape);
 
-      uipwAnimation.closeWindow();
-      uipwView.closeWindow();
-      uipwController.close();
+      disposeParameterPanels();
       initControlComponent();
       initParameterWindow();
-      initModelChangesListener((ModelChangesListener) uipwView);
-      runSketch(new String[]{"--display=1", "Projector"}, uipwView);
-      runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
+      initModelChangesListener(uipwView);
 
       pos=0;
       Zpos=0;
@@ -168,28 +164,14 @@ public void play(){
         Logger.updateStatus("");
       });t.start();
       Logger.updateStatus("3d interface Refreshed");
-
     }
 
-    handleMethods("mouseEvent", new Object[] { event });
+    // Relayout before ControlP5 handles the click (split-screen resize can lag draw()).
+    layoutEmbeddedPanelsIfNeeded(false);
 
-    switch (action) {
-
-
-      case MouseEvent.CLICK:
-        mouseClicked(event);
-        break;
-      case MouseEvent.ENTER:
-        mouseEntered(event);
-        break;
-      case MouseEvent.EXIT:
-        mouseExited(event);
-        break;
-      case MouseEvent.MOVE:
-        mouseMoved(event);
-        break;
-    }
-
+    // Delegate to Processing so mouseX/mouseY/mousePressed are updated and
+    // ControlP5 receives events through the standard registered-method path.
+    super.handleMouseEvent(event);
   }
 
 
@@ -222,7 +204,12 @@ public void play(){
       @Override
       public void windowResized(WindowEvent e) {
         super.windowResized(e);
-        surface.setSize(win.getWidth(), win.getHeight());
+        int newW = win.getWidth();
+        int newH = win.getHeight();
+        if (newW > 0 && newH > 0) {
+          surface.setSize(newW, newH);
+          layoutEmbeddedPanelsIfNeeded(true, newW, newH);
+        }
       }
     });
   }
@@ -256,8 +243,9 @@ public void play(){
 
     initControlComponent();
     initParameterWindow();
-    initModelChangesListener((ModelChangesListener) uipwView);
-    initDisplayParameterWindows();
+    initModelChangesListener(uipwView);
+    updateSizeChangesOnModel();
+    updatePositionChangesOnModel();
     initWorkingSpace();
 
     // The registering has to be made in this way because BaseVisualization3DView creates a new instance of
@@ -280,18 +268,6 @@ private void initWorkingSpace(){
   rectange.endShape(PConstants.CLOSE);
 
 }
-
-  private void initDisplayParameterWindows() {
-    if (uipwView == null || uipwAnimation == null) {
-      logger.logWARNMessage("Parameter window should be initialized, call initParameterWindow");
-      return;
-    }
-    runSketch(new String[]{"--display=1", "Projector"}, uipwView);
-    runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
-
-    updateSizeChangesOnModel();
-    updatePositionChangesOnModel();
-  }
 
   private void updatePositionChangesOnModel() {
     if (mcListener != null) {
@@ -327,31 +303,62 @@ private void initWorkingSpace(){
   }
 
   private void initParameterWindow() {
-
     uipwController = new UIPWController(processor);
-    uipwView = buildControllerWindow(UIPWView.class,
-            uipwController,
-            "View Configuration",
-            Visualization3DConfig.UIP_WINDOW_WIDTH,
-            Visualization3DConfig.UIP_WINDOW_HEIGHT);
-    uipwAnimation = buildControllerWindow(UIPWAnimation.class,
-            uipwController,
-            "View Animation",
-            Visualization3DConfig.UIP_WINDOW_WIDTH,
-            Visualization3DConfig.UIP_WINDOW_HEIGHT);
+    float panelW = sidePanelWidth();
+    float panelH = height;
 
-    if (processor instanceof BaseVisualization3DProcessor && uipwAnimation != null) {
+    uipwView = new UIPWView(
+        this, cp5View, uipwController,
+        0, 0, panelW, panelH);
+    uipwView.init();
+
+    uipwAnimation = new UIPWAnimation(
+        this, cp5Animation, uipwController,
+        width - panelW, 0, panelW, panelH);
+    uipwAnimation.init();
+
+    uipwView.layout(0, 0, panelW, panelH);
+    uipwAnimation.layout(width - panelW, 0, panelW, panelH);
+
+    lastLayoutW = width;
+    lastLayoutH = height;
+
+    if (processor instanceof BaseVisualization3DProcessor) {
       ((BaseVisualization3DProcessor) processor).getAnimationProcessor()
-              .addOnIndexIncreasedListener((AnimationIndexIncreasedListener) uipwAnimation);
-
+          .addOnIndexIncreasedListener(uipwAnimation);
     }
+  }
 
+  private void disposeParameterPanels() {
+    if (uipwAnimation != null) {
+      uipwAnimation.close();
+      uipwAnimation = null;
+    }
+    if (uipwView != null) {
+      uipwView.close();
+      uipwView = null;
+    }
+    if (uipwController != null) {
+      uipwController.close();
+      uipwController = null;
+    }
+    if (cp5View != null) {
+      cp5View.dispose();
+      cp5View = null;
+    }
+    if (cp5Animation != null) {
+      cp5Animation.dispose();
+      cp5Animation = null;
+    }
   }
 
   private void initControlComponent() {
-    cp5 = new ControlP5(this);
-    cp5.setAutoDraw(false);
-//    createButtons(cp5);
+    cp5View = new ControlP5(this);
+    cp5View.setAutoDraw(false);
+    cp5View.enableShortcuts();
+
+    cp5Animation = new ControlP5(this);
+    cp5Animation.setAutoDraw(false);
   }
 
   private void initProcessor() {
@@ -445,21 +452,16 @@ private void initWorkingSpace(){
     return frame;
   }
 
-  @SuppressWarnings("all")
-  private <T extends UIParameterWindow> T
-  buildControllerWindow(Class<T> c, UIPWListener listener,
-                        String title, int width, int height) {
-    UIParameterWindow.WindowBuilder windowBuilder = new UIParameterWindow.WindowBuilder();
-    try {
-      T obj = windowBuilder.setTitle(title)
-              .setListener(listener)
-              .setSize(width, height)
-              .build(c);
-      return obj;
-    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      e.printStackTrace();
+  /**
+   * ControlP5 callback: dispatch events to the embedded side panels.
+   */
+  public void controlEvent(ControlEvent theEvent) {
+    if (uipwView != null) {
+      uipwView.controlEvent(theEvent);
     }
-    return null;
+    if (uipwAnimation != null) {
+      uipwAnimation.controlEvent(theEvent);
+    }
   }
 
   @Override
@@ -474,12 +476,153 @@ private void initWorkingSpace(){
     drawWorkspace();
     drawWorkingSpace();
 
+    startExport();
+    displayShape();
+    endExport();
 
+    layoutEmbeddedPanelsIfNeeded(false);
+    updateMouseAgentForUI();
+    drawEmbeddedUI();
+  }
 
-          startExport();
-         displayShape();
-        endExport();
+  /** Prefer the native GL window size (reliable after snap/split-screen resize). */
+  private int layoutWidth() {
+    if (win != null && win.getWidth() > 0) {
+      return win.getWidth();
+    }
+    return width;
+  }
 
+  private int layoutHeight() {
+    if (win != null && win.getHeight() > 0) {
+      return win.getHeight();
+    }
+    return height;
+  }
+
+  /** Keep Processing dimensions aligned with the OS window after snap resize. */
+  private void syncSurfaceSizeIfNeeded() {
+    if (win == null) {
+      return;
+    }
+    int nativeW = win.getWidth();
+    int nativeH = win.getHeight();
+    if (nativeW > 0 && nativeH > 0 && (nativeW != width || nativeH != height)) {
+      surface.setSize(nativeW, nativeH);
+    }
+  }
+
+  /**
+   * Camera / zoom (Proscene) stay active in the center view.
+   * Mouse agent is only disabled over the left/right HUD strips.
+   */
+  private void updateMouseAgentForUI() {
+    if (scene == null) {
+      return;
+    }
+    if (isMouseOverSidePanel()) {
+      scene.disableMouseAgent();
+    } else {
+      scene.enableMouseAgent();
+      if (cp5View != null) {
+        cp5View.getWindow().resetMouseOver();
+      }
+      if (cp5Animation != null) {
+        cp5Animation.getWindow().resetMouseOver();
+      }
+    }
+  }
+
+  /**
+   * Keep left/right HUD panels aligned when the window is resized or maximized.
+   */
+  private void layoutEmbeddedPanelsIfNeeded(boolean force, int layoutW, int layoutH) {
+    if (uipwView == null || uipwAnimation == null || layoutW <= 0 || layoutH <= 0) {
+      return;
+    }
+    if (!force && layoutW == lastLayoutW && layoutH == lastLayoutH) {
+      return;
+    }
+    float panelW = sidePanelWidth(layoutW);
+    float panelH = layoutH;
+    uipwView.layout(0, 0, panelW, panelH);
+    uipwAnimation.layout(layoutW - panelW, 0, panelW, panelH);
+    cp5View.getWindow().resetMouseOver();
+    cp5Animation.getWindow().resetMouseOver();
+    lastLayoutW = layoutW;
+    lastLayoutH = layoutH;
+  }
+
+  private void layoutEmbeddedPanelsIfNeeded(boolean force) {
+    syncSurfaceSizeIfNeeded();
+    layoutEmbeddedPanelsIfNeeded(force, layoutWidth(), layoutHeight());
+  }
+
+  /** True when x is over a left/right embedded panel (not the 3D center). */
+  private boolean isOverSidePanel(int x) {
+    int layoutW = layoutWidth();
+    int panelW = sidePanelWidth(layoutW);
+    return x < panelW || x >= layoutW - panelW;
+  }
+
+  private boolean isMouseOverSidePanel() {
+    return isOverSidePanel(mouseX);
+  }
+
+  private boolean isMouseOverUI() {
+    return isMouseOverSidePanel();
+  }
+
+  /** Panel width follows the current window (1/5), capped so panels never overlap. */
+  private int sidePanelWidth() {
+    return sidePanelWidth(layoutWidth());
+  }
+
+  private int sidePanelWidth(int windowWidth) {
+    if (windowWidth <= 0) {
+      return 160;
+    }
+    int preferred = Math.max(160, windowWidth / 5);
+    // Keep a usable center view; on split-screen/narrow windows shrink side strips.
+    int minCenter = Math.max(120, windowWidth / 4);
+    int maxPerSide = (windowWidth - minCenter) / 2;
+    if (maxPerSide < 80) {
+      maxPerSide = Math.max(1, windowWidth / 4);
+    }
+    return Math.min(preferred, maxPerSide);
+  }
+
+  private void drawEmbeddedUI() {
+    if (scene == null || cp5View == null || cp5Animation == null) {
+      return;
+    }
+    scene.beginScreenDrawing();
+    drawSidePanelBackgrounds();
+    if (uipwView != null) {
+      uipwView.updateButton();
+    }
+    if (uipwAnimation != null) {
+      uipwAnimation.updateButton();
+    }
+    cp5View.update();
+    cp5View.draw();
+    cp5Animation.update();
+    cp5Animation.draw();
+    scene.endScreenDrawing();
+  }
+
+  private void drawSidePanelBackgrounds() {
+    noStroke();
+    fill(
+        Visualization3DConfig.UIPW_BACKGROUND.getRed(),
+        Visualization3DConfig.UIPW_BACKGROUND.getGreen(),
+        Visualization3DConfig.UIPW_BACKGROUND.getBlue(),
+        220);
+    int layoutW = layoutWidth();
+    int layoutH = layoutHeight();
+    int panelW = sidePanelWidth(layoutW);
+    rect(0, 0, panelW, layoutH);
+    rect(layoutW - panelW, 0, panelW, layoutH);
   }
 
   @Override
@@ -792,15 +935,12 @@ if(Xpos==pos){
    * Ends the current shown instance of the 3D view
    *
    * Stops listening to MeshWindow.
-   * Terminates every side windows like they would be when the cross is clicked.
-   * Terminates the current displayed 3D view and close its window.
+   * Terminates embedded UI panels and the current displayed 3D view.
    */
   private void closeEntire3DView(){
     BaseVisualization3DView.meshWindow.removePropertyChangeListener(this);
     processor.onTerminated();
-    uipwAnimation.closeWindow();
-    uipwView.closeWindow();
-    uipwController.close();
+    disposeParameterPanels();
     //Should get rid of the PApplet objects
     this.dispose();
     if(WindowStatus!=0){

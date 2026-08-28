@@ -58,7 +58,6 @@ import remixlab.proscene.InteractiveFrame;
 import remixlab.proscene.Scene;
 
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -160,8 +159,8 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
   private final CustomLogger logger = new CustomLogger(this.getClass());
   private UIPWController uipwController;
-  private UIParameterWindow uipwView;
-  private UIParameterWindow uipwAnimation;
+  private UIPWView uipwView;
+  private UIPWAnimation uipwAnimation;
   private ModelChangesListener mcListener;
 
 
@@ -180,7 +179,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
     currentInstance = this;
     Dimension screenSize = Toolkit.getDefaultToolkit()
         .getScreenSize();
-    size(screenSize.width * 3 / 5, screenSize.height, P3D);
+    size(screenSize.width, screenSize.height, P3D);
     PJOGL.setIcon("resources/icon.png");
   }
 
@@ -198,9 +197,18 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
         controllerView3D.deleteObserver(currentInstance);
         currentInstance = null;
         builder.onTerminated();
-        uipwAnimation.closeWindow();
-        uipwView.closeWindow();
-        uipwController.close();
+        if (uipwAnimation != null) {
+          uipwAnimation.close();
+        }
+        if (uipwView != null) {
+          uipwView.close();
+        }
+        if (uipwController != null) {
+          uipwController.close();
+        }
+        if (cp5 != null) {
+          cp5.dispose();
+        }
       }
     });
 
@@ -227,38 +235,14 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
    *
    */
   public void setup() {
-    Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
-
-    configWindow("MeshIneBits - Model view", (int) (screenSize.getWidth() / 5), 0);
+    configWindow("MeshIneBits - Model view", 0, 0);
     initWorkspace();
     init3DScene(new Vec(0, 1, 1), 2500);
     init3DShapes(controllerView3D.getModel());
     init3DFrame();
     initControlComponent();
     initParameterWindow();
-    initModelChangesListener((ModelChangesListener) uipwView);
-    displayParameterWindows();
-  }
-
-  private void displayParameterWindows() {
-    Dimension screenSize = Toolkit.getDefaultToolkit()
-        .getScreenSize();
-    if (uipwView == null || uipwAnimation == null) {
-      logger.logWARNMessage("Parameter window should be initialized, call initParameterWindow");
-      return;
-    }
-    String[] args = {"--location=0,0", "Foo"};
-    runSketch(new String[]{"--display=1",
-        "--location=0,0", "--width=" + screenSize.width / 5,
-        "--height=" + (screenSize.height - 100),
-        "Projector"}, uipwView);
-
-    runSketch(new String[]{"--display=1",
-        "--location=0,0", "--width=" + screenSize.width / 5,
-        "--height=" + (screenSize.height - 100),
-        "Projector"}, uipwAnimation);
-
+    initModelChangesListener(uipwView);
     updateSizeChangesOnModel();
     updatePositionChangesOnModel();
   }
@@ -270,34 +254,12 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private void initParameterWindow() {
     Dimension screenSize = Toolkit.getDefaultToolkit()
         .getScreenSize();
-//    uipwController = new UIPWController(this, controllerView3D.getCurrentMesh());
-    uipwView = buildControllerWindow(UIPWView.class,
-        uipwController,
-        "View Configuration",
-        screenSize.width / 5,
-        screenSize.height - 100);
-    uipwAnimation = buildControllerWindow(UIPWAnimation.class,
-        uipwController,
-        "View Animation",
-        screenSize.width / 5,
-        screenSize.height - 100);
-//    uipwController.setAnimationIndexListener(this, (AnimationIndexIncreasedListener) uipwAnimation);
-
-  }
-
-  private <T extends UIParameterWindow> T buildControllerWindow(Class<T> c, UIPWListener listener,
-      String title, int width, int height) {
-    UIParameterWindow.WindowBuilder windowBuilder = new UIParameterWindow.WindowBuilder();
-    try {
-      T obj = windowBuilder.setTitle(title)
-          .setListener(listener)
-          .setSize(width, height)
-          .build(c);
-      return obj;
-    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      e.printStackTrace();
-    }
-    return null;
+    float panelW = screenSize.width / 5f;
+    float panelH = height;
+    uipwView = new UIPWView(this, cp5, uipwController, 0, 0, panelW, panelH);
+    uipwView.init();
+    uipwAnimation = new UIPWAnimation(this, cp5, uipwController, width - panelW, 0, panelW, panelH);
+    uipwAnimation.init();
   }
 
   private void initWorkspace() {

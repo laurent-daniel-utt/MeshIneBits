@@ -1,9 +1,7 @@
 package meshIneBits.gui.view3d.view;
 
 import controlP5.*;
-import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.oldversion.ProcessingModelView;
-import processing.core.PApplet;
 import processing.core.PFont;
 
 import java.util.ArrayList;
@@ -11,7 +9,7 @@ import java.util.Arrays;
 
 import static meshIneBits.gui.view3d.oldversion.GraphicElementLabel.*;
 
-public class UIPWView extends UIParameterWindow implements
+public class UIPWView extends UIParameterPanel implements
     ProcessingModelView.ModelChangesListener {
 
   private Textfield TFRotationX;
@@ -29,17 +27,10 @@ public class UIPWView extends UIParameterWindow implements
   private Textlabel txt;
   private Textlabel modelPosition;
   private Textlabel modelSize;
-  private Textarea shortcut;
+  private Textlabel shortcut;
   private Textlabel slicingWarning;
 
-  private Textarea tooltipRotation;
-  private Textarea tooltipGravity;
-  private Textarea tooltipReset;
-  private Textarea tooltipCamera;
-  private Textarea tooltipApply;
-
   private final ArrayList<Tooltip> tooltipsToShow = new ArrayList<>();
-
 
   private double currentX;
   private double currentY;
@@ -49,55 +40,52 @@ public class UIPWView extends UIParameterWindow implements
   private double currentWidth;
   private double currentHeight;
 
-
-  @Override
-  public void setup() {
-    super.setup();
-    surface.setLocation(Visualization3DConfig.UIPW_VIEW.x, Visualization3DConfig.UIPW_VIEW.y);
+  public UIPWView(processing.core.PApplet parent, ControlP5 control, UIPWListener listener,
+      float originX, float originY, float panelWidth, float panelHeight) {
+    super(parent, control, listener, originX, originY, panelWidth, panelHeight);
   }
 
   private void initComponentPositions() {
-    float[] rotationX = new float[]{0.09f * width, 0.23f * height};
-    float[] rotationY = new float[]{0.09f * width, 0.29f * height};
-    float[] rotationZ = new float[]{0.09f * width, 0.35f * height};
-    TFRotationX.setPosition(rotationX);
-    TFRotationY.setPosition(rotationY);
-    TFRotationZ.setPosition(rotationZ);
+    int fieldW = panelSizeW(0.18f);
+    int btnW = panelSizeW(0.55f);
+    int labelW = panelSizeW(0.85f);
+    int labelSmallW = panelSizeW(0.45f);
 
-    float[] positionX = new float[]{0.39f * width, 0.23f * height};
-    float[] positionY = new float[]{0.39f * width, 0.29f * height};
-    float[] positionZ = new float[]{0.39f * width, 0.35f * height};
-    TFPositionX.setPosition(positionX);
-    TFPositionY.setPosition(positionY);
-    TFPositionZ.setPosition(positionZ);
+    TFRotationX.setPosition(px(0.09f), py(0.23f)).setSize(fieldW, 30);
+    TFRotationY.setPosition(px(0.09f), py(0.29f)).setSize(fieldW, 30);
+    TFRotationZ.setPosition(px(0.09f), py(0.35f)).setSize(fieldW, 30);
 
-    float[] gravityPosition = new float[]{0.09f * width, 0.6f * height};
-    float[] resetPosition = new float[]{0.09f * width, 0.65f * height};
-    float[] cameraPosition = new float[]{0.09f * width, 0.7f * height};
-    float[] applyPosition = new float[]{0.09f * width, 0.75f * height};
-    gravity.setPosition(gravityPosition);
-    reset.setPosition(resetPosition);
-    camera.setPosition(cameraPosition);
-    apply.setPosition(applyPosition);
+    TFPositionX.setPosition(px(0.39f), py(0.23f)).setSize(fieldW, 30);
+    TFPositionY.setPosition(px(0.39f), py(0.29f)).setSize(fieldW, 30);
+    TFPositionZ.setPosition(px(0.39f), py(0.35f)).setSize(fieldW, 30);
 
-    toggleViewMesh.setPosition(0.09f * width, 0.49f * height);
-    modelSize.setPosition(0.09f * width, 0.07f * height);
-    txt.setPosition(0.45f * width, 0.07f * height);
-    slicingWarning.setPosition(0.09f * width, 0.58f * height);
-    shortcut.setPosition(0.09f * width, 0.79f * height);
-    modelPosition.setPosition(0.09f * width, 0.95f * height);
+    gravity.setPosition(px(0.09f), py(0.6f)).setSize(btnW, 30);
+    reset.setPosition(px(0.09f), py(0.65f)).setSize(btnW, 30);
+    camera.setPosition(px(0.09f), py(0.7f)).setSize(btnW, 30);
+    apply.setPosition(px(0.09f), py(0.75f)).setSize(btnW, 30);
+
+    toggleViewMesh.setPosition(px(0.09f), py(0.49f)).setSize(20, 20);
+    modelSize.setPosition(px(0.09f), py(0.07f)).setSize(labelW, panelSizeH(0.14f));
+    txt.setPosition(px(0.45f), py(0.07f)).setSize(labelSmallW, panelSizeH(0.12f));
+    slicingWarning.setPosition(px(0.09f), py(0.58f)).setSize(labelW, panelSizeH(0.08f));
+    shortcut.setPosition(px(0.09f), py(0.79f)).setSize(labelW, panelSizeH(0.16f));
+    modelPosition.setPosition(px(0.09f), py(0.95f)).setSize(labelW, panelSizeH(0.05f));
 
     for (Tooltip tooltip : tooltipsToShow) {
       float[] position = tooltip.positionOfComponent();
       float[] size = tooltip.sizeOfComponent();
-      tooltip.setTooltipPosition(new float[]{position[0] + size[0], position[1]});
+      float tooltipX = clampLocalX(position[0] + size[0], tooltip.getTooltipText().getWidth());
+      tooltip.setTooltipPosition(new float[]{tooltipX, position[1]});
     }
   }
 
   @Override
-  protected void updateButton() {
-//        PSurfaceAWT win = ((GLWindow) surface.getNative());
+  protected void relayout() {
+    initComponentPositions();
+  }
 
+  @Override
+  protected void updateButton() {
     modelSize.setText(
         "Model Size :\n Depth : " + currentDepth + "\n Height : " + currentHeight + "\n Width : "
             + currentWidth + "\n Scale  : " + currentScale);
@@ -105,7 +93,6 @@ public class UIPWView extends UIParameterWindow implements
         "Current position :\n" + " x : " + currentX + "\n y : " + currentY + "\n z : " + currentZ);
 
     displayTooltips();
-
   }
 
   @Override
@@ -118,7 +105,6 @@ public class UIPWView extends UIParameterWindow implements
 
   @Override
   protected void generateButton() {
-
     int color = 255;
     PFont text_font_default = createFont("arial bold", 15);
     int component_background_color = color(255, 250);
@@ -225,7 +211,8 @@ public class UIPWView extends UIParameterWindow implements
         .setText("Current Position : (0,0,0)")
         .setSize(80, 40)
         .setColor(255)
-        .setFont(text_font_default);
+        .setFont(text_font_default)
+        .setLock(true);
 
     modelSize = getControl()
         .addTextlabel("model size")
@@ -233,28 +220,31 @@ public class UIPWView extends UIParameterWindow implements
             "Model Size :\n Depth:" + currentDepth + "\n Height :" + currentHeight + "\n Width : "
                 + currentWidth + "\n Scale : " + currentScale)
         .setColor(255)
-        .setFont(text_font_default);
+        .setFont(text_font_default)
+        .setLock(true);
 
     modelPosition = getControl()
         .addTextlabel("model position")
         .setText("Model Position in \n Printing Space ")
         .setColor(component_label_color)
-        .setFont(createFont("arial bold", 20));
+        .setFont(createFont("arial bold", 20))
+        .setLock(true);
 
     shortcut = getControl()
-        .addTextarea("shortcut")
+        .addTextlabel("shortcut")
         .setText(
             "Shortcut : \n Rotation : CTRL + Mouse Left Click, Cannot be used when Mesh is sliced \n Translation : CTRL + Mouse Right Click \n Change Model Size : Mouse on the Model + Mouse Wheel , Cannot be used when Mesh is sliced\n Zoom : Mouse Wheel\n Export to Obj: press button 'S'")
         .setColor(component_label_color)
         .setFont(text_font_default)
-        .hideScrollbar();
+        .setLock(true);
 
     slicingWarning = getControl()
         .addTextlabel("slicingWarning")
         .setText("The Model is Sliced \n You can't rotate \n You can't scale")
         .setColor(component_label_color)
         .setFont(createFont("arial bold", 20))
-        .hide();
+        .hide()
+        .setLock(true);
 
     Textarea gravityTooltipTextarea = getControl()
         .addTextarea("tooltipGravity")
@@ -270,21 +260,7 @@ public class UIPWView extends UIParameterWindow implements
     gravityTooltipTextarea.getValueLabel()
         .getStyle()
         .setMargin(1, 0, 0, 5);
-
-    Textarea rotationTooltipTextarea = getControl()
-        .addTextarea("tooltipRotation")
-        .setText("You can't rotate a sliced Model")
-        .setSize(220, 36)
-        .setColorBackground(color(255, 0, 0))
-        .setColor(color(50))
-        .setFont(text_font_default)
-        .setLineHeight(12)
-        .hide()
-        .hideScrollbar();
-
-    rotationTooltipTextarea.getValueLabel()
-        .getStyle()
-        .setMargin(1, 0, 0, 5);
+    gravityTooltipTextarea.setMousePressed(false);
 
     Textarea resetTooltipTextarea = getControl()
         .addTextarea("tooltipReset")
@@ -300,6 +276,7 @@ public class UIPWView extends UIParameterWindow implements
     resetTooltipTextarea.getValueLabel()
         .getStyle()
         .setMargin(1, 0, 0, 5);
+    resetTooltipTextarea.setMousePressed(false);
 
     Textarea cameraTooltipTextarea = getControl()
         .addTextarea("tooltipCamera")
@@ -315,6 +292,7 @@ public class UIPWView extends UIParameterWindow implements
     cameraTooltipTextarea.getValueLabel()
         .getStyle()
         .setMargin(1, 0, 0, 5);
+    cameraTooltipTextarea.setMousePressed(false);
 
     Textarea applyTooltipTextarea = getControl()
         .addTextarea("tooltipApply")
@@ -330,6 +308,7 @@ public class UIPWView extends UIParameterWindow implements
     applyTooltipTextarea.getValueLabel()
         .getStyle()
         .setMargin(1, 0, 0, 5);
+    applyTooltipTextarea.setMousePressed(false);
 
     Tooltip<Textarea, Button> gravityTooltip = new Tooltip<>(gravityTooltipTextarea, gravity);
     Tooltip<Textarea, Button> resetTooltip = new Tooltip<>(resetTooltipTextarea, reset);
@@ -344,12 +323,6 @@ public class UIPWView extends UIParameterWindow implements
   @Override
   public void controlEvent(ControlEvent theEvent) {
     if (getListener() == null) {
-      logger.logWARNMessage(
-          "This window " + this.getClass()
-              .getName() + " need to be setted a listener!!!");
-      println(theEvent.getName());
-      System.out.println(theEvent.getValue());
-      System.out.println(theEvent.getStringValue());
       return;
     }
     switch (theEvent.getName()) {
@@ -359,28 +332,22 @@ public class UIPWView extends UIParameterWindow implements
       case POSITION_X:
       case POSITION_Y:
       case POSITION_Z:
-        getListener().onActionListener(this,theEvent.getName(),
+        getListener().onActionListener(this, theEvent.getName(),
             Float.parseFloat(theEvent.getStringValue()));
         break;
       case VIEW_MESH:
-        getListener().onActionListener(this,theEvent.getName(), (float) 1.0 == theEvent.getValue());
+        getListener().onActionListener(this, theEvent.getName(), (float) 1.0 == theEvent.getValue());
         break;
       case APPLY:
       case GRAVITY:
       case RESET:
       case CENTER_CAMERA:
-        getListener().onActionListener(this,theEvent.getName(), theEvent.getValue());
+        getListener().onActionListener(this, theEvent.getName(), theEvent.getValue());
         break;
       default:
-        logger.logWARNMessage("The event invoked is not handled by method ControlEvent");
         break;
     }
   }
-
-  public static void main(String[] args) {
-    PApplet.main(UIPWView.class.getCanonicalName());
-  }
-
 
   @Override
   public void onSizeChange(double scale, double dept, double width, double height) {
@@ -411,9 +378,9 @@ public class UIPWView extends UIParameterWindow implements
   }
 
   public Tooltip getTooltipsEnteredMouse() {
-    if ((pmouseX - mouseX) == 0 && (pmouseY - mouseY) == 0) {
+    if ((pmouseX() - mouseX()) == 0 && (pmouseY() - mouseY()) == 0) {
       for (Tooltip tooltip : tooltipsToShow) {
-        boolean isFocused = tooltip.mouseEntered(mouseX, mouseY);
+        boolean isFocused = tooltip.mouseEntered(mouseX(), mouseY());
         if (isFocused) {
           return tooltip;
         }

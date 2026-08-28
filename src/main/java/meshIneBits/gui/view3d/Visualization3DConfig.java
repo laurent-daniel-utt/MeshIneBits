@@ -11,11 +11,11 @@ public class Visualization3DConfig {
 
   private static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
-  //V3D config
+  //V3D config — single unified window (side panels are embedded HUD)
   public static final String VISUALIZATION_3D_WINDOW_TITLE = "MeshIneBits - Model view";
-  public static final int V3D_WINDOW_WIDTH = SCREEN_SIZE.width * 3 / 5;
+  public static final int V3D_WINDOW_WIDTH = SCREEN_SIZE.width;
   public static final int V3D_WINDOW_HEIGHT = SCREEN_SIZE.height;
-  public static final int V3D_WINDOW_LOCATION_X = SCREEN_SIZE.width / 5;
+  public static final int V3D_WINDOW_LOCATION_X = 0;
   public static final int V3D_WINDOW_LOCATION_Y = 0;
   public static final Vec V3D_EYE_POSITION = new Vec(0, 1, 1);
 
@@ -26,18 +26,19 @@ public class Visualization3DConfig {
 
   //AssemblingProcessView config
   public static final String ASSEMBLING_PROCESS_VIEW_TITLE = "MeshIneBits - Model view";
-  public static final int ASSEMBLING_PROCESS_VIEW_WIDTH = SCREEN_SIZE.width * 3 / 5;
+  public static final int ASSEMBLING_PROCESS_VIEW_WIDTH = SCREEN_SIZE.width;
   public static final int ASSEMBLING_PROCESS_VIEW_HEIGHT = SCREEN_SIZE.height;
-  public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_X = SCREEN_SIZE.width / 5;
+  public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_X = 0;
   public static final int ASSEMBLING_PROCESS_VIEW_LOCATION_Y = 0;
 
-  //UI parameter window config
-  public static final int UIP_WINDOW_WIDTH = SCREEN_SIZE.width / 5;
+  //UI parameter panels (embedded in the main 3D window)
+  public static final int UIP_PANEL_WIDTH = SCREEN_SIZE.width / 5;
+  public static final int UIP_WINDOW_WIDTH = UIP_PANEL_WIDTH;
   public static final int UIP_WINDOW_HEIGHT = SCREEN_SIZE.height;
   public static final int UIPW_FRAMERATE = 24;
-  public static final Point UIPW_ANIMATION = new Point(SCREEN_SIZE.width - UIP_WINDOW_WIDTH, 0);
+  public static final Point UIPW_ANIMATION = new Point(SCREEN_SIZE.width - UIP_PANEL_WIDTH, 0);
   public static final Point UIPW_VIEW = new Point(0, 0);
-  public static final Color UIPW_BACKGROUND = new Color(150, 150, 150);
+  public static final Color UIPW_BACKGROUND = new Color(120, 120, 120);
   public static final int EYE_POSITION_Y = 3000;
   public static final int EYE_POSITION_Z = 3000;
   public static final String EXPORT_3D_RENDERER = "meshIneBits.util.supportExportFile.obj.OBJExport";
