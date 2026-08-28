@@ -22,4 +22,9 @@ public abstract class AbstractVisualization3DView extends PApplet {
 
   public abstract void exportAll();
 
+  public void keyPressed() {
+    if (key == ESC) {
+      key = 0;  // Empêche d'utiliser la touche ESC
+    }
+  }
 }

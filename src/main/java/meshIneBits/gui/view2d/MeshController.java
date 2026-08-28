@@ -52,6 +52,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -69,8 +70,8 @@ import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
  * ProcessingModelView}. Controls {@link MeshWindow}.
  */
 @SuppressWarnings("WeakerAccess")
-public class MeshController extends Observable implements Observer ,
-    HandlerRedoUndo.UndoRedoListener {
+public class MeshController extends Observable implements Observer,
+        HandlerRedoUndo.UndoRedoListener, PropertyChangeListener {
 
   public static final String SHOW_SLICE = "showSlice";
   public static final String SHOW_LIFT_POINTS = "showLiftPoints";
@@ -300,6 +301,9 @@ public static CountDownLatch r=new CountDownLatch(1);
           // Notify property panel
           changes.firePropertyChange(MESH_PAVED, null, mesh);
           changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
+
+          //Notifies the 3D view to allow updates
+          changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
           break;
         case PAVING_LAYER:
           break;
@@ -308,6 +312,9 @@ public static CountDownLatch r=new CountDownLatch(1);
           changes.firePropertyChange(LAYER_PAVED, null, getCurrentLayer());
           setChanged();
           notifyObservers(MeshEvents.PAVED_LAYER);
+
+          //Notifies the 3D view to allow updates
+          changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
           break;
         case OPTIMIZING_LAYER:
           break;
@@ -317,6 +324,9 @@ public static CountDownLatch r=new CountDownLatch(1);
           // Notify the core to draw
           setChanged();
           notifyObservers(MeshEvents.SLICED);
+
+          //Notifies the 3D view to allow updates
+          changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
           break;
         case OPTIMIZING_MESH:
           break;
@@ -326,6 +336,9 @@ public static CountDownLatch r=new CountDownLatch(1);
           // Notify the core to draw
           setChanged();
           notifyObservers(MeshEvents.SLICED);
+
+          //Notifies the 3D view to allow updates
+          changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
           break;
         case GLUING:
           break;
@@ -334,6 +347,7 @@ public static CountDownLatch r=new CountDownLatch(1);
         case SCHEDULING:
           break;
         case SCHEDULED:
+          changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_SCHEDULED",null,null));
           break;
         case OPENED:
           //meshWindow.getView3DWindow().setCurrentMesh(mesh);
@@ -461,6 +475,9 @@ public static CountDownLatch r=new CountDownLatch(1);
       setSelectedBitKeys(getSelectedBits().stream()
           .map(bit -> getCurrentLayer().scaleBit(bit, percentageLength, percentageWidth))
           .collect(Collectors.toSet()));
+
+      //Notifies the 3D view to allow updates
+      changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
     }
   }
 
@@ -644,6 +661,9 @@ public static CountDownLatch r=new CountDownLatch(1);
     //TODO verify if putting this rebuild in comment will affect anything
    // getCurrentLayer().rebuild();
     changes.firePropertyChange(BITS_DELETED, null, getCurrentLayer());
+
+    //Notifies the 3D view to allow updates
+    changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
   }
 
 
@@ -811,6 +831,9 @@ public void deleteSubbits(Set<SubBit2D> subs){
     this.handlerRedoUndo.addActionBit(new ActionOfUserMoveBit(resultKey, this.getSelectedBits(),
         getCurrentLayer().getLayerNumber()));
     selectedBitKeys.clear();
+
+    //Notifies the 3D view to allow updates
+    changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
   }
 
 
@@ -1013,8 +1036,12 @@ public void deleteSubbits(Set<SubBit2D> subs){
     }
 //        mesh.optimize();
     OptimizedMesh optimizedMesh = new OptimizedMesh();
+    optimizedMesh.addPropertyChangeListener(this);
     optimizedMesh.updateMesh(mesh)
         .optimize();
+    //System.out.println("Optimizing done *2");
+    //Notifies the 3D view to allow updates
+    changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
   }
 
   public void optimizeLayer() throws Exception {
@@ -1466,6 +1493,14 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     handlerRedoUndo.reset();
     setChanged();
     notifyObservers();
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (evt.getSource() instanceof OptimizedMesh){
+      //Notifies the 3D view to allow updates when Mesh optimization has been done
+      changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
+    }
   }
 
   /**

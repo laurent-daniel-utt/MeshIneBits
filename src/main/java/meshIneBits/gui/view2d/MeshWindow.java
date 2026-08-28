@@ -996,5 +996,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     this.pcs.removePropertyChangeListener(listener);
   }
 
-
+  public MeshController getMeshController(){
+    return this.meshController;
+  }
 }

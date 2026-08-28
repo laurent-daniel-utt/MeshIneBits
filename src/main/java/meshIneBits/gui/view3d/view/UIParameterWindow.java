@@ -129,4 +129,10 @@ public abstract class UIParameterWindow extends PApplet {
     super.setSize(width, height);
     return this;
   }
+
+  public void keyPressed() {
+    if (key == ESC) {
+      key = 0;  // Empêche d'utiliser la touche ESC
+    }
+  }
 }

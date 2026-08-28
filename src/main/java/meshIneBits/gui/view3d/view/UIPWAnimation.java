@@ -3,6 +3,7 @@ package meshIneBits.gui.view3d.view;
 import controlP5.*;
 import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.gui.view3d.util.animation.AnimationIndexIncreasedListener;
+import meshIneBits.util.Logger;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -441,7 +442,11 @@ public class UIPWAnimation extends UIParameterWindow implements
         }
         break;
 
-        case ANIMATION:
+      case ANIMATION:
+        if(toggleBatch.getState() && !BaseVisualization3DView.isMeshScheduled()){
+          Logger.message("The mesh must be scheduled before starting By Batch animation");
+          break;
+        }
           if(Animation.getCaptionLabel().getText().equals(STOP)) pauseButton.getCaptionLabel().setText(PAUSE);
         pausing = false;
 

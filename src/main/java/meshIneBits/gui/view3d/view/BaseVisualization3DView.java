@@ -84,6 +84,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   private CountDownLatch stillExporting=new CountDownLatch(1);
   private String path="";
 
+  //Flag to allow or prevent user to start "By batch" animation when the mesh isn't scheduled.
+  private static boolean meshScheduled = false;
+
   public BaseVisualization3DView(){
 
   }
@@ -125,14 +128,16 @@ public void play(){
     PJOGL.setIcon("resources/icon.png");
   }
 
-
+  /*
   /**
    * Event handler to refresh the 3D interface when clicking inside it
    * @param event
    */
+  /*
   protected void handleMouseEvent(MouseEvent event) {
 
     final int action = event.getAction();
+
     if (action != MouseEvent.EXIT && action==MouseEvent.CLICK ) {
 
       processor.onTerminated();
@@ -192,13 +197,7 @@ public void play(){
 
   }
 
-
-
-
-
-
-
-
+   */
 
   private void setCloseOperation() {
 
@@ -263,6 +262,7 @@ public void play(){
     // The registering has to be made in this way because BaseVisualization3DView creates a new instance of
     // the class each time a BaseVisualization3DView is opened and meshWindow has to reference to this new instance.
     meshWindow.addPropertyChangeListener(this);
+    meshWindow.getMeshController().addPropertyChangeListener("", this);
 
     //System.out.println(this.toString());
   }
@@ -785,6 +785,18 @@ if(Xpos==pos){
       case "CLOSE_PROJECT" :
         this.closeEntire3DView();
         break;
+      //In the MeshController class, at the final points (when the action is completed) of each action modifying the mesh,
+      //a PropertyChangeEvent is sent to this class in order to update the mesh when necessary.
+      case "MESH_MODIFIED" :
+        System.out.println("Mesh modified state received by 3D view");
+        BaseVisualization3DView.meshScheduled = false;
+        refreshEntire3Dview();
+        break;
+      case "MESH_SCHEDULED":
+        System.out.println("Mesh scheduled state received by 3D view");
+        BaseVisualization3DView.meshScheduled = true;
+        refreshEntire3Dview();
+        break;
     }
   }
 
@@ -797,6 +809,7 @@ if(Xpos==pos){
    */
   private void closeEntire3DView(){
     BaseVisualization3DView.meshWindow.removePropertyChangeListener(this);
+    BaseVisualization3DView.meshWindow.getMeshController().removePropertyChangeListener(this);
     processor.onTerminated();
     uipwAnimation.closeWindow();
     uipwView.closeWindow();
@@ -808,6 +821,53 @@ if(Xpos==pos){
       this.win.destroy();
       WindowStatus=0;
     }
-
   }
+
+  /**
+   * Previously triggered by click, now triggered when a mesh-changing event ends in the 2D part of the application.
+   *
+   */
+  private void refreshEntire3Dview(){
+    processor.onTerminated();
+    init3DFrame();
+    WindowStatus=2;
+    noLoop();
+    initProcessor();
+    meshShapes.put(1,processor.getModelProvider().getMeshShape());
+    frame.setShape(shape);
+
+    uipwAnimation.closeWindow();
+    uipwView.closeWindow();
+    uipwController.close();
+    initControlComponent();
+    initParameterWindow();
+    initModelChangesListener((ModelChangesListener) uipwView);
+    runSketch(new String[]{"--display=1", "Projector"}, uipwView);
+    runSketch(new String[]{"--display=1", "Projector"}, uipwAnimation);
+
+    pos=0;
+    Zpos=0;
+    Xpos=0;
+    initWorkingSpace();
+    processor.deactivateAnimation();
+    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
+    loop();
+    /*Used to be necessary when the refresh was triggered by click, now useless.
+    Thread t=new Thread(() -> {
+      try {
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      Logger.updateStatus("");
+    });t.start();
+     */
+    Logger.updateStatus("3d interface Refreshed");
+  }
+
+  public static boolean isMeshScheduled(){
+    return BaseVisualization3DView.meshScheduled;
+  }
+
+
 }

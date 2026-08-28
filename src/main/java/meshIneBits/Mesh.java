@@ -735,12 +735,14 @@ public ArrayList<ArrayList<Strip>> getStripes(){
 
     @Override
     public void run() {
+      System.out.println("TEST ALLEGED BASE");
       slaves.forEach(meshOptimizerSlave -> (new Thread(meshOptimizerSlave)).start());
     }
 
     @Override
     public synchronized void update(Observable o, Object arg) {
       if (o instanceof MeshOptimizerSlave) {
+        System.out.println("TEST /!\\");
         finishedJob++;
         Logger.setProgress(finishedJob, layers.size());
         int ir = (int) arg;
@@ -768,6 +770,8 @@ public ArrayList<ArrayList<Strip>> getStripes(){
           }
         }
       }
+      System.out.println("finishedJob" + finishedJob);
+      System.out.println("layers.size()" + layers.size());
       if (finishedJob == layers.size()) {
         // Finished
         StringBuilder str = new StringBuilder();
@@ -809,10 +813,12 @@ public ArrayList<ArrayList<Strip>> getStripes(){
 
     @Override
     public void run() {
+      System.out.println("TEST 2 /!\\");
       int irregularitiesLeft = layer.getPatternTemplate()
           .optimize(layer);
       setChanged();
       notifyObservers(irregularitiesLeft);
+      System.out.println("TEST 2 /!\\");
     }
   }
 
