@@ -41,6 +41,40 @@ public class UIPWAnimation extends UIParameterPanel implements
 
   @Override
   public void onOpen() {
+    animating = false;
+    pausing = false;
+    if (Animation != null) {
+      Animation.getCaptionLabel().setText(ANIMATION);
+    }
+    if (pauseButton != null) {
+      pauseButton.getCaptionLabel().setText(PAUSE);
+    }
+    syncProcessorFromToggles();
+  }
+
+  /**
+   * ControlP5 toggles are initialized visually (e.g. LAYER/FULL) without firing
+   * {@link #controlEvent}; push the selected options to the processor after each panel rebuild.
+   */
+  public void syncProcessorFromToggles() {
+    UIPWListener listener = getListener();
+    if (listener == null) {
+      return;
+    }
+    if (toggleLayers != null && toggleLayers.getState()) {
+      listener.onActionListener(this, BY_LAYER, true);
+    } else if (toggleBatch != null && toggleBatch.getState()) {
+      listener.onActionListener(this, BY_BATCH, true);
+    } else if (toggleBits != null && toggleBits.getState()) {
+      listener.onActionListener(this, BY_BIT, true);
+    } else if (toggleSubBit != null && toggleSubBit.getState()) {
+      listener.onActionListener(this, BY_SUB_BIT, true);
+    }
+    if (toggleFull != null && toggleFull.getState()) {
+      listener.onActionListener(this, FULL, true);
+    } else if (toggleCurrent != null && toggleCurrent.getState()) {
+      listener.onActionListener(this, ONE_BY_ONE, true);
+    }
   }
 
   @Override

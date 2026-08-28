@@ -148,9 +148,7 @@ public void play(){
       initParameterWindow();
       initModelChangesListener(uipwView);
 
-      pos=0;
-      Zpos=0;
-      Xpos=0;
+      resetAnimationSessionState();
       initWorkingSpace();
       processor.deactivateAnimation();
       if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
@@ -228,6 +226,8 @@ public void play(){
             Visualization3DConfig.VISUALIZATION_3D_WINDOW_TITLE,
             Visualization3DConfig.V3D_WINDOW_LOCATION_X,
             Visualization3DConfig.V3D_WINDOW_LOCATION_Y);
+
+    resetAnimationSessionState();
 
     initWorkspace();// create the box of work space and centre the axes and the model
     init3DScene(Visualization3DConfig.V3D_EYE_POSITION, Visualization3DConfig.V3D_RADIUS);
@@ -365,6 +365,18 @@ private void initWorkingSpace(){
 
       processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
             this);
+  }
+
+  /** Clears static animation/working-space state between simulations or view rebuilds. */
+  private static void resetAnimationSessionState() {
+    pos = 0;
+    Xpos = 0;
+    Ypos = 0;
+    Zpos = 0;
+    ind.set(0);
+    movingWorkSpace = new CountDownLatch(1);
+    waitshaping = new CountDownLatch(1);
+    notyet = new CountDownLatch(1);
   }
 
   private void init3DFrame() {
@@ -940,6 +952,7 @@ if(Xpos==pos){
   private void closeEntire3DView(){
     BaseVisualization3DView.meshWindow.removePropertyChangeListener(this);
     processor.onTerminated();
+    resetAnimationSessionState();
     disposeParameterPanels();
     //Should get rid of the PApplet objects
     this.dispose();

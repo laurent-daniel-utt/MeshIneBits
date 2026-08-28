@@ -85,7 +85,10 @@ public static AtomicInteger ind= new AtomicInteger(0);
 
 
    }
-  Zpos=0;
+  Zpos = 0;
+  // Avoid blocking BY_LAYER/BY_BATCH on a stale pos left from a previous BY_BIT run.
+  pos = Xpos;
+  movingWorkSpace = new CountDownLatch(1);
   }
 
   private void initIndex() {
@@ -261,7 +264,10 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
              * Xpos is modified in Class (BaseVisualization3DView)to create an animation effect for the working space(deposing machine)
              * we pause the animation waiting for the working space to reach its destination
              */
-            if(Xpos!=pos) movingWorkSpace.await();
+            if ((option == AnimationOption.BY_BIT || option == AnimationOption.BY_SUB_BIT)
+                && Xpos != pos) {
+              movingWorkSpace.await();
+            }
 
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
              callback.accept(shapes);
