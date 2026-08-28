@@ -64,7 +64,9 @@ public abstract class AScheduler extends Observable implements Serializable, Run
   }
 
   public void setMesh(Mesh m) {
+
     this.mesh = m;
+    addObserver(m);
   }
 
   /**
@@ -114,10 +116,12 @@ public abstract class AScheduler extends Observable implements Serializable, Run
   public abstract boolean schedule();
 
   public void run() {
+    setChanged();
     notifyObservers(MeshEvents.SCHEDULING);
     Logger.updateStatus("Starting bits cut & place scheduling operation.");
     schedule();
     Logger.updateStatus("Bits cut & place scheduling is over.");
+    setChanged();
     notifyObservers(MeshEvents.SCHEDULED);
   }
 

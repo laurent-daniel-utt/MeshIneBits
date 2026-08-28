@@ -340,6 +340,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       record = true;
       counterBits++;
     }
+    if (key == ESC) {
+      key = 0;  // Empêche d'utiliser la touche ESC
+    }
   }
 
 
