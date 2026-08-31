@@ -134,7 +134,7 @@ public void play(){
    * Event handler to refresh the 3D interface when clicking inside it
    * @param event
    */
-/*
+  /*
   protected void handleMouseEvent(MouseEvent event) {
     final int action = event.getAction();
 
@@ -175,8 +175,8 @@ public void play(){
     // ControlP5 receives events through the standard registered-method path.
     super.handleMouseEvent(event);
   }
+*/
 
- */
 
 
 
@@ -986,7 +986,14 @@ if(Xpos==pos){
 
   }
 
-  private void refreshEntire3DView(){
+  /**
+   * The 3D view can be refreshed using this method. This updates the 3D view according
+   * to the current state of the mesh.
+   * The method has to be synchronized otherwise it will break some functionalities such as
+   * the ability to resize the window
+   */
+  private synchronized void refreshEntire3DView(){
+
     processor.onTerminated();
     init3DFrame();
     WindowStatus=2;
@@ -1005,7 +1012,6 @@ if(Xpos==pos){
     processor.deactivateAnimation();
     if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
     loop();
-    /*Used to be necessary when the refresh was triggered by click, now useless.
     Thread t=new Thread(() -> {
       try {
         Thread.sleep(3000);
@@ -1014,14 +1020,11 @@ if(Xpos==pos){
       }
       Logger.updateStatus("");
     });t.start();
+    Logger.updateStatus("3d interface Refreshed");
 
-     */
 
     // Relayout (split-screen resize can lag draw()).
-    layoutEmbeddedPanelsIfNeeded(true);
-
-    BaseVisualization3DView.meshWindow.toFront();
-    Logger.updateStatus("3d interface Refreshed");
+    layoutEmbeddedPanelsIfNeeded(false);
 
 
   }
