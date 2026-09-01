@@ -43,6 +43,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.*;
 
 import static meshIneBits.gui.view2d.MeshWindowPropertyPanel.MousePropertyPanel;
@@ -78,12 +81,11 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   private Bit3D movedBit;
 
 
-
   private Vector2 translationInMesh;
   MeshWindowCore(MeshController meshController) {
 
-    this.meshController = meshController;
-    this.meshController.addObserver(this);
+    MeshWindowCore.meshController = meshController;
+    MeshWindowCore.meshController.addObserver(this);
 
     setOpaque(false);
     this.setLayout(new BorderLayout());
@@ -1218,7 +1220,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         this.add(rightArrow);
 
         Bit2D newBit=null;
-        if (Moving) newBit = new NewBit2D(newOrigin, lOrientationr, meshController.getNewBitsLengthParam().getCurrentValue(), meshController.getNewBitsWidthParam().getCurrentValue());
+        if (Moving) {
+          newBit = new NewBit2D(newOrigin, lOrientationr, meshController.getNewBitsLengthParam().getCurrentValue(), meshController.getNewBitsWidthParam().getCurrentValue());
+          //System.out.println("Bit moved ?");
+        }
 
         g2d.setColor(WorkspaceConfig.bitControlColor);
         if(!Moving) affTrans = bit.getBaseBit().getTransfoMatrixToCS();

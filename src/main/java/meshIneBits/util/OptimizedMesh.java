@@ -29,6 +29,9 @@
 
 package meshIneBits.util;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,7 @@ public class OptimizedMesh {
   private List<Map<Bit3D, List<Bit3D>>> listToOptimized;
   private List<Layer> layers;
   private ExecutorService executorService = Executors.newSingleThreadExecutor();
+  private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
   public OptimizedMesh() {
   }
@@ -67,6 +71,7 @@ public class OptimizedMesh {
           continue;
         }
         System.out.println("layer " + layers.indexOf(layer));
+
         for (Bit3D bit3D : layer.getAllBit3D()) {
           if (!bit3D.getBaseBit()
               .isFullLength()) {
@@ -120,6 +125,21 @@ public class OptimizedMesh {
         }
 
       }
+      pcs.firePropertyChange(new PropertyChangeEvent(this,"OPTIMIZED",null,null));
+      //System.out.println("Optimizing done");
     });
   }
+
+
+
+  public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+
+    pcs.addPropertyChangeListener(propertyChangeListener);
+
+  }
+
+  public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+    pcs.removePropertyChangeListener(propertyChangeListener);
+  }
+
 }
