@@ -91,6 +91,7 @@ public class MeshController extends Observable implements Observer ,
   public static final String LAYER_PAVED = "layerPaved";
   public static final String LAYER_OPTIMIZED = "layerOptimized";
   public static final String MESH_OPTIMIZED = "meshOptimized";
+  public static final String SETTINGS_UPDATED = "settingsUpdated";
   public static final String BIT_UNSELECTED = "bitUnselected";
   public static final String BIT_SELECTED = "bitSelected";
   public static final String BITS_SELECTED = "bitsSelected";
@@ -378,6 +379,7 @@ public static CountDownLatch r=new CountDownLatch(1);
 
   public void callupdate(){
     if(availableArea!=null)updateAvailableArea();
+    changes.firePropertyChange(SETTINGS_UPDATED, null, mesh);
   }
  private  void updateAvailableArea() {
    availableArea = AreaTool.getAreaFrom(getCurrentLayer().getHorizontalSection());
