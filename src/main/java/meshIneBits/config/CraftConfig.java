@@ -258,6 +258,19 @@ public class CraftConfig {
           order = 2
   )
   public static double precision = 3;
+
+  @DoubleSetting(
+      title = "Time for a subbit (s)",
+      description = "Average time to place a subbit during construction, used for time estimation",
+      minValue = 1.0,
+      maxValue = 3600.0,
+      defaultValue = 30.0,
+      step = 1.0
+  )
+  @AssemblerSetting(
+      order = 3
+  )
+  public static double timeForASubbit = 30.0;
   //Printer parameter
 
   @DoubleSetting(

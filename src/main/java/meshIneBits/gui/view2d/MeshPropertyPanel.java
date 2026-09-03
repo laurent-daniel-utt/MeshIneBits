@@ -47,6 +47,7 @@ class MeshPropertyPanel extends PropertyPanel {
   static final String MESH_STATE = "State";
   static final String MESH_IRREGULARITIES = "Irregularities";
   static  final String MESH_BITS="Number of Bits";
+  private static final String TIME_ESTIMATION = "Time estimation";
   private Mesh mesh;
 
   MeshPropertyPanel() {
@@ -71,7 +72,8 @@ class MeshPropertyPanel extends PropertyPanel {
           {MESH_LAYERS, "UNKNOWN"},
           {MESH_STATE, "UNKNOWN"},
               {MESH_BITS, "UNKNOWN"},
-          {MESH_IRREGULARITIES, "UNKNOWN"}
+          {MESH_IRREGULARITIES, "UNKNOWN"},
+          {TIME_ESTIMATION, "UNKNOWN"}
       };
     } else {
       File modelFile = new File(mesh.getModelFile());
@@ -87,7 +89,8 @@ class MeshPropertyPanel extends PropertyPanel {
               .size())},
           {MESH_STATE, String.valueOf(mesh.getState())},
               {MESH_BITS, String.valueOf(mesh.countBits())},
-          {MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities())}
+          {MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities())},
+          {TIME_ESTIMATION, mesh.getConstructionTimeEstimation()}
       };
     }
   }
@@ -108,9 +111,13 @@ class MeshPropertyPanel extends PropertyPanel {
   }
 
   void updateMeshProperties() {
+    if (mesh == null) {
+      return;
+    }
     // We only need to update irregularities and state
     updateProperty(MESH_STATE, String.valueOf(mesh.getState()));
     updateProperty(MESH_IRREGULARITIES, String.valueOf(mesh.countIrregularities()));
     updateProperty(MESH_BITS,  String.valueOf(mesh.countBits()));
+    updateProperty(TIME_ESTIMATION, mesh.getConstructionTimeEstimation());
   }
 }

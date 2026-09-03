@@ -548,6 +548,26 @@ public ArrayList<ArrayList<Strip>> getStripes(){
             .mapToInt(layer -> layer.getBitsNb())
             .sum();
   }
+
+  public int countSubBits() {
+    return layers.stream()
+        .mapToInt(layer -> (int) layer.getSubBitsFiltered().stream()
+            .filter(subBit -> !subBit.isRemoved())
+            .count())
+        .sum();
+  }
+
+  public String getConstructionTimeEstimation() {
+    return formatDuration(countSubBits() * CraftConfig.timeForASubbit);
+  }
+
+  public static String formatDuration(double totalSeconds) {
+    long seconds = Math.round(totalSeconds);
+    long hours = seconds / 3600;
+    long minutes = (seconds % 3600) / 60;
+    long secs = seconds % 60;
+    return hours + "h " + minutes + "m " + secs + "s";
+  }
   /**
    * In charge of paving layers sequentially
    */
