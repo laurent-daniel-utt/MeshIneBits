@@ -80,6 +80,8 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
   private Vector2 newOrigin=null;
   private Bit3D movedBit;
 
+  private final double BIT_ORIENTATION_ARROW_LENGHT = 50;
+
 
   private Vector2 translationInMesh;
   MeshWindowCore(MeshController meshController) {
@@ -761,8 +763,20 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         g2d.setColor(Color.black);
         if (!bit3D.getTwoDistantPointsCS()
                 .isEmpty()) {
+          //Variable to alternate between a rectangle and a circle
+          int alternate = 0;
           for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
-            drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+            alternate++;
+            if(alternate%2==0){
+              drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+            }else{
+              drawModelRectangle(bit2D.getOrientation(), g2d, point.x, point.y, 2, 3);
+              //If one wishes to check if the rectangle is correctly set, uncomment.
+              //g2d.setColor(Color.red);
+              //drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+              //g2d.setColor(Color.black);
+            }
+
           }
         }
       }
@@ -1125,6 +1139,48 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
   }
 
+  /**
+   * Will draw a rectangle on the given Graphics2D object, at the indicated coordinates, oriented towards the given vector
+   * and with the given width and height.
+   *
+   * @param orientation
+   * @param g2d
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   */
+  private void drawModelRectangle(Vector2 orientation, Graphics2D g2d, double x, double y, double width, double height) {
+
+    //Creates the rectangle with its origin at 0,0
+    //The rectangle's origin is at its bottom right corner
+    Rectangle2D r = new Rectangle2D.Double(0, 0, width, height);
+    Path2D.Double path = new Path2D.Double();
+    path.append(r, false);
+
+    //Translate the origin so that the center of the rectangle (intersection of its diagonals)
+    //is at the origin of the coordinate system (0, 0)
+    AffineTransform affTrans = new AffineTransform();
+    affTrans.translate(-width/2, -height/2);
+    path.transform(affTrans);
+
+    //Rotations this way are done using only the origin of the coordinate system as the center of rotation
+    //Hence why we moved center of the rectangle to (0, 0)
+    affTrans = new AffineTransform();
+    affTrans.rotate(Math.atan2(- orientation.x, orientation.y));
+    path.transform(affTrans);
+
+    //The rectangle is then translated towards the lift point.
+    //Thanks to the previous transformations, this means that the center of the rectangle will be translated to the lift point.
+    affTrans = new AffineTransform();
+    affTrans.translate(
+            x,
+            y);
+    path.transform(affTrans);
+
+    g2d.draw(realToView.createTransformedShape(path));
+  }
+
   private class TriangleShape extends Path2D.Double {
     private TriangleShape(Point2D... points) {
       moveTo(points[0].getX(), points[0].getY());
@@ -1146,14 +1202,16 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         int padding = WorkspaceConfig.paddingBitControl; // Space between bit and arrows
         Area overlapBit;
         Vector2 lOrientationr=null ;
-        if(!Moving) {overlapBit = new Area(
+        if(!Moving) {
+          overlapBit = new Area(
                 new Rectangle2D.Double(
                         -CraftConfig.lengthFull / 2,
                         -CraftConfig.bitWidth / 2,
                         CraftConfig.lengthFull,
                         CraftConfig.bitWidth));
           overlapBit.transform(bit.getBaseBit()
-                  .getTransfoMatrixToCS());}
+                  .getTransfoMatrixToCS());
+        }
 
         else {
           Rectangle2D.Double r = new Rectangle2D.Double(
@@ -1226,7 +1284,20 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         }
 
         g2d.setColor(WorkspaceConfig.bitControlColor);
-        if(!Moving) affTrans = bit.getBaseBit().getTransfoMatrixToCS();
+        if(!Moving) {
+          affTrans = bit.getBaseBit().getTransfoMatrixToCS();
+
+          // Draw an arrow on bit origin displaying bit orientation
+          g2d.setColor(new Color(255, 140, 0, 255));
+          drawArrowLine(g2d,
+                  (int) bit.getOrigin().x,
+                  (int) bit.getOrigin().y,
+                  (int) (bit.getOrigin().x + (bit.getBaseBit().getOrientation().x) * BIT_ORIENTATION_ARROW_LENGHT ),
+                  (int) (bit.getOrigin().y + (bit.getBaseBit().getOrientation().y) * BIT_ORIENTATION_ARROW_LENGHT ),
+                  2,5);
+
+          g2d.setColor(WorkspaceConfig.bitControlColor);
+        }
         else { affTrans = newBit.getTransfoMatrixToCS();  }
         for (Area area : arrows) {
           area.transform(affTrans);
@@ -1247,6 +1318,17 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
         g2d.setColor(new Color(255, 0, 255, 250));
         drawModelArea(g2d,subBit.getAreaCS());
 
+        // Draw an arrow on subbit origin (placed on the lift point)
+        // displaying subbit orientation
+        if(subBit.getLiftPointCS() != null) {
+          g2d.setColor(new Color(0, 255, 0, 255));
+          drawArrowLine(g2d,
+                  (int) subBit.getLiftPointCS().x,
+                  (int) subBit.getLiftPointCS().y,
+                  (int) (subBit.getLiftPointCS().x + (subBit.getOrientationCS().x) * BIT_ORIENTATION_ARROW_LENGHT),
+                  (int) (subBit.getLiftPointCS().y + (subBit.getOrientationCS().y) * BIT_ORIENTATION_ARROW_LENGHT),
+                  2, 5);
+        }
       }
 
 
@@ -1254,6 +1336,48 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
     }
   }
+
+
+// Source - https://stackoverflow.com/a/27461352
+// Posted by phibao37, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-09-02, License - CC BY-SA 3.0
+  /**
+   * Draw an arrow line between two points.
+   * @param g the graphics component.
+   * @param x1 x-position of first point.
+   * @param y1 y-position of first point.
+   * @param x2 x-position of second point.
+   * @param y2 y-position of second point.
+   * @param width  the width of the arrow.
+   * @param height  the height of the arrow.
+   */
+  private void drawArrowLine(Graphics2D g, int x1, int y1, int x2, int y2, int width, int height) {
+    int dx = x2 - x1, dy = y2 - y1;
+    double D = Math.sqrt(dx*dx + dy*dy);
+    double xm = D - height, xn = xm, ym = width, yn = -width, x;
+    double sin = dy / D, cos = dx / D;
+
+    x = xm*cos - ym*sin + x1;
+    ym = xm*sin + ym*cos + y1;
+    xm = x;
+
+    x = xn*cos - yn*sin + x1;
+    yn = xn*sin + yn*cos + y1;
+    xn = x;
+
+    int[] xpoints = {x2, (int) xm, (int) xn};
+    int[] ypoints = {y2, (int) ym, (int) yn};
+
+    // Modified from the original source, allows for proper display of the previously
+    // Computed points
+    Shape arrowPointShape = new java.awt.Polygon(xpoints, ypoints, 3);
+    Area arrowPointArea = new Area(arrowPointShape);
+    arrowPointArea.transform(realToView);
+    g.draw(arrowPointArea);
+    g.fill(arrowPointArea);
+    g.draw(realToView.createTransformedShape(new Line2D.Double(x1, y1, x2, y2)));
+  }
+
 
 
   public void setViewOffset() {
