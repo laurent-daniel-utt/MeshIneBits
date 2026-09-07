@@ -38,6 +38,7 @@ import meshIneBits.slicer.SliceTool;
 import meshIneBits.util.Logger;
 import meshIneBits.util.MultiThreadServiceExecutor;
 import meshIneBits.util.Segment2D;
+import meshIneBits.util.Vector2;
 import meshIneBits.util.exceptions.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
 
@@ -568,6 +569,35 @@ public ArrayList<ArrayList<Strip>> getStripes(){
     long secs = seconds % 60;
     return hours + "h " + minutes + "m " + secs + "s";
   }
+
+  /**
+   * Removes all the irregular subbits from a mesh
+   *
+   */
+  public void removeIrregularSubbits(){
+
+    for(Layer currentLayer : layers){
+      for(Vector2 currentBitKey : currentLayer.getIrregularBits()) {
+        Bit3D currentBit3D = currentLayer.getBit3D(currentBitKey);
+
+        //Check if the irregular bit is composed of only one subbit or several
+        if(currentBit3D.getSubBits().size() <= 1){
+          currentLayer.removeBit(currentBitKey, true);
+        }else{
+          for(SubBit2D currentSubbit : currentBit3D.getSubBits()){
+            if(!currentSubbit.isregular()){
+              currentLayer.removeSubBit(currentBitKey, currentSubbit, true);
+            }
+          }
+          //Once the irregular subbits of the bit removed set the irregular flag to false
+          currentBit3D.setIrregular(false);
+        }
+        //remove the bit from the list of irregular bits once the irregular subbits have been removed
+        currentLayer.getIrregularBits().remove(currentBitKey);
+      }
+    }
+  }
+
   /**
    * In charge of paving layers sequentially
    */

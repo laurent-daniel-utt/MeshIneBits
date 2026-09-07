@@ -157,6 +157,8 @@ public class Bit3D implements Serializable, Cloneable {
     }
   }
 
+  public void setIrregular(boolean irregular){this. irregular = irregular;}
+
   public List<Path2D> getCutPathsCB() {
     return rawCutPaths;
   }

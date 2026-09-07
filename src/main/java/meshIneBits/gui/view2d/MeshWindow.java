@@ -857,6 +857,21 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     };
     meshActionList.add(scheduleMesh);
 
+    MeshAction removeAllIrregularSubbits = new MeshAction(
+            "removeAllIrregularSubbits",
+            "Remove All Irregular Subbits",
+            "bit-irregular-remove.png",
+            "Remove every irregular subbits from the mesh",
+            "None",
+            () -> {
+              try {
+                meshController.removeAllIrregularBits();
+              } catch (Exception e) {
+                meshController.handleException(e);
+              }
+            });
+    meshActionList.add(removeAllIrregularSubbits);
+
     // Register to global listener
     meshActionList.forEach(meshAction -> {
       inputMap.put(meshAction.acceleratorKey, meshAction.uuid);
@@ -909,6 +924,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     toolBar.addToggleButton(toggleBitFullLength);
     toolBar.addToggleButton(togglePreviousLayer);
     toolBar.addToggleButton(manipulateBit);
+    toolBar.add(removeAllIrregularSubbits);
     /* UtilitiesBox */
     utilitiesBox.setLayout(new BoxLayout(utilitiesBox, BoxLayout.PAGE_AXIS));
     utilitiesBox.setFloatable(false);
