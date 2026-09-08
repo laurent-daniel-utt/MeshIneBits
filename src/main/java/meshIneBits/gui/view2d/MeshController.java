@@ -1578,4 +1578,25 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     }
   }
 
+  public void removeAllIrregularBits() throws Exception{
+    if (mesh == null) {
+      throw new Exception("Mesh not found");
+    }
+    if (!mesh.isPaved()) {
+      throw new Exception("Mesh not paved");
+    }
+    if (mesh.getState()
+            .isWorking()) {
+      throw new SimultaneousOperationsException(mesh);
+    }
+    this.serviceExecutor.execute(() -> {
+      logger.logDEBUGMessage("Removing irregular bits");
+      try {
+        mesh.removeIrregularSubbits();
+      } catch (Exception e) {
+        this.handleException(e);
+      }
+
+    });
+  }
 }
