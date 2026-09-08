@@ -43,9 +43,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.*;
 
 import static meshIneBits.gui.view2d.MeshWindowPropertyPanel.MousePropertyPanel;
@@ -768,9 +765,9 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
           for (Vector2 point : bit3D.getTwoDistantPointsCS()) {
             alternate++;
             if(alternate%2==0){
-              drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
+              drawModelCircle(g2d, point.x, point.y, CraftConfig.distantPointCircleDiameter);
             }else{
-              drawModelRectangle(bit2D.getOrientation(), g2d, point.x, point.y, 2, 3);
+              drawModelRectangle(bit2D.getOrientation(), g2d, point.x, point.y, CraftConfig.distantPointRectangleWidth, CraftConfig.distantPointRectangleHeight);
               //If one wishes to check if the rectangle is correctly set, uncomment.
               //g2d.setColor(Color.red);
               //drawModelCircle(g2d, point.x, point.y, (int) CraftConfig.suckerDiameter / 4);
@@ -1129,12 +1126,12 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
     g2d.draw(area);
   }
 
-  private void drawModelCircle(Graphics2D g2d, double x, double y, int radius) {
+  private void drawModelCircle(Graphics2D g2d, double x, double y, int diameter) {
 
     Ellipse2D liftPoint = new Ellipse2D.Double(
-            x - (radius >> 1),
-            y - (radius >> 1),
-            radius, radius);
+            x - (diameter >> 1),
+            y - (diameter >> 1),
+            diameter, diameter);
     g2d.draw(realToView.createTransformedShape(liftPoint));
 
   }
