@@ -210,6 +210,10 @@ public class CraftConfig {
   )
   public static double suckerDiameter = 10.0;
 
+  public static int distantPointCircleDiameter = 2;
+  public static double distantPointRectangleWidth = 2;
+  public static double distantPointRectangleHeight = 3;
+
   // Other parameters
   /**
    * Save the directory of last opened {@link meshIneBits.Model}
