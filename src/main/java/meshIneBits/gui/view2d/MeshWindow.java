@@ -141,7 +141,8 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     utilityParametersPanelGBC.weightx = 1;
     utilityParametersPanelGBC.weighty = 0;
 
-    // Core
+
+    // Contextual infos
     c.gridx = 1;
     c.gridy = 2;
     c.gridwidth = 1;
@@ -149,8 +150,16 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     c.fill = GridBagConstraints.BOTH;
     c.weightx = 1;
     c.weighty = 1;
+    JPanel centerPane = new JPanel();
+    centerPane.setLayout(new BorderLayout());
+
+    // Core
     core = new MeshWindowCore(meshController);
-    add(core, c);
+    centerPane.add(new JLabel("<CTRL + left click> select subbit | <CTRL + DEL> delete subbit"), BorderLayout.SOUTH);
+    centerPane.add(core, BorderLayout.CENTER);
+    core.setVisible(true);
+
+    add(centerPane, c);
 
     // Selector
     selectorGBC = new GridBagConstraints();
@@ -861,7 +870,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
             "removeAllIrregularSubbits",
             "Remove All Irregular Subbits",
             "bit-irregular-remove.png",
-            "Remove every irregular subbits from the mesh",
+            "Remove every irregular subbits from the mesh - Note : xml export and view 3D already ignore irregulars",
             "None",
             () -> {
               try {
