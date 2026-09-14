@@ -350,17 +350,8 @@ public class CraftConfig {
   @PrinterSetting(
       order = 0
   )
-  public static float Box = 648;
+  public static float boxWidth = 648;
 
-  @FloatSetting(
-      title = "Working width (mm)",
-      minValue = 1,
-      defaultValue = 300
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static float workingWidth = 500f;
 
   @FloatSetting(
       title = "Y empty Space in the Box (mm)",
@@ -402,7 +393,7 @@ public class CraftConfig {
   @PrinterSetting(
       order = 0
   )
-  public static double gluer = 52.0;
+  public static double gluerWidth = 52.0;
 
   @DoubleSetting(
       title = "Rake Box and gluer (mm)",
@@ -410,7 +401,17 @@ public class CraftConfig {
       defaultValue = 320
   )
   @PrinterSetting()
-  public static double rakeBoxGluerWidth = rakeBoxWidth + gluer + 5.0;
+  public static double rakeBoxGluerWidth = rakeBoxWidth + gluerWidth + 5.0;
+
+  @FloatSetting(
+          title = "Working width (mm)",
+          minValue = 1,
+          defaultValue = 300
+  )
+  @PrinterSetting(
+          order = 0
+  )
+  public static float workingWidth = (float) (boxWidth - rakeBoxGluerWidth);
 
   @DoubleSetting(
       title = "Start X Printing Space (mm)",
@@ -433,22 +434,12 @@ public class CraftConfig {
   public static float margin = 0;
 
   @IntegerSetting(
-      title = "Number of bits",
-      minValue = 1,
-      defaultValue = 72
-  )
-  @XMLSetting(
-      order = 2
-  )
-  public static int nbBits = 72;
-
-  @IntegerSetting(
       title = "Number of bits on a plate",
       minValue = 1,
       defaultValue = 10
   )
   @PrinterSetting()
-  public static int nbBitesByPlat = 10;
+  public static int nbBitsByPlat = 10;
 
   @IntegerSetting(
       title = "Number of bits on a Batch",
@@ -456,31 +447,7 @@ public class CraftConfig {
       defaultValue = 72
   )
   @PrinterSetting()
-  public  static int nbBitesBatch = 72;
-
-  @DoubleSetting(
-      title = "Plate width",
-      minValue = 1,
-      defaultValue = 72
-  )
-  @PrinterSetting()
-  public static double plateWidth = 50;
-
-  @DoubleSetting(
-      title = "First bit x position",
-      minValue = 1,
-      defaultValue = 1
-  )
-  @PrinterSetting()
-  public static double firstBitX = 1;
-
-  @DoubleSetting(
-      title = "Bit inter space",
-      minValue = 1,
-      defaultValue = 1
-  )
-  @PrinterSetting()
-  public static double plateBitSpace = 1;
+  public  static int nbBitsBatch = 72;
 
   /**
    * The provided templates

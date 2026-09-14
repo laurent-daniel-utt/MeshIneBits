@@ -14,7 +14,6 @@ import meshIneBits.util.supportImportFile.FallType;
 import meshIneBits.util.supportImportFile.Reconstitute;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 import remixlab.dandelion.geom.Vec;
@@ -205,9 +204,9 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
         System.out.println("updating dep");
         if(id!=newId){
             id=newId;
-            if(id% CraftConfig.nbBitesBatch==0){
+            if(id% CraftConfig.nbBitsBatch ==0){
                 System.out.println("changing batch:");
-                int batch_num=id/CraftConfig.nbBitesBatch;
+                int batch_num=id/CraftConfig.nbBitsBatch;
                 cutpaths = DomParser.parseXml(batch_num);
                 Reconstitute.setCurrentDeposeBatchNum(batch_num);
             }
@@ -217,7 +216,7 @@ public DepositedBit(DepositingProcessView maininterface,String title,int width,i
                     .buildShapeFromArea(this, bitArea, Visualization3DConfig.BIT_THICKNESS);
             liftpoint= LiftPointCalc.instance.getLiftPoint(bitArea, CraftConfig.suckerDiameter / 2);
             newOrigin=new Vector2((liftpoint.x+CraftConfig.lengthFull/2),(liftpoint.y+CraftConfig.bitWidth/2));
-            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
+            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitsBatch)+"; Id in batch:"+id% CraftConfig.nbBitsBatch +")");
         }
     }
 

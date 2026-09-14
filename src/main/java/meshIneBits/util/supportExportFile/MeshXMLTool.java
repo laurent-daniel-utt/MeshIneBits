@@ -62,7 +62,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
   private Bit3D currentBit;
 
   //Parameter
-  public int remainingBits = CraftConfig.nbBits;
+  public int remainingBits = CraftConfig.nbBitsBatch;
   public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
   public int subBitId = 1;
   public int slotPosition = 1;
@@ -96,9 +96,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     int nbSubBit = getCountSubBitElement(listAllBit3D);
     //Get the bit of the batch and put them on the ArrayList below.
     ArrayList<Bit3D> listBitByBatch = new ArrayList<Bit3D>();
-    for (int j = 0; j < CraftConfig.nbBitesBatch; j++) {
-      if (batchNumber * CraftConfig.nbBitesBatch + j < listAllBit3D.size()) {
-        listBitByBatch.add(listAllBit3D.get(batchNumber * CraftConfig.nbBitesBatch + j));
+    for (int j = 0; j < CraftConfig.nbBitsBatch; j++) {
+      if (batchNumber * CraftConfig.nbBitsBatch + j < listAllBit3D.size()) {
+        listBitByBatch.add(listAllBit3D.get(batchNumber * CraftConfig.nbBitsBatch + j));
       }
     }
 
@@ -242,7 +242,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
     if (remainingBits == 0) {
       moveWorkingSpace.appendChild(createElement(MeshTagXML.RETURN));
-      remainingBits = CraftConfig.nbBits;
+      remainingBits = CraftConfig.nbBitsBatch;
     }
     for (int i = 0; i < bit.getLiftPointsCS()
         .size(); i++) {
@@ -355,7 +355,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       subBit.appendChild(plate);
 
       //subBit's slot
-      if (slotPosition > CraftConfig.nbBitesByPlat) {
+      if (slotPosition > CraftConfig.nbBitsByPlat) {
         slotPosition = 1;
       }
       Element slot = createElement(MeshTagXML.SLOT, Integer.toString(slotPosition));

@@ -12,7 +12,7 @@ import processing.core.PShape;
 
 import java.util.*;
 
-import static meshIneBits.config.CraftConfig.nbBitesBatch;
+import static meshIneBits.config.CraftConfig.nbBitsBatch;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.WindowStatus;
 
 public class BaseMeshBuilder implements IMeshShapeBuilder {
@@ -144,7 +144,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
           /**we verify if the bit can fit in the current stripe if not we create a new stripe*/
           if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
                   bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
-                          + CraftConfig.workingWidth && num<nbBitesBatch)
+                          + CraftConfig.workingWidth && num< nbBitsBatch)
           {
             layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
             /**we stock the added bits so we can remove them later from the layer so we dont add the same bits multiple times*/
@@ -155,7 +155,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
         }
         /**if the number of added bits=number of bits per batch ==>batch is over so we need to reload the deposing machine so
          we need to create a new Stripe even if only 1 bit is remaining in the layer*/
-        if(num==nbBitesBatch) {
+        if(num== nbBitsBatch) {
           num=0;
         }
         layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));
