@@ -79,6 +79,9 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
 
   private final double BIT_ORIENTATION_ARROW_LENGHT = 50;
 
+  private boolean showSubbitContextualInfos = false;
+  private SubbitContextualInfoThread subbitContextualInfoThread = null;
+
 
   private Vector2 translationInMesh;
   MeshWindowCore(MeshController meshController) {
@@ -423,6 +426,90 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
     if(viewToReal!=null) {Shape s2=viewToReal.createTransformedShape(liftPoint2);
       MousePropertyPanel.updateProperties(s2.getBounds2D().getCenterX(),s2.getBounds2D().getCenterY());}
 
+    //This conditional expression handles contextual infos when hovering on subbit
+    if(meshController.getMesh() != null && meshController.getMesh().isPaved()) {
+
+      //Gets the mouse spot
+      Point2D.Double clickSpot = new Point2D.Double(e.getX(), e.getY());
+      viewToReal.transform(clickSpot, clickSpot);
+
+      //If the mouse is on a bit and no thread has been started already
+      if (meshController.findBitAt(clickSpot) != null  &&
+              this.subbitContextualInfoThread == null) {
+        //Starts a 1-second counter before displaying contextual information
+        this.subbitContextualInfoThread = new SubbitContextualInfoThread();
+        this.subbitContextualInfoThread.start();
+
+      //If the mouse is moved away from subbit when a thread has been started
+      } else if (meshController.findBitAt(clickSpot) == null  &&
+              this.subbitContextualInfoThread != null) {
+        //Stops the counter then remove reference to the thread to indicate that
+        //the thread has been stopped
+        this.subbitContextualInfoThread.interrupt();
+        this.subbitContextualInfoThread = null;
+        setShowSubbitContextualInfos(false);
+      }
+    }
+  }
+
+  /**
+   * Displays contextual information at the mouse postion about how to manipulate subbits
+   *
+   * @param g2d
+   */
+  private void displayContextualInfos(Graphics2D g2d){
+
+    //The label is set under the mouse (hence the +18)
+    Vector2 labelPosition = new Vector2((double) getMousePosition().x ,
+            (double) getMousePosition().y + 18);
+
+    //Dimension are set for two 11 font-size text lines with a padding of 3
+    Rectangle2D rect = new Rectangle2D.Double(labelPosition.x ,
+            labelPosition.y ,
+            171, 28);
+
+    g2d.setColor(Color.WHITE);
+    g2d.fill(rect);
+    g2d.setColor(Color.BLACK);
+    g2d.draw(rect);
+    //Text lines are offset of 3 to create the padding
+    g2d.drawString("<CTRL + left click> select subbit", (int) (labelPosition.x + 3),
+            (int) (labelPosition.y + 14));
+    g2d.drawString("<CTRL + DEL> delete subbit", (int) (labelPosition.x + 3),
+            (int) (labelPosition.y + 25));
+  }
+
+  /**
+   * This class allows for a thread to be started when the mouse in hovered over a subbit.
+   * This thread sleeps 1 second before displaying subbit manipulation infos.
+   * This thread can be stopped if the mouse is moved away from the subbit.
+   */
+  private class SubbitContextualInfoThread extends Thread {
+
+    private boolean exit = false;
+    @Override
+    public void run(){
+        try {
+          sleep(1000);
+        } catch (InterruptedException e) {
+          //sleep is meant to be interrupted if the mouse isn't over a subbit anymore
+          exit = true;
+        }
+        if(!exit) {
+          setShowSubbitContextualInfos(true);
+        }
+    }
+  }
+
+  /**
+   * Toggle/untoggle the showing of subbit contextual infos
+   *
+   * @param b
+   */
+  private void setShowSubbitContextualInfos(boolean b) {
+    this.showSubbitContextualInfos = b;
+    revalidate();
+    repaint();
   }
 
   @Override
@@ -605,6 +692,10 @@ public class MeshWindowCore extends JPanel implements MouseMotionListener,
     // Draw previous layer
     if (meshController.showingPreviousLayer() && (meshController.getLayerNumber() > 0)) {
       paintPreviousLayer(g2d);
+    }
+
+    if(this.showSubbitContextualInfos){
+      displayContextualInfos(g2d);
     }
   }
 

@@ -862,7 +862,7 @@ public void deleteSubbits(Set<SubBit2D> subs){
    * @param position in {@link Mesh} coordinate system
    * @return key of bit containing <tt>position</tt>. <tt>null</tt> if not found
    */
-  private Vector2 findBitAt(Point2D.Double position) {
+  public Vector2 findBitAt(Point2D.Double position) {
     Pavement flatPavement = getCurrentLayer().getFlatPavement();
     for (Vector2 key : flatPavement.getBitsKeys()) {
       if (flatPavement.getBit(key)
@@ -874,7 +874,7 @@ public void deleteSubbits(Set<SubBit2D> subs){
     return null;
   }
 
-  private SubBit2D findSubBitAt(Point2D.Double position){
+  public SubBit2D findSubBitAt(Point2D.Double position){
   HashSet<SubBit2D>subbits=new HashSet<>(getCurrentLayer().getSubBits());
          for(SubBit2D sub:subbits){
            if(sub.getAreaCS().contains(position)){

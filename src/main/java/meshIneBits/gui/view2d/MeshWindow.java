@@ -142,7 +142,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     utilityParametersPanelGBC.weighty = 0;
 
 
-    // Center pane
+    // Core
     c.gridx = 1;
     c.gridy = 2;
     c.gridwidth = 1;
@@ -150,16 +150,8 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     c.fill = GridBagConstraints.BOTH;
     c.weightx = 1;
     c.weighty = 1;
-    JPanel centerPane = new JPanel();
-    centerPane.setLayout(new BorderLayout());
-    //Contextual infos for subbit manipulation, inside center pane
-    centerPane.add(new JLabel("<CTRL + left click> select subbit | <CTRL + DEL> delete subbit"), BorderLayout.SOUTH);
-
-    // Core, inside center pane
     core = new MeshWindowCore(meshController);
-    centerPane.add(core, BorderLayout.CENTER);
-
-    add(centerPane, c);
+    add(core, c);
 
     // Selector
     selectorGBC = new GridBagConstraints();
