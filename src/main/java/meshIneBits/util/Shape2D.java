@@ -98,7 +98,7 @@ public class Shape2D implements Iterable<Polygon>, Serializable {
   /**
    * Link up the segments with start/ends, so polygons are created.
    *
-   * @return if this process encounters an error
+   * @return false if this process encounters non-manifold slice
    */
   public boolean optimize() {
 
@@ -188,12 +188,15 @@ public class Shape2D implements Iterable<Polygon>, Serializable {
           System.out.println(s);
 
         }
-        throw new RuntimeException();
+        // Now sufficient as the manifold nature of the object is tested (using this
+        // return) on object import
+        return false;
 
       }
     }
 
-    return false;
+    // Used to be false and unused, now returns true if the slice is slicable.
+    return true;
   }
 
   private void removeModelSegment(Segment2D segment) {

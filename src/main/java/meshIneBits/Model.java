@@ -84,7 +84,52 @@ public class Model implements Serializable {
     } else {
       Logger.error("Unknown model format: " + filename);
       throw new Exception();
+
+      //Test if the imported object is manifold by slicing it
+    }if (!Mesh.modelIsManifold(filename)){
+      Logger.error("Object non manifold");
+      Logger.setProgress(0, 0);
+      throw new Exception();
     }
+    Logger.message("Triangle count: " + triangles.size());
+  }
+
+  /**
+   * Read all the triangles of the STL file, whether it's an Ascii or a Binary STL.
+   * Used on a dummy version of the mesh to test if object is manifold before importing
+   * the model to the real mesh.
+   *
+   * @param filename The STL file path ({@link File#toString()}).
+   * @throws Exception If the file is not a STL.
+   */
+  public Model(String filename, boolean dummy) throws Exception {
+    Logger.updateStatus("Loading: " + filename);
+    modelName = filename.substring(0, filename.lastIndexOf('.'));
+    if (filename.toLowerCase()
+            .endsWith(".stl")) {
+      char[] buf = new char[5];
+      BufferedReader br = new BufferedReader(new FileReader(filename));
+      br.mark(5);
+      //noinspection ResultOfMethodCallIgnored
+      br.read(buf);
+      br.close();
+      String header = new String(buf);
+
+      if (header.equals("solid")) {
+        this.triangles.addAll(readAsciiSTL(filename));
+        //this.triangles.addAll(readBinarySTL(filename));
+        if (triangles.size() == 0) {
+          this.triangles.addAll(readBinarySTL(filename));
+        }
+      } else {
+        this.triangles.addAll(readBinarySTL(filename));
+      }
+    } else {
+      Logger.error("Unknown model format: " + filename);
+      throw new Exception();
+    }
+    //No check of object being manifold, would create an infinite loop otherwise.
+
     Logger.message("Triangle count: " + triangles.size());
   }
 
