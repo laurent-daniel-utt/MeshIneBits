@@ -42,7 +42,11 @@ import meshIneBits.util.Vector2;
 import meshIneBits.util.exceptions.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
 
+import java.awt.event.ActionListener;
 import java.awt.geom.Area;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,6 +67,7 @@ public class Mesh extends Observable implements Observer, Serializable{
   private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
   private String modelFile;
   private ArrayList<ArrayList<Strip>> stripes=new ArrayList<>();
+  private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 
   /**
@@ -102,6 +107,9 @@ public class Mesh extends Observable implements Observer, Serializable{
       this.modelFile = filepath;
     } catch (Exception e) {
       e.printStackTrace();
+      if(e.getMessage().equals("Non manifold")){
+        pcs.firePropertyChange(new PropertyChangeEvent(this, "MODEL_NON_MANIFOLD", null, null));
+      }
       setState(MeshEvents.IMPORT_FAILED);
       return;
     }
@@ -999,5 +1007,12 @@ public ArrayList<ArrayList<Strip>> getStripes(){
     }
 
     return true;
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener listener){
+    this.pcs.addPropertyChangeListener(listener);
+  }
+  public void removePropertyChangeListener(PropertyChangeListener listener){
+    this.pcs.removePropertyChangeListener(listener);
   }
 }

@@ -89,7 +89,7 @@ public class Model implements Serializable {
     }if (!Mesh.modelIsManifold(filename)){
       Logger.error("Object non manifold");
       Logger.setProgress(0, 0);
-      throw new Exception();
+      throw new Exception("Non manifold");
     }
     Logger.message("Triangle count: " + triangles.size());
   }

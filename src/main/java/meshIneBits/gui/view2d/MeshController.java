@@ -47,6 +47,7 @@ import meshIneBits.util.supportUndoRedo.ActionOfUserMoveBit;
 import meshIneBits.util.supportUndoRedo.ActionOfUserScaleBit;
 import meshIneBits.util.supportUndoRedo.HandlerRedoUndo;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -238,6 +239,7 @@ public static CountDownLatch r=new CountDownLatch(1);
   }
 
   public void resetMesh() {
+    if(mesh != null) mesh.removePropertyChangeListener(this);
     mesh = null;
     this.setChanged();
     this.notifyObservers(MeshEvents.READY);
@@ -1503,6 +1505,14 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
       //Notifies the 3D view to allow updates when Mesh optimization has been done
       changes.firePropertyChange(new PropertyChangeEvent(this,"MESH_MODIFIED",null,null));
     }
+    if (evt.getSource() instanceof Mesh){
+      if(evt.getPropertyName().equals("MODEL_NON_MANIFOLD")) {
+        meshWindow.showPopUp("<html><center>The 3D model you tried to import is non-manifold.<br>" +
+                "Please check if your model is manifold.<br>" +
+                "If your model is manifold but you still see this message try its increasing triangle count.</center></html>",
+                Color.RED, JOptionPane.ERROR_MESSAGE);
+      }
+    }
   }
 
   /**
@@ -1526,6 +1536,7 @@ Bit2D bitToMove2D=bitToMove.getBaseBit();
     @Override
     public void run() {
       setMesh(new Mesh());
+      mesh.addPropertyChangeListener(MeshController.this);
       setChanged();
       notifyObservers(MeshEvents.READY);
       String filename = file.toString();
