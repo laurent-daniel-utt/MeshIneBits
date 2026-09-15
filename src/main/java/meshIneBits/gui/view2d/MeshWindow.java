@@ -141,6 +141,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
     utilityParametersPanelGBC.weightx = 1;
     utilityParametersPanelGBC.weighty = 0;
 
+
     // Core
     c.gridx = 1;
     c.gridy = 2;
@@ -861,7 +862,7 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
             "removeAllIrregularSubbits",
             "Remove All Irregular Subbits",
             "bit-irregular-remove.png",
-            "Remove every irregular subbits from the mesh",
+            "Remove every irregular subbits from the mesh - Note : xml export and view 3D already ignore irregulars",
             "None",
             () -> {
               try {
