@@ -343,17 +343,6 @@ public class CraftConfig {
   public static float printerZ = 1500f;
 
   @FloatSetting(
-      title = "Box width  (mm)",
-      minValue = 1,
-      defaultValue = 648
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static float boxWidth = 648;
-
-
-  @FloatSetting(
       title = "Y empty Space in the Box (mm)",
       minValue = 0,
       defaultValue = 60
@@ -363,63 +352,28 @@ public class CraftConfig {
   )
   public static float yEmptySpace = 60f;
 
-  // Width taken by the length of the rakes in the box
-  @DoubleSetting(
-      title = "Rake box Width (mm)",
-      minValue = 1,
-      defaultValue = 263
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double rakeBoxWidth = 263.0;
-
-  // Width of the Rakes' Table
-  @DoubleSetting(
-      title = "Rake Table Width (mm)",
-      minValue = 1,
-      defaultValue = 280
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double rakeTableWidth = 280.0;
-
-  @DoubleSetting(
-      title = "Gluer (mm)",
-      minValue = 0,
-      defaultValue = 52
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double gluerWidth = 52.0;
-
-  @DoubleSetting(
-      title = "Rake Box and gluer (mm)",
-      minValue = 0,
-      defaultValue = 320
-  )
-  @PrinterSetting()
-  public static double rakeBoxGluerWidth = rakeBoxWidth + gluerWidth + 5.0;
-
   @FloatSetting(
           title = "Working width (mm)",
+          description = "width of the working area, represents the usable stroke of sub-x axis",
           minValue = 1,
           defaultValue = 300
   )
   @PrinterSetting(
           order = 0
   )
-  public static float workingWidth = (float) (boxWidth - rakeBoxGluerWidth);
+  public static float workingWidth = 228f;
 
   @DoubleSetting(
       title = "Start X Printing Space (mm)",
-      minValue = 0,
-      defaultValue = 800
+      description = "should represent the starting point of the printable area on the x axis of the machine ",
+      minValue = 600,
+      defaultValue = 600
   )
   @PrinterSetting()
-  public static double xPrintingSpace = rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0;
+  //Previous value : rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0 = 868 (parameters have been removed)
+  //Now manually set at 600 which is the starting point of the printable area on the x-axis coordinate system of the machine
+  //Todo : remove this parameter and express subbit pos in printable area coordinate system
+  public static double xPrintingSpace = 600;
 
 
   @FloatSetting(
