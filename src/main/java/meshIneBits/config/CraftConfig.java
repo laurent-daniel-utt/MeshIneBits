@@ -436,10 +436,10 @@ public class CraftConfig {
   @IntegerSetting(
       title = "Number of bits on a plate",
       minValue = 1,
-      defaultValue = 10
+      defaultValue = 8
   )
   @PrinterSetting()
-  public static int nbBitsByPlat = 10;
+  public static int nbBitsByPlat = 8;
 
   @IntegerSetting(
       title = "Number of bits on a Batch",
