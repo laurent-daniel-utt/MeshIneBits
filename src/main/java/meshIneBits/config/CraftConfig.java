@@ -375,18 +375,6 @@ public class CraftConfig {
   //Todo : remove this parameter and express subbit pos in printable area coordinate system
   public static double xPrintingSpace = 600;
 
-
-  @FloatSetting(
-      title = "Margin (mm)",
-      minValue = 0,
-      defaultValue = 10
-
-  )
-  @XMLSetting(
-      order = 1
-  )
-  public static float margin = 0;
-
   @IntegerSetting(
       title = "Number of bits on a plate",
       minValue = 1,

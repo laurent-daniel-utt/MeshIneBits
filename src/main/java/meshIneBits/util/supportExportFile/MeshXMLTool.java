@@ -63,7 +63,6 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
   //Parameter
   public int remainingBits = CraftConfig.nbBitsBatch;
-  public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
   public int subBitId = 1;
   public int slotPosition = 1;
   public double workingPlacePosition = 0;

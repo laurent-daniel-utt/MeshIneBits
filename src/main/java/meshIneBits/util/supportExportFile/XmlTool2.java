@@ -94,9 +94,8 @@ public class XmlTool2 {
 
   private void getPrinterParameters() {
     float workingWidth = CraftConfig.workingWidth;
-    float margin = CraftConfig.margin;
     nbBitsByBatch = CraftConfig.nbBitsBatch;
-    effectiveWidth = workingWidth - margin;
+    effectiveWidth = workingWidth;
     remainingBits = nbBitsByBatch;
   }
 
