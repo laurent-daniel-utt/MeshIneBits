@@ -269,9 +269,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       borders[i] = false;
     }
     // Setup workspace
-    printerX = CraftConfig.printerX;
-    printerY = CraftConfig.printerY;
-    printerZ = CraftConfig.printerZ;
+    printerX = CraftConfig.printingAreaX;
+    printerY = CraftConfig.printingAreaY;
+    printerZ = CraftConfig.printingAreaZ;
   }
 
   private void initControlComponent() {
@@ -555,7 +555,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private void drawWorkingSpace() {
     stroke(255, 0, 0);
     rect(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2, CraftConfig.workingWidth,
-        CraftConfig.printerY);
+        CraftConfig.printingAreaY);
   }
 
   /*
@@ -1288,7 +1288,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
           workingSpacePosition = minXDistancePoint;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                CraftConfig.workingWidth, CraftConfig.printingAreaY));
             listIndexWorkingSpace.add(0);
           }
 
@@ -1299,7 +1299,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
           workingSpacePosition = minXDistancePoint;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                CraftConfig.workingWidth, CraftConfig.printingAreaY));
             listIndexWorkingSpace.add(current.size() - 1);
           }
 

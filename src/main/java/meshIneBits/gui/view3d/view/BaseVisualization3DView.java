@@ -269,8 +269,8 @@ private void initWorkingSpace(){
   rectange=createShape();
   rectange.beginShape();
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2,0);
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2+CraftConfig.printerY,0);
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printerY,0);
+  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2+CraftConfig.printingAreaY,0);
+  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printingAreaY,0);
   rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
   rectange.endShape(PConstants.CLOSE);
 
@@ -417,9 +417,9 @@ private void initWorkingSpace(){
 
   private void initWorkspace() {
     // Setup workspace
-    printerX = CraftConfig.printerX;
-    printerY = CraftConfig.printerY;
-    printerZ = CraftConfig.printerZ;
+    printerX = CraftConfig.printingAreaX;
+    printerY = CraftConfig.printingAreaY;
+    printerZ = CraftConfig.printingAreaZ;
   }
 
   @SuppressWarnings("all")

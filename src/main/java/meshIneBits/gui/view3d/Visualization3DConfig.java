@@ -44,11 +44,11 @@ public class Visualization3DConfig {
   public static final String EXPORT_3D_RENDERER = "meshIneBits.util.supportExportFile.obj.OBJExport";
 
   //other
-  public static final float PRINTER_X = CraftConfig.printerX;
-  public static final float PRINTER_Y = CraftConfig.printerY;
-  public static final float PRINTER_Z = CraftConfig.printerZ;
+  public static final float PRINTER_X = CraftConfig.printingAreaX;
+  public static final float PRINTER_Y = CraftConfig.printingAreaY;
+  public static final float PRINTER_Z = CraftConfig.printingAreaZ;
   public static final float ASSEMBLY_WORKING_SPACE_WIDTH = CraftConfig.workingWidth;
-  public static final float ASSEMBLY_WORKING_SPACE_HEIGHT = CraftConfig.printerY;
+  public static final float ASSEMBLY_WORKING_SPACE_HEIGHT = CraftConfig.printingAreaY;
 
 
   //Shape config

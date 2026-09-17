@@ -430,7 +430,8 @@ public class Bit3D implements Serializable, Cloneable {
 
 
   /**
-   *
+   * Minimum is at index 0
+   * Maximum is at index 1
    */
   public ArrayList<Double> getMinAndMaxXDistantPoint() {
     Vector<Vector2> allDistancePoints = this.getTwoDistantPointsCS();

@@ -310,47 +310,37 @@ public class CraftConfig {
 
 
   @FloatSetting(
-      title = "Printer X (mm)",
-      description = "Length of printer",
+      title = "Printing area X (mm)",
+      description = "Length of printing area",
       minValue = 1,
       defaultValue = 3000
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerX = 3000f;
+  public static float printingAreaX = 3000f;
 
   @FloatSetting(
-      title = "Printer Y (mm)",
-      description = "Width of printer",
+      title = "Printing area Y (mm)",
+      description = "Width of Printing area",
       minValue = 1,
       defaultValue = 2000
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerY = 2000f;
+  public static float printingAreaY = 2000f;
 
   @FloatSetting(
-      title = "Printer Z (mm)",
-      description = "Height of printer",
+      title = "Printing area Z (mm)",
+      description = "Height of Printing area",
       minValue = 1,
       defaultValue = 1500
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerZ = 1500f;
-
-  @FloatSetting(
-      title = "Y empty Space in the Box (mm)",
-      minValue = 0,
-      defaultValue = 60
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static float yEmptySpace = 60f;
+  public static float printingAreaZ = 1500f;
 
   @FloatSetting(
           title = "Working width (mm)",
@@ -363,17 +353,32 @@ public class CraftConfig {
   )
   public static float workingWidth = 228f;
 
+  @FloatSetting(
+          title = "Y Printing Space Origin (mm)",
+          description = "represents the starting point of the printing area on the Y axis of the machine coordinate system",
+          minValue = 0,
+          defaultValue = 60
+  )
+  @PrinterSetting(
+          order = 0
+  )
+  //Manually set at 80 which is the starting point of the printable area on the y-axis of the coordinate system of the machine
+  //Correspond to a minimum position on the Y stroke where subbits can be deposited
+  //Todo : remove this parameter and express subbit pos in printable area coordinate system
+  public static float printingAreaYStrokeOrigin = 80f;
+
   @DoubleSetting(
-      title = "Start X Printing Space (mm)",
-      description = "should represent the starting point of the printable area on the x axis of the machine ",
+      title = "X Printing Space Origin (mm)",
+      description = "represents the starting point of the printing area on the X axis of in the machine coordinate system",
       minValue = 600,
       defaultValue = 600
   )
   @PrinterSetting()
   //Previous value : rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0 = 868 (parameters have been removed)
-  //Now manually set at 600 which is the starting point of the printable area on the x-axis coordinate system of the machine
+  //Now manually set at 600 which is the starting point of the printable area on the x-axis of the coordinate system of the machine
+  //Correspond to a minimum position on the X stroke where subbits can be deposited
   //Todo : remove this parameter and express subbit pos in printable area coordinate system
-  public static double xPrintingSpace = 600;
+  public static double printingAreaXStrokeOrigin = 600;
 
   @IntegerSetting(
       title = "Number of bits on a plate",

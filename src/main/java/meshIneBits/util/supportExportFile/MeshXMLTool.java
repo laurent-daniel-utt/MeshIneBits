@@ -254,12 +254,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           safetySpace = Math.abs(CraftConfig.lengthFull * bitOrientation.x / 2);
         }
         double xMinInMachineRef = bit.getMinAndMaxXDistantPoint()
-            .get(0) + CraftConfig.printerX / 2
-            + CraftConfig.xPrintingSpace;
+            .get(0) + CraftConfig.printingAreaX / 2
+            + CraftConfig.printingAreaXStrokeOrigin;
         double xMaxInMachineRef = bit.getMinAndMaxXDistantPoint()
-            .get(1) + CraftConfig.printerX / 2
-            + CraftConfig.xPrintingSpace;
+            .get(1) + CraftConfig.printingAreaX / 2
+            + CraftConfig.printingAreaXStrokeOrigin;
 
+        //If the bit is the first bit of the part set the working area position
         if (id == 0) {
           ;
           workingPlacePosition = xMinInMachineRef - safetySpace;
@@ -268,6 +269,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           goTo.appendChild(x);
           moveWorkingSpace.appendChild(goTo);
         } else {
+          //if the bit's distant points go over the current working area set the working area position
           if (xMinInMachineRef - safetySpace <= workingPlacePosition
               || xMaxInMachineRef + safetySpace >= (workingPlacePosition
               + CraftConfig.workingWidth)) {
@@ -386,9 +388,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           .get(i).x;
       double yInPrinterRef = bit3D.getLiftPointsCS()
           .get(i).y;
-      double xInSubXRef = xInPrinterRef + CraftConfig.printerX / 2 + CraftConfig.xPrintingSpace
+      double xInSubXRef = xInPrinterRef + CraftConfig.printingAreaX / 2 + CraftConfig.printingAreaXStrokeOrigin
           - workingPlacePosition;
-      double yInMachineRef = yInPrinterRef + CraftConfig.printerY / 2 + CraftConfig.yEmptySpace;
+      double yInMachineRef = yInPrinterRef + CraftConfig.printingAreaY / 2 + CraftConfig.printingAreaYStrokeOrigin;
 
       Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(xInSubXRef));
       Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(yInMachineRef));

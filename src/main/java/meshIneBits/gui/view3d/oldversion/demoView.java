@@ -232,9 +232,9 @@ public class demoView extends PApplet implements Observer, SubWindow {
    *
    */
   private void drawWorkspace() {
-    printerX = CraftConfig.printerX;
-    printerY = CraftConfig.printerY;
-    printerZ = CraftConfig.printerZ;
+    printerX = CraftConfig.printingAreaX;
+    printerY = CraftConfig.printingAreaY;
+    printerZ = CraftConfig.printingAreaZ;
     pushMatrix();
     noFill();
     stroke(255, 255, 0);

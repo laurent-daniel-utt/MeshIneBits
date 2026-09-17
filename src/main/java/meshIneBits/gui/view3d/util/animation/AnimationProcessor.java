@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import static meshIneBits.config.CraftConfig.printerX;
+import static meshIneBits.config.CraftConfig.printingAreaX;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.*;
 import static meshIneBits.gui.view3d.view.UIPWController.Exportation;
 
@@ -220,7 +220,7 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
   /**
    * initialisation of the position
    */
-            if(index.intValue()==0){pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+            if(index.intValue()==0){pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
               Xpos=pos;
             }
   /**
@@ -235,7 +235,7 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
                 size_currentstrip=0;
                 currentStrip++;
                  System.out.println("currentlayer="+currentlayer+" currentStrip="+currentStrip);
-                pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
 
               }
               /**
@@ -252,7 +252,7 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
                   currentlayer++;
                   layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 }
-                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                 pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
                  Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
               }
             }
@@ -325,7 +325,7 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
     }
 System.out.println("currentStrip="+currentStrip);
     System.out.println("size_currentstrip="+size_currentstrip);
-    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Xpos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
     Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
   }
 
@@ -361,7 +361,7 @@ System.out.println("currentStrip="+currentStrip);
     System.out.println("layerchanged:"+layerchanged);
     System.out.println("currentStrip="+currentStrip);
     System.out.println("size_currentstrip="+size_currentstrip);
-    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Xpos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
     Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
   }
 

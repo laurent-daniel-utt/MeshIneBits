@@ -5,8 +5,8 @@ import meshIneBits.config.CraftConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import static meshIneBits.config.CraftConfig.printerX;
-import static meshIneBits.config.CraftConfig.printerY;
+import static meshIneBits.config.CraftConfig.printingAreaX;
+import static meshIneBits.config.CraftConfig.printingAreaY;
 
 /**
  * class représentant les Stripes,chaque stripe est caractérisé par sa position X,l'hauteur (position Z),
@@ -14,12 +14,12 @@ import static meshIneBits.config.CraftConfig.printerY;
  * c.à.d chaque layer peut contenir plusieurs strip ou minimmum 1 et chaque stripe peut contenir plusieurs bits ou minimmum 1
  */
 public class Strip implements Serializable {
-private double Xposition=-printerX / 2 - CraftConfig.workingWidth - 20;
+private double Xposition=-printingAreaX / 2 - CraftConfig.workingWidth - 20;
 
 private double Zposition;
 private ArrayList<Bit3D> bits=new ArrayList<Bit3D>();
 private Float width= CraftConfig.workingWidth;
-private Float length= printerY;
+private Float length= printingAreaY;
 private Layer layer;
     public Strip(Bit3D firstbit,Layer layer){
 this.Xposition=firstbit.getTwoExtremeXPointsCS().get(0).x;
