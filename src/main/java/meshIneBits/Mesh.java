@@ -42,7 +42,11 @@ import meshIneBits.util.Vector2;
 import meshIneBits.util.exceptions.SimultaneousOperationsException;
 import meshIneBits.util.supportExportFile.MeshXMLTool;
 
+import java.awt.event.ActionListener;
 import java.awt.geom.Area;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This object is the equivalent of the piece which will be printed
  */
-public class Mesh extends Observable implements Observer, Serializable {
+public class Mesh extends Observable implements Observer, Serializable{
 
   private static final long serialVersionUID = 20180000400L;
 
@@ -63,6 +67,7 @@ public class Mesh extends Observable implements Observer, Serializable {
   private AScheduler scheduler = CraftConfig.schedulerPreloaded[0];
   private String modelFile;
   private ArrayList<ArrayList<Strip>> stripes=new ArrayList<>();
+  private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 
   /**
@@ -102,6 +107,9 @@ public class Mesh extends Observable implements Observer, Serializable {
       this.modelFile = filepath;
     } catch (Exception e) {
       e.printStackTrace();
+      if(e.getMessage().equals("Non manifold")){
+        pcs.firePropertyChange(new PropertyChangeEvent(this, "MODEL_NON_MANIFOLD", null, null));
+      }
       setState(MeshEvents.IMPORT_FAILED);
       return;
     }
@@ -145,6 +153,36 @@ public ArrayList<ArrayList<Strip>> getStripes(){
     }
     slicer = new SliceTool(this);
     slicer.sliceModel();
+    // MeshEvents.SLICED will be sent in update() after receiving
+    // signal from slicer
+  }
+
+  /**
+   * Start slicing the registered model and generating layers
+   * Used on a dummy version of the mesh to test if object is manifold before importing
+   * the model to the real mesh.
+   *
+   * @throws Exception when an other action is currently executing
+   */
+  public boolean dummySlice() throws Exception {
+
+    // clean before executing
+    slices.clear();
+    layers.clear();
+    // start
+    double zMin = this.model.getMin().z;
+    if (zMin != 0) {
+      this.model.center(); // recenter before slicing
+    }
+
+    try {
+      slicer = new SliceTool(this, true);
+      slicer.sliceModel();
+    }catch (Exception e){
+      return false;
+    }
+
+    return true;
     // MeshEvents.SLICED will be sent in update() after receiving
     // signal from slicer
   }
@@ -939,4 +977,42 @@ public ArrayList<ArrayList<Strip>> getStripes(){
     }
   }
 
+  /**
+   * Creates a dummy mesh, imports the file into this mesh and attempts a slicing of the mesh
+   * If the slicing fail, hence if one layer isn't manifold, returns false.
+   * Returns true if manifold.
+   *
+   * @param filepath
+   * @return
+   * @throws Exception
+   */
+  public static boolean modelIsManifold(String filepath) throws Exception {
+
+    Mesh dummyMesh = new Mesh();
+    try {
+      dummyMesh.model = new Model(filepath, true);
+      dummyMesh.model.center();
+      dummyMesh.modelFile = filepath;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+
+    // Crash all slices and layers
+    dummyMesh.slices.clear();
+    dummyMesh.layers.clear();
+    if(!dummyMesh.dummySlice()){
+      Logger.message("Model non manifold, cannot import.");
+      return false;
+    }
+
+    return true;
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener listener){
+    this.pcs.addPropertyChangeListener(listener);
+  }
+  public void removePropertyChangeListener(PropertyChangeListener listener){
+    this.pcs.removePropertyChangeListener(listener);
+  }
 }

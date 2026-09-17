@@ -68,6 +68,19 @@ public class SliceTool extends Observable implements Runnable {
   }
 
   /**
+   * Used on a dummy version of the mesh to test if object is manifold before importing
+   * the model to the real mesh.
+   *
+   * Doesn't register as a listener to avoid view updating. This is meant to be
+   * a fully background task.
+   *
+   * @param mesh {@link Mesh} that will collect the slices when slicing is finished.
+   */
+  public SliceTool(Mesh mesh, boolean dummy) {
+    this.model = mesh.getModel();
+  }
+
+  /**
    * @return {@link Vector} of {@link Slice}
    */
   public Vector<Slice> getSlices() {
@@ -134,8 +147,10 @@ public class SliceTool extends Observable implements Runnable {
     Logger.updateStatus("Optimizing slices");
     for (int i = 0; i < sliceCount; i++) {
       Logger.setProgress(++n, totalProgress);
-      slices.get(i)
-          .optimize();
+      //Optimize slices and test
+      if(!slices.get(i).optimize()){
+        throw new RuntimeException("Object non manifold");
+      };
     }
 
     Logger.updateStatus("Mesh sliced");

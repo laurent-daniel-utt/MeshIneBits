@@ -1016,4 +1016,25 @@ private BaseVisualization3DView baseVisualization3DView=new BaseVisualization3DV
   public MeshController getMeshController(){
     return this.meshController;
   }
+
+  /**
+   * Use this method to display a pop-up message of you liking.
+   * Pop-up will be in a new window over the 2D view.
+   *
+   * @param message
+   * @param color
+   * @param messageType use JOptionPane.*_MESSAGE
+   */
+  public void showPopUp(String message, Color color, int messageType){
+    JLabel messageLabel = new JLabel(message);
+    messageLabel.setForeground(color);
+
+    switch (messageType){
+      case JOptionPane.ERROR_MESSAGE :
+        JOptionPane.showMessageDialog(this, messageLabel, "ERROR", messageType);
+        break;
+      default:
+        JOptionPane.showMessageDialog(this, messageLabel);
+    }
+  }
 }
