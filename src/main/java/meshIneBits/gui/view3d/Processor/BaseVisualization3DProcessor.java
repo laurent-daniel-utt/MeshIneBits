@@ -210,7 +210,18 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
    * Export obj files for the simulation
    */
   public void exportAll() {
-    view3D.exportAll();
+      // The new thread is absolutely necessary because exportAll function uses
+      // stillExporting countDownLatch which would otherwise definitely block the
+      // main thread of the view3D as the unblocking of stillExporting is made
+      // in the main thread of the view3D
+      Thread exportAllThread = new Thread(new Runnable() {
+          @Override
+          public void run() {
+
+              view3D.exportAll();
+          }
+      });
+      exportAllThread.start();
   }
   @Override
   public void activateAnimation() {

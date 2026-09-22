@@ -3,6 +3,7 @@ package meshIneBits.gui.view3d.view;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
+import meshIneBits.util.Logger;
 import processing.core.PShape;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -111,13 +112,18 @@ private int i=0;
         processor.setAnimationIndex(Math.round((float) value));
         break;
       case EXPORTAll:
-        if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
-          processor.setDisplayOneByOne(true);
-          Exportation=true;
-          processor.activateAnimation();
-          IndexExport=0;
-          processor.exportAll();
-          Exportation=false;}
+        if (MeshProvider.getInstance().getCurrentMesh().isPaved()) {
+          if (callbackObj instanceof UIPWAnimation && ((UIPWAnimation) callbackObj).isCurrentToggled()) {
+            processor.setDisplayOneByOne(true);
+            Exportation = true;
+            processor.activateAnimation();
+            IndexExport = 0;
+            processor.exportAll();
+            Exportation = false;
+          }else{
+            Logger.warning("Changer le mode d'animation vers one by one");
+          }
+        }
         break;
       case NEXT:
       if(isAnimating.get() && getpausing()){

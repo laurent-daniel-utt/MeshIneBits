@@ -662,7 +662,7 @@ private void initWorkingSpace(){
   private void startExport() {
     if (isExporting) {
       if(pathchoice==0){
-        path=chooseDir();
+        selectFolder("choose a directory", "folderSelected", null, this);
         pathchoice=1;
       }
 
@@ -731,13 +731,27 @@ private void initWorkingSpace(){
    * Method to choose a directory for the exported 3d objects
    * @return the path of the chosen directory
    */
+  /*
   private String  chooseDir(){
+    /*
     JFileChooser jf=new JFileChooser();
     jf.setDialogTitle("choose a directory");
     jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    jf.showOpenDialog(null);
+    jf.showOpenDialog(this.win.getDelegatedWindow());
     File f=jf.getSelectedFile();
+
     return f.getAbsolutePath();
+  }
+
+   */
+
+  public void folderSelected(File selection) {
+    if (selection == null) {
+      println("Window was closed or the user hit cancel.");
+    } else {
+      println("User selected " + selection.getAbsolutePath());
+      path = selection.getAbsolutePath();
+    }
   }
 
   /**
