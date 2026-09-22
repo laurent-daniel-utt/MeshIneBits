@@ -61,7 +61,7 @@ public class Model implements Serializable {
    */
   public Model(String filename) throws Exception {
     Logger.updateStatus("Loading: " + filename);
-    modelName = filename.substring(0, filename.lastIndexOf('.'));
+    modelName = filename.substring(filename.lastIndexOf('\\') + 1, filename.lastIndexOf('.'));
     if (filename.toLowerCase()
         .endsWith(".stl")) {
       char[] buf = new char[5];
