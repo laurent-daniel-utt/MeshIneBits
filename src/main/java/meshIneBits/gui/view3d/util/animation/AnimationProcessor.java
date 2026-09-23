@@ -3,12 +3,19 @@ package meshIneBits.gui.view3d.util.animation;
 import meshIneBits.Layer;
 import meshIneBits.config.CraftConfig;
 import meshIneBits.gui.view3d.Visualization3DConfig;
+import meshIneBits.gui.view3d.builder.BitShape;
+import meshIneBits.gui.view3d.builder.PavedMeshBuilderResult;
+import meshIneBits.gui.view3d.builder.SubBitShape;
+import meshIneBits.gui.view3d.provider.BaseModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.MeshProvider;
+import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import meshIneBits.util.CustomLogger;
 import meshIneBits.util.Logger;
 import meshIneBits.util.MultiThreadServiceExecutor;
+import meshIneBits.util.Vector3;
+import processing.core.PConstants;
 import processing.core.PShape;
 
 import java.util.ArrayList;
@@ -19,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static meshIneBits.config.CraftConfig.printerX;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.*;
@@ -40,6 +48,8 @@ public class AnimationProcessor {
   private AnimationMode mode = Visualization3DConfig.defaultAnimationMode;
   private Consumer<Vector<PShape>> callback;
 
+  private BaseVisualization3DView view3D;
+
   public static CountDownLatch movingWorkSpace=new CountDownLatch(1);
   public static double animationSpeed = Visualization3DConfig.speed_coefficient_default;
   private int indexMax;
@@ -53,10 +63,11 @@ public static AtomicInteger ind= new AtomicInteger(0);
 
   private  int currentlayer=0,currentStrip=0,currentlayer_size=0,size_currentstrip=0;
    public static float pos;
-  public AnimationProcessor(IAnimationModel3DProvider animationProvider,
+  public AnimationProcessor(BaseVisualization3DView view3D, IAnimationModel3DProvider animationProvider,
       IAssemblyWorkingSpaceProvider wsProvider) {
     this.animationProvider = animationProvider;
     this.wsProvider = wsProvider;
+    this.view3D = view3D;
   }
 
   public AnimationProcessor(IAnimationModel3DProvider animationProvider) {
@@ -161,44 +172,45 @@ public static boolean getpausing(){
   }
 
   @SuppressWarnings("all")
-  public class IndexIncrementTask  implements Runnable  {
+  public class IndexIncrementTask  implements Runnable {
 
     @Override
     public void run() {
       /**
        * exportation part of the method
        */
-      if(Exportation){exported=new CountDownLatch(1);
+      if (Exportation) {
+        exported = new CountDownLatch(1);
         ind.set(0);
 
-      try {
-        while (isActivated.get()) {
-          final AtomicInteger index = AnimationProcessor.this.index;
-          listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
-          Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+        try {
+          while (isActivated.get()) {
+            final AtomicInteger index = AnimationProcessor.this.index;
+            listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
+            Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
+            cameraMovementForExport();
+            callback.accept(shapes);
+            waitshaping.countDown();
 
-          callback.accept(shapes);
-          waitshaping.countDown();
-
-          if (pausing.get()) {
-            synchronized (AnimationProcessor.this) {
-              AnimationProcessor.this.wait();
+            if (pausing.get()) {
+              synchronized (AnimationProcessor.this) {
+                AnimationProcessor.this.wait();
+              }
             }
+            Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
+            ind = index;
+            notyet.countDown();
+
+            notyet = new CountDownLatch(1);
+
+            exported.await();
+
+            AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
+
           }
-          Thread.sleep((long) (animationSpeed * Visualization3DConfig.SECOND));
-          ind=index;
-          notyet.countDown();
-
-          notyet=new CountDownLatch(1);
-
-          exported.await();
-
-          AnimationProcessor.this.index.set(index.get() == indexMax ? 0 : index.get() + 1);
-
+        } catch (InterruptedException e) {
+          e.printStackTrace();
         }
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
 
       }
 /**
@@ -207,8 +219,11 @@ public static boolean getpausing(){
  * functionnalities on the interface)
  */
 
-      else { currentlayer=0;currentStrip=0;currentlayer_size=0;size_currentstrip=0;
-
+      else {
+        currentlayer = 0;
+        currentStrip = 0;
+        currentlayer_size = 0;
+        size_currentstrip = 0;
 
 
         try {
@@ -216,61 +231,63 @@ public static boolean getpausing(){
             final AtomicInteger index = AnimationProcessor.this.index;
             listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
 
-if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
-  /**
-   * initialisation of the position
-   */
-            if(index.intValue()==0){pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
-              Xpos=pos;
-            }
-  /**
-   *when the size of the current stripe at the current moment equals the total size of the current stripe
-   */
-            if(size_currentstrip>meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1){
-              Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+            if (option == AnimationOption.BY_BIT || option == AnimationOption.BY_SUB_BIT) {
               /**
-               * if we still in the same layer we move to the next stripe of the same layer
+               * initialisation of the position
                */
-              if(currentlayer_size< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
-                size_currentstrip=0;
-                currentStrip++;
-                 System.out.println("currentlayer="+currentlayer+" currentStrip="+currentStrip);
-                pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
-
+              if (index.intValue() == 0) {
+                pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+                Xpos = pos;
               }
               /**
-               * when the size of the current layer at the current moment equals the total size of the current layer we move
-               * to the next layer and start a new collection of stripes,because stripes are created per layer
+               *when the size of the current stripe at the current moment equals the total size of the current stripe
                */
+              if (size_currentstrip > meshstrips.get(currentlayer).get(currentStrip).getBits().size() - 1) {
+                Layer layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                /**
+                 * if we still in the same layer we move to the next stripe of the same layer
+                 */
+                if (currentlayer_size < (layer.getBits3dKeys().size() - layer.getKeysOfIrregularBits().size())) {
+                  size_currentstrip = 0;
+                  currentStrip++;
+                  System.out.println("currentlayer=" + currentlayer + " currentStrip=" + currentStrip);
+                  pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
 
-              else {size_currentstrip=0;
-                currentlayer_size=0;
-                currentStrip=0;
-                currentlayer++;
-                layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
-                while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
-                  currentlayer++;
-                  layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 }
-                 pos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
-                 Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
-              }
-            }
-  size_currentstrip++;
-            currentlayer_size++;
+                /**
+                 * when the size of the current layer at the current moment equals the total size of the current layer we move
+                 * to the next layer and start a new collection of stripes,because stripes are created per layer
+                 */
 
-}
+                else {
+                  size_currentstrip = 0;
+                  currentlayer_size = 0;
+                  currentStrip = 0;
+                  currentlayer++;
+                  layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                  while ((layer.getBits3dKeys().size() - layer.getKeysOfIrregularBits().size()) == 0) {
+                    currentlayer++;
+                    layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                  }
+                  pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                  Zpos = (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
+                }
+              }
+              size_currentstrip++;
+              currentlayer_size++;
+
+            }
             /**
              * Xpos is modified in Class (BaseVisualization3DView)to create an animation effect for the working space(deposing machine)
              * we pause the animation waiting for the working space to reach its destination
              */
             if ((option == AnimationOption.BY_BIT || option == AnimationOption.BY_SUB_BIT)
-                && Xpos != pos) {
+                    && Xpos != pos) {
               movingWorkSpace.await();
             }
 
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
-             callback.accept(shapes);
+            callback.accept(shapes);
             if (pausing.get()) {
               synchronized (AnimationProcessor.this) {
                 AnimationProcessor.this.wait();
@@ -286,12 +303,74 @@ if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
           e.printStackTrace();
         }
       }
+    }
+
+    private void cameraMovementForExport() {
+
+      Vector<BitShape> bitShapes = ((BaseModel3DProvider) animationProvider).getbitShapes();
+
+      switch (option) {
+        case BY_BIT:
+          Vector3 newPos = null;
+          Vector3 newOrientation = null;
+          for (BitShape bitShape : bitShapes){
+            if(bitShape.getShape().equals(currentAnimationShape.getDisplayShapes().get(0))){
+              println("found");
+              newPos = new Vector3(bitShape.getBit().getOrigin().x,
+                      bitShape.getBit().getOrigin().y,
+                      bitShape.getBit().getLowerAltitude());
+              newOrientation = new Vector3(bitShape.getBit().getOrigin().x + bitShape.getBit().getOrientation().x,
+                      bitShape.getBit().getOrigin().y + bitShape.getBit().getOrientation().y,
+                      0);
+            }
+          }
+          if(newPos != null){
+            view3D.nextCameraPos.newCameraPos((float) newPos.x, (float) newPos.y, (float) newPos.z, (float) newOrientation.x, (float) newOrientation.y, (float) newOrientation.z, 0.0f,0.0f,1.0f);
+          }
+          break;
+        case BY_BATCH:
+          /*
+          Vector<PShape> batchShapes = new Vector<>();
+          for (BitShape bitShape : meshPavedResult.getBitShapes()) {
+
+            for (SubBitShape subBitShape : bitShape.getSubBitShapes()) {
 
 
+              if (subBitShape.getBatchId() >= batchShapes.size()
+                      || batchShapes.get(subBitShape.getBatchId()) == null) {
 
+                batchShapes.add(subBitShape.getBatchId(), context.createShape(PConstants.GROUP));
+              }
+              batchShapes.get(subBitShape.getBatchId()).addChild(subBitShape.getShape());
+            }
 
+          }
+          return new AnimationShape(batchShapes);
 
+           */
+        case BY_SUB_BIT:
+          /*
+          Vector<PShape> subBitShapes = meshPavedResult.getBitShapes()
+                  .stream()
+                  .map(BitShape::getSubBitShapes)
+                  .flatMap(Collection::stream)
+                  .map(SubBitShape::getShape)
+                  .collect(Collectors.toCollection(Vector::new));
+          return new AnimationShape(subBitShapes);
+        case BY_LAYER:
+        default:
+          Vector<PShape> layerShapes = new Vector<>();
+          for (BitShape bitShape : meshPavedResult.getBitShapes()) {
+            if (bitShape.getLayerId() >= layerShapes.size()
+                    || layerShapes.get(bitShape.getLayerId()) == null) {
+              layerShapes.add(bitShape.getLayerId(), context.createShape(PConstants.GROUP));
+            }
+            layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
+          }
+          return new AnimationShape(layerShapes);
 
+           */
+      }
     }
   }
 

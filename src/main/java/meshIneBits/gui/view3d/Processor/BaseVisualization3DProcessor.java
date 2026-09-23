@@ -13,6 +13,7 @@ import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationMode;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.view.AbstractVisualization3DView;
+import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import processing.core.PShape;
 import remixlab.dandelion.geom.Vec;
 
@@ -43,6 +44,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
     if (modelProvider instanceof IAssemblyWorkingSpaceProvider
         && modelProvider instanceof IAnimationModel3DProvider) {
       animation = new AnimationProcessor(
+              (BaseVisualization3DView) view3D,
           (IAnimationModel3DProvider) modelProvider,
           (IAssemblyWorkingSpaceProvider) modelProvider);
     } else {
