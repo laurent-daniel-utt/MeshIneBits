@@ -71,6 +71,7 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   private final DecimalFormat df;
   public static int IndexExport = 0;
   private  int pathchoice = 0;
+  public NextCameraPos nextCameraPos = new NextCameraPos();
 
   public static float Xpos=0,Ypos=0,Zpos=0;
   public static ArrayList<ArrayList<Strip>> meshstrips;
@@ -495,6 +496,8 @@ private void initWorkingSpace(){
     drawWorkspace();
     drawWorkingSpace();
 
+    moveCamera();
+
     startExport();
     displayShape();
     endExport();
@@ -796,7 +799,65 @@ private void initWorkingSpace(){
     pathchoice=0;
   }
 
+  public void moveCamera(){
+    if(nextCameraPos.hasChanged) {
+      println("Going to : " + nextCameraPos.eyeX + " , " + nextCameraPos.eyeY + " , " + nextCameraPos.eyeZ);
+      super.camera(nextCameraPos.eyeX,
+              nextCameraPos.eyeY,
+              nextCameraPos.eyeZ,
+              nextCameraPos.centerX,
+              nextCameraPos.centerY,
+              nextCameraPos.centerZ,
+              nextCameraPos.upX,
+              nextCameraPos.upY,
+              nextCameraPos.upZ);
+      nextCameraPos.cameraHasMoved();
+    }
+  }
 
+  public static class NextCameraPos{
+    public float eyeX;
+    public float eyeY;
+    public float eyeZ;
+    public float centerX;
+    public float centerY;
+    public float centerZ;
+    public float upX;
+    public float upY;
+    public float upZ;
+
+    public boolean hasChanged = false;
+
+    public NextCameraPos(){ }
+
+    public void newCameraPos(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ){
+      this.eyeX = eyeX;
+      this.eyeY = eyeY;
+      this.eyeZ = eyeZ;
+      this.centerX = centerX;
+      this.centerY = centerY;
+      this.centerZ = centerZ;
+      this.upX = upX;
+      this.upY = upY;
+      this.upZ = upZ;
+
+      this.hasChanged = true;
+    }
+
+    public void cameraHasMoved(){
+      this.eyeX = 0;
+      this.eyeY = 0;
+      this.eyeZ = 0;
+      this.centerX = 0;
+      this.centerY = 0;
+      this.centerZ = 0;
+      this.upX = 0;
+      this.upY = 0;
+      this.upZ = 0;
+
+      this.hasChanged = false;
+    }
+  }
 
 
   private synchronized void displayShape() {

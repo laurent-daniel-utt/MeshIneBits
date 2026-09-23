@@ -6,6 +6,7 @@ import meshIneBits.gui.view3d.Visualization3DConfig;
 import meshIneBits.scheduler.AScheduler;
 import meshIneBits.scheduler.AdvancedScheduler;
 import meshIneBits.util.CustomLogger;
+import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
@@ -69,6 +70,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   private void updateBitShapeLocation(Bit3D bit3D, BitShape bitShape) {
     bitShape.rotateZ(PApplet.radians((float) bit3D.getOrientation().getEquivalentAngle2()));
 //    bitShape.getShape().rotate(bit3D.getOrientation().get);
+    bitShape.setBit(bit3D);
     bitShape.translate(
         (float) bit3D.getOrigin().x,
         (float) bit3D.getOrigin().y,
@@ -96,7 +98,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
       PShape shape = ExtrusionFromAreaService.getInstance()
           .buildShapeFromArea(context, subBit2D.getAreaCB(), Visualization3DConfig.BIT_THICKNESS);
       SubBitShape subBitShape = new SubBitShape(shape);
-      shapeBit.addSubBit(subBitShape);
+      shapeBit.addSubBit(subBitShape, subBit2D);
     });
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
    if(WindowStatus==2){
