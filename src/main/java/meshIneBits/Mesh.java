@@ -77,6 +77,10 @@ public class Mesh extends Observable implements Observer, Serializable{
     setState(MeshEvents.READY);
     this.scheduler.setMesh(this);
   }
+
+  public Mesh(boolean dummy) {
+  }
+
   public Object clone()throws CloneNotSupportedException{
     return super.clone();
   }
@@ -988,7 +992,7 @@ public ArrayList<ArrayList<Strip>> getStripes(){
    */
   public static boolean modelIsManifold(String filepath) throws Exception {
 
-    Mesh dummyMesh = new Mesh();
+    Mesh dummyMesh = new Mesh(true);
     try {
       dummyMesh.model = new Model(filepath, true);
       dummyMesh.model.center();
