@@ -116,7 +116,7 @@ private int i=0;
           //Will only allow export if mode is one by one and not batch or full and batch
           if (callbackObj instanceof UIPWAnimation &&
                   ((((UIPWAnimation) callbackObj).isCurrentToggled() && ! ((UIPWAnimation) callbackObj).isBatchToggled()) ||
-                          (((UIPWAnimation) callbackObj).isFullToggled()) && ((UIPWAnimation) callbackObj).isBatchToggled())) {
+                          (((UIPWAnimation) callbackObj).isFullToggled()) && ((UIPWAnimation) callbackObj).isBatchToggled() && MeshProvider.getInstance().getCurrentMesh().getScheduler().isScheduled())) {
             Exportation = true;
             processor.activateAnimation();
             IndexExport = 0;

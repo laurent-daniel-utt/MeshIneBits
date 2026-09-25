@@ -310,6 +310,7 @@ public static boolean getpausing(){
       Vector3 newPos = null;
       Vector2 newOrientation = null;
       BitShape bitShape = null;
+      double zCenter = 100;
 
       switch (option) {
         case BY_BIT:
@@ -328,7 +329,8 @@ public static boolean getpausing(){
           newPos = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
           // A rotation on the model rotates every triangle of the mesh, the rotation is then taken into account during paving
           // the rotation in then not stored as a value but rather inherently stored in the bit's orientation
-          newOrientation = new Vector2(0, 0);
+          newOrientation = new Vector2(0, -1);
+          zCenter = -100;
           break;
         case BY_SUB_BIT:
           Vector<SubBitShape> subbitShapes = bitShapes
@@ -357,16 +359,17 @@ public static boolean getpausing(){
           break;
 
         case BY_LAYER:
-          /*
-          Vector<PShape> layerShapes = new Vector<>();
-        for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-          if (bitShape.getLayerId() >= layerShapes.size()) {
-            layerShapes.add(context.createShape(PConstants.GROUP));
+          for(BitShape bitShape1 : bitShapes){
+            if(bitShape1.getLayerId() == index.intValue()){
+              newPos = new Vector3(MeshProvider.getInstance().getCurrentMesh().getModel().getPos().x,
+                      MeshProvider.getInstance().getCurrentMesh().getModel().getPos().y,
+                      bitShape1.getBit().getLowerAltitude());
+              // A rotation on the model rotates every triangle of the mesh, the rotation is then taken into account during paving
+              // the rotation in then not stored as a value but rather inherently stored in the bit's orientation
+              newOrientation = new Vector2(0, -1);
+              break;
+            }
           }
-          layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
-        }
-        return new AnimationShape(layerShapes);
-           */
           break;
         default:
           break;
@@ -379,7 +382,7 @@ public static boolean getpausing(){
                 (float) newPos.z,
                 (float) newPos.x,
                 (float) newPos.y,
-                (float) newPos.z + 100,
+                (float) (newPos.z + zCenter),
                 (float) newOrientation.x,
                 (float) newOrientation.y,
                 0f);

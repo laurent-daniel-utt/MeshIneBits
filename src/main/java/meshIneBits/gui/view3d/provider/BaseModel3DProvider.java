@@ -97,10 +97,9 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
           for(SubBitShape subBitShape : bitShape.getSubBitShapes()){
 
 
-            if (subBitShape.getBatchId() >= batchShapes.size()
-                || batchShapes.get(subBitShape.getBatchId()) == null) {
+            if (subBitShape.getBatchId() >= batchShapes.size()) {
 
-              batchShapes.add(subBitShape.getBatchId(), context.createShape(PConstants.GROUP));
+              batchShapes.add(context.createShape(PConstants.GROUP));
             }
             batchShapes.get(subBitShape.getBatchId()).addChild(subBitShape.getShape());
           }
