@@ -85,8 +85,10 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   private int lastLayoutW = -1;
   private int lastLayoutH = -1;
 
+  private boolean isFolderSelected = false;
+
   //Flag to allow or prevent user to start "By batch" animation when the mesh isn't scheduled.
-  private static boolean meshScheduled = false;
+  private static boolean meshScheduled;
 
   public BaseVisualization3DView(){
 
@@ -259,6 +261,7 @@ public void play(){
     // the class each time a BaseVisualization3DView is opened and meshWindow has to reference to this new instance.
     meshWindow.addPropertyChangeListener(this);
     meshWindow.getMeshController().addPropertyChangeListener("", this);
+    BaseVisualization3DView.meshScheduled = MeshProvider.getInstance().getCurrentMesh().getScheduler().isScheduled();
 
     //System.out.println(this.toString());
   }
@@ -496,6 +499,7 @@ private void initWorkingSpace(){
     drawWorkspace();
     drawWorkingSpace();
 
+    ((BaseVisualization3DProcessor) processor).getAnimationProcessor().cameraMovementForExport(isExporting);
     moveCamera();
 
     startExport();
@@ -649,11 +653,16 @@ private void initWorkingSpace(){
 
   @Override
   public synchronized void export() {
+    if(pathchoice==0){
+      isFolderSelected = false;
+      selectFolder("choose a directory", "folderSelected", null, this);
+    }
     isExporting = true;
+
   }
 
   private void endExport() {
-    if (isExporting) {
+    if (isExporting && isFolderSelected) {
       isExporting = false;
       endRaw();
 
@@ -663,11 +672,7 @@ private void initWorkingSpace(){
   }
 
   private void startExport() {
-    if (isExporting) {
-      if(pathchoice==0){
-        selectFolder("choose a directory", "folderSelected", null, this);
-        pathchoice=1;
-      }
+    if (isExporting && isFolderSelected) {
 
       String modelName = MeshProvider.getInstance().getModel().getModelName();
       StringBuilder exportFileName = new StringBuilder();
@@ -754,6 +759,7 @@ private void initWorkingSpace(){
     } else {
       println("User selected " + selection.getAbsolutePath());
       path = selection.getAbsolutePath();
+      isFolderSelected = true;
     }
   }
 
@@ -765,6 +771,11 @@ private void initWorkingSpace(){
    * display then export each shape one by one
    */
   public void exportAll(){
+    if(pathchoice==0){
+      isFolderSelected = false;
+      selectFolder("choose a directory", "folderSelected", null, this);
+      pathchoice=1;
+    }
     ExpInd.set(0);
     try {
       waitshaping.await();
@@ -909,12 +920,12 @@ private void initWorkingSpace(){
 
 
   private void drawAnimationShape() {
-      if (animationShapes != null) {
+    if (animationShapes != null) {
       Vector3 v = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
       pushMatrix();
       translate((float) v.x, (float) v.y, (float) v.z);
       animationShapes.forEach(this::shape);
-popMatrix();
+        popMatrix();
     }
   }
 

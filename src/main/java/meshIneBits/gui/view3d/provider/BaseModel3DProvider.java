@@ -116,16 +116,16 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
             .collect(Collectors.toCollection(Vector::new));
         return new AnimationShape(subBitShapes);
       case BY_LAYER:
-      default:
         Vector<PShape> layerShapes = new Vector<>();
         for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-          if (bitShape.getLayerId() >= layerShapes.size()
-              || layerShapes.get(bitShape.getLayerId()) == null) {
-            layerShapes.add(bitShape.getLayerId(), context.createShape(PConstants.GROUP));
+          if (bitShape.getLayerId() >= layerShapes.size()) {
+            layerShapes.add(context.createShape(PConstants.GROUP));
           }
           layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
         }
         return new AnimationShape(layerShapes);
+      default:
+        return null;
     }
   }
 

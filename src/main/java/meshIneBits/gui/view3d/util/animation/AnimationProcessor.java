@@ -11,17 +11,11 @@ import meshIneBits.gui.view3d.provider.IAnimationModel3DProvider;
 import meshIneBits.gui.view3d.provider.IAssemblyWorkingSpaceProvider;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.gui.view3d.view.BaseVisualization3DView;
-import meshIneBits.util.CustomLogger;
-import meshIneBits.util.Logger;
-import meshIneBits.util.MultiThreadServiceExecutor;
-import meshIneBits.util.Vector3;
+import meshIneBits.util.*;
 import processing.core.PConstants;
 import processing.core.PShape;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,6 +37,7 @@ public class AnimationProcessor {
 
   private final IAnimationModel3DProvider animationProvider;
   private IAssemblyWorkingSpaceProvider wsProvider;
+  private int previousIndex = 0;
   private AnimationShape currentAnimationShape;
   private AnimationOption option = Visualization3DConfig.defaultAnimationOption;
   private AnimationMode mode = Visualization3DConfig.defaultAnimationMode;
@@ -104,6 +99,7 @@ public static AtomicInteger ind= new AtomicInteger(0);
 
   private void initIndex() {
     index.set(0);
+    previousIndex = 0;
     indexMax = currentAnimationShape.size() - 1;
     listeners.forEach(listener -> listener.updateIndexRange(0, indexMax));
   }
@@ -183,12 +179,11 @@ public static boolean getpausing(){
         exported = new CountDownLatch(1);
         ind.set(0);
 
-        try {
+          try {
           while (isActivated.get()) {
             final AtomicInteger index = AnimationProcessor.this.index;
             listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
             Vector<PShape> shapes = currentAnimationShape.setAnimationIndex(index.get()).getDisplayShapes();
-            cameraMovementForExport();
             callback.accept(shapes);
             waitshaping.countDown();
 
@@ -304,72 +299,90 @@ public static boolean getpausing(){
         }
       }
     }
+  }
 
-    private void cameraMovementForExport() {
-
+  public void cameraMovementForExport(boolean exporting) {
+    if(exporting && (previousIndex == 0 || previousIndex < index.intValue())) {
+      previousIndex = index.intValue();
       Vector<BitShape> bitShapes = ((BaseModel3DProvider) animationProvider).getbitShapes();
+      Vector3 modelPos = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
+
+      Vector3 newPos = null;
+      Vector2 newOrientation = null;
+      BitShape bitShape = null;
 
       switch (option) {
         case BY_BIT:
-          Vector3 newPos = null;
-          Vector3 newOrientation = null;
-          for (BitShape bitShape : bitShapes){
-            if(bitShape.getShape().equals(currentAnimationShape.getDisplayShapes().get(0))){
-              println("found");
-              newPos = new Vector3(bitShape.getBit().getOrigin().x,
-                      bitShape.getBit().getOrigin().y,
-                      bitShape.getBit().getLowerAltitude());
-              newOrientation = new Vector3(bitShape.getBit().getOrigin().x + bitShape.getBit().getOrientation().x,
-                      bitShape.getBit().getOrigin().y + bitShape.getBit().getOrientation().y,
-                      0);
-            }
-          }
-          if(newPos != null){
-            view3D.nextCameraPos.newCameraPos((float) newPos.x, (float) newPos.y, (float) newPos.z, (float) newOrientation.x, (float) newOrientation.y, (float) newOrientation.z, 0.0f,0.0f,1.0f);
-          }
+          bitShape = bitShapes.get(index.intValue());
+
+          newPos = new Vector3(bitShape.getBit().getOrigin().x + modelPos.x,
+                  bitShape.getBit().getOrigin().y + modelPos.y,
+                  bitShape.getBit().getLowerAltitude()+ modelPos.z);
+          // Rotate by -90 degrees so the x of the coordinate system matches
+          // the orientation vector of the bit
+          newOrientation = new Vector2(
+                  bitShape.getBit().getOrientation().y,
+                  -bitShape.getBit().getOrientation().x);
           break;
         case BY_BATCH:
-          /*
-          Vector<PShape> batchShapes = new Vector<>();
-          for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-
-            for (SubBitShape subBitShape : bitShape.getSubBitShapes()) {
-
-
-              if (subBitShape.getBatchId() >= batchShapes.size()
-                      || batchShapes.get(subBitShape.getBatchId()) == null) {
-
-                batchShapes.add(subBitShape.getBatchId(), context.createShape(PConstants.GROUP));
-              }
-              batchShapes.get(subBitShape.getBatchId()).addChild(subBitShape.getShape());
-            }
-
-          }
-          return new AnimationShape(batchShapes);
-
-           */
+          newPos = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
+          // A rotation on the model rotates every triangle of the mesh, the rotation is then taken into account during paving
+          // the rotation in then not stored as a value but rather inherently stored in the bit's orientation
+          newOrientation = new Vector2(0, 0);
+          break;
         case BY_SUB_BIT:
-          /*
-          Vector<PShape> subBitShapes = meshPavedResult.getBitShapes()
+          Vector<SubBitShape> subbitShapes = bitShapes
                   .stream()
                   .map(BitShape::getSubBitShapes)
                   .flatMap(Collection::stream)
-                  .map(SubBitShape::getShape)
                   .collect(Collectors.toCollection(Vector::new));
-          return new AnimationShape(subBitShapes);
-        case BY_LAYER:
-        default:
-          Vector<PShape> layerShapes = new Vector<>();
-          for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-            if (bitShape.getLayerId() >= layerShapes.size()
-                    || layerShapes.get(bitShape.getLayerId()) == null) {
-              layerShapes.add(bitShape.getLayerId(), context.createShape(PConstants.GROUP));
-            }
-            layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
-          }
-          return new AnimationShape(layerShapes);
+          SubBitShape subbitShape = subbitShapes.get(index.intValue());
 
+          double newPosZ = 0;
+          for(BitShape bitShape1 : bitShapes){
+            if(bitShape1.getBit().getBaseBit().equals(subbitShape.getSubbitOrigin().getParentBit())){
+              newPosZ = bitShape1.getBit().getLowerAltitude();
+              bitShape = bitShape1;
+              break;
+            }
+          }
+          newPos = new Vector3(subbitShape.getSubbitOrigin().getLiftPointCS().x + modelPos.x,
+                  subbitShape.getSubbitOrigin().getLiftPointCS().y + modelPos.y,
+                  newPosZ + modelPos.z);
+          // Rotate by -90 degrees so the x of the coordinate system matches
+          // the orientation vector of the bit
+          newOrientation = new Vector2(
+                  bitShape.getBit().getOrientation().y,
+                  -bitShape.getBit().getOrientation().x);
+          break;
+
+        case BY_LAYER:
+          /*
+          Vector<PShape> layerShapes = new Vector<>();
+        for (BitShape bitShape : meshPavedResult.getBitShapes()) {
+          if (bitShape.getLayerId() >= layerShapes.size()) {
+            layerShapes.add(context.createShape(PConstants.GROUP));
+          }
+          layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
+        }
+        return new AnimationShape(layerShapes);
            */
+          break;
+        default:
+          break;
+      }
+      if (newPos != null) {
+        //See OpenGL gluLookAt function to understand camera manipulations
+        view3D.nextCameraPos.newCameraPos(
+                (float) newPos.x,
+                (float) newPos.y,
+                (float) newPos.z,
+                (float) newPos.x,
+                (float) newPos.y,
+                (float) newPos.z + 100,
+                (float) newOrientation.x,
+                (float) newOrientation.y,
+                0f);
       }
     }
   }

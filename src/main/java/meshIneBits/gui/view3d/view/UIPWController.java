@@ -113,15 +113,17 @@ private int i=0;
         break;
       case EXPORTAll:
         if (MeshProvider.getInstance().getCurrentMesh().isPaved()) {
-          if (callbackObj instanceof UIPWAnimation && ((UIPWAnimation) callbackObj).isCurrentToggled()) {
-            processor.setDisplayOneByOne(true);
+          //Will only allow export if mode is one by one and not batch or full and batch
+          if (callbackObj instanceof UIPWAnimation &&
+                  ((((UIPWAnimation) callbackObj).isCurrentToggled() && ! ((UIPWAnimation) callbackObj).isBatchToggled()) ||
+                          (((UIPWAnimation) callbackObj).isFullToggled()) && ((UIPWAnimation) callbackObj).isBatchToggled())) {
             Exportation = true;
             processor.activateAnimation();
             IndexExport = 0;
             processor.exportAll();
             Exportation = false;
           }else{
-            Logger.warning("Changer le mode d'animation vers one by one");
+            Logger.warning("Change animation mode to one by one or to full and by batch");
           }
         }
         break;

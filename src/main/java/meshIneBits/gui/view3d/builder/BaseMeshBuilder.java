@@ -68,7 +68,7 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
   }
 
   private void updateBitShapeLocation(Bit3D bit3D, BitShape bitShape) {
-    bitShape.rotateZ(PApplet.radians((float) bit3D.getOrientation().getEquivalentAngle2()));
+    bitShape.rotateZ((float) bit3D.getOrientation().getEquivalentAngleRad());
 //    bitShape.getShape().rotate(bit3D.getOrientation().get);
     bitShape.setBit(bit3D);
     bitShape.translate(
