@@ -53,35 +53,35 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   public static UIPWController uipwController;
   public static IVisualization3DProcessor processor;
   private ModelChangesListener mcListener;
-  public static CountDownLatch waitshaping=new CountDownLatch(1);
+  public static CountDownLatch waitshaping = new CountDownLatch(1);
   private CustomInteractiveFrame frame;
   private Scene scene;
   private ControlP5 cp5View;
   private ControlP5 cp5Animation;
-  public static CountDownLatch notyet=new CountDownLatch(1);
+  public static CountDownLatch notyet = new CountDownLatch(1);
   private float printerX;
   private float printerY;
   private float printerZ;
-  private AtomicInteger ExpInd=new AtomicInteger(0);
+  private AtomicInteger ExpInd = new AtomicInteger(0);
   private PShape shape;
-  private HashMap<Integer,PShape> meshShapes=new HashMap<Integer,PShape>();
+  private HashMap<Integer, PShape> meshShapes = new HashMap<Integer, PShape>();
   private PShape meshShape;
   private Vector<PShape> animationShapes;
   private com.jogamp.newt.opengl.GLWindow win;
   private final DecimalFormat df;
   public static int IndexExport = 0;
-  private  int pathchoice = 0;
+  private int pathchoice = 0;
   public NextCameraPos nextCameraPos = new NextCameraPos();
 
-  public static float Xpos=0,Ypos=0,Zpos=0;
+  public static float Xpos = 0, Ypos = 0, Zpos = 0;
   public static ArrayList<ArrayList<Strip>> meshstrips;
 
   private boolean isExporting = false;
-  public static int WindowStatus=0;// false=closed/true=opened
+  public static int WindowStatus = 0;// false=closed/true=opened
   private PShape rectange;
-  private int num_batch=0;
-  private CountDownLatch stillExporting=new CountDownLatch(1);
-  private String path="";
+  private int num_batch = 0;
+  private CountDownLatch stillExporting = new CountDownLatch(1);
+  private String path = "";
   private int lastLayoutW = -1;
   private int lastLayoutH = -1;
 
@@ -90,11 +90,12 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
   //Flag to allow or prevent user to start "By batch" animation when the mesh isn't scheduled.
   private static boolean meshScheduled;
 
-  public BaseVisualization3DView(){
+  public BaseVisualization3DView() {
 
   }
 
-  private int i=0;
+  private int i = 0;
+
   {
 
     df = new DecimalFormat("#.##");
@@ -102,28 +103,27 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     df.setRoundingMode(RoundingMode.CEILING);
   }
 
-  public  void startProcessingModelView() {
-  play();
+  public void startProcessingModelView() {
+    play();
 
   }
 
-  public void setMeshWindow(MeshWindow meshWindow){
+  public void setMeshWindow(MeshWindow meshWindow) {
     BaseVisualization3DView.meshWindow = meshWindow;
   }
 
-public void play(){
+  public void play() {
 
-  if (!MeshProvider.getInstance().isAvailable()) {
-    logger.logERRORMessage("Model and Mesh are not available!");
-    Logger.updateStatus("Model and Mesh are not available!");
-    return;
+    if (!MeshProvider.getInstance().isAvailable()) {
+      logger.logERRORMessage("Model and Mesh are not available!");
+      Logger.updateStatus("Model and Mesh are not available!");
+      return;
+    }
+    WindowStatus = 1;
+    PApplet.main(BaseVisualization3DView.class.getCanonicalName());
+
+
   }
-  WindowStatus=1;
-  PApplet.main(BaseVisualization3DView.class.getCanonicalName());
-
-
-}
-
 
 
   public void settings() {
@@ -181,19 +181,11 @@ public void play(){
 */
 
 
-
-
-
-
-
-
-
-
   private void setCloseOperation() {
 
 
     //Removing close listeners
-     win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
+    win = (com.jogamp.newt.opengl.GLWindow) surface.getNative();
     for (com.jogamp.newt.event.WindowListener wl : win.getWindowListeners()) {
       win.removeWindowListener(wl);
     }
@@ -202,7 +194,7 @@ public void play(){
 
     win.addWindowListener(new WindowAdapter() {
       public void windowDestroyed(WindowEvent e) {
-        WindowStatus=0;
+        WindowStatus = 0;
         Logger.updateStatus("");
         closeEntire3DView();
       }
@@ -243,11 +235,12 @@ public void play(){
     init3DFrame();
 
     initProcessor();
-      meshShape = processor.getModelProvider().getMeshShape();
+    meshShape = processor.getModelProvider().getMeshShape();
     shape = processor.getModelProvider().getModelShape();
 
-    if(MeshProvider.getInstance().getCurrentMesh().isPaved()) meshstrips=processor.getModelProvider().getMeshstrips();
-     meshShapes.put(0,meshShape);
+    if (MeshProvider.getInstance().getCurrentMesh().isPaved())
+      meshstrips = processor.getModelProvider().getMeshstrips();
+    meshShapes.put(0, meshShape);
     frame.setShape(shape);
 
     initControlComponent();
@@ -265,20 +258,21 @@ public void play(){
 
     //System.out.println(this.toString());
   }
-private void initWorkingSpace(){
-  rectange=null;
-    stroke(255, 0, 0);
-  strokeWeight(5);
-  noFill();
-  rectange=createShape();
-  rectange.beginShape();
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2,0);
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2+CraftConfig.printerY,0);
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printerY,0);
-  rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
-  rectange.endShape(PConstants.CLOSE);
 
-}
+  private void initWorkingSpace() {
+    rectange = null;
+    stroke(255, 0, 0);
+    strokeWeight(5);
+    noFill();
+    rectange = createShape();
+    rectange.beginShape();
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2, 0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2 + CraftConfig.printerY, 0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20 + CraftConfig.workingWidth, -printerY / 2 + CraftConfig.printerY, 0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20 + CraftConfig.workingWidth, -printerY / 2, 0);
+    rectange.endShape(PConstants.CLOSE);
+
+  }
 
   private void updatePositionChangesOnModel() {
     if (mcListener != null) {
@@ -319,13 +313,13 @@ private void initWorkingSpace(){
     float panelH = height;
 
     uipwView = new UIPWView(
-        this, cp5View, uipwController,
-        0, 0, panelW, panelH);
+            this, cp5View, uipwController,
+            0, 0, panelW, panelH);
     uipwView.init();
 
     uipwAnimation = new UIPWAnimation(
-        this, cp5Animation, uipwController,
-        width - panelW, 0, panelW, panelH);
+            this, cp5Animation, uipwController,
+            width - panelW, 0, panelW, panelH);
     uipwAnimation.init();
 
     uipwView.layout(0, 0, panelW, panelH);
@@ -336,7 +330,7 @@ private void initWorkingSpace(){
 
     if (processor instanceof BaseVisualization3DProcessor) {
       ((BaseVisualization3DProcessor) processor).getAnimationProcessor()
-          .addOnIndexIncreasedListener(uipwAnimation);
+              .addOnIndexIncreasedListener(uipwAnimation);
     }
   }
 
@@ -374,11 +368,13 @@ private void initWorkingSpace(){
 
   private void initProcessor() {
 
-      processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
+    processor = new BaseVisualization3DProcessor(MeshProvider.getInstance().getCurrentMesh(),
             this);
   }
 
-  /** Clears static animation/working-space state between simulations or view rebuilds. */
+  /**
+   * Clears static animation/working-space state between simulations or view rebuilds.
+   */
   private static void resetAnimationSessionState() {
     pos = 0;
     Xpos = 0;
@@ -432,7 +428,7 @@ private void initWorkingSpace(){
     this.surface.setTitle(title);
     this.surface.setLocation(locationX, locationY);
     setCloseOperation();
-   // refresh();
+    // refresh();
   }
 
   @SuppressWarnings("all")
@@ -446,7 +442,6 @@ private void initWorkingSpace(){
     scene.toggleGridVisualHint();
 
   }
-
 
 
   @Override
@@ -467,7 +462,7 @@ private void initWorkingSpace(){
   @Override
   public void
   setDisplayShapes(Vector<PShape> displayShapes) {
-        animationShapes = displayShapes;
+    animationShapes = displayShapes;
   }
 
   @Override
@@ -511,7 +506,9 @@ private void initWorkingSpace(){
     drawEmbeddedUI();
   }
 
-  /** Prefer the native GL window size (reliable after snap/split-screen resize). */
+  /**
+   * Prefer the native GL window size (reliable after snap/split-screen resize).
+   */
   private int layoutWidth() {
     if (win != null && win.getWidth() > 0) {
       return win.getWidth();
@@ -526,7 +523,9 @@ private void initWorkingSpace(){
     return height;
   }
 
-  /** Keep Processing dimensions aligned with the OS window after snap resize. */
+  /**
+   * Keep Processing dimensions aligned with the OS window after snap resize.
+   */
   private void syncSurfaceSizeIfNeeded() {
     if (win == null) {
       return;
@@ -584,7 +583,9 @@ private void initWorkingSpace(){
     layoutEmbeddedPanelsIfNeeded(force, layoutWidth(), layoutHeight());
   }
 
-  /** True when x is over a left/right embedded panel (not the 3D center). */
+  /**
+   * True when x is over a left/right embedded panel (not the 3D center).
+   */
   private boolean isOverSidePanel(int x) {
     int layoutW = layoutWidth();
     int panelW = sidePanelWidth(layoutW);
@@ -599,7 +600,9 @@ private void initWorkingSpace(){
     return isMouseOverSidePanel();
   }
 
-  /** Panel width follows the current window (1/5), capped so panels never overlap. */
+  /**
+   * Panel width follows the current window (1/5), capped so panels never overlap.
+   */
   private int sidePanelWidth() {
     return sidePanelWidth(layoutWidth());
   }
@@ -640,10 +643,10 @@ private void initWorkingSpace(){
   private void drawSidePanelBackgrounds() {
     noStroke();
     fill(
-        Visualization3DConfig.UIPW_BACKGROUND.getRed(),
-        Visualization3DConfig.UIPW_BACKGROUND.getGreen(),
-        Visualization3DConfig.UIPW_BACKGROUND.getBlue(),
-        220);
+            Visualization3DConfig.UIPW_BACKGROUND.getRed(),
+            Visualization3DConfig.UIPW_BACKGROUND.getGreen(),
+            Visualization3DConfig.UIPW_BACKGROUND.getBlue(),
+            220);
     int layoutW = layoutWidth();
     int layoutH = layoutHeight();
     int panelW = sidePanelWidth(layoutW);
@@ -653,7 +656,7 @@ private void initWorkingSpace(){
 
   @Override
   public synchronized void export() {
-    if(pathchoice==0){
+    if (pathchoice == 0) {
       isFolderSelected = false;
       selectFolder("choose a directory", "folderSelected", null, this);
     }
@@ -691,37 +694,32 @@ private void initWorkingSpace(){
                   .append(".obj");
           break;
         case ANIMATION_VIEW:
-          if(option== AnimationProcessor.AnimationOption.BY_LAYER)
-          {exportFileName.append("Layers/layer")
-                  .append("-")
-                  .append(IndexExport)
-                  .append(".obj");
-          }
-          else if(option== AnimationProcessor.AnimationOption.BY_BIT)
-          {
-            if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
+          if (option == AnimationProcessor.AnimationOption.BY_LAYER) {
+            exportFileName.append("Layers/layer")
+                    .append("-")
+                    .append(IndexExport)
+                    .append(".obj");
+          } else if (option == AnimationProcessor.AnimationOption.BY_BIT) {
+            if (IndexExport != 0 && IndexExport % 72 == 0) num_batch++;
             exportFileName.append("Bits/lot")
-                    .append("-"+num_batch)
+                    .append("-" + num_batch)
                     .append("/")
                     .append(IndexExport)
-                    .append("_"+num_batch)
+                    .append("_" + num_batch)
                     .append(".obj");
-          }
-          else if(option== AnimationProcessor.AnimationOption.BY_SUB_BIT)
-          {
-            if(IndexExport!=0&&IndexExport % 72==0) num_batch++;
+          } else if (option == AnimationProcessor.AnimationOption.BY_SUB_BIT) {
+            if (IndexExport != 0 && IndexExport % 72 == 0) num_batch++;
             exportFileName.append("SubBits/lot")
-                    .append("-"+num_batch)
+                    .append("-" + num_batch)
                     .append("/")
                     .append(IndexExport)
-                    .append("_"+num_batch)
+                    .append("_" + num_batch)
                     .append(".obj");
-          }
-          else if(option== AnimationProcessor.AnimationOption.BY_BATCH)
-          {exportFileName.append("Batches/lot")
-                  .append("-")
-                  .append(IndexExport)
-                  .append(".obj");
+          } else if (option == AnimationProcessor.AnimationOption.BY_BATCH) {
+            exportFileName.append("Batches/lot")
+                    .append("-")
+                    .append(IndexExport)
+                    .append(".obj");
           }
           break;
         default:
@@ -729,14 +727,15 @@ private void initWorkingSpace(){
                   "Unexpected value: " + processor.getDisplayState().getState());
       }
       logger.logDEBUGMessage("Exporting " + exportFileName);
-      beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER,path+"\\"+ exportFileName.toString());
-    IndexExport++;
+      beginRaw(Visualization3DConfig.EXPORT_3D_RENDERER, path + "\\" + exportFileName.toString());
+      IndexExport++;
     }
   }
 
 
   /**
    * Method to choose a directory for the exported 3d objects
+   *
    * @return the path of the chosen directory
    */
   /*
@@ -753,6 +752,7 @@ private void initWorkingSpace(){
 
    */
 
+  @SuppressWarnings("unused")
   public void folderSelected(File selection) {
     if (selection == null) {
       println("Window was closed or the user hit cancel.");
@@ -771,6 +771,7 @@ private void initWorkingSpace(){
    * display then export each shape one by one
    */
   public void exportAll(){
+    num_batch = 0;
     if(pathchoice==0){
       isFolderSelected = false;
       selectFolder("choose a directory", "folderSelected", null, this);
