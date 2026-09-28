@@ -301,6 +301,11 @@ public static boolean getpausing(){
     }
   }
 
+  /**
+   * Gets the current origin of the displayed object and updates the view's next camera position.
+   *
+   * @param exporting
+   */
   public void cameraMovementForExport(boolean exporting) {
     if(exporting && (previousIndex == 0 || previousIndex < index.intValue())) {
       previousIndex = index.intValue();

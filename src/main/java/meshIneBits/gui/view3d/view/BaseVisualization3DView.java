@@ -494,7 +494,6 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     drawWorkspace();
     drawWorkingSpace();
 
-    ((BaseVisualization3DProcessor) processor).getAnimationProcessor().cameraMovementForExport(isExporting);
     moveCamera();
 
     startExport();
@@ -752,6 +751,11 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
    */
 
+  /**
+   * Callback function that executes after the user input in the Processing file chooser.
+   *
+   * @param selection
+   */
   @SuppressWarnings("unused")
   public void folderSelected(File selection) {
     if (selection == null) {
@@ -811,7 +815,13 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     pathchoice=0;
   }
 
+  /**
+   * Calls the animation processor function to get the position of the currently displayed object and move the camera to this new position
+   * Only works during export.
+   *
+   */
   public void moveCamera(){
+    ((BaseVisualization3DProcessor) processor).getAnimationProcessor().cameraMovementForExport(isExporting);
     if(nextCameraPos.hasChanged) {
       println("Going to : " + nextCameraPos.eyeX + " , " + nextCameraPos.eyeY + " , " + nextCameraPos.eyeZ);
       super.camera(nextCameraPos.eyeX,
@@ -827,6 +837,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     }
   }
 
+  /**
+   * Class to store a camera position and if the position has changed.
+   */
   public static class NextCameraPos{
     public float eyeX;
     public float eyeY;
