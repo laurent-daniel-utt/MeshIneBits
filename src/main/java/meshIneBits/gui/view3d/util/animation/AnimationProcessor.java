@@ -309,6 +309,7 @@ public static boolean getpausing(){
   public void cameraMovementForExport(boolean exporting) {
     if(exporting && (previousIndex == 0 || previousIndex < index.intValue())) {
       previousIndex = index.intValue();
+
       Vector<BitShape> bitShapes = ((BaseModel3DProvider) animationProvider).getbitShapes();
       Vector3 modelPos = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
 
@@ -335,7 +336,6 @@ public static boolean getpausing(){
           // A rotation on the model rotates every triangle of the mesh, the rotation is then taken into account during paving
           // the rotation in then not stored as a value but rather inherently stored in the bit's orientation
           newOrientation = new Vector2(0, -1);
-          zCenter = -100;
           break;
         case BY_SUB_BIT:
           Vector<SubBitShape> subbitShapes = bitShapes
@@ -384,7 +384,7 @@ public static boolean getpausing(){
         view3D.nextCameraPos.newCameraPos(
                 (float) newPos.x,
                 (float) newPos.y,
-                (float) newPos.z,
+                (float) -newPos.z, // because the shape has to be mirrored along the horizontal plan during export to be exported correctly.
                 (float) newPos.x,
                 (float) newPos.y,
                 (float) (newPos.z + zCenter),

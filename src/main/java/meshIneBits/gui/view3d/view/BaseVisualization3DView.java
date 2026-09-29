@@ -937,6 +937,11 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     if (animationShapes != null) {
       Vector3 v = MeshProvider.getInstance().getCurrentMesh().getModel().getPos();
       pushMatrix();
+      if(isExporting) {
+        // Due to an error, probably from the custom export renderer, the objects have to be mirrored along the horizontal plan
+        // to be exported correctly.
+        scale(1, 1, -1);
+      }
       translate((float) v.x, (float) v.y, (float) v.z);
       animationShapes.forEach(this::shape);
         popMatrix();
