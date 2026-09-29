@@ -907,6 +907,11 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     if (meshShape != null) {
       Vector3 v = MeshProvider.getInstance().getModel().getPos();
       pushMatrix();
+      if(isExporting) {
+        // Due to an error, probably from the custom export renderer, the objects have to be mirrored along the horizontal plan
+        // to be exported correctly.
+        scale(1, 1, -1);
+      }
       translate((float) v.x, (float) v.y, (float) v.z);
       shape(meshShape);
       popMatrix();
@@ -1125,6 +1130,7 @@ if(Xpos==pos){
       }
       Logger.updateStatus("");
     });t.start();
+    WindowStatus = 1;
     Logger.updateStatus("3d interface Refreshed");
 
 

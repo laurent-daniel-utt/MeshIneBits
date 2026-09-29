@@ -102,7 +102,9 @@ private  ArrayList<ArrayList<Strip>> meshstrips=new ArrayList<>();
     });
     shapeBit.getShape().setFill(Visualization3DConfig.MESH_COLOR.getRGB());
    if(WindowStatus==2){
-    shapeBit.getShape().setStrokeWeight(1);
+    shapeBit.getShape().setStrokeWeight(1f);
+   }else{
+     shapeBit.getShape().setStrokeWeight(0.3f);
    }
     return shapeBit;
   }
