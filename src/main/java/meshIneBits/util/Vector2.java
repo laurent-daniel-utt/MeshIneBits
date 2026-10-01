@@ -159,6 +159,11 @@ public class Vector2 implements Serializable {
     //return (Math.atan(y / x) * 180) / Math.PI;
   }
 
+  public double getEquivalentAngleRad() {
+    return (Math.atan2(y, x));// TODO: 2021-01-17 I think it's better ?
+    //return (Math.atan(y / x) * 180) / Math.PI;
+  }
+
   /**
    * Value between 0 - 360 //TODO: 2021-01-17 the value returned is actually between -180 and 180,
    * this has to be corrected

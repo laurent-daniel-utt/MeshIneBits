@@ -13,6 +13,7 @@ import meshIneBits.gui.view3d.util.animation.AnimationProcessor;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationMode;
 import meshIneBits.gui.view3d.util.animation.AnimationProcessor.AnimationOption;
 import meshIneBits.gui.view3d.view.AbstractVisualization3DView;
+import meshIneBits.gui.view3d.view.BaseVisualization3DView;
 import processing.core.PShape;
 import remixlab.dandelion.geom.Vec;
 
@@ -43,6 +44,7 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
     if (modelProvider instanceof IAssemblyWorkingSpaceProvider
         && modelProvider instanceof IAnimationModel3DProvider) {
       animation = new AnimationProcessor(
+              (BaseVisualization3DView) view3D,
           (IAnimationModel3DProvider) modelProvider,
           (IAssemblyWorkingSpaceProvider) modelProvider);
     } else {
@@ -210,7 +212,18 @@ public class BaseVisualization3DProcessor implements IVisualization3DProcessor {
    * Export obj files for the simulation
    */
   public void exportAll() {
-    view3D.exportAll();
+      // The new thread is absolutely necessary because exportAll function uses
+      // stillExporting countDownLatch which would otherwise definitely block the
+      // main thread of the view3D as the unblocking of stillExporting is made
+      // in the main thread of the view3D
+      Thread exportAllThread = new Thread(new Runnable() {
+          @Override
+          public void run() {
+
+              view3D.exportAll();
+          }
+      });
+      exportAllThread.start();
   }
   @Override
   public void activateAnimation() {

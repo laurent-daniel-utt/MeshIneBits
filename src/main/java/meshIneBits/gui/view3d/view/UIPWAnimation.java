@@ -548,4 +548,16 @@ public class UIPWAnimation extends UIParameterPanel implements
       }
     }
   }
+
+  public boolean isCurrentToggled(){
+    return toggleCurrent.getState();
+  }
+
+  public boolean isFullToggled(){
+    return toggleFull.getState();
+  }
+
+  public boolean isBatchToggled(){
+    return toggleBatch.getState();
+  }
 }

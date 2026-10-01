@@ -1,5 +1,7 @@
 package meshIneBits.gui.view3d.builder;
 
+import meshIneBits.SubBit2D;
+import meshIneBits.util.Vector3;
 import processing.core.PShape;
 
 public class SubBitShape {
@@ -7,6 +9,8 @@ public class SubBitShape {
   private  PShape shape;
   private int batchId;
   private int layerId;
+
+  private SubBit2D subbit;
 
   public SubBitShape(PShape shape) {
     this.shape = shape;
@@ -32,5 +36,13 @@ public class SubBitShape {
 
   public int getLayerId() {
     return layerId;
+  }
+
+  public void setSubbit(SubBit2D subbit){
+    this.subbit = subbit;
+  }
+
+  public SubBit2D getSubbitOrigin(){
+    return subbit;
   }
 }

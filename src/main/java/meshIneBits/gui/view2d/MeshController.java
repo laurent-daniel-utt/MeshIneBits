@@ -446,6 +446,7 @@ public static CountDownLatch r=new CountDownLatch(1);
 
   public void reset() {
     setSelectedBitKeys(null);
+    setSelectedSubBit(null);
     setAddingBits(false);
     clearSelectingRegion(true);
   }

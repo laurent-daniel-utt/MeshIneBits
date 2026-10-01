@@ -97,10 +97,9 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
           for(SubBitShape subBitShape : bitShape.getSubBitShapes()){
 
 
-            if (subBitShape.getBatchId() >= batchShapes.size()
-                || batchShapes.get(subBitShape.getBatchId()) == null) {
+            if (subBitShape.getBatchId() >= batchShapes.size()) {
 
-              batchShapes.add(subBitShape.getBatchId(), context.createShape(PConstants.GROUP));
+              batchShapes.add(context.createShape(PConstants.GROUP));
             }
             batchShapes.get(subBitShape.getBatchId()).addChild(subBitShape.getShape());
           }
@@ -116,16 +115,16 @@ public class BaseModel3DProvider implements IModel3DProvider, IAnimationModel3DP
             .collect(Collectors.toCollection(Vector::new));
         return new AnimationShape(subBitShapes);
       case BY_LAYER:
-      default:
         Vector<PShape> layerShapes = new Vector<>();
         for (BitShape bitShape : meshPavedResult.getBitShapes()) {
-          if (bitShape.getLayerId() >= layerShapes.size()
-              || layerShapes.get(bitShape.getLayerId()) == null) {
-            layerShapes.add(bitShape.getLayerId(), context.createShape(PConstants.GROUP));
+          if (bitShape.getLayerId() >= layerShapes.size()) {
+            layerShapes.add(context.createShape(PConstants.GROUP));
           }
           layerShapes.get(bitShape.getLayerId()).addChild(bitShape.getShape());
         }
         return new AnimationShape(layerShapes);
+      default:
+        return null;
     }
   }
 

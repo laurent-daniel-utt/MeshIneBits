@@ -1,6 +1,10 @@
 package meshIneBits.gui.view3d.builder;
 
 import java.util.Vector;
+
+import meshIneBits.Bit3D;
+import meshIneBits.SubBit2D;
+import meshIneBits.util.Vector3;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PShape;
@@ -10,6 +14,8 @@ public class BitShape {
   private final PShape shape;
   private final Vector<SubBitShape> subBitShapes = new Vector<>();
   private Integer layerId;
+
+  private Bit3D bit;
 
   public BitShape(PShape shapeBit) {
     this.shape = shapeBit;
@@ -24,7 +30,8 @@ public class BitShape {
   }
 
   @SuppressWarnings("unused")
-  public void addSubBit(SubBitShape subBitShape) {
+  public void addSubBit(SubBitShape subBitShape, SubBit2D subbit) {
+    subBitShape.setSubbit(subbit);
     this.shape.addChild(subBitShape.getShape());
     if (!subBitShapes.contains(subBitShape)) {
       subBitShapes.add(subBitShape);
@@ -56,5 +63,13 @@ public class BitShape {
 
   public void rotateZ(float radians) {
     subBitShapes.forEach(subBitShape -> subBitShape.getShape().rotate(radians));
+  }
+
+  public void setBit(Bit3D bit){
+    this.bit = bit;
+  }
+
+  public Bit3D getBit(){
+    return bit;
   }
 }

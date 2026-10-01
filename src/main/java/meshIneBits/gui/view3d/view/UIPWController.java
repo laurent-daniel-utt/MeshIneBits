@@ -3,6 +3,7 @@ package meshIneBits.gui.view3d.view;
 import meshIneBits.gui.view3d.Processor.IVisualization3DProcessor;
 import meshIneBits.gui.view3d.provider.MeshProvider;
 import meshIneBits.util.CustomLogger;
+import meshIneBits.util.Logger;
 import processing.core.PShape;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -111,13 +112,20 @@ private int i=0;
         processor.setAnimationIndex(Math.round((float) value));
         break;
       case EXPORTAll:
-        if (MeshProvider.getInstance().getCurrentMesh().isPaved()){
-          processor.setDisplayOneByOne(true);
-          Exportation=true;
-          processor.activateAnimation();
-          IndexExport=0;
-          processor.exportAll();
-          Exportation=false;}
+        if (MeshProvider.getInstance().getCurrentMesh().isPaved()) {
+          //Will only allow export if mode is one by one and not batch or full and batch
+          if (callbackObj instanceof UIPWAnimation &&
+                  ((((UIPWAnimation) callbackObj).isCurrentToggled() && ! ((UIPWAnimation) callbackObj).isBatchToggled()) ||
+                          (((UIPWAnimation) callbackObj).isFullToggled()) && ((UIPWAnimation) callbackObj).isBatchToggled() && MeshProvider.getInstance().getCurrentMesh().getScheduler().isScheduled())) {
+            Exportation = true;
+            processor.activateAnimation();
+            IndexExport = 0;
+            processor.exportAll();
+            Exportation = false;
+          }else{
+            Logger.warning("Change animation mode to one by one or to full and by batch");
+          }
+        }
         break;
       case NEXT:
       if(isAnimating.get() && getpausing()){
