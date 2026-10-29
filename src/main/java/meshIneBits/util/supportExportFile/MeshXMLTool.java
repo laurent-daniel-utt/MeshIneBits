@@ -296,20 +296,23 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
         Integer.toString(mMesh.getScheduler()
             .getBitIndex(bit3D)));
     elementBit.appendChild(bitId);
-    //Cut bit element
-    Element cut = bit3D.getCutPathsCB()
-        .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
-        : createElement(MeshTagXML.CUT_BIT);
+
     rebuildBit3d(bit3D);
     prepareBitToExport(bit3D);
+
+    //sub bit of bit
+    writeSubBitElementToBit(elementBit, bit3D);
+
+    //Cut bit element
+    Element cut = bit3D.getCutPathsCB()
+            .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
+            : createElement(MeshTagXML.CUT_BIT);
     for (Path2D cutPath : bit3D.getCutPathsCB()) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
     }
     elementBit.appendChild(cut);
 
-    //sub bit of bit
-    writeSubBitElementToBit(elementBit, bit3D);
     return elementBit;
   }
 
@@ -366,10 +369,10 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element liftPoint = createElement(MeshTagXML.POSITION_BIT_COORDINATE);
       //LiftPoint's position in Bit coordinate system
       Element xInBit = createElement(MeshTagXML.COORDINATE_X,
-          Double.toString(bit3D.getLiftPointsCS()
+          Double.toString(bit3D.getLiftPointsCB()
               .get(i).x));
       Element yInBit = createElement(MeshTagXML.COORDINATE_Y,
-          Double.toString(bit3D.getLiftPointsCS()
+          Double.toString(bit3D.getLiftPointsCB()
               .get(i).y));
       liftPoint.appendChild(xInBit);
       liftPoint.appendChild(yInBit);
