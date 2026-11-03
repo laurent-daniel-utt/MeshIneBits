@@ -297,7 +297,17 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             .getBitIndex(bit3D)));
     elementBit.appendChild(bitId);
 
+    // gets every regular subbits from the bit and recompute the list of cut paths
+    // and the list of area (surfaces) considering those valid subbits only.
+    // This exclude the irregular subbits from bits where both regular and irregular
+    // subbits are found.
     rebuildBit3d(bit3D);
+
+    // Computes the two distant points on the previously recomputed subbits' areas
+    // Computes the ref-line rot (angle between the ref-line and the horizontal axis
+    // If the bit's reserved space for the gripper is traversed by a cut path and
+    // grabbing the bit by the other end would solve the problem, rotates 180 degres the
+    // bit's cut paths and markings.
     prepareBitToExport(bit3D);
 
     //sub bit of bit
