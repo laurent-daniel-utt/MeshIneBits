@@ -451,6 +451,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element cutPathsElement = createElement(MeshTagXML.CUT_PATHS);
     int countMoveTo = 0;
     Element currentFallType = null;
+    Vector<Element> currentMoveToCutToTags = new Vector<Element>();
     for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
       double[] coords = new double[2];
       int type = pi.currentSegment(coords);
@@ -459,11 +460,15 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element y = createElement(MeshTagXML.COORDINATE_Y, Double.toString(coords[1]));
       switch (type) {
         case PathIterator.SEG_MOVETO:
+
           if (countMoveTo > 0) {
-            appendTextNode(currentFallType, MeshTagXML.CHUTE_TYPE);
+            currentFallType = createElement(MeshTagXML.NO_CUP);
+            for (Element elmt : currentMoveToCutToTags) {
+              currentFallType.appendChild(elmt);
+            }
+            currentMoveToCutToTags.clear();
+            cutPathsElement.appendChild(currentFallType);
           }
-          currentFallType = createElement(MeshTagXML.FALL_TYPE);
-          cutPathsElement.appendChild(currentFallType);
           countMoveTo++;
           parentTag = createElement(MeshTagXML.MOVE_TO_POSITION);
           break;
@@ -476,14 +481,40 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       }
       parentTag.appendChild(x);
       parentTag.appendChild(y);
-      cutPathsElement.appendChild(parentTag);
+      currentMoveToCutToTags.add(parentTag);
     }
     if (currentBit.checkIfLastCutPath(cutPath) && currentBit.isHoldedInCUt()) {
-      appendTextNode(currentFallType, MeshTagXML.CHUTE_TYPE);
-      cutPathsElement.appendChild(createElement(MeshTagXML.FALL_TYPE, MeshTagXML.SUB_BIT));
-      cutPathsElement.appendChild(createElement(MeshTagXML.DROP));
+      // we are at the last cut of this bit and the current subbit is in the gripper
+
+      //adds the last cut movements to a NO_CUP tag that will itself be added to the current cutpath tag
+      currentFallType = createElement(MeshTagXML.NO_CUP);
+      for (Element elmt : currentMoveToCutToTags) {
+        currentFallType.appendChild(elmt);
+      }
+      currentMoveToCutToTags.clear();
+      cutPathsElement.appendChild(currentFallType);
+
+      // then creates a IN_CUP tag with a drop inside to get the subbit from the gripper
+      currentFallType = createElement(MeshTagXML.IN_CUP);
+      currentFallType.appendChild(createElement(MeshTagXML.DROP));
+      cutPathsElement.appendChild(currentFallType);
     } else {
-      appendTextNode(currentFallType, MeshTagXML.SUB_BIT);
+      // we are at the last cut of the current subbit, if the subbit is not in the gripper
+      // then the last thing to fall for this subbit's cuts should be the subbit itself (only if cut are in the right order TODO : to check)
+
+      //adds the last cut movements to an IN_CUP tag that will itself be added to the current cutpath tag
+      currentFallType = createElement(MeshTagXML.IN_CUP);
+      for (Element elmt : currentMoveToCutToTags) {
+        currentFallType.appendChild(elmt);
+      }
+      currentMoveToCutToTags.clear();
+      cutPathsElement.appendChild(currentFallType);
+      // if we are at the last cut then the gripper holds trash to drop
+      if(currentBit.checkIfLastCutPath(cutPath)){
+        currentFallType = createElement(MeshTagXML.NO_CUP);
+        currentFallType.appendChild(createElement(MeshTagXML.DROP));
+        cutPathsElement.appendChild(currentFallType);
+      }
     }
     return cutPathsElement;
   }

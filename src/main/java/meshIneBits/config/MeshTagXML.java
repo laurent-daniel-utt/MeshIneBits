@@ -85,5 +85,7 @@ public class MeshTagXML {
   public static final String CHUTE_TYPE = "chute";
   public static final String DROP = "drop";
 
+  public static final String IN_CUP = "in-cup";
+  public static final String NO_CUP = "no-cup";
 
 }
