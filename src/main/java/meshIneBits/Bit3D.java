@@ -407,8 +407,8 @@ public class Bit3D implements Serializable, Cloneable {
   public boolean isHoldedInCUt() {
     Area bitArea = this.getRawArea();
     Vector<Rectangle2D> twoSide = Bit2D.getTwoSideOfBit(CraftConfig.incertitude);
-    return reverseInCut ? bitArea.contains(twoSide.firstElement())
-        : bitArea.contains(twoSide.lastElement());
+    return reverseInCut ? bitArea.contains(twoSide.lastElement())
+        : bitArea.contains(twoSide.firstElement());
   }
 
   public boolean checkIfLastCutPath(@NotNull Path2D path2D) {
