@@ -408,11 +408,13 @@ public class Bit3D implements Serializable, Cloneable {
     Area bitArea = this.getRawArea();
     Vector<Rectangle2D> twoSide = Bit2D.getTwoSideOfBit(CraftConfig.incertitude);
     return reverseInCut ? bitArea.contains(twoSide.lastElement())
-        : bitArea.contains(twoSide.firstElement());
+       : bitArea.contains(twoSide.firstElement());
   }
 
   public boolean checkIfLastCutPath(@NotNull Path2D path2D) {
-    return rawCutPaths.lastElement() == path2D;
+    // Reversing the list so that the cut paths comes from the rightmost subbit
+    // to the leftmost (the last cutpath should be the one closest to the gripper)
+    return getCutPathsCB().reversed().getLast() == path2D;
   }
 
   /**

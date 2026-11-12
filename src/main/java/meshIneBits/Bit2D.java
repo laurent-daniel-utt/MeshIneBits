@@ -677,13 +677,18 @@ public  void callMinusSetTransfoMatrix(){
   public static boolean checkInverseBit(Bit2D bit2D, Area bitArea) {
     Area newBitArea = (Area) bitArea.clone();
     if (!bit2D.isFullLength()) {
-      return false;
+      // when the gripper cannot hold on both sides,
+      // the reserved space for the gripper that is cutted of
+      // the bit is located on the right, the bit thus has to
+      // be reversed
+      // TODO : change the cutted out space to the left side and remove the need for reversing
+      return true;
     }
     Vector<Rectangle2D> twoSide = getTwoSideOfBit(CraftConfig.incertitude);
     newBitArea.transform(bit2D.getInverseTransfoMatrixToCB());
-    //last element is right side
-    return !newBitArea.contains(twoSide.lastElement()) && newBitArea.intersects(
-        twoSide.lastElement());
+    //first element is left side
+    return !newBitArea.contains(twoSide.firstElement()) && newBitArea.intersects(
+        twoSide.firstElement());
   }
 
   public boolean isUsedForNN() {

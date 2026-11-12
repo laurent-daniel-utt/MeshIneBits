@@ -317,7 +317,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element cut = bit3D.getCutPathsCB()
             .size() == 0 ? createElement(MeshTagXML.NO_CUT_BIT)
             : createElement(MeshTagXML.CUT_BIT);
-    for (Path2D cutPath : bit3D.getCutPathsCB()) {
+
+    // in the cutPathsCB attribute, the subbits are sorted from left (gripper's side) to right
+    // we want the cutpaths to go from the rightmost subbit to the leftmost
+    // otherwise all the subbits will fall with the first one
+    List<Path2D> orderedCutPaths = bit3D.getCutPathsCB().reversed();
+
+    for (Path2D cutPath : orderedCutPaths) {
       Element cutPathElement = writeCutPathElement(cutPath);
       cut.appendChild(cutPathElement);
     }
@@ -332,10 +338,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     NewBit2D newbit=(NewBit2D)bit.getBaseBit();
     Vector<SubBit2D> subs=newbit.getValidSubBits();
     Vector<Area> areas=new Vector<>();
-    for (SubBit2D sub:subs){
 
-   areas.add(sub.getAreaCB());
+    for (SubBit2D sub:subs){
+      areas.add(sub.getAreaCB());
     }
+
     bit.getBaseBit().setAreas(areas);
     bit.setRawCutPaths(CutPathCalc.instance.calcCutPathFrom(bit.getBaseBit()));
   }

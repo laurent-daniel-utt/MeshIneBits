@@ -96,9 +96,10 @@ public class NewBit2D extends Bit2D {
       if (lift2 == null) {
         return 1;
       }
-      return Double.compare(lift1.y, lift2.y) == 0 ?
-          Double.compare(lift1.x, lift2.x) :
-          Double.compare(lift1.y, lift2.y);
+      //Sorting the subbits in the bit from left to right
+      return Double.compare(lift1.x, lift2.x) == 0 ?
+          Double.compare(lift1.y, lift2.y) :
+          Double.compare(lift1.x, lift2.x);
     });
   }
 
