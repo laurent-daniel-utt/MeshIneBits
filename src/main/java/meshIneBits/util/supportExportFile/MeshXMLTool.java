@@ -474,10 +474,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       Element y = createElement(MeshTagXML.COORDINATE_Y, Double.toString(coords[1]));
 
       if(coords[0] == minX){
-        System.out.println("isLastCut");
         isLastCut = true;
-      }else{
-        System.out.println("isntLastCut");
       }
 
       switch (type) {
