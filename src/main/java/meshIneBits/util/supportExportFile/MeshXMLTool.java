@@ -452,23 +452,51 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     int countMoveTo = 0;
     Element currentFallType = null;
     Vector<Element> currentMoveToCutToTags = new Vector<Element>();
+
+    // for the case where there are several cuts in the subbit, gets the lowest x coordinate of the list
+    // to be able to find the cut closest to the gripper and put it as the last cut of the cutpath
+    double minX = 1000;
+    for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
+      double[] coords = new double[2];
+      int type = pi.currentSegment(coords);
+      if(coords[0]<minX){
+        minX = coords[0];
+      }
+    }
+
+    boolean isLastCut = false;
+    Vector<Element> lastMoveToCutToTags = new Vector<Element>();
     for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
       double[] coords = new double[2];
       int type = pi.currentSegment(coords);
       Element parentTag;
       Element x = createElement(MeshTagXML.COORDINATE_X, Double.toString(coords[0]));
       Element y = createElement(MeshTagXML.COORDINATE_Y, Double.toString(coords[1]));
+
+      if(coords[0] == minX){
+        System.out.println("isLastCut");
+        isLastCut = true;
+      }else{
+        System.out.println("isntLastCut");
+      }
+
       switch (type) {
         case PathIterator.SEG_MOVETO:
 
           if (countMoveTo > 0) {
-            currentFallType = createElement(MeshTagXML.NO_CUP);
-            for (Element elmt : currentMoveToCutToTags) {
-              currentFallType.appendChild(elmt);
+            if(!isLastCut) {
+              currentFallType = createElement(MeshTagXML.NO_CUP);
+              for (Element elmt : currentMoveToCutToTags) {
+                currentFallType.appendChild(elmt);
+              }
+              currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
+              currentMoveToCutToTags.clear();
+              cutPathsElement.appendChild(currentFallType);
+            }else{
+              isLastCut = false;
+              lastMoveToCutToTags.addAll(currentMoveToCutToTags);
+              currentMoveToCutToTags.clear();
             }
-            currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
-            currentMoveToCutToTags.clear();
-            cutPathsElement.appendChild(currentFallType);
           }
           countMoveTo++;
           parentTag = createElement(MeshTagXML.MOVE_TO_POSITION);
@@ -484,6 +512,22 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       parentTag.appendChild(y);
       currentMoveToCutToTags.add(parentTag);
     }
+
+    //if there were several cuts
+    if(!lastMoveToCutToTags.isEmpty()){
+      currentFallType = createElement(MeshTagXML.NO_CUP);
+      for (Element elmt : currentMoveToCutToTags) {
+        currentFallType.appendChild(elmt);
+      }
+      currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
+      currentMoveToCutToTags.clear();
+      cutPathsElement.appendChild(currentFallType);
+
+      //set the current cut to the last cut
+      currentMoveToCutToTags.addAll(lastMoveToCutToTags);
+    }
+
+
     if (currentBit.checkIfLastCutPath(cutPath) && currentBit.isHoldedInCUt()) {
       // we are at the last cut of this bit and the current subbit is in the gripper
 
