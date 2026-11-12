@@ -466,6 +466,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
             for (Element elmt : currentMoveToCutToTags) {
               currentFallType.appendChild(elmt);
             }
+            currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
             currentMoveToCutToTags.clear();
             cutPathsElement.appendChild(currentFallType);
           }
@@ -491,6 +492,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       for (Element elmt : currentMoveToCutToTags) {
         currentFallType.appendChild(elmt);
       }
+      currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
       currentMoveToCutToTags.clear();
       cutPathsElement.appendChild(currentFallType);
 
@@ -507,6 +509,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       for (Element elmt : currentMoveToCutToTags) {
         currentFallType.appendChild(elmt);
       }
+      currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT));
       currentMoveToCutToTags.clear();
       cutPathsElement.appendChild(currentFallType);
       // if we are at the last cut then the gripper holds trash to drop

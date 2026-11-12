@@ -87,5 +87,6 @@ public class MeshTagXML {
 
   public static final String IN_CUP = "in-cup";
   public static final String NO_CUP = "no-cup";
+  public static final String PULL_OUT_FROM_CUT = "pull-out-from-cut";
 
 }
