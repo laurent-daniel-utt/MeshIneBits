@@ -107,8 +107,6 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private double minXDistancePoint;
   private double maxXDistancePoint;
 
-  private final double safetySpace = CraftConfig.margin;
-
   private Builder builder;
   private static ProcessingModelView currentInstance = null;
 
@@ -271,9 +269,9 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
       borders[i] = false;
     }
     // Setup workspace
-    printerX = CraftConfig.printerX;
-    printerY = CraftConfig.printerY;
-    printerZ = CraftConfig.printerZ;
+    printerX = CraftConfig.printingAreaX;
+    printerY = CraftConfig.printingAreaY;
+    printerZ = CraftConfig.printingAreaZ;
   }
 
   private void initControlComponent() {
@@ -557,7 +555,7 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
   private void drawWorkingSpace() {
     stroke(255, 0, 0);
     rect(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2, CraftConfig.workingWidth,
-        CraftConfig.printerY);
+        CraftConfig.printingAreaY);
   }
 
   /*
@@ -1287,21 +1285,21 @@ public class ProcessingModelView extends PApplet implements Observer, SubWindow,
 
         // Look if we need to move working space
         if (workingSpacePosition == printerX / 2 - CraftConfig.workingWidth - 20) {
-          workingSpacePosition = minXDistancePoint - safetySpace;
+          workingSpacePosition = minXDistancePoint;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                CraftConfig.workingWidth, CraftConfig.printingAreaY));
             listIndexWorkingSpace.add(0);
           }
 
         }
-        if (Math.round(minXDistancePoint - safetySpace) <= workingSpacePosition
-            || Math.round(maxXDistancePoint + safetySpace) >= (workingSpacePosition
+        if (Math.round(minXDistancePoint) <= workingSpacePosition
+            || Math.round(maxXDistancePoint) >= (workingSpacePosition
             + CraftConfig.workingWidth)) {
-          workingSpacePosition = minXDistancePoint - safetySpace;
+          workingSpacePosition = minXDistancePoint;
           if (!exportOBJ) {
             current.add(createShape(RECT, Math.round(workingSpacePosition), -printerY / 2,
-                CraftConfig.workingWidth, CraftConfig.printerY));
+                CraftConfig.workingWidth, CraftConfig.printingAreaY));
             listIndexWorkingSpace.add(current.size() - 1);
           }
 

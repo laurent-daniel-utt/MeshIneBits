@@ -69,7 +69,7 @@ public class AdvancedScheduler extends BasicScheduler {
       return 0;
     }
     int index = this.getIndexOfSubBit(subBit2D);
-    return index > 0 ? (index / CraftConfig.nbBitesBatch) : -1;
+    return index > 0 ? (index / CraftConfig.nbBitsBatch) : -1;
    // return index > 0 ? (index / 72) : -1;
   }
 
@@ -77,7 +77,7 @@ public class AdvancedScheduler extends BasicScheduler {
     if (subBit2Ds.isEmpty()) {
       return 0;
     }
-    return this.getIndexOfSubBit(subBit2D) / CraftConfig.nbBitesByPlat;
+    return this.getIndexOfSubBit(subBit2D) / CraftConfig.nbBitsByPlat;
   }
 
   public Bit3D getBit3DFrom(Bit2D bit2D) {

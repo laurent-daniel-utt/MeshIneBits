@@ -55,22 +55,22 @@ public class ModelRotationUtil {
     Vector3 minShape = modelView.getFrame().getMinShapeInFrameCoordinate();
     Vector3 maxShape = modelView.getFrame().getMaxShapeInFrameCoordinate();
     if (res.isExceedMinX()) {
-      translationDirection.addToSelf(new Vector3((-CraftConfig.printerX / 2 - minShape.x), 0, 0));
+      translationDirection.addToSelf(new Vector3((-CraftConfig.printingAreaX / 2 - minShape.x), 0, 0));
     }
     if (res.isExceedMaxX()) {
-      translationDirection.addToSelf(new Vector3((CraftConfig.printerX / 2 - maxShape.x), 0, 0));
+      translationDirection.addToSelf(new Vector3((CraftConfig.printingAreaX / 2 - maxShape.x), 0, 0));
     }
     if (res.isExceedMinY()) {
-      translationDirection.addToSelf(new Vector3(0, (-CraftConfig.printerY / 2 - minShape.y), 0));
+      translationDirection.addToSelf(new Vector3(0, (-CraftConfig.printingAreaY / 2 - minShape.y), 0));
     }
     if (res.isExceedMaxY()) {
-      translationDirection.addToSelf(new Vector3(0, (CraftConfig.printerY / 2 - maxShape.y), 0));
+      translationDirection.addToSelf(new Vector3(0, (CraftConfig.printingAreaY / 2 - maxShape.y), 0));
     }
     if (res.isExceedMinZ()) {
       translationDirection.addToSelf(new Vector3(0, 0, -minShape.z));
     }
     if (res.isExceedMaxZ()) {
-      translationDirection.addToSelf(new Vector3(0, 0, (CraftConfig.printerZ - maxShape.z)));
+      translationDirection.addToSelf(new Vector3(0, 0, (CraftConfig.printingAreaZ - maxShape.z)));
     }
     return translationDirection;
   }

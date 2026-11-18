@@ -62,8 +62,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
   private Bit3D currentBit;
 
   //Parameter
-  public int remainingBits = CraftConfig.nbBits;
-  public final double effectiveWidth = CraftConfig.workingWidth - CraftConfig.margin;
+  public int remainingBits = CraftConfig.nbBitsBatch;
   public int subBitId = 1;
   public int slotPosition = 1;
   public double workingPlacePosition = 0;
@@ -96,9 +95,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     int nbSubBit = getCountSubBitElement(listAllBit3D);
     //Get the bit of the batch and put them on the ArrayList below.
     ArrayList<Bit3D> listBitByBatch = new ArrayList<Bit3D>();
-    for (int j = 0; j < CraftConfig.nbBitesBatch; j++) {
-      if (batchNumber * CraftConfig.nbBitesBatch + j < listAllBit3D.size()) {
-        listBitByBatch.add(listAllBit3D.get(batchNumber * CraftConfig.nbBitesBatch + j));
+    for (int j = 0; j < CraftConfig.nbBitsBatch; j++) {
+      if (batchNumber * CraftConfig.nbBitsBatch + j < listAllBit3D.size()) {
+        listBitByBatch.add(listAllBit3D.get(batchNumber * CraftConfig.nbBitsBatch + j));
       }
     }
 
@@ -242,7 +241,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
     Element moveWorkingSpace = createElement(MeshTagXML.MOVE_WORKING_SPACE);
     if (remainingBits == 0) {
       moveWorkingSpace.appendChild(createElement(MeshTagXML.RETURN));
-      remainingBits = CraftConfig.nbBits;
+      remainingBits = CraftConfig.nbBitsBatch;
     }
     for (int i = 0; i < bit.getLiftPointsCS()
         .size(); i++) {
@@ -255,12 +254,13 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           safetySpace = Math.abs(CraftConfig.lengthFull * bitOrientation.x / 2);
         }
         double xMinInMachineRef = bit.getMinAndMaxXDistantPoint()
-            .get(0) + CraftConfig.printerX / 2
-            + CraftConfig.xPrintingSpace;
+            .get(0) + CraftConfig.printingAreaX / 2
+            + CraftConfig.printingAreaXStrokeOrigin;
         double xMaxInMachineRef = bit.getMinAndMaxXDistantPoint()
-            .get(1) + CraftConfig.printerX / 2
-            + CraftConfig.xPrintingSpace;
+            .get(1) + CraftConfig.printingAreaX / 2
+            + CraftConfig.printingAreaXStrokeOrigin;
 
+        //If the bit is the first bit of the part set the working area position
         if (id == 0) {
           ;
           workingPlacePosition = xMinInMachineRef - safetySpace;
@@ -269,6 +269,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           goTo.appendChild(x);
           moveWorkingSpace.appendChild(goTo);
         } else {
+          //if the bit's distant points go over the current working area set the working area position
           if (xMinInMachineRef - safetySpace <= workingPlacePosition
               || xMaxInMachineRef + safetySpace >= (workingPlacePosition
               + CraftConfig.workingWidth)) {
@@ -375,7 +376,7 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       subBit.appendChild(plate);
 
       //subBit's slot
-      if (slotPosition > CraftConfig.nbBitesByPlat) {
+      if (slotPosition > CraftConfig.nbBitsByPlat) {
         slotPosition = 1;
       }
       Element slot = createElement(MeshTagXML.SLOT, Integer.toString(slotPosition));
@@ -407,9 +408,9 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
           .get(i).x;
       double yInPrinterRef = bit3D.getLiftPointsCS()
           .get(i).y;
-      double xInSubXRef = xInPrinterRef + CraftConfig.printerX / 2 + CraftConfig.xPrintingSpace
+      double xInSubXRef = xInPrinterRef + CraftConfig.printingAreaX / 2 + CraftConfig.printingAreaXStrokeOrigin
           - workingPlacePosition;
-      double yInMachineRef = yInPrinterRef + CraftConfig.printerY / 2 + CraftConfig.yEmptySpace;
+      double yInMachineRef = yInPrinterRef + CraftConfig.printingAreaY / 2 + CraftConfig.printingAreaYStrokeOrigin;
 
       Element xInMesh = createElement(MeshTagXML.COORDINATE_X, Double.toString(xInSubXRef));
       Element yInMesh = createElement(MeshTagXML.COORDINATE_Y, Double.toString(yInMachineRef));

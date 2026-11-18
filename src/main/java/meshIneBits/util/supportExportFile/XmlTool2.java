@@ -62,7 +62,7 @@ public class XmlTool2 {
   private PrintWriter writer;
   private Path mFilePath;
   private double effectiveWidth;
-  private int nbBits;
+  private int nbBitsByBatch;
   private int remainingBits;
   private double currentPos;
 
@@ -94,10 +94,9 @@ public class XmlTool2 {
 
   private void getPrinterParameters() {
     float workingWidth = CraftConfig.workingWidth;
-    float margin = CraftConfig.margin;
-    nbBits = CraftConfig.nbBits;
-    effectiveWidth = workingWidth - margin;
-    remainingBits = nbBits;
+    nbBitsByBatch = CraftConfig.nbBitsBatch;
+    effectiveWidth = workingWidth;
+    remainingBits = nbBitsByBatch;
   }
 
 
@@ -134,7 +133,7 @@ public class XmlTool2 {
     if (remainingBits == 0) {
       writer.println("		<return>");
       writer.println("		</return>");
-      remainingBits = nbBits;
+      remainingBits = nbBitsByBatch;
     }
     for (int i = 0; i < bit.getLiftPointsCS()
         .size(); i++) {

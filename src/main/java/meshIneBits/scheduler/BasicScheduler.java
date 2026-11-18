@@ -38,7 +38,7 @@ import meshIneBits.util.Vector2;
 
 import java.util.*;
 
-import static meshIneBits.config.CraftConfig.nbBitesBatch;
+import static meshIneBits.config.CraftConfig.nbBitsBatch;
 
 public class BasicScheduler extends AScheduler {
 
@@ -69,7 +69,7 @@ public class BasicScheduler extends AScheduler {
     if (sortedBits.isEmpty()) {
       return 0;
     }
-    return this.getBitIndex(bit) / CraftConfig.nbBitesBatch;
+    return this.getBitIndex(bit) / CraftConfig.nbBitsBatch;
   }
 
   @Override
@@ -77,7 +77,7 @@ public class BasicScheduler extends AScheduler {
     if (sortedBits.isEmpty()) {
       return 0;
     }
-    return this.getBitIndex(bit) / CraftConfig.nbBitesByPlat;
+    return this.getBitIndex(bit) / CraftConfig.nbBitsByPlat;
   }
 
   @Override
@@ -226,7 +226,7 @@ if(!strips.isEmpty())strips.clear();
           //we verify if the bit can fit in the current strip if not we create a new strip
           if(bit3D.getTwoExtremeXPointsCS().get(0).x>=layerstrips.get(layerstrips.size()-1).getXposition()&&
                   bit3D.getTwoExtremeXPointsCS().get(1).x<=layerstrips.get(layerstrips.size()-1).getXposition()
-                          + CraftConfig.workingWidth && num<nbBitesBatch)
+                          + CraftConfig.workingWidth && num< nbBitsBatch)
           {
             layerstrips.get(layerstrips.size()-1).addBit3D((NewBit3D) bit3D);
             toremove.add(bit3D);
@@ -238,7 +238,7 @@ if(!strips.isEmpty())strips.clear();
 
 
         }
-        if(num==nbBitesBatch) {
+        if(num== nbBitsBatch) {
           num=0;
         }
         layerstrips.get(layerstrips.size()-1).getBits().sort(Comparator.comparing(Bit3D::getMinX));

@@ -310,145 +310,83 @@ public class CraftConfig {
 
 
   @FloatSetting(
-      title = "Printer X (mm)",
-      description = "Length of printer",
+      title = "Printing area X (mm)",
+      description = "Length of printing area",
       minValue = 1,
       defaultValue = 3000
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerX = 3000f;
+  public static float printingAreaX = 3000f;
 
   @FloatSetting(
-      title = "Printer Y (mm)",
-      description = "Width of printer",
+      title = "Printing area Y (mm)",
+      description = "Width of Printing area",
       minValue = 1,
       defaultValue = 2000
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerY = 2000f;
+  public static float printingAreaY = 2000f;
 
   @FloatSetting(
-      title = "Printer Z (mm)",
-      description = "Height of printer",
+      title = "Printing area Z (mm)",
+      description = "Height of Printing area",
       minValue = 1,
       defaultValue = 1500
   )
   @PrinterSetting(
       order = 0
   )
-  public static float printerZ = 1500f;
+  public static float printingAreaZ = 1500f;
 
   @FloatSetting(
-      title = "Box width  (mm)",
-      minValue = 1,
-      defaultValue = 648
+          title = "Working width (mm)",
+          description = "width of the working area, represents the usable stroke of sub-x axis",
+          minValue = 1,
+          defaultValue = 300
   )
   @PrinterSetting(
-      order = 0
+          order = 0
   )
-  public static float Box = 648;
+  public static float workingWidth = 228f;
 
   @FloatSetting(
-      title = "Working width (mm)",
-      minValue = 1,
-      defaultValue = 300
+          title = "Y Printing Space Origin (mm)",
+          description = "represents the starting point of the printing area on the Y axis of the machine coordinate system",
+          minValue = 0,
+          defaultValue = 60
   )
   @PrinterSetting(
-      order = 0
+          order = 0
   )
-  public static float workingWidth = 500f;
-
-  @FloatSetting(
-      title = "Y empty Space in the Box (mm)",
-      minValue = 0,
-      defaultValue = 60
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static float yEmptySpace = 60f;
-
-  // Width taken by the length of the rakes in the box
-  @DoubleSetting(
-      title = "Rake box Width (mm)",
-      minValue = 1,
-      defaultValue = 263
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double rakeBoxWidth = 263.0;
-
-  // Width of the Rakes' Table
-  @DoubleSetting(
-      title = "Rake Table Width (mm)",
-      minValue = 1,
-      defaultValue = 280
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double rakeTableWidth = 280.0;
+  //Manually set at 80 which is the starting point of the printable area on the y-axis of the coordinate system of the machine
+  //Correspond to a minimum position on the Y stroke where subbits can be deposited
+  //Todo : remove this parameter and express subbit pos in printable area coordinate system
+  public static float printingAreaYStrokeOrigin = 80f;
 
   @DoubleSetting(
-      title = "Gluer (mm)",
-      minValue = 0,
-      defaultValue = 52
-  )
-  @PrinterSetting(
-      order = 0
-  )
-  public static double gluer = 52.0;
-
-  @DoubleSetting(
-      title = "Rake Box and gluer (mm)",
-      minValue = 0,
-      defaultValue = 320
+      title = "X Printing Space Origin (mm)",
+      description = "represents the starting point of the printing area on the X axis of in the machine coordinate system",
+      minValue = 600,
+      defaultValue = 600
   )
   @PrinterSetting()
-  public static double rakeBoxGluerWidth = rakeBoxWidth + gluer + 5.0;
-
-  @DoubleSetting(
-      title = "Start X Printing Space (mm)",
-      minValue = 0,
-      defaultValue = 800
-  )
-  @PrinterSetting()
-  public static double xPrintingSpace = rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0;
-
-
-  @FloatSetting(
-      title = "Margin (mm)",
-      minValue = 0,
-      defaultValue = 10
-
-  )
-  @XMLSetting(
-      order = 1
-  )
-  public static float margin = 0;
-
-  @IntegerSetting(
-      title = "Number of bits",
-      minValue = 1,
-      defaultValue = 72
-  )
-  @XMLSetting(
-      order = 2
-  )
-  public static int nbBits = 72;
+  //Previous value : rakeBoxGluerWidth + rakeBoxWidth + rakeTableWidth + 10.0 = 868 (parameters have been removed)
+  //Now manually set at 600 which is the starting point of the printable area on the x-axis of the coordinate system of the machine
+  //Correspond to a minimum position on the X stroke where subbits can be deposited
+  //Todo : remove this parameter and express subbit pos in printable area coordinate system
+  public static double printingAreaXStrokeOrigin = 600;
 
   @IntegerSetting(
       title = "Number of bits on a plate",
       minValue = 1,
-      defaultValue = 10
+      defaultValue = 8
   )
   @PrinterSetting()
-  public static int nbBitesByPlat = 10;
+  public static int nbBitsByPlat = 8;
 
   @IntegerSetting(
       title = "Number of bits on a Batch",
@@ -456,31 +394,7 @@ public class CraftConfig {
       defaultValue = 72
   )
   @PrinterSetting()
-  public  static int nbBitesBatch = 72;
-
-  @DoubleSetting(
-      title = "Plate width",
-      minValue = 1,
-      defaultValue = 72
-  )
-  @PrinterSetting()
-  public static double plateWidth = 50;
-
-  @DoubleSetting(
-      title = "First bit x position",
-      minValue = 1,
-      defaultValue = 1
-  )
-  @PrinterSetting()
-  public static double firstBitX = 1;
-
-  @DoubleSetting(
-      title = "Bit inter space",
-      minValue = 1,
-      defaultValue = 1
-  )
-  @PrinterSetting()
-  public static double plateBitSpace = 1;
+  public  static int nbBitsBatch = 72;
 
   /**
    * The provided templates

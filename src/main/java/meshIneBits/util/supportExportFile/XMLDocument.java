@@ -129,7 +129,7 @@ public abstract class XMLDocument<T> {
         // try to get the number of batch.
         AScheduler scheduler = ((Mesh) obj).getScheduler();
         List<Bit3D> listAllBit3D = AScheduler.getSetBit3DsSortedFrom(scheduler.getSortedBits());
-        int nbBatch = (listAllBit3D.size() / CraftConfig.nbBitesBatch) + 1;
+        int nbBatch = (listAllBit3D.size() / CraftConfig.nbBitsBatch) + 1;
         // Generate the xml for each Batch.
         for (int i = 0; i < nbBatch; i++) {
           this.document = DocumentBuilderFactory.newInstance()

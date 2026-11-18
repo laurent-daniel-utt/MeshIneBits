@@ -157,10 +157,10 @@ public class CuttedBit extends PApplet {
     public void updateShape(int newId){
         if(id!=newId){
             id=newId;
-            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitesBatch)+"; Id in batch:"+id% CraftConfig.nbBitesBatch+")");
+            surface.setTitle(title+" (Id:"+String.valueOf(id)+"; Batch:"+(int)Math.ceil(id/ CraftConfig.nbBitsBatch)+"; Id in batch:"+id% CraftConfig.nbBitsBatch +")");
 
-            if(id% CraftConfig.nbBitesBatch==0){
-                int batch_num=id/CraftConfig.nbBitesBatch;
+            if(id% CraftConfig.nbBitsBatch ==0){
+                int batch_num=id/CraftConfig.nbBitsBatch;
                 cutpaths = DomParser.parseXml(batch_num);
             Reconstitute.setCurrentDecoupBatchNum(batch_num);
             }

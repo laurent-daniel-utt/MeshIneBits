@@ -51,8 +51,8 @@ public static Reconstitute getInstance(){
      * id=5 ==>the fifth subbit==>the fifth element of the collection
      */
        public void setNode_cutpath(int id,boolean isDecoup){
-       if(isDecoup) id=id-CraftConfig.nbBitesBatch*currentDecoupBatchNum;
-       else id=id-CraftConfig.nbBitesBatch*currentDeposeBatchNum;
+       if(isDecoup) id=id-CraftConfig.nbBitsBatch *currentDecoupBatchNum;
+       else id=id-CraftConfig.nbBitsBatch *currentDeposeBatchNum;
         Node_cutpath=cutpaths.get(id);
        }
 

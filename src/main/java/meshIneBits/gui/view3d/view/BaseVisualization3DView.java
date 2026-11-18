@@ -264,12 +264,12 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
     stroke(255, 0, 0);
     strokeWeight(5);
     noFill();
-    rectange = createShape();
+    rectange=createShape();
     rectange.beginShape();
-    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2, 0);
-    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20, -printerY / 2 + CraftConfig.printerY, 0);
-    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20 + CraftConfig.workingWidth, -printerY / 2 + CraftConfig.printerY, 0);
-    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20 + CraftConfig.workingWidth, -printerY / 2, 0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2,0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20,-printerY / 2+CraftConfig.printingAreaY,0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2+CraftConfig.printingAreaY,0);
+    rectange.vertex(-printerX / 2 - CraftConfig.workingWidth - 20+CraftConfig.workingWidth,-printerY / 2,0);
     rectange.endShape(PConstants.CLOSE);
 
   }
@@ -417,9 +417,9 @@ public class BaseVisualization3DView extends AbstractVisualization3DView impleme
 
   private void initWorkspace() {
     // Setup workspace
-    printerX = CraftConfig.printerX;
-    printerY = CraftConfig.printerY;
-    printerZ = CraftConfig.printerZ;
+    printerX = CraftConfig.printingAreaX;
+    printerY = CraftConfig.printingAreaY;
+    printerZ = CraftConfig.printingAreaZ;
   }
 
   @SuppressWarnings("all")

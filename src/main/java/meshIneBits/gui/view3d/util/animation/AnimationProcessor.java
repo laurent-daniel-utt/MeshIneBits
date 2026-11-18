@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static meshIneBits.config.CraftConfig.printerX;
+import static meshIneBits.config.CraftConfig.printingAreaX;
 import static meshIneBits.gui.view3d.view.BaseVisualization3DView.*;
 import static meshIneBits.gui.view3d.view.UIPWController.Exportation;
 
@@ -226,27 +226,26 @@ public static boolean getpausing(){
             final AtomicInteger index = AnimationProcessor.this.index;
             listeners.forEach(listener -> listener.onIndexChangeListener(index.get()));
 
-            if (option == AnimationOption.BY_BIT || option == AnimationOption.BY_SUB_BIT) {
+            if(option==AnimationOption.BY_BIT ||option==AnimationOption.BY_SUB_BIT ){
               /**
                * initialisation of the position
                */
-              if (index.intValue() == 0) {
-                pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
-                Xpos = pos;
+              if(index.intValue()==0){pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(0).get(0).getBits().get(0).getMinX();
+                Xpos=pos;
               }
               /**
                *when the size of the current stripe at the current moment equals the total size of the current stripe
                */
-              if (size_currentstrip > meshstrips.get(currentlayer).get(currentStrip).getBits().size() - 1) {
-                Layer layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+              if(size_currentstrip>meshstrips.get(currentlayer).get(currentStrip).getBits().size()-1){
+                Layer layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 /**
                  * if we still in the same layer we move to the next stripe of the same layer
                  */
-                if (currentlayer_size < (layer.getBits3dKeys().size() - layer.getKeysOfIrregularBits().size())) {
-                  size_currentstrip = 0;
+                if(currentlayer_size< (layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())) {
+                  size_currentstrip=0;
                   currentStrip++;
-                  System.out.println("currentlayer=" + currentlayer + " currentStrip=" + currentStrip);
-                  pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                   System.out.println("currentlayer="+currentlayer+" currentStrip="+currentStrip);
+                  pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
 
                 }
                 /**
@@ -254,22 +253,22 @@ public static boolean getpausing(){
                  * to the next layer and start a new collection of stripes,because stripes are created per layer
                  */
 
-                else {
-                  size_currentstrip = 0;
-                  currentlayer_size = 0;
-                  currentStrip = 0;
+              else {
+                size_currentstrip=0;
+                currentlayer_size=0;
+                currentStrip=0;
+                currentlayer++;
+                layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
+                while  ((layer.getBits3dKeys().size()-layer.getKeysOfIrregularBits().size())==0)  {
                   currentlayer++;
-                  layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
-                  while ((layer.getBits3dKeys().size() - layer.getKeysOfIrregularBits().size()) == 0) {
-                    currentlayer++;
-                    layer = MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
-                  }
-                  pos = -(-printerX / 2 - CraftConfig.workingWidth - 20) + (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
-                  Zpos = (float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
+                  layer=MeshProvider.getInstance().getCurrentMesh().getLayers().get(currentlayer);
                 }
+                 pos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+                 Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
               }
-              size_currentstrip++;
-              currentlayer_size++;
+            }
+            size_currentstrip++;
+            currentlayer_size++;
 
             }
             /**
@@ -425,7 +424,7 @@ public static boolean getpausing(){
     }
 System.out.println("currentStrip="+currentStrip);
     System.out.println("size_currentstrip="+size_currentstrip);
-    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Xpos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
     Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
   }
 
@@ -461,7 +460,7 @@ System.out.println("currentStrip="+currentStrip);
     System.out.println("layerchanged:"+layerchanged);
     System.out.println("currentStrip="+currentStrip);
     System.out.println("size_currentstrip="+size_currentstrip);
-    Xpos=-(-printerX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
+    Xpos=-(-printingAreaX / 2 - CraftConfig.workingWidth - 20) +(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getMinX();
     Zpos=(float) meshstrips.get(currentlayer).get(currentStrip).getBits().get(0).getLowerAltitude();
   }
 
