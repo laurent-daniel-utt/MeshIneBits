@@ -351,7 +351,7 @@ public class CraftConfig {
   @PrinterSetting(
           order = 0
   )
-  public static float workingWidth = 228f;
+  public static float workingWidth = 220f;
 
   @FloatSetting(
           title = "Y Printing Space Origin (mm)",
