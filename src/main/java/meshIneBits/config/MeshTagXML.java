@@ -91,4 +91,10 @@ public class MeshTagXML {
   public static final String PULL_OUT_FROM_CUT_BOTTOM = "pull-out-from-cut-bottom";
   public static final String PULL_OUT_FROM_CUT_TIP = "pull-out-from-cut-tip";
 
+  public static final String TRASH_TO_SHAKE_OFF = "trash-to-shake-off";
+  public static final String SUBBIT_AT_EXCHANGE = "subbit-at-exchange";
+
+  public static final String GET_SUBBIT_AT_X = "get-subbit-at_x";
+  public static final String GET_SUBBIT_AT_Y = "get-subbit-at_y";
+
 }

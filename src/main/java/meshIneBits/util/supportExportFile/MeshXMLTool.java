@@ -472,7 +472,11 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       }
     }
 
+    // Flag used to detect if a cut is the leftmost cut to be done as the last one
     boolean isLastCut = false;
+    // Flag used to detect if a cut volume can't fall
+    boolean  cutCantFall = false;
+
     Vector<Element> lastMoveToCutToTags = new Vector<Element>();
     for (PathIterator pi = cutPath.getPathIterator(null); !pi.isDone(); pi.next()) {
       double[] coords = new double[2];
@@ -490,21 +494,18 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
           if (countMoveTo > 0) {
             if(!isLastCut) {
-              currentFallType = createElement(MeshTagXML.NO_CUP);
+
+              if(canCutFall(currentMoveToCutToTags)) {
+                currentFallType = createElement(MeshTagXML.NO_CUP);
+              }else{
+                currentFallType = createElement(MeshTagXML.TRASH_TO_SHAKE_OFF);
+              }
+
               for (Element elmt : currentMoveToCutToTags) {
                 currentFallType.appendChild(elmt);
               }
 
-              //Will detect if the last cut ends at the top, bottom or tip of the bit and exit the cut accordingly
-              double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
-              double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
-              if(lastX >= ((CraftConfig.lengthFull/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TIP));
-              else if (lastY >= ((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_BOTTOM));
-              else if (lastY <= -((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TOP));
-              else {
-                Logger.error("Pull out from cut error");
-                throw new RuntimeException("Pull out from cut error");
-              }
+              currentFallType.appendChild(writePullOutFromCutElement(currentMoveToCutToTags));
 
               currentMoveToCutToTags.clear();
               cutPathsElement.appendChild(currentFallType);
@@ -531,19 +532,18 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
 
     //if there were several cuts
     if(!lastMoveToCutToTags.isEmpty()){
-      currentFallType = createElement(MeshTagXML.NO_CUP);
+
+      if(canCutFall(currentMoveToCutToTags)) {
+        currentFallType = createElement(MeshTagXML.NO_CUP);
+      }else{
+        currentFallType = createElement(MeshTagXML.TRASH_TO_SHAKE_OFF);
+      }
+
       for (Element elmt : currentMoveToCutToTags) {
         currentFallType.appendChild(elmt);
-      }//Will detect if the last cut ends at the top, bottom or tip of the bit and exit the cut accordingly
-      double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
-      double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
-      if(lastX >= ((CraftConfig.lengthFull/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TIP));
-      else if (lastY >= ((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_BOTTOM));
-      else if (lastY <= -((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TOP));
-      else {
-        Logger.error("Pull out from cut error");
-        throw new RuntimeException("Pull out from cut error");
       }
+
+      currentFallType.appendChild(writePullOutFromCutElement(currentMoveToCutToTags));
 
       currentMoveToCutToTags.clear();
       cutPathsElement.appendChild(currentFallType);
@@ -552,25 +552,23 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       currentMoveToCutToTags.addAll(lastMoveToCutToTags);
     }
 
-
+    //if we are cutting the last subbit of the bit and this subbit is in the gripper
     if (currentBit.checkIfLastCutPath(cutPath) && currentBit.isHoldedInCUt()) {
       // we are at the last cut of this bit and the current subbit is in the gripper
 
       //adds the last cut movements to a NO_CUP tag that will itself be added to the current cutpath tag
-      currentFallType = createElement(MeshTagXML.NO_CUP);
+
+      if(canCutFall(currentMoveToCutToTags)) {
+        currentFallType = createElement(MeshTagXML.NO_CUP);
+      }else{
+        currentFallType = createElement(MeshTagXML.TRASH_TO_SHAKE_OFF);
+      }
+
       for (Element elmt : currentMoveToCutToTags) {
         currentFallType.appendChild(elmt);
       }
-      //Will detect if the last cut ends at the top, bottom or tip of the bit and exit the cut accordingly
-      double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
-      double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
-      if(lastX >= ((CraftConfig.lengthFull/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TIP));
-      else if (lastY >= ((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_BOTTOM));
-      else if (lastY <= -((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TOP));
-      else {
-        Logger.error("Pull out from cut error");
-        throw new RuntimeException("Pull out from cut error");
-      }
+
+      currentFallType.appendChild(writePullOutFromCutElement(currentMoveToCutToTags));
 
       currentMoveToCutToTags.clear();
       cutPathsElement.appendChild(currentFallType);
@@ -581,27 +579,34 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       cutPathsElement.appendChild(currentFallType);
     } else {
       // we are at the last cut of the current subbit, if the subbit is not in the gripper
-      // then the last thing to fall for this subbit's cuts should be the subbit itself (only if cut are in the right order TODO : to check)
+      // then the last thing to fall for this subbit's cuts will be the subbit itself
 
       //adds the last cut movements to an IN_CUP tag that will itself be added to the current cutpath tag
-      currentFallType = createElement(MeshTagXML.IN_CUP);
+      if(canCutFall(currentMoveToCutToTags)) {
+        currentFallType = createElement(MeshTagXML.IN_CUP);
+      }else{
+        currentFallType = createElement(MeshTagXML.SUBBIT_AT_EXCHANGE);
+      }
+
       for (Element elmt : currentMoveToCutToTags) {
         currentFallType.appendChild(elmt);
       }
 
-      //Will detect if the last cut ends at the top, bottom or tip of the bit and exit the cut accordingly
-      double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
-      double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
-      if(lastX >= ((CraftConfig.lengthFull/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TIP));
-      else if (lastY >= ((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_BOTTOM));
-      else if (lastY <= -((CraftConfig.bitWidth/2)-.5)) currentFallType.appendChild(createElement(MeshTagXML.PULL_OUT_FROM_CUT_TOP));
-      else {
-        Logger.error("Pull out from cut error");
-        throw new RuntimeException("Pull out from cut error");
+      currentFallType.appendChild(writePullOutFromCutElement(currentMoveToCutToTags));
+
+      if(!canCutFall(currentMoveToCutToTags)){
+        SubBit2D subbit = currentBit.getSubBits().get(currentBit.getCutPathsCB().indexOf(cutPath));
+
+        currentFallType.appendChild(createElement(MeshTagXML.GET_SUBBIT_AT_X, Double.toString(subbit.getLiftPointCB().x)));
+        currentFallType.appendChild(createElement(MeshTagXML.GET_SUBBIT_AT_Y, Double.toString(subbit.getLiftPointCB().y)));
+
       }
+
 
       currentMoveToCutToTags.clear();
       cutPathsElement.appendChild(currentFallType);
+
+
       // if we are at the last cut then the gripper holds trash to drop
       if(currentBit.checkIfLastCutPath(cutPath)){
         currentFallType = createElement(MeshTagXML.NO_CUP);
@@ -610,6 +615,43 @@ public class MeshXMLTool extends XMLDocument<Mesh> implements InterfaceXmlTool {
       }
     }
     return cutPathsElement;
+  }
+
+  /**
+   * Check if the last point of the cut is at the top, bottom or tip of the bit and create the pull-out from cut tag accordingly
+   *
+   * @param currentMoveToCutToTags
+   * @return
+   */
+  private Element writePullOutFromCutElement(Vector<Element> currentMoveToCutToTags){
+    //Will detect if the last cut ends at the top, bottom or tip of the bit and exit the cut accordingly
+    double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
+    double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
+    if(lastX >= ((CraftConfig.lengthFull/2)-.5)) return createElement(MeshTagXML.PULL_OUT_FROM_CUT_TIP);
+    else if (lastY >= ((CraftConfig.bitWidth/2)-.5)) return createElement(MeshTagXML.PULL_OUT_FROM_CUT_BOTTOM);
+    else if (lastY <= -((CraftConfig.bitWidth/2)-.5)) return createElement(MeshTagXML.PULL_OUT_FROM_CUT_TOP);
+    else {
+      Logger.error("Pull out from cut error");
+      throw new RuntimeException("Pull out from cut error");
+    }
+  }
+
+  private Boolean canCutFall(Vector<Element> currentMoveToCutToTags){
+
+    double firstX = Double.parseDouble(currentMoveToCutToTags.getFirst().getFirstChild().getFirstChild().getNodeValue());
+    double firstY = Double.parseDouble(currentMoveToCutToTags.getFirst().getLastChild().getFirstChild().getNodeValue());
+    double lastX = Double.parseDouble(currentMoveToCutToTags.getLast().getFirstChild().getFirstChild().getNodeValue());
+    double lastY = Double.parseDouble(currentMoveToCutToTags.getLast().getLastChild().getFirstChild().getNodeValue());
+
+    // if the first and last cut are at the top of the bit
+    if(firstY <= -((CraftConfig.bitWidth/2)-.5) && lastY <= -((CraftConfig.bitWidth/2)-.5)){
+      return false;
+    }
+    if(firstY <= -((CraftConfig.bitWidth/2)-.5) && lastX >= ((CraftConfig.lengthFull/2)-.5) ||
+            firstX >= ((CraftConfig.lengthFull/2)-.5) && lastY <= -((CraftConfig.bitWidth/2)-.5)){
+      return false;
+    }
+    return true;
   }
 
   private void prepareBitToExport(Bit3D bit3D) {
